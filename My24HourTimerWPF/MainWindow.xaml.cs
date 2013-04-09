@@ -54,7 +54,7 @@ namespace My24HourTimerWPF
             string str4 = textBox4.Text;
             DateTime time2 = calendar1.SelectedDate.Value;
             string str5 = textBox2.Text;
-            bool flag4 = checkBox4.IsChecked.Value;
+            bool DefaultPreDeadlineFlag = checkBox4.IsChecked.Value;
             string str6 = textBox6.Text;
         }
 
@@ -89,11 +89,6 @@ namespace My24HourTimerWPF
         private void CountDownTimer()
         {
             TimeTo24HourLeft += new TimeSpan(0, 0, -1);
-        }
-
-        private CalendarEvent CreateSchedule()
-        {
-            return new CalendarEvent();
         }
 
         public void DetectAndCaptureTimeZone(string HtmlString)
@@ -409,20 +404,21 @@ namespace My24HourTimerWPF
         {
             string eventName = textBox1.Text;
             string eventStartTime = textBox5.Text;
-            DateTime time = calendar2.SelectedDate.Value;
-            bool flag = checkBox2.IsChecked.Value;
-            bool flag2 = checkBox3.IsChecked.Value;
-            string str3 = textBox3.Text;
-            bool flag3 = checkBox5.IsChecked.Value;
-            string str4 = textBox4.Text;
-            DateTime time2 = calendar1.SelectedDate.Value;
-            string str5 = textBox2.Text;
-            bool flag4 = checkBox4.IsChecked.Value;
-            string str6 = textBox6.Text;
+            DateTime eventStartDate = calendar2.SelectedDate.Value;
+            bool EventRepetitionflag = checkBox2.IsChecked.Value;
+            bool DefaultPrepTimeflag = checkBox3.IsChecked.Value;
+            string eventPrepTime = textBox3.Text;
+            bool RigidScheduleFlag = checkBox5.IsChecked.Value;
+            string eventDuration = textBox4.Text;
+            DateTime eventEndDate= calendar1.SelectedDate.Value;
+            string eventSplit = textBox2.Text;
+            bool DefaultPreDeadlinFlag = checkBox4.IsChecked.Value;
+            string PreDeadlineTime = textBox6.Text;
+            CreateSchedule();
         }
 
 
-        private CalendarEvent CreateSchedule()
+        public CalendarEvent CreateSchedule()
         {
             return new CalendarEvent();
         }
@@ -452,6 +448,14 @@ namespace My24HourTimerWPF
         protected int TimePerSplit;
         public static int UniqueID;
 
+        public CalendarEvent()
+        { 
+            
+        }
+        public CalendarEvent()
+        { 
+            
+        }
     }
 
 

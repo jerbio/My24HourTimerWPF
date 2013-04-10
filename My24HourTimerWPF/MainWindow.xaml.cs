@@ -420,6 +420,8 @@ namespace My24HourTimerWPF
 
         public CalendarEvent CreateSchedule()
         {
+            
+            
             return new CalendarEvent();
         }
 
@@ -435,9 +437,8 @@ namespace My24HourTimerWPF
         // Fields
         protected DateTime DeadlineDateTime;
         protected TimeSpan Duration;
-        protected string eName;
+        protected string Name;
         protected DateTime EndDateTime;
-        protected TimeSpan eTimeSpan;
         protected TimeSpan PreDeadline;
         protected TimeSpan PrepTime;
         protected int Priority;
@@ -452,9 +453,19 @@ namespace My24HourTimerWPF
         { 
             
         }
-        public CalendarEvent()
-        { 
-            
+        public CalendarEvent(string EventName, TimeSpan EventDuration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, TimeSpan EventPreDeadline, bool EventRigidFlag, bool EventRepetition, int EventSplit)
+        {
+//string eventName, TimeSpan EventDuration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, TimeSpan PreDeadline, bool EventRigidFlag, bool EventRepetition, int EventSplit
+            Name = EventName;
+            StartDateTime = EventStart;
+            EndDateTime = EventDeadline;
+            Duration = EventDuration;
+            Splits = EventSplit;
+            PrepTime = EventPrepTime;
+            PreDeadline = EventPreDeadline;
+            RigidSchedule = EventRigidFlag;
+
+
         }
     }
 

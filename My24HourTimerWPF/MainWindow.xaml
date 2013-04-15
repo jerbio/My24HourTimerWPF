@@ -36,7 +36,7 @@
                         <TextBlock Height="23" HorizontalAlignment="Left" Margin="294,39,0,0" Name="textBlock10" Text="Pre-Deadline Time:" VerticalAlignment="Top" />
                         <TextBlock Height="23" HorizontalAlignment="Left" Margin="12,243,0,0" Name="textBlock11" Text="# of Splits:" VerticalAlignment="Top" />
                         <TextBox Height="23" HorizontalAlignment="Left" Margin="91,243,0,0" Name="textBox2" VerticalAlignment="Top" Width="29" Text="1" TextAlignment="Center" />
-                        <ComboBox Height="23" HorizontalAlignment="Left" Margin="362,68,0,0" Name="comboBox1" VerticalAlignment="Top" Width="120" DataContext="{Binding}" Text="10">
+                        <ComboBox Height="23" HorizontalAlignment="Left" Margin="395,68,0,0" Name="comboBox1" VerticalAlignment="Top" Width="58" DataContext="{Binding}" Text="10">
                             <ComboBoxItem Content="10" />
                             <ComboBoxItem Content="9" DataContext="{Binding}" />
                             <ComboBoxItem Content="8" />
@@ -49,26 +49,26 @@
                             <ComboBoxItem Content="1" />
                         </ComboBox>
                         <Calendar Height="170" HorizontalAlignment="Left" Margin="91,75,0,0" Name="calendar1" VerticalAlignment="Top" Width="181" />
-                        <TextBox Height="23" HorizontalAlignment="Left" Margin="91,10,0,0" Name="textBox4" VerticalAlignment="Top" Width="120" />
+                        <TextBox Height="23" HorizontalAlignment="Left" Margin="91,10,0,0" Name="textBox4" VerticalAlignment="Top" Width="120" Text="3:20" />
                         <CheckBox Content="Default Pre-Deadline Time:" Height="16" HorizontalAlignment="Left" Margin="294,13,0,0" Name="checkBox4" VerticalAlignment="Top" IsChecked="True" />
                         <TextBox Height="23" HorizontalAlignment="Left" Margin="395,39,0,0" Name="textBox6" VerticalAlignment="Top" Width="58" IsEnabled="False" />
                         <TextBlock Height="23" HorizontalAlignment="Left" Margin="6,45,0,0" Name="textBlock13" Text="End Time:" VerticalAlignment="Top" Width="54" />
-                        <TextBox Height="29" HorizontalAlignment="Left" Margin="91,39,0,0" Name="textBox7" VerticalAlignment="Top" Width="120" />
+                        <TextBox Height="29" HorizontalAlignment="Left" Margin="91,39,0,0" Name="textBox7" VerticalAlignment="Top" Width="120" Text="1:00 Pm" />
                     </Grid>
                     <Grid Height="246" HorizontalAlignment="Left" Margin="9,3,0,0" Name="grid3" VerticalAlignment="Top" Width="713">
                         <TextBlock Height="23" HorizontalAlignment="Left" Margin="4,10,0,0" Name="textBlock3" Text="Name:" VerticalAlignment="Top" Width="41" />
                         <TextBlock Height="23" HorizontalAlignment="Left" Margin="4,39,0,0" Name="textBlock4" Text="Start Time:" VerticalAlignment="Top" />
                         <TextBlock Height="23" HorizontalAlignment="Left" Margin="298,36,0,0" Name="textBlock8" Text="Prep Time(min):" VerticalAlignment="Top" />
-                        <TextBox Height="23" HorizontalAlignment="Left" Margin="81,10,0,0" Name="textBox1" VerticalAlignment="Top" Width="120" />
+                        <TextBox Height="23" HorizontalAlignment="Left" Margin="81,10,0,0" Name="textBox1" VerticalAlignment="Top" Width="120" Text="TestSchedule" />
                         <CheckBox Content="Repetition" Height="16" HorizontalAlignment="Left" Margin="299,90,0,0" Name="checkBox2" VerticalAlignment="Top" />
                         <CheckBox Content="Use Default Prep Time(15 mins):" Height="16" HorizontalAlignment="Left" Margin="298,10,0,0" Name="checkBox3" VerticalAlignment="Top" IsChecked="True" />
                         <TextBox Height="23" HorizontalAlignment="Left" Margin="387,36,0,0" Name="textBox3" VerticalAlignment="Top" Width="41" IsEnabled="False" Text="15:00" />
-                        <TextBox Height="23" HorizontalAlignment="Left" Margin="82,36,0,0" Name="textBox5" VerticalAlignment="Top" Width="120" />
+                        <TextBox Height="23" HorizontalAlignment="Left" Margin="82,36,0,0" Name="textBox5" VerticalAlignment="Top" Width="120" Text="12 : 12 am" />
                         <TextBlock Height="27" HorizontalAlignment="Left" Margin="4,68,0,0" Name="textBlock12" Text="Start Date:" VerticalAlignment="Top" Width="66" />
-                        <Calendar Height="169" HorizontalAlignment="Left" Margin="82,68,0,0" Name="calendar2" VerticalAlignment="Top" Width="179" />
+                        <Calendar Height="169" HorizontalAlignment="Left" Margin="82,68,0,0" Name="calendar2" VerticalAlignment="Top" Width="179" SelectedDate="4/9/2013" />
                         <CheckBox Content="Rigid Schedule" Height="16" HorizontalAlignment="Left" Margin="299,68,0,0" Name="checkBox5" VerticalAlignment="Top" />
                     </Grid>
-                    <Button Content="Update Schedule" Height="38" HorizontalAlignment="Left" Margin="529,460,0,0" Name="button5" VerticalAlignment="Top" Width="129"  />
+                    <Button Content="Update Schedule" Height="38" HorizontalAlignment="Left" Margin="529,460,0,0" Name="button5" VerticalAlignment="Top" Width="129" Click="button5_Click_2" />
                 </Grid>
             </TabItem>
             <TabItem Header="Current Schedule" />

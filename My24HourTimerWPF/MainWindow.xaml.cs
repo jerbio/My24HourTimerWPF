@@ -19,6 +19,7 @@ using System.Windows.Markup;
 using System.Xml;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using System.Collections.Generic;
 
 namespace My24HourTimerWPF
 {
@@ -29,9 +30,13 @@ namespace My24HourTimerWPF
 
     public partial class MainWindow : Window
     {
+        Schedule MySchedule;
         public MainWindow()
         {
             InitializeComponent();
+            calendar2.SelectedDate = DateTime.Now;
+            calendar1.SelectedDate = DateTime.Now;
+            MySchedule = new Schedule();
         }
 
         DateTime FinalDate=new DateTime();
@@ -72,6 +77,14 @@ namespace My24HourTimerWPF
 
         private void checkBox1_Checked_1(object sender, RoutedEventArgs e)
         {
+            if (checkBox1.IsChecked.Value)
+            {
+                SleepWakeString="Sleep_Time_M";
+            }
+            else
+            {
+                SleepWakeString="Sleep_Time_N";
+            }
         }
 
         private void checkBox2_Checked(object sender, RoutedEventArgs e)
@@ -218,15 +231,6 @@ namespace My24HourTimerWPF
             return new TimeSpan(0, 0, 0, 0, 0);
         }
 
-        /*public void InitializeComponent()
-        {
-            if (!_contentLoaded)
-            {
-                _contentLoaded = true;
-                Uri resourceLocator = new Uri("/My24HourTimerWPF;component/mainwindow.xaml", UriKind.Relative);
-                Application.LoadComponent(this, resourceLocator);
-            }
-        }*/
 
         private void OnTimedEvent(object sender, EventArgs e)
         {
@@ -404,80 +408,516 @@ namespace My24HourTimerWPF
         {
             string eventName = textBox1.Text;
             string eventStartTime = textBox5.Text;
-            DateTime eventStartDate = calendar2.SelectedDate.Value;
+            DateTime eventStartDate = (DateTime)calendar2.SelectedDate.Value;
+            string eventEndTime = textBox7.Text;
+            DateTime eventEndDate = (DateTime)calendar1.SelectedDate.Value;
             bool EventRepetitionflag = checkBox2.IsChecked.Value;
             bool DefaultPrepTimeflag = checkBox3.IsChecked.Value;
             string eventPrepTime = textBox3.Text;
             bool RigidScheduleFlag = checkBox5.IsChecked.Value;
-            string eventDuration = textBox4.Text;
-            DateTime eventEndDate= calendar1.SelectedDate.Value;
+            string EventDuration = textBox4.Text;
+
             string eventSplit = textBox2.Text;
-            bool DefaultPreDeadlinFlag = checkBox4.IsChecked.Value;
+            bool DefaultPreDeadlineFlag = checkBox4.IsChecked.Value;
             string PreDeadlineTime = textBox6.Text;
-            CreateSchedule();
+            CalendarEvent ScheduleUpdated = CreateSchedule(eventName, eventStartTime, eventStartDate, eventEndTime, eventEndDate, eventSplit, PreDeadlineTime, EventDuration, EventRepetitionflag, DefaultPreDeadlineFlag, RigidScheduleFlag, eventPrepTime, DefaultPreDeadlineFlag);
+            MySchedule.WriteToLog(ScheduleUpdated);
         }
 
-
-        public CalendarEvent CreateSchedule()
+        public CalendarEvent CreateSchedule(string Name, string StartTime, DateTime StartDate, string EndTime, DateTime EventEndDate, string eventSplit, string PreDeadlineTime, string EventDuration, bool EventRepetitionflag, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag)
         {
-            
-            
-            return new CalendarEvent();
+
+            string MiltaryStartTime = convertTimeToMilitary(StartTime);
+            StartDate = new DateTime(StartDate.Year, StartDate.Month, StartDate.Day, Convert.ToInt32(MiltaryStartTime.Split(':')[0]), Convert.ToInt32(MiltaryStartTime.Split(':')[1]), 0);
+            string MiltaryEndTime = convertTimeToMilitary(EndTime);
+            EventEndDate = new DateTime(EventEndDate.Year, EventEndDate.Month, EventEndDate.Day, Convert.ToInt32(MiltaryEndTime.Split(':')[0]), Convert.ToInt32(MiltaryEndTime.Split(':')[1]), 0);
+            string []TimeDuration=textBox4.Text.Split(':');
+            uint AllMinutes =(uint)((Convert.ToInt32(TimeDuration[0]) * 60) + (Convert.ToInt32(TimeDuration[1])));
+            TimeSpan Duration = new TimeSpan((int)(AllMinutes / 60), (int)(AllMinutes % 60), 0);
+            int Split =Convert.ToInt32(eventSplit);
+            TimeSpan PreDeadline = new TimeSpan(((int)AllMinutes%10)*60);
+            TimeSpan PrepTime;
+            if (checkBox3.IsChecked.Value)
+            {
+                 PrepTime= new TimeSpan(15 * 60);
+            }
+            else
+            {
+                PrepTime = new TimeSpan(Convert.ToInt32(textBox3.Text));
+            }
+            CalendarEvent MyCalendarEvent = new CalendarEvent(Name, Duration, StartDate, EventEndDate, PrepTime, PreDeadline, checkBox5.IsChecked.Value, checkBox2.IsChecked.Value, Split);
+            return MyCalendarEvent;
         }
 
- 
-
+        string convertTimeToMilitary(string TimeString)
+        {
+            TimeString = TimeString.Replace(" ", "").ToUpper();
+            string[] TimeIsolated = TimeString.Split(':');
+            int HourInt = Convert.ToInt32(TimeIsolated[0]);
+            if (TimeIsolated[1][2] == 'P')
+            {
+                HourInt = Convert.ToInt32(TimeIsolated[0]);
+                HourInt += 12;
+            }
+            
+/*                Replace("PM", "");
+            TimeString = TimeString.Replace("AM", "");
+            TimeIsolated = TimeString.Split(':');*/
+            if ((HourInt % 12) == 0)
+            {
+                HourInt = HourInt - 12;
+            }
+            TimeIsolated[0] = HourInt.ToString();
+            TimeIsolated[1]=TimeIsolated[1].Substring(0, 2);
+            TimeString = TimeIsolated[0] + ":" + TimeIsolated[1];
+            
+            //TimeString=TimeString.Substring(0, 5);
+            return TimeString;
+        }
 
     }
 
 
-    
+
+    public class TimeLine
+    {
+        protected DateTime EndTime;
+        protected DateTime StartTime;
+        BusyTimeLine[] ActiveTimeSlots;
+        string TimeLineEventID = "";
+
+        public TimeLine()
+        { 
+        
+        }
+        
+
+        public TimeLine(string MyEventID,DateTime MyStartTime, DateTime MyEndTime)
+        {
+            StartTime = MyStartTime;
+            EndTime = MyEndTime;
+            TimeLineEventID=MyEventID;
+        }
+
+        public void PopulateBusyTimeSlot(string MyEventID, BusyTimeLine[] myActiveTimeSlots)
+        {
+            ActiveTimeSlots = myActiveTimeSlots;
+            TimeLineEventID = MyEventID;
+        }
+
+        public TimeSpan TimeTillEnd
+        {
+            get 
+            {
+                return EndTime- DateTime.Now;
+            }
+        }
+        public TimeSpan TimeTillStart
+        {
+            get
+            {
+                return StartTime - DateTime.Now;
+            }
+        }
+
+
+
+    }
+    public class BusyTimeLine : TimeLine
+    {
+        TimeSpan BusySpan;
+
+        public BusyTimeLine()
+        { 
+        
+        }
+        public BusyTimeLine(TimeSpan MyBusySpan)
+        {
+            BusySpan = MyBusySpan;
+        }
+        public BusyTimeLine(DateTime MyStartTime, DateTime MyEndTime)
+        {
+            StartTime = MyStartTime;
+            EndTime = MyEndTime;
+            BusySpan=EndTime - StartTime;
+        }
+
+        public TimeSpan BusyTimeSpan
+        {
+            get
+            {
+                return BusySpan;
+            }
+        }
+
+        public DateTime Start
+        {
+            get 
+            {
+                return StartTime;
+            }
+        }
+        public DateTime End
+        {
+            get
+            {
+                return EndTime;
+            }
+        }
+    }
+
+    public static class EventIDGenerator
+    {
+        static uint idcounter = 0;
+        public static uint generate()
+        {
+            //update xml file with last counter
+            return ++idcounter;
+        }
+    }
+
+    public class EventID
+    {
+        string[] LayerID;
+        public EventID()
+        { 
+        
+        }
+        public EventID(string[] myLayerID)
+        {
+            LayerID = myLayerID;
+        }
+
+        public string[] ID
+        {
+            get 
+            {
+                return LayerID;
+            }
+        }
+
+        public string ToString()
+        {
+            string IDCombination="";
+            foreach (string MyString in LayerID)
+            {
+                IDCombination += MyString + "_";
+            }
+            return IDCombination.Substring(0, (IDCombination.Length - 1));
+        }
+    }
+
     public class CalendarEvent
     {
         // Fields
         protected DateTime DeadlineDateTime;
-        protected TimeSpan Duration;
-        protected string Name;
+        protected TimeSpan EventDuration;
+        string CalendarEventName;
+        protected DateTime StartDateTime;
         protected DateTime EndDateTime;
-        protected TimeSpan PreDeadline;
+        protected TimeSpan EventPreDeadline;
         protected TimeSpan PrepTime;
         protected int Priority;
         protected bool Repetition;
+        //protected bool Completed = false;
         protected bool RigidSchedule;
         protected int Splits;
-        protected DateTime StartDateTime;
         protected int TimePerSplit;
-        public static int UniqueID;
+        protected EventID CalendarEventID;
+        protected static TimeLine EventSequence;
+        protected SubCalendarEvent SubEvent;
+        SubCalendarEvent[] ArrayOfSubEvents;
 
         public CalendarEvent()
         { 
             
         }
-        public CalendarEvent(string EventName, TimeSpan EventDuration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, TimeSpan EventPreDeadline, bool EventRigidFlag, bool EventRepetition, int EventSplit)
+
+        protected DateTime [] getActiveSlots()
+        {
+            return new DateTime[0];
+        }
+
+        public CalendarEvent(string EventName, TimeSpan Event_Duration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, TimeSpan Event_PreDeadline, bool EventRigidFlag, bool EventRepetition, int EventSplit)
         {
 //string eventName, TimeSpan EventDuration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, TimeSpan PreDeadline, bool EventRigidFlag, bool EventRepetition, int EventSplit
-            Name = EventName;
+            CalendarEventName = EventName;
             StartDateTime = EventStart;
             EndDateTime = EventDeadline;
-            Duration = EventDuration;
+            EventDuration = Event_Duration;
             Splits = EventSplit;
             PrepTime = EventPrepTime;
-            PreDeadline = EventPreDeadline;
+            EventPreDeadline = Event_PreDeadline;
             RigidSchedule = EventRigidFlag;
+            TimePerSplit = EventDuration.Minutes / Splits;
+            ArrayOfSubEvents = new SubCalendarEvent[Splits];
+            CalendarEventID = new EventID(new string[] { EventIDGenerator.generate().ToString() });
+            ArrayOfSubEvents = generateSubEvent(ArrayOfSubEvents, 4, EventDuration, CalendarEventID.ToString());
+        }
+
+        SubCalendarEvent[] generateSubEvent(SubCalendarEvent[] ArrayOfEvents, int NumberOfSplit, TimeSpan TotalActiveDurationSubEvents, string ParentID)
+        {
+            TimeSpan TimeSpanEvent = EndDateTime - StartDateTime;
+         //       new TimeSpan((long)((().TotalSeconds/ ArrayOfEvents.Length)*100000000));
+            TimeSpanEvent = new TimeSpan(((long)TimeSpanEvent.TotalMilliseconds * 10000) / ArrayOfEvents.Length);
+            TimeSpan ActiveDurationPerSubEvents = new TimeSpan((long)(((TotalActiveDurationSubEvents.TotalSeconds)*10000000) / ArrayOfEvents.Length));
+            DateTime SubStart;
+            DateTime SubEnd;
+            for (int i = 0; i < ArrayOfEvents.Length;i++ )
+            {
+                SubStart=StartDateTime.AddSeconds(TimeSpanEvent.TotalSeconds * i);
+                SubEnd = StartDateTime.AddSeconds(TimeSpanEvent.TotalSeconds * (i + 1));
+                ArrayOfEvents[i] = new SubCalendarEvent(ActiveDurationPerSubEvents, SubStart, SubEnd, PrepTime, CalendarEventID.ToString());
+            }
+
+            return ArrayOfEvents;
+        }
+
+        public CalendarEvent GetAllScheduleEventsFromXML()
+        {
+            XmlTextReader reader = new XmlTextReader("MyEventLog.xml");
+            while (reader.Read())
+            {
+                switch (reader.NodeType)
+                {
+                    case XmlNodeType.Element: // The node is an element.
+                        Console.Write("<" + reader.Name);
+                        Console.WriteLine(">");
+                        break;
+                    case XmlNodeType.Text: //Display the text in each element.
+                        Console.WriteLine(reader.Value);
+                        break;
+                    case XmlNodeType.EndElement: //Display the end of the element.
+                        Console.Write("</" + reader.Name);
+                        Console.WriteLine(">");
+                        break;
+                }
+            }
+            return new CalendarEvent();
+        }
+
+        //CalendarEvent Properties
+        public string ID
+        {
+            get 
+            {
+                return CalendarEventID.ToString();
+            }
+        }
+
+        public string Name
+        {
+            get 
+            {
+                return CalendarEventName;
+            }
+        }
+
+        public TimeSpan TimeLeftBeforeDeadline
+        {
+            get
+            {
+                return EndDateTime - DateTime.Now;
+            }
+        }
 
 
+        public DateTime Start
+        {
+            get
+            {
+                return StartDateTime;
+            }
+        }
+
+        public DateTime End
+        {
+            get
+            {
+                return EndDateTime;
+            }
+        }
+
+
+        public int NumberOfSplit
+        {
+            get
+            {
+                return Splits;
+            }
+        }
+
+        public bool Rigid
+        {
+            get
+            {
+                return RigidSchedule;
+            }
+        }
+
+        public bool Completed
+        {
+            get
+            {
+                if (DateTime.Now > EndDateTime)
+                {
+                    return false;
+                }
+                else 
+                {
+                    return true;
+                }
+            }
+        }
+
+        public string Preparation
+        {
+            get
+            {
+                return PrepTime.ToString();
+            }
+        }
+
+        public string PreDeadline
+        {
+            get
+            {
+                return EventPreDeadline.Seconds.ToString();
+            }
+        }
+
+        public string Duration
+        {
+            get
+            {
+                return EventDuration.Seconds.ToString();
+            }
+        }
+
+        public SubCalendarEvent [] AllEvents
+        {
+            get
+            {
+                return ArrayOfSubEvents;
+            }
         }
     }
 
 
 
- 
-
-
-    public class SubSchedule : CalendarEvent
+    public class Repetition
     {
-        public static int SubUniqueID = 0;
+        public Repetition()
+        { 
+        
+        }
     }
+
+    public class  Schedule
+    {
+        Dictionary<string, CalendarEvent> AllEventDictionary;
+        public Schedule ()
+        {
+            AllEventDictionary = getAllCalendarFromXml();
+        }
+        
+        Dictionary<string, CalendarEvent> getAllCalendarFromXml()
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.Load("MyEventLog.xml");
+            XmlNode node = doc.DocumentElement.SelectSingleNode("/EventSchedules/LastIDCounter");
+            MainWindow.textBlock14.Text= node.InnerText;
+            //XmlNode[] nodes = doc.DocumentElement.SelectNodes("/book/title");
+            
+            return (new Dictionary<string, CalendarEvent>());
+        }
+
+        public bool AddToSchedule(CalendarEvent NewEvent)
+        {
+            WriteToLog(NewEvent);
+            return true;
+        }
+
+        public void WriteToLog(CalendarEvent MyEvent)
+        {
+            using (XmlWriter writer = XmlWriter.Create("MyEventLog.xml"))
+            {
+                writer.WriteStartDocument();
+                writer.WriteStartElement("EventSchedules");
+                writer.WriteElementString("LastIDCounter", EventIDGenerator.generate().ToString());
+                writer.WriteStartElement("EventSchedule");
+                writer.WriteElementString("Name", MyEvent.Name);
+                writer.WriteElementString("ID", MyEvent.ID);
+                writer.WriteElementString("DeadLine", MyEvent.End.ToString());
+                writer.WriteElementString("Split", MyEvent.NumberOfSplit.ToString());
+                writer.WriteElementString("Completed", MyEvent.Completed?1.ToString():0.ToString());
+                writer.WriteElementString("Rigid", MyEvent.Rigid.ToString());
+                writer.WriteStartElement("EventSubSchedules");
+                foreach (SubCalendarEvent MySubEvent in MyEvent.AllEvents)
+                {
+                    writer.WriteStartElement("EventSubSchedule");
+                    writer.WriteElementString("ID", MySubEvent.ID);
+                    writer.WriteElementString("Duration", MySubEvent.ActiveDuration.TotalSeconds.ToString());
+                    writer.WriteElementString("StartTime", MySubEvent.Start.ToString());
+                    writer.WriteElementString("EndTime", MySubEvent.End.ToString());
+
+                    writer.WriteEndElement();
+                }
+                writer.WriteEndElement();
+
+                writer.WriteEndElement();
+                writer.WriteEndElement();
+            }
+        }
+
+        static TimeLine ScheduleTimeline = new TimeLine();
+    }
+
+    public class SubCalendarEvent : CalendarEvent
+    {
+        EventID SubEventID;
+        BusyTimeLine BusyFrame;
+        public SubCalendarEvent(TimeSpan Event_Duration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, string myParentID)
+        {
+//string eventName, TimeSpan EventDuration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, TimeSpan PreDeadline, bool EventRigidFlag, bool EventRepetition, int EventSplit
+            StartDateTime = EventStart;
+            EndDateTime = EventDeadline;
+            EventDuration = Event_Duration;
+            PrepTime = EventPrepTime;
+            SubEventID = new EventID(new string[] { myParentID, EventIDGenerator.generate().ToString()});
+            EventSequence = new TimeLine(SubEventID.ToString(),StartDateTime, EndDateTime);
+        }
+
+        public BusyTimeLine ActiveSlot
+        {
+            set
+            {
+                BusyFrame = value;
+            }
+            get
+            {
+                return BusyFrame;
+            }
+        }
+
+        public TimeSpan ActiveDuration
+        {
+            get 
+            {
+                return EventDuration;
+            }
+        }
+
+        public string ID
+        {
+            get 
+            {
+                return SubEventID.ToString();
+            }
+        }
+
+    }
+
     public  class SystemTimeUpdate
     {
         /// <summary>

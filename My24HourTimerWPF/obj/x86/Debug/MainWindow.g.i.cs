@@ -353,15 +353,7 @@ namespace My24HourTimerWPF {
         #line hidden
         
         
-        #line 70 "..\..\..\MainWindow.xaml"
-        [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
-        internal System.Windows.Controls.TextBlock textBlock14;
-        
-        #line default
-        #line hidden
-        
-        
-        #line 72 "..\..\..\MainWindow.xaml"
+        #line 71 "..\..\..\MainWindow.xaml"
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         internal System.Windows.Controls.Button button5;
         
@@ -369,7 +361,7 @@ namespace My24HourTimerWPF {
         #line hidden
         
         
-        #line 77 "..\..\..\MainWindow.xaml"
+        #line 76 "..\..\..\MainWindow.xaml"
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         internal System.Windows.Controls.TextBlock textBlock9;
         
@@ -560,18 +552,15 @@ namespace My24HourTimerWPF {
             this.checkBox5 = ((System.Windows.Controls.CheckBox)(target));
             return;
             case 41:
-            this.textBlock14 = ((System.Windows.Controls.TextBlock)(target));
-            return;
-            case 42:
             this.button5 = ((System.Windows.Controls.Button)(target));
             
-            #line 72 "..\..\..\MainWindow.xaml"
+            #line 71 "..\..\..\MainWindow.xaml"
             this.button5.Click += new System.Windows.RoutedEventHandler(this.button5_Click_2);
             
             #line default
             #line hidden
             return;
-            case 43:
+            case 42:
             this.textBlock9 = ((System.Windows.Controls.TextBlock)(target));
             return;
             }

@@ -314,19 +314,11 @@ namespace My24HourTimerWPF
             return new DateTime(Convert.ToInt16(ArrayOfDate[2]), month, Convert.ToInt16(ArrayOfDate[1]), hour, minute, 0);
         }
 
-
-
-
         public DateTime RetrieveStoredTime()
         {
             string[] strArray = File.ReadAllLines(@"..\WriteLines2.txt");
             return new DateTime(Convert.ToInt16(strArray[0]), Convert.ToInt16(strArray[1]), Convert.ToInt16(strArray[2]), Convert.ToInt16(strArray[3]), Convert.ToInt16(strArray[4]), Convert.ToInt16(strArray[5]));
         }
-
-
-
-
-
 
         private void UpdateTimerDiv(TimeSpan TimeLeft, TextBlock TextBlockUpdate)
         {
@@ -596,7 +588,7 @@ namespace My24HourTimerWPF
             }
         }
 
-        public string ToString()
+        public override string ToString()
         {
             string IDCombination="";
             foreach (string MyString in LayerID)
@@ -826,8 +818,39 @@ namespace My24HourTimerWPF
             XmlDocument doc = new XmlDocument();
             doc.Load("MyEventLog.xml");
             XmlNode node = doc.DocumentElement.SelectSingleNode("/EventSchedules/LastIDCounter");
-            MainWindow.textBlock14.Text= node.InnerText;
-            //XmlNode[] nodes = doc.DocumentElement.SelectNodes("/book/title");
+            string LastUsedIndex = node.InnerText;
+            XmlNodeList EventScheduleNodes = doc.DocumentElement.SelectNodes("/EventSchedules/EventSchedule");
+            string ID;
+            string DeadLine;
+            string Split;
+            string Completed;
+            string Rigid;
+            string Name;
+            string[] StartDateTime;
+            string StartDate;
+            string StartTime;
+            string[] EndDateTime;
+            string EndDate;
+            string EndTime;
+            foreach (XmlNode EventScheduleNode in EventScheduleNodes)
+            {
+                Name = EventScheduleNode.SelectSingleNode("Name").InnerText;
+                ID=EventScheduleNode.SelectSingleNode("ID").InnerText;
+                DeadLine = EventScheduleNode.SelectSingleNode("DeadLine").InnerText;
+                Rigid = EventScheduleNode.SelectSingleNode("Rigid").InnerText;
+                Split= EventScheduleNode.SelectSingleNode("Split").InnerText;
+                Completed = EventScheduleNode.SelectSingleNode("Completed").InnerText;
+                StartDateTime=EventScheduleNode.SelectSingleNode("StartTime").InnerText.Split(' ');
+                StartDate=StartDateTime[0];
+                StartTime=StartDateTime[1]+StartDateTime[2];
+                EndDateTime=EventScheduleNode.SelectSingleNode("StartTime").InnerText.Split(' ');
+                EndDate=StartDateTime[0];
+                EndTime=StartDateTime[1]+StartDateTime[2];
+
+                //string Name, string StartTime, DateTime StartDate, string EndTime, DateTime EventEndDate, string eventSplit, string PreDeadlineTime, string EventDuration, bool EventRepetitionflag, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag
+//MainWindow.CreateSchedule(Name,StartTime,new DateTime(Convert.ToInt32(StartDate.Split('/')[2]),Convert.ToInt32(StartDate.Split('/')[0]),Convert.ToInt32(StartDate.Split('/')[1])),
+            }
+            //MessageBox.Show( ""+nodes.Count);
             
             return (new Dictionary<string, CalendarEvent>());
         }
@@ -848,6 +871,8 @@ namespace My24HourTimerWPF
                 writer.WriteStartElement("EventSchedule");
                 writer.WriteElementString("Name", MyEvent.Name);
                 writer.WriteElementString("ID", MyEvent.ID);
+                writer.WriteElementString("StartTime", MyEvent.Start.ToString());
+                writer.WriteElementString("PreDeadLine", MyEvent.End.ToString());
                 writer.WriteElementString("DeadLine", MyEvent.End.ToString());
                 writer.WriteElementString("Split", MyEvent.NumberOfSplit.ToString());
                 writer.WriteElementString("Completed", MyEvent.Completed?1.ToString():0.ToString());

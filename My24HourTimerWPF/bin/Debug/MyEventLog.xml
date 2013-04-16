@@ -1,1 +1,21 @@
-﻿<?xml version="1.0" encoding="utf-8"?><EventSchedules><LastIDCounter>18</LastIDCounter><EventSchedule><Name>TestSchedule</Name><ID>7</ID><DeadLine>5/24/2013 1:00:00 PM</DeadLine><Split>10</Split><Completed>1</Completed><Rigid>False</Rigid><EventSubSchedules><EventSubSchedule><ID>7_8</ID><Duration>1200</Duration><StartTime>5/2/2013 12:12:00 AM</StartTime><EndTime>5/4/2013 6:16:48 AM</EndTime></EventSubSchedule><EventSubSchedule><ID>7_9</ID><Duration>1200</Duration><StartTime>5/4/2013 6:16:48 AM</StartTime><EndTime>5/6/2013 12:21:36 PM</EndTime></EventSubSchedule><EventSubSchedule><ID>7_10</ID><Duration>1200</Duration><StartTime>5/6/2013 12:21:36 PM</StartTime><EndTime>5/8/2013 6:26:24 PM</EndTime></EventSubSchedule><EventSubSchedule><ID>7_11</ID><Duration>1200</Duration><StartTime>5/8/2013 6:26:24 PM</StartTime><EndTime>5/11/2013 12:31:12 AM</EndTime></EventSubSchedule><EventSubSchedule><ID>7_12</ID><Duration>1200</Duration><StartTime>5/11/2013 12:31:12 AM</StartTime><EndTime>5/13/2013 6:36:00 AM</EndTime></EventSubSchedule><EventSubSchedule><ID>7_13</ID><Duration>1200</Duration><StartTime>5/13/2013 6:36:00 AM</StartTime><EndTime>5/15/2013 12:40:48 PM</EndTime></EventSubSchedule><EventSubSchedule><ID>7_14</ID><Duration>1200</Duration><StartTime>5/15/2013 12:40:48 PM</StartTime><EndTime>5/17/2013 6:45:36 PM</EndTime></EventSubSchedule><EventSubSchedule><ID>7_15</ID><Duration>1200</Duration><StartTime>5/17/2013 6:45:36 PM</StartTime><EndTime>5/20/2013 12:50:24 AM</EndTime></EventSubSchedule><EventSubSchedule><ID>7_16</ID><Duration>1200</Duration><StartTime>5/20/2013 12:50:24 AM</StartTime><EndTime>5/22/2013 6:55:12 AM</EndTime></EventSubSchedule><EventSubSchedule><ID>7_17</ID><Duration>1200</Duration><StartTime>5/22/2013 6:55:12 AM</StartTime><EndTime>5/24/2013 1:00:00 PM</EndTime></EventSubSchedule></EventSubSchedules></EventSchedule></EventSchedules>
+﻿<?xml version="1.0" encoding="utf-8"?>
+<EventSchedules>
+	<LastIDCounter>18</LastIDCounter>
+	<EventSchedule>
+		<Name>TestSchedule</Name>
+		<ID>7</ID>
+		<DeadLine>5/24/2013 1:00:00 PM</DeadLine>
+		<Split>10</Split>
+		<Completed>1</Completed>
+		<Rigid>False</Rigid>
+		<EventSubSchedules>
+			<EventSubSchedule>
+				<ID>7_8</ID>
+				<Duration>1200</Duration>
+				<StartTime>5/2/2013 12:12:00 AM</StartTime>
+				<EndTime>5/4/2013 6:16:48 AM</EndTime>
+			</EventSubSchedule>
+		<EventSubSchedule>
+			<ID>7_9</ID><Duration>1200</Duration><StartTime>5/4/2013 6:16:48 AM</StartTime><EndTime>5/6/2013 12:21:36 PM</EndTime></EventSubSchedule><EventSubSchedule><ID>7_10</ID><Duration>1200</Duration><StartTime>5/6/2013 12:21:36 PM</StartTime><EndTime>5/8/2013 6:26:24 PM</EndTime></EventSubSchedule><EventSubSchedule><ID>7_11</ID><Duration>1200</Duration><StartTime>5/8/2013 6:26:24 PM</StartTime><EndTime>5/11/2013 12:31:12 AM</EndTime></EventSubSchedule><EventSubSchedule><ID>7_12</ID><Duration>1200</Duration><StartTime>5/11/2013 12:31:12 AM</StartTime><EndTime>5/13/2013 6:36:00 AM</EndTime></EventSubSchedule><EventSubSchedule><ID>7_13</ID><Duration>1200</Duration><StartTime>5/13/2013 6:36:00 AM</StartTime><EndTime>5/15/2013 12:40:48 PM</EndTime></EventSubSchedule><EventSubSchedule><ID>7_14</ID><Duration>1200</Duration><StartTime>5/15/2013 12:40:48 PM</StartTime><EndTime>5/17/2013 6:45:36 PM</EndTime></EventSubSchedule><EventSubSchedule><ID>7_15</ID><Duration>1200</Duration><StartTime>5/17/2013 6:45:36 PM</StartTime><EndTime>5/20/2013 12:50:24 AM</EndTime></EventSubSchedule><EventSubSchedule><ID>7_16</ID><Duration>1200</Duration><StartTime>5/20/2013 12:50:24 AM</StartTime><EndTime>5/22/2013 6:55:12 AM</EndTime></EventSubSchedule><EventSubSchedule><ID>7_17</ID><Duration>1200</Duration><StartTime>5/22/2013 6:55:12 AM</StartTime><EndTime>5/24/2013 1:00:00 PM</EndTime></EventSubSchedule></EventSubSchedules>
+	</EventSchedule>
+</EventSchedules>

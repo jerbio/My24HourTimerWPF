@@ -412,13 +412,14 @@ namespace My24HourTimerWPF
             string eventSplit = textBox2.Text;
             bool DefaultPreDeadlineFlag = checkBox4.IsChecked.Value;
             string PreDeadlineTime = textBox6.Text;
-            CalendarEvent ScheduleUpdated = CreateSchedule(eventName, eventStartTime, eventStartDate, eventEndTime, eventEndDate, eventSplit, PreDeadlineTime, EventDuration, EventRepetitionflag, DefaultPreDeadlineFlag, RigidScheduleFlag, eventPrepTime, DefaultPreDeadlineFlag);
+            //CalendarEvent ScheduleUpdated = CreateSchedule(eventName, eventStartTime, eventStartDate, eventEndTime, eventEndDate, eventSplit, PreDeadlineTime, EventDuration, EventRepetitionflag, DefaultPreDeadlineFlag, RigidScheduleFlag, eventPrepTime, DefaultPreDeadlineFlag);
+            CalendarEvent ScheduleUpdated = new CalendarEvent(eventName, eventStartTime, eventStartDate, eventEndTime, eventEndDate, eventSplit, PreDeadlineTime, EventDuration, EventRepetitionflag, DefaultPreDeadlineFlag, RigidScheduleFlag, eventPrepTime, DefaultPreDeadlineFlag);
             MySchedule.WriteToLog(ScheduleUpdated);
+            textBlock9.Text = "Schedule Updated";
         }
 
         public CalendarEvent CreateSchedule(string Name, string StartTime, DateTime StartDate, string EndTime, DateTime EventEndDate, string eventSplit, string PreDeadlineTime, string EventDuration, bool EventRepetitionflag, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag)
         {
-
             string MiltaryStartTime = convertTimeToMilitary(StartTime);
             StartDate = new DateTime(StartDate.Year, StartDate.Month, StartDate.Day, Convert.ToInt32(MiltaryStartTime.Split(':')[0]), Convert.ToInt32(MiltaryStartTime.Split(':')[1]), 0);
             string MiltaryEndTime = convertTimeToMilitary(EndTime);
@@ -476,7 +477,7 @@ namespace My24HourTimerWPF
         protected DateTime EndTime;
         protected DateTime StartTime;
         BusyTimeLine[] ActiveTimeSlots;
-        string TimeLineEventID = "";
+        protected string TimeLineEventID = "";
 
         public TimeLine()
         { 
@@ -489,6 +490,12 @@ namespace My24HourTimerWPF
             StartTime = MyStartTime;
             EndTime = MyEndTime;
             TimeLineEventID=MyEventID;
+        }
+
+        public TimeLine( DateTime MyStartTime, DateTime MyEndTime)
+        {
+            StartTime = MyStartTime;
+            EndTime = MyEndTime;
         }
 
         public void PopulateBusyTimeSlot(string MyEventID, BusyTimeLine[] myActiveTimeSlots)
@@ -512,6 +519,21 @@ namespace My24HourTimerWPF
             }
         }
 
+        public string TimeLineID
+        {
+            get
+            {
+                return TimeLineEventID;
+            }
+        }
+
+        public BusyTimeLine [] OccupiedSlots
+        {
+            get 
+            {
+                return ActiveTimeSlots;
+            }
+        }
 
 
     }
@@ -527,11 +549,12 @@ namespace My24HourTimerWPF
         {
             BusySpan = MyBusySpan;
         }
-        public BusyTimeLine(DateTime MyStartTime, DateTime MyEndTime)
+        public BusyTimeLine(string MyEventID, DateTime MyStartTime, DateTime MyEndTime)
         {
             StartTime = MyStartTime;
             EndTime = MyEndTime;
             BusySpan=EndTime - StartTime;
+            TimeLineEventID = MyEventID;
         }
 
         public TimeSpan BusyTimeSpan
@@ -610,7 +633,7 @@ namespace My24HourTimerWPF
         protected TimeSpan EventPreDeadline;
         protected TimeSpan PrepTime;
         protected int Priority;
-        protected bool Repetition;
+        protected bool RepetitionFlag;
         //protected bool Completed = false;
         protected bool RigidSchedule;
         protected int Splits;
@@ -625,6 +648,148 @@ namespace My24HourTimerWPF
             
         }
 
+        //CalendarEvent MyCalendarEvent = new CalendarEvent(NameEntry, Duration, StartDate, EndDate, PrepTime, PreDeadline, Rigid, Repeat, Split);
+
+        public CalendarEvent(string NameEntry, string StartTime, DateTime StartDateEntry, string EndTime, DateTime EventEndDateEntry, string eventSplit, string PreDeadlineTime, string EventDuration, bool EventRepetitionflag, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag):this(new ConstructorModified(NameEntry, StartTime, StartDateEntry, EndTime, EventEndDateEntry, eventSplit, PreDeadlineTime, EventDuration, EventRepetitionflag, DefaultPrepTimeflag, RigidScheduleFlag, eventPrepTime, PreDeadlineFlag))
+        {
+        }
+
+        private CalendarEvent(ConstructorModified UpdatedConstructor):this(UpdatedConstructor.Name,UpdatedConstructor.Duration,UpdatedConstructor.StartDate,UpdatedConstructor.EndDate,UpdatedConstructor.PrepTime,UpdatedConstructor.PreDeadline,UpdatedConstructor.Rigid,UpdatedConstructor.Repeat,UpdatedConstructor.Split)
+        {
+        }
+        string convertTimeToMilitary(string TimeString)
+        {
+            TimeString = TimeString.Replace(" ", "").ToUpper();
+            string[] TimeIsolated = TimeString.Split(':');
+            int HourInt = Convert.ToInt32(TimeIsolated[0]);
+            if (TimeIsolated[2][2] == 'P')
+            {
+                HourInt = Convert.ToInt32(TimeIsolated[0]);
+                HourInt += 12;
+            }
+
+            if ((HourInt % 12) == 0)
+            {
+                HourInt = HourInt - 12;
+            }
+            TimeIsolated[0] = HourInt.ToString();
+            TimeIsolated[1] = TimeIsolated[1].Substring(0, 2);
+            TimeString = TimeIsolated[0] + ":" + TimeIsolated[1];
+            return TimeString;
+        }
+        
+        private class ConstructorModified
+        {
+            public string Name;
+            public TimeSpan Duration;
+            public DateTime StartDate;
+            public DateTime EndDate;
+            public TimeSpan PrepTime;
+            public TimeSpan PreDeadline;
+            public bool Rigid;
+            public bool Repeat;
+            public int Split;//Make Sure this is UInt
+            public ConstructorModified(string NameEntry, string StartTime, DateTime StartDateEntry, string EndTime, DateTime EventEndDateEntry, string eventSplit, string PreDeadlineTime, string EventDuration, bool EventRepetitionflag, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag)
+            {
+                Name = NameEntry;
+                string MiltaryStartTime = convertTimeToMilitary(StartTime);
+                StartDate= new DateTime(StartDateEntry.Year, StartDateEntry.Month, StartDateEntry.Day, Convert.ToInt32(MiltaryStartTime.Split(':')[0]), Convert.ToInt32(MiltaryStartTime.Split(':')[1]), 0);
+                string MiltaryEndTime = convertTimeToMilitary(EndTime);
+                EndDate = new DateTime(EventEndDateEntry.Year, EventEndDateEntry.Month, EventEndDateEntry.Day, Convert.ToInt32(MiltaryEndTime.Split(':')[0]), Convert.ToInt32(MiltaryEndTime.Split(':')[1]), 0);
+                string[] TimeDuration = EventDuration.Split(':');
+                uint AllMinutes = ConvertToMinutes(EventDuration);
+                Duration = new TimeSpan((int)(AllMinutes / 60), (int)(AllMinutes % 60), 0);
+                Split = Convert.ToInt32(eventSplit);
+                if (PreDeadlineFlag)
+                {
+                    PreDeadline = new TimeSpan(((int)AllMinutes % 10) * 60);
+                }
+                else
+                {
+                    PreDeadline = new TimeSpan(Convert.ToInt64( PreDeadlineTime));
+                }
+                if (DefaultPrepTimeflag)
+                {
+                    PrepTime = new TimeSpan(15 * 60);
+                }
+                else
+                {
+                    //uint MyNumber = Convert.ToInt32(eventPrepTime);
+                    PrepTime = new TimeSpan((long)ConvertToMinutes(eventPrepTime) * 60 * 10000000);
+                }
+                Rigid = RigidScheduleFlag;
+                Repeat = EventRepetitionflag;
+            }
+
+            uint ConvertToMinutes(string  TimeEntry)
+            {
+                int MaxTimeIndexCounter = 5;
+                string[] ArrayOfTimeComponent = TimeEntry.Split(':');
+                uint TotalMinutes=0;
+                for (int x=0; x<ArrayOfTimeComponent.Length;x++)
+                {
+                    int Multiplier=0;
+                    switch (x)
+                    {
+                        case 4:
+                            Multiplier = 0;
+                            break;
+                        case 3:
+                            Multiplier=1;
+                            break;
+                        case 2:
+                            Multiplier=60;
+                            break;
+                        case 1:
+                            Multiplier=36*24;
+                            break;
+                        case 0:
+                            Multiplier=36*24*365;
+                            break;
+                    }
+                    string JustHold = ArrayOfTimeComponent[x];
+                    Int64 MyNumber = (Int64)Convert.ToDouble(JustHold);
+                    TotalMinutes = (uint)(TotalMinutes + (Multiplier * MyNumber));
+                    
+                }
+
+                return TotalMinutes;
+                
+            }
+
+            string convertTimeToMilitary(string TimeString)
+            {
+                TimeString = TimeString.Replace(" ", "").ToUpper();
+                string[] TimeIsolated = TimeString.Split(':');
+                if (TimeIsolated.Length == 2)//checks if time is in format HH:MMAM as opposed to HH:MM:SSAM 
+                {
+                    char AorP = TimeIsolated[1][2];
+                    TimeIsolated[1] = TimeIsolated[1].Substring(0, 2) + ":00" + AorP+"M";
+                    return convertTimeToMilitary(TimeIsolated[0] + ":" + TimeIsolated[1]);
+                    
+                }
+                int HourInt = Convert.ToInt32(TimeIsolated[0]);
+                if (TimeIsolated[2][2] == 'P')
+                {
+                    HourInt = Convert.ToInt32(TimeIsolated[0]);
+                    HourInt += 12;
+                }
+
+                /*                Replace("PM", "");
+                            TimeString = TimeString.Replace("AM", "");
+                            TimeIsolated = TimeString.Split(':');*/
+                if ((HourInt % 12) == 0)
+                {
+                    HourInt = HourInt - 12;
+                }
+                TimeIsolated[0] = HourInt.ToString();
+                TimeIsolated[1] = TimeIsolated[1].Substring(0, 2);
+                TimeString = TimeIsolated[0] + ":" + TimeIsolated[1];
+
+                //TimeString=TimeString.Substring(0, 5);
+                return TimeString;
+            }
+        }
         protected DateTime [] getActiveSlots()
         {
             return new DateTime[0];
@@ -747,6 +912,15 @@ namespace My24HourTimerWPF
             }
         }
 
+
+        public bool Repetition
+        {
+            get
+            {
+                return RepetitionFlag;
+            }
+        }
+
         public bool Completed
         {
             get
@@ -778,13 +952,21 @@ namespace My24HourTimerWPF
             }
         }
 
-        public string Duration
+       public string Duration
         {
             get
             {
                 return EventDuration.Seconds.ToString();
             }
         }
+
+       public TimeSpan DurationSpan
+       {
+           get
+           {
+               return EventDuration;
+           }
+       }
 
         public SubCalendarEvent [] AllEvents
         {
@@ -808,20 +990,44 @@ namespace My24HourTimerWPF
     public class  Schedule
     {
         Dictionary<string, CalendarEvent> AllEventDictionary;
+        TimeLine CompleteSchedule;
+
         public Schedule ()
         {
             AllEventDictionary = getAllCalendarFromXml();
+            CompleteSchedule=getTimeLine();
+            
+        }
+
+        TimeLine getTimeLine()
+        {
+            DateTime LastDeadline=new DateTime();
+            foreach (KeyValuePair<string, CalendarEvent> MyCalendarEvent in AllEventDictionary)
+            { 
+                //LastDeadline
+                foreach (SubCalendarEvent MySubCalendarEvent in MyCalendarEvent.Value.AllEvents)
+                {
+                    if (MySubCalendarEvent.End > LastDeadline)
+                    {
+                        LastDeadline = MySubCalendarEvent.End;
+                    }
+                }
+            }
+            new TimeLine(string.Empty, DateTime.Now, LastDeadline);
+            return new TimeLine();
         }
         
         Dictionary<string, CalendarEvent> getAllCalendarFromXml()
         {
+            Dictionary<string, CalendarEvent> MyCalendarEventDictionary=new Dictionary<string, CalendarEvent>();
             XmlDocument doc = new XmlDocument();
+            
             doc.Load("MyEventLog.xml");
-            XmlNode node = doc.DocumentElement.SelectSingleNode("/EventSchedules/LastIDCounter");
+            XmlNode node = doc.DocumentElement.SelectSingleNode("/ScheduleLog/LastIDCounter");
             string LastUsedIndex = node.InnerText;
-            XmlNodeList EventScheduleNodes = doc.DocumentElement.SelectNodes("/EventSchedules/EventSchedule");
+            XmlNode EventSchedulesNodes = doc.DocumentElement.SelectSingleNode("/ScheduleLog/EventSchedules");
             string ID;
-            string DeadLine;
+            string Deadline;
             string Split;
             string Completed;
             string Rigid;
@@ -832,67 +1038,327 @@ namespace My24HourTimerWPF
             string[] EndDateTime;
             string EndDate;
             string EndTime;
-            foreach (XmlNode EventScheduleNode in EventScheduleNodes)
+            string PreDeadline;
+            string CalendarEventDuration;
+            string PreDeadlineFlag;
+            string EventRepetitionflag;
+            string PrepTimeFlag;
+            string PrepTime;
+            foreach (XmlNode EventScheduleNode in EventSchedulesNodes.ChildNodes)
             {
                 Name = EventScheduleNode.SelectSingleNode("Name").InnerText;
                 ID=EventScheduleNode.SelectSingleNode("ID").InnerText;
-                DeadLine = EventScheduleNode.SelectSingleNode("DeadLine").InnerText;
-                Rigid = EventScheduleNode.SelectSingleNode("Rigid").InnerText;
+                //EventScheduleNode.SelectSingleNode("ID").InnerXml = "<wetin></wetin>";
+                Deadline = EventScheduleNode.SelectSingleNode("Deadline").InnerText;
+                Rigid = EventScheduleNode.SelectSingleNode("RigidFlag").InnerText;
                 Split= EventScheduleNode.SelectSingleNode("Split").InnerText;
+                PreDeadline = EventScheduleNode.SelectSingleNode("PreDeadline").InnerText;
+                //PreDeadlineFlag = EventScheduleNode.SelectSingleNode("PreDeadlineFlag").InnerText;
+                CalendarEventDuration = EventScheduleNode.SelectSingleNode("Duration").InnerText;
+                //EventRepetitionflag = EventScheduleNode.SelectSingleNode("RepetitionFlag").InnerText;
+                //PrepTimeFlag = EventScheduleNode.SelectSingleNode("PrepTimeFlag").InnerText;
+                PrepTime = EventScheduleNode.SelectSingleNode("PrepTime").InnerText;
                 Completed = EventScheduleNode.SelectSingleNode("Completed").InnerText;
                 StartDateTime=EventScheduleNode.SelectSingleNode("StartTime").InnerText.Split(' ');
                 StartDate=StartDateTime[0];
                 StartTime=StartDateTime[1]+StartDateTime[2];
-                EndDateTime=EventScheduleNode.SelectSingleNode("StartTime").InnerText.Split(' ');
-                EndDate=StartDateTime[0];
-                EndTime=StartDateTime[1]+StartDateTime[2];
-
+                EndDateTime = EventScheduleNode.SelectSingleNode("Deadline").InnerText.Split(' ');
+                EndDate = EndDateTime[0];
+                EndTime = EndDateTime[1] + EndDateTime[2];
                 //string Name, string StartTime, DateTime StartDate, string EndTime, DateTime EventEndDate, string eventSplit, string PreDeadlineTime, string EventDuration, bool EventRepetitionflag, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag
-//MainWindow.CreateSchedule(Name,StartTime,new DateTime(Convert.ToInt32(StartDate.Split('/')[2]),Convert.ToInt32(StartDate.Split('/')[0]),Convert.ToInt32(StartDate.Split('/')[1])),
+                DateTime StartTimeConverted = new DateTime(Convert.ToInt32(StartDate.Split('/')[2]), Convert.ToInt32(StartDate.Split('/')[0]), Convert.ToInt32(StartDate.Split('/')[1]));
+                DateTime EndTimeConverted = new DateTime(Convert.ToInt32(EndDate.Split('/')[2]), Convert.ToInt32(EndDate.Split('/')[0]), Convert.ToInt32(EndDate.Split('/')[1]));
+                //MainWindow.CreateSchedule("","",new DateTime(),"",new DateTime(),"","","",true,true,true,"",false);
+                CalendarEvent RetrievedEvent= new CalendarEvent(Name, StartTime, StartTimeConverted, EndTime, EndTimeConverted, Split, PreDeadline, CalendarEventDuration, false, false, Convert.ToBoolean(Rigid), PrepTime, false);
+//                MyCalendarEventDictionary.Add(
+                MyCalendarEventDictionary.Add(RetrievedEvent.ID, RetrievedEvent);
             }
-            //MessageBox.Show( ""+nodes.Count);
-            
-            return (new Dictionary<string, CalendarEvent>());
+
+            return MyCalendarEventDictionary;
         }
 
         public bool AddToSchedule(CalendarEvent NewEvent)
         {
+
+            UpdateTimeline(NewEvent);
             WriteToLog(NewEvent);
+            AllEventDictionary.Add(NewEvent.ID, NewEvent);
             return true;
         }
 
-        public void WriteToLog(CalendarEvent MyEvent)
+        public bool UpdateTimeline(CalendarEvent MyEvent)
         {
-            using (XmlWriter writer = XmlWriter.Create("MyEventLog.xml"))
+            BusyTimeLine [] AllOccupiedSlot= CompleteSchedule.OccupiedSlots;
+            TimeSpan TotalActiveDuration=new TimeSpan();
+            int i=0;
+
+            for (; i < AllOccupiedSlot.Length; i++)
             {
-                writer.WriteStartDocument();
-                writer.WriteStartElement("EventSchedules");
-                writer.WriteElementString("LastIDCounter", EventIDGenerator.generate().ToString());
-                writer.WriteStartElement("EventSchedule");
-                writer.WriteElementString("Name", MyEvent.Name);
-                writer.WriteElementString("ID", MyEvent.ID);
-                writer.WriteElementString("StartTime", MyEvent.Start.ToString());
-                writer.WriteElementString("PreDeadLine", MyEvent.End.ToString());
-                writer.WriteElementString("DeadLine", MyEvent.End.ToString());
-                writer.WriteElementString("Split", MyEvent.NumberOfSplit.ToString());
-                writer.WriteElementString("Completed", MyEvent.Completed?1.ToString():0.ToString());
-                writer.WriteElementString("Rigid", MyEvent.Rigid.ToString());
-                writer.WriteStartElement("EventSubSchedules");
-                foreach (SubCalendarEvent MySubEvent in MyEvent.AllEvents)
-                {
-                    writer.WriteStartElement("EventSubSchedule");
-                    writer.WriteElementString("ID", MySubEvent.ID);
-                    writer.WriteElementString("Duration", MySubEvent.ActiveDuration.TotalSeconds.ToString());
-                    writer.WriteElementString("StartTime", MySubEvent.Start.ToString());
-                    writer.WriteElementString("EndTime", MySubEvent.End.ToString());
-
-                    writer.WriteEndElement();
-                }
-                writer.WriteEndElement();
-
-                writer.WriteEndElement();
-                writer.WriteEndElement();
+                TotalActiveDuration += (AllOccupiedSlot[i].End - AllOccupiedSlot[i].Start);
             }
+            TimeSpan ProjectedTimeDuration = TotalActiveDuration + MyEvent.DurationSpan;
+            if (ProjectedTimeDuration > TotalActiveDuration)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+
+        static List<BusyTimeLine> QuickSortFunction(List<BusyTimeLine> MyArray,int LeftIndexPassed,int RightIndexPassed,int PivotPassed)
+        {
+            //Console.WriteLine("\n EntryLeft is " + LeftIndexPassed.ToString() + " EntryRight is " + RightIndexPassed.ToString() + " EntryPivot is " + PivotPassed.ToString() + "\n");
+            int PivotIndex;
+            BusyTimeLine PivotValue,Holder;
+            if (LeftIndexPassed == RightIndexPassed)
+            {
+                return MyArray;
+            }
+            int LeftValue, LeftIndex=LeftIndexPassed, RightValue, RightIndex=RightIndexPassed;
+            bool Detected = true;
+            PivotIndex = PivotPassed;
+            RightIndex = GetRightThatsLess(MyArray, PivotIndex, RightIndexPassed);
+            LeftIndex = GetLeftThatsGreater(MyArray, PivotIndex, LeftIndexPassed);
+            //Console.WriteLine("\n ##Left is " + LeftIndex.ToString() + " Right is " + RightIndex.ToString() + "\n");
+            PivotValue = MyArray[PivotIndex];
+            Holder = MyArray[LeftIndex];
+            MyArray[LeftIndex]= MyArray[RightIndex];
+            MyArray[RightIndex] = Holder;
+            int middleDifference;
+            int NextPivot;
+            if (RightIndex == LeftIndex)
+            {
+                if ((PivotIndex + 1) < (RightIndexPassed + 1))
+                {
+                    //Console.Write("maybe RIGHT TOP\t");
+                    middleDifference=RightIndexPassed - (PivotIndex + 1);
+                    NextPivot = (PivotIndex + 1)+(middleDifference / 2);
+                    if (middleDifference<=1)
+                    {
+                        NextPivot = PivotIndex + 1;
+                        if (MyArray[RightIndexPassed].Start < MyArray[NextPivot].Start)
+                        {
+                            Holder = MyArray[NextPivot];
+                            MyArray[NextPivot] = MyArray[RightIndexPassed];
+                            MyArray[RightIndexPassed]= Holder;
+                            return MyArray;
+                        }
+                    }
+                    MyArray = QuickSortFunction(MyArray, (PivotIndex + 1), RightIndexPassed, NextPivot); //right Partition sort
+                }
+                else
+                {
+                    //Console.Write("maybe RIGHT \t");
+                    MyArray = QuickSortFunction(MyArray, (PivotIndex), RightIndexPassed, (PivotIndex + ((RightIndexPassed - PivotIndex) / 2))); //right Partition sort
+                }
+                if ((PivotIndex - 1) > (LeftIndexPassed)-1)
+                {
+                    //Console.Write("maybe LEFT TOP\t");
+                    middleDifference = (PivotIndex - 1) - LeftIndexPassed;
+                    NextPivot = LeftIndexPassed + (middleDifference / 2);
+                    if (middleDifference <= 1)
+                    {
+                        NextPivot = PivotIndex - 1;
+                        if (MyArray[LeftIndexPassed].Start > MyArray[NextPivot].Start)
+                        {
+                            Holder = MyArray[LeftIndexPassed];
+                            MyArray[LeftIndexPassed] = MyArray[NextPivot];
+                            MyArray[NextPivot]= Holder;
+                            return MyArray;
+                        }
+                    }
+                    MyArray = QuickSortFunction(MyArray, LeftIndexPassed, (PivotIndex - 1), NextPivot);//left Partition sort 
+                }
+                else 
+                {
+                    //Console.Write("maybe LEFT \t");
+                    MyArray = QuickSortFunction(MyArray, LeftIndexPassed, (PivotIndex), (LeftIndexPassed + ((PivotIndex) - LeftIndexPassed) / 2));//left Partition sort 
+                }
+            }
+            else 
+            {
+                MyArray = QuickSortFunction(MyArray, LeftIndexPassed, RightIndexPassed, PivotPassed);
+            }
+            return MyArray;
+        }
+
+        static int GetLeftThatsGreater(List<BusyTimeLine> MyArray, int MyPivot,int LeftStartinPosition)
+        {
+            for (int i = LeftStartinPosition; i <= MyPivot; i++)
+            {
+                if (MyArray[i].Start > MyArray[MyPivot].Start)
+                {
+                    return i;
+                }
+            }
+            return MyPivot;
+        }
+
+        static int GetRightThatsLess(List<BusyTimeLine> MyArray, int MyPivot, int RightStartinPosition)
+        {
+            for (int i = RightStartinPosition; i >= MyPivot; i--)
+            {
+                if (MyArray[i].Start < MyArray[MyPivot].Start)
+                {
+                    return i;
+                }
+            }
+            return MyPivot;
+        }
+
+
+
+        public BusyTimeLine[] CheckIfMyRangeAlreadyHasSchedule(BusyTimeLine[] BusySlots, SubCalendarEvent MySubEvent)
+        {
+            List<BusyTimeLine> InvadingEvents=new List<BusyTimeLine>();
+            
+            for (int i = 0; i < BusySlots.Length; i++)
+            {
+                if ((BusySlots[i].End>MySubEvent.Start)&&(BusySlots[i].End<MySubEvent.End))
+                {
+                    InvadingEvents.Add(BusySlots[i]);
+                }
+            }
+
+
+            InvadingEvents = SortMyEvents(InvadingEvents);
+
+
+            return InvadingEvents.ToArray();
+        }
+
+        public List<BusyTimeLine> SortMyEvents(List<BusyTimeLine> MyUnsortedEvents)
+        {
+            return QuickSortFunction(MyUnsortedEvents,0,MyUnsortedEvents.Count-1,(MyUnsortedEvents.Count-1/2));
+        }
+
+
+        TimeLine[] getAllFreeSpots(TimeLine MyTimeLine)//Gets an array of all the freespots between busy spots in given time line
+        {
+            BusyTimeLine [] AllBusySlots=MyTimeLine.OccupiedSlots;
+            AllBusySlots=SortMyEvents(AllBusySlots.ToList()).ToArray();
+            TimeLine  [] AllFreeSlots = new TimeLine[AllBusySlots.Length-1];
+            for (int i=1; i<=AllFreeSlots.Length;i++)//Free Spots Are only between two busy Slots. So Index Counter starts from 1 get start of second busy
+            {
+                AllFreeSlots[i-1]=new TimeLine(AllBusySlots[i-1].End.AddMilliseconds(1),AllBusySlots[i].Start.AddMilliseconds(-1));
+            }
+            return AllFreeSlots;
+        }
+        
+        public void WriteToLog(CalendarEvent MyEvent)//writes to an XML Log file. Takes calendar event as an argument
+        {
+            XmlDocument xmldoc = new XmlDocument();
+            xmldoc.Load("MyEventLog.xml");
+            xmldoc.DocumentElement.SelectSingleNode("/ScheduleLog/LastIDCounter").InnerText = MyEvent.ID;
+            XmlNodeList EventSchedulesNodes = xmldoc.DocumentElement.SelectNodes("/ScheduleLog/EventSchedules");
+            XmlNodeList EventScheduleNodes = xmldoc.DocumentElement.SelectNodes("/ScheduleLog/EventSchedules/EventSchedule");
+            //EventScheduleNodes = new XmlNodeList();
+            //XmlElement EventScheduleNode = CreateEventScheduleNode(MyEvent, xmldoc);
+            XmlElement EventScheduleNode = CreateEventScheduleNode(MyEvent);
+            //EventSchedulesNodes[0].PrependChild(xmldoc.CreateElement("EventSchedule"));
+            //EventSchedulesNodes[0].ChildNodes[0].InnerXml = CreateEventScheduleNode(MyEvent).InnerXml;
+            XmlNode MyImportedNode = xmldoc.ImportNode(EventScheduleNode as XmlNode, true);
+                //(EventScheduleNode, true);
+            if (!UpdateInnerXml(ref EventScheduleNodes, "ID", MyEvent.ID.ToString(), EventScheduleNode))
+            {
+                xmldoc.DocumentElement.SelectSingleNode("/ScheduleLog/EventSchedules").AppendChild(MyImportedNode);
+            }
+            xmldoc.Save("MyEventLog.xml");
+        }
+
+        //public XmlElement CreateEventScheduleNode(CalendarEvent MyEvent, XmlDocument xmldoc)
+        public XmlElement CreateEventScheduleNode(CalendarEvent MyEvent)
+        {
+            XmlDocument xmldoc = new XmlDocument();
+            
+            
+            XmlElement MyEventScheduleNode = xmldoc.CreateElement("EventSchedule");
+            
+            MyEventScheduleNode.PrependChild(xmldoc.CreateElement("Completed"));
+            MyEventScheduleNode.ChildNodes[0].InnerText = MyEvent.Completed.ToString();
+            MyEventScheduleNode.PrependChild(xmldoc.CreateElement("RepetitionFlag"));
+            MyEventScheduleNode.ChildNodes[0].InnerText = MyEvent.Repetition.ToString();
+            MyEventScheduleNode.PrependChild(xmldoc.CreateElement("EventSubSchedules"));
+            //MyEventScheduleNode.ChildNodes[0].InnerText = MyEvent.Repetition.ToString();
+            MyEventScheduleNode.PrependChild(xmldoc.CreateElement("RigidFlag"));
+            MyEventScheduleNode.ChildNodes[0].InnerText = MyEvent.Rigid.ToString();
+            MyEventScheduleNode.PrependChild(xmldoc.CreateElement("Duration"));
+            MyEventScheduleNode.ChildNodes[0].InnerText = MyEvent.Duration.ToString();
+            MyEventScheduleNode.PrependChild(xmldoc.CreateElement("Split"));
+            MyEventScheduleNode.ChildNodes[0].InnerText = MyEvent.NumberOfSplit.ToString();
+            MyEventScheduleNode.PrependChild(xmldoc.CreateElement("Deadline"));
+            MyEventScheduleNode.ChildNodes[0].InnerText = MyEvent.End.ToString();
+            MyEventScheduleNode.PrependChild(xmldoc.CreateElement("PrepTime"));
+            MyEventScheduleNode.ChildNodes[0].InnerText = MyEvent.Preparation.ToString();
+
+            //MyEventScheduleNode.PrependChild(xmldoc.CreateElement("PreDeadlineFlag"));
+            //MyEventScheduleNode.ChildNodes[0].InnerText = MyEvent.Pre.ToString();
+            MyEventScheduleNode.PrependChild(xmldoc.CreateElement("PreDeadline"));
+            MyEventScheduleNode.ChildNodes[0].InnerText = MyEvent.PreDeadline.ToString();
+            MyEventScheduleNode.PrependChild(xmldoc.CreateElement("StartTime"));
+            MyEventScheduleNode.ChildNodes[0].InnerText = MyEvent.Start.ToString();
+            MyEventScheduleNode.PrependChild(xmldoc.CreateElement("Name"));
+            MyEventScheduleNode.ChildNodes[0].InnerText = MyEvent.Name.ToString();
+            MyEventScheduleNode.PrependChild(xmldoc.CreateElement("ID"));
+            MyEventScheduleNode.ChildNodes[0].InnerText = MyEvent.ID.ToString();
+            XmlNode SubScheduleNodes = MyEventScheduleNode.SelectSingleNode("EventSubSchedules");
+            foreach (SubCalendarEvent MySubEvent in MyEvent.AllEvents)
+            {
+                SubScheduleNodes.PrependChild(xmldoc.CreateElement("EventSubSchedule"));
+                SubScheduleNodes.ChildNodes[0].InnerXml=CreateSubScheduleNode(MySubEvent).InnerXml;
+            }
+            MyEventScheduleNode.ChildNodes[0].InnerText = MyEvent.ID;
+
+            
+            return MyEventScheduleNode;
+        }
+
+        public XmlElement CreateSubScheduleNode(SubCalendarEvent MySubEvent)
+        {
+            XmlDocument xmldoc = new XmlDocument();
+            XmlElement MyEventSubScheduleNode = xmldoc.CreateElement("EventSubSchedule");
+            //MyEventSubScheduleNode.Name = "EventSubSchedule";
+            MyEventSubScheduleNode.PrependChild(xmldoc.CreateElement("EndTime"));
+            MyEventSubScheduleNode.ChildNodes[0].InnerText = MySubEvent.End.ToString();
+            MyEventSubScheduleNode.PrependChild(xmldoc.CreateElement("StartTime"));
+            MyEventSubScheduleNode.ChildNodes[0].InnerText = MySubEvent.Start.ToString();
+            MyEventSubScheduleNode.PrependChild(xmldoc.CreateElement("Duration"));
+            MyEventSubScheduleNode.ChildNodes[0].InnerText = MySubEvent.Duration.ToString();
+            //MyEventSubScheduleNode.PrependChild(xmldoc.CreateElement("Name"));
+            //MyEventSubScheduleNode.ChildNodes[0].InnerText = MySubEvent.Name.ToString();
+            MyEventSubScheduleNode.PrependChild(xmldoc.CreateElement("ID"));
+            MyEventSubScheduleNode.ChildNodes[0].InnerText = MySubEvent.ID.ToString();
+            return MyEventSubScheduleNode;
+        }
+
+        public bool UpdateInnerXml(ref XmlNodeList MyLogList, string NodeName, string IdentifierData, XmlElement UpdatedData)
+        {
+            for (int i = 0; i < MyLogList.Count; i++)
+            {
+                //XmlNode XmlTempHolder = MyLogList[i];
+                //string TempHolder = XmlTempHolder.SelectSingleNode("ID").InnerText;
+                if (MyLogList[i].SelectSingleNode(NodeName).InnerText == IdentifierData)
+                {
+                    MyLogList[i].SelectSingleNode(NodeName).InnerXml = UpdatedData.InnerXml;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool UpdateXMLInnerText(ref XmlNodeList MyLogList, string NodeName, string IdentifierData, string UpdatedData)
+        {
+            foreach (XmlNode MyNode in MyLogList)
+            {
+                if (MyNode.SelectSingleNode("/" + NodeName).InnerText == IdentifierData)
+                {
+                    MyNode.SelectSingleNode("/" + NodeName).InnerText = UpdatedData;
+                    
+                    return true;
+                }
+            }
+            return false;
         }
 
         static TimeLine ScheduleTimeline = new TimeLine();
@@ -902,6 +1368,7 @@ namespace My24HourTimerWPF
     {
         EventID SubEventID;
         BusyTimeLine BusyFrame;
+        TimeSpan AvailablePreceedingFreeSpace;
         public SubCalendarEvent(TimeSpan Event_Duration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, string myParentID)
         {
 //string eventName, TimeSpan EventDuration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, TimeSpan PreDeadline, bool EventRigidFlag, bool EventRepetition, int EventSplit

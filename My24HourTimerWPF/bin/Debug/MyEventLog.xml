@@ -1,92 +1,215 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ScheduleLog>
-  <LastIDCounter>3</LastIDCounter>
+  <LastIDCounter>14</LastIDCounter>
   <EventSchedules>
     <EventSchedule>
       <ID>1</ID>
       <Name>TestSchedule</Name>
-      <StartTime>4/19/2013 12:12:00 AM</StartTime>
+      <StartTime>4/28/2013 3:12:00 PM</StartTime>
       <PreDeadline>0</PreDeadline>
       <PrepTime>00:00:00.0000900</PrepTime>
-      <Deadline>4/19/2013 1:00:00 PM</Deadline>
-      <Split>1</Split>
+      <Deadline>4/28/2013 11:00:00 PM</Deadline>
+      <Split>6</Split>
       <Duration>0</Duration>
       <RigidFlag>False</RigidFlag>
       <EventSubSchedules>
         <EventSubSchedule>
+          <ID>1_7</ID>
+          <ActiveStartTime>4/28/2013 9:42:00 PM</ActiveStartTime>
+          <ActiveEndTime>4/28/2013 10:15:20 PM</ActiveEndTime>
+          <Duration>00:33:20</Duration>
+          <StartTime>4/28/2013 9:42:00 PM</StartTime>
+          <EndTime>4/28/2013 11:00:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <ID>1_6</ID>
+          <ActiveStartTime>4/28/2013 8:24:00 PM</ActiveStartTime>
+          <ActiveEndTime>4/28/2013 8:57:20 PM</ActiveEndTime>
+          <Duration>00:33:20</Duration>
+          <StartTime>4/28/2013 8:24:00 PM</StartTime>
+          <EndTime>4/28/2013 9:42:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <ID>1_5</ID>
+          <ActiveStartTime>4/28/2013 7:06:00 PM</ActiveStartTime>
+          <ActiveEndTime>4/28/2013 7:39:20 PM</ActiveEndTime>
+          <Duration>00:33:20</Duration>
+          <StartTime>4/28/2013 7:06:00 PM</StartTime>
+          <EndTime>4/28/2013 8:24:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <ID>1_4</ID>
+          <ActiveStartTime>4/28/2013 5:48:00 PM</ActiveStartTime>
+          <ActiveEndTime>4/28/2013 6:21:20 PM</ActiveEndTime>
+          <Duration>00:33:20</Duration>
+          <StartTime>4/28/2013 5:48:00 PM</StartTime>
+          <EndTime>4/28/2013 7:06:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <ID>1_3</ID>
+          <ActiveStartTime>4/28/2013 4:30:00 PM</ActiveStartTime>
+          <ActiveEndTime>4/28/2013 5:03:20 PM</ActiveEndTime>
+          <Duration>00:33:20</Duration>
+          <StartTime>4/28/2013 4:30:00 PM</StartTime>
+          <EndTime>4/28/2013 5:48:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
           <ID>1_2</ID>
-          <Duration>0</Duration>
-          <StartTime>4/19/2013 12:12:00 AM</StartTime>
-          <EndTime>4/19/2013 1:00:00 PM</EndTime>
+          <ActiveStartTime>4/28/2013 3:12:00 PM</ActiveStartTime>
+          <ActiveEndTime>4/28/2013 3:45:20 PM</ActiveEndTime>
+          <Duration>00:33:20</Duration>
+          <StartTime>4/28/2013 3:12:00 PM</StartTime>
+          <EndTime>4/28/2013 4:30:00 PM</EndTime>
         </EventSubSchedule>
       </EventSubSchedules>
       <RepetitionFlag>False</RepetitionFlag>
       <Completed>True</Completed>
     </EventSchedule>
     <EventSchedule>
-      <ID>3</ID>
+      <ID>8</ID>
       <Name>TestSchedule</Name>
-      <StartTime>4/19/2013 12:12:00 AM</StartTime>
+      <StartTime>4/30/2013 3:12:00 AM</StartTime>
       <PreDeadline>0</PreDeadline>
       <PrepTime>00:00:00.0000900</PrepTime>
-      <Deadline>4/19/2013 1:00:00 PM</Deadline>
-      <Split>9</Split>
+      <Deadline>5/3/2013 10:00:00 AM</Deadline>
+      <Split>7</Split>
       <Duration>0</Duration>
       <RigidFlag>False</RigidFlag>
       <EventSubSchedules>
         <EventSubSchedule>
-          <ID>3_12</ID>
-          <Duration>0</Duration>
-          <StartTime>4/19/2013 11:34:40 AM</StartTime>
-          <EndTime>4/19/2013 1:00:00 PM</EndTime>
+          <ID>8_15</ID>
+          <ActiveStartTime>5/2/2013 10:44:34 PM</ActiveStartTime>
+          <ActiveEndTime>5/2/2013 11:13:08 PM</ActiveEndTime>
+          <Duration>00:28:34.2857142</Duration>
+          <StartTime>5/2/2013 10:44:34 PM</StartTime>
+          <EndTime>5/3/2013 10:00:00 AM</EndTime>
         </EventSubSchedule>
         <EventSubSchedule>
-          <ID>3_11</ID>
-          <Duration>0</Duration>
-          <StartTime>4/19/2013 10:09:20 AM</StartTime>
-          <EndTime>4/19/2013 11:34:40 AM</EndTime>
+          <ID>8_14</ID>
+          <ActiveStartTime>5/2/2013 11:29:08 AM</ActiveStartTime>
+          <ActiveEndTime>5/2/2013 11:57:43 AM</ActiveEndTime>
+          <Duration>00:28:34.2857142</Duration>
+          <StartTime>5/2/2013 11:29:08 AM</StartTime>
+          <EndTime>5/2/2013 10:44:34 PM</EndTime>
         </EventSubSchedule>
         <EventSubSchedule>
-          <ID>3_10</ID>
-          <Duration>0</Duration>
-          <StartTime>4/19/2013 8:44:00 AM</StartTime>
-          <EndTime>4/19/2013 10:09:20 AM</EndTime>
+          <ID>8_13</ID>
+          <ActiveStartTime>5/2/2013 12:13:43 AM</ActiveStartTime>
+          <ActiveEndTime>5/2/2013 12:42:17 AM</ActiveEndTime>
+          <Duration>00:28:34.2857142</Duration>
+          <StartTime>5/2/2013 12:13:42 AM</StartTime>
+          <EndTime>5/2/2013 11:29:08 AM</EndTime>
         </EventSubSchedule>
         <EventSubSchedule>
-          <ID>3_9</ID>
-          <Duration>0</Duration>
-          <StartTime>4/19/2013 7:18:40 AM</StartTime>
-          <EndTime>4/19/2013 8:44:00 AM</EndTime>
+          <ID>8_12</ID>
+          <ActiveStartTime>5/1/2013 12:58:17 PM</ActiveStartTime>
+          <ActiveEndTime>5/1/2013 1:26:51 PM</ActiveEndTime>
+          <Duration>00:28:34.2857142</Duration>
+          <StartTime>5/1/2013 12:58:17 PM</StartTime>
+          <EndTime>5/2/2013 12:13:42 AM</EndTime>
         </EventSubSchedule>
         <EventSubSchedule>
-          <ID>3_8</ID>
-          <Duration>0</Duration>
-          <StartTime>4/19/2013 5:53:20 AM</StartTime>
-          <EndTime>4/19/2013 7:18:40 AM</EndTime>
+          <ID>8_11</ID>
+          <ActiveStartTime>5/1/2013 1:42:51 AM</ActiveStartTime>
+          <ActiveEndTime>5/1/2013 2:11:25 AM</ActiveEndTime>
+          <Duration>00:28:34.2857142</Duration>
+          <StartTime>5/1/2013 1:42:51 AM</StartTime>
+          <EndTime>5/1/2013 12:58:17 PM</EndTime>
         </EventSubSchedule>
         <EventSubSchedule>
-          <ID>3_7</ID>
-          <Duration>0</Duration>
-          <StartTime>4/19/2013 4:28:00 AM</StartTime>
-          <EndTime>4/19/2013 5:53:20 AM</EndTime>
+          <ID>8_10</ID>
+          <ActiveStartTime>4/30/2013 2:27:25 PM</ActiveStartTime>
+          <ActiveEndTime>4/30/2013 2:56:00 PM</ActiveEndTime>
+          <Duration>00:28:34.2857142</Duration>
+          <StartTime>4/30/2013 2:27:25 PM</StartTime>
+          <EndTime>5/1/2013 1:42:51 AM</EndTime>
         </EventSubSchedule>
         <EventSubSchedule>
-          <ID>3_6</ID>
-          <Duration>0</Duration>
-          <StartTime>4/19/2013 3:02:40 AM</StartTime>
-          <EndTime>4/19/2013 4:28:00 AM</EndTime>
+          <ID>8_9</ID>
+          <ActiveStartTime>4/30/2013 3:12:00 AM</ActiveStartTime>
+          <ActiveEndTime>4/30/2013 3:40:34 AM</ActiveEndTime>
+          <Duration>00:28:34.2857142</Duration>
+          <StartTime>4/30/2013 3:12:00 AM</StartTime>
+          <EndTime>4/30/2013 2:27:25 PM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>True</Completed>
+    </EventSchedule>
+    <EventSchedule>
+      <ID>14</ID>
+      <Name>TestSchedule</Name>
+      <StartTime>4/30/2013 3:12:00 PM</StartTime>
+      <PreDeadline>0</PreDeadline>
+      <PrepTime>00:00:00.0000900</PrepTime>
+      <Deadline>5/22/2013 11:00:00 PM</Deadline>
+      <Split>8</Split>
+      <Duration>0</Duration>
+      <RigidFlag>False</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <ID>14_22</ID>
+          <ActiveStartTime>5/20/2013 4:01:30 AM</ActiveStartTime>
+          <ActiveEndTime>5/20/2013 4:26:30 AM</ActiveEndTime>
+          <Duration>00:25:00</Duration>
+          <StartTime>5/20/2013 4:01:30 AM</StartTime>
+          <EndTime>5/22/2013 11:00:00 PM</EndTime>
         </EventSubSchedule>
         <EventSubSchedule>
-          <ID>3_5</ID>
-          <Duration>0</Duration>
-          <StartTime>4/19/2013 1:37:20 AM</StartTime>
-          <EndTime>4/19/2013 3:02:40 AM</EndTime>
+          <ID>14_21</ID>
+          <ActiveStartTime>5/17/2013 9:03:00 AM</ActiveStartTime>
+          <ActiveEndTime>5/17/2013 9:28:00 AM</ActiveEndTime>
+          <Duration>00:25:00</Duration>
+          <StartTime>5/17/2013 9:03:00 AM</StartTime>
+          <EndTime>5/20/2013 4:01:30 AM</EndTime>
         </EventSubSchedule>
         <EventSubSchedule>
-          <ID>3_4</ID>
-          <Duration>0</Duration>
-          <StartTime>4/19/2013 12:12:00 AM</StartTime>
-          <EndTime>4/19/2013 1:37:20 AM</EndTime>
+          <ID>14_20</ID>
+          <ActiveStartTime>5/14/2013 2:04:30 PM</ActiveStartTime>
+          <ActiveEndTime>5/14/2013 2:29:30 PM</ActiveEndTime>
+          <Duration>00:25:00</Duration>
+          <StartTime>5/14/2013 2:04:30 PM</StartTime>
+          <EndTime>5/17/2013 9:03:00 AM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <ID>14_19</ID>
+          <ActiveStartTime>5/11/2013 7:06:00 PM</ActiveStartTime>
+          <ActiveEndTime>5/11/2013 7:31:00 PM</ActiveEndTime>
+          <Duration>00:25:00</Duration>
+          <StartTime>5/11/2013 7:06:00 PM</StartTime>
+          <EndTime>5/14/2013 2:04:30 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <ID>14_18</ID>
+          <ActiveStartTime>5/9/2013 12:07:30 AM</ActiveStartTime>
+          <ActiveEndTime>5/9/2013 12:32:30 AM</ActiveEndTime>
+          <Duration>00:25:00</Duration>
+          <StartTime>5/9/2013 12:07:30 AM</StartTime>
+          <EndTime>5/11/2013 7:06:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <ID>14_17</ID>
+          <ActiveStartTime>5/6/2013 5:09:00 AM</ActiveStartTime>
+          <ActiveEndTime>5/6/2013 5:34:00 AM</ActiveEndTime>
+          <Duration>00:25:00</Duration>
+          <StartTime>5/6/2013 5:09:00 AM</StartTime>
+          <EndTime>5/9/2013 12:07:30 AM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <ID>14_16</ID>
+          <ActiveStartTime>5/3/2013 10:10:30 AM</ActiveStartTime>
+          <ActiveEndTime>5/3/2013 10:35:30 AM</ActiveEndTime>
+          <Duration>00:25:00</Duration>
+          <StartTime>5/3/2013 10:10:30 AM</StartTime>
+          <EndTime>5/6/2013 5:09:00 AM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <ID>14_15</ID>
+          <ActiveStartTime>4/30/2013 3:12:00 PM</ActiveStartTime>
+          <ActiveEndTime>4/30/2013 3:37:00 PM</ActiveEndTime>
+          <Duration>00:25:00</Duration>
+          <StartTime>4/30/2013 3:12:00 PM</StartTime>
+          <EndTime>5/3/2013 10:10:30 AM</EndTime>
         </EventSubSchedule>
       </EventSubSchedules>
       <RepetitionFlag>False</RepetitionFlag>

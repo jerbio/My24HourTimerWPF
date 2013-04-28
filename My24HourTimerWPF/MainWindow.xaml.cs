@@ -471,13 +471,11 @@ namespace My24HourTimerWPF
     }
 
 
-
     public class TimeLine
     {
         protected DateTime EndTime;
         protected DateTime StartTime;
-        BusyTimeLine[] ActiveTimeSlots;
-        protected string TimeLineEventID = "";
+        protected BusyTimeLine[] ActiveTimeSlots;
 
         public TimeLine()
         { 
@@ -485,23 +483,34 @@ namespace My24HourTimerWPF
         }
         
 
-        public TimeLine(string MyEventID,DateTime MyStartTime, DateTime MyEndTime)
-        {
-            StartTime = MyStartTime;
-            EndTime = MyEndTime;
-            TimeLineEventID=MyEventID;
-        }
-
         public TimeLine( DateTime MyStartTime, DateTime MyEndTime)
         {
             StartTime = MyStartTime;
             EndTime = MyEndTime;
         }
 
-        public void PopulateBusyTimeSlot(string MyEventID, BusyTimeLine[] myActiveTimeSlots)
+        public DateTime Start
         {
-            ActiveTimeSlots = myActiveTimeSlots;
-            TimeLineEventID = MyEventID;
+            get
+            {
+                return StartTime;
+            }
+        }
+
+        public DateTime End
+        {
+            get
+            {
+                return EndTime;
+            }
+        }
+
+        public TimeSpan TimelineSpan
+        {
+            get
+            {
+                return EndTime - StartTime;
+            }
         }
 
         public TimeSpan TimeTillEnd
@@ -519,16 +528,13 @@ namespace My24HourTimerWPF
             }
         }
 
-        public string TimeLineID
-        {
-            get
-            {
-                return TimeLineEventID;
-            }
-        }
 
         public BusyTimeLine [] OccupiedSlots
         {
+            set
+            {
+                ActiveTimeSlots = value;
+            }
             get 
             {
                 return ActiveTimeSlots;
@@ -537,7 +543,7 @@ namespace My24HourTimerWPF
 
 
     }
-    public class BusyTimeLine : TimeLine
+    public class BusyTimeLine : EventTimeLine
     {
         TimeSpan BusySpan;
 
@@ -577,6 +583,50 @@ namespace My24HourTimerWPF
             get
             {
                 return EndTime;
+            }
+        }
+    }
+
+    public class EventTimeLine:TimeLine
+    {
+        protected string TimeLineEventID = "";
+        
+        public EventTimeLine()
+        {
+            
+        }
+
+        public EventTimeLine(string MyEventID, DateTime MyStartTime, DateTime MyEndTime)
+        {
+            StartTime = MyStartTime;
+            EndTime = MyEndTime;
+            TimeLineEventID=MyEventID;
+        }
+
+        public void PopulateBusyTimeSlot(string MyEventID, BusyTimeLine[] myActiveTimeSlots)
+        {
+            ActiveTimeSlots = myActiveTimeSlots;
+            TimeLineEventID = MyEventID;
+        }
+
+
+        public string TimeLineID
+        {
+            get
+            {
+                return TimeLineEventID;
+            }
+        }
+
+        override public BusyTimeLine[] OccupiedSlots
+        {
+            set
+            {
+                ActiveTimeSlots = value;
+            }
+            get
+            {
+                return ActiveTimeSlots;
             }
         }
     }
@@ -652,6 +702,23 @@ namespace My24HourTimerWPF
 
         public CalendarEvent(string NameEntry, string StartTime, DateTime StartDateEntry, string EndTime, DateTime EventEndDateEntry, string eventSplit, string PreDeadlineTime, string EventDuration, bool EventRepetitionflag, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag):this(new ConstructorModified(NameEntry, StartTime, StartDateEntry, EndTime, EventEndDateEntry, eventSplit, PreDeadlineTime, EventDuration, EventRepetitionflag, DefaultPrepTimeflag, RigidScheduleFlag, eventPrepTime, PreDeadlineFlag))
         {
+        }
+
+        public CalendarEvent(CalendarEvent MyUpdated, SubCalendarEvent[] MySubEvents)
+        {
+            CalendarEventName = MyUpdated.Name;
+            StartDateTime = MyUpdated.StartDateTime;
+            EndDateTime = MyUpdated.DeadlineDateTime;
+            EventDuration = MyUpdated.ActiveDurationSpan;
+            Splits = MyUpdated.Splits;
+            PrepTime = MyUpdated.PrepTime;
+            EventPreDeadline = new TimeSpan(Convert.ToInt32(MyUpdated.PreDeadline.ToString())*10000000);
+            RigidSchedule = MyUpdated.Rigid;
+            TimePerSplit = MyUpdated.TimePerSplit;
+            ArrayOfSubEvents = new SubCalendarEvent[Splits];
+            //CalendarEventID = new EventID(new string[] { EventIDGenerator.generate().ToString() });
+            //ArrayOfSubEvents = generateSubEvent(ArrayOfSubEvents, 4, EventDuration, CalendarEventID.ToString());
+            ArrayOfSubEvents = MySubEvents;
         }
 
         private CalendarEvent(ConstructorModified UpdatedConstructor):this(UpdatedConstructor.Name,UpdatedConstructor.Duration,UpdatedConstructor.StartDate,UpdatedConstructor.EndDate,UpdatedConstructor.PrepTime,UpdatedConstructor.PreDeadline,UpdatedConstructor.Rigid,UpdatedConstructor.Repeat,UpdatedConstructor.Split)
@@ -952,7 +1019,7 @@ namespace My24HourTimerWPF
             }
         }
 
-       public string Duration
+       public string ActiveDuration
         {
             get
             {
@@ -960,7 +1027,7 @@ namespace My24HourTimerWPF
             }
         }
 
-       public TimeSpan DurationSpan
+       public TimeSpan ActiveDurationSpan
        {
            get
            {
@@ -996,7 +1063,6 @@ namespace My24HourTimerWPF
         {
             AllEventDictionary = getAllCalendarFromXml();
             CompleteSchedule=getTimeLine();
-            
         }
 
         TimeLine getTimeLine()
@@ -1013,8 +1079,8 @@ namespace My24HourTimerWPF
                     }
                 }
             }
-            new TimeLine(string.Empty, DateTime.Now, LastDeadline);
-            return new TimeLine();
+            
+            return new TimeLine(DateTime.Now, LastDeadline);
         }
         
         Dictionary<string, CalendarEvent> getAllCalendarFromXml()
@@ -1079,7 +1145,6 @@ namespace My24HourTimerWPF
 
         public bool AddToSchedule(CalendarEvent NewEvent)
         {
-
             UpdateTimeline(NewEvent);
             WriteToLog(NewEvent);
             AllEventDictionary.Add(NewEvent.ID, NewEvent);
@@ -1088,7 +1153,11 @@ namespace My24HourTimerWPF
 
         public bool UpdateTimeline(CalendarEvent MyEvent)
         {
-            BusyTimeLine [] AllOccupiedSlot= CompleteSchedule.OccupiedSlots;
+
+            int MyEvent.NumberOfSplit
+
+            
+                BusyTimeLine [] AllOccupiedSlot= CompleteSchedule.OccupiedSlots;
             TimeSpan TotalActiveDuration=new TimeSpan();
             int i=0;
 
@@ -1105,8 +1174,23 @@ namespace My24HourTimerWPF
             return true;
         }
 
+        private SubCalendarEvent AssignSubEventTimeSlot(SubCalendarEvent MySubEvent)
+        {
+            BusyTimeLine [] ArrayOfInvadingEvents = CheckIfMyRangeAlreadyHasSchedule(CompleteSchedule.OccupiedSlots, MySubEvent);
+            TimeLine[] AvailableFreeSpots = getAllFreeSpots(new TimeLine(MySubEvent.Start, MySubEvent.End));
+            for (int i = 0; i < AvailableFreeSpots.Length; i++)
+            {
+                if (AvailableFreeSpots[i].TimelineSpan > MySubEvent.ActiveDurationSpan)
+                {
+                    DateTime DurationStartTime;
+                    TimeSpan MyTimeSpan = new TimeSpan((((AvailableFreeSpots[i].TimelineSpan - MySubEvent.ActiveDurationSpan).Milliseconds)/2)*10000);
+                    
+                }
+            }
+        }
 
-        static List<BusyTimeLine> QuickSortFunction(List<BusyTimeLine> MyArray,int LeftIndexPassed,int RightIndexPassed,int PivotPassed)
+
+        static public List<BusyTimeLine> QuickSortFunction(List<BusyTimeLine> MyArray,int LeftIndexPassed,int RightIndexPassed,int PivotPassed)
         {
             //Console.WriteLine("\n EntryLeft is " + LeftIndexPassed.ToString() + " EntryRight is " + RightIndexPassed.ToString() + " EntryPivot is " + PivotPassed.ToString() + "\n");
             int PivotIndex;
@@ -1183,7 +1267,7 @@ namespace My24HourTimerWPF
             return MyArray;
         }
 
-        static int GetLeftThatsGreater(List<BusyTimeLine> MyArray, int MyPivot,int LeftStartinPosition)
+        static public int GetLeftThatsGreater(List<BusyTimeLine> MyArray, int MyPivot, int LeftStartinPosition)
         {
             for (int i = LeftStartinPosition; i <= MyPivot; i++)
             {
@@ -1195,7 +1279,7 @@ namespace My24HourTimerWPF
             return MyPivot;
         }
 
-        static int GetRightThatsLess(List<BusyTimeLine> MyArray, int MyPivot, int RightStartinPosition)
+        static public int GetRightThatsLess(List<BusyTimeLine> MyArray, int MyPivot, int RightStartinPosition)
         {
             for (int i = RightStartinPosition; i >= MyPivot; i--)
             {
@@ -1284,7 +1368,7 @@ namespace My24HourTimerWPF
             MyEventScheduleNode.PrependChild(xmldoc.CreateElement("RigidFlag"));
             MyEventScheduleNode.ChildNodes[0].InnerText = MyEvent.Rigid.ToString();
             MyEventScheduleNode.PrependChild(xmldoc.CreateElement("Duration"));
-            MyEventScheduleNode.ChildNodes[0].InnerText = MyEvent.Duration.ToString();
+            MyEventScheduleNode.ChildNodes[0].InnerText = MyEvent.ActiveDuration.ToString();
             MyEventScheduleNode.PrependChild(xmldoc.CreateElement("Split"));
             MyEventScheduleNode.ChildNodes[0].InnerText = MyEvent.NumberOfSplit.ToString();
             MyEventScheduleNode.PrependChild(xmldoc.CreateElement("Deadline"));
@@ -1324,7 +1408,7 @@ namespace My24HourTimerWPF
             MyEventSubScheduleNode.PrependChild(xmldoc.CreateElement("StartTime"));
             MyEventSubScheduleNode.ChildNodes[0].InnerText = MySubEvent.Start.ToString();
             MyEventSubScheduleNode.PrependChild(xmldoc.CreateElement("Duration"));
-            MyEventSubScheduleNode.ChildNodes[0].InnerText = MySubEvent.Duration.ToString();
+            MyEventSubScheduleNode.ChildNodes[0].InnerText = MySubEvent.ActiveDuration.ToString();
             //MyEventSubScheduleNode.PrependChild(xmldoc.CreateElement("Name"));
             //MyEventSubScheduleNode.ChildNodes[0].InnerText = MySubEvent.Name.ToString();
             MyEventSubScheduleNode.PrependChild(xmldoc.CreateElement("ID"));
@@ -1377,7 +1461,7 @@ namespace My24HourTimerWPF
             EventDuration = Event_Duration;
             PrepTime = EventPrepTime;
             SubEventID = new EventID(new string[] { myParentID, EventIDGenerator.generate().ToString()});
-            EventSequence = new TimeLine(SubEventID.ToString(),StartDateTime, EndDateTime);
+            EventSequence = new EventTimeLine(SubEventID.ToString(),StartDateTime, EndDateTime);
         }
 
         public BusyTimeLine ActiveSlot

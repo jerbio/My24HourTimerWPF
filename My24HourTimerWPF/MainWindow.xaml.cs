@@ -692,6 +692,7 @@ namespace My24HourTimerWPF
         protected static TimeLine EventSequence;
         protected SubCalendarEvent SubEvent;
         SubCalendarEvent[] ArrayOfSubEvents;
+        public bool Scheduled;
 
         public CalendarEvent()
         { 
@@ -719,6 +720,7 @@ namespace My24HourTimerWPF
             //CalendarEventID = new EventID(new string[] { EventIDGenerator.generate().ToString() });
             //ArrayOfSubEvents = generateSubEvent(ArrayOfSubEvents, 4, EventDuration, CalendarEventID.ToString());
             ArrayOfSubEvents = MySubEvents;
+            Scheduled = false;
         }
 
         private CalendarEvent(ConstructorModified UpdatedConstructor):this(UpdatedConstructor.Name,UpdatedConstructor.Duration,UpdatedConstructor.StartDate,UpdatedConstructor.EndDate,UpdatedConstructor.PrepTime,UpdatedConstructor.PreDeadline,UpdatedConstructor.Rigid,UpdatedConstructor.Repeat,UpdatedConstructor.Split)
@@ -1145,33 +1147,33 @@ namespace My24HourTimerWPF
 
         public bool AddToSchedule(CalendarEvent NewEvent)
         {
-            UpdateTimeline(NewEvent);
+            NewEvent=UpdateTimeline(NewEvent);
             WriteToLog(NewEvent);
             AllEventDictionary.Add(NewEvent.ID, NewEvent);
             return true;
         }
 
-        public bool UpdateTimeline(CalendarEvent MyEvent)
+        public CalendarEvent UpdateTimeline(CalendarEvent MyEvent)
         {
-
-            int MyEvent.NumberOfSplit
-
-            
-                BusyTimeLine [] AllOccupiedSlot= CompleteSchedule.OccupiedSlots;
+            BusyTimeLine [] AllOccupiedSlot= CompleteSchedule.OccupiedSlots;
             TimeSpan TotalActiveDuration=new TimeSpan();
             int i=0;
+            for (; i < MyEvent.AllEvents.Length; i++)
+            {
+                MyEvent.AllEvents[i] = AssignSubEventTimeSlot(MyEvent.AllEvents[i]);
+            }
 
             for (; i < AllOccupiedSlot.Length; i++)
             {
                 TotalActiveDuration += (AllOccupiedSlot[i].End - AllOccupiedSlot[i].Start);
             }
-            TimeSpan ProjectedTimeDuration = TotalActiveDuration + MyEvent.DurationSpan;
+            TimeSpan ProjectedTimeDuration = TotalActiveDuration + MyEvent.ActiveDurationSpan;
             if (ProjectedTimeDuration > TotalActiveDuration)
             {
-                return false;
+                return MyEvent;
             }
 
-            return true;
+            return MyEvent;
         }
 
         private SubCalendarEvent AssignSubEventTimeSlot(SubCalendarEvent MySubEvent)
@@ -1184,9 +1186,11 @@ namespace My24HourTimerWPF
                 {
                     DateTime DurationStartTime;
                     TimeSpan MyTimeSpan = new TimeSpan((((AvailableFreeSpots[i].TimelineSpan - MySubEvent.ActiveDurationSpan).Milliseconds)/2)*10000);
-                    
+                    DurationStartTime=AvailableFreeSpots[i].Start.Add(MyTimeSpan);
+                    MySubEvent.ActiveSlot = new BusyTimeLine(MySubEvent.ID, DurationStartTime, DurationStartTime.Add(MySubEvent.ActiveDurationSpan));
                 }
-            }
+            } 
+            return MySubEvent;
         }
 
 

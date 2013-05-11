@@ -1,560 +1,86 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ScheduleLog>
-  <LastIDCounter>3</LastIDCounter>
+  <LastIDCounter>7</LastIDCounter>
   <EventSchedules>
     <EventSchedule>
       <ID>1</ID>
-      <Name>TestSchedule</Name>
-      <StartTime>4/30/2013 2:00:00 PM</StartTime>
+      <Name>Optional Assignment</Name>
+      <StartTime>4/29/2013 1:00:00 PM</StartTime>
       <PreDeadline>0</PreDeadline>
       <PrepTime>00:00:00.0000900</PrepTime>
-      <Deadline>8/23/2013 4:00:00 PM</Deadline>
-      <Split>1</Split>
+      <Deadline>5/3/2013 11:00:00 PM</Deadline>
+      <Split>5</Split>
       <Duration>0</Duration>
       <RigidFlag>False</RigidFlag>
       <EventSubSchedules>
         <EventSubSchedule>
+          <ID>1_6</ID>
+          <PrepTime>00:00:00.0000900</PrepTime>
+          <ActiveStartTime>5/3/2013 1:48:00 AM</ActiveStartTime>
+          <ActiveEndTime>5/3/2013 5:00:00 AM</ActiveEndTime>
+          <Duration>03:12:00</Duration>
+          <StartTime>5/3/2013 1:48:00 AM</StartTime>
+          <EndTime>5/3/2013 11:00:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <ID>1_5</ID>
+          <PrepTime>00:00:00.0000900</PrepTime>
+          <ActiveStartTime>5/2/2013 4:36:00 AM</ActiveStartTime>
+          <ActiveEndTime>5/2/2013 7:48:00 AM</ActiveEndTime>
+          <Duration>03:12:00</Duration>
+          <StartTime>5/2/2013 4:36:00 AM</StartTime>
+          <EndTime>5/3/2013 1:48:00 AM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <ID>1_4</ID>
+          <PrepTime>00:00:00.0000900</PrepTime>
+          <ActiveStartTime>5/1/2013 7:24:00 AM</ActiveStartTime>
+          <ActiveEndTime>5/1/2013 10:36:00 AM</ActiveEndTime>
+          <Duration>03:12:00</Duration>
+          <StartTime>5/1/2013 7:24:00 AM</StartTime>
+          <EndTime>5/2/2013 4:36:00 AM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <ID>1_3</ID>
+          <PrepTime>00:00:00.0000900</PrepTime>
+          <ActiveStartTime>4/30/2013 10:12:00 AM</ActiveStartTime>
+          <ActiveEndTime>4/30/2013 1:24:00 PM</ActiveEndTime>
+          <Duration>03:12:00</Duration>
+          <StartTime>4/30/2013 10:12:00 AM</StartTime>
+          <EndTime>5/1/2013 7:24:00 AM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
           <ID>1_2</ID>
-          <ActiveStartTime>4/30/2013 2:00:00 PM</ActiveStartTime>
-          <ActiveEndTime>4/30/2013 5:20:00 PM</ActiveEndTime>
-          <Duration>03:20:00</Duration>
-          <StartTime>4/30/2013 2:00:00 PM</StartTime>
-          <EndTime>8/23/2013 4:00:00 PM</EndTime>
+          <PrepTime>00:00:00.0000900</PrepTime>
+          <ActiveStartTime>4/29/2013 1:00:00 PM</ActiveStartTime>
+          <ActiveEndTime>4/29/2013 4:12:00 PM</ActiveEndTime>
+          <Duration>03:12:00</Duration>
+          <StartTime>4/29/2013 1:00:00 PM</StartTime>
+          <EndTime>4/30/2013 10:12:00 AM</EndTime>
         </EventSubSchedule>
       </EventSubSchedules>
       <RepetitionFlag>False</RepetitionFlag>
       <Completed>True</Completed>
     </EventSchedule>
     <EventSchedule>
-      <ID>3</ID>
-      <Name>Learn Electromagnetics</Name>
-      <StartTime>4/30/2013 2:00:00 PM</StartTime>
+      <ID>6</ID>
+      <Name>Move Car Before 2:00pm</Name>
+      <StartTime>4/29/2013 12:00:00 PM</StartTime>
       <PreDeadline>0</PreDeadline>
       <PrepTime>00:00:00.0000900</PrepTime>
-      <Deadline>8/23/2013 4:00:00 PM</Deadline>
-      <Split>65</Split>
+      <Deadline>4/29/2013 2:00:00 PM</Deadline>
+      <Split>1</Split>
       <Duration>0</Duration>
       <RigidFlag>False</RigidFlag>
       <EventSubSchedules>
         <EventSubSchedule>
-          <ID>3_68</ID>
-          <ActiveStartTime>8/21/2013 9:30:27 PM</ActiveStartTime>
-          <ActiveEndTime>8/21/2013 10:35:04 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>8/21/2013 9:30:27 PM</StartTime>
-          <EndTime>8/23/2013 4:00:00 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_67</ID>
-          <ActiveStartTime>8/20/2013 3:00:55 AM</ActiveStartTime>
-          <ActiveEndTime>8/20/2013 4:05:32 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>8/20/2013 3:00:55 AM</StartTime>
-          <EndTime>8/21/2013 9:30:27 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_66</ID>
-          <ActiveStartTime>8/18/2013 8:31:23 AM</ActiveStartTime>
-          <ActiveEndTime>8/18/2013 9:36:00 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>8/18/2013 8:31:23 AM</StartTime>
-          <EndTime>8/20/2013 3:00:55 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_65</ID>
-          <ActiveStartTime>8/16/2013 2:01:50 PM</ActiveStartTime>
-          <ActiveEndTime>8/16/2013 3:06:27 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>8/16/2013 2:01:50 PM</StartTime>
-          <EndTime>8/18/2013 8:31:23 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_64</ID>
-          <ActiveStartTime>8/14/2013 7:32:18 PM</ActiveStartTime>
-          <ActiveEndTime>8/14/2013 8:36:55 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>8/14/2013 7:32:18 PM</StartTime>
-          <EndTime>8/16/2013 2:01:50 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_63</ID>
-          <ActiveStartTime>8/13/2013 1:02:46 AM</ActiveStartTime>
-          <ActiveEndTime>8/13/2013 2:07:23 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>8/13/2013 1:02:46 AM</StartTime>
-          <EndTime>8/14/2013 7:32:18 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_62</ID>
-          <ActiveStartTime>8/11/2013 6:33:14 AM</ActiveStartTime>
-          <ActiveEndTime>8/11/2013 7:37:50 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>8/11/2013 6:33:13 AM</StartTime>
-          <EndTime>8/13/2013 1:02:46 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_61</ID>
-          <ActiveStartTime>8/9/2013 12:03:41 PM</ActiveStartTime>
-          <ActiveEndTime>8/9/2013 1:08:18 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>8/9/2013 12:03:41 PM</StartTime>
-          <EndTime>8/11/2013 6:33:13 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_60</ID>
-          <ActiveStartTime>8/7/2013 5:34:09 PM</ActiveStartTime>
-          <ActiveEndTime>8/7/2013 6:38:46 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>8/7/2013 5:34:09 PM</StartTime>
-          <EndTime>8/9/2013 12:03:41 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_59</ID>
-          <ActiveStartTime>8/5/2013 11:04:37 PM</ActiveStartTime>
-          <ActiveEndTime>8/6/2013 12:09:14 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>8/5/2013 11:04:36 PM</StartTime>
-          <EndTime>8/7/2013 5:34:09 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_58</ID>
-          <ActiveStartTime>8/4/2013 4:35:04 AM</ActiveStartTime>
-          <ActiveEndTime>8/4/2013 5:39:41 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>8/4/2013 4:35:04 AM</StartTime>
-          <EndTime>8/5/2013 11:04:36 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_57</ID>
-          <ActiveStartTime>8/2/2013 10:05:32 AM</ActiveStartTime>
-          <ActiveEndTime>8/2/2013 11:10:09 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>8/2/2013 10:05:32 AM</StartTime>
-          <EndTime>8/4/2013 4:35:04 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_56</ID>
-          <ActiveStartTime>7/31/2013 3:36:00 PM</ActiveStartTime>
-          <ActiveEndTime>7/31/2013 4:40:37 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>7/31/2013 3:36:00 PM</StartTime>
-          <EndTime>8/2/2013 10:05:32 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_55</ID>
-          <ActiveStartTime>7/29/2013 9:06:27 PM</ActiveStartTime>
-          <ActiveEndTime>7/29/2013 10:11:04 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>7/29/2013 9:06:27 PM</StartTime>
-          <EndTime>7/31/2013 3:36:00 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_54</ID>
-          <ActiveStartTime>7/28/2013 2:36:55 AM</ActiveStartTime>
-          <ActiveEndTime>7/28/2013 3:41:32 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>7/28/2013 2:36:55 AM</StartTime>
-          <EndTime>7/29/2013 9:06:27 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_53</ID>
-          <ActiveStartTime>7/26/2013 8:07:23 AM</ActiveStartTime>
-          <ActiveEndTime>7/26/2013 9:12:00 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>7/26/2013 8:07:23 AM</StartTime>
-          <EndTime>7/28/2013 2:36:55 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_52</ID>
-          <ActiveStartTime>7/24/2013 1:37:50 PM</ActiveStartTime>
-          <ActiveEndTime>7/24/2013 2:42:27 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>7/24/2013 1:37:50 PM</StartTime>
-          <EndTime>7/26/2013 8:07:23 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_51</ID>
-          <ActiveStartTime>7/22/2013 7:08:18 PM</ActiveStartTime>
-          <ActiveEndTime>7/22/2013 8:12:55 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>7/22/2013 7:08:18 PM</StartTime>
-          <EndTime>7/24/2013 1:37:50 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_50</ID>
-          <ActiveStartTime>7/21/2013 12:38:46 AM</ActiveStartTime>
-          <ActiveEndTime>7/21/2013 1:43:23 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>7/21/2013 12:38:46 AM</StartTime>
-          <EndTime>7/22/2013 7:08:18 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_49</ID>
-          <ActiveStartTime>7/19/2013 6:09:14 AM</ActiveStartTime>
-          <ActiveEndTime>7/19/2013 7:13:50 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>7/19/2013 6:09:13 AM</StartTime>
-          <EndTime>7/21/2013 12:38:46 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_48</ID>
-          <ActiveStartTime>7/17/2013 11:39:41 AM</ActiveStartTime>
-          <ActiveEndTime>7/17/2013 12:44:18 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>7/17/2013 11:39:41 AM</StartTime>
-          <EndTime>7/19/2013 6:09:13 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_47</ID>
-          <ActiveStartTime>7/15/2013 5:10:09 PM</ActiveStartTime>
-          <ActiveEndTime>7/15/2013 6:14:46 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>7/15/2013 5:10:09 PM</StartTime>
-          <EndTime>7/17/2013 11:39:41 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_46</ID>
-          <ActiveStartTime>7/13/2013 10:40:37 PM</ActiveStartTime>
-          <ActiveEndTime>7/13/2013 11:45:14 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>7/13/2013 10:40:36 PM</StartTime>
-          <EndTime>7/15/2013 5:10:09 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_45</ID>
-          <ActiveStartTime>7/12/2013 4:11:04 AM</ActiveStartTime>
-          <ActiveEndTime>7/12/2013 5:15:41 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>7/12/2013 4:11:04 AM</StartTime>
-          <EndTime>7/13/2013 10:40:36 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_44</ID>
-          <ActiveStartTime>7/10/2013 9:41:32 AM</ActiveStartTime>
-          <ActiveEndTime>7/10/2013 10:46:09 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>7/10/2013 9:41:32 AM</StartTime>
-          <EndTime>7/12/2013 4:11:04 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_43</ID>
-          <ActiveStartTime>7/8/2013 3:12:00 PM</ActiveStartTime>
-          <ActiveEndTime>7/8/2013 4:16:37 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>7/8/2013 3:12:00 PM</StartTime>
-          <EndTime>7/10/2013 9:41:32 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_42</ID>
-          <ActiveStartTime>7/6/2013 8:42:27 PM</ActiveStartTime>
-          <ActiveEndTime>7/6/2013 9:47:04 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>7/6/2013 8:42:27 PM</StartTime>
-          <EndTime>7/8/2013 3:12:00 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_41</ID>
-          <ActiveStartTime>7/5/2013 2:12:55 AM</ActiveStartTime>
-          <ActiveEndTime>7/5/2013 3:17:32 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>7/5/2013 2:12:55 AM</StartTime>
-          <EndTime>7/6/2013 8:42:27 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_40</ID>
-          <ActiveStartTime>7/3/2013 7:43:23 AM</ActiveStartTime>
-          <ActiveEndTime>7/3/2013 8:48:00 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>7/3/2013 7:43:23 AM</StartTime>
-          <EndTime>7/5/2013 2:12:55 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_39</ID>
-          <ActiveStartTime>7/1/2013 1:13:50 PM</ActiveStartTime>
-          <ActiveEndTime>7/1/2013 2:18:27 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>7/1/2013 1:13:50 PM</StartTime>
-          <EndTime>7/3/2013 7:43:23 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_38</ID>
-          <ActiveStartTime>6/29/2013 6:44:18 PM</ActiveStartTime>
-          <ActiveEndTime>6/29/2013 7:48:55 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>6/29/2013 6:44:18 PM</StartTime>
-          <EndTime>7/1/2013 1:13:50 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_37</ID>
-          <ActiveStartTime>6/28/2013 12:14:46 AM</ActiveStartTime>
-          <ActiveEndTime>6/28/2013 1:19:23 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>6/28/2013 12:14:46 AM</StartTime>
-          <EndTime>6/29/2013 6:44:18 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_36</ID>
-          <ActiveStartTime>6/26/2013 5:45:14 AM</ActiveStartTime>
-          <ActiveEndTime>6/26/2013 6:49:50 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>6/26/2013 5:45:13 AM</StartTime>
-          <EndTime>6/28/2013 12:14:46 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_35</ID>
-          <ActiveStartTime>6/24/2013 11:15:41 AM</ActiveStartTime>
-          <ActiveEndTime>6/24/2013 12:20:18 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>6/24/2013 11:15:41 AM</StartTime>
-          <EndTime>6/26/2013 5:45:13 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_34</ID>
-          <ActiveStartTime>6/22/2013 4:46:09 PM</ActiveStartTime>
-          <ActiveEndTime>6/22/2013 5:50:46 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>6/22/2013 4:46:09 PM</StartTime>
-          <EndTime>6/24/2013 11:15:41 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_33</ID>
-          <ActiveStartTime>6/20/2013 10:16:37 PM</ActiveStartTime>
-          <ActiveEndTime>6/20/2013 11:21:14 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>6/20/2013 10:16:36 PM</StartTime>
-          <EndTime>6/22/2013 4:46:09 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_32</ID>
-          <ActiveStartTime>6/19/2013 3:47:04 AM</ActiveStartTime>
-          <ActiveEndTime>6/19/2013 4:51:41 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>6/19/2013 3:47:04 AM</StartTime>
-          <EndTime>6/20/2013 10:16:36 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_31</ID>
-          <ActiveStartTime>6/17/2013 9:17:32 AM</ActiveStartTime>
-          <ActiveEndTime>6/17/2013 10:22:09 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>6/17/2013 9:17:32 AM</StartTime>
-          <EndTime>6/19/2013 3:47:04 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_30</ID>
-          <ActiveStartTime>6/15/2013 2:48:00 PM</ActiveStartTime>
-          <ActiveEndTime>6/15/2013 3:52:37 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>6/15/2013 2:48:00 PM</StartTime>
-          <EndTime>6/17/2013 9:17:32 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_29</ID>
-          <ActiveStartTime>6/13/2013 8:18:27 PM</ActiveStartTime>
-          <ActiveEndTime>6/13/2013 9:23:04 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>6/13/2013 8:18:27 PM</StartTime>
-          <EndTime>6/15/2013 2:48:00 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_28</ID>
-          <ActiveStartTime>6/12/2013 1:48:55 AM</ActiveStartTime>
-          <ActiveEndTime>6/12/2013 2:53:32 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>6/12/2013 1:48:55 AM</StartTime>
-          <EndTime>6/13/2013 8:18:27 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_27</ID>
-          <ActiveStartTime>6/10/2013 7:19:23 AM</ActiveStartTime>
-          <ActiveEndTime>6/10/2013 8:24:00 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>6/10/2013 7:19:23 AM</StartTime>
-          <EndTime>6/12/2013 1:48:55 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_26</ID>
-          <ActiveStartTime>6/8/2013 12:49:50 PM</ActiveStartTime>
-          <ActiveEndTime>6/8/2013 1:54:27 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>6/8/2013 12:49:50 PM</StartTime>
-          <EndTime>6/10/2013 7:19:23 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_25</ID>
-          <ActiveStartTime>6/6/2013 6:20:18 PM</ActiveStartTime>
-          <ActiveEndTime>6/6/2013 7:24:55 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>6/6/2013 6:20:18 PM</StartTime>
-          <EndTime>6/8/2013 12:49:50 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_24</ID>
-          <ActiveStartTime>6/4/2013 11:50:46 PM</ActiveStartTime>
-          <ActiveEndTime>6/5/2013 12:55:23 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>6/4/2013 11:50:46 PM</StartTime>
-          <EndTime>6/6/2013 6:20:18 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_23</ID>
-          <ActiveStartTime>6/3/2013 5:21:14 AM</ActiveStartTime>
-          <ActiveEndTime>6/3/2013 6:25:50 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>6/3/2013 5:21:13 AM</StartTime>
-          <EndTime>6/4/2013 11:50:46 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_22</ID>
-          <ActiveStartTime>6/1/2013 10:51:41 AM</ActiveStartTime>
-          <ActiveEndTime>6/1/2013 11:56:18 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>6/1/2013 10:51:41 AM</StartTime>
-          <EndTime>6/3/2013 5:21:13 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_21</ID>
-          <ActiveStartTime>5/30/2013 4:22:09 PM</ActiveStartTime>
-          <ActiveEndTime>5/30/2013 5:26:46 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>5/30/2013 4:22:09 PM</StartTime>
-          <EndTime>6/1/2013 10:51:41 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_20</ID>
-          <ActiveStartTime>5/28/2013 9:52:37 PM</ActiveStartTime>
-          <ActiveEndTime>5/28/2013 10:57:14 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>5/28/2013 9:52:36 PM</StartTime>
-          <EndTime>5/30/2013 4:22:09 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_19</ID>
-          <ActiveStartTime>5/27/2013 3:23:04 AM</ActiveStartTime>
-          <ActiveEndTime>5/27/2013 4:27:41 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>5/27/2013 3:23:04 AM</StartTime>
-          <EndTime>5/28/2013 9:52:36 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_18</ID>
-          <ActiveStartTime>5/25/2013 8:53:32 AM</ActiveStartTime>
-          <ActiveEndTime>5/25/2013 9:58:09 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>5/25/2013 8:53:32 AM</StartTime>
-          <EndTime>5/27/2013 3:23:04 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_17</ID>
-          <ActiveStartTime>5/23/2013 2:24:00 PM</ActiveStartTime>
-          <ActiveEndTime>5/23/2013 3:28:37 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>5/23/2013 2:24:00 PM</StartTime>
-          <EndTime>5/25/2013 8:53:32 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_16</ID>
-          <ActiveStartTime>5/21/2013 7:54:27 PM</ActiveStartTime>
-          <ActiveEndTime>5/21/2013 8:59:04 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>5/21/2013 7:54:27 PM</StartTime>
-          <EndTime>5/23/2013 2:24:00 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_15</ID>
-          <ActiveStartTime>5/20/2013 1:24:55 AM</ActiveStartTime>
-          <ActiveEndTime>5/20/2013 2:29:32 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>5/20/2013 1:24:55 AM</StartTime>
-          <EndTime>5/21/2013 7:54:27 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_14</ID>
-          <ActiveStartTime>5/18/2013 6:55:23 AM</ActiveStartTime>
-          <ActiveEndTime>5/18/2013 8:00:00 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>5/18/2013 6:55:23 AM</StartTime>
-          <EndTime>5/20/2013 1:24:55 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_13</ID>
-          <ActiveStartTime>5/16/2013 12:25:50 PM</ActiveStartTime>
-          <ActiveEndTime>5/16/2013 1:30:27 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>5/16/2013 12:25:50 PM</StartTime>
-          <EndTime>5/18/2013 6:55:23 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_12</ID>
-          <ActiveStartTime>5/14/2013 5:56:18 PM</ActiveStartTime>
-          <ActiveEndTime>5/14/2013 7:00:55 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>5/14/2013 5:56:18 PM</StartTime>
-          <EndTime>5/16/2013 12:25:50 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_11</ID>
-          <ActiveStartTime>5/12/2013 11:26:46 PM</ActiveStartTime>
-          <ActiveEndTime>5/13/2013 12:31:23 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>5/12/2013 11:26:46 PM</StartTime>
-          <EndTime>5/14/2013 5:56:18 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_10</ID>
-          <ActiveStartTime>5/11/2013 4:57:14 AM</ActiveStartTime>
-          <ActiveEndTime>5/11/2013 6:01:50 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>5/11/2013 4:57:13 AM</StartTime>
-          <EndTime>5/12/2013 11:26:46 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_9</ID>
-          <ActiveStartTime>5/9/2013 10:27:41 AM</ActiveStartTime>
-          <ActiveEndTime>5/9/2013 11:32:18 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>5/9/2013 10:27:41 AM</StartTime>
-          <EndTime>5/11/2013 4:57:13 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_8</ID>
-          <ActiveStartTime>5/7/2013 3:58:09 PM</ActiveStartTime>
-          <ActiveEndTime>5/7/2013 5:02:46 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>5/7/2013 3:58:09 PM</StartTime>
-          <EndTime>5/9/2013 10:27:41 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_7</ID>
-          <ActiveStartTime>5/5/2013 9:28:37 PM</ActiveStartTime>
-          <ActiveEndTime>5/5/2013 10:33:14 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>5/5/2013 9:28:36 PM</StartTime>
-          <EndTime>5/7/2013 3:58:09 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_6</ID>
-          <ActiveStartTime>5/4/2013 2:59:04 AM</ActiveStartTime>
-          <ActiveEndTime>5/4/2013 4:03:41 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>5/4/2013 2:59:04 AM</StartTime>
-          <EndTime>5/5/2013 9:28:36 PM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_5</ID>
-          <ActiveStartTime>5/2/2013 8:29:32 AM</ActiveStartTime>
-          <ActiveEndTime>5/2/2013 9:34:09 AM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>5/2/2013 8:29:32 AM</StartTime>
-          <EndTime>5/4/2013 2:59:04 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <ID>3_4</ID>
-          <ActiveStartTime>4/30/2013 2:00:00 PM</ActiveStartTime>
-          <ActiveEndTime>4/30/2013 3:04:37 PM</ActiveEndTime>
-          <Duration>01:04:36.9230769</Duration>
-          <StartTime>4/30/2013 2:00:00 PM</StartTime>
-          <EndTime>5/2/2013 8:29:32 AM</EndTime>
+          <ID>6_7</ID>
+          <PrepTime>00:00:00.0000900</PrepTime>
+          <ActiveStartTime>4/29/2013 12:00:00 PM</ActiveStartTime>
+          <ActiveEndTime>4/29/2013 1:00:00 PM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>4/29/2013 12:00:00 PM</StartTime>
+          <EndTime>4/29/2013 2:00:00 PM</EndTime>
         </EventSubSchedule>
       </EventSubSchedules>
       <RepetitionFlag>False</RepetitionFlag>

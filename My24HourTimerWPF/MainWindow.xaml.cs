@@ -1445,11 +1445,41 @@ namespace My24HourTimerWPF
             return MyEvent;
         }
 
-        public TimeLine[] SplitFreeSpotsInToSubEventTimeSlots(TimeLine[] AllAvailableFreeSpots,int NumberOfAllotments)
+        public TimeLine[] SplitFreeSpotsInToSubEventTimeSlots(TimeLine[] AllAvailableFreeSpots,int NumberOfAllotments,int TotalActiveDuration)
         {
             TimeLine[] MyArrayOfToBeAssignedTimeLine = new TimeLine[NumberOfAllotments];
+            float IdealTimePerAllotment = TotalActiveDuration / NumberOfAllotments;
+            Dictionary<TimeLine, int> TimeLineAndFitCount=new Dictionary<TimeLine, int>(MyArrayOfToBeAssignedTimeLine.Length);
+            int i=0;
+            int FitCount=0;
+            for (; i < TimeLineAndFitCount.Count; i++)
+            {
+                FitCount=(int)(MyArrayOfToBeAssignedTimeLine[i].TimelineSpan.TotalSeconds / IdealTimePerAllotment);
+                TimeLineAndFitCount.Add(MyArrayOfToBeAssignedTimeLine[i], FitCount);
+            }
+            i=0;
+            int[] AllFitCount = TimeLineAndFitCount.Values.ToArray();
+            int myTotalFitCount = 0;
+            for (; i < AllFitCount.Length; i++)
+            {
+                myTotalFitCount+=AllFitCount[i];
+            }
+
+            if (myTotalFitCount >= NumberOfAllotments)
+            {
+
+            }
+            else 
+            {
+                MessageBox.Show("Sorry you will need to implement Dress funtionality to afford space.!!!");
+            }
 
             return MyArrayOfToBeAssignedTimeLine;
+        }
+
+        public TimeLine[] AllotAndInsert(Dictionary<TimeLine, int> FreeSpotsAndFitCount)
+        {
+            
         }
 
         private SubCalendarEvent AssignSubEventTimeSlot(SubCalendarEvent MySubEvent)

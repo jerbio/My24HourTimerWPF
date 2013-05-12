@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -521,6 +522,13 @@ namespace My24HourTimerWPF
             StartTime = MyStartTime;
             EndTime = MyEndTime;
             ActiveTimeSlots = new BusyTimeLine[0];
+                //MessageBox.Show("Error In TimeLine Arguments End Time is less than Start Time");
+            if (MyEndTime <= MyStartTime)
+            {
+                StartTime = MyStartTime;
+                EndTime = MyStartTime;
+            }
+            //Debug.Assert(MyEndTime <= MyStartTime,"Error In TimeLine Arguments End Time is less than Start Time");
         }
 
         public DateTime Start
@@ -994,7 +1002,7 @@ namespace My24HourTimerWPF
             //ArrayOfSubEvents = generateSubEvent(ArrayOfSubEvents, 4, EventDuration, CalendarEventID.ToString());
         }
 
-        /*SubCalendarEvent[] generateSubEvent(SubCalendarEvent[] ArrayOfEvents, int NumberOfSplit, TimeSpan TotalActiveDurationSubEvents, string ParentID)
+        SubCalendarEvent[] generateSubEvent(SubCalendarEvent[] ArrayOfEvents, int NumberOfSplit, TimeSpan TotalActiveDurationSubEvents, string ParentID)
         {
             TimeSpan TimeSpanEvent = EndDateTime - StartDateTime;
          //       new TimeSpan((long)((().TotalSeconds/ ArrayOfEvents.Length)*100000000));
@@ -1010,7 +1018,7 @@ namespace My24HourTimerWPF
             }
 
             return ArrayOfEvents;
-        }*/
+        }
 
         public CalendarEvent GetAllScheduleEventsFromXML()
         {
@@ -1115,11 +1123,11 @@ namespace My24HourTimerWPF
             }
         }
 
-        public string Preparation
+        public TimeSpan Preparation
         {
             get
             {
-                return PrepTime.ToString();
+                return PrepTime;
             }
         }
 
@@ -1420,7 +1428,7 @@ namespace My24HourTimerWPF
         {
             BusyTimeLine [] AllOccupiedSlot= CompleteSchedule.OccupiedSlots;
             TimeSpan TotalActiveDuration=new TimeSpan();
-            
+            TimeLine[] TimeLineArrayWithSubEventsAssigned = new TimeLine[MyEvent.AllEvents.Length];
             
             TimeLine[] AllAvailableFreeSpots= getAllFreeSpots(new TimeLine(MyEvent.Start,MyEvent.End));
             int i = 0;
@@ -1431,31 +1439,35 @@ namespace My24HourTimerWPF
             }
             if (TotalFreeTimeAvailable > MyEvent.ActiveDurationSpan)
             {
-                
+                //MyEvent.
+                TimeLineArrayWithSubEventsAssigned = SplitFreeSpotsInToSubEventTimeSlots(AllAvailableFreeSpots, MyEvent.AllEvents.Length, MyEvent.ActiveDurationSpan);
             }
             else
             {
                 MessageBox.Show("Sorry It Wont Fit, trying something else!!!");
             }
-            /*for (; i < MyEvent.AllEvents.Length; i++)
+            SubCalendarEvent TempSubEvent;
+            for (; i < MyEvent.AllEvents.Length; i++)
             {
-                MyEvent.AllEvents[i] = AssignSubEventTimeSlot(MyEvent.AllEvents[i]);
-            }*/
+
+                TempSubEvent = new SubCalendarEvent(MyEvent.AllEvents[i].ID, TimeLineArrayWithSubEventsAssigned[i].Start.Add(-MyEvent.Preparation), TimeLineArrayWithSubEventsAssigned[i].End, new BusyTimeLine(MyEvent.AllEvents[i].ID, TimeLineArrayWithSubEventsAssigned[i].Start, TimeLineArrayWithSubEventsAssigned[i].End));
+                MyEvent.AllEvents[i] = TempSubEvent;
+            }
 
             return MyEvent;
         }
 
-        public TimeLine[] SplitFreeSpotsInToSubEventTimeSlots(TimeLine[] AllAvailableFreeSpots,int NumberOfAllotments,int TotalActiveDuration)
+        public TimeLine[] SplitFreeSpotsInToSubEventTimeSlots(TimeLine[] AllAvailableFreeSpots,int NumberOfAllotments,TimeSpan TotalActiveDuration)//function is responsible for dividing busy timeline. Also sapcing them out
         {
             TimeLine[] MyArrayOfToBeAssignedTimeLine = new TimeLine[NumberOfAllotments];
-            float IdealTimePerAllotment = TotalActiveDuration / NumberOfAllotments;
-            Dictionary<TimeLine, int> TimeLineAndFitCount=new Dictionary<TimeLine, int>(MyArrayOfToBeAssignedTimeLine.Length);
+            double IdealTimePerAllotment = TotalActiveDuration.TotalSeconds / NumberOfAllotments;
+            Dictionary<TimeLine, int> TimeLineAndFitCount=new Dictionary<TimeLine, int>();
             int i=0;
             int FitCount=0;
-            for (; i < TimeLineAndFitCount.Count; i++)
+            for (; i < AllAvailableFreeSpots.Length; i++)
             {
-                FitCount=(int)(MyArrayOfToBeAssignedTimeLine[i].TimelineSpan.TotalSeconds / IdealTimePerAllotment);
-                TimeLineAndFitCount.Add(MyArrayOfToBeAssignedTimeLine[i], FitCount);
+                FitCount = (int)(AllAvailableFreeSpots[i].TimelineSpan.TotalSeconds / IdealTimePerAllotment);
+                TimeLineAndFitCount.Add(AllAvailableFreeSpots[i], FitCount);
             }
             i=0;
             int[] AllFitCount = TimeLineAndFitCount.Values.ToArray();
@@ -1467,7 +1479,7 @@ namespace My24HourTimerWPF
 
             if (myTotalFitCount >= NumberOfAllotments)
             {
-
+                MyArrayOfToBeAssignedTimeLine = IdealAllotAndInsert(TimeLineAndFitCount, MyArrayOfToBeAssignedTimeLine, new TimeSpan((long)IdealTimePerAllotment * 10000));
             }
             else 
             {
@@ -1477,9 +1489,93 @@ namespace My24HourTimerWPF
             return MyArrayOfToBeAssignedTimeLine;
         }
 
-        public TimeLine[] AllotAndInsert(Dictionary<TimeLine, int> FreeSpotsAndFitCount)
+        public TimeLine[] IdealAllotAndInsert(Dictionary<TimeLine, int> AvailablFreeSpots, TimeLine[] MyArrayOfToBeAssignedTimeLine,TimeSpan IdealTimePerAllotment)
         {
+            int i = 0;
+            int j=0;
+            int TopCounter = 0;
+            TimeLine[] ArrayOfTimelineRanges = AvailablFreeSpots.Keys.ToArray();//array list of FreeTimeLineRanges
+            Dictionary<TimeLine, TimeLine[]> TimeLineDictionary = new Dictionary<TimeLine, TimeLine[]>();
+            int[] ArrayOfFitCount= AvailablFreeSpots.Values.ToArray();//array list of fit count
+            for (; i < MyArrayOfToBeAssignedTimeLine.Length;i++)
+            { 
+                j=0;
+                TopCounter++;
+                for (; ((j < ArrayOfTimelineRanges.Length) && (i < MyArrayOfToBeAssignedTimeLine.Length)); j++)
+                {
+                    if (AvailablFreeSpots[ArrayOfTimelineRanges[j]] > 0)
+                    {
+                        
+                        TimeLineDictionary.Add(ArrayOfTimelineRanges[j], SplitAndAssign(ArrayOfTimelineRanges[j], TopCounter, IdealTimePerAllotment));
+                        --AvailablFreeSpots[ArrayOfTimelineRanges[j]];
+                        i += TopCounter;
+                    }
+                }
+            }
+
+            TimeLine[][] MyArrayOfTimeLines=TimeLineDictionary.Values.ToArray();
+
+            int k = 0;
+            i=0;
+            for (; i < MyArrayOfToBeAssignedTimeLine.Length; )
+            { 
+                j=0;
+                for (; ((j < MyArrayOfTimeLines.Length) && (i < MyArrayOfToBeAssignedTimeLine.Length)); j++)
+                {
+                    
+                    foreach (TimeLine MyTimeLine in MyArrayOfTimeLines[j] )
+                    {
+                        if (i < MyArrayOfToBeAssignedTimeLine.Length)
+                        {
+                            MyArrayOfToBeAssignedTimeLine[i] = MyTimeLine;
+                            i++;
+                        }
+                    }
+                }
+            }
+
+            return MyArrayOfToBeAssignedTimeLine;
+        }
+
+        TimeLine JustFillEachOneFirst(TimeLine MyRange, TimeSpan MyActiveDuration)
+        {
+            return CentralizeYourSelfWithinRange(MyRange, MyActiveDuration);
             
+        }
+
+        TimeLine[] SplitAndAssign(TimeLine RangeOfSplit, int NumberOfSplits, TimeSpan DurationLength)
+        {
+
+            TimeSpan MySpanForEachSection = new TimeSpan((long)((RangeOfSplit.TimelineSpan.TotalMilliseconds / NumberOfSplits) * 10000));
+            TimeLine[] MyArrayOfElements = new TimeLine[NumberOfSplits];
+            int i = 0;
+            TimeLine MyReferenceRange=new TimeLine();
+            double TotalMilliseconds=i*(MySpanForEachSection.TotalMilliseconds);
+            DateTime RangeStart;
+            DateTime RangeEnd;
+            for (; i < NumberOfSplits; i++)
+            {
+                TotalMilliseconds = i * (MySpanForEachSection.TotalMilliseconds);
+                RangeStart = RangeOfSplit.Start.AddMilliseconds(TotalMilliseconds);
+                RangeEnd = RangeStart.Add(MySpanForEachSection);
+                MyArrayOfElements[i] = CentralizeYourSelfWithinRange(new TimeLine(RangeStart, RangeEnd), DurationLength);
+            }
+            return MyArrayOfElements;
+
+        }
+
+        TimeLine CentralizeYourSelfWithinRange(TimeLine Range, TimeSpan Centralized)
+        {
+            TimeSpan Difference = Range.TimelineSpan - Centralized;
+            TimeLine CentralizedTimeline=new TimeLine();
+            if (Difference.TotalMilliseconds<0)
+            {
+                MessageBox.Show("Cannot generate TimeLine Because Difference is less than zero.\nWill Not Fit!!!");
+                return CentralizedTimeline;
+            }
+            DateTime MyStart=Range.Start.AddSeconds(Difference.TotalSeconds / 2);
+            CentralizedTimeline= new TimeLine(MyStart, MyStart.Add(Centralized));
+            return CentralizedTimeline;
         }
 
         private SubCalendarEvent AssignSubEventTimeSlot(SubCalendarEvent MySubEvent)
@@ -1632,6 +1728,7 @@ namespace My24HourTimerWPF
         TimeLine[] getAllFreeSpots(TimeLine MyTimeLine)//Gets an array of all the freespots between busy spots in given time line
         {
             BusyTimeLine[] AllBusySlots = CompleteSchedule.OccupiedSlots;
+            DateTime FinalCompleteScheduleDate;
             AllBusySlots=SortMyEvents(AllBusySlots.ToList()).ToArray();
             TimeLine[] AllFreeSlots = new TimeLine[AllBusySlots.Length];
 
@@ -1658,13 +1755,18 @@ namespace My24HourTimerWPF
             {
                 AllFreeSlots[i] = new TimeLine(AllBusySlots[i].End.AddMilliseconds(1), AllBusySlots[i + 1].Start.AddMilliseconds(-1));
             }
+            FinalCompleteScheduleDate = CompleteSchedule.End;
+            if (FinalCompleteScheduleDate < MyTimeLine.End)
+            {
+                FinalCompleteScheduleDate = MyTimeLine.End;
+            }
             AllFreeSlots[AllBusySlots.Length-1] = new TimeLine(DateTime.Now, AllBusySlots[0].Start);
-            AllFreeSlots[AllBusySlots.Length] = new TimeLine(AllBusySlots[AllBusySlots.Length - 1].End, CompleteSchedule.End);
+            AllFreeSlots[AllBusySlots.Length] = new TimeLine(AllBusySlots[AllBusySlots.Length - 1].End, FinalCompleteScheduleDate);
             List<TimeLine> SpecificFreeSpots = new List<TimeLine>(0);
             for (int i = 0; i < AllFreeSlots.Length; i++)//Free Spots Are only between two busy Slots. So Index Counter starts from 1 get start of second busy
             {
 //                AllFreeSlots[i] = new TimeLine(AllBusySlots[i].End.AddMilliseconds(1), AllBusySlots[i + 1].Start.AddMilliseconds(-1));
-                if ((MyTimeLine.Start <= AllFreeSlots[i].Start) && (AllFreeSlots[i].Start < MyTimeLine.End))
+                if ((MyTimeLine.Start <= AllFreeSlots[i].End) && (AllFreeSlots[i].Start < MyTimeLine.End))
                 {
                     SpecificFreeSpots.Add(AllFreeSlots[i]);
                 }

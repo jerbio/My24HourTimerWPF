@@ -33,7 +33,7 @@
       </Class>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AAIIBLAgICAGsIKEAAAIDEQAADAAABBRQAAAICQAAAI=</HashCode>
+      <HashCode>AAIIBLAgICAGsIKEAAAIDEQAADAAAABRQAAAICQAAAI=</HashCode>
       <FileName>MainWindow.xaml.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -45,14 +45,14 @@
     </TypeIdentifier>
   </Class>
   <Class Name="My24HourTimerWPF.TimeLine">
-    <Position X="5.5" Y="4.5" Width="1.5" />
+    <Position X="6.25" Y="4" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAIAAAAAACQEAIAAAAAAAAAAIAAgAAAAAAAAAAIEAAA=</HashCode>
       <FileName>MainWindow.xaml.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="My24HourTimerWPF.BusyTimeLine" Collapsed="true">
-    <Position X="2.75" Y="5.75" Width="1.5" />
+    <Position X="3.5" Y="5.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAIAAAAAACAAAAAACAAAAAAAAAAAAAAAAQAAAAAAAAA=</HashCode>
       <FileName>MainWindow.xaml.cs</FileName>
@@ -82,7 +82,7 @@
   <Class Name="My24HourTimerWPF.Schedule">
     <Position X="11.25" Y="1.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>HCAAAICAhgAEIAAAAEAAASAAAAAAAACAAABBEAQQIBA=</HashCode>
+      <HashCode>HCAAAISAhgAEIAQAAEAAASAAAAAAAACgAQBBEIQQIBA=</HashCode>
       <FileName>MainWindow.xaml.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -108,7 +108,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="My24HourTimerWPF.EventTimeLine" Collapsed="true">
-    <Position X="2.75" Y="4.5" Width="1.5" />
+    <Position X="3.5" Y="4" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAACgCAAAAAAAAAAAAAAAAAAEAAA=</HashCode>
       <FileName>MainWindow.xaml.cs</FileName>

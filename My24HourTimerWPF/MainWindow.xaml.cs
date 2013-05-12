@@ -1014,7 +1014,7 @@ namespace My24HourTimerWPF
             {
                 SubStart=StartDateTime.AddSeconds(TimeSpanEvent.TotalSeconds * i);
                 SubEnd = StartDateTime.AddSeconds(TimeSpanEvent.TotalSeconds * (i + 1));
-                ArrayOfEvents[i] = new SubCalendarEvent(ActiveDurationPerSubEvents, SubStart, SubEnd, PrepTime, CalendarEventID.ToString());
+                ArrayOfEvents[i] = new SubCalendarEvent(ActiveDurationPerSubEvents, SubStart, SubEnd, PrepTime, ParentID);
             }
 
             return ArrayOfEvents;
@@ -1447,10 +1447,13 @@ namespace My24HourTimerWPF
                 MessageBox.Show("Sorry It Wont Fit, trying something else!!!");
             }
             SubCalendarEvent TempSubEvent;
+            BusyTimeLine MyTempBusyTimerLine;
             for (; i < MyEvent.AllEvents.Length; i++)
             {
-
-                TempSubEvent = new SubCalendarEvent(MyEvent.AllEvents[i].ID, TimeLineArrayWithSubEventsAssigned[i].Start.Add(-MyEvent.Preparation), TimeLineArrayWithSubEventsAssigned[i].End, new BusyTimeLine(MyEvent.AllEvents[i].ID, TimeLineArrayWithSubEventsAssigned[i].Start, TimeLineArrayWithSubEventsAssigned[i].End));
+                //public SubCalendarEvent(TimeSpan Event_Duration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, string myParentID)
+                TempSubEvent = new SubCalendarEvent(TimeLineArrayWithSubEventsAssigned[i].TimelineSpan, TimeLineArrayWithSubEventsAssigned[i].Start.Add(-MyEvent.Preparation), TimeLineArrayWithSubEventsAssigned[i].End, MyEvent.Preparation, MyEvent.ID);
+                MyTempBusyTimerLine=new BusyTimeLine(TempSubEvent.ID, TimeLineArrayWithSubEventsAssigned[i].Start, TimeLineArrayWithSubEventsAssigned[i].End);
+                TempSubEvent = new SubCalendarEvent(MyEvent.AllEvents[i].ID, TimeLineArrayWithSubEventsAssigned[i].Start.Add(-MyEvent.Preparation), TimeLineArrayWithSubEventsAssigned[i].End, MyTempBusyTimerLine);
                 MyEvent.AllEvents[i] = TempSubEvent;
             }
 

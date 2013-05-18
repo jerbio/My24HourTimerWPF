@@ -7,54 +7,38 @@
       <FileName>App.xaml.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="My24HourTimerWPF.Properties.Resources" Collapsed="true">
-    <Position X="9.5" Y="1.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAABEAAAAQAAAAAAAAAAAAAAAIA=</HashCode>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="My24HourTimerWPF.Properties.Settings" Collapsed="true">
-    <Position X="6" Y="2.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAIAAAAAABAAAAAAAAAAAAAAA=</HashCode>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="My24HourTimerWPF.CalendarEvent">
-    <Position X="0.5" Y="0.5" Width="1.5" />
-    <Compartments>
-      <Compartment Name="Properties" Collapsed="true" />
-      <Compartment Name="Methods" Collapsed="true" />
-    </Compartments>
+  <Class Name="My24HourTimerWPF.MainWindow">
+    <Position X="11.25" Y="0.5" Width="1.5" />
     <NestedTypes>
-      <Class Name="My24HourTimerWPF.CalendarEvent.ConstructorModified" Collapsed="true">
+      <Enum Name="My24HourTimerWPF.MainWindow.Months" Collapsed="true">
         <TypeIdentifier>
           <NewMemberFileName>MainWindow.xaml.cs</NewMemberFileName>
         </TypeIdentifier>
-      </Class>
+      </Enum>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AAIIBLAgICAGuIKEAAAIDEQAADAAABBRQAAAICQAAAI=</HashCode>
+      <HashCode>AAAYKJAAAKEAIAEAAAAAQAgAAAAIhkAIQHAOIAAGAwA=</HashCode>
       <FileName>MainWindow.xaml.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="My24HourTimerWPF.MainWindow" Collapsed="true">
-    <Position X="11.25" Y="0.5" Width="1.5" />
+  <Class Name="My24HourTimerWPF.TimeLine" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAYKJAAAKEAIAEAAAAAQAgAAAAIhkAIQHAOIAACAwA=</HashCode>
-      <FileName>MainWindow.xaml.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="My24HourTimerWPF.TimeLine">
-    <Position X="6.25" Y="4" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAIAAAAAACQEAIAAAAAAAAAAIAAgAAAAAAAAAAIEAAA=</HashCode>
+      <HashCode>AAIAAAAAACQEAIAAAAAAAAAAIAAgAAAAAAQAAAIEAAA=</HashCode>
       <FileName>MainWindow.xaml.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="My24HourTimerWPF.BusyTimeLine" Collapsed="true">
-    <Position X="3.5" Y="5.25" Width="1.5" />
+    <Position X="0.5" Y="3.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAIAAAAAACAAAAAACAAAAAAAAAAAAAAAAQAAAAAAAAA=</HashCode>
+      <FileName>MainWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="My24HourTimerWPF.EventTimeLine" Collapsed="true">
+    <Position X="0.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAACgCAAAAAAAAAAAAAAAAAAEAAA=</HashCode>
       <FileName>MainWindow.xaml.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -72,22 +56,29 @@
       <FileName>MainWindow.xaml.cs</FileName>
     </TypeIdentifier>
   </Class>
+  <Class Name="My24HourTimerWPF.CalendarEvent" Collapsed="true">
+    <Position X="3.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIIBDAgICAGuIKUAAAIDEQAADAAABBRQAIAICQAAAI=</HashCode>
+      <FileName>MainWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+  </Class>
   <Class Name="My24HourTimerWPF.Repetition" Collapsed="true">
     <Position X="7.75" Y="1.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAACAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAABACACAACAAAACBAAAIACAAAIAAAAAACAAAA=</HashCode>
       <FileName>MainWindow.xaml.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="My24HourTimerWPF.Schedule">
-    <Position X="11.25" Y="1.5" Width="1.5" />
+    <Position X="6.5" Y="4" Width="3.25" />
     <TypeIdentifier>
-      <HashCode>HCAAAISAhgAEIAQAAEAAASAAAAAAAACgAQBBEIQQIBA=</HashCode>
+      <HashCode>HCAAAISAhoAEIAQAAEAAASEABAAAAACgAQBBGIQQIFA=</HashCode>
       <FileName>MainWindow.xaml.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="My24HourTimerWPF.SubCalendarEvent">
-    <Position X="0.5" Y="7" Width="1.5" />
+  <Class Name="My24HourTimerWPF.SubCalendarEvent" Collapsed="true">
+    <Position X="3.5" Y="1.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAABEgAAAQAAAAAAAAAAABAgAAAAAAAAAAAA=</HashCode>
       <FileName>MainWindow.xaml.cs</FileName>
@@ -107,11 +98,16 @@
       <FileName>MainWindow.xaml.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="My24HourTimerWPF.EventTimeLine" Collapsed="true">
-    <Position X="3.5" Y="4" Width="1.5" />
+  <Class Name="My24HourTimerWPF.Properties.Resources" Collapsed="true">
+    <Position X="9.5" Y="1.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAACgCAAAAAAAAAAAAAAAAAAEAAA=</HashCode>
-      <FileName>MainWindow.xaml.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAAAABEAAAAQAAAAAAAAAAAAAAAIA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="My24HourTimerWPF.Properties.Settings" Collapsed="true">
+    <Position X="6" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAIAAAAAABAAAAAAAAAAAAAAA=</HashCode>
     </TypeIdentifier>
   </Class>
   <Font Name="Segoe UI" Size="9" />

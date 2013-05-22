@@ -48,12 +48,12 @@
                             <ComboBoxItem Content="2" />
                             <ComboBoxItem Content="1" />
                         </ComboBox>
-                        <Calendar Height="170" HorizontalAlignment="Left" Margin="91,75,0,0" Name="calendar1" VerticalAlignment="Top" Width="181" />
                         <TextBox Height="23" HorizontalAlignment="Left" Margin="91,10,0,0" Name="textBox4" VerticalAlignment="Top" Width="120" Text="6:00" />
                         <CheckBox Content="Default Pre-Deadline Time:" Height="16" HorizontalAlignment="Left" Margin="294,13,0,0" Name="checkBox4" VerticalAlignment="Top" IsChecked="True" />
-                        <TextBox Height="23" HorizontalAlignment="Left" Margin="395,39,0,0" Name="textBox6" VerticalAlignment="Top" Width="58" IsEnabled="False" />
+                        <TextBox Height="23" HorizontalAlignment="Left" Margin="395,39,0,0" Name="textBox6" VerticalAlignment="Top" Width="58" IsEnabled="False" Text="1:00" />
                         <TextBlock Height="23" HorizontalAlignment="Left" Margin="6,45,0,0" Name="textBlock13" Text="End Time:" VerticalAlignment="Top" Width="54" />
                         <TextBox Height="29" HorizontalAlignment="Left" Margin="91,39,0,0" Name="textBox7" VerticalAlignment="Top" Width="120" Text="9:00 Pm" />
+                        <DatePicker Height="25" HorizontalAlignment="Left" Margin="91,83,0,0" Name="datePicker2" VerticalAlignment="Top" Width="115" />
                     </Grid>
                     <Grid Height="285" HorizontalAlignment="Left" Margin="9,3,0,0" Name="grid3" VerticalAlignment="Top" Width="751">
                         <TextBlock Height="23" HorizontalAlignment="Left" Margin="4,10,0,0" Name="textBlock3" Text="Name:" VerticalAlignment="Top" Width="41" />
@@ -63,9 +63,8 @@
                         <CheckBox Content="Repetition" Height="16" HorizontalAlignment="Right" Margin="0,40,275,0" Name="checkBox2" VerticalAlignment="Top" IsEnabled="True" Click="checkBox2_Checked_1" />
                         <CheckBox Content="Use Default Prep Time(15 mins):" Height="16" HorizontalAlignment="Left" Margin="298,10,0,0" Name="checkBox3" VerticalAlignment="Top" IsChecked="True" />
                         <TextBox Height="23" HorizontalAlignment="Left" Margin="616,7,0,0" Name="textBox3" VerticalAlignment="Top" Width="41" IsEnabled="False" Text="15:00" />
-                        <TextBox Height="23" HorizontalAlignment="Left" Margin="82,36,0,0" Name="textBox5" VerticalAlignment="Top" Width="120" Text="7 : 00 pm" />
-                        <TextBlock Height="27" HorizontalAlignment="Left" Margin="4,109,0,0" Name="textBlock12" Text="Start Date:" VerticalAlignment="Top" Width="66" />
-                        <Calendar Height="169" HorizontalAlignment="Left" Margin="82,109,0,0" Name="calendar2" VerticalAlignment="Top" Width="179" SelectedDate="4/9/2013" />
+                        <TextBox Height="23" HorizontalAlignment="Left" Margin="82,36,0,0" Name="textBox5" VerticalAlignment="Top" Width="120" Text="12 : 00 pm" />
+                        <TextBlock Height="27" HorizontalAlignment="Left" Margin="4,69,0,0" Name="textBlock12" Text="Start Date:" VerticalAlignment="Top" Width="66" />
                         <CheckBox Content="Rigid Schedule" Height="16" HorizontalAlignment="Left" Margin="298,40,0,0" Name="checkBox5" VerticalAlignment="Top" Click="checkBox5_Checked" />
                         <ComboBox Height="23" HorizontalAlignment="Left" Margin="502,36,0,0" Name="comboBox2" VerticalAlignment="Top" Width="120" SelectionChanged="comboBox2_SelectionChanged" ItemsSource="{Binding}" IsEnabled="False" Text="Daily" SelectedIndex="0">
                             <ComboBoxItem Content="Daily" />
@@ -80,11 +79,15 @@
                             <TextBlock Height="23" HorizontalAlignment="Left" Margin="10,6,0,0" Name="textBlock14" Text="Repetition Start Date" VerticalAlignment="Top" Width="85" />
                             <TextBlock Height="23" HorizontalAlignment="Left" Margin="221,6,0,0" Name="textBlock15" Text="Repetition End" VerticalAlignment="Top" />
                         </Grid>
+                        <DatePicker Height="25" HorizontalAlignment="Left" Margin="82,69,0,0" Name="datePicker1" VerticalAlignment="Top" Width="115" />
                     </Grid>
-                    <Button Content="Update Schedule" Height="38" HorizontalAlignment="Left" Margin="529,512,0,0" Name="button5" VerticalAlignment="Top" Width="129" Click="button5_Click_2" />
+                    <Button Content="Update Schedule" Height="38" HorizontalAlignment="Left" Margin="609,304,0,0" Name="button5" VerticalAlignment="Top" Width="129" Click="button5_Click_2" />
+                    <Button Content="Delete All Calendar Events" Height="37" HorizontalAlignment="Left" Margin="599,382,0,0" Name="button6" VerticalAlignment="Top" Width="154" Click="button6_Click" />
                 </Grid>
             </TabItem>
-            <TabItem Header="Current Schedule" />
+            <TabItem Header="Current Schedule">
+                <Frame Height="218" Name="frame1" Width="370" />
+            </TabItem>
         </TabControl>
         <TextBlock Grid.ColumnSpan="2" Height="24" HorizontalAlignment="Left" Margin="12,648,0,0" Name="textBlock9" Text="Status:" VerticalAlignment="Top" Width="542" />
     </Grid>

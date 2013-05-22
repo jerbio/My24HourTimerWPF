@@ -21,6 +21,8 @@ using System.Xml;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
+using Outlook = Microsoft.Office.Interop.Outlook;
+//using Microsoft.Office.Interop.Outlook;
 
 namespace My24HourTimerWPF
 {
@@ -36,8 +38,8 @@ namespace My24HourTimerWPF
         public MainWindow()
         {
             InitializeComponent();
-            calendar2.SelectedDate = DateTime.Now;
-            calendar1.SelectedDate = DateTime.Now;
+            datePicker1.SelectedDate = DateTime.Now;
+            datePicker2.SelectedDate = DateTime.Now;
             MySchedule = new Schedule();
             LastID = (uint)(MySchedule.LastScheduleIDNumber);
             //EventIDGenerator();
@@ -96,13 +98,15 @@ namespace My24HourTimerWPF
         {
             string text = textBox1.Text;
             string str2 = textBox5.Text;
-            DateTime time = calendar2.SelectedDate.Value;
+            datePicker1.SelectedDate = DateTime.Now;
+            datePicker2.SelectedDate = DateTime.Now;
+            DateTime time = datePicker1.SelectedDate.Value;
             bool flag = checkBox2.IsChecked.Value;
             bool flag2 = checkBox3.IsChecked.Value;
             string str3 = textBox3.Text;
             bool flag3 = checkBox5.IsChecked.Value;
             string str4 = textBox4.Text;
-            DateTime time2 = calendar1.SelectedDate.Value;
+            DateTime time2 = datePicker2.SelectedDate.Value;
             string str5 = textBox2.Text;
             bool DefaultPreDeadlineFlag = checkBox4.IsChecked.Value;
             string str6 = textBox6.Text;
@@ -464,10 +468,10 @@ namespace My24HourTimerWPF
         {
             string eventName = textBox1.Text;
             string eventStartTime = textBox5.Text;
-            
-            DateTime eventStartDate = (DateTime)calendar2.SelectedDate.Value;
+
+            DateTime eventStartDate = (DateTime)datePicker1.SelectedDate.Value;
             string eventEndTime = textBox7.Text;
-            DateTime eventEndDate = (DateTime)calendar1.SelectedDate.Value;
+            DateTime eventEndDate = (DateTime)datePicker2.SelectedDate.Value;
             bool EventRepetitionflag = checkBox2.IsChecked.Value;
             bool DefaultPrepTimeflag = checkBox3.IsChecked.Value;
             string eventPrepTime = textBox3.Text;
@@ -501,7 +505,7 @@ namespace My24HourTimerWPF
                 MessageBox.Show("Please Type EndTime in The Format: HH:MM A/PM");
                 return;
             }
-
+            TimeSpan TestTimeSpan = new TimeSpan();
             bool RigidFlag = false;
             bool RepetitionFlag = false;
             Repetition MyRepetition=new Repetition();
@@ -509,13 +513,27 @@ namespace My24HourTimerWPF
             {
                 RigidFlag = true;
             }
+            DateTime CurrentNow = DateTime.Now;
+            DateTime RepeatStart = CurrentNow;
+            DateTime RepeatEnd=RepeatStart;
+
             if (checkBox2.IsChecked.Value)
             {
-                DateTime RepeatStart = (DateTime)calendar3.SelectedDate.Value;
-                DateTime RepeatEnd = (DateTime)calendar4.SelectedDate.Value;
+                RepeatStart = (DateTime)calendar3.SelectedDate.Value;
+                RepeatEnd = (DateTime)calendar4.SelectedDate.Value;
                 RepetitionFlag = true;
                 MyRepetition = new Repetition(RepetitionFlag, new TimeLine(RepeatStart, RepeatEnd), RepeatFrequency);
             }
+
+            CustomErrors ErrorCheck = ValidateInputValues(EventDuration, eventStartTime, eventStartDate.ToString(), eventEndTime, eventEndDate.ToString(), RepeatStart.ToString(), RepeatEnd.ToString(), PreDeadlineTime, eventSplit, eventPrepTime, CurrentNow);
+
+            if (!ErrorCheck.Status)
+            { 
+                MessageBox.Show(ErrorCheck.Message);
+                return;
+                    
+            }
+
             //CalendarEvent ScheduleUpdated = CreateSchedule(eventName, eventStartTime, eventStartDate, eventEndTime, eventEndDate, eventSplit, PreDeadlineTime, EventDuration, EventRepetitionflag, DefaultPreDeadlineFlag, RigidScheduleFlag, eventPrepTime, DefaultPreDeadlineFlag);
             CalendarEvent ScheduleUpdated = new CalendarEvent(eventName, eventStartTime, eventStartDate, eventEndTime, eventEndDate, eventSplit, PreDeadlineTime, EventDuration, MyRepetition, DefaultPreDeadlineFlag, RigidFlag, eventPrepTime, DefaultPreDeadlineFlag);
             ScheduleUpdated.Repeat.PopulateRepetitionParameters(ScheduleUpdated);
@@ -523,45 +541,92 @@ namespace My24HourTimerWPF
             textBlock9.Text = "Schedule Updated";
         }
 
-        class CustomErrors
+
+
+        public static CustomErrors ValidateInputValues(string ActiveDuration, string StartTimeEntry, string StartDateEntry, string EndTimeEntry, string EndDateEntry, string RepeatStart, string RepeatEnd, string PredeadlineTime, string NumberOfSplits, string PrepTime, DateTime PassedNow)
         {
-            bool Errorstatus;
-            string ErrorMessage;
-            public CustomErrors(bool StatusEntry,string MessagEntry)
+            TimeSpan ActiveDurationTimeSpan = TimeSpan.Parse(ActiveDuration);
+            TimeSpan PrepTimeTimeSpan = TimeSpan.Parse(PrepTime);
+
+
+            DateTime StartTimeDateTime = DateTime.Parse(StartTimeEntry);
+            DateTime StartDateTime = DateTime.Parse(StartDateEntry);
+            StartDateTime = new DateTime(StartDateTime.Year, StartDateTime.Month, StartDateTime.Day, StartTimeDateTime.Hour, StartTimeDateTime.Minute, StartTimeDateTime.Second);
+            string[] StartDateArray = StartDateTime.ToString().Split(' ')[1].Split('/');
+
+
+
+            DateTime EndTimeDateTime = DateTime.Parse(EndTimeEntry);
+            DateTime EndDateTime = DateTime.Parse(EndDateEntry);
+            EndDateTime = new DateTime(EndDateTime.Year, EndDateTime.Month, EndDateTime.Day, EndTimeDateTime.Hour, EndTimeDateTime.Minute, EndTimeDateTime.Second);
+            DateTime RepeatStartDate = DateTime.Parse(RepeatStart);
+            DateTime RepeatEndDate = DateTime.Parse(RepeatEnd);
+            TimeSpan PreDeadlineTimeSpan=TimeSpan.Parse(PredeadlineTime);
+            uint SplitCount = 1;
+
+            //MessageBox.Show((EndDateTime - StartDateTime).Days.ToString());
+
+            if (!uint.TryParse(NumberOfSplits.Trim(), out SplitCount))//checks to see if Number Of splits is integer
             {
-                Errorstatus = StatusEntry;
-                ErrorMessage = MessagEntry;
+                return new CustomErrors(false, "Please Check Number Split");
             }
 
-            public bool Status
+            if (!uint.TryParse(NumberOfSplits.Trim(), out SplitCount))
             {
-                get
+                return new CustomErrors(false, "Please Check Number Split");
+            }
+
+            if (ActiveDuration.Trim() != "00:00:00")//checks if Active Duration has valid input
+            {
+                if (ActiveDurationTimeSpan.ToString() == "00:00:00")
                 {
-                    return Errorstatus;
+                    return new CustomErrors(false, "Invalid Duration Input");
                 }
             }
 
-            public string Message
+            if (ActiveDurationTimeSpan > (EndDateTime - StartDateTime))
             {
-                get
+                return new CustomErrors(false, "Please Check your active duration, it is longer than the time span available between Start time and End Time");
+            }
+
+            if (PrepTime.Trim() != "00:00:00")//checks if Active Duration has valid input
+            {
+                if (PrepTimeTimeSpan.ToString() == "00:00:00")
                 {
-                    return ErrorMessage;
+                    return new CustomErrors(false, "Invalid Duration Input");
                 }
             }
 
+            DateTime Hmm = DateTime.Now;
+            
 
-        }
 
-        CustomErrors ValidateInputValues(string ActiveDuration, string StartTimeEntry, string StartDateEntry, string EndTimeEntry, string EndDateEntry, string RepeatStart, string RepeatEnd, string PredeadlineTime, string NumberOfSplits, string PrepTime)
-        {
-            TimeSpan ActiveDurationTimeSpan = StringToTimeSpan(ActiveDuration);
-            string StartTime = CalendarEvent.convertTimeToMilitary(StartTimeEntry);
-            string StartDate = Schedule.stringToDateTime(StartDateEntry).ToString();
-            string EndTime = CalendarEvent.convertTimeToMilitary(EndTimeEntry);
-            string EndDate = Schedule.stringToDateTime(EndDateEntry).ToString();
-            if (ActiveDurationTimeSpan == null)//checks if Active Duration is
+            /*if (StartTime == null)//checks if the value is valid
             {
-                return new CustomErrors(false, "Check Input of Duration");
+                return new CustomErrors(false, "Please Check your Start Time Input");
+            }
+            if (EndTime == null)
+            {
+                return new CustomErrors(false, "Please Check your End Time Input");
+            }
+            */
+
+            if (RepeatEndDate < RepeatStartDate)// checks if repeat start date is greater or later than Repeat End date
+            {
+                if ((RepeatEndDate == RepeatStartDate) && (RepeatStartDate == PassedNow))
+                {
+                    ;
+                }
+                else 
+                {
+                    return new CustomErrors(false, "Please Check your Repeat EndDate, it cannot be earlier than Repeat StartDate ");
+                }
+                
+            }
+
+            if (EndDateTime <= StartDateTime)// checks if repeat start date is greater or later than Repeat End date
+            {
+                return new CustomErrors(false, "Please Check your End Date, it cannot be earlier than Start Date ");
             }
 
             return new CustomErrors(true, "");
@@ -569,13 +634,24 @@ namespace My24HourTimerWPF
 
         void UpdatePreDealineTime()
         {
-            TimeSpan MyCurrentActiveDuration = StringToTimeSpan(textBox4.Text);
+            TimeSpan MyCurrentActiveDuration = TimeSpan.Parse(textBox4.Text);
             textBox6.Text=new TimeSpan(((MyCurrentActiveDuration.Seconds) * 1000000)).ToString();
         }
 
         static public TimeSpan StringToTimeSpan(string myTimeString)//takes String in the format dd.HH:MM:SS.MM
         {
             string[] TimeStringSplit = myTimeString.Split(':');
+            TimeSpan FinalTimeSpan;
+
+            if (TimeStringSplit.Length < 2)
+            {
+                return new TimeSpan();
+            }
+
+            if (TimeStringSplit.Length == 2)
+            {
+                return StringToTimeSpan(TimeStringSplit[0] + ":" + TimeStringSplit[1] + ":00");
+            }
 
             double sec = 0;
             uint min = 0;
@@ -626,7 +702,8 @@ namespace My24HourTimerWPF
                         break;
                 }
             }
-            return new TimeSpan((int)hour, (int)min, (int)sec);
+            FinalTimeSpan = new TimeSpan((int)hour, (int)min, (int)sec);
+            return FinalTimeSpan;
         }
 
         public CalendarEvent CreateSchedule(string Name, string StartTime, DateTime StartDate, string EndTime, DateTime EventEndDate, string eventSplit, string PreDeadlineTime, string EventDuration, bool EventRepetitionflag, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag)
@@ -704,8 +781,8 @@ namespace My24HourTimerWPF
             string eventEndTime = textBox7.Text;
             string[] TimeElements = CalendarEvent.convertTimeToMilitary(eventStartTime).Split(':');
             //string[] TimeElements = CalendarEvent.convertTimeToMilitary(eventStartTime).Split(':');
-            DateTime eventStartDate = (DateTime)calendar2.SelectedDate.Value;
-            DateTime eventEndDate = (DateTime)calendar1.SelectedDate.Value;
+            DateTime eventStartDate = (DateTime)datePicker1.SelectedDate.Value;
+            DateTime eventEndDate = (DateTime)datePicker2.SelectedDate.Value;
             eventStartDate = new DateTime(eventStartDate.Year, eventStartDate.Month, eventStartDate.Day, Convert.ToInt32(TimeElements[0]), Convert.ToInt32(TimeElements[1]), 0);
             TimeElements = CalendarEvent.convertTimeToMilitary(eventEndTime).Split(':');
             eventEndDate = new DateTime(eventEndDate.Year, eventEndDate.Month, eventEndDate.Day, Convert.ToInt32(TimeElements[0]), Convert.ToInt32(TimeElements[1]), 0);
@@ -747,8 +824,40 @@ namespace My24HourTimerWPF
             }
         }
 
+        private void button6_Click(object sender, RoutedEventArgs e)
+        {
+            MySchedule.EmptyAllCalendarEvent();
+        }
 
 
+
+    }
+
+    public class CustomErrors
+    {
+        bool Errorstatus;
+        string ErrorMessage;
+        public CustomErrors(bool StatusEntry, string MessagEntry)
+        {
+            Errorstatus = StatusEntry;
+            ErrorMessage = MessagEntry;
+        }
+
+        public bool Status
+        {
+            get
+            {
+                return Errorstatus;
+            }
+        }
+
+        public string Message
+        {
+            get
+            {
+                return ErrorMessage;
+            }
+        }
     }
 
 
@@ -978,6 +1087,10 @@ namespace My24HourTimerWPF
         public override string ToString()
         {
             string IDCombination="";
+            if ((LayerID.Length == 1) && (LayerID[0] == ""))//checks if LayerID is empty
+            {
+                return "";
+            }
             foreach (string MyString in LayerID)
             {
                 IDCombination += MyString + "_";
@@ -1002,16 +1115,30 @@ namespace My24HourTimerWPF
         //protected bool Completed = false;
         protected bool RigidSchedule;
         protected int Splits;
-        protected int TimePerSplit;
+        protected TimeSpan TimePerSplit;
         protected EventID CalendarEventID;
         protected static TimeLine EventSequence;
-        protected SubCalendarEvent SubEvent;
         SubCalendarEvent[] ArrayOfSubEvents;
         protected bool SchedulStatus;
+        protected string otherPartyID;
 
         public CalendarEvent()
         { 
-            
+            EventDuration=new TimeSpan();
+            CalendarEventName="";
+            StartDateTime=new DateTime();
+            EndDateTime=new DateTime();
+            EventPreDeadline=new TimeSpan();
+            PrepTime=new TimeSpan();
+            Priority=0;
+            RepetitionFlag=false;
+            EventRepetition=new Repetition();
+            RigidSchedule=false;
+            Splits=1;
+            CalendarEventID=new EventID("");
+            ArrayOfSubEvents = new SubCalendarEvent[0];
+            SchedulStatus=false;
+            otherPartyID = "";
         }
 
         //CalendarEvent MyCalendarEvent = new CalendarEvent(NameEntry, Duration, StartDate, EndDate, PrepTime, PreDeadline, Rigid, Repeat, Split);
@@ -1059,7 +1186,7 @@ namespace My24HourTimerWPF
             PrepTime = EventPrepTime;
             EventPreDeadline = Event_PreDeadline;
             RigidSchedule = EventRigidFlag;
-            TimePerSplit = EventDuration.Minutes / Splits;
+            TimePerSplit = new TimeSpan(((EventDuration.Seconds / Splits)*10000000));
             ArrayOfSubEvents = new SubCalendarEvent[Splits];
             CalendarEventID = EventIDEntry;
             EventRepetition = EventRepetitionEntry;
@@ -1088,7 +1215,7 @@ namespace My24HourTimerWPF
             PrepTime = EventPrepTime;
             EventPreDeadline = Event_PreDeadline;
             RigidSchedule = EventRigidFlag;
-            TimePerSplit = EventDuration.Minutes / Splits;
+            TimePerSplit = new TimeSpan(((EventDuration.Seconds / Splits) * 10000000));
             ArrayOfSubEvents = new SubCalendarEvent[Splits];
             CalendarEventID = new EventID(new string[] { EventIDGenerator.generate().ToString() });
             EventRepetition = EventRepetitionEntry;
@@ -1278,13 +1405,39 @@ namespace My24HourTimerWPF
         {
             TimeString = TimeString.Replace(" ", "").ToUpper();
             string[] TimeIsolated = TimeString.Split(':');
+            
+            if (TimeIsolated.Length < 2)//ensures that the length of split is above or equal to 2 so rejects :MM or HH:
+            {
+                return null;
+            }
             if (TimeIsolated.Length == 2)//checks if time is in format HH:MMAM as opposed to HH:MM:SSAM 
             {
                 char AorP = TimeIsolated[1][2];
                 TimeIsolated[1] = TimeIsolated[1].Substring(0, 2) + ":00" + AorP + "M";
                 return convertTimeToMilitary(TimeIsolated[0] + ":" + TimeIsolated[1]);
-
             }
+            //this part of the code can only be accessed if string format is HH:MM:SSAM
+            if (TimeIsolated[2].Length > 2)//checks if the length of the 'Second' string is greater 2 which infers there might be a P or A at end of the string
+            {
+                if (!((TimeIsolated[2][2] == 'P') || (TimeIsolated[2][2] == 'A')))//checks if the 'Second' string has an A or P or else return null
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                uint MyUIntTest = 0;
+                bool UintTest =uint.TryParse(TimeIsolated[0], out MyUIntTest);
+                if ((UintTest) && (MyUIntTest <= 24))//checks if value is uint and checks if its less than 24, e.g 13:xx as opposed to 25:xx
+                {
+                    return TimeString;
+                }
+                else 
+                {
+                    return null;
+                }
+            }
+
             int HourInt = Convert.ToInt32(TimeIsolated[0]);
             if (TimeIsolated[2][2] == 'P')
             {
@@ -1339,6 +1492,18 @@ namespace My24HourTimerWPF
             get 
             {
                 return CalendarEventID.ToString();
+            }
+        }
+
+        public virtual string ThirdPartyID
+        {
+            set 
+            {
+                otherPartyID=value;
+            }
+            get 
+            {
+                return otherPartyID;
             }
         }
 
@@ -1704,6 +1869,22 @@ namespace My24HourTimerWPF
             return MyTimeLine;
         }
 
+        public void EmptyAllCalendarEvent()//MyTemp Function for deleting all calendar events
+        {
+            int i = 0;
+            CalendarEvent[] ArrayOfValues = AllEventDictionary.Values.ToArray();
+            string[] ArrayOfKeys = AllEventDictionary.Keys.ToArray();
+
+
+            for (; i < ArrayOfValues.Length;i++ )//this loops through the ArrayOfValues and ArrayOfIndex. Since each index loop corresponds to the same dictionary entry.
+            {
+                RemoveFromOutlook(ArrayOfValues[i]); //this removes the value from outlook
+                AllEventDictionary.Remove(ArrayOfKeys[i]);//this removes the entry from The dictionary
+            }
+
+            File.WriteAllText("MyEventLog.xml", "<?xml version=\"1.0\" encoding=\"utf-8\"?><ScheduleLog><LastIDCounter>0</LastIDCounter><EventSchedules></EventSchedules></ScheduleLog>");//This Explicitly Empties the MyEventLog File
+        }
+
         BusyTimeLine[] GetBusySlotPerCalendarEvent(CalendarEvent MyEvent)
         { 
             int i=0;
@@ -1716,17 +1897,17 @@ namespace My24HourTimerWPF
                 ArrayOfBusySlotsInRepeat = GetBusySlotsPerRepeat(MyEvent.Repeat);
             }
 
-            for (;i<MyEvent.AllEvents.Length;i++)
+            /*for (;i<MyEvent.AllEvents.Length;i++)
             {
-                {
+                {*/
                     foreach (SubCalendarEvent MySubCalendarEvent in MyEvent.AllEvents)
                     {
                         MyTotalSubEventBusySlots.Add(MySubCalendarEvent.ActiveSlot);
                     }
                     
                     //MyTotalSubEventBusySlots.Add(MyEvent.AllEvents[i].ActiveSlot);
-                }
-            }
+                /*}
+            }*/
 
             //BusyTimeLine[] ConcatenatSumOfAllBusySlots = new BusyTimeLine[ArrayOfBusySlotsInRepeat.Length + MyTotalSubEventBusySlots.Count];
             /*
@@ -1926,6 +2107,7 @@ namespace My24HourTimerWPF
                 Start=stringToDateTime(MyXmlNode.ChildNodes[i].SelectSingleNode("StartTime").InnerText);
                 End=stringToDateTime(MyXmlNode.ChildNodes[i].SelectSingleNode("EndTime").InnerText);
                 MyArrayOfNodes[i] = new SubCalendarEvent(ID,BusySlot,Start,End,PrepTime,MyParent.ID);
+                MyArrayOfNodes[i].ThirdPartyID = MyXmlNode.ChildNodes[i].SelectSingleNode("ThirdPartyID").InnerText;//this is a hack to just update the Third partyID
             }
 
             return MyArrayOfNodes;
@@ -2016,9 +2198,14 @@ namespace My24HourTimerWPF
 
         public bool AddToSchedule(CalendarEvent NewEvent)
         {
-            NewEvent=UpdateTimeline(NewEvent);
+            NewEvent=EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent);
+            if (NewEvent.ID == "")//checks if event was assigned and ID ehich means it was successfully able to find a spot
+            {
+                return false;
+            }
+            WriteToOutlook(NewEvent);
             WriteToLog(NewEvent);
-            //AllEventDictionary.Add(NewEvent.ID, NewEvent);
+            
             try
             {
                 AllEventDictionary.Add(NewEvent.ID, NewEvent);
@@ -2027,6 +2214,8 @@ namespace My24HourTimerWPF
             {
                 AllEventDictionary[NewEvent.ID]= NewEvent;
             }
+           CompleteSchedule= getTimeLine();
+
             return true;
         }
 
@@ -2083,7 +2272,7 @@ namespace My24HourTimerWPF
             return MyCalendarEvent;
         }
 
-        public CalendarEvent UpdateTimeline(CalendarEvent MyEvent)
+        public CalendarEvent EvaluateTotalTimeLineAndAssignValidTimeSpots(CalendarEvent MyEvent)
         {
             BusyTimeLine [] AllOccupiedSlot= CompleteSchedule.OccupiedSlots;
             TimeSpan TotalActiveDuration=new TimeSpan();
@@ -2107,20 +2296,24 @@ namespace My24HourTimerWPF
                     TotalFreeTimeAvailable += AllAvailableFreeSpots[i].TimelineSpan;
                 }
                 
-                if (TotalFreeTimeAvailable > MyEvent.ActiveDuration)
+                if (TotalFreeTimeAvailable >= MyEvent.ActiveDuration)
                 {
                     TimeLineArrayWithSubEventsAssigned = SplitFreeSpotsInToSubEventTimeSlots(AllAvailableFreeSpots, MyEvent.AllEvents.Length, MyEvent.ActiveDuration);
                 }
                 else
                 {
-                    MessageBox.Show("Sorry It Wont Fit, trying something else!!!");
+                    MessageBox.Show("Sorry, the total free time available during activiy limits is less than your active duration!!!");
                     return new CalendarEvent();
+                }
+
+                if (TimeLineArrayWithSubEventsAssigned.Length < MyEvent.AllEvents.Length)// This means the distribute subevent spots won't be sufficient for the subevents available to the calendar event
+                { 
+                    //I need to write event that updates the status bar
                 }
 
                 i = 0;
                 for (; i < MyEvent.AllEvents.Length; i++)
                 {
-                    //public SubCalendarEvent(TimeSpan Event_Duration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, string myParentID)
                     TempSubEvent = new SubCalendarEvent(TimeLineArrayWithSubEventsAssigned[i].TimelineSpan, TimeLineArrayWithSubEventsAssigned[i].Start.Add(-MyEvent.Preparation), TimeLineArrayWithSubEventsAssigned[i].End, MyEvent.Preparation, MyEvent.ID);
                     MyTempBusyTimerLine = new BusyTimeLine(TempSubEvent.ID, TimeLineArrayWithSubEventsAssigned[i].Start, TimeLineArrayWithSubEventsAssigned[i].End);
                     TempSubEvent = new SubCalendarEvent(TempSubEvent.ID, TimeLineArrayWithSubEventsAssigned[i].Start.Add(-MyEvent.Preparation), TimeLineArrayWithSubEventsAssigned[i].End, MyTempBusyTimerLine);
@@ -2132,7 +2325,7 @@ namespace My24HourTimerWPF
             {
                 for (i = 0; i < MyEvent.Repeat.RecurringCalendarEvents.Length; i++)
                 {
-                    MyEvent.Repeat.RecurringCalendarEvents[i]=UpdateTimeline(MyEvent.Repeat.RecurringCalendarEvents[i]);
+                    MyEvent.Repeat.RecurringCalendarEvents[i]=EvaluateTotalTimeLineAndAssignValidTimeSpots(MyEvent.Repeat.RecurringCalendarEvents[i]);
                 }
             }
 
@@ -2290,7 +2483,7 @@ namespace My24HourTimerWPF
             return MySubEvent;
         }
 
-        static public List<BusyTimeLine> QuickSortFunction(List<BusyTimeLine> MyArray,int LeftIndexPassed,int RightIndexPassed,int PivotPassed)
+        static public List<BusyTimeLine> QuickSortFunctionFromStart(List<BusyTimeLine> MyArray,int LeftIndexPassed,int RightIndexPassed,int PivotPassed)
         {
             //Console.WriteLine("\n EntryLeft is " + LeftIndexPassed.ToString() + " EntryRight is " + RightIndexPassed.ToString() + " EntryPivot is " + PivotPassed.ToString() + "\n");
             int PivotIndex;
@@ -2302,8 +2495,8 @@ namespace My24HourTimerWPF
             int LeftValue, LeftIndex=LeftIndexPassed, RightValue, RightIndex=RightIndexPassed;
             bool Detected = true;
             PivotIndex = PivotPassed;
-            RightIndex = GetRightThatsLess(MyArray, PivotIndex, RightIndexPassed);
-            LeftIndex = GetLeftThatsGreater(MyArray, PivotIndex, LeftIndexPassed);
+            RightIndex = GetRightThatsLessFromStart(MyArray, PivotIndex, RightIndexPassed);
+            LeftIndex = GetLeftThatsGreaterFromStart(MyArray, PivotIndex, LeftIndexPassed);
             //Console.WriteLine("\n ##Left is " + LeftIndex.ToString() + " Right is " + RightIndex.ToString() + "\n");
             PivotValue = MyArray[PivotIndex];
             Holder = MyArray[LeftIndex];
@@ -2329,12 +2522,12 @@ namespace My24HourTimerWPF
                             return MyArray;
                         }
                     }
-                    MyArray = QuickSortFunction(MyArray, (PivotIndex + 1), RightIndexPassed, NextPivot); //right Partition sort
+                    MyArray = QuickSortFunctionFromStart(MyArray, (PivotIndex + 1), RightIndexPassed, NextPivot); //right Partition sort
                 }
                 else
                 {
                     //Console.Write("maybe RIGHT \t");
-                    MyArray = QuickSortFunction(MyArray, (PivotIndex), RightIndexPassed, (PivotIndex + ((RightIndexPassed - PivotIndex) / 2))); //right Partition sort
+                    MyArray = QuickSortFunctionFromStart(MyArray, (PivotIndex), RightIndexPassed, (PivotIndex + ((RightIndexPassed - PivotIndex) / 2))); //right Partition sort
                 }
                 if ((PivotIndex - 1) > (LeftIndexPassed)-1)
                 {
@@ -2352,22 +2545,22 @@ namespace My24HourTimerWPF
                             return MyArray;
                         }
                     }
-                    MyArray = QuickSortFunction(MyArray, LeftIndexPassed, (PivotIndex - 1), NextPivot);//left Partition sort 
+                    MyArray = QuickSortFunctionFromStart(MyArray, LeftIndexPassed, (PivotIndex - 1), NextPivot);//left Partition sort 
                 }
                 else 
                 {
                     //Console.Write("maybe LEFT \t");
-                    MyArray = QuickSortFunction(MyArray, LeftIndexPassed, (PivotIndex), (LeftIndexPassed + ((PivotIndex) - LeftIndexPassed) / 2));//left Partition sort 
+                    MyArray = QuickSortFunctionFromStart(MyArray, LeftIndexPassed, (PivotIndex), (LeftIndexPassed + ((PivotIndex) - LeftIndexPassed) / 2));//left Partition sort 
                 }
             }
             else 
             {
-                MyArray = QuickSortFunction(MyArray, LeftIndexPassed, RightIndexPassed, PivotPassed);
+                MyArray = QuickSortFunctionFromStart(MyArray, LeftIndexPassed, RightIndexPassed, PivotPassed);
             }
             return MyArray;
         }
 
-        static public int GetLeftThatsGreater(List<BusyTimeLine> MyArray, int MyPivot, int LeftStartinPosition)
+        static public int GetLeftThatsGreaterFromStart(List<BusyTimeLine> MyArray, int MyPivot, int LeftStartinPosition)
         {
             for (int i = LeftStartinPosition; i <= MyPivot; i++)
             {
@@ -2379,11 +2572,112 @@ namespace My24HourTimerWPF
             return MyPivot;
         }
 
-        static public int GetRightThatsLess(List<BusyTimeLine> MyArray, int MyPivot, int RightStartinPosition)
+        static public int GetRightThatsLessFromStart(List<BusyTimeLine> MyArray, int MyPivot, int RightStartinPosition)
         {
             for (int i = RightStartinPosition; i >= MyPivot; i--)
             {
                 if (MyArray[i].Start < MyArray[MyPivot].Start)
+                {
+                    return i;
+                }
+            }
+            return MyPivot;
+        }
+
+        static public List<BusyTimeLine> QuickSortFunctionFromEnd(List<BusyTimeLine> MyArray, int LeftIndexPassed, int RightIndexPassed, int PivotPassed)
+        {
+            //Console.WriteLine("\n EntryLeft is " + LeftIndexPassed.ToString() + " EntryRight is " + RightIndexPassed.ToString() + " EntryPivot is " + PivotPassed.ToString() + "\n");
+            int PivotIndex;
+            BusyTimeLine PivotValue, Holder;
+            if ((LeftIndexPassed == RightIndexPassed) || (MyArray.Count < 2))
+            {
+                return MyArray;
+            }
+            int LeftValue, LeftIndex = LeftIndexPassed, RightValue, RightIndex = RightIndexPassed;
+            bool Detected = true;
+            PivotIndex = PivotPassed;
+            RightIndex = GetRightThatsLessFromStart(MyArray, PivotIndex, RightIndexPassed);
+            LeftIndex = GetLeftThatsGreaterFromStart(MyArray, PivotIndex, LeftIndexPassed);
+            //Console.WriteLine("\n ##Left is " + LeftIndex.ToString() + " Right is " + RightIndex.ToString() + "\n");
+            PivotValue = MyArray[PivotIndex];
+            Holder = MyArray[LeftIndex];
+            MyArray[LeftIndex] = MyArray[RightIndex];
+            MyArray[RightIndex] = Holder;
+            int middleDifference;
+            int NextPivot;
+            if (RightIndex == LeftIndex)
+            {
+                if ((PivotIndex + 1) < (RightIndexPassed + 1))
+                {
+                    //Console.Write("maybe RIGHT TOP\t");
+                    middleDifference = RightIndexPassed - (PivotIndex + 1);
+                    NextPivot = (PivotIndex + 1) + (middleDifference / 2);
+                    if (middleDifference <= 1)
+                    {
+                        NextPivot = PivotIndex + 1;
+                        if (MyArray[RightIndexPassed].End < MyArray[NextPivot].End)
+                        {
+                            Holder = MyArray[NextPivot];
+                            MyArray[NextPivot] = MyArray[RightIndexPassed];
+                            MyArray[RightIndexPassed] = Holder;
+                            return MyArray;
+                        }
+                    }
+                    MyArray = QuickSortFunctionFromEnd(MyArray, (PivotIndex + 1), RightIndexPassed, NextPivot); //right Partition sort
+                }
+                else
+                {
+                    //Console.Write("maybe RIGHT \t");
+                    MyArray = QuickSortFunctionFromEnd(MyArray, (PivotIndex), RightIndexPassed, (PivotIndex + ((RightIndexPassed - PivotIndex) / 2))); //right Partition sort
+                }
+                if ((PivotIndex - 1) > (LeftIndexPassed) - 1)
+                {
+                    //Console.Write("maybe LEFT TOP\t");
+                    middleDifference = (PivotIndex - 1) - LeftIndexPassed;
+                    NextPivot = LeftIndexPassed + (middleDifference / 2);
+                    if (middleDifference <= 1)
+                    {
+                        NextPivot = PivotIndex - 1;
+                        if (MyArray[LeftIndexPassed].End > MyArray[NextPivot].End)
+                        {
+                            Holder = MyArray[LeftIndexPassed];
+                            MyArray[LeftIndexPassed] = MyArray[NextPivot];
+                            MyArray[NextPivot] = Holder;
+                            return MyArray;
+                        }
+                    }
+                    MyArray = QuickSortFunctionFromEnd(MyArray, LeftIndexPassed, (PivotIndex - 1), NextPivot);//left Partition sort 
+                }
+                else
+                {
+                    //Console.Write("maybe LEFT \t");
+                    MyArray = QuickSortFunctionFromEnd(MyArray, LeftIndexPassed, (PivotIndex), (LeftIndexPassed + ((PivotIndex) - LeftIndexPassed) / 2));//left Partition sort 
+                }
+            }
+            else
+            {
+                MyArray = QuickSortFunctionFromEnd(MyArray, LeftIndexPassed, RightIndexPassed, PivotPassed);
+            }
+            return MyArray;
+        }
+
+        static public int GetLeftThatsGreaterFromEnd(List<BusyTimeLine> MyArray, int MyPivot, int LeftStartinPosition)
+        {
+            for (int i = LeftStartinPosition; i <= MyPivot; i++)
+            {
+                if (MyArray[i].End > MyArray[MyPivot].End)
+                {
+                    return i;
+                }
+            }
+            return MyPivot;
+        }
+
+        static public int GetRightThatsLessFromEnd(List<BusyTimeLine> MyArray, int MyPivot, int RightStartinPosition)
+        {
+            for (int i = RightStartinPosition; i >= MyPivot; i--)
+            {
+                if (MyArray[i].End < MyArray[MyPivot].End)
                 {
                     return i;
                 }
@@ -2413,7 +2707,7 @@ namespace My24HourTimerWPF
         static public List<BusyTimeLine> SortMyEvents(List<BusyTimeLine> MyUnsortedEvents)
         {
             int MiddleRoundedDown = ((MyUnsortedEvents.Count - 1) / 2);
-            return QuickSortFunction(MyUnsortedEvents, 0, MyUnsortedEvents.Count - 1, MiddleRoundedDown);
+            return QuickSortFunctionFromStart(MyUnsortedEvents, 0, MyUnsortedEvents.Count - 1, MiddleRoundedDown);
         }
 
         TimeLine[] getAllFreeSpots(TimeLine MyTimeLine)//Gets an array of all the freespots between busy spots in given time line
@@ -2433,7 +2727,7 @@ namespace My24HourTimerWPF
                 {
                     AllFreeSlots = new TimeLine[2];
                     AllFreeSlots[0] = new TimeLine(DateTime.Now, AllBusySlots[0].Start.AddMilliseconds(-1));
-                    AllFreeSlots[0] = new TimeLine(AllBusySlots[0].End.AddMilliseconds(1), AllBusySlots[0].End.AddYears(10));
+                    AllFreeSlots[1] = new TimeLine(AllBusySlots[0].End.AddMilliseconds(1), AllBusySlots[0].End.AddYears(10));
                 }
                 else 
                 {
@@ -2464,6 +2758,116 @@ namespace My24HourTimerWPF
             }
 
             return SpecificFreeSpots.ToArray();
+        }
+        
+        public void WriteToOutlook(CalendarEvent MyEvent)
+        {
+            int i = 0;
+            for (; i < MyEvent.AllEvents.Length; i++)
+            {
+                MyEvent.AllEvents[i].ThirdPartyID = AddAppointment(MyEvent.AllEvents[i], MyEvent.Name);
+            }
+            if (MyEvent.RepetitionStatus)
+            {
+                LoopThroughAddRepeatEvents(MyEvent.Repeat);
+            }
+
+        }
+
+        public void LoopThroughAddRepeatEvents(Repetition MyRepetition)
+        {
+            int i = 0;
+            for(;i<MyRepetition.RecurringCalendarEvents.Length;i++)
+            {
+                WriteToOutlook(MyRepetition.RecurringCalendarEvents[i]);
+            }
+        }
+
+        public void RemoveFromOutlook(CalendarEvent MyEvent)
+        {
+
+                int i = 0;
+                for (; i < MyEvent.AllEvents.Length; i++)
+                {
+                    DeleteAppointment(MyEvent.AllEvents[i], MyEvent.Name, MyEvent.AllEvents[i].ThirdPartyID);
+                }
+                if (MyEvent.RepetitionStatus)
+                {
+                    LoopThroughRemoveRepeatEvents(MyEvent.Repeat);
+                }
+            
+        }
+
+        public void LoopThroughRemoveRepeatEvents(Repetition MyRepetition)
+        {
+            int i = 0;
+            for (; i < MyRepetition.RecurringCalendarEvents.Length; i++)
+            {
+                RemoveFromOutlook(MyRepetition.RecurringCalendarEvents[i]);
+            }
+        }
+
+        
+
+        private string AddAppointment(SubCalendarEvent ActiveSection, string NameOfParentCalendarEvent)
+        {
+            try
+            {
+                Outlook.Application app = new Microsoft.Office.Interop.Outlook.Application();
+                Outlook.AppointmentItem newAppointment = (Outlook.AppointmentItem)app.CreateItem(Outlook.OlItemType.olAppointmentItem);
+                    /*(Outlook.AppointmentItem)
+                this.Application.CreateItem(Outlook.OlItemType.olAppointmentItem);*/
+                newAppointment.Start = ActiveSection.Start;// DateTime.Now.AddHours(2);
+                newAppointment.End = ActiveSection.End;// DateTime.Now.AddHours(3);
+                newAppointment.Location = "TBD";
+                newAppointment.Body ="JustTesting";
+                newAppointment.AllDayEvent = false;
+                newAppointment.Subject = ActiveSection.ID + "**" + NameOfParentCalendarEvent;
+                /*newAppointment.Recipients.Add("Roger Harui");
+                Outlook.Recipients sentTo = newAppointment.Recipients;
+                Outlook.Recipient sentInvite = null;
+                sentInvite = sentTo.Add("Holly Holt");
+                sentInvite.Type = (int)Outlook.OlMeetingRecipientType
+                    .olRequired;
+                sentInvite = sentTo.Add("David Junca ");
+                sentInvite.Type = (int)Outlook.OlMeetingRecipientType
+                    .olOptional;
+                sentTo.ResolveAll();*/
+                newAppointment.Save();
+                //newAppointment.EntryID;
+
+                //newAppointment.Display(true);
+                return newAppointment.EntryID;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("The following error occurred: " + ex.Message);
+                return "";
+            }
+        }
+
+        private void DeleteAppointment(SubCalendarEvent ActiveSection, string NameOfParentCalendarEvent, string entryID)
+        {
+            if (entryID == "")
+            {
+                return;
+            }
+            Outlook.Application outlookApp = new Microsoft.Office.Interop.Outlook.Application();
+            Outlook.MAPIFolder calendar = outlookApp.Session.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderCalendar);
+
+            Outlook.Items calendarItems = calendar.Items;
+
+            Outlook.AppointmentItem item = calendarItems[ActiveSection.ID + "**" + NameOfParentCalendarEvent] as Outlook.AppointmentItem;
+            item.Delete();
+            /*Outlook.RecurrencePattern pattern =
+                item.GetRecurrencePattern();
+            Outlook.AppointmentItem itemDelete = pattern.
+                GetOccurrence(new DateTime(2006, 6, 28, 8, 0, 0));
+
+            if (itemDelete != null)
+            {
+                itemDelete.Delete();
+            }*/
         }
         
         public void WriteToLog(CalendarEvent MyEvent)//writes to an XML Log file. Takes calendar event as an argument
@@ -2584,6 +2988,8 @@ namespace My24HourTimerWPF
             MyEventSubScheduleNode.ChildNodes[0].InnerText = MySubEvent.ActiveSlot.Start.ToString();
             MyEventSubScheduleNode.PrependChild(xmldoc.CreateElement("PrepTime"));
             MyEventSubScheduleNode.ChildNodes[0].InnerText = MySubEvent.Preparation.ToString();
+            MyEventSubScheduleNode.PrependChild(xmldoc.CreateElement("ThirdPartyID"));
+            MyEventSubScheduleNode.ChildNodes[0].InnerText = MySubEvent.ThirdPartyID;
             //MyEventSubScheduleNode.PrependChild(xmldoc.CreateElement("Name"));
             //MyEventSubScheduleNode.ChildNodes[0].InnerText = MySubEvent.Name.ToString();
             MyEventSubScheduleNode.PrependChild(xmldoc.CreateElement("ID"));
@@ -2669,6 +3075,18 @@ namespace My24HourTimerWPF
             EndDateTime = EventDeadline;
             EventDuration = SubEventBusy.TimelineSpan;
             BusyFrame = SubEventBusy;
+        }
+
+        public override string ThirdPartyID
+        {
+            get 
+            {
+                return otherPartyID;
+            }
+            set 
+            {
+                otherPartyID = value;
+            }
         }
 
         public BusyTimeLine ActiveSlot

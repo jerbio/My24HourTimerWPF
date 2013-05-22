@@ -14,3 +14,5 @@ C:\Users\OlujeromeNB\Documents\Visual Studio 2010\Projects\My24HourTimerWPF\My24
 C:\Users\OlujeromeNB\Documents\Visual Studio 2010\Projects\My24HourTimerWPF\My24HourTimerWPF\obj\x86\Debug\GenerateResource.write.1.tlog
 C:\Users\OlujeromeNB\Documents\Visual Studio 2010\Projects\My24HourTimerWPF\My24HourTimerWPF\obj\x86\Debug\My24HourTimerWPF.exe
 C:\Users\OlujeromeNB\Documents\Visual Studio 2010\Projects\My24HourTimerWPF\My24HourTimerWPF\obj\x86\Debug\My24HourTimerWPF.pdb
+C:\Users\OlujeromeNB\Documents\Visual Studio 2010\Projects\My24HourTimerWPF\My24HourTimerWPF\obj\x86\Debug\Interop.LCC11.dll
+C:\Users\OlujeromeNB\Documents\Visual Studio 2010\Projects\My24HourTimerWPF\My24HourTimerWPF\obj\x86\Debug\My24HourTimerWPF.csproj.ResolveComReference.cache

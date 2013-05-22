@@ -1,6 +1,84 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ScheduleLog>
-  <LastIDCounter>0</LastIDCounter>
+  <LastIDCounter>7</LastIDCounter>
   <EventSchedules>
+    <EventSchedule>
+      <Recurrence />
+      <ID>4</ID>
+      <Name>Meeting with ISSS</Name>
+      <StartTime>5/22/2013 12:00:00 PM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <PrepTime>00:00:00.0000900</PrepTime>
+      <Deadline>5/22/2013 5:00:00 PM</Deadline>
+      <Split>1</Split>
+      <Duration>01:00:00</Duration>
+      <RigidFlag>False</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <ID>4_5</ID>
+          <ThirdPartyID>000000004FA92D0E3ACB7E4686093BC9A147F0B084342000</ThirdPartyID>
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/22/2013 2:00:00 PM</ActiveStartTime>
+          <ActiveEndTime>5/22/2013 3:00:00 PM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>5/22/2013 1:59:59 PM</StartTime>
+          <EndTime>5/22/2013 3:00:00 PM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>True</Completed>
+    </EventSchedule>
+    <EventSchedule>
+      <Recurrence />
+      <ID>5</ID>
+      <Name>UBreakItIFixIt</Name>
+      <StartTime>5/22/2013 12:00:00 PM</StartTime>
+      <PreDeadline>00:00:00.0000300</PreDeadline>
+      <PrepTime>00:00:00.0000900</PrepTime>
+      <Deadline>5/22/2013 9:00:00 PM</Deadline>
+      <Split>1</Split>
+      <Duration>00:45:00</Duration>
+      <RigidFlag>False</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <ID>5_6</ID>
+          <ThirdPartyID>000000004FA92D0E3ACB7E4686093BC9A147F0B0A4342000</ThirdPartyID>
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/22/2013 12:19:42 PM</ActiveStartTime>
+          <ActiveEndTime>5/22/2013 1:04:42 PM</ActiveEndTime>
+          <Duration>00:45:00</Duration>
+          <StartTime>5/22/2013 12:19:42 PM</StartTime>
+          <EndTime>5/22/2013 1:04:42 PM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>True</Completed>
+    </EventSchedule>
+    <EventSchedule>
+      <Recurrence />
+      <ID>7</ID>
+      <Name>Go to Gym </Name>
+      <StartTime>5/22/2013 12:00:00 PM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <PrepTime>00:00:00.0000900</PrepTime>
+      <Deadline>5/22/2013 9:00:00 PM</Deadline>
+      <Split>1</Split>
+      <Duration>03:00:00</Duration>
+      <RigidFlag>False</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <ID>7_8</ID>
+          <ThirdPartyID>000000004FA92D0E3ACB7E4686093BC9A147F0B0C4342000</ThirdPartyID>
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/22/2013 4:30:00 PM</ActiveStartTime>
+          <ActiveEndTime>5/22/2013 7:30:00 PM</ActiveEndTime>
+          <Duration>03:00:00</Duration>
+          <StartTime>5/22/2013 4:29:59 PM</StartTime>
+          <EndTime>5/22/2013 7:30:00 PM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>True</Completed>
+    </EventSchedule>
   </EventSchedules>
 </ScheduleLog>

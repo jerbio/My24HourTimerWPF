@@ -859,8 +859,6 @@ namespace My24HourTimerWPF
             }
         }
     }
-
-
     public class TimeLine
     {
         protected DateTime EndTime;
@@ -888,15 +886,27 @@ namespace My24HourTimerWPF
             //Debug.Assert(MyEndTime <= MyStartTime,"Error In TimeLine Arguments End Time is less than Start Time");
         }
 
-        public bool IsDateTimeWithin(DateTime MyTime)
+        public bool IsDateTimeWithin(DateTime MyDateTime)
         {
-            if ((MyTime >= StartTime) && (MyTime <= EndTime))
+            if ((MyDateTime >= StartTime) && (MyDateTime <= EndTime))
             {
                 return true;
             }
 
             return false;
         }
+
+
+        public bool IsTimeLineWithin(TimeLine MyTimeLine)
+        {
+            if ((MyTimeLine.Start >= StartTime) && (MyTimeLine.End <= EndTime))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
 
         public DateTime Start
         {
@@ -1039,6 +1049,87 @@ namespace My24HourTimerWPF
         }
     }
 
+    class SnugArray
+    {
+        TimeSpan[] TopElements;
+        SnugArray[] SubElements;
+
+        public SnugArray()
+        {
+
+        }
+        public SnugArray(List<TimeSpan> EntryArrayOfStuff, TimeSpan MaxValue)
+        {
+            List<TimeSpan> SmallerElements = new List<TimeSpan>();
+            int i = 0;
+            int MyArrayCount = EntryArrayOfStuff.Count;
+            for (; i < MyArrayCount; i++)
+            {
+                if (EntryArrayOfStuff[i] <= MaxValue)
+                {
+                    SmallerElements.Add(EntryArrayOfStuff[i]);
+                }
+            }
+            TopElements = SmallerElements.ToArray();
+            SubElements = new SnugArray[TopElements.Length];
+
+            i = 0;
+
+            TimeSpan[] MyFittableElemtsHolder = new TimeSpan[SmallerElements.Count];
+            List<TimeSpan> MyFittableElementsHolderList = new List<TimeSpan>();
+            SmallerElements.CopyTo(MyFittableElemtsHolder, 0);
+            MyFittableElementsHolderList = MyFittableElemtsHolder.ToList();
+            MyArrayCount = SmallerElements.Count;
+            for (; i < MyArrayCount; i++)
+            {
+                MyFittableElementsHolderList.Remove(TopElements[i]);
+                SubElements[i] = new SnugArray(MyFittableElementsHolderList, (MaxValue - TopElements[i]));
+                SmallerElements.CopyTo(MyFittableElemtsHolder, 0);
+                MyFittableElementsHolderList = MyFittableElemtsHolder.ToList();
+            }
+        }
+
+        public List<List<TimeSpan>> MySnugPossibleEntries
+        {
+            get
+            {
+                List<List<TimeSpan>> JustAllSubPossibilities;
+                int i = 0;
+                List<TimeSpan> MyCurrentList = new List<TimeSpan>();
+                int j = 0;
+                JustAllSubPossibilities = new List<List<TimeSpan>>();
+                List<List<TimeSpan>> MyTotalSubPossibilities = new List<List<TimeSpan>>(); ;
+                for (; i < TopElements.Length; i++)
+                {
+                    MyCurrentList.Add(TopElements[i]);
+
+                    JustAllSubPossibilities = SubElements[i].MySnugPossibleEntries;
+                    //JustAllSubPossibilities.Add(MyCurrentList);
+                    j = 0;
+                    for (; j < JustAllSubPossibilities.Count; j++)
+                    {
+                        JustAllSubPossibilities[j].Add(TopElements[i]);
+                    }
+                    if (JustAllSubPossibilities.Count == 0)
+                    {
+                        JustAllSubPossibilities.Add(MyCurrentList);
+                    }
+                    MyCurrentList = new List<TimeSpan>();
+                    MyTotalSubPossibilities = MyTotalSubPossibilities.Concat(JustAllSubPossibilities).ToList();
+                }
+                return MyTotalSubPossibilities;
+            }
+        }
+
+        public TimeSpan[] MyTopElements
+        {
+            get
+            {
+                return TopElements;
+            }
+        }
+    }
+
     public static class EventIDGenerator
     {
         static uint idcounter = 0;
@@ -1082,6 +1173,11 @@ namespace My24HourTimerWPF
             {
                 return LayerID;
             }
+        }
+
+        public string getLevelID(int Level)
+        {
+            return LayerID[Level];
         }
 
         public override string ToString()
@@ -1139,6 +1235,7 @@ namespace My24HourTimerWPF
             ArrayOfSubEvents = new SubCalendarEvent[0];
             SchedulStatus=false;
             otherPartyID = "";
+            EventSequence = new TimeLine();
         }
 
         //CalendarEvent MyCalendarEvent = new CalendarEvent(NameEntry, Duration, StartDate, EndDate, PrepTime, PreDeadline, Rigid, Repeat, Split);
@@ -1152,6 +1249,7 @@ namespace My24HourTimerWPF
             CalendarEventName = MyUpdated.Name;
             StartDateTime = MyUpdated.StartDateTime;
             EndDateTime = MyUpdated.End;
+            EventSequence = new TimeLine(StartDateTime, EndDateTime);
             EventDuration = MyUpdated.ActiveDuration;
             Splits = MyUpdated.Splits;
             PrepTime = MyUpdated.PrepTime;
@@ -1190,23 +1288,10 @@ namespace My24HourTimerWPF
             ArrayOfSubEvents = new SubCalendarEvent[Splits];
             CalendarEventID = EventIDEntry;
             EventRepetition = EventRepetitionEntry;
-            /*if (EventRepetition.Enable)
-            {
-                MessageBox.Show(EventName + " and " + EventIDEntry.ToString());
-                EventRepetition = new Repetition(EventRepetition.Enable, EventRepetition.Range, EventRepetition.Frequency, CalendarEventName, EventDuration, StartDateTime, EndDateTime, EventPrepTime, EventPreDeadline, RigidSchedule, Splits);
-                if (EventRepetition.RecurringCalendarEvents.Length > 0)//this checks to see if the passed repetition class already has a list of recurring calendar events which will get assigned to the repetition object. If there is a length>0 then creation is taking place as oppose to a request for time genetration from UpdateTimeline
-                {
-                    //MessageBox.Show(EventRepetition.RecurringCalendarEvents.Length.ToString());
-                    if (EventRepetitionEntry.RecurringCalendarEvents[0].AllEvents[0] != null)
-                    { EventRepetition.RecurringCalendarEvents = EventRepetitionEntry.RecurringCalendarEvents; }
-
-                }
-            }*/
-            //ArrayOfSubEvents = generateSubEvent(ArrayOfSubEvents, 4, EventDuration, CalendarEventID.ToString());
+            EventSequence = new TimeLine(StartDateTime, EndDateTime);
         }
         public CalendarEvent(string EventName, TimeSpan Event_Duration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, TimeSpan Event_PreDeadline, bool EventRigidFlag, Repetition EventRepetitionEntry, int EventSplit)
         {
-//string eventName, TimeSpan EventDuration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, TimeSpan PreDeadline, bool EventRigidFlag, bool EventRepetition, int EventSplit
             CalendarEventName = EventName;
             StartDateTime = EventStart;
             EndDateTime = EventDeadline;
@@ -1219,24 +1304,12 @@ namespace My24HourTimerWPF
             ArrayOfSubEvents = new SubCalendarEvent[Splits];
             CalendarEventID = new EventID(new string[] { EventIDGenerator.generate().ToString() });
             EventRepetition = EventRepetitionEntry;
-            /*if (EventRepetition.Enable)
-            {
-                MessageBox.Show(EventName + " and haha" );
-                
-                EventRepetition = new Repetition(EventRepetition.Enable, EventRepetition.Range, EventRepetition.Frequency, CalendarEventName, EventDuration, StartDateTime, EndDateTime, EventPrepTime, EventPreDeadline, RigidSchedule, Splits);
-                if (EventRepetition.RecurringCalendarEvents.Length > 0)//this checks to see if the passed repetition class already has a list of recurring calendar events which will get assigned to the repetition object. If there is a length>0 then creation is taking place as oppose to a request for time genetration from UpdateTimeline
-                {
-                    //MessageBox.Show(EventRepetition.RecurringCalendarEvents.Length.ToString());
-                    if (EventRepetitionEntry.RecurringCalendarEvents[0].AllEvents[0] != null)
-                    { EventRepetition.RecurringCalendarEvents = EventRepetitionEntry.RecurringCalendarEvents; }
-                }
-            }*/
-                //ArrayOfSubEvents = generateSubEvent(ArrayOfSubEvents, 4, EventDuration, CalendarEventID.ToString());
+            EventSequence = new TimeLine(StartDateTime, EndDateTime);
         }
         SubCalendarEvent[] generateSubEvent(SubCalendarEvent[] ArrayOfEvents, int NumberOfSplit, TimeSpan TotalActiveDurationSubEvents, string ParentID)
         {
             TimeSpan TimeSpanEvent = EndDateTime - StartDateTime;
-         //       new TimeSpan((long)((().TotalSeconds/ ArrayOfEvents.Length)*100000000));
+            //new TimeSpan((long)((().TotalSeconds/ ArrayOfEvents.Length)*100000000));
             TimeSpanEvent = new TimeSpan(((long)TimeSpanEvent.TotalMilliseconds * 10000) / ArrayOfEvents.Length);
             TimeSpan ActiveDurationPerSubEvents = new TimeSpan((long)(((TotalActiveDurationSubEvents.TotalSeconds)*10000000) / ArrayOfEvents.Length));
             DateTime SubStart;
@@ -1401,6 +1474,21 @@ namespace My24HourTimerWPF
         }
         
         //CalendarEvent Methods
+        public SubCalendarEvent getSubEvent(EventID SubEventID)
+        {
+            int i=0;
+            for (;i<ArrayOfSubEvents.Length;i++)
+            {
+                if (SubEventID.ToString()==ArrayOfSubEvents[i].ID)
+                {
+                    return ArrayOfSubEvents[i];
+                }
+
+            }
+
+            return null;
+        }
+
         static public string convertTimeToMilitary(string TimeString)
         {
             TimeString = TimeString.Replace(" ", "").ToUpper();
@@ -1494,7 +1582,6 @@ namespace My24HourTimerWPF
                 return CalendarEventID.ToString();
             }
         }
-
         public virtual string ThirdPartyID
         {
             set 
@@ -1506,7 +1593,6 @@ namespace My24HourTimerWPF
                 return otherPartyID;
             }
         }
-
         public string Name
         {
             get 
@@ -1514,7 +1600,6 @@ namespace My24HourTimerWPF
                 return CalendarEventName;
             }
         }
-
         public TimeSpan TimeLeftBeforeDeadline
         {
             get
@@ -1522,7 +1607,6 @@ namespace My24HourTimerWPF
                 return EndDateTime - DateTime.Now;
             }
         }
-
         public DateTime Start
         {
             get
@@ -1530,7 +1614,6 @@ namespace My24HourTimerWPF
                 return StartDateTime;
             }
         }
-
         public DateTime End
         {
             get
@@ -1538,7 +1621,6 @@ namespace My24HourTimerWPF
                 return EndDateTime;
             }
         }
-
         public int NumberOfSplit
         {
             get
@@ -1546,7 +1628,6 @@ namespace My24HourTimerWPF
                 return Splits;
             }
         }
-
         public bool Rigid
         {
             get
@@ -1554,7 +1635,6 @@ namespace My24HourTimerWPF
                 return RigidSchedule;
             }
         }
-
         public bool RepetitionStatus
         {
             get
@@ -1562,7 +1642,6 @@ namespace My24HourTimerWPF
                 return EventRepetition.Enable;
             }
         }
-
         public Repetition Repeat
         {
             get
@@ -1570,22 +1649,20 @@ namespace My24HourTimerWPF
                 return EventRepetition;
             }
         }
-
         public bool Completed
         {
             get
             {
                 if (DateTime.Now > EndDateTime)
                 {
-                    return false;
+                    return true;
                 }
                 else 
                 {
-                    return true;
+                    return false;
                 }
             }
         }
-
         public TimeSpan Preparation
         {
             get
@@ -1593,7 +1670,6 @@ namespace My24HourTimerWPF
                 return PrepTime;
             }
         }
-
         public TimeSpan PreDeadline
         {
             get
@@ -1601,8 +1677,6 @@ namespace My24HourTimerWPF
                 return EventPreDeadline;
             }
         }
-
-
         public TimeSpan ActiveDuration
        {
            get
@@ -1610,12 +1684,18 @@ namespace My24HourTimerWPF
                return EventDuration;
            }
        }
-
         public SubCalendarEvent [] AllEvents
         {
             get
             {
                 return ArrayOfSubEvents;
+            }
+        }
+        public TimeLine EventTimeLine
+        {
+            get 
+            {
+                return EventSequence;
             }
         }
     }
@@ -1641,8 +1721,6 @@ namespace My24HourTimerWPF
             EnableRepeat = EnableFlag;
             InitializingEvent = new CalendarEvent();
         }
-
-        
 
         //public Repetition(bool EnableFlag,CalendarEvent BaseCalendarEvent,  TimeLine RepetitionRange_Entry, string Frequency)
         public Repetition(bool ReadFromFileEnableFlag, TimeLine ReadFromFileRepetitionRange_Entry, string ReadFromFileFrequency, CalendarEvent[] ReadFromFileRecurringListOfCalendarEvents)
@@ -1798,7 +1876,6 @@ namespace My24HourTimerWPF
             AllEventDictionary = getAllCalendarFromXml();
             CompleteSchedule=getTimeLine();
         }
-
 
         public CalendarEvent getMyCalendarEvent(string EventID)
         {
@@ -2113,8 +2190,6 @@ namespace My24HourTimerWPF
             return MyArrayOfNodes;
         }
 
-        
-        
         public static DateTime stringToDateTime(string MyDateTimeString)//String should be in format "MM/DD/YY HH:MM:SSA"
         {
             //4/19/2013 11:34:40 AM
@@ -2279,7 +2354,7 @@ namespace My24HourTimerWPF
             TimeLine[] TimeLineArrayWithSubEventsAssigned = new TimeLine[MyEvent.AllEvents.Length];
             SubCalendarEvent TempSubEvent=new SubCalendarEvent();
             BusyTimeLine MyTempBusyTimerLine=new BusyTimeLine();
-            TimeLine[] AllAvailableFreeSpots= getAllFreeSpots(new TimeLine(MyEvent.Start,MyEvent.End));
+            TimeLine[] FreeSpotsAvailableWithinValidTimeline= getAllFreeSpots(new TimeLine(MyEvent.Start,MyEvent.End));
             int i = 0;
             TimeSpan TotalFreeTimeAvailable=new TimeSpan();
             if (MyEvent.Rigid)
@@ -2291,14 +2366,14 @@ namespace My24HourTimerWPF
             }
             else 
             {
-                for (i = 0; i < AllAvailableFreeSpots.Length; i++)
+                for (i = 0; i < FreeSpotsAvailableWithinValidTimeline.Length; i++)
                 {
-                    TotalFreeTimeAvailable += AllAvailableFreeSpots[i].TimelineSpan;
+                    TotalFreeTimeAvailable += FreeSpotsAvailableWithinValidTimeline[i].TimelineSpan;
                 }
                 
                 if (TotalFreeTimeAvailable >= MyEvent.ActiveDuration)
                 {
-                    TimeLineArrayWithSubEventsAssigned = SplitFreeSpotsInToSubEventTimeSlots(AllAvailableFreeSpots, MyEvent.AllEvents.Length, MyEvent.ActiveDuration);
+                    TimeLineArrayWithSubEventsAssigned = SplitFreeSpotsInToSubEventTimeSlots(FreeSpotsAvailableWithinValidTimeline, MyEvent.AllEvents.Length, MyEvent.ActiveDuration);
                 }
                 else
                 {
@@ -2306,9 +2381,10 @@ namespace My24HourTimerWPF
                     return new CalendarEvent();
                 }
 
-                if (TimeLineArrayWithSubEventsAssigned.Length < MyEvent.AllEvents.Length)// This means the distribute subevent spots won't be sufficient for the subevents available to the calendar event
+                if (TimeLineArrayWithSubEventsAssigned.Length < MyEvent.AllEvents.Length)// This means the assigned time per subevent spots won't be sufficient for the subevents available to the calendar event
                 { 
                     //I need to write event that updates the status bar
+
                 }
 
                 i = 0;
@@ -2330,6 +2406,147 @@ namespace My24HourTimerWPF
             }
 
             return MyEvent;
+        }
+
+        TimeLine[] ReArrangeTimeLineWithinWithinCalendaEventRange(CalendarEvent MyCalendarEvent)// this looks at the timeline of the calendar event and then tries to rearrange all subevents within the range to suit final output. Such that there will be sufficient time space for each subevent
+        {
+            SubCalendarEvent[] ArrayOfInterferringSubEvents = getInterferringSubEvents(MyCalendarEvent);
+            BusyTimeLine[] InterferringDateTime = new BusyTimeLine[ArrayOfInterferringSubEvents.Length];
+            int i=0;
+            for (; i < InterferringDateTime.Length; i++)//for loop populatesInteferringDateTIme so that it can be populated
+            {
+                InterferringDateTime[i] = ArrayOfInterferringSubEvents[i].ActiveSlot;
+            }
+
+            InterferringDateTime = SortMyEvents(InterferringDateTime.ToList()).ToArray();
+            List<BusyTimeLine>[] MyEdgeElements = getEdgeElements(MyCalendarEvent.EventTimeLine, InterferringDateTime);
+
+
+
+            List<SubCalendarEvent>[]SubEventsTimeCategories= CategorizeSubEventsTimeLine(MyCalendarEvent.EventTimeLine, InterferringDateTime);
+            List<SubCalendarEvent> RigidSubCalendarEvents=new List<SubCalendarEvent>(0);
+            int i = 0;
+            int j = 0;
+
+            for (; i < SubEventsTimeCategories.Length; i++)//loop detects the rigid subevents and populates RigidSubCalendarEvents list
+            {
+                j = 0;
+                for (; j < SubEventsTimeCategories[i].Count; j++)
+                {
+                    if (SubEventsTimeCategories[i][j].Rigid)
+                    {
+                        RigidSubCalendarEvents.Add(SubEventsTimeCategories[i][j]);
+                    }
+                }
+            }
+
+
+            /*SubCalendarEvent[] SubEventsArrayWhereCalendarEventStartsBeforeCalendarEvent;
+            SubCalendarEvent[] SubEventsArrayWhereCalendarEventStartsWithinCalendarEvent;
+            SubCalendarEvent[] SubEventsArrayWhereCalendarEventStartsAndEndWithinCalendarEvent;*/
+            //ArrayOfInterferringSubEvents= QuickSortFunctionFromStart(
+            
+        }
+
+        List<SubCalendarEvent>[] CategorizeSubEventsTimeLine(TimeLine MyRange, BusyTimeLine[] SortedByStartArrayOfBusyTimeLine)//This  returns An array of a List of SubCalendarEvents. The function goes through each of the BUsytimeline Events and verifies if its parent calendar Event has a start Time that is eiter earlier than range, within range or start and ends within the range
+        {
+            List<SubCalendarEvent>[] ArrayOfDifferentVaryingSubEventsCategories = new List<SubCalendarEvent>[4];
+            List<SubCalendarEvent> MyArrayOfBeforeAndEndsAfterBusyTimelines = new List<SubCalendarEvent>(0);
+            List<SubCalendarEvent> MyArrayOfBeforeAndEndsBeforeBusyTimelines = new List<SubCalendarEvent>(0);
+            List<SubCalendarEvent> MyArrayOfStartsAfterAndEndsAfterBusyTimelines = new List<SubCalendarEvent>(0);
+            List<SubCalendarEvent> MyArrayOfStartsAndEndsBeforeBusyTimelines = new List<SubCalendarEvent>(0);
+            
+            int i = 0;
+            for (; i < SortedByStartArrayOfBusyTimeLine.Length; i++)
+            {
+                EventID MyEventID= new EventID(SortedByStartArrayOfBusyTimeLine[i].TimeLineID);
+                string ParentCalendarEventID=MyEventID.getLevelID(0);
+
+                if ((AllEventDictionary[ParentCalendarEventID].Start < MyRange.Start) && (AllEventDictionary[ParentCalendarEventID].End > MyRange.End))//checks if Calendar Event Starts starts before range and ends after range
+                { 
+                    MyArrayOfBeforeAndEndsAfterBusyTimelines.Add(AllEventDictionary[ParentCalendarEventID].getSubEvent(MyEventID));
+                }
+
+                if ((AllEventDictionary[ParentCalendarEventID].Start < MyRange.Start) && (AllEventDictionary[ParentCalendarEventID].End <= MyRange.End))//checks if Calendar Event Starts starts before range and ends within range
+                {
+                    MyArrayOfBeforeAndEndsBeforeBusyTimelines.Add(AllEventDictionary[ParentCalendarEventID].getSubEvent(MyEventID));
+                }
+
+                if ((AllEventDictionary[ParentCalendarEventID].Start >= MyRange.Start) && (AllEventDictionary[ParentCalendarEventID].End <= MyRange.End))//checks if Calendar Event Starts within range and ends within range
+                {
+                    MyArrayOfStartsAndEndsBeforeBusyTimelines.Add(AllEventDictionary[ParentCalendarEventID].getSubEvent(MyEventID));
+                }
+
+                if ((AllEventDictionary[ParentCalendarEventID].Start >= MyRange.Start) && (AllEventDictionary[ParentCalendarEventID].End > MyRange.End))//checks if Calendar Event Starts within range and ends after range
+                {
+                    MyArrayOfStartsAfterAndEndsAfterBusyTimelines.Add(AllEventDictionary[ParentCalendarEventID].getSubEvent(MyEventID));
+                }
+            }
+            ArrayOfDifferentVaryingSubEventsCategories[0] = MyArrayOfBeforeAndEndsAfterBusyTimelines;
+            ArrayOfDifferentVaryingSubEventsCategories[1] = MyArrayOfBeforeAndEndsBeforeBusyTimelines;
+            ArrayOfDifferentVaryingSubEventsCategories[2] = MyArrayOfStartsAfterAndEndsAfterBusyTimelines;
+            ArrayOfDifferentVaryingSubEventsCategories[3] = MyArrayOfStartsAndEndsBeforeBusyTimelines;
+            return ArrayOfDifferentVaryingSubEventsCategories;
+        }
+
+        CalendarEvent[] SortBasedOnDeadlineOfCalendarEvent()
+        {
+            return new CalendarEvent[6];
+        }
+        
+        List<BusyTimeLine>[] getEdgeElements(TimeLine MyRangeOfTimeLine, BusyTimeLine[] ArrayOfTInterferringime)
+        {
+            List<BusyTimeLine> ListOfEdgeElements = new List<BusyTimeLine>();
+            List<BusyTimeLine> StartEdge = new List<BusyTimeLine>();
+            List<BusyTimeLine> EndEdge = new List<BusyTimeLine>();
+            int i=0;
+            for (; i < ArrayOfTInterferringime.Length; i++)
+            {
+                if (!MyRangeOfTimeLine.IsTimeLineWithin(ArrayOfTInterferringime[i]))
+                {
+                    ListOfEdgeElements.Add(ArrayOfTInterferringime[i]);
+                }
+            }
+
+            i = 0;
+
+            for (; i < ListOfEdgeElements.Count; i++)
+            {
+                if (ListOfEdgeElements[i].Start < MyRangeOfTimeLine.Start)
+                {
+                    StartEdge.Add(ListOfEdgeElements[i]);
+                }
+                else 
+                {
+                    EndEdge.Add(ListOfEdgeElements[i]);
+                }
+            }
+
+            List<BusyTimeLine>[] StartAndEndEdgeList = new List<BusyTimeLine>[2];
+            StartAndEndEdgeList[0] = StartEdge;
+            StartAndEndEdgeList[1] = EndEdge;
+            return StartAndEndEdgeList;
+        }
+
+        private SubCalendarEvent[] getInterferringSubEvents(CalendarEvent MyCalendarEvent)
+        {
+            List<SubCalendarEvent> MyArrayOfInterferringSubCalendarEvents = new List<SubCalendarEvent>(0);//List that stores the InterFerring List
+            int i = 0;
+            int lengthOfCalendarSubEvent = 0;
+            foreach (KeyValuePair<string, CalendarEvent> MyCalendarEventDictionaryEntry in AllEventDictionary)
+            {
+                lengthOfCalendarSubEvent = MyCalendarEventDictionaryEntry.Value.AllEvents.Length;
+                i = 0;
+                for (; i < lengthOfCalendarSubEvent; i++)
+                {
+                    if ((MyCalendarEvent.EventTimeLine.IsDateTimeWithin(MyCalendarEventDictionaryEntry.Value.AllEvents[i].Start))||(MyCalendarEvent.EventTimeLine.IsDateTimeWithin(MyCalendarEventDictionaryEntry.Value.AllEvents[i].End)))
+                    {
+                        MyArrayOfInterferringSubCalendarEvents.Add(MyCalendarEventDictionaryEntry.Value.AllEvents[i]);
+                    }
+                }
+            }
+
+            return MyArrayOfInterferringSubCalendarEvents.ToArray();
         }
 
         public TimeLine[] SplitFreeSpotsInToSubEventTimeSlots(TimeLine[] AllAvailableFreeSpots,int NumberOfAllotments,TimeSpan TotalActiveDuration)//function is responsible for dividing busy timeline. Also sapcing them out
@@ -2806,8 +3023,6 @@ namespace My24HourTimerWPF
                 RemoveFromOutlook(MyRepetition.RecurringCalendarEvents[i]);
             }
         }
-
-        
 
         private string AddAppointment(SubCalendarEvent ActiveSection, string NameOfParentCalendarEvent)
         {

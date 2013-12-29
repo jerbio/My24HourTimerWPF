@@ -1,0 +1,32 @@
+List<List<SubCalendarEvent>> retValue = new System.Collections.Generic.List<System.Collections.Generic.List<SubCalendarEvent>>();
+            Dictionary<string, SubCalendarEventListCounter> Dict_ParentIDListOfSubCalEvents = new System.Collections.Generic.Dictionary<string, SubCalendarEventListCounter>();
+            foreach (SubCalendarEvent eachSubCalendarEvent in ListOfSubCalendarEvents)
+            { 
+                string ParentKey= eachSubCalendarEvent.SubEvent_ID.getCalendarEventID();
+                if (Dict_ParentIDListOfSubCalEvents.ContainsKey(ParentKey))
+                {
+                    Dict_ParentIDListOfSubCalEvents[ParentKey].UpdateList=eachSubCalendarEvent;
+                }
+                else 
+                {
+                    Dict_ParentIDListOfSubCalEvents.Add(ParentKey, new SubCalendarEventListCounter(eachSubCalendarEvent, ParentKey));
+                }
+            }
+
+            foreach (List<TimeSpanWithID> eachListOfTimeSpanWithID in ListOfSnugPossibilities)
+            {
+                List<SubCalendarEvent> CurentLine = new System.Collections.Generic.List<SubCalendarEvent>();
+                foreach (TimeSpanWithID eachTimeSpanWithID in eachListOfTimeSpanWithID)
+                {
+                    CurentLine.Add(Dict_ParentIDListOfSubCalEvents[eachTimeSpanWithID.TimeSpanID.getCalendarEventID()].getNextSubCalendarEvent);
+                }
+                retValue.Add(CurentLine);
+                foreach (SubCalendarEventListCounter eachSubCalendarEventListCounter in Dict_ParentIDListOfSubCalEvents.Values)
+                {
+                    eachSubCalendarEventListCounter.reset;
+                }
+
+            }
+
+            return retValue;
+            

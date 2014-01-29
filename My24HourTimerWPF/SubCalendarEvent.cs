@@ -11,11 +11,12 @@ namespace My24HourTimerWPF
         BusyTimeLine BusyFrame;
         TimeSpan AvailablePreceedingFreeSpace;
         TimeLine CalendarEventRange;
+        Location EventLocation;
 
         #region Classs Constructor
         public SubCalendarEvent()
         { }
-        public SubCalendarEvent(TimeSpan Event_Duration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, string myParentID, TimeLine RangeOfSubCalEvent = null)
+        public SubCalendarEvent(TimeSpan Event_Duration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, string myParentID, Location EventLocation =null, TimeLine RangeOfSubCalEvent = null)
         {
             CalendarEventRange = RangeOfSubCalEvent;
             //string eventName, TimeSpan EventDuration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, TimeSpan PreDeadline, bool EventRigidFlag, bool EventRepetition, int EventSplit
@@ -23,6 +24,7 @@ namespace My24HourTimerWPF
             EndDateTime = EventDeadline;
             EventDuration = Event_Duration;
             PrepTime = EventPrepTime;
+            
 
 
 //            SubEventID = new EventID(new string[] { myParentID, EventIDGenerator.generate().ToString() });
@@ -35,7 +37,7 @@ namespace My24HourTimerWPF
             EventSequence = new EventTimeLine(SubEventID.ToString(), StartDateTime, EndDateTime);
         }
 
-        public SubCalendarEvent(TimeSpan Event_Duration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, TimeLine RangeOfSubCalEvent = null)
+        public SubCalendarEvent(TimeSpan Event_Duration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, Location EventLocation =null, TimeLine RangeOfSubCalEvent = null)
         {
             CalendarEventRange = RangeOfSubCalEvent;
             StartDateTime = EventStart;
@@ -55,7 +57,7 @@ namespace My24HourTimerWPF
             RigidSchedule = Rigid;
         }
 
-        public SubCalendarEvent(string MySubEventID, BusyTimeLine MyBusylot, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, string myParentID, TimeLine RangeOfSubCalEvent = null)
+        public SubCalendarEvent(string MySubEventID, BusyTimeLine MyBusylot, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, string myParentID, Location EventLocation =null, TimeLine RangeOfSubCalEvent = null)
         {
             CalendarEventRange = RangeOfSubCalEvent;
             //string eventName, TimeSpan EventDuration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, TimeSpan PreDeadline, bool EventRigidFlag, bool EventRepetition, int EventSplit
@@ -68,7 +70,7 @@ namespace My24HourTimerWPF
             EventSequence = new EventTimeLine(SubEventID.ToString(), StartDateTime, EndDateTime);
         }
 
-        public SubCalendarEvent(string MySubEventID, DateTime EventStart, DateTime EventDeadline, BusyTimeLine SubEventBusy, TimeLine RangeOfSubCalEvent = null)
+        public SubCalendarEvent(string MySubEventID, DateTime EventStart, DateTime EventDeadline, BusyTimeLine SubEventBusy, Location EventLocation =null, TimeLine RangeOfSubCalEvent = null)
         {
             CalendarEventRange = RangeOfSubCalEvent;
             SubEventID = new EventID(MySubEventID.Split('_'));
@@ -78,7 +80,7 @@ namespace My24HourTimerWPF
             BusyFrame = SubEventBusy;
         }
 
-        public SubCalendarEvent(string MySubEventID, BusyTimeLine MyBusylot, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, TimeLine RangeOfSubCalEvent = null)
+        public SubCalendarEvent(string MySubEventID, BusyTimeLine MyBusylot, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, Location EventLocation =null, TimeLine RangeOfSubCalEvent = null)
         {
             CalendarEventRange = RangeOfSubCalEvent;
             //string eventName, TimeSpan EventDuration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, TimeSpan PreDeadline, bool EventRigidFlag, bool EventRepetition, int EventSplit
@@ -98,7 +100,7 @@ namespace My24HourTimerWPF
             RigidSchedule = Rigid;
         }
 
-        public SubCalendarEvent(string MySubEventID, DateTime EventStart, DateTime EventDeadline, BusyTimeLine SubEventBusy, bool Rigid, TimeLine RangeOfSubCalEvent = null)
+        public SubCalendarEvent(string MySubEventID, DateTime EventStart, DateTime EventDeadline, BusyTimeLine SubEventBusy, bool Rigid, Location EventLocation =null, TimeLine RangeOfSubCalEvent = null)
         {
             CalendarEventRange = RangeOfSubCalEvent;
             SubEventID = new EventID(MySubEventID.Split('_'));
@@ -121,7 +123,17 @@ namespace My24HourTimerWPF
         {
             return SubCalendarEvent1.Start.CompareTo(SubCalendarEvent2.Start);
         }
+        /*
+        public static bool operator ==(SubCalendarEvent arg1, SubCalendarEvent arg2)
+        {
+            return arg1.ID == arg2.ID;
+        }
 
+        public static bool operator !=(SubCalendarEvent arg1, SubCalendarEvent arg2)
+        {
+            return arg1.ID != arg2.ID;
+        }
+        */
         public override void ReassignTime(DateTime StartTime, DateTime EndTime)
         {
             EndDateTime = (EndTime);
@@ -133,10 +145,8 @@ namespace My24HourTimerWPF
 
         public SubCalendarEvent createCopy()
         {
-            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ID, new DateTime(Start.Ticks), new DateTime(End.Ticks), BusyFrame.CreateCopy(), this.RigidSchedule,new TimeLine(CalendarEventRange.Start,CalendarEventRange.End));
-            MySubCalendarEventCopy.LocationString = LocationString;
-
-            MySubCalendarEventCopy.CalendarEventLocation = CalendarEventLocation;//note check for possible reference issues for future versions
+            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ID, new DateTime(Start.Ticks), new DateTime(End.Ticks), BusyFrame.CreateCopy(), this.RigidSchedule, this.LocationData, new TimeLine(CalendarEventRange.Start, CalendarEventRange.End));
+            //MySubCalendarEventCopy.LocationData = LocationData;//note check for possible reference issues for future versions
             /*MySubCalendarEventCopy.SubEventID = SubEventID;
             MySubCalendarEventCopy.BusyFrame = BusyFrame;
             MySubCalendarEventCopy.StartDateTime = StartDateTime;
@@ -168,7 +178,85 @@ namespace My24HourTimerWPF
             return TotalTimeSpan;
         }
 
-        public  TimeLine PinToEnd(TimeLine LimitingTimeLine, CalendarEvent RestrctingCalendarEvent)
+
+        public bool PinSubEventsToStart(TimeLine MyTimeLine)
+        {
+            TimeSpan SubCalendarTimeSpan = new TimeSpan();
+            DateTime ReferenceStartTime = new DateTime();
+            DateTime ReferenceEndTime = new DateTime();
+
+            ReferenceStartTime = MyTimeLine.Start;
+            if (this.getCalendarEventRange.Start > MyTimeLine.Start)
+            {
+                ReferenceStartTime = this.getCalendarEventRange.Start;
+            }
+
+            ReferenceEndTime = this.getCalendarEventRange.End;
+            if (this.getCalendarEventRange.End > MyTimeLine.End)
+            {
+                ReferenceEndTime = MyTimeLine.End;
+            }
+
+            /*foreach (SubCalendarEvent MySubCalendarEvent in MySubCalendarEventList)
+            {
+                SubCalendarTimeSpan = SubCalendarTimeSpan.Add(MySubCalendarEvent.ActiveDuration);//  you might be able to combine the implementing for lopp with this in order to avoid several loops
+            }*/
+            TimeSpan TimeDifference = (ReferenceEndTime - ReferenceStartTime);
+
+            if (this.Rigid)
+            {
+                return true;
+            }
+
+            if (this.EventDuration > TimeDifference)
+            {
+                return false;
+                //throw new Exception("Oh oh check PinSubEventsToStart Subcalendar is longer than available timeline");
+            }
+            if ((ReferenceStartTime > this.getCalendarEventRange.End) || (ReferenceEndTime < this.getCalendarEventRange.Start))
+            {
+                return false;
+                //throw new Exception("Oh oh Calendar event isn't Timeline range. Check PinSubEventsToEnd :(");
+            }
+
+            List<BusyTimeLine> MyActiveSlot = new List<BusyTimeLine>();
+            //foreach (SubCalendarEvent MySubCalendarEvent in MySubCalendarEventList)
+            
+                this.StartDateTime= ReferenceStartTime;
+                this.EndDateTime = this.StartDateTime + this.ActiveDuration;
+                //this.ActiveSlot = new BusyTimeLine(this.ID, (this.StartDateTime), this.EndDateTime);
+                TimeSpan BusyTimeLineShift = this.StartDateTime - ActiveSlot.Start;
+                ActiveSlot.shiftTimeline(BusyTimeLineShift);
+                return true;
+        }
+
+
+        public bool PinToEnd(TimeLine LimitingTimeLine)
+        {
+            DateTime ReferenceTime = new DateTime();
+            EndDateTime = this.getCalendarEventRange.End;
+            ReferenceTime = EndDateTime;
+            if (EndDateTime > LimitingTimeLine.End)
+            {
+                ReferenceTime = LimitingTimeLine.End;
+            }
+            DateTime MyStartTime = ReferenceTime - this.EventDuration;
+            if(this.getCalendarEventRange.IsTimeLineWithin(new TimeLine(MyStartTime,ReferenceTime)))
+            {
+
+                StartDateTime = MyStartTime;
+                //ActiveSlot = new BusyTimeLine(this.ID, (MyStartTime), ReferenceTime);
+                TimeSpan BusyTimeLineShift = MyStartTime - ActiveSlot.Start;
+                ActiveSlot.shiftTimeline(BusyTimeLineShift);
+                EndDateTime = ReferenceTime;
+                LimitingTimeLine.AddBusySlots(ActiveSlot);
+                return true;
+            }
+            return false;
+        }
+
+
+        public  bool PinToEnd(TimeLine LimitingTimeLine, CalendarEvent RestrctingCalendarEvent)
         {
             if (new EventID(RestrctingCalendarEvent.ID).getLevelID(0) != SubEventID.getLevelID(0))
             {
@@ -180,16 +268,25 @@ namespace My24HourTimerWPF
             {
                 ReferenceTime = LimitingTimeLine.End;
             }
-            else
+            /*else
             {
                 ReferenceTime = End;
-            }
+            }*/
+            
             DateTime MyStartTime = ReferenceTime - this.EventDuration;
-            StartDateTime= MyStartTime;
-            ActiveSlot = new BusyTimeLine(this.ID, (MyStartTime), ReferenceTime);
-            EndDateTime = ReferenceTime;
-            LimitingTimeLine.AddBusySlots(ActiveSlot);
-            return LimitingTimeLine;
+
+            if (this.getCalendarEventRange.IsTimeLineWithin(new TimeLine(MyStartTime, ReferenceTime)))
+            {
+                StartDateTime = MyStartTime;
+                //ActiveSlot = new BusyTimeLine(this.ID, (MyStartTime), ReferenceTime);
+                TimeSpan BusyTimeLineShift = MyStartTime - ActiveSlot.Start;
+                ActiveSlot.shiftTimeline(BusyTimeLineShift);
+                EndDateTime = ReferenceTime;
+                LimitingTimeLine.AddBusySlots(ActiveSlot);
+                return true;
+            }
+
+            return false;
         }
 
         public void PinToEnd(CalendarEvent RestrctingCalendarEvent)
@@ -203,13 +300,47 @@ namespace My24HourTimerWPF
             ReferenceTime = EndDateTime;
             DateTime MyStartTime = ReferenceTime - this.EventDuration;
             StartDateTime = MyStartTime;
-            ActiveSlot = new BusyTimeLine(this.ID, (MyStartTime), ReferenceTime);
+
+            
+            //ActiveSlot = new BusyTimeLine(this.ID, (MyStartTime), ReferenceTime);
+            TimeSpan BusyTimeLineShift = MyStartTime - ActiveSlot.Start;
+            ActiveSlot.shiftTimeline(BusyTimeLineShift);
             EndDateTime = ReferenceTime;
         }
 
+        public bool shiftEvent(TimeSpan ChangeInTime)
+        {
+            TimeLine UpdatedTimeLine = new TimeLine(this.Start + ChangeInTime, this.End + ChangeInTime);
+            if (!(this.getCalendarEventRange.IsTimeLineWithin(UpdatedTimeLine)))
+            {
+                return false;
+            }
+            StartDateTime += ChangeInTime;
+            EndDateTime += ChangeInTime;
+            ActiveSlot.shiftTimeline(ChangeInTime);
+            return true;
+        }
+        
+
+         public static double CalculateDistance(SubCalendarEvent Arg1,SubCalendarEvent Arg2)
+        {
+            if(Arg1.SubEvent_ID.getStringIDAtLevel(0)==Arg1.SubEvent_ID.getStringIDAtLevel(0))
+            {
+                return double.MaxValue;
+            }
+            else
+            {
+                return Location.calculateDistance(Arg1.myLocation,Arg2.myLocation);
+            }
+        }
 
 
-
+         public bool canExistWithinTimeLine(TimeLine PossibleTimeLine)
+         {
+             SubCalendarEvent thisCopy = this.createCopy();
+             return (thisCopy.PinSubEventsToStart(PossibleTimeLine) && thisCopy.PinToEnd(PossibleTimeLine));
+             
+         }
         #endregion
 
         #region Class Properties

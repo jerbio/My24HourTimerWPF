@@ -43,6 +43,7 @@
     <Reference Include="Microsoft.Office.Interop.Outlook, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
+    <Reference Include="Microsoft.Solver.Foundation" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -70,25 +71,33 @@
     </ApplicationDefinition>
     <Compile Include="Authentication.cs" />
     <Compile Include="BatchGeocoding.cs" />
+    <Compile Include="BusyTimeLine.cs" />
     <Compile Include="CalendarEvent.cs" />
     <Compile Include="ClumpSubCalendarEvent.cs" />
     <Compile Include="Comparator.cs" />
     <None Include="SnugArray.cs.old" />
     <None Include="MainWindow.xaml.cs.old" />
+    <None Include="SnugArray.cs.old0" />
+    <None Include="MainWindow.xamlbeforeReversal.cs.old" />
+    <None Include="MainWindow.xaml_BeforeConstrainedUpdaeOrCountForValids.cs.old" />
+    <Compile Include="DistanceSolver.cs" />
     <Compile Include="EfficientTimeLine.cs" />
+    <Compile Include="EventTimeLine.cs" />
     <Compile Include="Geocode.cs" />
     <Compile Include="Geometry.cs" />
     <Compile Include="InListOutOfList.cs" />
-    <Compile Include="Location24.cs" />
+    <Compile Include="Location.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="mTuple.cs" />
     <Compile Include="ReverseGeocode.cs" />
     <Compile Include="RouteDataContract.cs" />
     <Compile Include="SnugArray.cs" />
     <Compile Include="SpreadOutList.cs" />
     <Compile Include="SubCalendarEvent.cs" />
     <Compile Include="SubCalendarEventListCounter.cs" />
+    <Compile Include="TimeLine.cs" />
     <Compile Include="TimeSpanWithID.cs" />
     <Compile Include="TupleDict.cs" />
     <Compile Include="Utility.cs" />
@@ -118,6 +127,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="app.config" />
     <None Include="ClassDiagram1.cd" />

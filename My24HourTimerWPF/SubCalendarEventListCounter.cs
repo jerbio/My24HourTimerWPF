@@ -20,11 +20,8 @@ namespace My24HourTimerWPF
 
         public void reset()
         {
-            
-            
                 CurrentIndex = 0;
                 return;
-            
         }
 
         public SubCalendarEvent getNextSubCalendarEvent

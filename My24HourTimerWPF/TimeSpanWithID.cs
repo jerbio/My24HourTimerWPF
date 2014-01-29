@@ -5,37 +5,51 @@ using System.Text;
 
 namespace My24HourTimerWPF
 {
-    public class TimeSpanWithID
+    public class TimeSpanWithEventID
     {
         public TimeSpan timeSpan;
         public EventID TimeSpanID;
-        public TimeSpanWithID(TimeSpan TimeSpanEntry, EventID ID)
+        public TimeSpanWithEventID(TimeSpan TimeSpanEntry, EventID ID)
         {
             timeSpan = TimeSpanEntry;
             TimeSpanID = ID;
         }
-        public TimeSpanWithID(long ticks,EventID ID)
+        public TimeSpanWithEventID(long ticks,EventID ID)
         {
             timeSpan=new TimeSpan(ticks);
             TimeSpanID = ID;
         }
-        public TimeSpanWithID(int hours, int minutes, int seconds,EventID ID)
+        public TimeSpanWithEventID(int hours, int minutes, int seconds,EventID ID)
         {
             timeSpan = new TimeSpan(hours,  minutes,  seconds);
             TimeSpanID = new EventID(ID.ToString());
         }
         
-        public TimeSpanWithID(int days, int hours, int minutes, int seconds, EventID ID)
+        public TimeSpanWithEventID(int days, int hours, int minutes, int seconds, EventID ID)
         {
             timeSpan = new TimeSpan(days,hours, minutes, seconds);
             TimeSpanID = new EventID(ID.ToString());
         }
         
-        public TimeSpanWithID(int days, int hours, int minutes, int seconds, int milliseconds, EventID ID)
+        public TimeSpanWithEventID(int days, int hours, int minutes, int seconds, int milliseconds, EventID ID)
         {
             timeSpan = new TimeSpan(days, hours, minutes, seconds);
             TimeSpanID = new EventID(ID.ToString());
         }
         
     }
+
+
+    public class TimeSpanWithStringID
+    {
+        public TimeSpan timeSpan;
+        public string ID;
+        
+        public TimeSpanWithStringID(TimeSpan Arg1, string Arg2)
+        {
+            timeSpan = Arg1;
+            ID = Arg2;
+        }
+    }
+  
 }

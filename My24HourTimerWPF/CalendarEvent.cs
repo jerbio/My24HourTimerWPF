@@ -28,8 +28,8 @@ namespace My24HourTimerWPF
         protected TimeLine EventSequence;
         SubCalendarEvent[] ArrayOfSubEvents;
         protected bool SchedulStatus;
-        protected string LocationString;
-        protected Location24 CalendarEventLocation;
+        
+        protected Location LocationData;
         protected string otherPartyID;
         #region Constructor
         public CalendarEvent()
@@ -45,7 +45,7 @@ namespace My24HourTimerWPF
             EventRepetition = new Repetition();
             RigidSchedule = false;
             Splits = 1;
-            CalendarEventLocation = new Location24();
+            LocationData = new Location();
             CalendarEventID = new EventID("");
             ArrayOfSubEvents = new SubCalendarEvent[0];
             SchedulStatus = false;
@@ -55,11 +55,11 @@ namespace My24HourTimerWPF
         }
 
         //CalendarEvent MyCalendarEvent = new CalendarEvent(NameEntry, Duration, StartDate, EndDate, PrepTime, PreDeadline, Rigid, Repeat, Split);
-        public CalendarEvent(string EventIDEntry, string NameEntry, string StartTime, DateTime StartDateEntry, string EndTime, DateTime EventEndDateEntry, string eventSplit, string PreDeadlineTime, string EventDuration, Repetition EventRepetitionEntry, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag)
-            : this(new ConstructorModified(EventIDEntry, NameEntry, StartTime, StartDateEntry, EndTime, EventEndDateEntry, eventSplit, PreDeadlineTime, EventDuration, EventRepetitionEntry, DefaultPrepTimeflag, RigidScheduleFlag, eventPrepTime, PreDeadlineFlag), new EventID(EventIDEntry.Split('_')))
+        public CalendarEvent(string EventIDEntry, string NameEntry, string StartTime, DateTime StartDateEntry, string EndTime, DateTime EventEndDateEntry, string eventSplit, string PreDeadlineTime, string EventDuration, Repetition EventRepetitionEntry, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag, Location EventLocation)
+            : this(new ConstructorModified(EventIDEntry, NameEntry, StartTime, StartDateEntry, EndTime, EventEndDateEntry, eventSplit, PreDeadlineTime, EventDuration, EventRepetitionEntry, DefaultPrepTimeflag, RigidScheduleFlag, eventPrepTime, PreDeadlineFlag), new EventID(EventIDEntry.Split('_')), EventLocation)
         { }
-        public CalendarEvent(string NameEntry, string StartTime, DateTime StartDateEntry, string EndTime, DateTime EventEndDateEntry, string eventSplit, string PreDeadlineTime, string EventDuration, Repetition EventRepetitionEntry, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag)
-            : this(new ConstructorModified(NameEntry, StartTime, StartDateEntry, EndTime, EventEndDateEntry, eventSplit, PreDeadlineTime, EventDuration, EventRepetitionEntry, DefaultPrepTimeflag, RigidScheduleFlag, eventPrepTime, PreDeadlineFlag))
+        public CalendarEvent(string NameEntry, string StartTime, DateTime StartDateEntry, string EndTime, DateTime EventEndDateEntry, string eventSplit, string PreDeadlineTime, string EventDuration, Repetition EventRepetitionEntry, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag,Location EventLocation)
+            : this(new ConstructorModified(NameEntry, StartTime, StartDateEntry, EndTime, EventEndDateEntry, eventSplit, PreDeadlineTime, EventDuration, EventRepetitionEntry, DefaultPrepTimeflag, RigidScheduleFlag, eventPrepTime, PreDeadlineFlag), EventLocation)
         {
         }
         public CalendarEvent(CalendarEvent MyUpdated, SubCalendarEvent[] MySubEvents)
@@ -85,33 +85,32 @@ namespace My24HourTimerWPF
             ArrayOfSubEvents = MySubEvents;
             SchedulStatus = false;
             EventRepetition = MyUpdated.Repeat;
-            LocationString = MyUpdated.LocationString;
-             CalendarEventLocation = MyUpdated.CalendarEventLocation;
+            LocationData = MyUpdated.LocationData;
             EventSequence = new TimeLine(StartDateTime, EndDateTime);
             //EventRepetition = new Repetition(EventRepetition.Enable, this, EventRepetition.Range, EventRepetition.Frequency);
         }
-        private CalendarEvent(ConstructorModified UpdatedConstructor, EventID MyEventID)
-            : this(MyEventID, UpdatedConstructor.Name, UpdatedConstructor.Duration, UpdatedConstructor.StartDate, UpdatedConstructor.EndDate, UpdatedConstructor.PrepTime, UpdatedConstructor.PreDeadline, UpdatedConstructor.Rigid, UpdatedConstructor.Repeat, UpdatedConstructor.Split)
+        private CalendarEvent(ConstructorModified UpdatedConstructor, EventID MyEventID, Location EventLocation=null)
+            : this(MyEventID, UpdatedConstructor.Name, UpdatedConstructor.Duration, UpdatedConstructor.StartDate, UpdatedConstructor.EndDate, UpdatedConstructor.PrepTime, UpdatedConstructor.PreDeadline, UpdatedConstructor.Rigid, UpdatedConstructor.Repeat, UpdatedConstructor.Split, EventLocation)
         {
         }
-        private CalendarEvent(ConstructorModified UpdatedConstructor)
-            : this(UpdatedConstructor.Name, UpdatedConstructor.Duration, UpdatedConstructor.StartDate, UpdatedConstructor.EndDate, UpdatedConstructor.PrepTime, UpdatedConstructor.PreDeadline, UpdatedConstructor.Rigid, UpdatedConstructor.Repeat, UpdatedConstructor.Split)
+        private CalendarEvent(ConstructorModified UpdatedConstructor, Location EventLocation)
+            : this(UpdatedConstructor.Name, UpdatedConstructor.Duration, UpdatedConstructor.StartDate, UpdatedConstructor.EndDate, UpdatedConstructor.PrepTime, UpdatedConstructor.PreDeadline, UpdatedConstructor.Rigid, UpdatedConstructor.Repeat, UpdatedConstructor.Split, EventLocation)
         {
         }
-        public CalendarEvent(EventID EventIDEntry, string EventName, TimeSpan Event_Duration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, TimeSpan Event_PreDeadline, bool EventRigidFlag, Repetition EventRepetitionEntry, int EventSplit)
+        public CalendarEvent(EventID EventIDEntry, string EventName, TimeSpan Event_Duration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, TimeSpan Event_PreDeadline, bool EventRigidFlag, Repetition EventRepetitionEntry, int EventSplit, Location EventLocation)
         {
             CalendarEventName = EventName;
-            CalendarEventName = EventName.Split(',')[0];
-            LocationString = "";
+            /*CalendarEventName = EventName.Split(',')[0];
+            
             if (EventName.Split(',').Length > 1)
             {
                 LocationString = EventName.Split(',')[1];
             }
-            CalendarEventLocation = new Location24();
+            CalendarEventLocation = new Location();
             if (LocationString != "")
             {
-                CalendarEventLocation = new Location24(LocationString);
-            }
+                CalendarEventLocation = new Location(LocationString);
+            }*/
             StartDateTime = EventStart;
             EndDateTime = EventDeadline;
             EventDuration = Event_Duration;
@@ -123,24 +122,25 @@ namespace My24HourTimerWPF
             ArrayOfSubEvents = new SubCalendarEvent[Splits];
             CalendarEventID = EventIDEntry;
             EventRepetition = EventRepetitionEntry;
+            LocationData = EventLocation;
             EventSequence = new TimeLine(StartDateTime, EndDateTime);
         }
-        public CalendarEvent(string EventName, TimeSpan Event_Duration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, TimeSpan Event_PreDeadline, bool EventRigidFlag, Repetition EventRepetitionEntry, int EventSplit)
+        public CalendarEvent(string EventName, TimeSpan Event_Duration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, TimeSpan Event_PreDeadline, bool EventRigidFlag, Repetition EventRepetitionEntry, int EventSplit, Location EventLocation)
         {
             CalendarEventName = EventName;
-            CalendarEventName = EventName.Split(',')[0];
+            /*CalendarEventName = EventName.Split(',')[0];
             LocationString = "";
             if (EventName.Split(',').Length > 1)
             {
                 LocationString = EventName.Split(',')[1];
             }
             CalendarEventLocation = null;
-            CalendarEventLocation = new Location24();
+            CalendarEventLocation = new Location();
             if (LocationString != "")
             {
-                CalendarEventLocation = new Location24(LocationString);
+                CalendarEventLocation = new Location(LocationString);
             }
-
+            */
             StartDateTime = EventStart;
             EndDateTime = EventDeadline;
             EventDuration = Event_Duration;
@@ -152,13 +152,14 @@ namespace My24HourTimerWPF
             ArrayOfSubEvents = new SubCalendarEvent[Splits];
             CalendarEventID = new EventID(new string[] { EventIDGenerator.generate().ToString() });
             EventRepetition = EventRepetitionEntry;
+            LocationData = EventLocation;
             EventSequence = new TimeLine(StartDateTime, EndDateTime);
         }
         #endregion
 
 
         #region Functions
-        SubCalendarEvent[] generateSubEvent(SubCalendarEvent[] ArrayOfEvents, int NumberOfSplit, TimeSpan TotalActiveDurationSubEvents, string ParentID)
+        /*SubCalendarEvent[] generateSubEvent(SubCalendarEvent[] ArrayOfEvents, int NumberOfSplit, TimeSpan TotalActiveDurationSubEvents, string ParentID)
         {
             TimeSpan TimeSpanEvent = EndDateTime - StartDateTime;
             //new TimeSpan((long)((().TotalSeconds/ ArrayOfEvents.Length)*100000000));
@@ -174,7 +175,7 @@ namespace My24HourTimerWPF
             }
 
             return ArrayOfEvents;
-        }
+        }*/
 
         CalendarEvent getRepeatingCalendarEvent(string RepeatingEventID)
         {
@@ -222,7 +223,7 @@ namespace My24HourTimerWPF
             List<BusyTimeLine> MyActiveSlot = new List<BusyTimeLine>();
             foreach (SubCalendarEvent MySubCalendarEvent in MySubCalendarEventList)
             {
-                MySubCalendarEvent.PinToEnd(MyTimeLine, this);
+                MySubCalendarEvent.PinToEnd(MyTimeLine, this);//hack you need to handle cases where you cant shift subcalevent
             }
 
             
@@ -249,7 +250,7 @@ namespace My24HourTimerWPF
         }
 
         
-        public TimeLine PinSubEventsToStart(TimeLine MyTimeLine, List<SubCalendarEvent> MySubCalendarEventList)
+        virtual public TimeLine PinSubEventsToStart(TimeLine MyTimeLine, List<SubCalendarEvent> MySubCalendarEventList)
         {
             TimeSpan SubCalendarTimeSpan = new TimeSpan();
             DateTime ReferenceStartTime = new DateTime();
@@ -314,8 +315,8 @@ namespace My24HourTimerWPF
             public Repetition Repeat;
             public int Split;//Make Sure this is UInt
             public EventID CalendarEventID;
-            public string LocationString;
-            public Location24 CalendarEventLocation;
+            
+            public Location CalendarEventLocation;
 
             public ConstructorModified(string EventIDEntry, string NameEntry, string StartTime, DateTime StartDateEntry, string EndTime, DateTime EventEndDateEntry, string eventSplit, string PreDeadlineTime, string EventDuration, Repetition EventRepetition, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag)
             {
@@ -357,7 +358,7 @@ namespace My24HourTimerWPF
             public ConstructorModified(string NameEntry, string StartTime, DateTime StartDateEntry, string EndTime, DateTime EventEndDateEntry, string eventSplit, string PreDeadlineTime, string EventDuration, Repetition EventRepetition, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag)
             {
                 Name = NameEntry;//.Split(',')[0];
-                LocationString = "";
+                
                 EventDuration = EventDuration + ":00";
                 string MiltaryStartTime = convertTimeToMilitary(StartTime);
                 StartDate = new DateTime(StartDateEntry.Year, StartDateEntry.Month, StartDateEntry.Day, Convert.ToInt32(MiltaryStartTime.Split(':')[0]), Convert.ToInt32(MiltaryStartTime.Split(':')[1]), 0);
@@ -496,7 +497,9 @@ namespace My24HourTimerWPF
             return null;
         }
 
-        public bool updateSubEvent(EventID SubEventID,SubCalendarEvent UpdatedSubEvent)
+
+
+        virtual public bool updateSubEvent(EventID SubEventID,SubCalendarEvent UpdatedSubEvent)
         {
             if (this.RepetitionStatus)
             {
@@ -516,7 +519,7 @@ namespace My24HourTimerWPF
                     if (ArrayOfSubEvents[i].ID == SubEventID.ToString())
                     {
 
-                        ArrayOfSubEvents[i] = new SubCalendarEvent(UpdatedSubEvent.ID, UpdatedSubEvent.Start, UpdatedSubEvent.End, UpdatedSubEvent.ActiveSlot, this.EventTimeLine);
+                        ArrayOfSubEvents[i] = new SubCalendarEvent(UpdatedSubEvent.ID, UpdatedSubEvent.Start, UpdatedSubEvent.End, UpdatedSubEvent.ActiveSlot, ArrayOfSubEvents[i].myLocation, this.EventTimeLine);
                         return true;
                     }
                 }
@@ -622,6 +625,25 @@ namespace My24HourTimerWPF
                 
             }
         }
+
+        virtual public bool shiftEvent(TimeSpan ChangeInTime, SubCalendarEvent[] UpdatedSubCalEvents)
+        {
+            TimeLine UpdatedTimeLine = new TimeLine(this.Start+ChangeInTime,this.End+ChangeInTime);
+            
+            foreach (SubCalendarEvent eachSubCalendarEvent in UpdatedSubCalEvents)
+            { 
+                if(!(UpdatedTimeLine.IsTimeLineWithin(eachSubCalendarEvent.EventTimeLine)))
+                {
+                    return false;
+                }
+            }
+            StartDateTime = StartDateTime + ChangeInTime;
+            EndDateTime = EndDateTime + ChangeInTime;
+            ArrayOfSubEvents = UpdatedSubCalEvents.ToArray();
+
+            return true;
+        }
+
         #endregion
 
 
@@ -746,15 +768,15 @@ namespace My24HourTimerWPF
             }
         }
 
-        public Location24 myLocation
+        public Location myLocation
         {
             set
             {
-                CalendarEventLocation=value;
+                LocationData=value;
             }
             get
             {
-                return CalendarEventLocation;
+                return LocationData;
             }
         }
 
@@ -806,8 +828,8 @@ namespace My24HourTimerWPF
             MyCalendarEventCopy.CalendarEventID = CalendarEventID;//hack
             MyCalendarEventCopy.EventSequence = EventSequence.CreateCopy();
             MyCalendarEventCopy.ArrayOfSubEvents = ArrayOfSubEvents.ToArray();
-            MyCalendarEventCopy.LocationString = LocationString;
-            MyCalendarEventCopy.CalendarEventLocation = CalendarEventLocation;//hack you might need to make copy
+            
+            MyCalendarEventCopy.LocationData = LocationData;//hack you might need to make copy
             
             for (int i=0; i<MyCalendarEventCopy.ArrayOfSubEvents.Length;i++)
             {

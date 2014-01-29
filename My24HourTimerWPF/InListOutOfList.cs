@@ -42,9 +42,6 @@ namespace My24HourTimerWPF
                     TimeSpan TotalTimeSpan = new TimeSpan(0);
                     foreach (SubCalendarEvent mySubEvent in myList)
                     {
-
-               
-
                         TotalTimeSpan=TotalTimeSpan.Add(mySubEvent.ActiveSlot.BusyTimeSpan);
                     }
 

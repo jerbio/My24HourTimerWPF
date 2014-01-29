@@ -29,7 +29,7 @@ namespace My24HourTimerWPF
     public string address { get; set; }
 
     [DataMember]
-    public Location location { get; set; }
+    public LocationMap location { get; set; }
 
     [DataMember]
     public int score { get; set; }
@@ -39,7 +39,7 @@ namespace My24HourTimerWPF
   }
 
   [DataContract]
-  class Location
+  class LocationMap
   {
     [DataMember]
     public double x { get; set; }

@@ -15,5 +15,16 @@ namespace My24HourTimerWPF
             Item1 = Arg1;
             Item2 = Arg2;
         }
+
+        public mTuple(mTuple<T,U> mTupleToBeCopied)
+        {
+            Item1 = mTupleToBeCopied.Item1;
+            Item2 = mTupleToBeCopied.Item2;
+        }
+
+        public override string ToString()
+        {
+            return Item1.ToString() + ":||:" + Item2.ToString();
+        }
     }
 }

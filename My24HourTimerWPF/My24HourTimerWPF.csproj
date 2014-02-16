@@ -80,6 +80,8 @@
     <None Include="SnugArray.cs.old0" />
     <None Include="MainWindow.xamlbeforeReversal.cs.old" />
     <None Include="MainWindow.xaml_BeforeConstrainedUpdaeOrCountForValids.cs.old" />
+    <None Include="DistanceSolver.cs.old" />
+    <None Include="Schedule_Before_Simplest_IsEasiet.cs.old" />
     <Compile Include="DistanceSolver.cs" />
     <Compile Include="EfficientTimeLine.cs" />
     <Compile Include="EventTimeLine.cs" />
@@ -93,10 +95,12 @@
     <Compile Include="mTuple.cs" />
     <Compile Include="ReverseGeocode.cs" />
     <Compile Include="RouteDataContract.cs" />
+    <Compile Include="Schedule.cs" />
     <Compile Include="SnugArray.cs" />
     <Compile Include="SpreadOutList.cs" />
     <Compile Include="SubCalendarEvent.cs" />
     <Compile Include="SubCalendarEventListCounter.cs" />
+    <Compile Include="ThirdPartyCalendarControl.cs" />
     <Compile Include="TimeLine.cs" />
     <Compile Include="TimeSpanWithID.cs" />
     <Compile Include="TupleDict.cs" />

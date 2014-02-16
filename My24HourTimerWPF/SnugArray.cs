@@ -239,7 +239,7 @@ namespace My24HourTimerWPF
         Dictionary<string, ParentIDCount> generateBuckets(List<mTuple<int, TimeSpanWithStringID>> EntryArrayOfStuff)
         {
             EntryArrayOfStuff = EntryArrayOfStuff.OrderBy(obj => obj.Item2.timeSpan).ToList();
-            //EntryArrayOfStuff.Reverse();
+            EntryArrayOfStuff.Reverse();
             Dictionary<string, ParentIDCount> retValue = new Dictionary<string, ParentIDCount>();
             foreach (mTuple<int, TimeSpanWithStringID> eachmTuple in EntryArrayOfStuff)
             {
@@ -463,10 +463,12 @@ namespace My24HourTimerWPF
 
         static public Dictionary<string, mTuple<int, TimeSpanWithStringID>> CreateCopyOFSnuPossibilities(Dictionary<string, mTuple<int, TimeSpanWithStringID>> SnugPossibility)
         {
-            Dictionary<string, mTuple<int, TimeSpanWithStringID>> retValue = new Dictionary<string, mTuple<int, TimeSpanWithStringID>>(SnugPossibility);
-            foreach(KeyValuePair<string, mTuple<int, TimeSpanWithStringID>> eachKeyValuePair in retValue)
+            Dictionary<string, mTuple<int, TimeSpanWithStringID>> retValue = new Dictionary<string, mTuple<int, TimeSpanWithStringID>>();
+            foreach (KeyValuePair<string, mTuple<int, TimeSpanWithStringID>> eachKeyValuePair in SnugPossibility)
             {
-                retValue[eachKeyValuePair.Key] = new mTuple<int, TimeSpanWithStringID>(eachKeyValuePair.Value.Item1, eachKeyValuePair.Value.Item2);
+                retValue.Add(eachKeyValuePair.Key,new mTuple<int, TimeSpanWithStringID>(eachKeyValuePair.Value.Item1, eachKeyValuePair.Value.Item2));
+                
+                //retValue[eachKeyValuePair.Key] = 
             }
 
             return retValue;
@@ -561,7 +563,37 @@ namespace My24HourTimerWPF
             }
             return true;
         }
-        
+
+        public static List<Dictionary<string, mTuple<int, TimeSpanWithStringID>>> SortListSnugPossibilities(List<Dictionary<string, mTuple<int, TimeSpanWithStringID>>> ListOfSnugPossibilities)
+        {
+            Dictionary<TimeSpan, List<Dictionary<string, mTuple<int, TimeSpanWithStringID>>>> AllData = new Dictionary<TimeSpan, List<Dictionary<string, mTuple<int, TimeSpanWithStringID>>>>();
+            foreach (Dictionary<string, mTuple<int, TimeSpanWithStringID>> eachDictionary in ListOfSnugPossibilities)
+            {
+                TimeSpan TotalTime= TotalTimeSpanOfSnugPossibility(eachDictionary);
+
+                if (AllData.ContainsKey(TotalTime))
+                {
+                    AllData[TotalTime].Add(eachDictionary);
+                }
+                else 
+                {
+                    AllData.Add(TotalTime, new List<Dictionary<string, mTuple<int, TimeSpanWithStringID>>>() { eachDictionary });
+                }
+            }
+
+            List<TimeSpan> AllKeys= AllData.Keys.ToList();
+            AllKeys.Sort();
+
+            List<Dictionary<string, mTuple<int, TimeSpanWithStringID>>> retValue = new List<Dictionary<string,mTuple<int,TimeSpanWithStringID>>>();
+
+            foreach (TimeSpan eachTimeSpan in AllKeys)
+            {
+                AllData[eachTimeSpan]=AllData[eachTimeSpan].OrderBy(obj => obj.Count).ToList();
+                retValue.AddRange(AllData[eachTimeSpan]);
+            }
+            return retValue;
+
+        }
 
         
         public string[] MyTopElements

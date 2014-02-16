@@ -48,8 +48,8 @@ namespace My24HourTimerWPF
             Address=Address.Trim();
             if (string.IsNullOrEmpty(Address))
             {
-                xValue = 0;
-                yValue = 0;
+                xValue = double.MaxValue;
+                yValue = double.MaxValue;
             }
 
             else
@@ -95,7 +95,12 @@ namespace My24HourTimerWPF
             double deltaX=Location24A.xValue-Location24B.xValue;
             double deltaY = Location24A.yValue - Location24B.yValue;
             double sqrValue = (Math.Pow(deltaX, 2) + Math.Pow(deltaY, 2));
-            return Math.Sqrt(sqrValue);
+            double retValue=Math.Sqrt(sqrValue);
+            if (double.IsPositiveInfinity(retValue))
+                        {
+                            ;
+                        }
+            return retValue;
         }
 
 

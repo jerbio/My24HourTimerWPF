@@ -34,6 +34,11 @@ namespace My24HourTimerWPF
             //Debug.Assert(MyEndTime <= MyStartTime,"Error In TimeLine Arguments End Time is less than Start Time");
         }
 
+        public override string ToString()
+        {
+            return this.Start.ToString() + " - " + this.End.ToString() +"::"+this.TimelineSpan.ToString();
+        }
+
         public BusyTimeLine toBusyTimeLine(string ID)
         {
             return new BusyTimeLine(ID, this.Start, this.End);
@@ -50,6 +55,40 @@ namespace My24HourTimerWPF
             }
 
             return false;
+        }
+
+        public TimeLine InterferringTimeLine(TimeLine PossibleTimeLine)
+        {
+            DateTime InterferringStarTime;
+            DateTime InterferringEndTime;
+            if ((this.Start == PossibleTimeLine.Start) && (this.End == PossibleTimeLine.End))//checks if both "this and "PossibleTimeLine" are within the same range
+            {
+                return this.CreateCopy();
+            }
+
+            if (this.doesTimeLineInterfere(PossibleTimeLine))
+            {
+                InterferringStarTime = PossibleTimeLine.Start;
+                if (this.Start > PossibleTimeLine.Start)
+                {
+                    InterferringStarTime = this.Start;
+                }
+
+                InterferringEndTime = this.End;
+                if (this.End > PossibleTimeLine.End)
+                {
+                    InterferringEndTime = PossibleTimeLine.End;
+                }
+
+                return new TimeLine(InterferringStarTime, InterferringEndTime);
+            }
+            else
+            {
+                if (PossibleTimeLine.doesTimeLineInterfere(this))
+                return PossibleTimeLine.InterferringTimeLine(this);//checks if PossibleTimeLine is the same as or bigger than "this" timeline
+            }
+
+            return null;
         }
 
 

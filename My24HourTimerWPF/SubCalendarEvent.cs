@@ -114,6 +114,12 @@ namespace My24HourTimerWPF
 
 
         #region Class functions
+
+        public override string ToString()
+        {
+            return this.Start.ToString() + " - " + this.End.ToString() + "::" + this.ID + "\t\t::" + this.ActiveDuration.ToString();
+        }
+
         public static int CompareByEndDate(SubCalendarEvent SubCalendarEvent1, SubCalendarEvent SubCalendarEvent2)
         {
             return SubCalendarEvent1.End.CompareTo(SubCalendarEvent2.End);
@@ -231,7 +237,14 @@ namespace My24HourTimerWPF
         }
 
 
-        public bool PinToEnd(TimeLine LimitingTimeLine)
+
+
+
+
+
+
+
+        public bool PinToEndAndIncludeInTimeLine(TimeLine LimitingTimeLine)
         {
             DateTime ReferenceTime = new DateTime();
             EndDateTime = this.getCalendarEventRange.End;
@@ -256,7 +269,7 @@ namespace My24HourTimerWPF
         }
 
 
-        public  bool PinToEnd(TimeLine LimitingTimeLine, CalendarEvent RestrctingCalendarEvent)
+        public  bool PinToEndAndIncludeInTimeLine(TimeLine LimitingTimeLine, CalendarEvent RestrctingCalendarEvent)
         {
             if (new EventID(RestrctingCalendarEvent.ID).getLevelID(0) != SubEventID.getLevelID(0))
             {
@@ -288,6 +301,31 @@ namespace My24HourTimerWPF
 
             return false;
         }
+
+        public bool PinToEnd(TimeLine LimitingTimeLine)
+        {
+            DateTime ReferenceTime = new DateTime();
+            EndDateTime = this.getCalendarEventRange.End;
+            ReferenceTime = EndDateTime;
+            if (EndDateTime > LimitingTimeLine.End)
+            {
+                ReferenceTime = LimitingTimeLine.End;
+            }
+            DateTime MyStartTime = ReferenceTime - this.EventDuration;
+            if (this.getCalendarEventRange.IsTimeLineWithin(new TimeLine(MyStartTime, ReferenceTime)))
+            {
+
+                StartDateTime = MyStartTime;
+                //ActiveSlot = new BusyTimeLine(this.ID, (MyStartTime), ReferenceTime);
+                TimeSpan BusyTimeLineShift = MyStartTime - ActiveSlot.Start;
+                ActiveSlot.shiftTimeline(BusyTimeLineShift);
+                EndDateTime = ReferenceTime;
+                return true;
+            }
+            return false;
+        }
+
+
 
         public void PinToEnd(CalendarEvent RestrctingCalendarEvent)
         {

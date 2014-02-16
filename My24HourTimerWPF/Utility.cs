@@ -133,6 +133,24 @@ namespace My24HourTimerWPF
             return InListElements;
         }
 
+
+        /*public static List<SubCalendarEvent> ListIntersection(List<SubCalendarEvent> ListToCheck, List<SubCalendarEvent> MyCurrentList)
+        {
+            List<SubCalendarEvent> InListElements = new List<SubCalendarEvent>();
+
+            foreach (SubCalendarEvent MySubCalendarEvent0 in ListToCheck)
+            {
+                foreach (SubCalendarEvent MySubCalendarEvent1 in MyCurrentList)
+                {
+                    if (MySubCalendarEvent1.ID == MySubCalendarEvent0.ID)
+                    {
+                        InListElements.Add(MySubCalendarEvent1);
+                    }
+                }
+            }
+            return InListElements;
+        }*/
+
         public static List<T> InListAButNotInB<T>(List<T> ListA, List<T> ListB)
         {
             List<T> retValue = new List<T>();

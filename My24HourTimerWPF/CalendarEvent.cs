@@ -10,7 +10,11 @@ namespace My24HourTimerWPF
     public class CalendarEvent
     {
         // Fields
-        //protected DateTime DeadlineDateTime;
+        static Dictionary<string, List<Double>> DistanceMatrix;
+        static List<string> DistanceMatixKeys;
+        static List<Location> Horizontal;
+
+        
         protected TimeSpan EventDuration;
         string CalendarEventName;
         protected DateTime StartDateTime;
@@ -86,6 +90,7 @@ namespace My24HourTimerWPF
             SchedulStatus = false;
             EventRepetition = MyUpdated.Repeat;
             LocationData = MyUpdated.LocationData;
+            UpdateLocationMatrix(LocationData);
             EventSequence = new TimeLine(StartDateTime, EndDateTime);
             //EventRepetition = new Repetition(EventRepetition.Enable, this, EventRepetition.Range, EventRepetition.Frequency);
         }
@@ -124,6 +129,7 @@ namespace My24HourTimerWPF
             EventRepetition = EventRepetitionEntry;
             LocationData = EventLocation;
             EventSequence = new TimeLine(StartDateTime, EndDateTime);
+            UpdateLocationMatrix(EventLocation);
         }
         public CalendarEvent(string EventName, TimeSpan Event_Duration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, TimeSpan Event_PreDeadline, bool EventRigidFlag, Repetition EventRepetitionEntry, int EventSplit, Location EventLocation)
         {
@@ -154,6 +160,7 @@ namespace My24HourTimerWPF
             EventRepetition = EventRepetitionEntry;
             LocationData = EventLocation;
             EventSequence = new TimeLine(StartDateTime, EndDateTime);
+            UpdateLocationMatrix(LocationData);
         }
         #endregion
 
@@ -176,6 +183,109 @@ namespace My24HourTimerWPF
 
             return ArrayOfEvents;
         }*/
+
+        public override string ToString()
+        {
+            return this.ID+"::"+this.Start.ToString() + " - " + this.End.ToString();
+        }
+
+        void UpdateLocationMatrix(Location newLocation)
+        { 
+            
+            int i = 0;
+            int j = 0;
+            if (DistanceMatrix == null)
+            {
+                DistanceMatrix = new Dictionary<string, List<double>>();
+            }
+            if(Horizontal==null)
+            {
+                Horizontal= new List<Location>();
+            }
+
+            if(!DistanceMatrix.ContainsKey(this.CalendarEventID.getLevelID(0)))
+            {
+                string myCalString = this.CalendarEventID.getLevelID(0);
+                DistanceMatrix.Add(myCalString, new List<double>());
+                Horizontal.Add(newLocation);
+                DistanceMatixKeys= DistanceMatrix.Keys.ToList();
+                foreach (string eachString in DistanceMatixKeys)
+                {
+                        
+                        Location eachStringLocation=Horizontal[DistanceMatixKeys.IndexOf(eachString)];
+                        double MyDistance = Location.calculateDistance(eachStringLocation, newLocation);
+
+                        if (double.IsPositiveInfinity(MyDistance))
+                        {
+                            ;
+                        }
+
+                        if (eachString == this.CalendarEventID.getLevelID(0))
+                        {
+                            MyDistance = double.MaxValue / DistanceMatixKeys.Count;
+
+                            
+
+                            DistanceMatrix[myCalString].Add(MyDistance);
+                        }
+                        else
+                        {
+
+                            DistanceMatrix[eachString].Add(MyDistance);
+                            DistanceMatrix[myCalString].Add(MyDistance);
+                        }
+
+                        
+                        DistanceMatrix[eachString][DistanceMatixKeys.IndexOf(eachString)] = double.MaxValue / DistanceMatixKeys.Count; 
+                        
+                }
+                
+                
+            }
+        }
+
+        public double getDistance(CalendarEvent CalEvent)
+        {
+            //get
+            {
+                return DistanceMatrix[this.CalendarEventID.getLevelID(0)][DistanceMatixKeys.IndexOf(CalEvent.CalendarEventID.getLevelID(0))];
+            }
+        }
+
+        public static Dictionary<string, double> DistanceToAllNodes(string CalEventstring)
+        {
+            if (CalEventstring == "")
+            { 
+                int randIndex=0;
+                Random randNum= new Random();
+                randIndex=randNum.Next(0,DistanceMatrix.Count);
+                CalEventstring = DistanceMatrix.Keys.ToList()[randIndex];
+            }
+            Dictionary<string, double> retValue = new Dictionary<string, double>();
+            List<Tuple<string, double>> AllCombos = new List<Tuple<string, double>>();
+
+             //= this.CalendarEventID.getLevelID(0); ;
+            for (int i = 0; i < DistanceMatixKeys.Count; i++)
+            {
+
+                AllCombos.Add(new Tuple<string, double>(DistanceMatixKeys[i], DistanceMatrix[CalEventstring][i]));
+            }
+            AllCombos = AllCombos.OrderBy(obj => obj.Item2).ToList();
+
+            foreach (Tuple<string, double> eachTUple in AllCombos)
+            {
+                retValue.Add(eachTUple.Item1, eachTUple.Item2);
+            }
+
+            return retValue;
+
+        }
+
+
+        public Dictionary<string, double> DistanceToAllNodes()
+        {
+            return DistanceToAllNodes(this.CalendarEventID.getLevelID(0));
+        }
 
         CalendarEvent getRepeatingCalendarEvent(string RepeatingEventID)
         {
@@ -223,7 +333,7 @@ namespace My24HourTimerWPF
             List<BusyTimeLine> MyActiveSlot = new List<BusyTimeLine>();
             foreach (SubCalendarEvent MySubCalendarEvent in MySubCalendarEventList)
             {
-                MySubCalendarEvent.PinToEnd(MyTimeLine, this);//hack you need to handle cases where you cant shift subcalevent
+                MySubCalendarEvent.PinToEndAndIncludeInTimeLine(MyTimeLine, this);//hack you need to handle cases where you cant shift subcalevent
             }
 
             
@@ -322,14 +432,16 @@ namespace My24HourTimerWPF
             {
                 CalendarEventID = new EventID(EventIDEntry.Split('_'));
                 Name = NameEntry;
-                EventDuration = EventDuration + ":00";
+                EventDuration=EventDuration.Replace(".", ":");
+                //EventDuration = EventDuration + ":00";
                 string MiltaryStartTime = convertTimeToMilitary(StartTime);
                 StartDate = new DateTime(StartDateEntry.Year, StartDateEntry.Month, StartDateEntry.Day, Convert.ToInt32(MiltaryStartTime.Split(':')[0]), Convert.ToInt32(MiltaryStartTime.Split(':')[1]), 0);
                 string MiltaryEndTime = convertTimeToMilitary(EndTime);
                 EndDate = new DateTime(EventEndDateEntry.Year, EventEndDateEntry.Month, EventEndDateEntry.Day, Convert.ToInt32(MiltaryEndTime.Split(':')[0]), Convert.ToInt32(MiltaryEndTime.Split(':')[1]), 0);
+                
                 string[] TimeDuration = EventDuration.Split(':');
-                uint AllMinutes = ConvertToMinutes(EventDuration);
-                Duration = new TimeSpan((int)(AllMinutes / 60), (int)(AllMinutes % 60), 0);
+                double AllMinutes = TimeSpan.Parse(EventDuration).TotalMinutes;
+                Duration = TimeSpan.Parse(EventDuration);
                 Split = Convert.ToInt32(eventSplit);
                 if (PreDeadlineFlag)
                 {
@@ -359,13 +471,14 @@ namespace My24HourTimerWPF
             {
                 Name = NameEntry;//.Split(',')[0];
                 
-                EventDuration = EventDuration + ":00";
+                //EventDuration = EventDuration
                 string MiltaryStartTime = convertTimeToMilitary(StartTime);
                 StartDate = new DateTime(StartDateEntry.Year, StartDateEntry.Month, StartDateEntry.Day, Convert.ToInt32(MiltaryStartTime.Split(':')[0]), Convert.ToInt32(MiltaryStartTime.Split(':')[1]), 0);
                 string MiltaryEndTime = convertTimeToMilitary(EndTime);
                 EndDate = new DateTime(EventEndDateEntry.Year, EventEndDateEntry.Month, EventEndDateEntry.Day, Convert.ToInt32(MiltaryEndTime.Split(':')[0]), Convert.ToInt32(MiltaryEndTime.Split(':')[1]), 0);
-                string[] TimeDuration = EventDuration.Split(':');
-                uint AllMinutes = ConvertToMinutes(EventDuration);
+                //
+                //string[] TimeDuration = EventDuration.Split(':');
+                double AllMinutes = TimeSpan.Parse(EventDuration).TotalMinutes;
                 Duration = new TimeSpan((int)(AllMinutes / 60), (int)(AllMinutes % 60), 0);
                 Split = Convert.ToInt32(eventSplit);
                 if (PreDeadlineFlag)

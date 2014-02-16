@@ -18,7 +18,7 @@ namespace My24HourTimerWPF
         static List<List<SubCalendarEvent>> CompleteResolvedNonOverlapping;
         public static int Completed = 0;
         //List<ClumpSubCalendarEvent> OverLapping_Clump;
-        //DateTime ReferenceStartTime;
+        DateTime BaseReferenceStartTime;
         public ClumpSubCalendarEvent(List<SubCalendarEvent> Appendables, TimeLine BoundaryTimeLine)
         {
             Appendables=Appendables.OrderBy(obj => obj.getCalendarEventRange.End).ToList();
@@ -33,18 +33,18 @@ namespace My24HourTimerWPF
             //List<ClumpSubCalendarEvent> NonOverLapping_Clump;
             BreakOffClump= myThis.BreakOffClump;
             ClumpedResults= myThis.ClumpedResults;
+            BaseReferenceStartTime = myThis.BaseReferenceStartTime;
         }
         
         public ClumpSubCalendarEvent(SubCalendarEvent BaseSubCalendarEvent, List<SubCalendarEvent> Appendables, TimeLine BoundaryTimeLine)
         {
-
             SubCalEventsOverLapWithBase = new List<SubCalendarEvent>();
             
             BaseEvent = BaseSubCalendarEvent;
             DateTime var1 = BaseEvent.getCalendarEventRange.End < BoundaryTimeLine.End ? BaseEvent.getCalendarEventRange.End : BoundaryTimeLine.End;//hack assumes base can fit within boundary
             this.BoundaryTimeLine = new TimeLine(BoundaryTimeLine.Start, var1);
             DateTime  ReferenceStartTime = var1 - BaseEvent.ActiveDuration;
-            //NonOverLapping_Clump.Add(BaseSubCalendarEvent);
+            BreakOffClump = null;
             ClumpedResults = new Dictionary<SubCalendarEvent, ClumpSubCalendarEvent>();
             int i = 0;
             for (; i < Appendables.Count; i++)
@@ -92,9 +92,12 @@ namespace My24HourTimerWPF
             //if(arg1!=null)
             {
                 int j=0;
+                DateTime BaseReferenceEndTime = BaseEvent.getCalendarEventRange.End > BoundaryTimeLine.End ? BoundaryTimeLine.End : BaseEvent.getCalendarEventRange.End;//End Time for Base to be used as the reference for the current base end time
                 for (;j<arg1.Count;j++)
                 {
-                    ClumpedResults[arg1[j]] = populateClumpedResults(BaseEvent.End, arg1[j], ClumpedResults[arg1[j]], ReferenceStartTime - arg1[j].ActiveDuration, BoundaryTimeLine);
+                    
+
+                    ClumpedResults[arg1[j]] = populateClumpedResults(BaseReferenceEndTime, arg1[j], ClumpedResults[arg1[j]], ReferenceStartTime - arg1[j].ActiveDuration, BoundaryTimeLine);
                 }
 
             }
@@ -127,7 +130,8 @@ namespace My24HourTimerWPF
             SubCalEventsOverLapWithBase = new List<SubCalendarEvent>();
             List<SubCalendarEvent> UnClumppable = new List<SubCalendarEvent>();
             ClumpedResults = new Dictionary<SubCalendarEvent, ClumpSubCalendarEvent>();
-            
+            BreakOffClump = null;
+            this.BoundaryTimeLine = new TimeLine(BoundaryTimeLine.Start, ReferenceStartTime); ;
             /*BaseEvent = BaseClump[0];//this can be reevaluated to cater to the most constrained. i.e the one with limted a later sart time and percentage fill for whatever is left.                 
             ReferenceStartTime = BaseEvent.getCalendarEventRange.End < BoundaryTimeLine.End ? BaseEvent.getCalendarEventRange.End : BoundaryTimeLine.End;
             foreach (SubCalendarEvent mySubCalendarEvent in BaseClump)
@@ -289,29 +293,124 @@ namespace My24HourTimerWPF
                 return retValue;
             }*/
 
+
+
+          
+
+
+
+
+
+
+
+
+
+
+
             int i = 0;
             List<List<SubCalendarEvent>> temp_ListOfClump = new List<List<SubCalendarEvent>>();
             List<List<SubCalendarEvent>> temp_ListOfClump_BreakOfClump = new List<List<SubCalendarEvent>>(); ;
-
-            foreach (KeyValuePair<SubCalendarEvent, ClumpSubCalendarEvent> eachKeyValuePair in ClumpedResults)
+            if (BaseEvent != null)
             {
-                temp_ListOfClump = eachKeyValuePair.Value.GenerateList(TypeOfList);
-                if (temp_ListOfClump.Count > 0)
+                TimeLine BoundarForClump = this.BoundaryTimeLine.CreateCopy();
+                List<SubCalendarEvent> ListMe = new List<SubCalendarEvent>() { BaseEvent.createCopy() };
+                foreach (KeyValuePair<SubCalendarEvent, ClumpSubCalendarEvent> eachKeyValuePair in ClumpedResults)
                 {
-                    foreach (List<SubCalendarEvent> eachList in temp_ListOfClump)
+                    ListMe = new List<SubCalendarEvent>() { BaseEvent.createCopy(), eachKeyValuePair.Key.createCopy() };
+                    Utility.PinSubEventsToEnd(ListMe, BoundarForClump);
+                    temp_ListOfClump = eachKeyValuePair.Value.GenerateList(TypeOfList);
+                    if (temp_ListOfClump.Count > 0)
                     {
-                        eachList.Add(eachKeyValuePair.Key);
+                        int Counter = 0;
+                        for (; Counter < temp_ListOfClump.Count; Counter++)
+                        {
+                            temp_ListOfClump[Counter].AddRange(ListMe);
+                            temp_ListOfClump[Counter] = temp_ListOfClump[Counter].OrderBy(obj => obj.End).ToList();
+                        }
                     }
+                    else
+                    {
+                        List<SubCalendarEvent> MyList = new List<SubCalendarEvent>(ListMe);
+                        temp_ListOfClump = new List<List<SubCalendarEvent>>() { MyList };
+                    }
+                    retValue.AddRange(temp_ListOfClump);
                 }
-                else
+                if (BreakOffClump != null)
                 {
-                    List<SubCalendarEvent> MyList = new List<SubCalendarEvent>() { eachKeyValuePair.Key };
+                    ListMe = new List<SubCalendarEvent>() { BaseEvent.createCopy() };
+                    Utility.PinSubEventsToEnd(ListMe, BoundarForClump);
+                    List<List<SubCalendarEvent>> breakOffClumpGeneratedList = BreakOffClump.GenerateList(TypeOfList);
+                    if (breakOffClumpGeneratedList.Count > 0)
+                    {
+                        int Counter = 0;
+                        
+                        for (; Counter < breakOffClumpGeneratedList.Count; Counter++)
+                        {
+                            breakOffClumpGeneratedList[Counter].AddRange(ListMe);
+                            breakOffClumpGeneratedList[Counter] = breakOffClumpGeneratedList[Counter].OrderBy(obj => obj.End).ToList();
+                        }
+                    }
+                    else
+                    {
+                        List<SubCalendarEvent> MyList = new List<SubCalendarEvent>(ListMe);
+                        breakOffClumpGeneratedList = new List<List<SubCalendarEvent>>() { MyList };
+                    }
+                    retValue.AddRange(breakOffClumpGeneratedList);
+                }
+                if (retValue.Count < 1)
+                {
+                    List<SubCalendarEvent> MyList = new List<SubCalendarEvent>(ListMe);
                     temp_ListOfClump = new List<List<SubCalendarEvent>>() { MyList };
+                    retValue.AddRange(temp_ListOfClump);
                 }
                 
 
-                retValue.AddRange(temp_ListOfClump);
             }
+            else 
+            {
+                TimeLine BoundarForClump = this.BoundaryTimeLine.CreateCopy();
+                foreach (KeyValuePair<SubCalendarEvent, ClumpSubCalendarEvent> eachKeyValuePair in ClumpedResults)
+                {
+                    List<SubCalendarEvent> ListMe = new List<SubCalendarEvent>() { eachKeyValuePair.Key.createCopy() };
+                    Utility.PinSubEventsToEnd(ListMe, BoundarForClump);
+                    temp_ListOfClump = eachKeyValuePair.Value.GenerateList(TypeOfList);
+                    if (temp_ListOfClump.Count > 0)
+                    {
+                        int Counter = 0;
+                        for (; Counter < temp_ListOfClump.Count; Counter++)
+                        {
+                            temp_ListOfClump[Counter].AddRange(ListMe);
+                            temp_ListOfClump[Counter] = temp_ListOfClump[Counter].OrderBy(obj => obj.End).ToList();
+                        }
+                    }
+                    else
+                    {
+                        List<SubCalendarEvent> MyList = new List<SubCalendarEvent>(ListMe);
+                        temp_ListOfClump = new List<List<SubCalendarEvent>>() { MyList };
+                    }
+                    retValue.AddRange(temp_ListOfClump);
+                }
+                if (BreakOffClump != null)
+                {
+                    List<List<SubCalendarEvent>> breakOffClumpGeneratedList = BreakOffClump.GenerateList(TypeOfList);
+                    if (breakOffClumpGeneratedList.Count > 0)
+                    {
+                        int Counter = 0;
+                        for (; Counter < breakOffClumpGeneratedList.Count; Counter++)
+                        {
+                            breakOffClumpGeneratedList[Counter] = breakOffClumpGeneratedList[Counter].OrderBy(obj => obj.End).ToList();
+                        }
+                    }
+                    retValue.AddRange(breakOffClumpGeneratedList);
+                }
+            }
+
+
+            
+            /*
+
+
+
 
             if (BaseEvent != null)
             {
@@ -335,7 +434,7 @@ namespace My24HourTimerWPF
                         refTime = eachSubCalendarEvent_ClumpedStart;
                         eachList_Updated.Add(eachSubCalendarEvent_Clumped);
                     }
-
+                    eachList_Updated.Add(BaseEvent_cpy);
                     retValueCopied.Add(eachList_Updated);
                 }
                 if(retValue.Count<1)
@@ -355,7 +454,7 @@ namespace My24HourTimerWPF
             }
             retValue = SerializeListOfClumpsWithBreakOffClumps(retValue, temp_ListOfClump_BreakOfClump);
             
-            
+            */
 
             return retValue;
 

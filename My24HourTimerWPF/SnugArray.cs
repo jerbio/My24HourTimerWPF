@@ -9,13 +9,13 @@ namespace My24HourTimerWPF
 {
     class SnugArray
     {
-        string[] TopElements;
+        TimeSpan[] TopElements;
         SnugArray[] SubSnugArrayElements;
         List<Dictionary<string, int>> ListOfDictionaryOfID_Count;//This is a List of Dictionaries with a string of ID and a count of the IDs found
         List<string> AlreadyFoundPermutation;
         //List<TimeSpanWithEventID> ConstainedElements;
         //Dictionary<string, List<TimeSpanWithEventID>> ParentID_TimeSpanID;
-        Dictionary<string, ParentIDCount> MyDict;
+        Dictionary<TimeSpan, ParentIDCount> MyDict;
 //        public bool NotValid;
 
         public SnugArray()
@@ -75,9 +75,9 @@ namespace My24HourTimerWPF
                 }
             }*/
 
-            
 
-            Dictionary<string, ParentIDCount> TimeSpanBucket = generateBuckets(EntryArrayOfStuff);
+
+            Dictionary<TimeSpan, ParentIDCount> TimeSpanBucket = generateBuckets(EntryArrayOfStuff);
 
             
 
@@ -93,19 +93,19 @@ namespace My24HourTimerWPF
             MyDict = MyThis.MyDict;
         }
 
-        private SnugArray(Dictionary<string, ParentIDCount> EntryArrayOfStuff, TimeSpan MaxValue, List<Dictionary<string, int>> MyListOfDicts)
+        private SnugArray(Dictionary<TimeSpan, ParentIDCount> EntryArrayOfStuff, TimeSpan MaxValue, List<Dictionary<string, int>> MyListOfDicts)
         //private SnugArray(List<TimeSpanWithID> ConstrainedElements,List<TimeSpanWithID> EntryArrayOfStuff, TimeSpan MaxValue,List<Dictionary<string, int>> MyListOfDicts)
         //private SnugArray(List<TimeSpanWithID> ConstrainedElements,List<TimeSpanWithID> EntryArrayOfStuff, TimeSpan MaxValue,Dictionary<string, int> MyDict,List<Dictionary<string, int>> MyListOfDicts)
         {
-            
-            EntryArrayOfStuff=new Dictionary<string, ParentIDCount>(EntryArrayOfStuff);
+
+            EntryArrayOfStuff = new Dictionary<TimeSpan, ParentIDCount>(EntryArrayOfStuff);
             
             int i=0;
 
-            List<string> EventKeys = EntryArrayOfStuff.Keys.ToList();
-            
+            List<TimeSpan> EventKeys = EntryArrayOfStuff.Keys.ToList();
 
-            List<string> SmallerElements = new List<string>();
+
+            List<TimeSpan> SmallerElements = new List<TimeSpan>();
             i = 0;
             int MyArrayCount = EventKeys.Count;
             ListOfDictionaryOfID_Count = MyListOfDicts;
@@ -124,7 +124,7 @@ namespace My24HourTimerWPF
                 TimeSpan TotalSumOfTimeSoFar = new TimeSpan(0);
                 for (; counter > 0;counter-- )
                 {
-                    string KeyToLastElement = SmallerElements[counter - 1];
+                    TimeSpan KeyToLastElement = SmallerElements[counter - 1];
                     ParentIDCount CurrentParentIDCOunt = EntryArrayOfStuff[KeyToLastElement];
                     TotalSumOfTimeSoFar += TimeSpan.FromTicks(CurrentParentIDCOunt.Item2.Ticks * CurrentParentIDCOunt.Item1);
                     TimeSpan TimeSpanDiff = MaxValue - TotalSumOfTimeSoFar;
@@ -157,8 +157,8 @@ namespace My24HourTimerWPF
 
             i = 0;
 
-            string[] MyFittableElemtsHolder = new string[SmallerElements.Count];//Array holds the current array of subelements for future reasons
-            List<string> MyFittableElementsHolderList = new List<string>();//This is also holds a curent array of sub elements.
+            TimeSpan[] MyFittableElemtsHolder = new TimeSpan[SmallerElements.Count];//Array holds the current array of subelements for future reasons
+            List<TimeSpan> MyFittableElementsHolderList = new List<TimeSpan>();//This is also holds a curent array of sub elements.
             SmallerElements.CopyTo(MyFittableElemtsHolder, 0);
             MyFittableElementsHolderList = MyFittableElemtsHolder.ToList();
             MyArrayCount = SmallerElements.Count - IncludeOrDontIncludeLastElement;
@@ -166,7 +166,7 @@ namespace My24HourTimerWPF
             
             MyDict = EntryArrayOfStuff;
 
-            Dictionary<string, ParentIDCount> EntryArrayOfStuff_Cpy = new Dictionary<string, ParentIDCount>(EntryArrayOfStuff);
+            Dictionary<TimeSpan, ParentIDCount> EntryArrayOfStuff_Cpy = new Dictionary<TimeSpan, ParentIDCount>(EntryArrayOfStuff);
 
             for (; i < MyArrayCount; i++)
             {
@@ -236,15 +236,15 @@ namespace My24HourTimerWPF
 
 
 
-        Dictionary<string, ParentIDCount> generateBuckets(List<mTuple<int, TimeSpanWithStringID>> EntryArrayOfStuff)
+        Dictionary<TimeSpan, ParentIDCount> generateBuckets(List<mTuple<int, TimeSpanWithStringID>> EntryArrayOfStuff)
         {
             EntryArrayOfStuff = EntryArrayOfStuff.OrderBy(obj => obj.Item2.timeSpan).ToList();
             EntryArrayOfStuff.Reverse();
-            Dictionary<string, ParentIDCount> retValue = new Dictionary<string, ParentIDCount>();
+            Dictionary<TimeSpan, ParentIDCount> retValue = new Dictionary<TimeSpan, ParentIDCount>();
             foreach (mTuple<int, TimeSpanWithStringID> eachmTuple in EntryArrayOfStuff)
             {
                 //string key= eachTimeSpanWithID.TimeSpanID.ToString();
-                string key = eachmTuple.Item2.ID;
+                TimeSpan key = eachmTuple.Item2.timeSpan;
                 retValue.Add(key, new ParentIDCount(eachmTuple.Item1, eachmTuple.Item2.timeSpan));
                 
             }
@@ -360,18 +360,18 @@ namespace My24HourTimerWPF
             return MyTotalSubPossibilities;
         }
 
-        public List<Dictionary<string,mTuple<int,TimeSpanWithStringID>>> MySnugPossibleEntries
+        public List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>> MySnugPossibleEntries
         {
             get
             {
 
-                Dictionary<string, TimeSpanWithStringID> Dict_StringAndDict = new Dictionary<string, TimeSpanWithStringID>();
-                List<Dictionary<string, mTuple<int, TimeSpanWithStringID>>> retValue = new List<Dictionary<string, mTuple<int, TimeSpanWithStringID>>>();
-                
-                
-                foreach (KeyValuePair<string, ParentIDCount> eachKeyPair in MyDict)
+                Dictionary<TimeSpan, TimeSpanWithStringID> Dict_StringAndDict = new Dictionary<TimeSpan, TimeSpanWithStringID>();
+                List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>> retValue = new List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>>();
+
+
+                foreach (KeyValuePair<TimeSpan, ParentIDCount> eachKeyPair in MyDict)
                 {
-                    Dict_StringAndDict.Add(eachKeyPair.Key, new TimeSpanWithStringID(eachKeyPair.Value.Item2, eachKeyPair.Key));
+                    Dict_StringAndDict.Add(eachKeyPair.Key, new TimeSpanWithStringID(eachKeyPair.Value.Item2, eachKeyPair.Key.Ticks.ToString()));
                 }
                
                 int i=0;
@@ -379,26 +379,26 @@ namespace My24HourTimerWPF
                 {
 
 
-                    List<Dictionary<string, mTuple<int, TimeSpanWithStringID>>> Received_retValue = SubSnugArrayElements[i].MySnugPossibleEntries;
-                    
-                    string myString = TopElements[i];
-                    foreach (Dictionary<string, mTuple<int, TimeSpanWithStringID>> eachDictionary in Received_retValue)
+                    List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>> Received_retValue = SubSnugArrayElements[i].MySnugPossibleEntries;
+
+                    TimeSpan eachTimeSpan = TopElements[i];
+                    foreach (Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> eachDictionary in Received_retValue)
                     {
                         
-                        if (eachDictionary.ContainsKey(myString))
+                        if (eachDictionary.ContainsKey(eachTimeSpan))
                         {
-                            ++eachDictionary[myString].Item1;
+                            ++eachDictionary[eachTimeSpan].Item1;
                         }
                         else 
                         {
-                            eachDictionary.Add(myString, new mTuple<int, TimeSpanWithStringID>(1, Dict_StringAndDict[myString]));
+                            eachDictionary.Add(eachTimeSpan, new mTuple<int, TimeSpanWithStringID>(1, Dict_StringAndDict[eachTimeSpan]));
                         }
                         
                     }
                     if (Received_retValue.Count < 1)
                     {
-                        Dictionary<string, mTuple<int, TimeSpanWithStringID>> CurrentDict = new Dictionary<string, mTuple<int, TimeSpanWithStringID>>();
-                        CurrentDict.Add(myString, new mTuple<int, TimeSpanWithStringID>(1, Dict_StringAndDict[myString]));
+                        Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> CurrentDict = new Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>();
+                        CurrentDict.Add(eachTimeSpan, new mTuple<int, TimeSpanWithStringID>(1, Dict_StringAndDict[eachTimeSpan]));
                         retValue.Add(CurrentDict);
                     }
 
@@ -461,10 +461,10 @@ namespace My24HourTimerWPF
             }
         }
 
-        static public Dictionary<string, mTuple<int, TimeSpanWithStringID>> CreateCopyOFSnuPossibilities(Dictionary<string, mTuple<int, TimeSpanWithStringID>> SnugPossibility)
+        static public Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> CreateCopyOFSnuPossibilities(Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> SnugPossibility)
         {
-            Dictionary<string, mTuple<int, TimeSpanWithStringID>> retValue = new Dictionary<string, mTuple<int, TimeSpanWithStringID>>();
-            foreach (KeyValuePair<string, mTuple<int, TimeSpanWithStringID>> eachKeyValuePair in SnugPossibility)
+            Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> retValue = new Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>();
+            foreach (KeyValuePair<TimeSpan, mTuple<int, TimeSpanWithStringID>> eachKeyValuePair in SnugPossibility)
             {
                 retValue.Add(eachKeyValuePair.Key,new mTuple<int, TimeSpanWithStringID>(eachKeyValuePair.Value.Item1, eachKeyValuePair.Value.Item2));
                 
@@ -474,7 +474,7 @@ namespace My24HourTimerWPF
             return retValue;
         }
 
-        static public TimeSpan TotalTimeSpanOfSnugPossibility(Dictionary<string,mTuple<int,TimeSpanWithStringID>> SnugPossibility)
+        static public TimeSpan TotalTimeSpanOfSnugPossibility(Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> SnugPossibility)
         {
             return TotalTimeSpanOfSnugPossibility(SnugPossibility.Values);
         }
@@ -490,43 +490,43 @@ namespace My24HourTimerWPF
             return retValue;
         }
 
-        static public Dictionary<string, mTuple<int, TimeSpanWithStringID>>  AddToSnugPossibilityList(Dictionary<string, mTuple<int, TimeSpanWithStringID>> PossibiityA,Dictionary<string, mTuple<int, TimeSpanWithStringID>> PossibiityB)
+        static public Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> AddToSnugPossibilityList(Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> PossibiityA, Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> PossibiityB)
         {
             //handle null inputs
-            
-            Dictionary<string, mTuple<int, TimeSpanWithStringID>> retValue = CreateCopyOFSnuPossibilities(PossibiityA);
+
+            Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> retValue = CreateCopyOFSnuPossibilities(PossibiityA);
 
 
-            foreach(string eachString in PossibiityB.Keys)
+            foreach (TimeSpan eachTimeSpan in PossibiityB.Keys)
             {
-                if (retValue.ContainsKey(eachString))
+                if (retValue.ContainsKey(eachTimeSpan))
                 {
-                    retValue[eachString].Item1 += PossibiityB[eachString].Item1;
+                    retValue[eachTimeSpan].Item1 += PossibiityB[eachTimeSpan].Item1;
                 }
                 else 
                 { 
-                    retValue.Add(eachString, new mTuple<int,TimeSpanWithStringID>(PossibiityB[eachString].Item1,PossibiityB[eachString].Item2));
+                    retValue.Add(eachTimeSpan, new mTuple<int,TimeSpanWithStringID>(PossibiityB[eachTimeSpan].Item1,PossibiityB[eachTimeSpan].Item2));
                 }
             }
             return retValue;
         }
 
-        static public Dictionary<string, mTuple<int, TimeSpanWithStringID>> RemoveSnugPossibilityFromAnother(Dictionary<string, mTuple<int, TimeSpanWithStringID>> PossibiityA, Dictionary<string, mTuple<int, TimeSpanWithStringID>> PossibiityB)
+        static public Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> RemoveSnugPossibilityFromAnother(Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> PossibiityA, Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> PossibiityB)
         {
             //handle null inputs
             //You remove PossibilityB from PossibilityA
 
-            Dictionary<string, mTuple<int, TimeSpanWithStringID>> retValue = CreateCopyOFSnuPossibilities(PossibiityA);
+            Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> retValue = CreateCopyOFSnuPossibilities(PossibiityA);
 
 
-            foreach (string eachString in PossibiityB.Keys)
+            foreach (TimeSpan eachTimeSpan in PossibiityB.Keys)
             {
-                if (retValue.ContainsKey(eachString))
+                if (retValue.ContainsKey(eachTimeSpan))
                 {
-                    retValue[eachString].Item1 -= PossibiityB[eachString].Item1;
-                    if (retValue[eachString].Item1 < 1)
+                    retValue[eachTimeSpan].Item1 -= PossibiityB[eachTimeSpan].Item1;
+                    if (retValue[eachTimeSpan].Item1 < 1)
                     {
-                        retValue.Remove(eachString);
+                        retValue.Remove(eachTimeSpan);
                     }
                 }
             }
@@ -564,39 +564,72 @@ namespace My24HourTimerWPF
             return true;
         }
 
-        public static List<Dictionary<string, mTuple<int, TimeSpanWithStringID>>> SortListSnugPossibilities(List<Dictionary<string, mTuple<int, TimeSpanWithStringID>>> ListOfSnugPossibilities)
+        public static List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>> SortListSnugPossibilities(List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>> ListOfSnugPossibilities, TimeSpanWithStringID myTimesSpan = null)
         {
-            Dictionary<TimeSpan, List<Dictionary<string, mTuple<int, TimeSpanWithStringID>>>> AllData = new Dictionary<TimeSpan, List<Dictionary<string, mTuple<int, TimeSpanWithStringID>>>>();
-            foreach (Dictionary<string, mTuple<int, TimeSpanWithStringID>> eachDictionary in ListOfSnugPossibilities)
+            Dictionary<TimeSpan, List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>>> AllData = new Dictionary<TimeSpan, List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>>>();
+            Dictionary<TimeSpan, List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>>> AllData_AboveAverage = new Dictionary<TimeSpan, List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>>>();
+            Dictionary<TimeSpan, List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>>> PertinentDict;
+            foreach (Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> eachDictionary in ListOfSnugPossibilities)
             {
                 TimeSpan TotalTime= TotalTimeSpanOfSnugPossibility(eachDictionary);
-
+                if (myTimesSpan != null)
+                {
+                    if (TotalTime >= myTimesSpan.timeSpan)
+                    {   
+                        if (AllData_AboveAverage.ContainsKey(TotalTime))
+                        {
+                            AllData_AboveAverage[TotalTime].Add(eachDictionary);
+                        }
+                        else
+                        {
+                            AllData_AboveAverage.Add(TotalTime, new List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>>() { eachDictionary });
+                        }
+                    }
+                }
+                
+                
                 if (AllData.ContainsKey(TotalTime))
                 {
                     AllData[TotalTime].Add(eachDictionary);
                 }
                 else 
                 {
-                    AllData.Add(TotalTime, new List<Dictionary<string, mTuple<int, TimeSpanWithStringID>>>() { eachDictionary });
+                    AllData.Add(TotalTime, new List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>>() { eachDictionary });
                 }
             }
 
-            List<TimeSpan> AllKeys= AllData.Keys.ToList();
-            AllKeys.Sort();
+            PertinentDict = AllData_AboveAverage.Count > 0 ? AllData_AboveAverage : AllData;
+            List<TimeSpan> AllKeys;
+            AllKeys = PertinentDict.Keys.ToList();
 
-            List<Dictionary<string, mTuple<int, TimeSpanWithStringID>>> retValue = new List<Dictionary<string,mTuple<int,TimeSpanWithStringID>>>();
+
+            AllKeys.Sort();
+            
+            if (AllData_AboveAverage.Count > 0)
+            {
+                IEnumerable<KeyValuePair<TimeSpan, List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>>>> dict_asList = AllData_AboveAverage;
+                dict_asList.OrderBy(obj => obj.Value.Count);
+                AllKeys = dict_asList.Select(obj => obj.Key).ToList();
+                AllKeys.Reverse();
+            }
+
+
+
+            
+
+            List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>> retValue = new List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>>();
 
             foreach (TimeSpan eachTimeSpan in AllKeys)
             {
-                AllData[eachTimeSpan]=AllData[eachTimeSpan].OrderBy(obj => obj.Count).ToList();
+                PertinentDict[eachTimeSpan] = PertinentDict[eachTimeSpan].OrderBy(obj => obj.Count).ToList();
                 retValue.AddRange(AllData[eachTimeSpan]);
             }
             return retValue;
 
         }
 
-        
-        public string[] MyTopElements
+
+        public TimeSpan[] MyTopElements
         {
             get
             {

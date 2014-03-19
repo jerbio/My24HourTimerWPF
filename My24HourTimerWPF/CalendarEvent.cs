@@ -7,13 +7,13 @@ using System.Xml;
 
 namespace My24HourTimerWPF
 {
-    public class CalendarEvent
+    public class CalendarEvent : IDefinedRange
     {
         // Fields
         static Dictionary<string, List<Double>> DistanceMatrix;
         static List<string> DistanceMatixKeys;
         static List<Location> Horizontal;
-
+        
         
         protected TimeSpan EventDuration;
         string CalendarEventName;
@@ -33,9 +33,11 @@ namespace My24HourTimerWPF
         SubCalendarEvent[] ArrayOfSubEvents;
         protected bool SchedulStatus;
         CustomErrors CalendarError = new CustomErrors(false, string.Empty);
-        
+        Color CalemdarEventColor = new Color();
+        protected bool Enabled;
         protected Location LocationData;
         protected string otherPartyID;
+        List<mTuple<EventID,string>> RemovedIDs;
         #region Constructor
         public CalendarEvent(CustomErrors Error)
         {
@@ -147,7 +149,7 @@ namespace My24HourTimerWPF
             PrepTime = EventPrepTime;
             EventPreDeadline = Event_PreDeadline;
             RigidSchedule = EventRigidFlag;
-            TimePerSplit = new TimeSpan(((EventDuration.Seconds / Splits) * 10000000));
+            TimePerSplit = TimeSpan.FromTicks(((EventDuration.Ticks/ Splits) ));
             ArrayOfSubEvents = new SubCalendarEvent[Splits];
             CalendarEventID = EventIDEntry;
             EventRepetition = EventRepetitionEntry;
@@ -178,7 +180,7 @@ namespace My24HourTimerWPF
             PrepTime = EventPrepTime;
             EventPreDeadline = Event_PreDeadline;
             RigidSchedule = EventRigidFlag;
-            TimePerSplit = new TimeSpan(((EventDuration.Seconds / Splits) * 10000000));
+            TimePerSplit = TimeSpan.FromTicks(((EventDuration.Ticks / Splits)));
             ArrayOfSubEvents = new SubCalendarEvent[Splits];
             CalendarEventID = new EventID(new string[] { EventIDGenerator.generate().ToString() });
             EventRepetition = EventRepetitionEntry;
@@ -243,6 +245,13 @@ namespace My24HourTimerWPF
         {
             return this.ID+"::"+this.Start.ToString() + " - " + this.End.ToString();
         }
+
+
+        public bool IsDateTimeWithin(DateTime DateTimeEntry)
+        {
+            return RangeTimeLine.IsDateTimeWithin(DateTimeEntry);
+        }
+
 
         void UpdateLocationMatrix(Location newLocation)
         { 
@@ -414,6 +423,10 @@ namespace My24HourTimerWPF
             return null;
         }
 
+        virtual public void UpdateStatus(bool EnableDisableFlag)
+        {
+            this.Enabled = EnableDisableFlag;
+        }
         
         virtual public TimeLine PinSubEventsToStart(TimeLine MyTimeLine, List<SubCalendarEvent> MySubCalendarEventList)
         {
@@ -686,7 +699,7 @@ namespace My24HourTimerWPF
                 {
                     if (ArrayOfSubEvents[i].ID == SubEventID.ToString())
                     {
-                        SubCalendarEvent NewSubCalEvent = new SubCalendarEvent(UpdatedSubEvent.ID, UpdatedSubEvent.Start, UpdatedSubEvent.End, UpdatedSubEvent.ActiveSlot, UpdatedSubEvent.Rigid, ArrayOfSubEvents[i].myLocation, this.EventTimeLine);
+                        SubCalendarEvent NewSubCalEvent = new SubCalendarEvent(UpdatedSubEvent.ID, UpdatedSubEvent.Start, UpdatedSubEvent.End, UpdatedSubEvent.ActiveSlot, UpdatedSubEvent.Rigid, UpdatedSubEvent.myLocation, this.RangeTimeLine);
                         string thirdPartyID = ArrayOfSubEvents[i].ThirdPartyID;
                         ArrayOfSubEvents[i] = NewSubCalEvent;
                         ArrayOfSubEvents[i].ThirdPartyID = thirdPartyID;
@@ -697,6 +710,49 @@ namespace My24HourTimerWPF
 
             return false;
         }
+
+
+        public void removeSubCalEvents(IEnumerable<SubCalendarEvent> ElementsToBeRemoved)
+        {
+            RemovedIDs = new List<mTuple<EventID,string>>();
+            for (int i = 0; i < ArrayOfSubEvents.Length; i++)
+            {
+                if (ElementsToBeRemoved.Contains(ArrayOfSubEvents[i]))
+                {
+                    RemovedIDs.Add(new mTuple<EventID, string>(ArrayOfSubEvents[i].SubEvent_ID, ArrayOfSubEvents[i].ThirdPartyID));
+                    ArrayOfSubEvents[i] = null;
+                }
+            }
+        }
+
+        public bool replaceNullSubCalevents(List<SubCalendarEvent> ElementsToBeRemoved)
+        {
+            /*
+             * Function replaces null sub cal events. It is only to be called after a preceeding call to removeSubCalEvents. This simply replaces them
+             */
+            
+            int LastDetectedIndex=ArrayOfSubEvents.ToList().IndexOf(null);
+            do
+            {
+                if (LastDetectedIndex > -1)
+                {
+                    
+                    SubCalendarEvent NewSubCalEvent = new SubCalendarEvent(RemovedIDs[0].Item1.ToString(), ElementsToBeRemoved[0].Start, ElementsToBeRemoved[0].End, ElementsToBeRemoved[0].ActiveSlot, ElementsToBeRemoved[0].Rigid, ElementsToBeRemoved[0].myLocation, this.RangeTimeLine);
+
+                    string thirdPartyID = RemovedIDs[0].Item2;
+                    ArrayOfSubEvents[LastDetectedIndex] = NewSubCalEvent;
+                    ArrayOfSubEvents[LastDetectedIndex].ThirdPartyID = thirdPartyID;
+                    ElementsToBeRemoved.Remove(ElementsToBeRemoved[0]);
+                    RemovedIDs.RemoveAt(0);
+                }
+                LastDetectedIndex = ArrayOfSubEvents.ToList().IndexOf(null);
+            }
+            while ((LastDetectedIndex > -1) && (ElementsToBeRemoved.Count>0));
+
+
+            return !((LastDetectedIndex <0) && (ElementsToBeRemoved.Count > 0));
+        }
+        
 
         static public string convertTimeToMilitary(string TimeString)
         {
@@ -790,7 +846,7 @@ namespace My24HourTimerWPF
             {
                 if (mySubCalendarEvent != null)
                 {
-                    EventSequence.MergeTimeLines(mySubCalendarEvent.EventTimeLine);
+                    EventSequence.MergeTimeLines(mySubCalendarEvent.RangeTimeLine);
                 }
                 
             }
@@ -802,7 +858,7 @@ namespace My24HourTimerWPF
             
             foreach (SubCalendarEvent eachSubCalendarEvent in UpdatedSubCalEvents)
             { 
-                if(!(UpdatedTimeLine.IsTimeLineWithin(eachSubCalendarEvent.EventTimeLine)))
+                if(!(UpdatedTimeLine.IsTimeLineWithin(eachSubCalendarEvent.RangeTimeLine)))
                 {
                     return false;
                 }
@@ -950,7 +1006,7 @@ namespace My24HourTimerWPF
             }
         }
 
-        public Location myLocation
+        virtual public Location myLocation
         {
             set
             {
@@ -1008,7 +1064,7 @@ namespace My24HourTimerWPF
             }
         
         }
-        virtual public TimeLine EventTimeLine
+        virtual public TimeLine RangeTimeLine
         {
             get
             {
@@ -1016,6 +1072,8 @@ namespace My24HourTimerWPF
                 return EventSequence;
             }
         }
+
+        
 
         public void UpdateError(CustomErrors Error)
         {
@@ -1025,6 +1083,22 @@ namespace My24HourTimerWPF
         public void ClearErrorMessage()
         {
             CalendarError = new CustomErrors(false, string.Empty);
+        }
+
+        public TimeSpan RangeSpan
+        {
+            get
+            {
+                return this.RangeTimeLine.TimelineSpan;
+            }
+        }
+
+        virtual public bool isEnabled
+        {
+            get
+            {
+                return Enabled;
+            }
         }
 
         #endregion

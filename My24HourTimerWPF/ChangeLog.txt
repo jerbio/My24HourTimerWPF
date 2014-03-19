@@ -1,0 +1,2 @@
+﻿You need to figure out how to incorpate distance into restricted algorithm implementation
+You need to load the log file resolveDistanceBug.xml to get a schedule with all restricted elements unoptimized for location.

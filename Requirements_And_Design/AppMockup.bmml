@@ -1,0 +1,9 @@
+<mockup version="1.0" skin="sketch" fontFace="Balsamiq Sans" measuredW="1125" measuredH="1624" mockupW="1020" mockupH="1577">
+  <controls>
+    <control controlID="2" controlTypeID="com.balsamiq.mockups::iPhone" x="105" y="47" w="1020" h="1577" measuredW="282" measuredH="573" zOrder="0" locked="false" isInGroup="-1">
+      <controlProperties>
+        <model>IPhone5</model>
+      </controlProperties>
+    </control>
+  </controls>
+</mockup>

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace My24HourTimerWPF
 {
-    public class TimeLine
+    public class TimeLine : IDefinedRange
     {
         protected DateTime EndTime;
         protected DateTime StartTime;
@@ -92,8 +92,6 @@ namespace My24HourTimerWPF
             return null;
         }
 
-
-
         public bool doesTimeLineInterfere(TimeLine TimeLine0)
         {
 
@@ -104,6 +102,7 @@ namespace My24HourTimerWPF
 
             return false;
         }
+
 
         public static TimeSpan sumAllTimeLineTimeSpan(ICollection<TimeLine> AllTimeLine)
         {
@@ -220,6 +219,7 @@ namespace My24HourTimerWPF
             return ActiveSlots;
         }
 
+        
 
         #endregion
 
@@ -486,6 +486,22 @@ namespace My24HourTimerWPF
             
             {
                 ActiveTimeSlots = new BusyTimeLine[0];
+            }
+        }
+
+        public TimeSpan RangeSpan
+        {
+            get
+            {
+                return this.TimelineSpan;
+            }
+        }
+
+        public TimeLine RangeTimeLine
+        {
+            get 
+            {
+                return this;
             }
         }
 

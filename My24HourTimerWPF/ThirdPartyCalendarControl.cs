@@ -125,7 +125,7 @@ namespace My24HourTimerWPF
             {
                 for (; i < MyEvent.AllEvents.Length; i++)
                 {
-                    MyEvent.AllEvents[i].ThirdPartyID = AddAppointment(MyEvent.AllEvents[i], MyEvent.Name);
+                    //MyEvent.AllEvents[i].ThirdPartyID = AddAppointment(MyEvent.AllEvents[i], MyEvent.Name);
                 }
             }
 

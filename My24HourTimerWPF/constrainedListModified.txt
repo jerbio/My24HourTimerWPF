@@ -1,0 +1,48 @@
+Dictionary<TimeLine, List<mTuple<bool, SubCalendarEvent>>> Dict_ConstrainedList = generateConstrainedList(JustFreeSpots.ToList(),Arg15);
+
+List<TimeLine> getOnlyCompatibleTimeLines(SubCalendarEvent SubEvent, List<TimeLine> TimeLines )
+        {
+            List<TimeLine> retValue = new System.Collections.Generic.List<TimeLine>();    
+            
+            foreach (TimeLine eachTimeLine in TimeLines)
+            {
+                if (SubEvent.canExistWithinTimeLine(eachTimeLine))
+                {
+                    retValue.Add(eachTimeLine);
+                }
+            }
+
+
+            return retValue;
+        }
+
+
+
+Dictionary<TimeLine, List<mTuple<bool, SubCalendarEvent>>> generateConstrainedList(List<TimeLine> AvailableTImeLines, List<mTuple<bool, SubCalendarEvent>> AllEvents)
+        {
+            Dictionary<TimeLine, List<mTuple<bool, SubCalendarEvent>>> retValue = new System.Collections.Generic.Dictionary<TimeLine, System.Collections.Generic.List<mTuple<bool, SubCalendarEvent>>>();
+
+            foreach (TimeLine eachTimeLine in AvailableTImeLines)
+            {
+                retValue.Add(eachTimeLine, new List<mTuple<bool, SubCalendarEvent>>());
+            }
+
+            foreach (mTuple<bool, SubCalendarEvent> eachmTuple in AllEvents)
+            {
+                List<TimeLine> CompatibleTimeLines= getOnlyCompatibleTimeLines(eachmTuple.Item2, AvailableTImeLines);
+                if (CompatibleTimeLines.Count == 1)
+                {
+                    //if (retValue.ContainsKey(CompatibleTimeLines[0]))
+                    {
+                        retValue[CompatibleTimeLines[0]].Add(eachmTuple);
+                    }
+                    //else
+                    {
+                        //retValue.Add(CompatibleTimeLines[0], new System.Collections.Generic.List<mTuple<bool, SubCalendarEvent>>() { eachmTuple });
+                    }
+                }
+            }
+
+
+            return retValue;
+        }

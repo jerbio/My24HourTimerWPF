@@ -12,6 +12,7 @@ namespace My24HourTimerWPF
         TimeSpan AvailablePreceedingFreeSpace;
         TimeLine CalendarEventRange;
         Location EventLocation;
+        bool Enabled = true;
 
         #region Classs Constructor
         public SubCalendarEvent()
@@ -53,7 +54,7 @@ namespace My24HourTimerWPF
             
             SubEventID = new EventID(myParentID + "_" + EventIDGenerator.generate().ToString());
 
-
+            this.EventLocation = EventLocation;
             EventSequence = new EventTimeLine(SubEventID.ToString(), StartDateTime, EndDateTime);
             RigidSchedule = Rigid;
         }
@@ -69,6 +70,7 @@ namespace My24HourTimerWPF
             PrepTime = EventPrepTime;
             SubEventID = new EventID(MySubEventID.Split('_'));
             EventSequence = new EventTimeLine(SubEventID.ToString(), StartDateTime, EndDateTime);
+            this.EventLocation = EventLocation;
         }
         /*public SubCalendarEvent(string MySubEventID, DateTime EventStart, DateTime EventDeadline, BusyTimeLine SubEventBusy, Location EventLocation =null, TimeLine RangeOfSubCalEvent = null)
         {
@@ -90,7 +92,7 @@ namespace My24HourTimerWPF
             BusyFrame = MyBusylot;
             PrepTime = EventPrepTime;
             SubEventID = new EventID(MySubEventID.Split('_'));
-
+            this.EventLocation = EventLocation;
             if (myParentID == "16")
             {
                 ;
@@ -109,6 +111,7 @@ namespace My24HourTimerWPF
             EventDuration = SubEventBusy.TimelineSpan;
             BusyFrame = SubEventBusy;
             RigidSchedule = Rigid;
+            this.EventLocation = EventLocation;
         }
         #endregion
 
@@ -148,6 +151,10 @@ namespace My24HourTimerWPF
         }
 
 
+        public bool IsDateTimeWithin(DateTime DateTimeEntry)
+        {
+            return RangeTimeLine.IsDateTimeWithin(DateTimeEntry);
+        }
 
         public SubCalendarEvent createCopy()
         {
@@ -163,6 +170,7 @@ namespace My24HourTimerWPF
             MySubCalendarEventCopy.otherPartyID = otherPartyID;
             MySubCalendarEventCopy.EventPreDeadline = EventPreDeadline;
             MySubCalendarEventCopy.EventRepetition = EventRepetition;*/
+            MySubCalendarEventCopy.ThirdPartyID = this.ThirdPartyID;
             return MySubCalendarEventCopy;
         }
 
@@ -183,7 +191,6 @@ namespace My24HourTimerWPF
 
             return TotalTimeSpan;
         }
-
 
         public bool PinSubEventsToStart(TimeLine MyTimeLine)
         {
@@ -236,7 +243,24 @@ namespace My24HourTimerWPF
                 return true;
         }
 
+        public bool UpdateThis(SubCalendarEvent SubEventEntry)
+        {
+            if ((this.ID == SubEventEntry.ID)&&canExistWithinTimeLine(SubEventEntry.RangeTimeLine))
+            {
+                StartDateTime= SubEventEntry.Start;
+                EndDateTime= SubEventEntry.End;
+                BusyFrame.updateBusyTimeLine(SubEventEntry.BusyFrame);
+                AvailablePreceedingFreeSpace = SubEventEntry.AvailablePreceedingFreeSpace;
+                RigidSchedule = SubEventEntry.Rigid;
+                CalendarEventRange = SubEventEntry.CalendarEventRange;
+                EventLocation = SubEventEntry.LocationData;
+                Enabled = SubEventEntry.Enabled;
+                ThirdPartyID = SubEventEntry.ThirdPartyID;
+                return true;
+            }
 
+            return false;
+        }
 
 
 
@@ -379,6 +403,13 @@ namespace My24HourTimerWPF
              return (thisCopy.PinSubEventsToStart(PossibleTimeLine) && thisCopy.PinToEnd(PossibleTimeLine));
              
          }
+
+         override public void UpdateStatus(bool EnableDisableFlag)
+         {
+             /*Function enables or disables SubCalEvent*/
+             
+             this.Enabled = EnableDisableFlag;
+         }
         #endregion
 
         #region Class Properties
@@ -473,12 +504,41 @@ namespace My24HourTimerWPF
             }
         }
 
-        public override TimeLine EventTimeLine
+        public override TimeLine RangeTimeLine
         {
             get
             {
                 updateEventSequence();
                 return EventSequence;
+            }
+        }
+
+
+        public TimeSpan RangeSpan
+        {
+            get
+            {
+                return this.RangeTimeLine.TimelineSpan;
+            }
+        }
+
+        override public Location myLocation
+        {
+            set
+            {
+                EventLocation = value;
+            }
+            get
+            {
+                return EventLocation;
+            }
+        }
+
+        override public bool isEnabled
+        {
+            get
+            {
+                return Enabled;
             }
         }
         #endregion

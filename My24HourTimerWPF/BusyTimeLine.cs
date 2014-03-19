@@ -40,6 +40,14 @@ namespace My24HourTimerWPF
             EndTime += ChangeInTime;
         }
 
+        public BusyTimeLine updateBusyTimeLine(BusyTimeLine BusyTimeLineEntry)
+        {
+            StartTime = BusyTimeLineEntry.StartTime;
+            EndTime = BusyTimeLineEntry.EndTime;
+            TimeLineEventID = BusyTimeLineEntry.ID;
+            return this;
+        }
+
 
         #endregion
         #region Properties

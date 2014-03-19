@@ -79,6 +79,8 @@
                         <DatePicker Height="25" HorizontalAlignment="Left" Margin="82,69,0,0" Name="datePicker1" VerticalAlignment="Top" Width="115" />
                         <TextBox Height="23" HorizontalAlignment="Left" Margin="81,113,0,0" Name="textBox8" VerticalAlignment="Top" Width="120" Text="" />
                         <TextBlock Height="23" HorizontalAlignment="Left" Margin="10,113,0,0" Name="textBlock16" Text="Location Info" VerticalAlignment="Top" />
+                        <TextBlock Height="23" HorizontalAlignment="Left" Margin="73,141,0,0" Name="textBlock17" Text="Procrastinate this event" VerticalAlignment="Top" />
+                        <TextBox Height="23" TextWrapping="Wrap" Name="textBox9" Width="120" Margin="73,169,558,93"/>
                     </Grid>
                     <Button Content="Update Schedule" Height="38" HorizontalAlignment="Left" Margin="604,315,0,0" Name="button5" VerticalAlignment="Top" Width="129" Click="button5_Click_2" />
                     <Button Content="Delete All Calendar Events" Height="37" HorizontalAlignment="Left" Margin="604,377,0,0" Name="button6" VerticalAlignment="Top" Width="154" Click="button6_Click" />

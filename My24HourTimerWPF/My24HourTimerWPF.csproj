@@ -37,6 +37,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Google.Maps">
+      <HintPath>..\packages\gmaps-api-net.0.11.1.0\lib\net\Google.Maps.dll</HintPath>
+    </Reference>
     <Reference Include="HtmlAgilityPack">
       <HintPath>..\HtmlAgilityPack.1.4.6\Net40-client\HtmlAgilityPack.dll</HintPath>
     </Reference>
@@ -44,6 +47,9 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="Microsoft.Solver.Foundation" />
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\gmaps-api-net.0.11.1.0\lib\net\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -74,7 +80,9 @@
     <Compile Include="BusyTimeLine.cs" />
     <Compile Include="CalendarEvent.cs" />
     <Compile Include="ClumpSubCalendarEvent.cs" />
+    <Compile Include="Color.cs" />
     <Compile Include="Comparator.cs" />
+    <None Include="packages.config" />
     <None Include="SnugArray.cs.old" />
     <None Include="MainWindow.xaml.cs.old" />
     <None Include="SnugArray.cs.old0" />
@@ -82,6 +90,7 @@
     <None Include="MainWindow.xaml_BeforeConstrainedUpdaeOrCountForValids.cs.old" />
     <None Include="DistanceSolver.cs.old" />
     <None Include="Schedule_Before_Simplest_IsEasiet.cs.old" />
+    <Compile Include="IDefinedRange.cs" />
     <Compile Include="DistanceSolver.cs" />
     <Compile Include="EfficientTimeLine.cs" />
     <Compile Include="EventTimeLine.cs" />
@@ -152,6 +161,9 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="ChangeLog.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

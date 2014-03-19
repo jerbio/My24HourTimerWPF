@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using System.Windows.Forms;
+using Google.Maps.Geocoding;
 using System.Drawing;
 
 
@@ -42,6 +43,14 @@ namespace My24HourTimerWPF
             xValue = MyxValue;
             yValue = MyyValue;
         }
+
+        public Location(double MyxValue, double MyyValue,string AddressEntry, string AddressDescription)
+        {
+            xValue = MyxValue;
+            yValue = MyyValue;
+            TaggedAddress = AddressEntry;
+            TaggedDescription = AddressDescription;
+        }
         
         public Location(string Address)
         {
@@ -54,6 +63,20 @@ namespace My24HourTimerWPF
 
             else
             {
+                var request = new GeocodingRequest();
+                request.Address = Address;
+                request.Sensor = false;
+                var response = new GeocodingService().GetResponse(request);
+                var result = response.Results.First();
+                TaggedDescription = Address;
+                TaggedAddress = result.FormattedAddress;
+                xValue=Convert.ToDouble(result.Geometry.Location.Latitude);
+                yValue = Convert.ToDouble(result.Geometry.Location.Longitude);
+                MessageBox.Show("Found Location At: " + result.FormattedAddress + " Latitude: " + xValue + " Longitude: " + yValue); 
+
+
+
+                /*
                 string url = "http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/find?text=";
                 string[] Searches = { "coffee", "market", "library", "park" };
                 //Address = "boulder co " + Searches[(searchindex++) % 3];
@@ -74,7 +97,7 @@ namespace My24HourTimerWPF
                 //write the response json to the UI
                 json.Replace("{", "{ \r\n");
                 json.Replace(",", ", \r\n");
-                json.Replace("}", "} \r\n");
+                json.Replace("}", "} \r\n");*/
             }
         }
 

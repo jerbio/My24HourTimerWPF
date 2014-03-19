@@ -46,27 +46,27 @@ namespace My24HourTimerWPF
             return SubCalEventRestricted;
         }
 
-        public static Dictionary<string, mTuple<int, TimeSpanWithStringID>> NotInList_NoEffect(Dictionary<string, mTuple<int, TimeSpanWithStringID>> ListToCheck, Dictionary<string, mTuple<int, TimeSpanWithStringID>> MyCurrentList)
+        public static Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> NotInList_NoEffect(Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> ListToCheck, Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> MyCurrentList)
         {
-            Dictionary<string, mTuple<int, TimeSpanWithStringID>> retValue = new Dictionary<string, mTuple<int, TimeSpanWithStringID>>();
+            Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> retValue = new Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>();
             if (MyCurrentList.Keys.Count < 1)
             {
-                foreach (string eachstring in ListToCheck.Keys)
+                foreach (TimeSpan eachTimespan in ListToCheck.Keys)
                 {
-                    retValue.Add(eachstring, new mTuple<int, TimeSpanWithStringID>(ListToCheck[eachstring].Item1, ListToCheck[eachstring].Item2));
+                    retValue.Add(eachTimespan, new mTuple<int, TimeSpanWithStringID>(ListToCheck[eachTimespan].Item1, ListToCheck[eachTimespan].Item2));
                 }
                 return retValue;                
             }
 
-            foreach (string eachstring in ListToCheck.Keys)
+            foreach (TimeSpan eachTimeSpan in ListToCheck.Keys)
             {
-                if (MyCurrentList.ContainsKey(eachstring))
+                if (MyCurrentList.ContainsKey(eachTimeSpan))
                 {
-                    retValue.Add(eachstring, new mTuple<int, TimeSpanWithStringID>(ListToCheck[eachstring].Item1 - MyCurrentList[eachstring].Item1, ListToCheck[eachstring].Item2));
+                    retValue.Add(eachTimeSpan, new mTuple<int, TimeSpanWithStringID>(ListToCheck[eachTimeSpan].Item1 - MyCurrentList[eachTimeSpan].Item1, ListToCheck[eachTimeSpan].Item2));
                 }
                 else 
                 {
-                    retValue.Add(eachstring, new mTuple<int, TimeSpanWithStringID>(ListToCheck[eachstring].Item1, ListToCheck[eachstring].Item2));
+                    retValue.Add(eachTimeSpan, new mTuple<int, TimeSpanWithStringID>(ListToCheck[eachTimeSpan].Item1, ListToCheck[eachTimeSpan].Item2));
                 }
             }
 
@@ -96,17 +96,17 @@ namespace My24HourTimerWPF
             return ListToCheck_Cpy;
         }
 
-        public static Dictionary<string, mTuple<int, TimeSpanWithStringID>> ListIntersection(Dictionary<string, mTuple<int, TimeSpanWithStringID>> DictToCheck, Dictionary<string, mTuple<int, TimeSpanWithStringID>> MyCurrentDict)
+        public static Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> ListIntersection(Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> DictToCheck, Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> MyCurrentDict)
         {
-            Dictionary<string, mTuple<int, TimeSpanWithStringID>> InListElements = new Dictionary<string, mTuple<int, TimeSpanWithStringID>>();
+            Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> InListElements = new Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>();
 
-            foreach(string eachString in DictToCheck.Keys)
+            foreach (TimeSpan eachTimeSpan in DictToCheck.Keys)
             {
-                if(MyCurrentDict.ContainsKey(eachString))
+                if(MyCurrentDict.ContainsKey(eachTimeSpan))
                 {
-                    mTuple<int, TimeSpanWithStringID> MyCurrentDictTimeSpanWithStringID =new mTuple<int,TimeSpanWithStringID> (MyCurrentDict[eachString].Item1,MyCurrentDict[eachString].Item2) ;
-                    mTuple<int, TimeSpanWithStringID> DictToCheckTimeSpanWithStringID = new mTuple<int, TimeSpanWithStringID>(DictToCheck[eachString].Item1, DictToCheck[eachString].Item2);
-                    InListElements.Add(eachString, (MyCurrentDictTimeSpanWithStringID.Item1 < DictToCheckTimeSpanWithStringID.Item1 ? MyCurrentDictTimeSpanWithStringID : DictToCheckTimeSpanWithStringID));
+                    mTuple<int, TimeSpanWithStringID> MyCurrentDictTimeSpanWithStringID =new mTuple<int,TimeSpanWithStringID> (MyCurrentDict[eachTimeSpan].Item1,MyCurrentDict[eachTimeSpan].Item2) ;
+                    mTuple<int, TimeSpanWithStringID> DictToCheckTimeSpanWithStringID = new mTuple<int, TimeSpanWithStringID>(DictToCheck[eachTimeSpan].Item1, DictToCheck[eachTimeSpan].Item2);
+                    InListElements.Add(eachTimeSpan, (MyCurrentDictTimeSpanWithStringID.Item1 < DictToCheckTimeSpanWithStringID.Item1 ? MyCurrentDictTimeSpanWithStringID : DictToCheckTimeSpanWithStringID));
                 }
             }
 
@@ -326,7 +326,7 @@ namespace My24HourTimerWPF
             return retValue;
         }
 
-        public static TimeSpan SumOfActiveDuration(List<SubCalendarEvent> ListOfSubCalEvent)
+        public static TimeSpan SumOfActiveDuration(IEnumerable<SubCalendarEvent> ListOfSubCalEvent)
         {
             TimeSpan retValue = new TimeSpan(0);
             foreach (SubCalendarEvent eachSubCalendarEvent in ListOfSubCalEvent)

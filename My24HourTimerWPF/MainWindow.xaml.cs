@@ -21,6 +21,7 @@ using System.Xml;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
+using Google.Maps.Geocoding;
 using WinForms = System.Windows.Forms;
 
 
@@ -44,7 +45,7 @@ namespace My24HourTimerWPF
             InitializeComponent();
             datePicker1.SelectedDate = DateTime.Now.AddDays(1);
             //datePicker1.SelectedDate = new DateTime(2013, 11, 20, 0, 0, 0);
-            datePicker2.SelectedDate = DateTime.Now.AddDays(8);
+            datePicker2.SelectedDate = DateTime.Now.AddDays(2);
             //datePicker2.SelectedDate = new DateTime(2013, 11, 21, 0, 0, 0);
             calendar4.SelectedDate = DateTime.Now.AddDays(8);
             Random myNumber = new Random();
@@ -63,17 +64,17 @@ namespace My24HourTimerWPF
             comboBox4.Text = 0.ToString();
             comboBox5.Text = 0.ToString();
             comboBox6.Text = 0.ToString();
+            
 
 
-
-            /*
-            List<mTuple<int, TimeSpanWithStringID>>  ListTimeSpanWithStringID = new System.Collections.Generic.List<mTuple<int,TimeSpanWithStringID>>();
-            int maxCount = 180;
+            
+            /*List<mTuple<int, TimeSpanWithStringID>>  ListTimeSpanWithStringID = new System.Collections.Generic.List<mTuple<int,TimeSpanWithStringID>>();
+            int maxCount = 15 * 4 * 24;// 180;
             int NumberOfEvents = 22;
             Dictionary<TimeSpan, int> AllSelectedTimeSpan = new System.Collections.Generic.Dictionary<TimeSpan, int>();
             for (int i = 0; i < NumberOfEvents; i++)
             {
-                TimeSpan myTSpan = new TimeSpan(myNumber.Next(15, 180));
+                TimeSpan myTSpan = new TimeSpan(myNumber.Next(15, maxCount/6));
                 if (AllSelectedTimeSpan.ContainsKey(myTSpan))
                 {
                     ++AllSelectedTimeSpan[myTSpan];
@@ -85,7 +86,7 @@ namespace My24HourTimerWPF
 
                 //ListTimeSpanWithStringID.Add(new mTuple<int, TimeSpanWithStringID>(1, new TimeSpanWithStringID(myTSpan, myTSpan.Ticks.ToString())));
             }
-            ListTimeSpanWithStringID = AllSelectedTimeSpan.Select(obj => new mTuple<int, TimeSpanWithStringID>(2, new TimeSpanWithStringID(obj.Key, obj.Key.Ticks.ToString()))).ToList();
+            ListTimeSpanWithStringID = AllSelectedTimeSpan.Select(obj => new mTuple<int, TimeSpanWithStringID>(obj.Value, new TimeSpanWithStringID(obj.Key, obj.Key.Ticks.ToString()))).ToList();
             Stopwatch snugarrayTester = new Stopwatch();
             snugarrayTester.Start();
             SnugArray testSnugArray = new SnugArray(ListTimeSpanWithStringID, new TimeSpan(15*4*24));
@@ -548,13 +549,17 @@ namespace My24HourTimerWPF
 
         private void button5_Click_2(object sender, RoutedEventArgs e)
         {
+            
             string eventName = textBox1.Text;
             string LocationString  = textBox8.Text.Trim();
-            if (LocationString != "")
+            /*if (LocationString != "")
             {
                 eventName += "," + LocationString;
-            }
+            }*/
 
+            
+            
+            
             DateTime CurrentTimeOfExecution =DateTime.Now;
             string eventStartTime = textBox5.Text;
             string locationInformation = textBox8.Text;
@@ -956,19 +961,35 @@ namespace My24HourTimerWPF
 
         private void button8_Click(object sender, RoutedEventArgs e)
         {
-            DateTime eventStartTime= DateTime.Now;
-            int ProcrastinateDays= Convert.ToInt16(comboBox4.Text);
-            int ProcrastinateHours= Convert.ToInt16(comboBox5.Text);
-            int ProcrastinateMins= Convert.ToInt16(comboBox6.Text);
-            TimeSpan DelaySpan= new TimeSpan(ProcrastinateDays,ProcrastinateHours,ProcrastinateMins,50);
-            DateTime eventEndTime = eventStartTime + DelaySpan;
-            
+            int ProcrastinateDays = Convert.ToInt16(comboBox4.Text);
+            int ProcrastinateHours = Convert.ToInt16(comboBox5.Text);
+            int ProcrastinateMins = Convert.ToInt16(comboBox6.Text);
+            TimeSpan DelaySpan = new TimeSpan(ProcrastinateDays, ProcrastinateHours, ProcrastinateMins, 50);
+            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ScheduleUpdateMessage;
+            if (string.IsNullOrEmpty(textBox9.Text))//check for specific id removal account
+            {
 
-            CalendarEvent ScheduleUpdated = new CalendarEvent("Procrastinate", DelaySpan, eventStartTime, eventEndTime, new TimeSpan(0), new TimeSpan(0), true, new Repetition(), 1, new Location());
-            ScheduleUpdated.Repeat.PopulateRepetitionParameters(ScheduleUpdated);
-            textBlock9.Text = "...Loading";
-            Tuple<CustomErrors,Dictionary<string,CalendarEvent>> ScheduleUpdateMessage = MySchedule.Procrastinate(ScheduleUpdated);
-            if (ScheduleUpdateMessage.Item1.Status)
+                DateTime eventStartTime = DateTime.Now;
+                
+                DateTime eventEndTime = eventStartTime + DelaySpan;
+
+
+                CalendarEvent ScheduleUpdated = new CalendarEvent("Procrastinate", DelaySpan, eventStartTime, eventEndTime, new TimeSpan(0), new TimeSpan(0), true, new Repetition(), 1, new Location());
+                ScheduleUpdated.Repeat.PopulateRepetitionParameters(ScheduleUpdated);
+                textBlock9.Text = "...Loading";
+                 ScheduleUpdateMessage = MySchedule.Procrastinate(ScheduleUpdated);
+                
+            }
+            else
+            {
+
+                ScheduleUpdateMessage=MySchedule.ProcrastinateJustAnEvent(textBox9.Text, DelaySpan);
+            }
+
+
+
+
+            if (ScheduleUpdateMessage.Item1.Status)//checks for error
             {
                 MessageBoxResult result = MessageBox.Show(ScheduleUpdateMessage.Item1.Message, "Schedule Collision, do you want to continue with this collision? ", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (result == MessageBoxResult.Yes)
@@ -976,16 +997,17 @@ namespace My24HourTimerWPF
                     MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2);
                 }
             }
-            else 
+            else
             {
-                
+
                 MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2);
 
                 textBlock9.Text = "Schedule updated no clash detected";
             }
 
-
         }
+
+        
 
 
 

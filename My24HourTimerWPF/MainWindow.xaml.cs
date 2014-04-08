@@ -52,7 +52,7 @@ namespace My24HourTimerWPF
             int RandomHour = myNumber.Next(0, 24);
             int RandomMinute = myNumber.Next(0, 60);
             textBox4.Text = RandomHour + ":" + RandomMinute;
-            textBox4.Text = 4 + ":" + "00";
+            textBox4.Text = 0 + ":" + "45";
             int ProcrastinateStartDay=0;
             int ProcrastinateEndDay=365;
             int ProcrastinateStartHour=0;

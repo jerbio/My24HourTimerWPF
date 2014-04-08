@@ -17,6 +17,8 @@ namespace My24HourTimerWPF
         //Dictionary<string, List<TimeSpanWithEventID>> ParentID_TimeSpanID;
         Dictionary<TimeSpan, ParentIDCount> MyDict;
 //        public bool NotValid;
+        Dictionary<TimeSpan, ParentIDCount> ArrayOfStuff;
+        TimeSpan maxTimeSpan;
 
         public SnugArray()
         {
@@ -91,6 +93,8 @@ namespace My24HourTimerWPF
             AlreadyFoundPermutation=MyThis.AlreadyFoundPermutation;
             //ConstainedElements=MyThis.ConstainedElements;
             MyDict = MyThis.MyDict;
+            maxTimeSpan = MaxValue;
+            ArrayOfStuff = MyThis.ArrayOfStuff;
         }
 
         private SnugArray(Dictionary<TimeSpan, ParentIDCount> EntryArrayOfStuff, TimeSpan MaxValue, List<Dictionary<string, int>> MyListOfDicts)
@@ -99,9 +103,9 @@ namespace My24HourTimerWPF
         {
 
             EntryArrayOfStuff = new Dictionary<TimeSpan, ParentIDCount>(EntryArrayOfStuff);
-            
+            ArrayOfStuff = EntryArrayOfStuff;
             int i=0;
-
+            maxTimeSpan = MaxValue;
             List<TimeSpan> EventKeys = EntryArrayOfStuff.Keys.ToList();
 
 
@@ -122,7 +126,7 @@ namespace My24HourTimerWPF
             {
                 int counter = SmallerElements.Count;
                 TimeSpan TotalSumOfTimeSoFar = new TimeSpan(0);
-                for (; counter > 0;counter-- )
+                for (; counter > 0;counter-- )//including the index 0 in for loop means index is small enough to include all indexes
                 {
                     TimeSpan KeyToLastElement = SmallerElements[counter - 1];
                     ParentIDCount CurrentParentIDCOunt = EntryArrayOfStuff[KeyToLastElement];
@@ -367,13 +371,30 @@ namespace My24HourTimerWPF
 
                 Dictionary<TimeSpan, TimeSpanWithStringID> Dict_StringAndDict = new Dictionary<TimeSpan, TimeSpanWithStringID>();
                 List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>> retValue = new List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>>();
-
+                Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> singleDictionary = new Dictionary<TimeSpan,mTuple<int,TimeSpanWithStringID>>();
 
                 foreach (KeyValuePair<TimeSpan, ParentIDCount> eachKeyPair in MyDict)
                 {
                     Dict_StringAndDict.Add(eachKeyPair.Key, new TimeSpanWithStringID(eachKeyPair.Value.Item2, eachKeyPair.Key.Ticks.ToString()));
+                    
                 }
-               
+
+
+                if ((SubSnugArrayElements.Length < 1) && (TopElements.Length>0))
+                {
+                    foreach (KeyValuePair<TimeSpan, ParentIDCount> eachKeyPair in ArrayOfStuff)
+                    {
+                        singleDictionary.Add(eachKeyPair.Key, new mTuple<int, TimeSpanWithStringID>(eachKeyPair.Value.Item1, new TimeSpanWithStringID(eachKeyPair.Value.Item2, eachKeyPair.Key.Ticks.ToString()))); 
+                    }
+                }
+
+                if (singleDictionary.Count > 0)//handles scenario where all the timespan fits the inintializing max timespan
+                {
+                    retValue.Add(singleDictionary);
+                    return retValue;
+                }
+                
+
                 int i=0;
                 for (; i < SubSnugArrayElements.Length; i++)
                 {

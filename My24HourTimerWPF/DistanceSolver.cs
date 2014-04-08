@@ -170,7 +170,7 @@ namespace My24HourTimerWPF
             }
         } // Bee
 
-        static Random random = null; // multipurpose
+        static Random random = new Random(0);
 
         public CitiesData citiesData; // this is the problem-specific data we want to optimize
 
@@ -216,7 +216,7 @@ namespace My24HourTimerWPF
         public Hive(int totalNumberBees, int numberInactive, int numberActive, int numberScout, int maxNumberVisits,
           int maxNumberCycles, CitiesData citiesData, int BeginningAndEnd=0)
         {
-            random = new Random(0);
+            //random = new Random(0);
             this.BeginningAndEnd = BeginningAndEnd;
             this.totalNumberBees = totalNumberBees;
             this.numberInactive = numberInactive;

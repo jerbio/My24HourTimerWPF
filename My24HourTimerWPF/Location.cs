@@ -116,7 +116,27 @@ namespace My24HourTimerWPF
         static public double calculateDistance(Location Location24A, Location Location24B)
         {
             //note .... this function does not take into consideration the calendar event. So if there are two locations of the same calendarevent they will get scheduled right next to each other
-            double deltaX=Location24A.xValue-Location24B.xValue;
+            double R = 3958.7558657440545; // Radius of earth in Miles 
+            double dLat = toRad(Location24A.xValue - Location24B.xValue);
+            double dLon = toRad(Location24A.yValue - Location24B.yValue);
+            double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                    Math.Cos(toRad(Location24A.xValue)) * Math.Cos(toRad(Location24A.xValue)) *
+                    Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+            double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+            double d = R * c;
+            return d;
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            /*double deltaX=Location24A.xValue-Location24B.xValue;
             double deltaY = Location24A.yValue - Location24B.yValue;
             double sqrValue = (Math.Pow(deltaX, 2) + Math.Pow(deltaY, 2));
             double retValue=Math.Sqrt(sqrValue);
@@ -124,7 +144,12 @@ namespace My24HourTimerWPF
                         {
                             ;
                         }
-            return retValue;
+            return retValue;*/
+        }
+
+        static double toRad(double value)
+        {
+            return value * Math.PI / 180;
         }
 
 

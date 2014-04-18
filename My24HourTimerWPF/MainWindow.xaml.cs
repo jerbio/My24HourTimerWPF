@@ -43,16 +43,16 @@ namespace My24HourTimerWPF
         public MainWindow()
         {
             InitializeComponent();
-            datePicker1.SelectedDate = DateTime.Now.AddDays(1);
+            datePicker1.SelectedDate = DateTime.Now.AddDays(0);
             //datePicker1.SelectedDate = new DateTime(2013, 11, 20, 0, 0, 0);
-            datePicker2.SelectedDate = DateTime.Now.AddDays(1);
+            datePicker2.SelectedDate = DateTime.Now.AddDays(8);
             //datePicker2.SelectedDate = new DateTime(2013, 11, 21, 0, 0, 0);
-            calendar4.SelectedDate = DateTime.Now.AddDays(8);
+            calendar4.SelectedDate = DateTime.Now.AddDays(0);
             Random myNumber = new Random();
             int RandomHour = myNumber.Next(0, 24);
             int RandomMinute = myNumber.Next(0, 60);
             textBox4.Text = RandomHour + ":" + RandomMinute;
-            textBox4.Text = 0 + ":" + "45";
+            textBox4.Text = 20 + ":" + "00";
             int ProcrastinateStartDay=0;
             int ProcrastinateEndDay=365;
             int ProcrastinateStartHour=0;
@@ -94,9 +94,9 @@ namespace My24HourTimerWPF
             snugarrayTester.Stop();*/
 
             MySchedule = new Schedule();
-            LastID = (uint)(MySchedule.LastScheduleIDNumber);
+            //LastID = 
             
-            EventIDGenerator.Initialize();
+            EventIDGenerator.Initialize((uint)(MySchedule.LastScheduleIDNumber));
         }
 
         static class ProcrastinateComboBox
@@ -226,7 +226,7 @@ namespace My24HourTimerWPF
 
         public static DateTime ConvertToDateTime(string StringOfDateTime)
         {
-            MessageBox.Show(StringOfDateTime);
+            
             string[] strArray = StringOfDateTime.Split(new char[] { '|' });
             string[] strArray2 = strArray[0].Split(new char[] { ' ' });
             string[] strArray3 = strArray[1].Split(new char[] { ' ' });
@@ -630,7 +630,7 @@ namespace My24HourTimerWPF
 
             if (!ErrorCheck.Status)
             { 
-                MessageBox.Show(ErrorCheck.Message);
+                //MessageBox.Show(ErrorCheck.Message);
                 return;
                 //
             }
@@ -654,7 +654,7 @@ namespace My24HourTimerWPF
             else
             {
                 textBlock9.Text = "Failed to update Schedule" + ScheduleUpdated.Name;
-                MessageBox.Show(ScheduleUpdateMessage.Message);
+                //MessageBox.Show(ScheduleUpdateMessage.Message);
             }
                 
         }
@@ -880,7 +880,7 @@ namespace My24HourTimerWPF
             CheckBox cb = sender as CheckBox;
             if (cb.Name == "checkBox5")
             {
-                MessageBox.Show("Hey you clicked checkBox5");
+                //MessageBox.Show("Hey you clicked checkBox5");
             }
         }
 
@@ -1208,27 +1208,7 @@ namespace My24HourTimerWPF
 
     
     
-    public static class EventIDGenerator
-    {
-        static uint idcounter = 0;
-        
-        static bool AlreadyInitialized = false;
-        public static void Initialize()
-        {
-            if (!AlreadyInitialized)
-                idcounter = MainWindow.LastID;
-            else
-            {
-                MessageBox.Show("Cannot Call ID initialize twice!!!");
-            }
-        }
-
-        public static uint generate()
-        {
-            //update xml file with last counter
-            return ++idcounter;
-        }
-    }
+    
 
     public class EventID
     {

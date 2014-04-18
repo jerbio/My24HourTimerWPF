@@ -1,0 +1,162 @@
+<LogReport>
+  <CurrentCalEvents>
+    <ScheduleLog>
+      <LastIDCounter>0</LastIDCounter>
+      <EventSchedules />
+    </ScheduleLog>
+  </CurrentCalEvents>
+  <TriggerCalEvent>
+    <EventSchedule>
+      <Recurrence />
+      <Location>
+        <Description>Engineering Center Boulder CO</Description>
+        <Address>Engineering Center, University of Colorado Boulder, Boulder, CO 80305, USA</Address>
+        <YCoordinate>-105.2628183</YCoordinate>
+        <XCoordinate>40.0067912</XCoordinate>
+      </Location>
+      <ID>178</ID>
+      <Name>Midterm 2</Name>
+      <StartTime>4/15/2014 3:30:00 AM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>4/23/2014 3:30:00 AM</Deadline>
+      <Split>8</Split>
+      <Duration>20:00:00</Duration>
+      <RigidFlag>False</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <Location>
+            <Description>Engineering Center Boulder CO</Description>
+            <Address>Engineering Center, University of Colorado Boulder, Boulder, CO 80305, USA</Address>
+            <YCoordinate>-105.2628183</YCoordinate>
+            <XCoordinate>40.0067912</XCoordinate>
+          </Location>
+          <ID>178_186</ID>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>4/19/2014 6:30:00 PM</ActiveStartTime>
+          <ActiveEndTime>4/19/2014 9:00:00 PM</ActiveEndTime>
+          <Duration>02:30:00</Duration>
+          <StartTime>4/19/2014 6:30:00 PM</StartTime>
+          <EndTime>4/19/2014 9:00:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <Location>
+            <Description>Engineering Center Boulder CO</Description>
+            <Address>Engineering Center, University of Colorado Boulder, Boulder, CO 80305, USA</Address>
+            <YCoordinate>-105.2628183</YCoordinate>
+            <XCoordinate>40.0067912</XCoordinate>
+          </Location>
+          <ID>178_185</ID>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>4/19/2014 1:30:00 PM</ActiveStartTime>
+          <ActiveEndTime>4/19/2014 4:00:00 PM</ActiveEndTime>
+          <Duration>02:30:00</Duration>
+          <StartTime>4/19/2014 1:30:00 PM</StartTime>
+          <EndTime>4/19/2014 4:00:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <Location>
+            <Description>Engineering Center Boulder CO</Description>
+            <Address>Engineering Center, University of Colorado Boulder, Boulder, CO 80305, USA</Address>
+            <YCoordinate>-105.2628183</YCoordinate>
+            <XCoordinate>40.0067912</XCoordinate>
+          </Location>
+          <ID>178_184</ID>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>4/19/2014 11:00:00 AM</ActiveStartTime>
+          <ActiveEndTime>4/19/2014 1:30:00 PM</ActiveEndTime>
+          <Duration>02:30:00</Duration>
+          <StartTime>4/19/2014 11:00:00 AM</StartTime>
+          <EndTime>4/19/2014 1:30:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <Location>
+            <Description>Engineering Center Boulder CO</Description>
+            <Address>Engineering Center, University of Colorado Boulder, Boulder, CO 80305, USA</Address>
+            <YCoordinate>-105.2628183</YCoordinate>
+            <XCoordinate>40.0067912</XCoordinate>
+          </Location>
+          <ID>178_183</ID>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>4/19/2014 8:30:00 AM</ActiveStartTime>
+          <ActiveEndTime>4/19/2014 11:00:00 AM</ActiveEndTime>
+          <Duration>02:30:00</Duration>
+          <StartTime>4/19/2014 8:30:00 AM</StartTime>
+          <EndTime>4/19/2014 11:00:00 AM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <Location>
+            <Description>Engineering Center Boulder CO</Description>
+            <Address>Engineering Center, University of Colorado Boulder, Boulder, CO 80305, USA</Address>
+            <YCoordinate>-105.2628183</YCoordinate>
+            <XCoordinate>40.0067912</XCoordinate>
+          </Location>
+          <ID>178_182</ID>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>4/19/2014 6:00:00 AM</ActiveStartTime>
+          <ActiveEndTime>4/19/2014 8:30:00 AM</ActiveEndTime>
+          <Duration>02:30:00</Duration>
+          <StartTime>4/19/2014 6:00:00 AM</StartTime>
+          <EndTime>4/19/2014 8:30:00 AM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <Location>
+            <Description>Engineering Center Boulder CO</Description>
+            <Address>Engineering Center, University of Colorado Boulder, Boulder, CO 80305, USA</Address>
+            <YCoordinate>-105.2628183</YCoordinate>
+            <XCoordinate>40.0067912</XCoordinate>
+          </Location>
+          <ID>178_181</ID>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>4/18/2014 8:45:00 PM</ActiveStartTime>
+          <ActiveEndTime>4/18/2014 11:15:00 PM</ActiveEndTime>
+          <Duration>02:30:00</Duration>
+          <StartTime>4/18/2014 8:45:00 PM</StartTime>
+          <EndTime>4/18/2014 11:15:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <Location>
+            <Description>Engineering Center Boulder CO</Description>
+            <Address>Engineering Center, University of Colorado Boulder, Boulder, CO 80305, USA</Address>
+            <YCoordinate>-105.2628183</YCoordinate>
+            <XCoordinate>40.0067912</XCoordinate>
+          </Location>
+          <ID>178_180</ID>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>4/18/2014 11:45:00 AM</ActiveStartTime>
+          <ActiveEndTime>4/18/2014 2:15:00 PM</ActiveEndTime>
+          <Duration>02:30:00</Duration>
+          <StartTime>4/18/2014 11:45:00 AM</StartTime>
+          <EndTime>4/18/2014 2:15:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <Location>
+            <Description>Engineering Center Boulder CO</Description>
+            <Address>Engineering Center, University of Colorado Boulder, Boulder, CO 80305, USA</Address>
+            <YCoordinate>-105.2628183</YCoordinate>
+            <XCoordinate>40.0067912</XCoordinate>
+          </Location>
+          <ID>178_179</ID>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>4/18/2014 3:45:00 PM</ActiveStartTime>
+          <ActiveEndTime>4/18/2014 6:15:00 PM</ActiveEndTime>
+          <Duration>02:30:00</Duration>
+          <StartTime>4/18/2014 3:45:00 PM</StartTime>
+          <EndTime>4/18/2014 6:15:00 PM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
+  </TriggerCalEvent>
+  <Action>Adding New Event</Action>
+  <Error>There is a clash in event</Error>
+</LogReport>

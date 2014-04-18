@@ -3,16 +3,13 @@
   <metadata>
     <id>gmaps-api-net</id>
     <version>0.11.1.0</version>
-    <title>gmaps-api-net</title>
+    <title />
     <authors>Eric Newton</authors>
     <owners>Eric Newton</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
     <projectUrl>http://github.com/ericnewton76/gmaps-api-net</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A library for interacting with Google Maps API web services using C# or VB.Net</description>
-    <releaseNotes />
-    <copyright />
-    <language />
     <tags>google-maps maps c# google</tags>
     <dependencies>
       <dependency id="Newtonsoft.Json" version="4.5" />

@@ -20,6 +20,7 @@ namespace My24HourTimerWPF
 
         public void DeleteAppointment(SubCalendarEvent ActiveSection, string NameOfParentCalendarEvent, string entryID)
         {
+#if EnableOutlook
             if (entryID == "")
             {
                 return;
@@ -46,6 +47,7 @@ namespace My24HourTimerWPF
             {
                 itemDelete.Delete();
             }*/
+#endif
         }
 
         private string AddAppointment(SubCalendarEvent ActiveSection, string NameOfParentCalendarEvent)

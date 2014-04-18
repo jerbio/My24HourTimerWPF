@@ -8,7 +8,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
-using System.Windows.Forms;
+//using System.Windows.Forms;
 using Google.Maps.Geocoding;
 using System.Drawing;
 
@@ -52,52 +52,51 @@ namespace My24HourTimerWPF
             TaggedDescription = AddressDescription;
         }
         
-        public Location(string Address)
+        public Location(string Address, string tag="")
         {
             Address=Address.Trim();
             if (string.IsNullOrEmpty(Address))
             {
                 xValue = double.MaxValue;
                 yValue = double.MaxValue;
+                TaggedAddress = "";
+                TaggedDescription = "";
             }
 
             else
             {
-                var request = new GeocodingRequest();
-                request.Address = Address;
-                request.Sensor = false;
-                var response = new GeocodingService().GetResponse(request);
-                var result = response.Results.First();
-                TaggedDescription = Address;
-                TaggedAddress = result.FormattedAddress;
-                xValue=Convert.ToDouble(result.Geometry.Location.Latitude);
-                yValue = Convert.ToDouble(result.Geometry.Location.Longitude);
-                MessageBox.Show("Found Location At: " + result.FormattedAddress + " Latitude: " + xValue + " Longitude: " + yValue); 
-
-
-
-                /*
-                string url = "http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/find?text=";
-                string[] Searches = { "coffee", "market", "library", "park" };
-                //Address = "boulder co " + Searches[(searchindex++) % 3];
+                try
                 {
-                    url += Address.Replace(" ", "+");
-                    url = url.Replace(",", "%26") + "&f=pjson";
+                    var request = new GeocodingRequest();
+                    request.Address = Address;
+                    request.Sensor = false;
+                    var response = new GeocodingService().GetResponse(request);
+                    var result = response.Results.First();
+                    if (tag == "")
+                    { TaggedDescription = Address; }
+                    else 
+                    {
+                        TaggedDescription = tag;
+                    }
+                    TaggedAddress = result.FormattedAddress;
+                    xValue = Convert.ToDouble(result.Geometry.Location.Latitude);
+                    yValue = Convert.ToDouble(result.Geometry.Location.Longitude);
+                    //MessageBox.Show("Found Location At: " + result.FormattedAddress + " Latitude: " + xValue + " Longitude: " + yValue); 
                 }
-
-
-
-
-                //Address = Address;
-                string json = HttpGetWebRequest(url);
-                //My24HourTimerWPF.Form1.Deserialize(My24HourTimerWPF.Form1.requestType.geocode, json);
-                Geocode MyGeoCode = Deserialize(json);
-                xValue = MyGeoCode.locations[0].feature.geometry.x;
-                yValue = MyGeoCode.locations[0].feature.geometry.y;
-                //write the response json to the UI
-                json.Replace("{", "{ \r\n");
-                json.Replace(",", ", \r\n");
-                json.Replace("}", "} \r\n");*/
+                catch
+                {
+                    xValue = double.MaxValue;
+                    yValue = double.MaxValue;
+                    if (tag == "")
+                    { 
+                        TaggedDescription = Address; 
+                    }
+                    else
+                    {
+                        TaggedDescription = tag;
+                    }
+                    TaggedAddress = Address;
+                }
             }
         }
 

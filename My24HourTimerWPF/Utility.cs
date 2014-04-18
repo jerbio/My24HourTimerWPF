@@ -348,7 +348,9 @@ namespace My24HourTimerWPF
                 string iIndex = AllIds[i];
                 string jIndex = AllIds[j];
                 int valueIndexofkeyValuePair = Allkeys.IndexOf(jIndex);
-                retValue += DistanceMatrix[AllIds[i]][valueIndexofkeyValuePair];
+                double increment = DistanceMatrix[AllIds[i]][valueIndexofkeyValuePair];
+
+                retValue += increment;
                 i++; j++;
             }
             return retValue;

@@ -382,9 +382,10 @@ namespace My24HourTimerWPF
 
                 if ((SubSnugArrayElements.Length < 1) && (TopElements.Length>0))
                 {
-                    foreach (KeyValuePair<TimeSpan, ParentIDCount> eachKeyPair in ArrayOfStuff)
+                    //foreach (KeyValuePair<TimeSpan, ParentIDCount> eachKeyPair in ArrayOfStuff)
+                    foreach (TimeSpan eachTimeSpan in TopElements)
                     {
-                        singleDictionary.Add(eachKeyPair.Key, new mTuple<int, TimeSpanWithStringID>(eachKeyPair.Value.Item1, new TimeSpanWithStringID(eachKeyPair.Value.Item2, eachKeyPair.Key.Ticks.ToString()))); 
+                        singleDictionary.Add(eachTimeSpan, new mTuple<int, TimeSpanWithStringID>(ArrayOfStuff[eachTimeSpan].Item1, new TimeSpanWithStringID(eachTimeSpan, eachTimeSpan.Ticks.ToString()))); 
                     }
                 }
 

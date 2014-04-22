@@ -108,9 +108,10 @@ namespace My24HourTimerWPF
             }
             else
             {
-                for (i = 0; i < MyEvent.AllEvents.Length; i++)
+                for (i = 0; i < MyEvent.AllActiveSubEvents.Length; i++)
                 {
-                    DeleteAppointment(MyEvent.AllEvents[i], MyEvent.Name, MyEvent.AllEvents[i].ThirdPartyID);
+                    SubCalendarEvent pertinentSubCalEvent=MyEvent.AllActiveSubEvents[i];
+                    DeleteAppointment(pertinentSubCalEvent, MyEvent.Name, pertinentSubCalEvent.ThirdPartyID);
                 }
             }
 
@@ -127,10 +128,11 @@ namespace My24HourTimerWPF
             }
             else
             {
-                for (; i < MyEvent.AllEvents.Length; i++)
+                for (; i < MyEvent.AllActiveSubEvents.Length; i++)
                 {
 #if (EnableOutlook)
-                    MyEvent.AllEvents[i].ThirdPartyID = AddAppointment(MyEvent.AllEvents[i], MyEvent.Name);/////////////
+                    SubCalendarEvent pertinentSubCalEvent = MyEvent.AllActiveSubEvents[i];
+                    pertinentSubCalEvent.ThirdPartyID = AddAppointment(pertinentSubCalEvent, MyEvent.Name);/////////////
 #endif                    
                 }
             }

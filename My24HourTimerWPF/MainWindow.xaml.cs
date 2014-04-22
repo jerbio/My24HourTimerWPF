@@ -45,14 +45,14 @@ namespace My24HourTimerWPF
             InitializeComponent();
             datePicker1.SelectedDate = DateTime.Now.AddDays(0);
             //datePicker1.SelectedDate = new DateTime(2013, 11, 20, 0, 0, 0);
-            datePicker2.SelectedDate = DateTime.Now.AddDays(8);
+            datePicker2.SelectedDate = DateTime.Now.AddDays(2);
             //datePicker2.SelectedDate = new DateTime(2013, 11, 21, 0, 0, 0);
             calendar4.SelectedDate = DateTime.Now.AddDays(0);
             Random myNumber = new Random();
             int RandomHour = myNumber.Next(0, 24);
             int RandomMinute = myNumber.Next(0, 60);
             textBox4.Text = RandomHour + ":" + RandomMinute;
-            textBox4.Text = 20 + ":" + "00";
+            textBox4.Text = 7 + ":" + "00";
             int ProcrastinateStartDay=0;
             int ProcrastinateEndDay=365;
             int ProcrastinateStartHour=0;
@@ -1214,10 +1214,7 @@ namespace My24HourTimerWPF
     {
         private static int CalendarEvenntLimitIndex = 2;
         string[] LayerID;
-        public EventID()
-        { 
-        
-        }
+        int FullID;
         public EventID(string myLayerID):this(myLayerID.Split('_'))
         { 
             
@@ -1225,6 +1222,23 @@ namespace My24HourTimerWPF
         public EventID(string[] myLayerID)
         {
             LayerID = myLayerID;
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+
+            foreach (string eachString in LayerID)
+            {
+                sb.Append(eachString);
+            }
+
+            string currConcat=sb.ToString();
+            if (string.IsNullOrEmpty(currConcat))
+            {
+                FullID = 0;
+            }
+            else
+            {
+                FullID = Convert.ToInt32(currConcat);
+            }
+            
         }
 
         public string[] ID
@@ -1277,6 +1291,28 @@ namespace My24HourTimerWPF
                 IDCombination += MyString + "_";
             }
             return IDCombination.Substring(0, (IDCombination.Length - 1));
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+            {
+                return false;
+            }
+
+
+            EventID p = obj as EventID;
+            if ((System.Object)p == null)
+            {
+                return false;
+            }
+
+            return (this.FullID == p.FullID);
+        }
+
+        public override int GetHashCode()
+        {
+            return FullID;
         }
     }
 

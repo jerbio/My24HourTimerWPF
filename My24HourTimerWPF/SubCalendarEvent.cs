@@ -39,6 +39,15 @@ namespace My24HourTimerWPF
             EventSequence = new EventTimeLine(SubEventID.ToString(), StartDateTime, EndDateTime);
         }*/
 
+        public SubCalendarEvent(EventID ParentID)
+        {
+            SubEventID = new EventID(ParentID + "_" + EventIDGenerator.generate().ToString());
+            BusyFrame= new BusyTimeLine();
+            AvailablePreceedingFreeSpace=new TimeSpan();
+            CalendarEventRange = new TimeLine();
+            EventLocation= new Location();
+        }
+
         public SubCalendarEvent(TimeSpan Event_Duration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, Location EventLocation =null, TimeLine RangeOfSubCalEvent = null)
         {
             CalendarEventRange = RangeOfSubCalEvent;
@@ -46,14 +55,13 @@ namespace My24HourTimerWPF
             EndDateTime = EventDeadline;
             EventDuration = Event_Duration;
             PrepTime = EventPrepTime;
-            //SubEventID = new EventID(new string[] { myParentID, EventIDGenerator.generate().ToString() });
             if (myParentID == "16")
             {
                 ;
             }
             
             SubEventID = new EventID(myParentID + "_" + EventIDGenerator.generate().ToString());
-
+            BusyFrame = new BusyTimeLine(this.ID, StartDateTime, EndDateTime);//this is because in current implementation busy frame is the same as CalEvent frame
             this.EventLocation = EventLocation;
             EventSequence = new EventTimeLine(SubEventID.ToString(), StartDateTime, EndDateTime);
             RigidSchedule = Rigid;
@@ -404,7 +412,7 @@ namespace My24HourTimerWPF
              
          }
 
-         override public void UpdateStatus(bool EnableDisableFlag)
+         override public void SetEventEnableStatus(bool EnableDisableFlag)
          {
              /*Function enables or disables SubCalEvent*/
              

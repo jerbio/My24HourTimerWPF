@@ -5,7 +5,7 @@ using System.Text;
 
 namespace My24HourTimerWPF
 {
-    struct Color
+    public struct Color
     {
         public int Red;
         public int Blue;

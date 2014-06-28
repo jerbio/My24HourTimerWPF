@@ -247,7 +247,7 @@ namespace My24HourTimerWPF
                 return true;
             }
 
-            return false;
+            throw new Exception("Error Detected: Trying to update SubCalendar Event with non matching ID");
         }
 
 

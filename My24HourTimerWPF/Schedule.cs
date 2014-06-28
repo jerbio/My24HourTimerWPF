@@ -191,7 +191,48 @@ namespace My24HourTimerWPF
         }
 
 
-        
+        public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> UpdateDeadline(string EventID, DateTime NewDeadline)
+        {
+            CalendarEvent myCalendarEvent = getCalendarEvent(EventID);
+            IEnumerable<SubCalendarEvent> AllSubEVents = myCalendarEvent.AllSubEvents.Select(obj=>obj.createCopy());
+            IEnumerable<SubCalendarEvent> referenceSubEVents = AllSubEVents.Where(obj => obj.isActive);
+            bool InitEnableStatus=myCalendarEvent.isEnabled;
+            myCalendarEvent.Disable(false);
+
+            //(string EventName, TimeSpan Event_Duration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, TimeSpan Event_PreDeadline, bool EventRigidFlag, Repetition EventRepetitionEntry, int EventSplit, Location EventLocation, bool EnableFlag, EventDisplay UiData, MiscData NoteData, bool CompletionFlag)
+
+            CalendarEvent ReadjustedCalendarEvent = new CalendarEvent(myCalendarEvent.Name, Utility.SumOfActiveDuration(referenceSubEVents), myCalendarEvent.Start, NewDeadline, ZeroTimeSpan, ZeroTimeSpan, myCalendarEvent.Rigid, new Repetition(), referenceSubEVents.Count(), myCalendarEvent.myLocation, true, myCalendarEvent.UIParam, myCalendarEvent.Notes, myCalendarEvent.isComplete);
+            IEnumerable<SubCalendarEvent>  referenceSubEVents_Changed = referenceSubEVents.Select(obj => new SubCalendarEvent(obj.ActiveDuration, obj.Start, obj.End, obj.Preparation, ReadjustedCalendarEvent.ID, obj.Rigid, true, obj.UIParam, obj.Notes, obj.isComplete, obj.myLocation, ReadjustedCalendarEvent.RangeTimeLine));
+            ReadjustedCalendarEvent = new CalendarEvent(ReadjustedCalendarEvent, referenceSubEVents_Changed.ToArray());
+
+            HashSet<SubCalendarEvent> NoDoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
+            
+            Dictionary<string, CalendarEvent> AllEventDictionary_Cpy = new Dictionary<string, CalendarEvent>();
+            AllEventDictionary_Cpy = AllEventDictionary.ToDictionary(obj => obj.Key, obj => obj.Value.createCopy());
+            
+            ReadjustedCalendarEvent=EvaluateTotalTimeLineAndAssignValidTimeSpots(ReadjustedCalendarEvent,NoDoneYet);
+
+            SubCalendarEvent[] UpdatedSubEvents= ReadjustedCalendarEvent.AllSubEvents;
+            int i=0;
+
+            ReadjustedCalendarEvent = new CalendarEvent(myCalendarEvent.Calendar_EventID, myCalendarEvent.Name, myCalendarEvent.ActiveDuration, myCalendarEvent.Start, ReadjustedCalendarEvent.End, myCalendarEvent.Preparation, myCalendarEvent.PreDeadline, myCalendarEvent.Rigid, myCalendarEvent.Repeat, myCalendarEvent.NumberOfSplit, myCalendarEvent.myLocation, myCalendarEvent.isEnabled, myCalendarEvent.UIParam, myCalendarEvent.Notes, myCalendarEvent.isComplete);
+
+            
+
+            foreach (SubCalendarEvent eachSubCalendarEvent in referenceSubEVents)
+            {
+                myCalendarEvent.updateSubEvent(eachSubCalendarEvent.SubEvent_ID, UpdatedSubEvents[i++]);
+            }
+
+            ReadjustedCalendarEvent = new CalendarEvent(ReadjustedCalendarEvent, myCalendarEvent.AllSubEvents.ToArray());
+
+            myCalendarEvent.UpdateThis(ReadjustedCalendarEvent);
+
+            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue =new Tuple<CustomErrors,Dictionary<string,CalendarEvent>>(ReadjustedCalendarEvent.Error,AllEventDictionary);
+            myCalendarEvent.SetEventEnableStatus(InitEnableStatus);
+            AllEventDictionary=AllEventDictionary_Cpy;
+            return retValue ;
+        }
 
         public Dictionary<string, CalendarEvent> getAllCalendarElements()
         {
@@ -398,6 +439,7 @@ namespace My24HourTimerWPF
             UpdateWithProcrastinateSchedule(AllEventDictionary);
         }
 
+        
 
         public void markSubEventAsCompleteCalendarEventAndReadjust(string EventID)
         {
@@ -1595,6 +1637,7 @@ namespace My24HourTimerWPF
             if (ReferenceTime == Now)
             {
                 IEnumerable<SubCalendarEvent> interfersWithNow = CollectionOfSubCalEvent.Where(obj => obj.IsDateTimeWithin(ReferenceTime));
+                List<SubCalendarEvent> currentList = CollectionOfSubCalEvent.ToList();
                 if (interfersWithNow.Count() > 0)
                 {
                     switch (FlagType)
@@ -1602,9 +1645,10 @@ namespace My24HourTimerWPF
                         case 0://Do not include event interferring with now in calculations. Select the element with last deadline and set event endtime as now. THis ensures that any further calculations do not try to include now
                             {
                                 interfersWithNow = interfersWithNow.OrderBy(obj => obj.End);
-                                UpdateNow(interfersWithNow.Last().End);
-                                ReferenceTime = interfersWithNow.Last().End;
-                                CollectionOfSubCalEvent = CollectionOfSubCalEvent.Where(obj => !interfersWithNow.Contains(obj));
+                                DateTime newNow = interfersWithNow.Last().End;
+                                UpdateNow(newNow);
+                                ReferenceTime = newNow;
+                                CollectionOfSubCalEvent = currentList.Where(obj => !interfersWithNow.Contains(obj));
                                 retFlagType = 1;
                             }
                             break;
@@ -1836,7 +1880,7 @@ namespace My24HourTimerWPF
 
             //AllEventDictionary.Add(MyCalendarEvent.ID, MyCalendarEvent);
             NoneCommitedCalendarEventsEvents.Add(MyCalendarEvent);
-            SubCalendarEvent[] ArrayOfInterferringSubEvents = getInterferringSubEvents(MyCalendarEvent, NoneCommitedCalendarEventsEvents);//It gets all the subevents within the time frame
+            /*SubCalendarEvent[] ArrayOfInterferringSubEvents = getInterferringSubEvents(MyCalendarEvent, NoneCommitedCalendarEventsEvents);//It gets all the subevents within the time frame
 
             
             
@@ -1851,10 +1895,10 @@ namespace My24HourTimerWPF
                 NoneCommitedCalendarEventsEvents.Remove(MyCalendarEvent);//removes my cal event
                 return new KeyValuePair<CalendarEvent, TimeLine>(null, null);
             }
-
+            */
 
             Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluation(MyCalendarEvent, NoneCommitedCalendarEventsEvents,CurrentEventStatus,NotDoneYetEvents);
-            ArrayOfInterferringSubEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToArray();
+            SubCalendarEvent[] ArrayOfInterferringSubEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToArray();
             TimeLine RangeForScheduleUpdate = allInterferringSubCalEventsAndTimeLine.Item1;
 
 
@@ -3735,7 +3779,7 @@ namespace My24HourTimerWPF
                 {
                     ;
                 }
-                if (i == 31)
+                if (i == 9)
                 {
                     ;
                 }
@@ -7712,12 +7756,22 @@ namespace My24HourTimerWPF
             List<SubCalendarEvent> MyArrayOfInterferringSubCalendarEvents = new List<SubCalendarEvent>(0);//List that stores the InterFerring List
             int lengthOfCalendarSubEvent = 0;
 
+            IEnumerable<KeyValuePair<string, CalendarEvent>> content = AllEventDictionary.Where(obj => obj.Value.isActive);
 
-            foreach (KeyValuePair<string, CalendarEvent> MyCalendarEventDictionaryEntry in AllEventDictionary)
+            foreach (KeyValuePair<string, CalendarEvent> MyCalendarEventDictionaryEntry in AllEventDictionary.Where(obj=>obj.Value.isActive))
             {
                 int i = 0;
+                if (MyCalendarEventDictionaryEntry.Value.ID == "373")
+                {
+                    ;
+                }
                 if (MyCalendarEventDictionaryEntry.Value.RepetitionStatus)
                 {
+                    if (MyCalendarEventDictionaryEntry.Value.ID == "373")
+                    {
+                        ;
+                    }
+
                     SubCalendarEvent[] ArrayOfSubcalendarEventsFromRepeatingEvents = MyCalendarEventDictionaryEntry.Value.ActiveRepeatSubCalendarEvents.Where(obj => obj != null).ToArray();//hack alert you should be able to remove the LINQ test for null
                     lengthOfCalendarSubEvent = ArrayOfSubcalendarEventsFromRepeatingEvents.Length;
                     MyArrayOfInterferringSubCalendarEvents.AddRange(MyCalendarEventDictionaryEntry.Value.ActiveRepeatSubCalendarEvents.Where(obj => obj != null).Where(obj => EventRange.InterferringTimeLine(obj.RangeTimeLine) != null).ToList());

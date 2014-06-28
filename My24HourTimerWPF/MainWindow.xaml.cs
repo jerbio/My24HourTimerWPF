@@ -165,6 +165,18 @@ namespace My24HourTimerWPF
             }
         }
 
+        private void UpdateDeadline(object sender, RoutedEventArgs e)
+        {
+            DateTime EndTime = DateTime.Parse(textBox7.Text);
+            DateTime EndDate = datePicker2.SelectedDate.Value;
+            string EventID = textBox9.Text;
+
+            DateTime fullDate = new DateTime(EndDate.Year, EndDate.Month, EndDate.Day, EndTime.Hour, EndTime.Minute, EndTime.Second);
+            Tuple<CustomErrors, Dictionary<string, CalendarEvent>>result= MySchedule.UpdateDeadline(EventID, fullDate);
+            MySchedule.UpdateWithProcrastinateSchedule(result.Item2);
+
+        }
+
         public string GetCurrentTextOfFile(string FileDirectory)
         {
             string str2;
@@ -1601,12 +1613,14 @@ namespace My24HourTimerWPF
 
         public CalendarEvent getCalendarEvent(string RepeatingEventID)
         {
-            try { return DictionaryOfIDAndCalendarEvents[RepeatingEventID]; }
-            catch
-            { 
+            if(DictionaryOfIDAndCalendarEvents.ContainsKey(RepeatingEventID))
+            {
+                return DictionaryOfIDAndCalendarEvents[RepeatingEventID]; 
+            }
+            else
+            {
                 return null;
             }
-
         }
 
         public void PopulateRepetitionParameters(CalendarEvent MyParentEvent)//this function of repetition, is responsible for populating the repetition object in the passed CalendarEvent.

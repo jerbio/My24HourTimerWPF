@@ -5,7 +5,7 @@ using System.Text;
 
 namespace My24HourTimerWPF
 {
-    class Utility
+    public class Utility
     {
         static Utility()
         { 

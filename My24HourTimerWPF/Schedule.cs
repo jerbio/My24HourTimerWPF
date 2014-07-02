@@ -700,8 +700,10 @@ namespace My24HourTimerWPF
             foreach (CalendarEvent MyCalEvent in AllEventDictionary.Values)
             {
                 myCalendar[0].WriteToOutlook(MyCalEvent);
-                myAccount.CommitEventToLog(MyCalEvent);
             }
+
+            myAccount.CommitEventToLog(AllEventDictionary.Values, EventIDGenerator.LatestID.ToString());
+
         }
 
         Dictionary<TimeLine, Dictionary<TimeSpan, Dictionary<string, mTuple<bool, SubCalendarEvent>>>> createCopyOfPossibleEvents(Dictionary<TimeLine, Dictionary<TimeSpan, Dictionary<string, mTuple<bool, SubCalendarEvent>>>> PossibleEntries)
@@ -1737,7 +1739,9 @@ namespace My24HourTimerWPF
 
 
             LatestEndTime = PertinentNotDoneYet != null ? (PertinentNotDoneYet.Count() > 0 ? PertinentNotDoneYet.Select(obj => obj.getCalendarEventRange.End).Max() > RangeForScheduleUpdate.End ? PertinentNotDoneYet.Select(obj => obj.getCalendarEventRange.End).Max() : RangeForScheduleUpdate.End : RangeForScheduleUpdate.End) : RangeForScheduleUpdate.End;
-            
+
+            LatestEndTime=LatestEndTime.AddDays(6);
+
             RangeForScheduleUpdate = new TimeLine(RangeForScheduleUpdate.Start, LatestEndTime);//updates the range for scheduling
 
             
@@ -1900,7 +1904,7 @@ namespace My24HourTimerWPF
             Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluation(MyCalendarEvent, NoneCommitedCalendarEventsEvents,CurrentEventStatus,NotDoneYetEvents);
             SubCalendarEvent[] ArrayOfInterferringSubEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToArray();
             TimeLine RangeForScheduleUpdate = allInterferringSubCalEventsAndTimeLine.Item1;
-
+           
 
 
             TimeSpan SumOfAllEventsTimeSpan = Utility.SumOfActiveDuration(ArrayOfInterferringSubEvents);
@@ -1941,7 +1945,11 @@ namespace My24HourTimerWPF
             Dictionary<TimeLine, List<CalendarEvent>> DictTimeLineAndListOfCalendarevent = new System.Collections.Generic.Dictionary<TimeLine, System.Collections.Generic.List<CalendarEvent>>();
 
 
-
+            if (ArrayOfInterferringSubEvents.Length == 0)
+            {
+                NoneCommitedCalendarEventsEvents.Remove(MyCalendarEvent);//removes my cal event
+                return new KeyValuePair<CalendarEvent, TimeLine>(null, null);
+            }
 
 
             List<List<List<SubCalendarEvent>>> SnugListOfPossibleSubCalendarEventsClumps = BuildAllPossibleSnugLists(SortedInterFerringCalendarEvents_Deadline, MyCalendarEvent, DictionaryWithBothCalendarEventIDAndListOfInterferringSubEvents, ReferenceTimeLine, OccupancyOfTimeLineSPan);

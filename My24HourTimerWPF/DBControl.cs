@@ -42,9 +42,10 @@ namespace My24HourTimerWPF
             ID = UserID;
         }
 
-        public Tuple<bool, int> LogIn()//(string UserName, string Password)
+        public Tuple<bool, int,string> LogIn()//(string UserName, string Password)
         {
-            Tuple<bool, int> retValue;
+            Tuple<bool, int,string> retValue;
+            string NamerOfUser = "";
             try
             {
                 Wagtap.Open();
@@ -71,6 +72,18 @@ namespace My24HourTimerWPF
                         this.ID = Convert.ToInt32(ID);
                     }
                     myReader.Close();
+                    if (this.ID != 0)
+                    {
+                        SqlCommand InsertUserInfo = new SqlCommand("select FirstName from DatabaseWaggy.dbo.UserInfo where DatabaseWaggy.dbo.UserInfo.ID =" + this.ID + "", Wagtap);
+                        myReader = InsertUserInfo.ExecuteReader();
+
+
+                        while (myReader.Read())
+                        {
+                            NamerOfUser = myReader["FirstName"].ToString();
+                        }
+                    }
+                    myReader.Close();
                 }
                 else 
                 {
@@ -84,6 +97,18 @@ namespace My24HourTimerWPF
                         this.ID = Convert.ToInt32(ID);
                     }
                     myReader.Close();
+                    if (this.ID != 0)
+                    {
+                        SqlCommand InsertUserInfo = new SqlCommand("select FirstName from DatabaseWaggy.dbo.UserInfo where DatabaseWaggy.dbo.UserInfo.ID =" + this.ID + "", Wagtap);
+                        myReader = InsertUserInfo.ExecuteReader();
+
+
+                        while (myReader.Read())
+                        {
+                            NamerOfUser = myReader["FirstName"].ToString();
+                        }
+                    }
+                    myReader.Close();
                 }
             }
             catch (Exception e)
@@ -94,11 +119,11 @@ namespace My24HourTimerWPF
 
             if (string.IsNullOrEmpty(ID))
             {
-                retValue = new Tuple<bool, int>(false, 0);
+                retValue = new Tuple<bool, int,string>(false, 0,"");
             }
             else
             {
-                retValue = new Tuple<bool, int>(true, this.ID);
+                retValue = new Tuple<bool, int, string>(true, this.ID, NamerOfUser);
             }
 
             Wagtap.Close();
@@ -174,7 +199,7 @@ namespace My24HourTimerWPF
         {
             CustomErrors retValue;
 
-            Tuple<bool,int> LoginStatus=LogIn();
+            Tuple<bool,int,string> LoginStatus=LogIn();
             if (!LoginStatus.Item1)
             {
                 retValue = new CustomErrors(true, "invalid user",1);

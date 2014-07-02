@@ -14,6 +14,7 @@ namespace My24HourTimerWPF
         public static string WagTapLogLocation = "WagTapCalLogs\\";
         LogControl UserLog;
         int ID;
+        string Name;
         string Username;
         string Password;
         DBControl UserAccountDBAccess;
@@ -60,6 +61,7 @@ namespace My24HourTimerWPF
             }
             UserLog.Initialize();
             ID = UserLog.LoggedUserID;
+            Name = UserLog.Usersname;
             return UserLog.Status;
         }
 
@@ -142,12 +144,18 @@ namespace My24HourTimerWPF
         {
             UserLog.WriteToLog(MyCalEvent);
         }
+
+        public void CommitEventToLog(IEnumerable<CalendarEvent> AllEvents,string LatestID,string LogFile="")
+        {
+            UserLog.WriteToLog(AllEvents, LatestID, LogFile);
+        }
         
         #region LogControl Class
         class LogControl
         {
             int ID;
             string UserName;
+            string NameOfUser;
 
 
             DBControl LogDBDataAccess;
@@ -171,13 +179,14 @@ namespace My24HourTimerWPF
 
             public void Initialize()
             {
-                Tuple<bool, int> VerifiedUser = LogDBDataAccess.LogIn();
+                Tuple<bool, int,string> VerifiedUser = LogDBDataAccess.LogIn();
                 CurrentLog = "";
                 if (VerifiedUser.Item1)
                 {
                     ID = VerifiedUser.Item2;
                     CurrentLog = ID.ToString() + ".xml";
                     LogStatus = File.Exists(WagTapLogLocation + CurrentLog);
+                    NameOfUser = VerifiedUser.Item3;
                 }
             }
 
@@ -279,6 +288,45 @@ namespace My24HourTimerWPF
                         Thread.Sleep(160);
                     }
                 }
+            }
+
+            public void WriteToLog(IEnumerable<CalendarEvent> AllEvents,string LatestID ,string LogFile = "")
+            {
+                if (LogFile == "")
+                { LogFile = WagTapLogLocation + CurrentLog; }
+                XmlDocument xmldoc = new XmlDocument();
+                xmldoc.Load(LogFile);
+
+                xmldoc.DocumentElement.SelectSingleNode("/ScheduleLog/LastIDCounter").InnerText = LatestID;
+                XmlNodeList EventSchedulesNodes = xmldoc.DocumentElement.SelectNodes("/ScheduleLog/EventSchedules");
+                XmlNodeList EventScheduleNodes = xmldoc.DocumentElement.SelectNodes("/ScheduleLog/EventSchedules/EventSchedule");
+
+                foreach (CalendarEvent MyEvent in AllEvents)
+                {
+                    XmlElement EventScheduleNode = CreateEventScheduleNode(MyEvent);
+                    //EventSchedulesNodes[0].PrependChild(xmldoc.CreateElement("EventSchedule"));
+                    //EventSchedulesNodes[0].ChildNodes[0].InnerXml = CreateEventScheduleNode(MyEvent).InnerXml;
+                    XmlNode MyImportedNode = xmldoc.ImportNode(EventScheduleNode as XmlNode, true);
+                    //(EventScheduleNode, true);
+                    if (!UpdateInnerXml(ref EventScheduleNodes, "ID", MyEvent.ID.ToString(), EventScheduleNode))
+                    {
+                        xmldoc.DocumentElement.SelectSingleNode("/ScheduleLog/EventSchedules").AppendChild(MyImportedNode);
+                    }
+                }
+
+                while (true)
+                {
+                    try
+                    {
+                        xmldoc.Save(LogFile);
+                        break;
+                    }
+                    catch (Exception e)
+                    {
+                        Thread.Sleep(160);
+                    }
+                }
+
             }
 
             
@@ -1023,6 +1071,14 @@ namespace My24HourTimerWPF
                 
             }
 
+            public string Usersname
+            {
+                get
+                {
+                    return NameOfUser;
+                }
+            }
+
             #endregion
 
         }
@@ -1063,6 +1119,14 @@ namespace My24HourTimerWPF
             get
             {
                 return Username;
+            }
+        }
+
+        public string Usersname
+        {
+            get
+            {
+                return Name;
             }
         }
 

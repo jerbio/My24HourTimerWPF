@@ -43,7 +43,7 @@ namespace My24HourTimerWPF
         public MainWindow()
         {
             InitializeComponent();
-
+            MessageBox.Show("Testing Branch creation");
             DateTime Start = new DateTime(2014, 2, 13);
             DateTime Now = DateTime.Now;
             TimeSpan spent= Now - Start;

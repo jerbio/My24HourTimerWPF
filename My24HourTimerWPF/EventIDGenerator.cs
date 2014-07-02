@@ -15,12 +15,18 @@ namespace My24HourTimerWPF
             idcounter = LastID;
         }
 
-
-
         public static uint generate()
         {
             //update xml file with last counter
             return ++idcounter;
+        }
+
+        public static  uint LatestID
+        {
+            get 
+            {
+                return idcounter;
+            }
         }
     }
 }

@@ -6066,18 +6066,28 @@ namespace My24HourTimerWPF
 
         List< SubCalendarEvent> stitchRestrictedSubCalendarEvent(List< SubCalendarEvent> Arg1, TimeLine RestrictingTimeLine, SubCalendarEvent PrecedingPivot = null)
         {
+            return stitchRestrictedSubCalendarEvent(Arg1.Select(obj => new mTuple<int, SubCalendarEvent>(0, obj)).ToList(), RestrictingTimeLine, null);
+        }
+
+        List<SubCalendarEvent> stitchRestrictedSubCalendarEvent(List<mTuple<int, mTuple<TimeSpan, SubCalendarEvent>>> Arg1, TimeLine RestrictingTimeLine, SubCalendarEvent PrecedingPivot = null)
+        { 
+        
+        }
+
+        List<SubCalendarEvent> stitchRestrictedSubCalendarEvent(List<mTuple<int, SubCalendarEvent>> Arg1, TimeLine RestrictingTimeLine, SubCalendarEvent PrecedingPivot = null)
+        {
             /*
              * Description: function tries to stitich Restricted SubCalEvents. It starts with the most restricted within timeline as the first node. This first node pins itself to the right It stitches the tree towards the right of the node. Makes a recursive call to stitchRestrictedSubCalendarEvent. pin the returned List and itself to the right hand side then tries to stitck the left hand side
              */
-            List<SubCalendarEvent> retValue = Arg1.ToList();
+            List<SubCalendarEvent> retValue = Arg1.Select(obj=>obj.Item2).ToList();
 
-            TimeSpan SumOfAllSubCalEvent = Utility.SumOfActiveDuration(Arg1);
-            List<SubCalendarEvent> CopyOfAllList = Arg1.ToList();
+            TimeSpan SumOfAllSubCalEvent = Utility.SumOfActiveDuration(Arg1.Select(obj=>obj.Item2));
+            List<SubCalendarEvent> CopyOfAllList = Arg1.Select(obj => obj.Item2).ToList();
             if (retValue.Count < 1)//if arg1 is empty return the list
             {
                 return retValue;
             }
-            List<SubCalendarEvent> AllSubCalEvents = Arg1.ToList();
+            List<SubCalendarEvent> AllSubCalEvents = Arg1.Select(obj => obj.Item2).ToList();
             List<mTuple<TimeLine, SubCalendarEvent>> AvaialableTimeSpan = new List<mTuple<TimeLine, SubCalendarEvent>>();
             int indexOfSmallest = -2222;
             int i = 0;

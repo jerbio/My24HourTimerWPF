@@ -1325,13 +1325,6 @@ namespace My24HourTimerWPF
                                             {
                                                 if (MyArrayOfSubCalendarEvents[i].ID == MyBusyTimeLine.TimeLineID)
                                                 {
-                                                    /*string ThirdPartyID = MyArrayOfSubCalendarEvents[i].ThirdPartyID;
-                                                    SubCalendarEvent newSubCalevent = new SubCalendarEvent(MyBusyTimeLine.TimeLineID, MyBusyTimeLine.Start, MyBusyTimeLine.End, MyBusyTimeLine, MyArrayOfSubCalendarEvents[i].Rigid, MyArrayOfSubCalendarEvents[i].myLocation, AllEventDictionary[ParentID].RangeTimeLine);
-                                                    newSubCalevent.ThirdPartyID = ThirdPartyID;
-                                                    AllEventDictionary[ParentID].updateSubEvent(newSubCalevent.SubEvent_ID, newSubCalevent);*/
-
-
-
                                                     SubCalendarEvent referenceSubCalEvent = MyArrayOfSubCalendarEvents[i];
                                                     referenceSubCalEvent.shiftEvent(MyBusyTimeLine.Start - referenceSubCalEvent.Start);
                                                 }
@@ -1340,15 +1333,6 @@ namespace My24HourTimerWPF
                                     }
                                 }
                             }
-                            /*if (MyCalendarEventUpdated.RepetitionStatus)
-                            {
-                                for (i = 0; i < MyEvent.Repeat.RecurringCalendarEvents.Length; i++)
-                                {
-                                    MyCalendarEventUpdated.Repeat.RecurringCalendarEvents[i] = EvaluateTotalTimeLineAndAssignValidTimeSpots(MyEvent.Repeat.RecurringCalendarEvents[i]);
-                                }
-                            }*/
-
-
                             return MyCalendarEventUpdated;
                         }
                         else
@@ -1357,27 +1341,6 @@ namespace My24HourTimerWPF
                         }
                     }
                 }
-                /*else
-                {
-                    //MessageBox.Show("Sorry, the total free time available during activiy limits is less than your active duration!!!");
-                    List<CalendarEvent> ListOfCalendarEventsWithLatterDeadlines = new System.Collections.Generic.List<CalendarEvent>();
-                    return new CalendarEvent(new CustomErrors(true, "There isnt enough time in for the time space"));
-                }
-                */
-                /*if (TimeLineArrayWithSubEventsAssigned.Length < MyEvent.AllSubEvents.Length)// This means the assigned time per subevent spots won't be sufficient for the subevents available to the calendar event
-                {
-                    return null;
-                }
-
-                i = 0;
-                for (; i < MyEvent.AllActiveSubEvents.Length; i++)
-                {
-                    TempSubEvent = new SubCalendarEvent(TimeLineArrayWithSubEventsAssigned[i].TimelineSpan, TimeLineArrayWithSubEventsAssigned[i].Start, TimeLineArrayWithSubEventsAssigned[i].End, MyEvent.Preparation, MyEvent.ID, MyEvent.Rigid, MyEvent.myLocation, MyEvent.RangeTimeLine);
-                    MyTempBusyTimerLine = new BusyTimeLine(TempSubEvent.ID, TimeLineArrayWithSubEventsAssigned[i].Start, TimeLineArrayWithSubEventsAssigned[i].End);
-                    TempSubEvent = new SubCalendarEvent(TempSubEvent.ID, TimeLineArrayWithSubEventsAssigned[i].Start.Add(-MyEvent.Preparation), TimeLineArrayWithSubEventsAssigned[i].End, MyTempBusyTimerLine, MyEvent.Rigid, MyEvent.myLocation, MyEvent.RangeTimeLine);
-                    MyEvent.updateSubEvent(TempSubEvent.SubEvent_ID, TempSubEvent);
-                }
-                 */
             }
 
 
@@ -1418,112 +1381,13 @@ namespace My24HourTimerWPF
                 List<TimeLine> CompatibleTimeLines = getOnlyCompatibleTimeLines(eachmTuple.Item2, AvailableTImeLines);
                 if (CompatibleTimeLines.Count == 1)
                 {
-                    //if (retValue.ContainsKey(CompatibleTimeLines[0]))
-                    {
-                        retValue[CompatibleTimeLines[0]].Add(eachmTuple);
-                    }
-                    //else
-                    {
-                        //retValue.Add(CompatibleTimeLines[0], new System.Collections.Generic.List<mTuple<bool, SubCalendarEvent>>() { eachmTuple });
-                    }
+                    retValue[CompatibleTimeLines[0]].Add(eachmTuple);
                 }
             }
 
 
             return retValue;
         }
-
-        /*
-        public CalendarEvent EvaluateTotalTimeLineAndAssignValidTimeSpotsWithReferenceTimeLine(CalendarEvent MyEvent, TimeLine ReferenceTimeLine)
-        {
-            //this is extremely buggy code
-
-            BusyTimeLine[] AllOccupiedSlot = ReferenceTimeLine.OccupiedSlots; //CompleteSchedule.OccupiedSlots;
-            TimeSpan TotalActiveDuration = new TimeSpan();
-            TimeLine[] TimeLineArrayWithSubEventsAssigned = new TimeLine[MyEvent.AllActiveSubEvents.Length];
-            SubCalendarEvent TempSubEvent = new SubCalendarEvent();
-            BusyTimeLine MyTempBusyTimerLine = new BusyTimeLine();
-            TimeLine[] FreeSpotsAvailableWithinValidTimeline = getAllFreeSpots_NoCompleteSchedule(ReferenceTimeLine);
-            FreeSpotsAvailableWithinValidTimeline = getOnlyPertinentTimeFrame(FreeSpotsAvailableWithinValidTimeline, ReferenceTimeLine).ToArray();
-
-            int i = 0;
-            TimeSpan TotalFreeTimeAvailable = new TimeSpan();
-            if (MyEvent.Rigid)
-            {
-                TempSubEvent = new SubCalendarEvent(MyEvent.ActiveDuration, MyEvent.Start, MyEvent.End, MyEvent.Preparation, MyEvent.ID,MyEvent.Rigid, MyEvent.myLocation, MyEvent.RangeTimeLine);//fix rigid bug
-                MyTempBusyTimerLine = new BusyTimeLine(TempSubEvent.ID, TempSubEvent.Start, TempSubEvent.End);
-
-
-                TempSubEvent = new SubCalendarEvent(TempSubEvent.ID, TempSubEvent.Start, TempSubEvent.End, MyTempBusyTimerLine, MyEvent.Rigid, MyEvent.myLocation, MyEvent.RangeTimeLine);
-                MyEvent.updateSubEvent(TempSubEvent.SubEvent_ID,TempSubEvent);
-            }
-            else
-            {
-                for (i = 0; i < FreeSpotsAvailableWithinValidTimeline.Length; i++)
-                {
-                    TotalFreeTimeAvailable += FreeSpotsAvailableWithinValidTimeline[i].TimelineSpan;
-                }
-
-                if (TotalFreeTimeAvailable >= MyEvent.ActiveDuration)
-                {
-                    TimeLineArrayWithSubEventsAssigned = SplitFreeSpotsInToSubEventTimeSlots(FreeSpotsAvailableWithinValidTimeline, MyEvent.AllActiveSubEvents.Length, MyEvent.ActiveDuration);
-                    if (TimeLineArrayWithSubEventsAssigned == null)
-                    {
-                        BusyTimeLine[] CompleteScheduleOccupiedSlots = ReferenceTimeLine.OccupiedSlots;
-                        KeyValuePair<CalendarEvent, TimeLine> TimeLineAndCalendarUpdated = ReArrangeTimeLineWithinWithinCalendaEventRange(MyEvent,null);
-                        CalendarEvent MyCalendarEventUpdated = TimeLineAndCalendarUpdated.Key;
-                        CompleteSchedule.OccupiedSlots = TimeLineAndCalendarUpdated.Value.OccupiedSlots;//hack need to review architecture to avoid this assignment
-                        if (MyCalendarEventUpdated != null)
-                        {
-                            foreach (BusyTimeLine MyBusyTimeLine in CompleteSchedule.OccupiedSlots)
-                            {
-                                string ParentID = (new EventID(MyBusyTimeLine.TimeLineID)).getLevelID(0);
-                                SubCalendarEvent[] MyArrayOfSubCalendarEvents = AllEventDictionary[ParentID].AllActiveSubEvents;
-                                for (i = 0; i < MyArrayOfSubCalendarEvents.Length; i++)
-                                {
-                                    if (MyArrayOfSubCalendarEvents[i].ID == MyBusyTimeLine.TimeLineID)
-                                    {
-                                        MyArrayOfSubCalendarEvents[i] = new SubCalendarEvent(MyBusyTimeLine.TimeLineID, MyBusyTimeLine.Start, MyBusyTimeLine.End, MyBusyTimeLine, MyArrayOfSubCalendarEvents[i].Rigid, MyArrayOfSubCalendarEvents[i].myLocation, MyArrayOfSubCalendarEvents[i].getCalendarEventRange);
-                                    }
-                                }
-                            }
-                            return MyCalendarEventUpdated;
-                        }
-                    }
-                }
-                else
-                {
-                    //MessageBox.Show("Sorry, the total free time available during activiy limits is less than your active duration!!!");
-                    return new CalendarEvent(new CustomErrors(true, "There isnt enough timee in for the time space"));
-                }
-
-                if (TimeLineArrayWithSubEventsAssigned.Length < MyEvent.AllActiveSubEvents.Length)// This means the assigned time per subevent spots won't be sufficient for the subevents available to the calendar event
-                {
-                    return null;
-
-                }
-
-                i = 0;
-                for (; i < MyEvent.AllActiveSubEvents.Length; i++)
-                {
-                    TempSubEvent = new SubCalendarEvent(TimeLineArrayWithSubEventsAssigned[i].TimelineSpan, TimeLineArrayWithSubEventsAssigned[i].Start.Add(-MyEvent.Preparation), TimeLineArrayWithSubEventsAssigned[i].End, MyEvent.Preparation, MyEvent.ID, MyEvent.Rigid, MyEvent.AllActiveSubEvents[i].myLocation, MyEvent.RangeTimeLine);
-                    MyTempBusyTimerLine = new BusyTimeLine(TempSubEvent.ID, TimeLineArrayWithSubEventsAssigned[i].Start, TimeLineArrayWithSubEventsAssigned[i].End);
-                    TempSubEvent = new SubCalendarEvent(TempSubEvent.ID, TimeLineArrayWithSubEventsAssigned[i].Start.Add(-MyEvent.Preparation), TimeLineArrayWithSubEventsAssigned[i].End, MyTempBusyTimerLine, MyEvent.Rigid, MyEvent.AllActiveSubEvents[i].myLocation, MyEvent.RangeTimeLine);
-                    MyEvent.AllActiveSubEvents[i] = TempSubEvent;
-                }
-            }
-
-            if (MyEvent.RepetitionStatus)
-            {
-                for (i = 0; i < MyEvent.Repeat.RecurringCalendarEvents.Length; i++)
-                {
-                    MyEvent.Repeat.RecurringCalendarEvents[i] = EvaluateTotalTimeLineAndAssignValidTimeSpots(MyEvent.Repeat.RecurringCalendarEvents[i]);
-                }
-            }
-
-            return MyEvent;
-        }
-        */
 
         CalendarEvent CheckUncommitedForSubCalevent(List<CalendarEvent> UncommitedCalendarEvents, SubCalendarEvent possibleSubCalendarevent)
         {
@@ -6193,33 +6057,27 @@ namespace My24HourTimerWPF
         }
 
 
-
         List<mTuple<bool, SubCalendarEvent>> stitchRestrictedSubCalendarEvent(List<mTuple<bool, SubCalendarEvent>> Arg1, TimeLine RestrictingTimeLine, SubCalendarEvent PrecedingPivot = null)
+        {
+            List<SubCalendarEvent> retValue = stitchRestrictedSubCalendarEvent(Arg1.Select(obj => obj.Item2).ToList(), RestrictingTimeLine, PrecedingPivot);
+            return retValue.Select(obj => new mTuple<bool, SubCalendarEvent>(true, obj)).ToList();
+        }
+
+
+        List< SubCalendarEvent> stitchRestrictedSubCalendarEvent(List< SubCalendarEvent> Arg1, TimeLine RestrictingTimeLine, SubCalendarEvent PrecedingPivot = null)
         {
             /*
              * Description: function tries to stitich Restricted SubCalEvents. It starts with the most restricted within timeline as the first node. This first node pins itself to the right It stitches the tree towards the right of the node. Makes a recursive call to stitchRestrictedSubCalendarEvent. pin the returned List and itself to the right hand side then tries to stitck the left hand side
              */
-            List<mTuple<bool, SubCalendarEvent>> retValue = Arg1.ToList();
+            List<SubCalendarEvent> retValue = Arg1.ToList();
 
-            TimeSpan SumOfAllSubCalEvent = Utility.SumOfActiveDuration(Utility.mTupleToSubCalEvents(Arg1));
-            if (RestrictingTimeLine.TimelineSpan <= SumOfAllSubCalEvent)
-            {
-                ;
-            }
-
-            if (RestrictingTimeLine.Start == new DateTime(2014, 04, 3, 19, 30, 0))
-            {
-                ;
-            }
-
-            List<mTuple<bool, SubCalendarEvent>> CopyOfAllList = Arg1.ToList();
-
-
+            TimeSpan SumOfAllSubCalEvent = Utility.SumOfActiveDuration(Arg1);
+            List<SubCalendarEvent> CopyOfAllList = Arg1.ToList();
             if (retValue.Count < 1)//if arg1 is empty return the list
             {
                 return retValue;
             }
-            List<SubCalendarEvent> AllSubCalEvents = Utility.mTupleToSubCalEvents(Arg1);
+            List<SubCalendarEvent> AllSubCalEvents = Arg1.ToList();
             List<mTuple<TimeLine, SubCalendarEvent>> AvaialableTimeSpan = new List<mTuple<TimeLine, SubCalendarEvent>>();
             int indexOfSmallest = -2222;
             int i = 0;
@@ -6229,9 +6087,8 @@ namespace My24HourTimerWPF
             TimeSpan SmallestAssignedTimeSpan = new TimeSpan(3650, 0, 0, 0);//sets the smallest TimeSpan To 10 years
             DateTime SmallestDateTime = new DateTime(3000, 12, 31);
 
-            //List<SubCalendarEvent> partialInTimeLine = AllSubCalEvents.Where(obj => !obj.getCalendarEventRange.IsTimeLineWithin(RestrictingTimeLine)).ToList();
-            List<SubCalendarEvent> partialInTimeLine = AllSubCalEvents.Where(obj => obj.getCalendarEventRange.End <= RestrictingTimeLine.End || !obj.canExistWithinTimeLine(new TimeLine(RestrictingTimeLine.End, Now.AddYears(10)))).ToList();
-
+            List<SubCalendarEvent> partialInTimeLine = AllSubCalEvents.Where(obj => obj.getCalendarEventRange.End <= RestrictingTimeLine.End || !obj.canExistWithinTimeLine(new TimeLine(RestrictingTimeLine.End, Now.AddYears(10)))).ToList();//check the subcal events that have to exist within the current timeLine
+            IEnumerable<mTuple<int, SubCalendarEvent>> partialInTimeLine_WithCount = partialInTimeLine.Select(obj => new mTuple<int, SubCalendarEvent>(0, obj));
 
 
 

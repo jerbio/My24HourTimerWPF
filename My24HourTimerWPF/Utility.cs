@@ -469,7 +469,7 @@ namespace My24HourTimerWPF
             return retValue;
         }
 
-        static public List<mTuple<T, SubCalendarEvent>> SubCalEventsTomTuple<T>(List<SubCalendarEvent> ListOfMTuples, T DefaultValue)
+        static public List<mTuple<T, SubCalendarEvent>> SubCalEventsTomTuple<T>(IEnumerable<SubCalendarEvent> ListOfMTuples, T DefaultValue)
         {
             List<mTuple<T, SubCalendarEvent>> retValue = new System.Collections.Generic.List<mTuple<T, SubCalendarEvent>>();
             foreach (SubCalendarEvent eachmSubCalendarEvent in ListOfMTuples)

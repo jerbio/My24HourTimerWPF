@@ -60,11 +60,6 @@ namespace My24HourTimerWPF
 
         private string AddAppointment(SubCalendarEvent ActiveSection, string NameOfParentCalendarEvent)
         {
-            if (ActiveSection.ID == "269_277_281")
-            {
-                ;
-            }
-            
             if (!ActiveSection.isEnabled)
             {
                 return "";

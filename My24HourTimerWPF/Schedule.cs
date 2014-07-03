@@ -847,7 +847,7 @@ namespace My24HourTimerWPF
                 Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> CompatibleWithListForFunCall = new Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>();
                 Dictionary<SubCalendarEvent, BusyTimeLine> SubCalendarEvent_OldTImeLine = new Dictionary<SubCalendarEvent, BusyTimeLine>();//Dictionary stores the Subcalendar event old TimeLine, just incase the do not get reassigned to the current timeline
                 Dictionary<TimeSpan, Dictionary<string, mTuple<bool, SubCalendarEvent>>> PossibleEventsForFuncCall = new Dictionary<TimeSpan, Dictionary<string, mTuple<bool, SubCalendarEvent>>>();
-                List<mTuple<bool, SubCalendarEvent>> restrictedForFuncCall = Utility.SubCalEventsTomTuple(AlreadyAlignedEvents[j], true);
+                List<mTuple<bool, SubCalendarEvent>> restrictedForFuncCall = Utility.SubCalEventsTomTuple(AlreadyAlignedEvents[j].OrderBy(obj=>obj.Start).ToList(), true);
                 foreach (SubCalendarEvent eachmTuple in OptimumAssignment[eachTimeLine])
                 {
                     TimeSpan ActiveTimeSpan = eachmTuple.ActiveDuration;
@@ -2855,9 +2855,17 @@ namespace My24HourTimerWPF
             TimeLine limitingTimeLine_cpy_cpy_ref = limitingTimeLine_cpy.CreateCopy();
             List<SubCalendarEvent> FullyUpdated = new List<SubCalendarEvent>();
 
+            int qq = 0;
+
             while(true)
             {
+                if (qq == 4)
+                {
+                    ;
+                }
+                
                 Tuple<List<SubCalendarEvent>, TimeLine> CollectionUpdated = every24Interval(currentListOfSubCalendarElements_cpy_ref, limitingTimeLine_cpy_cpy_ref, Occupancy, currentListOfSubCalendarElements_cpy_ref_Dict);
+                qq++;
 
                 TimeSpan currTotalDuration = Utility.SumOfActiveDuration(CollectionUpdated.Item1);
                 double currOccupancy =-8898;
@@ -2982,7 +2990,7 @@ namespace My24HourTimerWPF
                 }
             }
 
-            List<mTuple<bool, SubCalendarEvent>> AllEventsupdated = stitchUnRestrictedSubCalendarEvent(CurrentDayReference, currentOccupiers.Select(obj => new mTuple<bool, SubCalendarEvent>(false, obj)).ToList(), PossibleEntries, new Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>(), 1);
+            List<mTuple<bool, SubCalendarEvent>> AllEventsupdated = stitchUnRestrictedSubCalendarEvent(CurrentDayReference, currentOccupiers.OrderBy(obj=>obj.Start).Select(obj => new mTuple<bool, SubCalendarEvent>(false, obj)).ToList(), PossibleEntries, new Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>(), 1);
 
             TimeSpan TotalOfCurrentOccupiers = Utility.SumOfActiveDuration(currentOccupiers);
             TimeSpan totalUsedUpSpace= Utility.SumOfActiveDuration(AllEventsupdated.Select(obj => obj.Item2));
@@ -3634,7 +3642,7 @@ namespace My24HourTimerWPF
             return retValue;
         }
 
-        List<mTuple<bool, SubCalendarEvent>> stitchUnRestrictedSubCalendarEvent(TimeLine FreeBoundary, List<mTuple<bool, SubCalendarEvent>> restrictedSnugFitAvailable, Dictionary<TimeSpan, Dictionary<string, mTuple<bool, SubCalendarEvent>>> PossibleEntries, Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> CompatibleWithList, double Occupancy)
+        List<mTuple<bool, SubCalendarEvent>> stitchUnRestrictedSubCalendarEvent(TimeLine FreeBoundary, List<mTuple<bool, SubCalendarEvent>> OrderedByStartRestrictedSnugFitAvailable, Dictionary<TimeSpan, Dictionary<string, mTuple<bool, SubCalendarEvent>>> PossibleEntries, Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> CompatibleWithList, double Occupancy)
         {
             TimeLine[] AllFreeSpots = FreeBoundary.getAllFreeSlots();
             int TotalEventsForThisTImeLine = 0;
@@ -3678,7 +3686,7 @@ namespace My24HourTimerWPF
                         CompatibleWithList.Add(eachKeyValuePair.Key, new mTuple<int, TimeSpanWithStringID>(1, new TimeSpanWithStringID(KeyValuePair0.Value.Item2.ActiveDuration, KeyValuePair0.Value.Item2.ActiveDuration.Ticks.ToString())));
                     }
 
-                    foreach (mTuple<bool, SubCalendarEvent> eachMtuple in restrictedSnugFitAvailable)//checks if event is in restricted list
+                    foreach (mTuple<bool, SubCalendarEvent> eachMtuple in OrderedByStartRestrictedSnugFitAvailable)//checks if event is in restricted list
                     {
                         if (eachMtuple.Item2.ID == MyEvent.Item2.ID)
                         {
@@ -3766,7 +3774,7 @@ namespace My24HourTimerWPF
             int j = 0;
             int FrontPartialCounter = 0;
 
-            if (restrictedSnugFitAvailable.Count < 1)
+            if (OrderedByStartRestrictedSnugFitAvailable.Count < 1)
             {
                 ;
             }
@@ -3775,15 +3783,16 @@ namespace My24HourTimerWPF
             SubCalendarEvent BorderElementBeginning = null;
             SubCalendarEvent BorderElementEnd = null;
             SubCalendarEvent LastSubCalElementForEarlierReferenceTime = null;
-            int a = restrictedSnugFitAvailable.Count;
+            int a = OrderedByStartRestrictedSnugFitAvailable.Count;
             int previ = i;
-            for (; i < restrictedSnugFitAvailable.Count; i++)
+            bool PinnigSuccess = Utility.PinSubEventsToEnd(OrderedByStartRestrictedSnugFitAvailable.Select(obj => obj.Item2).ToList(), FreeBoundary);
+            for (; i < OrderedByStartRestrictedSnugFitAvailable.Count; i++)
             {
                 //bool isFreeSpotBeforeRigid = AllFreeSpots[i].End <= restrictedSnugFitAvailable[i].Item2.Start;
                 TimeLineUpdated = null;
 
 
-                if (a != restrictedSnugFitAvailable.Count)
+                if (a != OrderedByStartRestrictedSnugFitAvailable.Count)
                 {
                     ;
                 }
@@ -3816,24 +3825,24 @@ namespace My24HourTimerWPF
                 j = i + 1;
                 if (ListOfFrontPartialsStartTime.Count > 0)//fits any sub calEvent in preceeding restricting free spot
                 {
-                    DateTime RestrictedStopper = restrictedSnugFitAvailable[i].Item2.Start;
+                    DateTime RestrictedStopper = OrderedByStartRestrictedSnugFitAvailable[i].Item2.Start;
 
 
                     bool breakForLoop = false;
                     bool PreserveRestrictedIndex = false;
                     bool ContinueTrestrictedSnugFitAvailableoForLoop = false;
-                    for (; ((FrontPartialCounter < ListOfFrontPartialsStartTime.Count) && (i < restrictedSnugFitAvailable.Count)); FrontPartialCounter++)
+                    for (; ((FrontPartialCounter < ListOfFrontPartialsStartTime.Count) && (i < OrderedByStartRestrictedSnugFitAvailable.Count)); FrontPartialCounter++)
                     {
                         TimeLineUpdated = null;
                         DateTime PertinentFreeSpotStart = EarliestReferenceTIme;
                         DateTime PertinentFreeSpotEnd;
 
-                        if (restrictedSnugFitAvailable[i].Item2.getCalendarEventRange.Start <= EarliestReferenceTIme)//this is to ensure the tightest configuration. If the restricted element calendarevent start range already preceedes the current start time then it can be appended immediately. because every other element is less restricted
+                        if (OrderedByStartRestrictedSnugFitAvailable[i].Item2.getCalendarEventRange.Start <= EarliestReferenceTIme)//this is to ensure the tightest configuration. If the restricted element calendarevent start range already preceedes the current start time then it can be appended immediately. because every other element is less restricted
                         {
-                            CompleteArranegement.Add(restrictedSnugFitAvailable[i].Item2);
+                            CompleteArranegement.Add(OrderedByStartRestrictedSnugFitAvailable[i].Item2);
                             Utility.PinSubEventsToStart(CompleteArranegement, FreeBoundary);
                             EarliestReferenceTIme = CompleteArranegement[CompleteArranegement.Count - 1].End;
-                            List<SubCalendarEvent> TempList = new List<SubCalendarEvent>() { restrictedSnugFitAvailable[i].Item2 };
+                            List<SubCalendarEvent> TempList = new List<SubCalendarEvent>() { OrderedByStartRestrictedSnugFitAvailable[i].Item2 };
                             ContinueTrestrictedSnugFitAvailableoForLoop = true;//forces the continuation of the for loop for (; i < restrictedSnugFitAvailable.Count; i++)
                             PreserveRestrictedIndex = false;
                             break;
@@ -3914,7 +3923,7 @@ namespace My24HourTimerWPF
                                  LowestCostArrangement = CompleteArranegement.Concat(LowestCostArrangement).ToList();
                                  * *\//eliminating excess comments
                              */
-                                LowestCostArrangement = PlaceSubCalEventInLowestCostPosition(FreeBoundary, restrictedSnugFitAvailable[i].Item2, CompleteArranegement);
+                                LowestCostArrangement = PlaceSubCalEventInLowestCostPosition(FreeBoundary, OrderedByStartRestrictedSnugFitAvailable[i].Item2, CompleteArranegement);
                                 Utility.PinSubEventsToStart(LowestCostArrangement, FreeBoundary);
 
                                 CompleteArranegement = LowestCostArrangement;
@@ -3925,22 +3934,22 @@ namespace My24HourTimerWPF
                             }
 
                             --FrontPartialCounter;
-                            if (j < restrictedSnugFitAvailable.Count)
+                            if (j < OrderedByStartRestrictedSnugFitAvailable.Count)
                             {
-                                RestrictedStopper = restrictedSnugFitAvailable[i].Item2.getCalendarEventRange.End > restrictedSnugFitAvailable[j].Item2.Start ? restrictedSnugFitAvailable[j].Item2.Start : restrictedSnugFitAvailable[i].Item2.getCalendarEventRange.End;
+                                RestrictedStopper = OrderedByStartRestrictedSnugFitAvailable[i].Item2.getCalendarEventRange.End > OrderedByStartRestrictedSnugFitAvailable[j].Item2.Start ? OrderedByStartRestrictedSnugFitAvailable[j].Item2.Start : OrderedByStartRestrictedSnugFitAvailable[i].Item2.getCalendarEventRange.End;
                             }
                             else
                             {
-                                RestrictedStopper = restrictedSnugFitAvailable[i].Item2.getCalendarEventRange.End > FreeBoundary.End ? FreeBoundary.End : restrictedSnugFitAvailable[i].Item2.getCalendarEventRange.End;
+                                RestrictedStopper = OrderedByStartRestrictedSnugFitAvailable[i].Item2.getCalendarEventRange.End > FreeBoundary.End ? FreeBoundary.End : OrderedByStartRestrictedSnugFitAvailable[i].Item2.getCalendarEventRange.End;
                             }
-                            RestrictedStopper -= restrictedSnugFitAvailable[i].Item2.ActiveDuration;
+                            RestrictedStopper -= OrderedByStartRestrictedSnugFitAvailable[i].Item2.ActiveDuration;
                             PertinentFreeSpotEnd = RestrictedStopper;//as a result of the comment sections with the string "elemenating excess comments" 
                             breakForLoop = true;
                         }
                         PertinentFreeSpot = new TimeLine(PertinentFreeSpotStart, PertinentFreeSpotEnd);
 
                         BorderElementBeginning = CompleteArranegement.Count > 0 ? CompleteArranegement[CompleteArranegement.Count - 1] : null;//Checks if Complete arrangement has partially being filled. Sets Last elements as boundary Element
-                        BorderElementEnd = restrictedSnugFitAvailable[i].Item2;//uses restricted value as boundary element
+                        BorderElementEnd = OrderedByStartRestrictedSnugFitAvailable[i].Item2;//uses restricted value as boundary element
 
                         LowestCostArrangement = OptimizeArrangeOfSubCalEvent(PertinentFreeSpot, new Tuple<SubCalendarEvent, SubCalendarEvent>(BorderElementBeginning, BorderElementEnd), CompatibleWithList.Values.ToList(), PossibleEntries_Cpy, Occupancy);
                         DateTime LatestDaterforEarlierReferenceTime = PertinentFreeSpot.Start;
@@ -3972,7 +3981,7 @@ namespace My24HourTimerWPF
 
                         TimeLineUpdated = null;
 
-                        if (restrictedSnugFitAvailable[i].Item2.getCalendarEventRange.Start > LatestDaterforEarlierReferenceTime)
+                        if (OrderedByStartRestrictedSnugFitAvailable[i].Item2.getCalendarEventRange.Start > LatestDaterforEarlierReferenceTime)
                         {
                             TimeLineUpdated = ObtainBetterEarlierReferenceTime(LowestCostArrangement, CalendarIDAndNonPartialSubCalEvents, RestrictedStopper - LatestDaterforEarlierReferenceTime, EarliestReferenceTIme, new TimeLine(FreeSpotUpdated.Start, FreeBoundary.End), LastSubCalElementForEarlierReferenceTime);
                             //errorline
@@ -4046,11 +4055,11 @@ namespace My24HourTimerWPF
                 }
                 else
                 {//No FrontPartials
-                    DateTime ReferenceEndTime = restrictedSnugFitAvailable[i].Item2.Start;
+                    DateTime ReferenceEndTime = OrderedByStartRestrictedSnugFitAvailable[i].Item2.Start;
                     PertinentFreeSpot = new TimeLine(EarliestReferenceTIme, ReferenceEndTime);
 
                     BorderElementBeginning = CompleteArranegement.Count > 0 ? CompleteArranegement[CompleteArranegement.Count - 1] : null;//Checks if Complete arrangement has partially being filled. Sets Last elements as boundary Element
-                    BorderElementEnd = restrictedSnugFitAvailable[i].Item2;//uses restricted value as boundary element
+                    BorderElementEnd = OrderedByStartRestrictedSnugFitAvailable[i].Item2;//uses restricted value as boundary element
 
                     LowestCostArrangement = OptimizeArrangeOfSubCalEvent(PertinentFreeSpot, new Tuple<SubCalendarEvent, SubCalendarEvent>(BorderElementBeginning, BorderElementEnd), CompatibleWithList.Values.ToList(), PossibleEntries_Cpy, Occupancy);
 
@@ -4091,19 +4100,24 @@ namespace My24HourTimerWPF
 
                     List<SubCalendarEvent> AdditionalCOstArrangement = new System.Collections.Generic.List<SubCalendarEvent>();
                     DateTime RelativeEndTime;
-                    if (j < restrictedSnugFitAvailable.Count)
+                    if (j < OrderedByStartRestrictedSnugFitAvailable.Count)
                     {
                         //DateTime StartDateTimeAfterFitting = PertinentFreeSpot.End;
+                        if ((i == 2) && (j == 3))
+                        {
+                            ;
+                        }
+
                         DateTime StartDateTimeAfterFitting = EarliestReferenceTIme;//this is the barring end time of the preceding boundary search. Earliest would have been updated if there was some event detected.
 
 
-                        RelativeEndTime = restrictedSnugFitAvailable[i].Item2.getCalendarEventRange.End > restrictedSnugFitAvailable[j].Item2.Start ? restrictedSnugFitAvailable[j].Item2.Start : restrictedSnugFitAvailable[i].Item2.getCalendarEventRange.End;
+                        RelativeEndTime = OrderedByStartRestrictedSnugFitAvailable[i].Item2.getCalendarEventRange.End > OrderedByStartRestrictedSnugFitAvailable[j].Item2.Start ? OrderedByStartRestrictedSnugFitAvailable[j].Item2.Start : OrderedByStartRestrictedSnugFitAvailable[i].Item2.getCalendarEventRange.End;
 
-                        RelativeEndTime -= restrictedSnugFitAvailable[i].Item2.ActiveDuration;
+                        RelativeEndTime -= OrderedByStartRestrictedSnugFitAvailable[i].Item2.ActiveDuration;
                         TimeLine CurrentlyFittedTimeLine = new TimeLine(StartDateTimeAfterFitting, RelativeEndTime);
 
                         BorderElementBeginning = CompleteArranegement.Count > 0 ? CompleteArranegement[CompleteArranegement.Count - 1] : null;//Checks if Complete arrangement has partially being filled. Sets Last elements as boundary Element
-                        BorderElementEnd = restrictedSnugFitAvailable[i].Item2;//uses restricted value as boundary element
+                        BorderElementEnd = OrderedByStartRestrictedSnugFitAvailable[i].Item2;//uses restricted value as boundary element
 
                         AdditionalCOstArrangement = OptimizeArrangeOfSubCalEvent(CurrentlyFittedTimeLine, new Tuple<SubCalendarEvent, SubCalendarEvent>(BorderElementBeginning, BorderElementEnd), CompatibleWithList.Values.ToList(), PossibleEntries_Cpy, Occupancy);
                         if (AdditionalCOstArrangement.Count > 0)
@@ -4140,20 +4154,20 @@ namespace My24HourTimerWPF
 
 
                             RelativeEndTime = AdditionalCOstArrangement[AdditionalCOstArrangement.Count - 1].End;
-                            RelativeEndTime += restrictedSnugFitAvailable[i].Item2.ActiveDuration; ;
+                            RelativeEndTime += OrderedByStartRestrictedSnugFitAvailable[i].Item2.ActiveDuration; ;
                             CurrentlyFittedTimeLine = new TimeLine(FreeSpotUpdated.Start, RelativeEndTime);
                             //AdditionalCOstArrangement = PlaceSubCalEventInLowestCostPosition(CurrentlyFittedTimeLine, restrictedSnugFitAvailable[i].Item2, AdditionalCOstArrangement);
                         }
                         else
                         {//if there is no other Restricted in list
-                            RelativeEndTime += restrictedSnugFitAvailable[i].Item2.ActiveDuration;
+                            RelativeEndTime += OrderedByStartRestrictedSnugFitAvailable[i].Item2.ActiveDuration;
                             CurrentlyFittedTimeLine = new TimeLine(CurrentlyFittedTimeLine.Start, RelativeEndTime);
                             //AdditionalCOstArrangement = PlaceSubCalEventInLowestCostPosition(CurrentlyFittedTimeLine, restrictedSnugFitAvailable[i].Item2, AdditionalCOstArrangement);
                         }
                     }
                     else
                     {
-                        RelativeEndTime = restrictedSnugFitAvailable[i].Item2.getCalendarEventRange.End > FreeBoundary.End ? FreeBoundary.End : restrictedSnugFitAvailable[i].Item2.getCalendarEventRange.End;
+                        RelativeEndTime = OrderedByStartRestrictedSnugFitAvailable[i].Item2.getCalendarEventRange.End > FreeBoundary.End ? FreeBoundary.End : OrderedByStartRestrictedSnugFitAvailable[i].Item2.getCalendarEventRange.End;
                         TimeLine CurrentlyFittedTimeLine = new TimeLine(EarliestReferenceTIme, RelativeEndTime);
                         //AdditionalCOstArrangement = PlaceSubCalEventInLowestCostPosition(CurrentlyFittedTimeLine, restrictedSnugFitAvailable[i].Item2, AdditionalCOstArrangement);
                     }
@@ -4161,7 +4175,8 @@ namespace My24HourTimerWPF
                     CompleteArranegement.AddRange(LowestCostArrangement);
                     CompleteArranegement.AddRange(AdditionalCOstArrangement);
                     TimeLine encasingTimeLine = new TimeLine(FreeBoundary.Start, RelativeEndTime);
-                    CompleteArranegement = PlaceSubCalEventInLowestCostPosition(encasingTimeLine, restrictedSnugFitAvailable[i].Item2, CompleteArranegement);
+                    
+                    CompleteArranegement = PlaceSubCalEventInLowestCostPosition(encasingTimeLine, OrderedByStartRestrictedSnugFitAvailable[i].Item2, CompleteArranegement);
                     Utility.PinSubEventsToStart(CompleteArranegement, FreeBoundary);
                     if (CompleteArranegement.Count > 0)
                     {
@@ -5366,7 +5381,7 @@ namespace My24HourTimerWPF
             int a = restrictedSnugFitAvailable.Count;
             int previ = i;
 
-            Utility.PinSubEventsToEnd(restrictedSnugFitAvailable.Select(obj => obj.Item2).ToList(), FreeBoundary);
+            bool PinnigSuccess=Utility.PinSubEventsToEnd(restrictedSnugFitAvailable.Select(obj => obj.Item2).ToList(), FreeBoundary);
             bool ignorePlaceRestrictedinBestPosition = false;
 
             for (; i < restrictedSnugFitAvailable.Count; i++)
@@ -7638,6 +7653,10 @@ namespace My24HourTimerWPF
 
         public IEnumerable<SubCalendarEvent> getInterferringSubEvents(TimeLine EventRange, IEnumerable<SubCalendarEvent> PossibleSubCalEVents)//gets list of subcalendar event in which the busytimeline interfer with Event range
         {
+            if (PossibleSubCalEVents.Count() < 1)
+            {
+                return new List<SubCalendarEvent>();
+            }
             return PossibleSubCalEVents.Where(obj => (EventRange.InterferringTimeLine(obj.ActiveSlot) != null));
         }
 

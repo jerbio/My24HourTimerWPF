@@ -444,7 +444,7 @@ namespace My24HourTimerWPF
                 long AllTicks = (long)EventTimeSpan.TotalMilliseconds;
                 long DiffSecs = (long)(EndTime - StartTime).TotalSeconds;
                 long DiffTicks = (long)(EndTime - StartTime).TotalMilliseconds;
-                EventTimeSpan = new TimeSpan(AllSecs * 10000000);
+                EventTimeSpan = TimeSpan.FromSeconds (AllSecs );
                 if ((EndTime - StartTime) != EventTimeSpan)
                 {
                     EndTime = StartTime.Add(EventTimeSpan);
@@ -495,12 +495,16 @@ namespace My24HourTimerWPF
                 string YCoordinate = "";
                 string Descripion = "";
                 string MappedAddress = "";
+                string IsNull = true.ToString(); ;
+                string CheckCalendarEvent = 0.ToString();
                 if (Arg1 != null)
                 {
                     XCoordinate = Arg1.XCoordinate.ToString();
                     YCoordinate = Arg1.YCoordinate.ToString();
                     Descripion = Arg1.Description;
                     MappedAddress = Arg1.Address;
+                    IsNull = Arg1.isNull.ToString();
+                    CheckCalendarEvent=Arg1.DefaultCheck.ToString();
                 }
                 var1.PrependChild(xmldoc.CreateElement("XCoordinate"));
                 var1.ChildNodes[0].InnerText = XCoordinate;
@@ -510,6 +514,10 @@ namespace My24HourTimerWPF
                 var1.ChildNodes[0].InnerText = MappedAddress;
                 var1.PrependChild(xmldoc.CreateElement("Description"));
                 var1.ChildNodes[0].InnerText = Descripion;
+                var1.PrependChild(xmldoc.CreateElement("isNull"));
+                var1.ChildNodes[0].InnerText = IsNull;
+                var1.PrependChild(xmldoc.CreateElement("CheckCalendarEvent"));
+                var1.ChildNodes[0].InnerText = CheckCalendarEvent;
                 return var1;
             }
 
@@ -898,6 +906,7 @@ namespace My24HourTimerWPF
 
             Location getLocation(XmlNode Arg1)
             {
+                bool UninitializedLocation=false;
                 XmlNode var1 = Arg1.SelectSingleNode("Location");
                 if (var1 == null)
                 {
@@ -911,6 +920,8 @@ namespace My24HourTimerWPF
                     Descripion = string.IsNullOrEmpty(Descripion) ? "" : Descripion;
                     string Address = var1.SelectSingleNode("Address").InnerText;
                     Address = string.IsNullOrEmpty(Address) ? "" : Address;
+                    string CheckDefault_Str = var1.SelectSingleNode("CheckCalendarEvent") == null ? 0.ToString() : var1.SelectSingleNode("CheckCalendarEvent").InnerText;
+
 
                     if (string.IsNullOrEmpty(XCoordinate_Str) || string.IsNullOrEmpty(YCoordinate_Str))
                     {
@@ -920,22 +931,25 @@ namespace My24HourTimerWPF
                     {
                         double xCoOrdinate = double.MaxValue;
                         double yCoOrdinate = double.MaxValue;
+                        
+
+                        int CheckDefault = Convert.ToInt32(CheckDefault_Str);
 
                         if (!(double.TryParse(XCoordinate_Str, out xCoOrdinate)))
                         {
                             xCoOrdinate = double.MaxValue;
+                            UninitializedLocation=true;
                         }
 
                         if (!(double.TryParse(YCoordinate_Str, out yCoOrdinate)))
                         {
                             yCoOrdinate = double.MaxValue;
+                            UninitializedLocation=true;
                         }
 
-                        return new Location(xCoOrdinate, yCoOrdinate, Address, Descripion);
+                        return new Location(xCoOrdinate, yCoOrdinate, Address, Descripion, UninitializedLocation, CheckDefault);
                     }
                 }
-
-
             }
 
             MiscData getMiscData(XmlNode Arg1)

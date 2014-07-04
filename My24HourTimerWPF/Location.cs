@@ -31,6 +31,8 @@ namespace My24HourTimerWPF
         double yValue;
         string TaggedDescription;
         string TaggedAddress;
+        bool NullLocation;
+        int CheckDefault;
 
         public Location()
         {
@@ -44,17 +46,20 @@ namespace My24HourTimerWPF
             yValue = MyyValue;
         }
 
-        public Location(double MyxValue, double MyyValue,string AddressEntry, string AddressDescription)
+        public Location(double MyxValue, double MyyValue, string AddressEntry, string AddressDescription, bool isNull, int CheckDefault)
         {
             xValue = MyxValue;
             yValue = MyyValue;
             TaggedAddress = AddressEntry;
             TaggedDescription = AddressDescription;
+            NullLocation = isNull;
+            this.CheckDefault = CheckDefault;
         }
         
         public Location(string Address, string tag="")
         {
             Address=Address.Trim();
+            NullLocation = true;
             if (string.IsNullOrEmpty(Address))
             {
                 xValue = double.MaxValue;
@@ -81,6 +86,7 @@ namespace My24HourTimerWPF
                     TaggedAddress = result.FormattedAddress;
                     xValue = Convert.ToDouble(result.Geometry.Location.Latitude);
                     yValue = Convert.ToDouble(result.Geometry.Location.Longitude);
+                    NullLocation = false;
                     //MessageBox.Show("Found Location At: " + result.FormattedAddress + " Latitude: " + xValue + " Longitude: " + yValue); 
                 }
                 catch
@@ -124,26 +130,6 @@ namespace My24HourTimerWPF
             double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
             double d = R * c;
             return d;
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            /*double deltaX=Location24A.xValue-Location24B.xValue;
-            double deltaY = Location24A.yValue - Location24B.yValue;
-            double sqrValue = (Math.Pow(deltaX, 2) + Math.Pow(deltaY, 2));
-            double retValue=Math.Sqrt(sqrValue);
-            if (double.IsPositiveInfinity(retValue))
-                        {
-                            ;
-                        }
-            return retValue;*/
         }
 
         static double toRad(double value)
@@ -203,6 +189,7 @@ namespace My24HourTimerWPF
             this_cpy.TaggedDescription = this.TaggedDescription;
             this_cpy.xValue = this.xValue;
             this_cpy.yValue = this.yValue;
+            this_cpy.NullLocation = this.NullLocation;
             return this_cpy;
         }
 
@@ -261,6 +248,22 @@ namespace My24HourTimerWPF
             get
             {
                 return yValue;
+            }
+        }
+
+        public bool isNull
+        {
+            get
+            {
+                return NullLocation;
+            }
+        }
+
+        public int DefaultCheck
+        {
+            get
+            {
+                return CheckDefault;
             }
         }
         #endregion

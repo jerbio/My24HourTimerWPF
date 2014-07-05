@@ -51,7 +51,7 @@
                         <TextBlock Height="23" HorizontalAlignment="Left" Margin="292,68,0,0" Name="textBlock7" Text="Difficulty:" VerticalAlignment="Top" />
                         <TextBlock Height="23" HorizontalAlignment="Left" Margin="294,39,0,0" Name="textBlock10" Text="Pre-Deadline Time:" VerticalAlignment="Top" />
                         <TextBlock Height="23" HorizontalAlignment="Left" Margin="10,133,0,0" Name="textBlock11" Text="# of Splits:" VerticalAlignment="Top" />
-                        <TextBox Height="23" HorizontalAlignment="Left" Margin="89,133,0,0" Name="textBox2" VerticalAlignment="Top" Width="29" Text="1" TextAlignment="Center" />
+                        <TextBox Height="23" HorizontalAlignment="Left" Margin="89,133,0,0" Name="textBox2" VerticalAlignment="Top" Width="29" Text="3" TextAlignment="Center" />
                         <ComboBox Height="23" HorizontalAlignment="Left" Margin="395,68,0,0" Name="comboBox1" VerticalAlignment="Top" Width="58" DataContext="{Binding}" Text="10">
                             <ComboBoxItem Content="10" />
                             <ComboBoxItem Content="9" DataContext="{Binding}" />

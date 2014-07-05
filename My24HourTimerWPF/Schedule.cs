@@ -6059,15 +6059,15 @@ namespace My24HourTimerWPF
 
         List<mTuple<bool, SubCalendarEvent>> stitchRestrictedSubCalendarEvent(List<mTuple<bool, SubCalendarEvent>> Arg1, TimeLine RestrictingTimeLine, SubCalendarEvent PrecedingPivot = null)
         {
-            List<SubCalendarEvent> retValue = stitchRestrictedSubCalendarEvent(Arg1.Select(obj => obj.Item2).ToList(), RestrictingTimeLine, PrecedingPivot);
+            List<SubCalendarEvent> retValue = stitchRestrictedSubCalendarEvent(Arg1.Select(obj => new mTuple<double, mTuple<TimeLine, SubCalendarEvent>>(0, new mTuple<TimeLine, SubCalendarEvent>(new TimeLine(), obj.Item2))).ToList(), RestrictingTimeLine, PrecedingPivot);
             return retValue.Select(obj => new mTuple<bool, SubCalendarEvent>(true, obj)).ToList();
         }
 
-
+        /*
         List< SubCalendarEvent> stitchRestrictedSubCalendarEvent(List< SubCalendarEvent> Arg1, TimeLine RestrictingTimeLine, SubCalendarEvent PrecedingPivot = null)
         {
             return stitchRestrictedSubCalendarEvent(Arg1.Select(obj => new mTuple<int, SubCalendarEvent>(0, obj)).ToList(), RestrictingTimeLine, null);
-        }
+        }*/
 
         List<SubCalendarEvent> stitchRestrictedSubCalendarEvent(List<mTuple<double, mTuple<TimeLine, SubCalendarEvent>>> Arg1, TimeLine RestrictingTimeLine, SubCalendarEvent PrecedingPivot = null)
         {
@@ -6090,140 +6090,86 @@ namespace My24HourTimerWPF
             DateTime SmallestDateTime = new DateTime(3000, 12, 31);
 
 
-            Arg1.Select(obj => //using Linq to update timeline
+            Arg1 =Arg1.Select(obj => //using Linq to update timeline
             {
                 obj.Item2.Item1 = obj.Item2.Item2.getCalendarEventRange.InterferringTimeLine(RestrictingTimeLine);//gets interferring TImeLine
-                obj.Item1 += obj.Item2.Item1 != null ? obj.Item2.Item1.TimelineSpan.TotalSeconds / obj.Item2.Item2.ActiveDuration.Ticks : 0;
+                obj.Item1 += obj.Item2.Item1 != null ? obj.Item2.Item1.TimelineSpan.TotalSeconds / obj.Item2.Item2.ActiveDuration.TotalSeconds : 0;
                 return obj; 
-            });
-
-
-
-
-
-            foreach (SubCalendarEvent eachSubCalendarEvent in partialInTimeLine)//gets the feasible timeLine foreach SubCalendarEvent
-            {
-                InterferringTimeLine = RestrictingTimeLine.InterferringTimeLine(eachSubCalendarEvent.getCalendarEventRange);
-                if ((InterferringTimeLine != null) && (InterferringTimeLine.TimelineSpan >= eachSubCalendarEvent.ActiveDuration))
-                {
-
-                    AvaialableTimeSpan.Add(new mTuple<TimeLine, SubCalendarEvent>(InterferringTimeLine, eachSubCalendarEvent));
-                    TimeSpan CurrentRealignedTimeSpan = InterferringTimeLine.TimelineSpan - eachSubCalendarEvent.ActiveDuration;
-
-                    if (CurrentRealignedTimeSpan <= ZeroTimeSpan)
-                    {
-                        ;
-                    }
-
-                    if ((CurrentRealignedTimeSpan <= SmallestAssignedTimeSpan))//Checks if the remaining timeSpan is less than currently smallest fittable remaining space
-                    {
-                        if (partialInTimeLine[i].getCalendarEventRange.End < SmallestDateTime)
-                        {
-                            indexOfSmallest = i;
-                            SmallestAssignedTimeSpan = CurrentRealignedTimeSpan;
-                            SmallestDateTime = partialInTimeLine[indexOfSmallest].getCalendarEventRange.End;
-                        }
-                    }
-                }
-
-
-                i++;
-            }
-
-
+            }).ToList();
+            Arg1=Arg1.OrderBy(obj => obj.Item1).ToList();
+            List<mTuple<double, mTuple<TimeLine, SubCalendarEvent>>> WorkableList = Arg1.Where(obj => obj.Item2.Item1 != null).ToList();
+            WorkableList = WorkableList.Where(obj => obj.Item2.Item1.TimelineSpan >= obj.Item2.Item2.ActiveDuration).ToList();
 
             //Build Strict Towards right of the tree
-            if (AvaialableTimeSpan.Count > 0)
+            if (WorkableList.Count > 0)
             {
-                int InitialSmallest = indexOfSmallest;
-
-                indexOfSmallest = AvaialableTimeSpan.Select(obj => obj.Item2).ToList().IndexOf(partialInTimeLine[indexOfSmallest]);
-                AvaialableTimeSpan[indexOfSmallest].Item2.PinSubEventsToStart(RestrictingTimeLine);
-                mTuple<bool, SubCalendarEvent> PivotNode = CopyOfAllList.Where(obj => (obj.Item2 == AvaialableTimeSpan[indexOfSmallest].Item2)).ToList()[0];
+                mTuple<double, mTuple<TimeLine, SubCalendarEvent>> PivotNodeData = WorkableList[0];
 
 
-                DateTime StartTimeOfRightTree = PivotNode.Item2.End;
+                bool PinningSuccess= PivotNodeData.Item2.Item2.PinSubEventsToStart(RestrictingTimeLine);
+                DateTime StartTimeOfRightTree = RestrictingTimeLine.Start;
                 DateTime EndTimeOfRightTree = RestrictingTimeLine.End;
+                SubCalendarEvent includentSubCakendarEvent=null;
+                if (PinningSuccess)//hack alert Subevent fittable a double less than 1 e,g 0.5
+                {
+                    StartTimeOfRightTree = PivotNodeData.Item2.Item2.End;
+                    includentSubCakendarEvent = PivotNodeData.Item2.Item2;
+                }
+                WorkableList.RemoveAt(0);
+
                 TimeLine RightTimeLine = new TimeLine(StartTimeOfRightTree, EndTimeOfRightTree);
 
-                CopyOfAllList.Remove(PivotNode);
 
-
-                Tuple<SubCalendarEvent, SubCalendarEvent> BoundaryElement = new Tuple<SubCalendarEvent, SubCalendarEvent>(null, PivotNode.Item2);
-
-                Dictionary<TimeSpan, Dictionary<string, mTuple<bool, SubCalendarEvent>>> PossibleEntries_Cpy = new Dictionary<TimeSpan, Dictionary<string, mTuple<bool, SubCalendarEvent>>>();
-                foreach (mTuple<bool, SubCalendarEvent> eachmtuple in CopyOfAllList)
+                List<mTuple<double, mTuple<TimeLine, SubCalendarEvent>>> WorkableList_Cpy = WorkableList.ToList();
+                List<SubCalendarEvent> rightTreeResult = stitchRestrictedSubCalendarEvent(WorkableList, RightTimeLine);
+                if(includentSubCakendarEvent!=null)
                 {
-                    if (PossibleEntries_Cpy.ContainsKey(eachmtuple.Item2.RangeSpan))
-                    {
-
-                        PossibleEntries_Cpy[eachmtuple.Item2.RangeSpan].Add(eachmtuple.Item2.ID, eachmtuple);
-                    }
-                    else
-                    {
-                        PossibleEntries_Cpy.Add(eachmtuple.Item2.RangeSpan, new Dictionary<string, mTuple<bool, SubCalendarEvent>>());
-                        PossibleEntries_Cpy[eachmtuple.Item2.RangeSpan].Add(eachmtuple.Item2.ID, eachmtuple);
-                    }
-                }
-                TimeLine RangeForSnugElements = new TimeLine(RestrictingTimeLine.Start, PivotNode.Item2.Start);
-                //List<SubCalendarEvent> OptimizedForLeft = OptimizeArrangeOfSubCalEvent(RangeForSnugElements, BoundaryElement, new List<mTuple<int, TimeSpanWithStringID>>(), PossibleEntries_Cpy, 0);
-                List<SubCalendarEvent> OptimizedForLeft = new List<SubCalendarEvent>();//DISABLES OptimizedForLeft EXTRA 
-                CopyOfAllList.RemoveAll(obj => OptimizedForLeft.Contains(obj.Item2));
-
-                //CopyOfAllList = DistanceSolver.Run(CopyOfAllList.Select(obj => obj.Item2).ToList()).Item1.SelectMany(obj => CopyOfAllList.Where(obj0 => obj == obj0.Item2)).ToList();
-
-                List<mTuple<bool, SubCalendarEvent>> rightTreeResult = stitchRestrictedSubCalendarEvent(CopyOfAllList, RightTimeLine);
-
-                if (rightTreeResult.Contains(PivotNode))
-                {
-                    ;
+                    rightTreeResult.Insert(0, includentSubCakendarEvent);
                 }
 
-                List<mTuple<bool, SubCalendarEvent>> snugFitForLeftTree = Utility.SubCalEventsTomTuple(OptimizedForLeft, true);
-
-                rightTreeResult.Insert(0, PivotNode);
-                snugFitForLeftTree.AddRange(rightTreeResult);
-                rightTreeResult = snugFitForLeftTree;
-                List<SubCalendarEvent> JustSubCalevents = Utility.mTupleToSubCalEvents(rightTreeResult).ToList();
-                if (!Utility.PinSubEventsToEnd(JustSubCalevents, RestrictingTimeLine))
+                if (!Utility.PinSubEventsToEnd(rightTreeResult, RestrictingTimeLine))
                 {
                     ;
                 };
 
                 //Build Strict Towards Left of the tree
                 DateTime StartTimeOfleftTree = RestrictingTimeLine.Start;
-                DateTime EndTimeOfLeftTree = rightTreeResult[0].Item2.Start;
-                TimeLine LeftTimeLine = new TimeLine(StartTimeOfleftTree, EndTimeOfLeftTree);
-                JustSubCalevents = Utility.mTupleToSubCalEvents(rightTreeResult).ToList();
-
-                CopyOfAllList.RemoveAll(obj => JustSubCalevents.Contains(obj.Item2));
-
-                //CopyOfAllList.RemoveAll(obj => rightTreeResult.Contains(obj));
-
-                List<mTuple<bool, SubCalendarEvent>> LeftTreeResult = stitchRestrictedSubCalendarEvent(CopyOfAllList, LeftTimeLine);
-                retValue = LeftTreeResult.Concat(rightTreeResult).ToList();
-                if (!Utility.PinSubEventsToEnd(Utility.mTupleToSubCalEvents(retValue), RestrictingTimeLine))
+                DateTime EndTimeOfLeftTree = RestrictingTimeLine.End;
+                if (rightTreeResult.Count > 0)
                 {
-                    ;
-                };
+                    EndTimeOfLeftTree = rightTreeResult[0].Start;
+                }
+
+                TimeLine LeftTimeLine = new TimeLine(StartTimeOfleftTree, EndTimeOfLeftTree);
+
+                WorkableList_Cpy.RemoveAll(obj => rightTreeResult.Contains(obj.Item2.Item2));
+
+
+
+
+                List<SubCalendarEvent> LeftTreeResult = stitchRestrictedSubCalendarEvent(WorkableList_Cpy, LeftTimeLine);
+                Utility.PinSubEventsToEnd(LeftTreeResult, RestrictingTimeLine);
+
+                retValue = LeftTreeResult.Concat(rightTreeResult).ToList();
             }
             else //if there are no feasible TimeLine that are withing RestrictingTimeLine that can also contain a subcalevent
             {
-                return new List<mTuple<bool, SubCalendarEvent>>();
+                return new List<SubCalendarEvent>();
             }
             return retValue;
 
         }
 
+
+        /*
         List<SubCalendarEvent> stitchRestrictedSubCalendarEvent(List<mTuple<int, SubCalendarEvent>> Arg1, TimeLine RestrictingTimeLine, SubCalendarEvent PrecedingPivot = null)
         {
-            /*
-             * Description: function tries to stitich Restricted SubCalEvents. It starts with the most restricted within timeline as the first node. This first node pins itself to the right It stitches the tree towards the right of the node. Makes a recursive call to stitchRestrictedSubCalendarEvent. pin the returned List and itself to the right hand side then tries to stitck the left hand side
-             */
             //mTuple<int, SubCalendarEvent> 
-            return stitchRestrictedSubCalendarEvent(Arg1.Select(obj=>new mTuple<int , mTuple<TimeSpan, SubCalendarEvent>>( obj.Item1, new mTuple<TimeSpan,SubCalendarEvent>(TimeSpan.FromTicks(obj.Item1*obj.Item2.ActiveDuration.Ticks),obj.Item2)) ).ToList() , RestrictingTimeLine, PrecedingPivot);
+            //return stitchRestrictedSubCalendarEvent(Arg1.Select(obj=>new mTuple<int , mTuple<TimeSpan, SubCalendarEvent>>( obj.Item1, new mTuple<TimeSpan,SubCalendarEvent>(TimeSpan.FromTicks(obj.Item1*obj.Item2.ActiveDuration.Ticks),obj.Item2)) ).ToList() , RestrictingTimeLine, PrecedingPivot);
 
-        }
+        }*/
+        
+        
         /*
         SubCalendarEvent CalculateWorkSpaceUsage(TimeLine myTimeLine, List<SubCalendarEvent> AllSubCalEvent_SortedByDeadLine)
         {

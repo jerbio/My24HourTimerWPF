@@ -203,9 +203,17 @@ namespace My24HourTimerWPF
 
         static public Location AverageGPSLocation(IEnumerable<Location> Locations)
         {
-            double xCoord=Locations.Average(obj=>obj.xValue);
-            double yCoord=Locations.Average(obj=>obj.yValue);
-            Location retValue= new Location(xCoord,yCoord);
+            Location retValue;
+            if (Locations.Count() > 0)
+            {
+                double xCoord = Locations.Average(obj => obj.xValue);
+                double yCoord = Locations.Average(obj => obj.yValue);
+                retValue = new Location(xCoord, yCoord);
+            }
+            else 
+            {
+                retValue=new Location(0, 0);
+            }
 
             return retValue;
         }

@@ -6069,25 +6069,17 @@ namespace My24HourTimerWPF
             return stitchRestrictedSubCalendarEvent(Arg1.Select(obj => new mTuple<int, SubCalendarEvent>(0, obj)).ToList(), RestrictingTimeLine, null);
         }
 
-        List<SubCalendarEvent> stitchRestrictedSubCalendarEvent(List<mTuple<int, mTuple<TimeSpan, SubCalendarEvent>>> Arg1, TimeLine RestrictingTimeLine, SubCalendarEvent PrecedingPivot = null)
-        { 
-        
-        }
-
-        List<SubCalendarEvent> stitchRestrictedSubCalendarEvent(List<mTuple<int, SubCalendarEvent>> Arg1, TimeLine RestrictingTimeLine, SubCalendarEvent PrecedingPivot = null)
+        List<SubCalendarEvent> stitchRestrictedSubCalendarEvent(List<mTuple<double, mTuple<TimeLine, SubCalendarEvent>>> Arg1, TimeLine RestrictingTimeLine, SubCalendarEvent PrecedingPivot = null)
         {
-            /*
-             * Description: function tries to stitich Restricted SubCalEvents. It starts with the most restricted within timeline as the first node. This first node pins itself to the right It stitches the tree towards the right of the node. Makes a recursive call to stitchRestrictedSubCalendarEvent. pin the returned List and itself to the right hand side then tries to stitck the left hand side
-             */
-            List<SubCalendarEvent> retValue = Arg1.Select(obj=>obj.Item2).ToList();
+            List<SubCalendarEvent> retValue = Arg1.Select(obj => obj.Item2.Item2).ToList();
 
-            TimeSpan SumOfAllSubCalEvent = Utility.SumOfActiveDuration(Arg1.Select(obj=>obj.Item2));
-            List<SubCalendarEvent> CopyOfAllList = Arg1.Select(obj => obj.Item2).ToList();
+            TimeSpan SumOfAllSubCalEvent = Utility.SumOfActiveDuration(Arg1.Select(obj => obj.Item2.Item2));
+            List<SubCalendarEvent> CopyOfAllList = Arg1.Select(obj => obj.Item2.Item2).ToList();
             if (retValue.Count < 1)//if arg1 is empty return the list
             {
                 return retValue;
             }
-            List<SubCalendarEvent> AllSubCalEvents = Arg1.Select(obj => obj.Item2).ToList();
+            List<SubCalendarEvent> AllSubCalEvents = Arg1.Select(obj => obj.Item2.Item2).ToList();
             List<mTuple<TimeLine, SubCalendarEvent>> AvaialableTimeSpan = new List<mTuple<TimeLine, SubCalendarEvent>>();
             int indexOfSmallest = -2222;
             int i = 0;
@@ -6097,8 +6089,15 @@ namespace My24HourTimerWPF
             TimeSpan SmallestAssignedTimeSpan = new TimeSpan(3650, 0, 0, 0);//sets the smallest TimeSpan To 10 years
             DateTime SmallestDateTime = new DateTime(3000, 12, 31);
 
-            List<SubCalendarEvent> partialInTimeLine = AllSubCalEvents.Where(obj => obj.getCalendarEventRange.End <= RestrictingTimeLine.End || !obj.canExistWithinTimeLine(new TimeLine(RestrictingTimeLine.End, Now.AddYears(10)))).ToList();//check the subcal events that have to exist within the current timeLine
-            IEnumerable<mTuple<int, SubCalendarEvent>> partialInTimeLine_WithCount = partialInTimeLine.Select(obj => new mTuple<int, SubCalendarEvent>(0, obj));
+
+            Arg1.Select(obj => //using Linq to update timeline
+            {
+                obj.Item2.Item1 = obj.Item2.Item2.getCalendarEventRange.InterferringTimeLine(RestrictingTimeLine);//gets interferring TImeLine
+                obj.Item1 += obj.Item2.Item1 != null ? obj.Item2.Item1.TimelineSpan.TotalSeconds / obj.Item2.Item2.ActiveDuration.Ticks : 0;
+                return obj; 
+            });
+
+
 
 
 
@@ -6215,6 +6214,16 @@ namespace My24HourTimerWPF
             return retValue;
 
         }
+
+        List<SubCalendarEvent> stitchRestrictedSubCalendarEvent(List<mTuple<int, SubCalendarEvent>> Arg1, TimeLine RestrictingTimeLine, SubCalendarEvent PrecedingPivot = null)
+        {
+            /*
+             * Description: function tries to stitich Restricted SubCalEvents. It starts with the most restricted within timeline as the first node. This first node pins itself to the right It stitches the tree towards the right of the node. Makes a recursive call to stitchRestrictedSubCalendarEvent. pin the returned List and itself to the right hand side then tries to stitck the left hand side
+             */
+            //mTuple<int, SubCalendarEvent> 
+            return stitchRestrictedSubCalendarEvent(Arg1.Select(obj=>new mTuple<int , mTuple<TimeSpan, SubCalendarEvent>>( obj.Item1, new mTuple<TimeSpan,SubCalendarEvent>(TimeSpan.FromTicks(obj.Item1*obj.Item2.ActiveDuration.Ticks),obj.Item2)) ).ToList() , RestrictingTimeLine, PrecedingPivot);
+
+        }
         /*
         SubCalendarEvent CalculateWorkSpaceUsage(TimeLine myTimeLine, List<SubCalendarEvent> AllSubCalEvent_SortedByDeadLine)
         {
@@ -6258,8 +6267,6 @@ namespace My24HourTimerWPF
                 }
                 arg1[eachTimeLine] = var5;*/
             }
-
-
             return arg1;
         }
 

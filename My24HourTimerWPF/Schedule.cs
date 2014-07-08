@@ -1846,31 +1846,6 @@ namespace My24HourTimerWPF
                 throw new Exception("invalid calendar event detected in ReArrangeTimeLineWithinWithinCalendaEventRange. Repeat not allowed");
             }
 
-            /*
-            TimeLine RangeForScheduleUpdate;
-            DateTime EarliestStartTime;
-            DateTime LatestEndTime;
-            Tuple<IEnumerable<SubCalendarEvent>, DateTime,int> refinedStartTimeAndInterferringEvents;
-            NoneCommitedCalendarEventsEvents.Add(MyCalendarEvent);
-            SubCalendarEvent[] ArrayOfInterferringSubEvents = getInterferringSubEvents(MyCalendarEvent, NoneCommitedCalendarEventsEvents);//It gets all the subevents within the time frame
-
-            List<SubCalendarEvent> collectionOfInterferringSubCalEvents;
-            EarliestStartTime = ArrayOfInterferringSubEvents.OrderBy(obj => obj.getCalendarEventRange.Start).ToList()[0].getCalendarEventRange.Start;
-            LatestEndTime = ArrayOfInterferringSubEvents.OrderBy(obj => obj.getCalendarEventRange.End).ToList()[ArrayOfInterferringSubEvents.Length - 1].getCalendarEventRange.End;
-            EarliestStartTime = EarliestStartTime < Now ? Now : EarliestStartTime;
-            refinedStartTimeAndInterferringEvents = getStartTimeWhenCurrentTimeClashesWithSubcalevent(ArrayOfInterferringSubEvents, EarliestStartTime, InterferringWithNowFlag);
-            InterferringWithNowFlag = refinedStartTimeAndInterferringEvents.Item3;
-            EarliestStartTime = refinedStartTimeAndInterferringEvents.Item2;
-            ArrayOfInterferringSubEvents = refinedStartTimeAndInterferringEvents.Item1.ToArray();
-
-
-            RangeForScheduleUpdate = new TimeLine(EarliestStartTime, LatestEndTime);
-
-            collectionOfInterferringSubCalEvents = getInterferringSubEvents(RangeForScheduleUpdate, NoneCommitedCalendarEventsEvents).ToList();
-            //collectionOfInterferringSubCalEvents.Add(MyCalendarEvent.AllEvents[0]);//artificially adds the new rigid event
-            ArrayOfInterferringSubEvents = collectionOfInterferringSubCalEvents.ToArray();
-            */
-
             NoneCommitedCalendarEventsEvents.Add(MyCalendarEvent);
             Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluation(MyCalendarEvent, NoneCommitedCalendarEventsEvents, InterferringWithNowFlag, NotDoneYet);
             List<SubCalendarEvent> collectionOfInterferringSubCalEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToList();
@@ -2171,6 +2146,13 @@ namespace My24HourTimerWPF
             TimeLine[] FreeSpotsWithOnlyRigids = getAllFreeSpots_NoCompleteSchedule(ReferenceTimeLine);
             List<SubCalendarEvent> ListOfAllInterferringSubCalendarEvents = new List<SubCalendarEvent>();
             List<TimeSpan> ListOfAllInterferringTimeSpans = new List<TimeSpan>();
+            List<mTuple<SubCalendarEvent, TimeLine>> FirstTwentyFourHours = new List<mTuple<SubCalendarEvent, TimeLine>>();
+            TimeLine FirstTwentyFOurTimeLine = new TimeLine(); ;
+            if (JustFreeSpots.Length > 0)
+            {
+                DateTime refStartTime24Hour = JustFreeSpots[0].Start;
+                FirstTwentyFOurTimeLine = new TimeLine(refStartTime24Hour, refStartTime24Hour.AddDays(1));
+            }
 
             foreach (List<SubCalendarEvent> MyList in MyListOfSubCalendarEvents)//Loop creates a List of interferring SubCalendarEvens
             {
@@ -2178,8 +2160,14 @@ namespace My24HourTimerWPF
                 {
                     ListOfAllInterferringSubCalendarEvents.Add(MySubEvents);
                     ListOfAllInterferringTimeSpans.Add(MySubEvents.ActiveSlot.BusyTimeSpan);
+                    if (FirstTwentyFOurTimeLine.InterferringTimeLine(MySubEvents.RangeTimeLine) != null)
+                    {
+                        FirstTwentyFourHours.Add(new mTuple<SubCalendarEvent, TimeLine>(MySubEvents, MySubEvents.RangeTimeLine));
+                    }
                 }
             }
+
+            FirstTwentyFourHours = FirstTwentyFourHours.OrderBy(obj => obj.Item1.Start).ToList();//orders the element by start time in order to preserve order for later calculation
 
 
             List<SubCalendarEvent> ListOfAlreadyAssignedSubCalendarEvents = new System.Collections.Generic.List<SubCalendarEvent>();
@@ -2599,7 +2587,7 @@ namespace My24HourTimerWPF
             TotalArrangedElements_NoMTuple=SpreadOutEvents(TotalArrangedElements_NoMTuple, PercentageOfOccupiedSpace, JustFreeSpots.ToList(), copyOfPossibleEvents, restrictedSubCaleventsAfterScheduleUpdate);
 #endif
             //TotalArrangedElements_NoMTuple=OptimizeForLocation(TotalArrangedElements_NoMTuple, JustFreeSpots);
-            ReadjustForDailySchedule(TotalArrangedElements_NoMTuple, JustFreeSpots.Select(obj => obj.CreateCopy()).ToList());
+            ReadjustForDailySchedule(TotalArrangedElements_NoMTuple, JustFreeSpots.Select(obj => obj.CreateCopy()).ToList(), FirstTwentyFourHours);
 
 
             List<List<List<SubCalendarEvent>>> ReValue = new System.Collections.Generic.List<System.Collections.Generic.List<System.Collections.Generic.List<SubCalendarEvent>>>();
@@ -2613,7 +2601,7 @@ namespace My24HourTimerWPF
 
 
 
-        List<List<SubCalendarEvent>> ReadjustForDailySchedule(List<List<SubCalendarEvent>> SpreadOutSchedule, List<TimeLine> AllFreeSpots)
+        List<List<SubCalendarEvent>> ReadjustForDailySchedule(List<List<SubCalendarEvent>> SpreadOutSchedule, List<TimeLine> AllFreeSpots, List<mTuple<SubCalendarEvent, TimeLine>> FirstTwentyFourHours)
         {
             List<mTuple<int, TimeLine>> LargerThan24Hours = new List<mTuple<int, TimeLine>>();
             List<List<SubCalendarEvent>> retValue = new List<List<SubCalendarEvent>>();
@@ -2626,13 +2614,17 @@ namespace My24HourTimerWPF
                 }
             }
 
+            List<SubCalendarEvent> AllAssignedSubEvents = SpreadOutSchedule.SelectMany(obj => obj).ToList();
+
+
+            LargerThan24Hours.Reverse();
 
             foreach (mTuple<int, TimeLine> eachmTuple in LargerThan24Hours)
             {
-                List <SubCalendarEvent> updatedList= resolveInTo24HourSlots(SpreadOutSchedule[eachmTuple.Item1].ToList(), eachmTuple.Item2);
+                List<SubCalendarEvent> updatedList = resolveInTo24HourSlots(SpreadOutSchedule[eachmTuple.Item1].ToList(), AllAssignedSubEvents, eachmTuple.Item2);
                 if (updatedList.Count != SpreadOutSchedule[eachmTuple.Item1].Count)
                 {
-                    throw new Exception("theres an error with resolveInTo24HourSlots");
+                    //throw new Exception("theres an error with resolveInTo24HourSlots");
                 }
                 SpreadOutSchedule[eachmTuple.Item1] = updatedList;
             }
@@ -2640,12 +2632,12 @@ namespace My24HourTimerWPF
             return retValue;
         }
 
-        List<SubCalendarEvent> resolveInTo24HourSlots(List<SubCalendarEvent> currentListOfSubCalendarElements, TimeLine limitingTimeLine, mTuple<SubCalendarEvent,SubCalendarEvent>edgeElements=null)
+        List<SubCalendarEvent> resolveInTo24HourSlots(List<SubCalendarEvent> currentListOfSubCalendarElements, List<SubCalendarEvent> AllSubEvents,TimeLine limitingTimeLine, mTuple<SubCalendarEvent,SubCalendarEvent>edgeElements=null)
         {
             //function takes a full freespot and tries to spread it out into 24 hour sections
             //this is done by intially sending every subcalevenet towards the end of the Timeline after which it takes 24hour chunks and attempts to 
-            
-            
+
+            AllSubEvents=AllSubEvents.ToList();
 
 
 
@@ -2657,7 +2649,7 @@ namespace My24HourTimerWPF
             TimeLine limitingTimeLine_cpy = limitingTimeLine.CreateCopy();
 
             limitingTimeLine.AddBusySlots(currentListOfSubCalendarElements_cpy.Select(obj => obj.ActiveSlot));
-            List<TimeLineWithEdgeElements> AllFreeSpots = limitingTimeLine_cpy.getAllFreeSlotsWithEdges().ToList();
+            List<TimeLine> AllFreeSpots = limitingTimeLine_cpy.getAllFreeSlots().ToList();
             AllFreeSpots=AllFreeSpots.Where(obj => obj.TimelineSpan.Ticks > 0).OrderBy(obj=>obj.End).ToList();
 
 
@@ -2704,7 +2696,7 @@ namespace My24HourTimerWPF
 
                 
                 limitingTimeLine.AddBusySlots(currentListOfSubCalendarElements.Select(obj => obj.ActiveSlot));
-                AllFreeSpots = limitingTimeLine.getAllFreeSlotsWithEdges().ToList();
+                AllFreeSpots = limitingTimeLine.getAllFreeSlots().ToList();
                 i = AllFreeSpots.Count() - 1;
                 
             }
@@ -2724,11 +2716,8 @@ namespace My24HourTimerWPF
                 TimeSpan currTotalDuration = Utility.SumOfActiveDuration(CollectionUpdated.Item1);
                 double currOccupancy =-8898;
                 if(CollectionUpdated.Item2.TimelineSpan.Ticks>0)
-                { currOccupancy = (double)currTotalDuration.Ticks / (double)CollectionUpdated.Item2.TimelineSpan.Ticks; }
-
-                if (currOccupancy > Occupancy)
-                {
-                    ;
+                { 
+                    currOccupancy = (double)currTotalDuration.Ticks / (double)CollectionUpdated.Item2.TimelineSpan.Ticks; 
                 }
 
 
@@ -2752,6 +2741,7 @@ namespace My24HourTimerWPF
 
         Tuple<List<SubCalendarEvent>,TimeLine> every24Interval(List<SubCalendarEvent> currentListOfSubCalendarElements, TimeLine limitingTimeLine, double occupancy, Dictionary<string, mTuple<SubCalendarEvent, BusyTimeLine>> PreservedValues)
         {
+            //function assigns elements based on a twenty hour interval
             DateTime refEndTime=limitingTimeLine.Start.AddDays(1);
             refEndTime=refEndTime<=limitingTimeLine.End?refEndTime:limitingTimeLine.End;
             TimeLine CurrentDayReference = new TimeLine(limitingTimeLine.Start, refEndTime);

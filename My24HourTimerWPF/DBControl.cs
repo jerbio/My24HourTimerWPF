@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data;
+using System.Security.Cryptography;
 using System.Data.SqlClient;
 
 namespace My24HourTimerWPF
@@ -31,14 +32,15 @@ namespace My24HourTimerWPF
 
         public DBControl(string UserName, string Password)
         {
-            this.UserName = UserName;
+            this.UserName =  UserName.ToLower();
             this.UserPassword = Password;
+            this.UserPassword = encryptString(Password);
             ID = 0;
         }
 
         public DBControl(string UserName, int UserID)
         {
-            this.UserName = UserName;
+            this.UserName = UserName.ToLower();
             ID = UserID;
         }
 
@@ -131,7 +133,7 @@ namespace My24HourTimerWPF
             return retValue;
         }
 
-        public Tuple<int, CustomErrors> RegisterUser(string FirstName, string LastName, string Email, string UserName, string Password)
+        public Tuple<int, CustomErrors> RegisterUser(string FirstName, string LastName, string Email)//, string UserName, string Password)
         {
             Tuple<int, CustomErrors> retValue;
             try
@@ -150,7 +152,7 @@ namespace My24HourTimerWPF
                 SqlDataReader myReader = null;
                 //Insert into WagtapUserAccounts.dbo.UserLog (UserName,Password) values ('LiliUN','LiliPwd') Select ID from WagtapUserAccounts.dbo.UserLog where WagtapUserAccounts.dbo.UserLog.UserName='LiliUN';
 
-                SqlCommand InserUName_UPwd = new SqlCommand("Insert into DatabaseWaggy.dbo.UserLog (UserName,Password,Active) values ('" + UserName + "','" + Password + "','" + 1 + "') select ID from DatabaseWaggy.dbo.UserLog where DatabaseWaggy.dbo.UserLog.UserName='" + UserName + "'", Wagtap);
+                SqlCommand InserUName_UPwd = new SqlCommand("Insert into DatabaseWaggy.dbo.UserLog (UserName,Password,Active) values ('" + this.UserName + "','" + this.UserPassword + "','" + 1 + "') select ID from DatabaseWaggy.dbo.UserLog where DatabaseWaggy.dbo.UserLog.UserName='" + this.UserName + "'", Wagtap);
                 int ID_NUmb = 0;
 
                 //'"select ID from DatabaseWaggy.dbo.UserLog where DatabaseWaggy.dbo.UserLog.UserName = '" + UserName + "' and DatabaseWaggy.dbo.UserLog.Password = '" + Password + "'", Wagtap);
@@ -194,7 +196,108 @@ namespace My24HourTimerWPF
             return retValue;
         }
 
+        static void EncryptPassword(int EntryID)
+        {
+            try
+            {
+                SqlDataReader myReader = null;
+                try
+                {
+                    Wagtap.Open();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.ToString());
+                }
+                
+                SqlCommand myCommand;
+                {
+                    string UnEncryptedPword = "";
+                    myCommand = new SqlCommand("select Password from DatabaseWaggy.dbo.UserLog where  DatabaseWaggy.dbo.UserLog.ID = " + EntryID + "", Wagtap);
+                    myReader = myCommand.ExecuteReader();
+                    while (myReader.Read())
+                    {
+                        UnEncryptedPword = myReader["Password"].ToString();
+                    }
+                    myReader.Close();
 
+                    string EncryptedString = encryptString(UnEncryptedPword);
+                    EncryptedString = encryptString(EncryptedString);
+
+                    myCommand = new SqlCommand("update DatabaseWaggy.dbo.UserLog set Password =\'" + EncryptedString + "\' where  DatabaseWaggy.dbo.UserLog.ID = " + EntryID + "", Wagtap);
+                    myReader = myCommand.ExecuteReader();
+                    while (myReader.Read())
+                    {
+                        UnEncryptedPword = myReader["Password"].ToString();
+                    }
+                    myReader.Close();
+
+                    Wagtap.Close();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+               //ID = "";
+            }
+
+        }
+
+        public static string encryptString(string UserString)
+        {
+            SHA512Managed ShaEncryption = new SHA512Managed();
+            //Encoding.UTF8.GetBytes()
+            byte[] result = ShaEncryption.ComputeHash(Encoding.UTF8.GetBytes(UserString));
+            UserString = Encoding.UTF8.GetString(result);
+            return UserString;
+        }
+
+        static void UpdateAllUserPassword()
+        {
+            try
+            {
+                Wagtap.Open();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            
+            try
+            {
+                SqlDataReader myReader = null;
+                SqlCommand myCommand;
+                int CurrentID = -1;
+                string readID = "";
+                {
+                    myCommand = new SqlCommand("select ID from DatabaseWaggy.dbo.UserLog", Wagtap);
+                    myReader = myCommand.ExecuteReader();
+                    myCommand.CommandText = "";
+                    int i = 0;
+                    List<int> AllIDs = new List<int>();
+                    while (myReader.Read())
+                    {
+                        readID = myReader[0].ToString();
+                        CurrentID = Convert.ToInt32(readID);
+                        AllIDs.Add(CurrentID);
+                    }
+                    myReader.Close();
+                    Wagtap.Close();
+                    foreach (int eachInt in AllIDs)
+                    {
+                        EncryptPassword(eachInt);
+                    }
+                }
+                
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                //ID = "";
+            }
+
+        }
+        
         public CustomErrors deleteUser()
         {
             CustomErrors retValue;

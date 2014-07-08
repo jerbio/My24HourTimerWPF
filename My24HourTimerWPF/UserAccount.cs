@@ -1,4 +1,4 @@
-﻿//#define readfromBeforeInsertionFixingStiticRestricted
+﻿#define readfromBeforeInsertionFixingStiticRestricted
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +35,7 @@ namespace My24HourTimerWPF
                 WagTapLogLocation = DirectoryEntry;
             }
             this.Username = UserName;
-            this.Password = PassWord;
+            this.Password =  DBControl.encryptString(PassWord);
         }
 
         public UserAccount(string UserName, int UserID, string DirectoryEntry = "")
@@ -51,13 +51,17 @@ namespace My24HourTimerWPF
 
         public bool Login()
         {
+            
+            
             if(ID==0)
-            { 
-                UserLog = new LogControl(Username, Password);
+            {
+                UserAccountDBAccess = new DBControl(Username, Password);
+                UserLog = new LogControl(UserAccountDBAccess);
             }
             else
             {
-                UserLog = new LogControl(Username, ID);
+                UserAccountDBAccess = new DBControl(Username, ID);
+                UserLog = new LogControl(UserAccountDBAccess);
             }
             UserLog.Initialize();
             ID = UserLog.LoggedUserID;
@@ -65,13 +69,21 @@ namespace My24HourTimerWPF
             return UserLog.Status;
         }
 
+
+        public void EncryptPassword()
+        {
+            UserAccountDBAccess.LogIn();
+            //UserAccountDBAccess.EncryptPassword(this.ID);
+
+        }
         public CustomErrors Register(string FirstName, string LastName, string Email, string UserName, string PassWord)
         {
             CustomErrors retValue = new CustomErrors(false,"success");
+            PassWord=(DBControl.encryptString(PassWord));
             UserAccountDBAccess = new DBControl(UserName, PassWord);
-            Tuple<int, CustomErrors> registrationStatus = UserAccountDBAccess.RegisterUser(FirstName, LastName, Email, UserName, PassWord);
-
-            UserLog = new LogControl(UserName,PassWord);
+            Tuple<int, CustomErrors> registrationStatus = UserAccountDBAccess.RegisterUser(FirstName, LastName, Email);//, UserName, PassWord);
+            //UserAccountDBAccess = new DBControl(UserName, PassWord);
+            UserLog = new LogControl(UserAccountDBAccess);
             UserLog.Initialize();
             if (!registrationStatus.Item2.Status)
             {
@@ -165,15 +177,9 @@ namespace My24HourTimerWPF
             bool LogStatus;
 
 
-            public LogControl(string UserName, string Password)
+            public LogControl(DBControl DBAccess)
             {
-                LogDBDataAccess = new DBControl(UserName, Password);
-                LogStatus = false;
-            }
-
-            public LogControl(string UserName, int UserID)
-            {
-                LogDBDataAccess = new DBControl(UserName, UserID);
+                LogDBDataAccess = DBAccess;
                 LogStatus = false;
             }
 

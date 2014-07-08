@@ -566,8 +566,6 @@ namespace My24HourTimerWPF
             SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
             
             EventID SubEventID = new EventID(EventID);
-
-
             bool InitialRigid = ReferenceSubEvent.Rigid;
 
             if (!ReferenceSubEvent.shiftEvent(Now - ReferenceSubEvent.Start) && !Force)

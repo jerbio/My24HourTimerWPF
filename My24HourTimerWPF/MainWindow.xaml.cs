@@ -985,8 +985,8 @@ namespace My24HourTimerWPF
 
                             if (result == MessageBoxResult.Yes)
                             {
-                                MySchedule.SetEventAsNow(EventID, true); ;
-//                                MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2);
+                                ScheduleUpdateMessage=MySchedule.SetEventAsNow(EventID, true); ;
+                                MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2);
                             }
                         }
                         break;
@@ -1199,6 +1199,14 @@ namespace My24HourTimerWPF
         private void LogInButton_Click(object sender, RoutedEventArgs e)
         {
             LogInToWagtap();
+        }
+
+        private void EncryptClicked_Click(object sender, RoutedEventArgs e)
+        {
+            //DBControl.UpdateAllUserPassword();
+            /*UserAccount currentUser = new UserAccount(UserNameTextBox.Text, PasswordTextBox.Text);
+            currentUser.Login();
+            currentUser.EncryptPassword();*/
         }
 
         private void LogInButton_Copy_Click(object sender, RoutedEventArgs e)

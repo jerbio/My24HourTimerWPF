@@ -6119,6 +6119,8 @@ namespace My24HourTimerWPF
 
 
                 List<mTuple<double, mTuple<TimeLine, SubCalendarEvent>>> WorkableList_Cpy = WorkableList.ToList();
+
+                
                 List<SubCalendarEvent> rightTreeResult = stitchRestrictedSubCalendarEvent(WorkableList, RightTimeLine);
                 if(includentSubCakendarEvent!=null)
                 {

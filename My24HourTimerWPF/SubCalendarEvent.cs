@@ -12,6 +12,7 @@ namespace My24HourTimerWPF
         TimeSpan AvailablePreceedingFreeSpace;
         TimeLine CalendarEventRange;
         Location EventLocation;
+        int MiscIntData;
 
         #region Classs Constructor
         public SubCalendarEvent()
@@ -250,7 +251,33 @@ namespace My24HourTimerWPF
             throw new Exception("Error Detected: Trying to update SubCalendar Event with non matching ID");
         }
 
+        public static void updateMiscData(IList<SubCalendarEvent>AllSubCalendarEvents, IList<int> IntData)
+        {
+            if(AllSubCalendarEvents.Count!=IntData.Count)
+            {
+                throw new Exception("trying to Subcalendar events with not matching count of intData");
+            }
+            else
+            {
+                for(int i=0;i<AllSubCalendarEvents.Count;i++)
+                {
+                    AllSubCalendarEvents[i].MiscIntData=IntData[i];
+                }
+            }
+        }
 
+
+
+        public static void updateMiscData(IList<SubCalendarEvent> AllSubCalendarEvents, int IntData)
+        {
+            
+            {
+                for (int i = 0; i < AllSubCalendarEvents.Count; i++)
+                {
+                    AllSubCalendarEvents[i].MiscIntData = IntData;
+                }
+            }
+        }
 
 
 
@@ -425,6 +452,13 @@ namespace My24HourTimerWPF
             }
         }
 
+        public int IntData
+        {
+            get
+            {
+                return MiscIntData;
+            }
+        }
         public override DateTime End
         {
             get

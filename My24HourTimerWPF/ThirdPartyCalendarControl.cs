@@ -1,4 +1,4 @@
-﻿//#define EnableOutlook
+﻿#define EnableOutlook
 
 using System;
 using System.Collections.Generic;
@@ -152,7 +152,7 @@ namespace My24HourTimerWPF
             }
             else
             {
-                SubCalendarEvent []enableSubCalEVents=MyEvent.EnabledSubEvents;
+                SubCalendarEvent []enableSubCalEVents=MyEvent.ActiveSubEvents;
                 for (; i < enableSubCalEVents.Length; i++)
                 {
 #if (EnableOutlook)

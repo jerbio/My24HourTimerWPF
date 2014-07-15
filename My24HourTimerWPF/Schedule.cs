@@ -566,6 +566,8 @@ namespace My24HourTimerWPF
             SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
             
             EventID SubEventID = new EventID(EventID);
+
+
             bool InitialRigid = ReferenceSubEvent.Rigid;
 
             if (!ReferenceSubEvent.shiftEvent(Now - ReferenceSubEvent.Start) && !Force)
@@ -1586,6 +1588,7 @@ namespace My24HourTimerWPF
         }
 
 
+        
 
 
         Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors> getAllInterferringEventsAndTimeLineInCurrentEvaluation(CalendarEvent initializingCalendarEvent, List<CalendarEvent> NoneCommitedCalendarEventsEvents,int FlagType, HashSet<SubCalendarEvent> NotDoneYet)
@@ -1602,7 +1605,7 @@ namespace My24HourTimerWPF
 
             LatestEndTime = PertinentNotDoneYet != null ? (PertinentNotDoneYet.Count() > 0 ? PertinentNotDoneYet.Select(obj => obj.getCalendarEventRange.End).Max() > RangeForScheduleUpdate.End ? PertinentNotDoneYet.Select(obj => obj.getCalendarEventRange.End).Max() : RangeForScheduleUpdate.End : RangeForScheduleUpdate.End) : RangeForScheduleUpdate.End;
 
-            LatestEndTime=LatestEndTime.AddDays(6);
+            //LatestEndTime=LatestEndTime.AddDays(6);
 
             RangeForScheduleUpdate = new TimeLine(RangeForScheduleUpdate.Start, LatestEndTime);//updates the range for scheduling
 
@@ -1631,63 +1634,68 @@ namespace My24HourTimerWPF
             ArrayOfInterferringSubEvents.ToList();
             ArrayOfInterferringSubEvents.AddRange(PertinentNotDoneYet.ToList());//adds the PertinentNotDoneYet to the SubEventsholder list
             
-            /*
-            TimeLine pinningTimeLine = new TimeLine(ReferenceDayTIime, LatestEndTime);
-            Tuple<IEnumerable<SubCalendarEvent>, IEnumerable<SubCalendarEvent>> PinningInformation_NotDoneYet = PintNotDoneYestSubEventToEndOfTimeLine(pinningTimeLine,SubEventsholder);
-            pinningTimeLine = null;
-            */
-
             RangeForScheduleUpdate = new TimeLine(EarliestStartTime, LatestEndTime);//updates the RangeForScheduleUpdate timeline
             CustomErrors errorStatus = new CustomErrors(false, "");
             TimeSpan SumOfAllEventsTimeSpan = Utility.SumOfActiveDuration(ArrayOfInterferringSubEvents.ToList());//sum all events
+            bool AddTill7days = false;
 
-            while (SumOfAllEventsTimeSpan > RangeForScheduleUpdate.TimelineSpan-new TimeSpan(4,0,0))//loops untill the sum all the interferring events can possibly fit within the timeline. Essentially possibly fittable//hack alert to ensure usage of time space. THe extra addition has to be one pertaining to the occupancy
+            do
             {
-                PertinentNotDoneYet = NotDoneYet.Where(obj => obj.getCalendarEventRange.InterferringTimeLine(RangeForScheduleUpdate) != null);
-                ArrayOfInterferringSubEvents.AddRange(PertinentNotDoneYet.ToList());
-                EarliestStartTime = ArrayOfInterferringSubEvents.OrderBy(obj => obj.getCalendarEventRange.Start).ToList()[0].getCalendarEventRange.Start;//attempts to get subcalevent with a calendarevent with earliest start time
-                LatestEndTime = ArrayOfInterferringSubEvents.OrderBy(obj => obj.getCalendarEventRange.End).ToList()[ArrayOfInterferringSubEvents.Count() - 1].getCalendarEventRange.End;//attempts to get subcalevent with a calendarevent with latest Endtime
-                EarliestStartTime = EarliestStartTime < Now ? Now : EarliestStartTime;
-                
-                
-                refinedStartTimeAndInterferringEvents = getStartTimeWhenCurrentTimeClashesWithSubcalevent(ArrayOfInterferringSubEvents, EarliestStartTime, FlagType);
-                FlagType = refinedStartTimeAndInterferringEvents.Item3;
-                EarliestStartTime = refinedStartTimeAndInterferringEvents.Item2;
-                ArrayOfInterferringSubEvents = refinedStartTimeAndInterferringEvents.Item1.ToList();
-                ArrayOfInterferringSubEvents.AddRange(PertinentNotDoneYet.ToList());
-                
-                RangeForScheduleUpdate = new TimeLine(EarliestStartTime, LatestEndTime);//updates range of scan
-                collectionOfInterferringSubCalEvents = getInterferringSubEvents(RangeForScheduleUpdate, NoneCommitedCalendarEventsEvents).ToList();//updates interferring events list
-
-
-                ArrayOfInterferringSubEvents = collectionOfInterferringSubCalEvents.ToList();
-                ArrayOfInterferringSubEvents=ArrayOfInterferringSubEvents.OrderBy(obj => obj.End).ToList();
-                MyEdgeElements = getEdgeElements(RangeForScheduleUpdate, ArrayOfInterferringSubEvents);
-                EarliestStartTime = MyEdgeElements[0].Count > 0 ? MyEdgeElements[0].OrderBy(obj => obj.Start).ToList()[0].Start : RangeForScheduleUpdate.Start;//if there is crossover with start time RangeForScheduleUpdate select the crossover subcalevent start time
-                LatestEndTime = MyEdgeElements[1].Count > 0 ? MyEdgeElements[1].OrderBy(obj => obj.End).ToList()[MyEdgeElements[1].Count - 1].End : RangeForScheduleUpdate.End;
-                EarliestStartTime = EarliestStartTime < Now ? Now : EarliestStartTime;
-
-                
-                refinedStartTimeAndInterferringEvents = getStartTimeWhenCurrentTimeClashesWithSubcalevent(ArrayOfInterferringSubEvents, EarliestStartTime, FlagType);
-                FlagType = refinedStartTimeAndInterferringEvents.Item3;
-                EarliestStartTime = refinedStartTimeAndInterferringEvents.Item2;
-                
-                ArrayOfInterferringSubEvents = refinedStartTimeAndInterferringEvents.Item1.ToList();
-                ArrayOfInterferringSubEvents.AddRange(PertinentNotDoneYet.ToList());
-                RangeForScheduleUpdate = new TimeLine(EarliestStartTime, LatestEndTime);
-                TimeSpan newSumOfAllTimeSpans = Utility.SumOfActiveDuration(ArrayOfInterferringSubEvents);
-                if (newSumOfAllTimeSpans == SumOfAllEventsTimeSpan)
+                if (AddTill7days)
                 {
-                    errorStatus = new CustomErrors(true, "Total sum of events exceeds available time span");
-                    break;
-                    //throw new Exception("You have events that cannot fit our time frame");
+                    RangeForScheduleUpdate = new TimeLine(RangeForScheduleUpdate.Start, RangeForScheduleUpdate.Start.AddDays(7));
+                    ArrayOfInterferringSubEvents = getInterferringSubEvents(RangeForScheduleUpdate, NoneCommitedCalendarEventsEvents).ToList();//It gets all the subevents within the time frame
+                    ArrayOfInterferringSubEvents.AddRange(NotDoneYet);
                 }
-                else
+                while ((SumOfAllEventsTimeSpan > RangeForScheduleUpdate.TimelineSpan)||(AddTill7days))//loops untill the sum all the interferring events can possibly fit within the timeline. Essentially possibly fittable//hack alert to ensure usage of time space. THe extra addition has to be one pertaining to the occupancy
                 {
-                    SumOfAllEventsTimeSpan = newSumOfAllTimeSpans;
+                    PertinentNotDoneYet = NotDoneYet.Where(obj => obj.getCalendarEventRange.InterferringTimeLine(RangeForScheduleUpdate) != null);
+                    ArrayOfInterferringSubEvents.AddRange(PertinentNotDoneYet.ToList());
+                    EarliestStartTime = ArrayOfInterferringSubEvents.OrderBy(obj => obj.getCalendarEventRange.Start).ToList()[0].getCalendarEventRange.Start;//attempts to get subcalevent with a calendarevent with earliest start time
+                    LatestEndTime = ArrayOfInterferringSubEvents.OrderBy(obj => obj.getCalendarEventRange.End).ToList()[ArrayOfInterferringSubEvents.Count() - 1].getCalendarEventRange.End;//attempts to get subcalevent with a calendarevent with latest Endtime
+                    EarliestStartTime = EarliestStartTime < Now ? Now : EarliestStartTime;
+
+
+                    refinedStartTimeAndInterferringEvents = getStartTimeWhenCurrentTimeClashesWithSubcalevent(ArrayOfInterferringSubEvents, EarliestStartTime, FlagType);
+                    FlagType = refinedStartTimeAndInterferringEvents.Item3;
+                    EarliestStartTime = refinedStartTimeAndInterferringEvents.Item2;
+                    ArrayOfInterferringSubEvents = refinedStartTimeAndInterferringEvents.Item1.ToList();
+                    ArrayOfInterferringSubEvents.AddRange(PertinentNotDoneYet.ToList());
+
+                    RangeForScheduleUpdate = new TimeLine(EarliestStartTime, LatestEndTime);//updates range of scan
+                    collectionOfInterferringSubCalEvents = getInterferringSubEvents(RangeForScheduleUpdate, NoneCommitedCalendarEventsEvents).ToList();//updates interferring events list
+
+
+                    ArrayOfInterferringSubEvents = collectionOfInterferringSubCalEvents.ToList();
+                    ArrayOfInterferringSubEvents = ArrayOfInterferringSubEvents.OrderBy(obj => obj.End).ToList();
+                    MyEdgeElements = getEdgeElements(RangeForScheduleUpdate, ArrayOfInterferringSubEvents);
+                    EarliestStartTime = MyEdgeElements[0].Count > 0 ? MyEdgeElements[0].OrderBy(obj => obj.Start).ToList()[0].Start : RangeForScheduleUpdate.Start;//if there is crossover with start time RangeForScheduleUpdate select the crossover subcalevent start time
+                    LatestEndTime = MyEdgeElements[1].Count > 0 ? MyEdgeElements[1].OrderBy(obj => obj.End).ToList()[MyEdgeElements[1].Count - 1].End : RangeForScheduleUpdate.End;
+                    EarliestStartTime = EarliestStartTime < Now ? Now : EarliestStartTime;
+
+
+                    refinedStartTimeAndInterferringEvents = getStartTimeWhenCurrentTimeClashesWithSubcalevent(ArrayOfInterferringSubEvents, EarliestStartTime, FlagType);
+                    FlagType = refinedStartTimeAndInterferringEvents.Item3;
+                    EarliestStartTime = refinedStartTimeAndInterferringEvents.Item2;
+
+                    ArrayOfInterferringSubEvents = refinedStartTimeAndInterferringEvents.Item1.ToList();
+                    ArrayOfInterferringSubEvents.AddRange(PertinentNotDoneYet.ToList());
+                    RangeForScheduleUpdate = new TimeLine(EarliestStartTime, LatestEndTime);
+                    TimeSpan newSumOfAllTimeSpans = Utility.SumOfActiveDuration(ArrayOfInterferringSubEvents);
+                    if (newSumOfAllTimeSpans == SumOfAllEventsTimeSpan)
+                    {
+                        errorStatus = new CustomErrors(true, "Total sum of events exceeds available time span");
+                        break;
+                        //throw new Exception("You have events that cannot fit our time frame");
+                    }
+                    else
+                    {
+                        SumOfAllEventsTimeSpan = newSumOfAllTimeSpans;
+                    }
                 }
+                AddTill7days = true;
             }
-
+            while (RangeForScheduleUpdate.TimelineSpan < new TimeSpan(7, 0, 0, 0));
             
             return new Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors>(RangeForScheduleUpdate, ArrayOfInterferringSubEvents, errorStatus);
         }
@@ -2566,7 +2574,6 @@ namespace My24HourTimerWPF
                     {
                         ;
                     }
-                    //Dict_ConstrainedList = stitchRestrictedSubCalendarEvent(Dict_TimeLine_ListOfSubCalendarEvent_Cpy.Keys.ToList(), 0, Dict_ConstrainedList);
                 }
                 i0++;
             }
@@ -6061,12 +6068,6 @@ namespace My24HourTimerWPF
             return retValue.Select(obj => new mTuple<bool, SubCalendarEvent>(true, obj)).ToList();
         }
 
-        /*
-        List< SubCalendarEvent> stitchRestrictedSubCalendarEvent(List< SubCalendarEvent> Arg1, TimeLine RestrictingTimeLine, SubCalendarEvent PrecedingPivot = null)
-        {
-            return stitchRestrictedSubCalendarEvent(Arg1.Select(obj => new mTuple<int, SubCalendarEvent>(0, obj)).ToList(), RestrictingTimeLine, null);
-        }*/
-
         List<SubCalendarEvent> stitchRestrictedSubCalendarEvent(List<mTuple<double, mTuple<TimeLine, SubCalendarEvent>>> Arg1, TimeLine RestrictingTimeLine, SubCalendarEvent PrecedingPivot = null)
         {
             List<SubCalendarEvent> retValue = Arg1.Select(obj => obj.Item2.Item2).ToList();
@@ -6091,7 +6092,7 @@ namespace My24HourTimerWPF
             Arg1 =Arg1.Select(obj => //using Linq to update timeline
             {
                 obj.Item2.Item1 = obj.Item2.Item2.getCalendarEventRange.InterferringTimeLine(RestrictingTimeLine);//gets interferring TImeLine
-                obj.Item1 += obj.Item2.Item1 != null ? obj.Item2.Item1.TimelineSpan.TotalSeconds / obj.Item2.Item2.ActiveDuration.TotalSeconds : 0;
+                obj.Item1 += (obj.Item1*10) + (obj.Item2.Item1 != null ? obj.Item2.Item1.TimelineSpan.TotalSeconds / obj.Item2.Item2.ActiveDuration.TotalSeconds : 0);
                 return obj; 
             }).ToList();
             Arg1=Arg1.OrderBy(obj => obj.Item1).ToList();
@@ -6108,19 +6109,27 @@ namespace My24HourTimerWPF
                 DateTime StartTimeOfRightTree = RestrictingTimeLine.Start;
                 DateTime EndTimeOfRightTree = RestrictingTimeLine.End;
                 SubCalendarEvent includentSubCakendarEvent=null;
+                TimeLine leftOver = new TimeLine();
                 if (PinningSuccess)//hack alert Subevent fittable a double less than 1 e,g 0.5
                 {
                     StartTimeOfRightTree = PivotNodeData.Item2.Item2.End;
                     includentSubCakendarEvent = PivotNodeData.Item2.Item2;
+                    leftOver = new TimeLine(RestrictingTimeLine.Start, PivotNodeData.Item2.Item2.Start);//gets the left of timeline to ensure that 
                 }
+
+
+                
+
                 WorkableList.RemoveAt(0);
 
                 TimeLine RightTimeLine = new TimeLine(StartTimeOfRightTree, EndTimeOfRightTree);
 
-
                 List<mTuple<double, mTuple<TimeLine, SubCalendarEvent>>> WorkableList_Cpy = WorkableList.ToList();
 
-                
+                List<SubCalendarEvent>willFitInleftOver= WorkableList.Where(obj => obj.Item2.Item2.canExistWithinTimeLine(leftOver)).Select(obj=>obj.Item2.Item2).ToList();
+
+                SubCalendarEvent.incrementMiscdata(willFitInleftOver);
+
                 List<SubCalendarEvent> rightTreeResult = stitchRestrictedSubCalendarEvent(WorkableList, RightTimeLine);
                 if(includentSubCakendarEvent!=null)
                 {
@@ -6151,32 +6160,18 @@ namespace My24HourTimerWPF
                 Utility.PinSubEventsToEnd(LeftTreeResult, RestrictingTimeLine);
 
                 retValue = LeftTreeResult.Concat(rightTreeResult).ToList();
+
+                AllSubCalEvents.RemoveAll(obj => retValue.Contains(obj));
+                SubCalendarEvent.decrementMiscdata(AllSubCalEvents.Intersect(willFitInleftOver).ToList());
+                
+                //SubCalendarEvent.decrementMiscdata(Arg1.Select(obj => obj.Item2.Item2).ToList());
             }
             else //if there are no feasible TimeLine that are withing RestrictingTimeLine that can also contain a subcalevent
             {
                 return new List<SubCalendarEvent>();
             }
             return retValue;
-
         }
-
-
-        /*
-        List<SubCalendarEvent> stitchRestrictedSubCalendarEvent(List<mTuple<int, SubCalendarEvent>> Arg1, TimeLine RestrictingTimeLine, SubCalendarEvent PrecedingPivot = null)
-        {
-            //mTuple<int, SubCalendarEvent> 
-            //return stitchRestrictedSubCalendarEvent(Arg1.Select(obj=>new mTuple<int , mTuple<TimeSpan, SubCalendarEvent>>( obj.Item1, new mTuple<TimeSpan,SubCalendarEvent>(TimeSpan.FromTicks(obj.Item1*obj.Item2.ActiveDuration.Ticks),obj.Item2)) ).ToList() , RestrictingTimeLine, PrecedingPivot);
-
-        }*/
-        
-        
-        /*
-        SubCalendarEvent CalculateWorkSpaceUsage(TimeLine myTimeLine, List<SubCalendarEvent> AllSubCalEvent_SortedByDeadLine)
-        {
-            List<Tuple<SubCalendarEvent, double, TimeSpan>> SubcalEvents = new List<Tuple<SubCalendarEvent, double, TimeSpan>>();
-
-        }
-        */
 
 
         Dictionary<TimeLine, List<mTuple<bool, SubCalendarEvent>>> stitchRestrictedSubCalendarEvent(List<TimeLine> AllTimeLines, int TimeLineIndex, Dictionary<TimeLine, List<mTuple<bool, SubCalendarEvent>>> arg1)
@@ -6184,35 +6179,23 @@ namespace My24HourTimerWPF
             /*
              * arg1 is adictionary that has a timeline witha a list of restricted Sub calendar events             
              */
+            List<SubCalendarEvent> AllSubCall=arg1.Values.SelectMany(obj => obj.Select(obj1 => obj1.Item2)).ToList();
+            SubCalendarEvent.updateMiscData(AllSubCall, 0);
 
             Dictionary<string, bool> var1 = new System.Collections.Generic.Dictionary<string, bool>();
-
+            foreach (TimeLine eachTimeLine in AllTimeLines)//checks of subcal can exist within time frame increases the intData for every TimeLine it can fit in
+            {
+                SubCalendarEvent.incrementMiscdata(AllSubCall.Where(obj => obj.canExistWithinTimeLine(eachTimeLine)).ToList());
+                arg1[eachTimeLine] = stitchRestrictedSubCalendarEvent(arg1[eachTimeLine], eachTimeLine);
+            }
+            
+            
+            
             foreach (TimeLine eachTimeLine in AllTimeLines)
             {
-
                 arg1[eachTimeLine] = stitchRestrictedSubCalendarEvent(arg1[eachTimeLine], eachTimeLine);
-
-
-                /*List<mTuple<bool, SubCalendarEvent>> arg2 = arg1[eachTimeLine];
-                List<SubCalendarEvent> arg3 = new System.Collections.Generic.List<SubCalendarEvent>();
-                foreach (mTuple<bool, SubCalendarEvent> eachmTuple in arg2)
-                {
-                    arg3.Add(eachmTuple.Item2);
-                    var1.Add(eachmTuple.Item2.ID, eachmTuple.Item1);
-                }
-                arg3 = arg3.OrderBy(obj => obj.getCalendarEventRange.End).ToList();
-
-                List<List<SubCalendarEvent>> arg4 = Pseudo_generateTreeCallsToSnugArray(arg3, eachTimeLine);
-
-                List<SubCalendarEvent> OPtimizedList = getOPtimized(arg4);
-
-                List<mTuple<bool, SubCalendarEvent>> var5 = new System.Collections.Generic.List<mTuple<bool, SubCalendarEvent>>();
-                foreach (SubCalendarEvent eachSubCalendarEvent in OPtimizedList)
-                {
-                    var5.Add(new mTuple<bool, SubCalendarEvent>(var1[eachSubCalendarEvent.ID], eachSubCalendarEvent));
-                }
-                arg1[eachTimeLine] = var5;*/
             }
+            SubCalendarEvent.updateMiscData(AllSubCall, 0);
             return arg1;
         }
 

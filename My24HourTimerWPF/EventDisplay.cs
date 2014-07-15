@@ -41,7 +41,13 @@ namespace My24HourTimerWPF
             CompleteUI = completeFlag;
         }
 
-
+        public class EventDisplay_DB
+        {
+            bool Visible { set; get; }
+            Color eventColor { set; get; }
+            int Default { set; get; }
+            bool CompleteUI{ set; get; }
+        }
 
         #region Properties
         public bool isVisible

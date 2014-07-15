@@ -10,6 +10,12 @@ namespace My24HourTimerWPF
         string UserTypedData;
         int Type;//Entry Source. 0-> No Entry from Calendar Event. 1->From CalendarEvent. 2-> from SubCalendarEvent
 
+        public class MiscData_DB
+        {
+            string UserTypedData;
+            int Type;
+        }
+
         #region constructor
 
         

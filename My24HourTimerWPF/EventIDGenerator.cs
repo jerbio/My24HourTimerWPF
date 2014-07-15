@@ -7,21 +7,21 @@ namespace My24HourTimerWPF
 {
     public static class EventIDGenerator
     {
-        static uint idcounter = 0;
+        static ulong idcounter = 0;
 
         static bool AlreadyInitialized = false;
-        public static void Initialize(uint LastID)
+        public static void Initialize(ulong LastID)
         {
             idcounter = LastID;
         }
 
-        public static uint generate()
+        public static ulong generate()
         {
             //update xml file with last counter
             return ++idcounter;
         }
 
-        public static  uint LatestID
+        public static ulong LatestID
         {
             get 
             {

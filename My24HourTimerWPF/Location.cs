@@ -106,6 +106,20 @@ namespace My24HourTimerWPF
             }
         }
 
+        public class Location_DB
+        {
+            double xValue { get; set; }
+            double yValue { get; set; }
+            string TaggedDescription { get; set; }
+            string TaggedAddress { get; set; }
+            bool NullLocation { get; set; }
+            int CheckDefault { get; set; }
+            public Location_DB()
+            { 
+            
+            }
+        }
+
 
         #region Functions
         string getStringWebLocation24(float xLocation24, float yLocation24)

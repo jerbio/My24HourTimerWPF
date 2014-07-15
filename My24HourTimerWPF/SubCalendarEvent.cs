@@ -78,6 +78,20 @@ namespace My24HourTimerWPF
         }
         #endregion
 
+        public class SubCalendarEvent_DB:CalendarEvent_DB
+        {
+            EventID SubEventID { get; set; }
+            BusyTimeLine BusyFrame { get; set; }
+            TimeSpan AvailablePreceedingFreeSpace { get; set; }
+            TimeLine CalendarEventRange { get; set; }
+            Location.Location_DB EventLocation { get; set; }
+            public SubCalendarEvent_DB()
+            { 
+                
+            }
+        }
+        
+
 
         #region Class functions
 

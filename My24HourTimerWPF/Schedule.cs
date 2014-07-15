@@ -6102,8 +6102,6 @@ namespace My24HourTimerWPF
             if (WorkableList.Count > 0)
             {
                 mTuple<double, mTuple<TimeLine, SubCalendarEvent>> PivotNodeData = WorkableList[0];
-
-
                 bool PinningSuccess= PivotNodeData.Item2.Item2.PinSubEventsToStart(RestrictingTimeLine);
                 DateTime StartTimeOfRightTree = RestrictingTimeLine.Start;
                 DateTime EndTimeOfRightTree = RestrictingTimeLine.End;

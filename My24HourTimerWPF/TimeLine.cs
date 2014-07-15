@@ -11,6 +11,12 @@ namespace My24HourTimerWPF
         protected DateTime StartTime;
         protected BusyTimeLine[] ActiveTimeSlots;
 
+        public class TimeLine_DB
+        {
+            protected DateTime EndTime { set; get; }
+            protected DateTime StartTime { set; get; }
+        }
+
         #region constructor
         public TimeLine()
         {

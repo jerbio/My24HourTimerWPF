@@ -101,13 +101,7 @@
     <Compile Include="Color.cs" />
     <Compile Include="Comparator.cs" />
     <None Include="packages.config" />
-    <None Include="SnugArray.cs.old" />
-    <None Include="MainWindow.xaml.cs.old" />
-    <None Include="SnugArray.cs.old0" />
-    <None Include="MainWindow.xamlbeforeReversal.cs.old" />
-    <None Include="MainWindow.xaml_BeforeConstrainedUpdaeOrCountForValids.cs.old" />
     <None Include="DistanceSolver.cs.old" />
-    <None Include="Schedule_Before_Simplest_IsEasiet.cs.old" />
     <Compile Include="DBControl.cs" />
     <Compile Include="ErrorManager.cs" />
     <Compile Include="EventIDGenerator.cs" />

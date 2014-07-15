@@ -779,6 +779,42 @@ namespace My24HourTimerWPF
             }
         }
 
+        public class CalendarEvent_DB
+        {
+            public TimeSpan EventDuration { get; set; }
+            string CalendarEventName { get; set; }
+            public DateTime StartDateTime { get; set; }
+            public DateTime EndDateTime { get; set; }
+            public TimeSpan EventPreDeadline { get; set; }
+            public TimeSpan PrepTime { get; set; }
+            public int Priority { get; set; }
+            public bool RepetitionFlag { get; set; }
+            public Repetition EventRepetition { get; set; }
+            public bool Complete  { get; set; }
+            public bool RigidSchedule { get; set; }
+            public int Splits { get; set; }
+            public TimeSpan TimePerSplit { get; set; }
+            private EventID CalendarEventID { get; set; }
+            public TimeLine EventSequence { get; set; }
+            Dictionary<EventID, SubCalendarEvent> SubEvents { get; set; }
+            public bool SchedulStatus { get; set; }
+            CustomErrors CalendarError { get; set; }
+            public bool Enabled { get; set; }
+            public EventDisplay.EventDisplay_DB UiParams { get; set; }
+            public MiscData.MiscData_DB DataBlob { get; set; }
+
+            public Location.Location_DB LocationData { get; set; }
+            public string otherPartyID { get; set; }
+            
+            //(ID, BusySlot, Start, End, PrepTime, MyParent.ID, MyParent.Rigid, Enabled, UiData, noteData, CompleteFlag, var1, MyParent.RangeTimeLine);
+
+            public CalendarEvent_DB()
+            {
+
+            }
+        }
+
+
         //CalendarEvent Methods
         public SubCalendarEvent getSubEvent(EventID SubEventID)
         {

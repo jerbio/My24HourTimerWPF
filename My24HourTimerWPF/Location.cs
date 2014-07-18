@@ -9,13 +9,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 //using System.Windows.Forms;
-using Google.Maps.Geocoding;
+using Google.Maps.Geocoding; 
 using System.Drawing;
+using TilerElements;
 
 
-namespace My24HourTimerWPF
+namespace TilerElements
 {
-    public class Location
+    public class Location : Location_Elements
     {
         string _token = string.Empty;
         enum requestType
@@ -67,7 +68,6 @@ namespace My24HourTimerWPF
                 TaggedAddress = "";
                 TaggedDescription = "";
             }
-
             else
             {
                 try
@@ -170,8 +170,10 @@ namespace My24HourTimerWPF
             return JSON;
         }
 
+        /*
         private Geocode Deserialize( string json)
         {
+            
             JavaScriptSerializer javaScriptSerializer = new JavaScriptSerializer();
             
             
@@ -180,7 +182,7 @@ namespace My24HourTimerWPF
                 return geocode;
             
         }
-
+        */
         public Location CreateCopy()
         {
             Location this_cpy = new Location();

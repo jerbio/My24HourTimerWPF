@@ -18,10 +18,7 @@
 #undef enableMultithreading
 #endif
 
-
 #define enableDebugging
-
-
 
 #define StitchRestrictedFromRight
 
@@ -40,6 +37,8 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Diagnostics;
+using TilerElements;
+using Tiler;
 
 
 using System.IO;
@@ -137,7 +136,7 @@ namespace My24HourTimerWPF
         private void Initialize()
         {
             myAccount.Login();
-            Tuple<Dictionary<string, CalendarEvent>, DateTime>profileData=myAccount.getProfileInfo();
+            Tuple<Dictionary<string, CalendarEvent>, DateTime>profileData=myAccount.ScheduleData.getProfileInfo();
             if (profileData!=null)
             { 
                 ReferenceDayTIime = profileData.Item2;
@@ -158,7 +157,7 @@ namespace My24HourTimerWPF
 
         public CalendarEvent getCalendarEvent(string EventID)
         {
-            EventID userEvent = new My24HourTimerWPF.EventID(EventID);
+            EventID userEvent = new EventID(EventID);
             return getCalendarEvent(userEvent);
             
             
@@ -236,7 +235,7 @@ namespace My24HourTimerWPF
 
         public Dictionary<string, CalendarEvent> getAllCalendarElements()
         {
-            Tuple<Dictionary<string, CalendarEvent>, DateTime> profileData= myAccount.getProfileInfo();
+            Tuple<Dictionary<string, CalendarEvent>, DateTime> profileData= myAccount.ScheduleData.getProfileInfo();
 
             return profileData == null ? null : profileData.Item1;
         }
@@ -2151,7 +2150,7 @@ namespace My24HourTimerWPF
                 }
                 if (!(CurrentDictionary.ContainsKey(generatedIndexMatch)))
                 {
-                    double Distance = Location.calculateDistance(MyPrecedingCalendarEvent.myLocation, MyNextCalendarEvent.myLocation);
+                    double Distance = Location_Elements.calculateDistance(MyPrecedingCalendarEvent.myLocation, MyNextCalendarEvent.myLocation);
                     CurrentDictionary.Add(generatedIndexMatch, Distance);
                 }
             }
@@ -2775,7 +2774,7 @@ namespace My24HourTimerWPF
 
             List<SubCalendarEvent> canExistWithinTimeLine = currentListOfSubCalendarElements.Where(obj => obj.canExistWithinTimeLine(limitingTimeLine)).ToList();
 
-            Dictionary<string, Tuple<Location, List<SubCalendarEvent>>> CalEventDictionaryMapping = new Dictionary<string, Tuple<Location, List<SubCalendarEvent>>>();
+            Dictionary<string, Tuple<Location_Elements, List<SubCalendarEvent>>> CalEventDictionaryMapping = new Dictionary<string, Tuple<Location_Elements, List<SubCalendarEvent>>>();
 
             foreach (SubCalendarEvent eachmTuple in canExistWithinTimeLine)
             { 
@@ -2786,22 +2785,22 @@ namespace My24HourTimerWPF
                 }
                 else
                 {
-                    CalEventDictionaryMapping.Add(calLevelID, new Tuple<Location, List<SubCalendarEvent>>(eachmTuple.myLocation, new List<SubCalendarEvent>() { eachmTuple }));
+                    CalEventDictionaryMapping.Add(calLevelID, new Tuple<Location_Elements, List<SubCalendarEvent>>(eachmTuple.myLocation, new List<SubCalendarEvent>() { eachmTuple }));
                 }
             }
 
             
 
-            Location AverageCurrentOccupiersGPSLocation= Location.AverageGPSLocation(currentOccupiers.Select(obj=>obj.myLocation));
+            Location_Elements AverageCurrentOccupiersGPSLocation= Location_Elements.AverageGPSLocation(currentOccupiers.Select(obj=>obj.myLocation));
 
-            List<KeyValuePair<string, Tuple<Location, List<SubCalendarEvent>>>> SortedCalendarInfo = CalEventDictionaryMapping.OrderBy(obj => Location.calculateDistance(obj.Value.Item1, AverageCurrentOccupiersGPSLocation)).ToList();
+            List<KeyValuePair<string, Tuple<Location_Elements, List<SubCalendarEvent>>>> SortedCalendarInfo = CalEventDictionaryMapping.OrderBy(obj => Location_Elements.calculateDistance(obj.Value.Item1, AverageCurrentOccupiersGPSLocation)).ToList();
 
             List<SubCalendarEvent> pertinentSubCalEvents = new List<SubCalendarEvent>();
             TimeSpan durationSofar= new TimeSpan();
 
             for (int q = 0; q < SortedCalendarInfo.Count; )
             {
-                KeyValuePair<string, Tuple<Location, List<SubCalendarEvent>>> eachKeyValuePair = SortedCalendarInfo[q];
+                KeyValuePair<string, Tuple<Location_Elements, List<SubCalendarEvent>>> eachKeyValuePair = SortedCalendarInfo[q];
                 if (eachKeyValuePair.Value.Item2.Count > 0)
                 {
                     SubCalendarEvent mySubCal = eachKeyValuePair.Value.Item2[0];
@@ -4760,7 +4759,7 @@ namespace My24HourTimerWPF
 
                 if ((eachList.Count < 1))
                 {
-                    List<Location> AllLocations = new System.Collections.Generic.List<Location>();
+                    List<Location_Elements> AllLocations = new System.Collections.Generic.List<Location_Elements>();
                     List<SubCalendarEvent> MyList = eachList.ToList();
                     MyList.Insert(0, BoundinngSubCaEvents.Item1);
                     MyList.Add(BoundinngSubCaEvents.Item2);
@@ -4769,7 +4768,7 @@ namespace My24HourTimerWPF
                         if (eachSubCalendarEvent != null)
                         { AllLocations.Add(eachSubCalendarEvent.myLocation); }
                     }
-                    OptimizedArrangement = new Tuple<System.Collections.Generic.ICollection<SubCalendarEvent>, double>(eachList, Location.calculateDistance(AllLocations));
+                    OptimizedArrangement = new Tuple<System.Collections.Generic.ICollection<SubCalendarEvent>, double>(eachList, Location_Elements.calculateDistance(AllLocations));
                 }
                 else
                 {

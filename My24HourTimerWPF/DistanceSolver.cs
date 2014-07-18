@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TilerElements;
 //using Microsoft.SolverFoundation.Common;
 //using Microsoft.SolverFoundation.Services;
 //using Microsoft.SolverFoundation.Solvers;
@@ -123,12 +124,12 @@ namespace My24HourTimerWPF
 
         // class CitiesData
 
-        static public double AverageToAllNodes(Location MyLocation, List<Location> otherLocations)
+        static public double AverageToAllNodes(Location_Elements MyLocation, List<Location_Elements> otherLocations)
         {
             double retValue = 0;
-            foreach (Location eachLocation in otherLocations)
+            foreach (Location_Elements eachLocation in otherLocations)
             {
-                retValue += Location.calculateDistance(MyLocation, eachLocation);
+                retValue += Location_Elements.calculateDistance(MyLocation, eachLocation);
             }
             retValue = retValue/(double)otherLocations.Count;
             return retValue;
@@ -663,7 +664,7 @@ namespace My24HourTimerWPF
                     //rizontal = DistanceMatrix.Keys.ToList();
                     foreach (SubCalendarEvent eachSubCalendarEvent0 in MyLocations)
                     {
-                        double MyDistance = Location.calculateDistance(eachSubCalendarEvent.myLocation, eachSubCalendarEvent0.myLocation);
+                        double MyDistance = Location_Elements.calculateDistance(eachSubCalendarEvent.myLocation, eachSubCalendarEvent0.myLocation);
                         if (eachSubCalendarEvent0.SubEvent_ID.getLevelID(0) == eachSubCalendarEvent.SubEvent_ID.getLevelID(0))
                         {
                             MyDistance = double.MaxValue / MyLocations.Count;
@@ -728,7 +729,7 @@ namespace My24HourTimerWPF
                 }
                 else
                 {
-                    retValue = Location.calculateDistance(this.Event.myLocation, p.Event.myLocation);
+                    retValue = Location_Elements.calculateDistance(this.Event.myLocation, p.Event.myLocation);
                 }
                 return retValue;
             }

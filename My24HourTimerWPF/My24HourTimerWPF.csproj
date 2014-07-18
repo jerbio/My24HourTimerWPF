@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>My24HourTimerWPF</RootNamespace>
     <AssemblyName>My24HourTimerWPF</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -42,6 +42,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>false</UseVSHostingProcess>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -51,6 +52,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Google.Maps, Version=0.11.1.28730, Culture=neutral, processorArchitecture=MSIL">
@@ -62,6 +64,9 @@
     </Reference>
     <Reference Include="Microsoft.Office.Interop.Outlook, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Microsoft.Owin">
+      <HintPath>..\..\WagTapWeb\packages\Microsoft.Owin.2.0.0\lib\net45\Microsoft.Owin.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Solver.Foundation" />
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -84,6 +89,10 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
+    <Reference Include="Tiler, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\WagTapWeb\Tiler\bin\Tiler.dll</HintPath>
+    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -95,49 +104,30 @@
     </ApplicationDefinition>
     <Compile Include="Authentication.cs" />
     <Compile Include="BatchGeocoding.cs" />
-    <Compile Include="BusyTimeLine.cs" />
-    <Compile Include="CalendarEvent.cs" />
     <Compile Include="ClumpSubCalendarEvent.cs" />
-    <Compile Include="Color.cs" />
     <Compile Include="Comparator.cs" />
     <None Include="packages.config" />
-    <None Include="SnugArray.cs.old" />
-    <None Include="MainWindow.xaml.cs.old" />
-    <None Include="SnugArray.cs.old0" />
-    <None Include="MainWindow.xamlbeforeReversal.cs.old" />
-    <None Include="MainWindow.xaml_BeforeConstrainedUpdaeOrCountForValids.cs.old" />
-    <None Include="DistanceSolver.cs.old" />
     <None Include="Schedule_Before_Simplest_IsEasiet.cs.old" />
-    <Compile Include="DBControl.cs" />
     <Compile Include="ErrorManager.cs" />
-    <Compile Include="EventIDGenerator.cs" />
-    <Compile Include="EventDisplay.cs" />
-    <Compile Include="IDefinedRange.cs" />
     <Compile Include="DistanceSolver.cs" />
     <Compile Include="EfficientTimeLine.cs" />
-    <Compile Include="EventTimeLine.cs" />
     <Compile Include="Geocode.cs" />
     <Compile Include="Geometry.cs" />
     <Compile Include="InListOutOfList.cs" />
+    <None Include="LogControl.cs.old" />
     <Compile Include="Location.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MiscData.cs" />
-    <Compile Include="mTuple.cs" />
     <Compile Include="ReverseGeocode.cs" />
     <Compile Include="RouteDataContract.cs" />
     <Compile Include="Schedule.cs" />
     <Compile Include="SnugArray.cs" />
     <Compile Include="SpreadOutList.cs" />
-    <Compile Include="SubCalendarEvent.cs" />
     <Compile Include="SubCalendarEventListCounter.cs" />
     <Compile Include="ThirdPartyCalendarControl.cs" />
-    <Compile Include="TimeLine.cs" />
-    <Compile Include="TimeLineWithEdgeElements.cs" />
     <Compile Include="TimeSpanWithID.cs" />
     <Compile Include="TupleDict.cs" />
-    <Compile Include="UserAccount.cs" />
     <Compile Include="Utility.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -217,6 +207,12 @@
       <ProductName>Windows Installer 4.5</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TilerElements\TilerElements.csproj">
+      <Project>{307ed69e-4df8-41c4-934c-38495fc8900c}</Project>
+      <Name>TilerElements</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

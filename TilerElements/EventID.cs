@@ -70,6 +70,11 @@ namespace TilerElements
             return LayerID[Level];
         }
 
+        public int getLevelID_Int(int Level)
+        {
+            return  Convert.ToInt32( LayerID[Level]);
+        }
+
         public string getCalendarEventID()
         {
             if (LayerID.Length > CalendarEvenntLimitIndex)

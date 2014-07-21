@@ -1394,22 +1394,21 @@ namespace TilerElements
         #endregion
 
     }
-}
 
-
-public struct Event_Struct
-{
-    //public string EventID;
-    public float Testint;
-    //public long StartTicks;
-    //public long EndTicks;
-    //public long DurationTicks;
-    public Location_struct EventLocation;
-    //public bool Enabled;
-    public Event_Struct(float number, Location_struct locationData)
+    public struct Event_Struct
     {
-        Testint = number;
-        EventLocation = locationData;
-    }
+        //public string EventID;
+        public float Testint;
+        //public long StartTicks;
+        //public long EndTicks;
+        //public long DurationTicks;
+        public Location_struct EventLocation;
+        //public bool Enabled;
+        public Event_Struct(float number, Location_struct locationData)
+        {
+            Testint = number;
+            EventLocation = locationData;
+        }
 
+    }
 }

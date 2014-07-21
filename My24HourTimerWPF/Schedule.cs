@@ -233,12 +233,6 @@ namespace My24HourTimerWPF
             return retValue ;
         }
 
-        public Dictionary<string, CalendarEvent> getAllCalendarElements()
-        {
-            Tuple<Dictionary<string, CalendarEvent>, DateTime> profileData= myAccount.ScheduleData.getProfileInfo();
-
-            return profileData == null ? null : profileData.Item1;
-        }
 
         public void FindNewSlotForSubEvent(EventID MyEventID)
         {
@@ -305,6 +299,11 @@ namespace My24HourTimerWPF
         {
             myAccount.DeleteAllCalendarEvents();
             removeAllFromOutlook();
+        }
+
+        public IEnumerable<CalendarEvent> getAllCalendarEvents()
+        {
+            return AllEventDictionary.Values;
         }
 
         public void removeAllFromOutlook()

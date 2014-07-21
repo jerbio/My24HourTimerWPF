@@ -377,6 +377,9 @@ namespace TilerElements
                 EndDateTime = ReferenceTime;
                 return true;
             }
+
+            StartDateTime= ActiveSlot.Start;
+            EndDateTime = ActiveSlot.End;
             return false;
         }
 

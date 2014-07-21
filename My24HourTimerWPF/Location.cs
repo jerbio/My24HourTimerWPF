@@ -278,18 +278,19 @@ namespace TilerElements
         }
         #endregion
     }
-}
 
-
-public struct Location_struct
-{
-    public float xValue;
-    public float yValue;
-    public int Number;
-    /*
-    public override string ToString()
+    public struct Location_struct
     {
-        return yValue + "," + xValue;
+        public float xValue;
+        public float yValue;
+        public int Number;
+        /*
+        public override string ToString()
+        {
+            return yValue + "," + xValue;
+        }
+        */
     }
-    */
 }
+
+

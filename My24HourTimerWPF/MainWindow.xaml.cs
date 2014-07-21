@@ -1223,6 +1223,19 @@ namespace My24HourTimerWPF
             
         }
 
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            /*
+            IList<CalendarEvent> AllCalendarEvents=MySchedule. getAllCalendarElements().Select(obj=>obj.Value).ToList();
+            string NameOfEVent=NameOfEventSearch.Text;
+            NameOfEVent = NameOfEVent.ToLower();
+
+            IEnumerable<CalendarEvent> WITHnAME = AllCalendarEvents.Where(obj => obj.Name.ToLower().Contains(NameOfEVent));
+            string FinalBox = string.Join("\n", WITHnAME.Select(OBJ => OBJ.Name));
+            ResultOfSearch.Text = FinalBox;
+            */
+        }
+
         
 
 

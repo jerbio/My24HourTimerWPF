@@ -398,7 +398,7 @@ namespace My24HourTimerWPF
 
 
 
-        public void deleteCalendarEvent(string EventID)
+        public CustomErrors deleteCalendarEventAndReadjust(string EventID)
         {
             CalendarEvent CalendarEventTOBeRemoved = getCalendarEvent(EventID);
             CalendarEventTOBeRemoved.Disable(true);
@@ -407,13 +407,12 @@ namespace My24HourTimerWPF
             CalendarEventTOBeRemoved.DisableSubEvents(CalendarEventTOBeRemoved.ActiveSubEvents);
 
             HashSet<SubCalendarEvent> NotDOneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
-            EvaluateTotalTimeLineAndAssignValidTimeSpots(CalendarEventTOBeRemoved, NotDOneYet);
+            CalendarEvent retValue= EvaluateTotalTimeLineAndAssignValidTimeSpots(CalendarEventTOBeRemoved, NotDOneYet);
 
 
             AllEventDictionary.Remove(CalendarEventTOBeRemoved.ID);//removes the false calendar event
-
-
             UpdateWithProcrastinateSchedule(AllEventDictionary);
+            return retValue.Error;
         }
 
 
@@ -525,9 +524,21 @@ namespace My24HourTimerWPF
 
             UpdateWithProcrastinateSchedule(AllEventDictionary);
         }
-        
 
-        public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> Procrastinate(CalendarEvent NewEvent)
+
+        public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ProcrastinateAll(TimeSpan DelaySpan, string NameOfEvent = "BLOCKED OUT")
+        {
+            DateTime eventStartTime = Now;
+            DateTime eventEndTime = eventStartTime.Add( DelaySpan);
+
+            EventDisplay ProcrastinateDisplay = new EventDisplay(true, new TilerColor(), 2);
+
+            CalendarEvent ScheduleUpdated = new CalendarEvent(NameOfEvent, DelaySpan, eventStartTime, eventEndTime, new TimeSpan(0), new TimeSpan(0), true, new Repetition(), 1, new Location_Elements(), true, ProcrastinateDisplay, new MiscData(), false);
+            ScheduleUpdated.Repeat.PopulateRepetitionParameters(ScheduleUpdated);
+            return Procrastinate(ScheduleUpdated);
+        }
+
+        private Tuple<CustomErrors, Dictionary<string, CalendarEvent>> Procrastinate(CalendarEvent NewEvent)
         {
             HashSet<SubCalendarEvent> NotdoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
             NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, NotdoneYet);

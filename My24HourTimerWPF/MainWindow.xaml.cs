@@ -924,17 +924,7 @@ namespace My24HourTimerWPF
             string choicePath = "";
             if (string.IsNullOrEmpty(textBox9.Text))//check for specific id removal account
             {
-                DateTime eventStartTime = DateTime.Now;
-                DateTime eventEndTime = eventStartTime + DelaySpan;
-
-                EventDisplay ProcrastinateDisplay=new EventDisplay(true,new TilerColor(),2);
-
-                CalendarEvent ScheduleUpdated = new CalendarEvent("Procrastinate", DelaySpan, eventStartTime, eventEndTime, new TimeSpan(0), new TimeSpan(0), true, new Repetition(), 1, new Location_Elements(), true, ProcrastinateDisplay, new MiscData(),false);
-                ScheduleUpdated.Repeat.PopulateRepetitionParameters(ScheduleUpdated);
-                textBlock9.Text = "...Loading";
-                choicePath = "ProcrastinateAll";
-                 ScheduleUpdateMessage = MySchedule.Procrastinate(ScheduleUpdated);
-                
+                ScheduleUpdateMessage = MySchedule.ProcrastinateAll(DelaySpan);
             }
             else
             {

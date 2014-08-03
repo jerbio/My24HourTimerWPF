@@ -136,7 +136,7 @@ namespace My24HourTimerWPF
         private void Initialize()
         {
             myAccount.Login();
-            Tuple<Dictionary<string, CalendarEvent>, DateTime>profileData=myAccount.ScheduleData.getProfileInfo();
+            Tuple<Dictionary<string, CalendarEvent>, DateTime, Dictionary<string, Location_Elements>> profileData = myAccount.ScheduleData.getProfileInfo();
             if (profileData!=null)
             { 
                 ReferenceDayTIime = profileData.Item2;
@@ -743,7 +743,6 @@ namespace My24HourTimerWPF
 
                 retValue.Add(eachKeyValuePair.Key, NewDict0);
             }
-
             return retValue;
         }
 
@@ -2667,7 +2666,7 @@ namespace My24HourTimerWPF
 
         List<SubCalendarEvent> resolveInTo24HourSlots(List<SubCalendarEvent> currentListOfSubCalendarElements, TimeLine limitingTimeLine, mTuple<SubCalendarEvent,SubCalendarEvent>edgeElements=null)
         {
-            //function takes a full freespot and tries to spread it out into 24 hour sections
+            //function takes a full freespot and tries to allocate them in 24 hour sections
             //this is done by intially sending every subcalevenet towards the end of the Timeline after which it takes 24hour chunks and attempts to 
             
             
@@ -2724,10 +2723,6 @@ namespace My24HourTimerWPF
 
                 Utility.PinSubEventsToStart(currentListOfSubCalendarElements, limitingTimeLine);
 
-
-                
-
-                
                 limitingTimeLine.AddBusySlots(currentListOfSubCalendarElements.Select(obj => obj.ActiveSlot));
                 AllFreeSpots = limitingTimeLine.getAllFreeSlotsWithEdges().ToList();
                 i = AllFreeSpots.Count() - 1;
@@ -2749,13 +2744,9 @@ namespace My24HourTimerWPF
                 TimeSpan currTotalDuration = Utility.SumOfActiveDuration(CollectionUpdated.Item1);
                 double currOccupancy =-8898;
                 if(CollectionUpdated.Item2.TimelineSpan.Ticks>0)
-                { currOccupancy = (double)currTotalDuration.Ticks / (double)CollectionUpdated.Item2.TimelineSpan.Ticks; }
-
-                if (currOccupancy > Occupancy)
-                {
-                    ;
+                { 
+                    currOccupancy = (double)currTotalDuration.Ticks / (double)CollectionUpdated.Item2.TimelineSpan.Ticks;
                 }
-
 
                 FullyUpdated.AddRange(CollectionUpdated.Item1);
 
@@ -2812,7 +2803,7 @@ namespace My24HourTimerWPF
 
             Location_Elements AverageCurrentOccupiersGPSLocation= Location_Elements.AverageGPSLocation(currentOccupiers.Select(obj=>obj.myLocation));
 
-            List<KeyValuePair<string, Tuple<Location_Elements, List<SubCalendarEvent>>>> SortedCalendarInfo = CalEventDictionaryMapping.OrderBy(obj => Location_Elements.calculateDistance(obj.Value.Item1, AverageCurrentOccupiersGPSLocation)).ToList();
+            List<KeyValuePair<string, Tuple<Location_Elements, List<SubCalendarEvent>>>> SortedCalendarInfo = CalEventDictionaryMapping.OrderBy(obj => Location_Elements.calculateDistance(obj.Value.Item1, AverageCurrentOccupiersGPSLocation)).ToList();//sorted calendar events based on distance from average location
 
             List<SubCalendarEvent> pertinentSubCalEvents = new List<SubCalendarEvent>();
             TimeSpan durationSofar= new TimeSpan();
@@ -2923,38 +2914,28 @@ namespace My24HourTimerWPF
 
             retValue = new Tuple<List<SubCalendarEvent>, TimeLine>(WhatsLeftAndViable, CurrentDayReference);
 
-
-            /*
-            for (i = 0; i < OrderOfWorstFillAsList.Count; i++)
-            {
-                KeyValuePair<SubCalendarEvent, double> eachKeyValuePair = OrderOfWorstFillAsList[i];   
-                TotalTimeSofar += eachKeyValuePair.Key.ActiveDuration;
-                ++NumberOfElement;
-                if (TotalTimeSofar > TotalOccupancyNotWanted)
-                {
-                    breakWasSelected = true;
-                    break;
-                }
-            }
-
-            if (NumberOfElement > 0)
-            {
-                --i;
-                for (; i >= 0; --i)
-                {
-                    OrderOfWorstFillAsList.RemoveAt(0);
-                }
-            }
             
-
-            WhatsLeftAndViable = OrderOfWorstFillAsList.Select(obj => obj.Key).ToList();
-            WhatsLeftAndViable.AddRange(currentOccupiers);
-            WhatsLeftAndViable=WhatsLeftAndViable.OrderBy(obj => obj.End).ToList();
-            */
             
 
 
             return retValue;
+        }
+
+        TimeSpan MinutesPerMile = new TimeSpan(0, 15,0);
+
+
+        List<SubCalendarEvent> SpaceOutEVentsWithin24Hours(IList<SubCalendarEvent> AllSubCalEvent, TimeLine referenceDay, mTuple<SubCalendarEvent,SubCalendarEvent>EdgeElement=null)
+        {
+            Utility.PinSubEventsToStart(AllSubCalEvent, referenceDay);
+            SubCalendarEvent referenceSubcalendarEvent = null;
+            if (EdgeElement != null)
+            {
+                if (EdgeElement.Item2 != null)
+                {
+                    referenceSubcalendarEvent = EdgeElement.Item2;
+                }
+            }
+            return AllSubCalEvent.ToList();
         }
 
         List<SubCalendarEvent> TossEndWards(IEnumerable<SubCalendarEvent> AllSubEvents, TimeLine FreeSpot)

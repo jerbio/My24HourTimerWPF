@@ -12,6 +12,7 @@ namespace TilerElements
         TimeSpan AvailablePreceedingFreeSpace;
         TimeLine CalendarEventRange;
         Location_Elements EventLocation;
+        IList<EventID> InterferringEvents;
         int MiscIntData;
 
         #region Classs Constructor

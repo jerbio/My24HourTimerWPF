@@ -645,6 +645,19 @@ namespace My24HourTimerWPF
             return retValue;
         }
 
+
+        public void SetCalendarEventAsNow(string CalendarID, bool Force = false)
+        {
+            CalendarEvent CalendarEvent = getCalendarEvent(CalendarID);
+            IEnumerable<SubCalendarEvent> orderedSubEvents= CalendarEvent.ActiveSubEvents.OrderBy(obj => obj.Start);
+            if (orderedSubEvents.Count() > 0)
+            {
+                SubCalendarEvent mySubCalendarEvent = orderedSubEvents.First();
+                SetEventAsNow(mySubCalendarEvent.ID, true);
+            }
+        }
+
+
         public CustomErrors AddToSchedule(CalendarEvent NewEvent)
         {
             Stopwatch sw = new Stopwatch();

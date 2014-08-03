@@ -29,35 +29,44 @@ namespace TilerElements
         string TaggedAddress;
         bool NullLocation;
         int CheckDefault;
+        int LocationID=0;
 
         public Location_Elements()
         {
             xValue = double.MaxValue;
             yValue = double.MaxValue;
+            LocationID = ID;
         }
 
-        public Location_Elements(double MyxValue, double MyyValue)
+        public Location_Elements(int ID)
+        {
+            LocationID = ID;
+        }
+
+        public Location_Elements(double MyxValue, double MyyValue, int ID = 0)
         {
             xValue = MyxValue;
             yValue = MyyValue;
         }
 
-        public Location_Elements(double MyxValue, double MyyValue, string AddressEntry, string AddressDescription, bool isNull, int CheckDefault)
+        public Location_Elements(double MyxValue, double MyyValue, string AddressEntry, string AddressDescription, bool isNull, int CheckDefault, int ID=0)
         {
             xValue = MyxValue;
             yValue = MyyValue;
             TaggedAddress = AddressEntry;
             TaggedDescription = AddressDescription;
             NullLocation = isNull;
+            LocationID = ID;
             this.CheckDefault = CheckDefault;
         }
-        
-        public Location_Elements(string Address, string tag="")
+
+        public Location_Elements(string Address, string tag = "", int ID = 0)
         {
             Address=Address.Trim();
             NullLocation = true;
             TaggedAddress = Address;
             TaggedDescription = tag;
+            LocationID = ID;
         }
 
 
@@ -217,6 +226,14 @@ namespace TilerElements
             get
             {
                 return CheckDefault;
+            }
+        }
+
+        public int ID
+        {
+            get
+            {
+                return LocationID;
             }
         }
         #endregion

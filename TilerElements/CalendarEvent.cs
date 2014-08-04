@@ -617,7 +617,7 @@ namespace TilerElements
 
                 if (RigidScheduleFlag)//enforces rigid restriction
                 {
-                    Duration = EndDate - StartDate;
+                    Duration = TimeSpan.Parse(EventDuration);
                 }
                 Split = Convert.ToInt32(eventSplit);
 
@@ -666,7 +666,7 @@ namespace TilerElements
                 Duration = new TimeSpan((int)(AllMinutes / 60), (int)(AllMinutes % 60), 0);
                 if (RigidScheduleFlag)//enforces rigid restriction
                 {
-                    Duration = EndDate-StartDate;
+                    Duration = TimeSpan.Parse(EventDuration);
                 }
 
 

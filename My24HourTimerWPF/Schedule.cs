@@ -1801,12 +1801,11 @@ namespace My24HourTimerWPF
                 return new KeyValuePair<CalendarEvent, TimeLine>(null, null);
             }
             */
-
             Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluation(MyCalendarEvent, NoneCommitedCalendarEventsEvents,CurrentEventStatus,NotDoneYetEvents);
             SubCalendarEvent[] ArrayOfInterferringSubEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToArray();
             TimeLine RangeForScheduleUpdate = allInterferringSubCalEventsAndTimeLine.Item1;
            
-
+            
 
             TimeSpan SumOfAllEventsTimeSpan = Utility.SumOfActiveDuration(ArrayOfInterferringSubEvents);
 
@@ -1914,10 +1913,14 @@ namespace My24HourTimerWPF
 
             ++CountCall;
 
-            
+
+            DateTime testDateTime = new DateTime(2014, 8, 11);
+
 
             Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluation(MyCalendarEvent, NoneCommitedCalendarEventsEvents, InterferringWithNowFlag, NotDoneYet);
             List<SubCalendarEvent> collectionOfInterferringSubCalEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToList();
+
+            
 
             IEnumerable<SubCalendarEvent> ArrayOfInterferringSubEvents = allInterferringSubCalEventsAndTimeLine.Item2;
             TimeLine RangeForScheduleUpdate = allInterferringSubCalEventsAndTimeLine.Item1;
@@ -2480,7 +2483,7 @@ namespace My24HourTimerWPF
                     ;
                 }
 
-
+                DateTime testDateTime = new DateTime(2014, 8, 11,4,0,0);
                 stageOfProgram = "stitchUnRestrictedSubCalendarEvent index io is" + i0;
                 List<mTuple<bool, SubCalendarEvent>> ArrangedElements = stitchUnRestrictedSubCalendarEvent(eachKeyValuePair.Key, var16, Dict_TimeLine_Dict_StringID_Dict_SubEventStringID_mTuple_Bool_MatchinfSubCalevents[eachKeyValuePair.Key], AverageMatched[i0], Occupancy);
                 foreach (TimeLine eachTimeLine in JustFreeSpots)

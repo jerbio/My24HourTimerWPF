@@ -56,28 +56,6 @@ namespace TilerElements
             }
         }
 
-        /*public Repetition(bool EnableFlag,TimeLine RepetitionRange_Entry, CalendarEvent ParentEvent)
-        {
-            RepetitionRange = RepetitionRange_Entry;
-            RepetitionFrequency = Frequency.ToUpper();
-            EnableRepeat = EnableFlag;
-            DateTime RepeatCalendarStart = CalendarEventRepeatCalendarStart;
-            DateTime RepeatCalendarEnd = CalendarEventRepeatCalendarEnd;
-            //RepeatCalendarEnd =IncreaseByFrequency(RepeatCalendarStart, Frequency);
-            CalendarEvent MyRepeatCalendarEvent = new CalendarEvent(CalendarEventName, CalendarEventActiveDuration, CalendarEventRepeatCalendarStart, CalendarEventRepeatCalendarEnd, CalendarEventPreparation, CalendarEventPreDeadline, CalendarEventRigid, new Repetition(), CalendarEventNumberOfSplit);//first repeating calendar event
-            MyRepeatCalendarEvent = new CalendarEvent(new EventID(MyRepeatCalendarEvent.ID), MyRepeatCalendarEvent.Name, MyRepeatCalendarEvent.ActiveDuration, RepeatCalendarStart, RepeatCalendarEnd, MyRepeatCalendarEvent.Preparation, MyRepeatCalendarEvent.PreDeadline, MyRepeatCalendarEvent.Rigid, MyRepeatCalendarEvent.Repeat, MyRepeatCalendarEvent.NumberOfSplit);
-            List<CalendarEvent> MyArrayOfRepeatingCalendarEvents = new List<CalendarEvent>();
-
-            for (; MyRepeatCalendarEvent.Start < RepetitionRange_Entry.End; )
-            {
-                MyArrayOfRepeatingCalendarEvents.Add(MyRepeatCalendarEvent);
-                RepeatCalendarStart = IncreaseByFrequency(RepeatCalendarStart, Frequency); ;
-                RepeatCalendarEnd = IncreaseByFrequency(RepeatCalendarEnd, Frequency);
-                MyRepeatCalendarEvent = new CalendarEvent(new EventID(MyRepeatCalendarEvent.ID), MyRepeatCalendarEvent.Name, MyRepeatCalendarEvent.ActiveDuration, RepeatCalendarStart, RepeatCalendarEnd, MyRepeatCalendarEvent.Preparation, MyRepeatCalendarEvent.PreDeadline, MyRepeatCalendarEvent.Rigid, MyRepeatCalendarEvent.Repeat, MyRepeatCalendarEvent.NumberOfSplit);
-            }
-            RepeatingEvents = MyArrayOfRepeatingCalendarEvents.ToArray();
-        }*/
-
         public CalendarEvent getCalendarEvent(string RepeatingEventID)
         {
             if (DictionaryOfIDAndCalendarEvents.ContainsKey(RepeatingEventID))

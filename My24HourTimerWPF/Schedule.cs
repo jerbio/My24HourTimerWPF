@@ -52,6 +52,7 @@ namespace My24HourTimerWPF
         TimeLine CompleteSchedule;
         public TimeSpan ZeroTimeSpan = new TimeSpan(0);
         public TimeSpan TwentyFourHourTimeSpan = new TimeSpan(1,0,0,0);
+        public TimeSpan OnewWeekTimeSpan = new TimeSpan(7, 0, 0, 0);
         public TimeSpan HourTimeSpan = new TimeSpan(0, 1, 0, 0);
         ThirdPartyCalendarControl[] myCalendar;
         
@@ -1725,7 +1726,7 @@ namespace My24HourTimerWPF
                 }
                 AddTill7days = true;
             }
-            while (RangeForScheduleUpdate.TimelineSpan < new TimeSpan(7, 0, 0, 0));
+            while ((RangeForScheduleUpdate.TimelineSpan < new TimeSpan(7, 0, 0, 0) && !errorStatus.Status));//checks if selected timespan is greater than a week and no errors flagged.
             
             return new Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors>(RangeForScheduleUpdate, ArrayOfInterferringSubEvents, errorStatus);
         }
@@ -1910,6 +1911,11 @@ namespace My24HourTimerWPF
             */
 
             NoneCommitedCalendarEventsEvents.Add(MyCalendarEvent);
+
+            ++CountCall;
+
+            
+
             Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluation(MyCalendarEvent, NoneCommitedCalendarEventsEvents, InterferringWithNowFlag, NotDoneYet);
             List<SubCalendarEvent> collectionOfInterferringSubCalEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToList();
 
@@ -4875,7 +4881,6 @@ namespace My24HourTimerWPF
              * CompatibleWithList is an snug fit result
              * PossibleEntries are the possible sub calendar that can be used in the combinatorial result
              */
-            ++CountCall;
 
 
             if (Aggressive)
@@ -6002,11 +6007,6 @@ namespace My24HourTimerWPF
              * CompatibleWithList is an snug fit result
              * PossibleEntries are the possible sub calendar that can be used in the combinatorial result
              */
-            ++CountCall;
-            if (CountCall == 4)
-            {
-                ;
-            }
             List<List<List<string>>> MAtrixedSet = new System.Collections.Generic.List<System.Collections.Generic.List<System.Collections.Generic.List<string>>>();
             Dictionary<string, mTuple<int, List<SubCalendarEvent>>> var4 = new System.Collections.Generic.Dictionary<string, mTuple<int, System.Collections.Generic.List<SubCalendarEvent>>>();
             List<List<SubCalendarEvent>> retValue = new System.Collections.Generic.List<System.Collections.Generic.List<SubCalendarEvent>>();

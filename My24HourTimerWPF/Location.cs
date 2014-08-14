@@ -28,12 +28,12 @@ namespace TilerElements
             route
         };
 
-        double xValue;
+        /*double xValue;
         double yValue;
         string TaggedDescription;
         string TaggedAddress;
         bool NullLocation;
-        int CheckDefault;
+        int CheckDefault;*/
 
         public Location()
         {
@@ -59,9 +59,9 @@ namespace TilerElements
         
         public Location(string Address, string tag="")
         {
-            Address=Address.Trim();
+            
             NullLocation = true;
-            if (string.IsNullOrEmpty(Address))
+            if (string.IsNullOrEmpty(Address)||string.IsNullOrWhiteSpace(Address))
             {
                 xValue = double.MaxValue;
                 yValue = double.MaxValue;
@@ -70,6 +70,7 @@ namespace TilerElements
             }
             else
             {
+                Address = Address.Trim();
                 try
                 {
                     var request = new GeocodingRequest();
@@ -83,7 +84,7 @@ namespace TilerElements
                     {
                         TaggedDescription = tag;
                     }
-                    TaggedAddress = result.FormattedAddress;
+                    TaggedAddress = result.FormattedAddress.ToLower();
                     xValue = Convert.ToDouble(result.Geometry.Location.Latitude);
                     yValue = Convert.ToDouble(result.Geometry.Location.Longitude);
                     NullLocation = false;
@@ -95,11 +96,11 @@ namespace TilerElements
                     yValue = double.MaxValue;
                     if (tag == "")
                     { 
-                        TaggedDescription = Address; 
+                        TaggedDescription = Address.ToLower(); 
                     }
                     else
                     {
-                        TaggedDescription = tag;
+                        TaggedDescription = tag.ToLower();
                     }
                     TaggedAddress = Address;
                 }

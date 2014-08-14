@@ -233,6 +233,32 @@ namespace TilerElements
                 return true;
         }
 
+        public bool PinToPossibleLimit(TimeLine referenceTimeLine)
+        { 
+            TimeLine interferringTImeLine=CalendarEventRange.InterferringTimeLine( referenceTimeLine );
+            if (interferringTImeLine == null)
+            {
+                return false;
+            }
+            DateTime EarliestEndTime = CalendarEventRange.Start + ActiveDuration;
+            DateTime LatestEndTime = CalendarEventRange.End;
+
+            DateTime DesiredEndtime = referenceTimeLine.End + (TimeSpan.FromTicks((long)(ActiveDuration - referenceTimeLine.TimelineSpan).Ticks / 2));
+
+            if (DesiredEndtime < EarliestEndTime)
+            {
+                DesiredEndtime = EarliestEndTime;
+            }
+
+            if (DesiredEndtime > LatestEndTime)
+            {
+                DesiredEndtime = LatestEndTime;
+            }
+            TimeSpan shiftInEvent= End - DesiredEndtime;
+            shiftEvent(shiftInEvent);
+            return true;
+        }
+
         public bool UpdateThis(SubCalendarEvent SubEventEntry)
         {
             if ((this.ID == SubEventEntry.ID)&&canExistWithinTimeLine(SubEventEntry.getCalendarEventRange))

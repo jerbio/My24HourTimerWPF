@@ -44,7 +44,7 @@
   <ItemGroup>
     <Compile Include="BusyTimeLine.cs" />
     <Compile Include="CalendarEvent.cs" />
-    <Compile Include="Class1.cs" />
+    <Compile Include="EventLearn.cs" />
     <Compile Include="TilerColor.cs" />
     <Compile Include="CustomErrors.cs" />
     <Compile Include="EventDisplay.cs" />
@@ -52,7 +52,7 @@
     <Compile Include="EventIDGenerator.cs" />
     <Compile Include="EventTimeLine.cs" />
     <Compile Include="IDefinedRange.cs" />
-    <Compile Include="Location.cs" />
+    <Compile Include="Location_Elements.cs" />
     <Compile Include="MiscData.cs" />
     <Compile Include="mTuple.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

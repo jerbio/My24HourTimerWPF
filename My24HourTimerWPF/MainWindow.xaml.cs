@@ -965,6 +965,11 @@ namespace My24HourTimerWPF
         private void NowButtonClick(object sender, RoutedEventArgs e)
         { 
             string EventID=textBox9.Text.Trim();
+            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ScheduleUpdateMessage=MySchedule.SetCalendarEventAsNow(EventID);
+
+             MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2);
+            
+            /*
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ScheduleUpdateMessage = MySchedule.SetEventAsNow(EventID);
             if (ScheduleUpdateMessage.Item1.Status)
             {
@@ -990,7 +995,7 @@ namespace My24HourTimerWPF
             {
                 MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2);
             }
-
+            */
         }
 
         private void RunEvaluation(object sender, RoutedEventArgs e)

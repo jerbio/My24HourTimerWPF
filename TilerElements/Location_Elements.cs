@@ -23,13 +23,13 @@ namespace TilerElements
             route
         };
 
-        double xValue;
-        double yValue;
-        string TaggedDescription;
-        string TaggedAddress;
-        bool NullLocation;
-        int CheckDefault;
-        int LocationID=0;
+        protected double xValue;
+        protected double yValue;
+        protected string TaggedDescription;
+        protected string TaggedAddress;
+        protected bool NullLocation;
+        protected int CheckDefault;
+        protected int LocationID = 0;
 
         public Location_Elements()
         {

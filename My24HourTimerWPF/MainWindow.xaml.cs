@@ -23,7 +23,8 @@ using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using Google.Maps.Geocoding;
 using WinForms = System.Windows.Forms;
-
+using Tiler;
+using TilerElements;
 
 
 
@@ -923,17 +924,7 @@ namespace My24HourTimerWPF
             string choicePath = "";
             if (string.IsNullOrEmpty(textBox9.Text))//check for specific id removal account
             {
-                DateTime eventStartTime = DateTime.Now;
-                DateTime eventEndTime = eventStartTime + DelaySpan;
-
-                EventDisplay ProcrastinateDisplay=new EventDisplay(true,new Color(),2);
-
-                CalendarEvent ScheduleUpdated = new CalendarEvent("Procrastinate", DelaySpan, eventStartTime, eventEndTime, new TimeSpan(0), new TimeSpan(0), true, new Repetition(), 1, new Location(), true, ProcrastinateDisplay, new MiscData(),false);
-                ScheduleUpdated.Repeat.PopulateRepetitionParameters(ScheduleUpdated);
-                textBlock9.Text = "...Loading";
-                choicePath = "ProcrastinateAll";
-                 ScheduleUpdateMessage = MySchedule.Procrastinate(ScheduleUpdated);
-                
+                ScheduleUpdateMessage = MySchedule.ProcrastinateAll(DelaySpan);
             }
             else
             {
@@ -972,8 +963,14 @@ namespace My24HourTimerWPF
         }
 
         private void NowButtonClick(object sender, RoutedEventArgs e)
-        { 
-            string EventID=textBox9.Text.Trim();
+        {
+            string EventID = textBox9.Text.Trim();
+            /*
+            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ScheduleUpdateMessage=MySchedule.SetCalendarEventAsNow(EventID);
+
+             MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2);
+            */
+            
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ScheduleUpdateMessage = MySchedule.SetEventAsNow(EventID);
             if (ScheduleUpdateMessage.Item1.Status)
             {
@@ -999,7 +996,7 @@ namespace My24HourTimerWPF
             {
                 MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2);
             }
-
+            
         }
 
         private void RunEvaluation(object sender, RoutedEventArgs e)
@@ -1106,7 +1103,7 @@ namespace My24HourTimerWPF
                     //
                 }
                 //C6RXEZ             
-                Location var0 = new Location(textBox8.Text);
+                Location_Elements var0 = new Location_Elements(textBox8.Text);
 
                 EventDisplay UiData = new EventDisplay();
                 MiscData NoteData = new MiscData();
@@ -1144,15 +1141,14 @@ namespace My24HourTimerWPF
         {
             UserAccount currentUser = new UserAccount(UserNameTextBox.Text, PasswordTextBox.Text);
             DateTime refNow=DateTime.Now;
-            
-            
+            //refNow = new DateTime(2014, 7,28, 8, 0, 0);
             MySchedule = new Schedule(currentUser, refNow);
             
             if (MySchedule.isScheduleLoadSuccessful)
             {
                 
                 tabItem2.IsEnabled = true;
-                datePicker1.SelectedDate = Schedule.Now.AddDays(0);// DateTime.Now.AddDays(0);
+                datePicker1.SelectedDate = Schedule.Now.AddDays(1);// DateTime.Now.AddDays(0);
                 //datePicker1.SelectedDate = DateTime.Now.AddDays(0);
                 //datePicker1.SelectedDate = new DateTime(2013, 11, 20, 0, 0, 0);
                 //datePicker2.SelectedDate = DateTime.Now.AddDays(2);
@@ -1164,6 +1160,9 @@ namespace My24HourTimerWPF
                 textBox4.Text = RandomHour + ":" + RandomMinute;
                 textBox4.Text = 4 + ":" + "00" + ":" + "00";// +":" + "00";//total time
                 textBox2.Text = 4.ToString();//number of splits
+
+                textBox4.Text = 6+ ":" + "00" + ":" + "00";//total time
+                textBox2.Text = 3.ToString();//number of splits
                 int ProcrastinateStartDay = 0;
                 int ProcrastinateEndDay = 365;
                 int ProcrastinateStartHour = 0;
@@ -1222,58 +1221,26 @@ namespace My24HourTimerWPF
             
         }
 
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            /*
+            IList<CalendarEvent> AllCalendarEvents=MySchedule. getAllCalendarElements().Select(obj=>obj.Value).ToList();
+            string NameOfEVent=NameOfEventSearch.Text;
+            NameOfEVent = NameOfEVent.ToLower();
+
+            IEnumerable<CalendarEvent> WITHnAME = AllCalendarEvents.Where(obj => obj.Name.ToLower().Contains(NameOfEVent));
+            string FinalBox = string.Join("\n", WITHnAME.Select(OBJ => OBJ.Name));
+            ResultOfSearch.Text = FinalBox;
+            */
+        }
+
         
 
 
 
     }
 
-    public class CustomErrors
-    {
-        bool Errorstatus;
-        string ErrorMessage;
-        int ErrorCode;
-        /* Error Code 0: No Error
-         * Error Code 5: Set Sub event as Now was selected however, The sub event will exceed the bounds of the CalendarEvent
-         * 10001000<=code => LoginCredential issue
-         * 20000000<=Code => Log control issue
-         * 30000000<=Code => Database control issue
-         */
-
-        public CustomErrors(bool StatusEntry, string MessagEntry,int ErrorCode=0)
-        {
-            Errorstatus = StatusEntry;
-            ErrorMessage = MessagEntry;
-            this.ErrorCode = ErrorCode;
-        }
-
-        //
-        //
-
-        public bool Status
-        {
-            get
-            {
-                return Errorstatus;
-            }
-        }
-
-        public string Message
-        {
-            get
-            {
-                return ErrorMessage;
-            }
-        }
-
-        public int Code
-        {
-            get
-            {
-                return ErrorCode;
-            }
-        }
-    }
+    
     
 
     public class QuickSort
@@ -1431,341 +1398,6 @@ namespace My24HourTimerWPF
     
     
 
-    public class EventID
-    {
-        private static int CalendarEvenntLimitIndex = 2;
-        string[] LayerID;
-        string s_FullID;
-        int FullID;
-        public EventID(string myLayerID):this(myLayerID.Split('_'))
-        { 
-            
-        }
-        public EventID(string[] myLayerID)
-        {
-            LayerID = myLayerID;
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
-            
-            
-            string myId = "";
-            foreach (string eachString in LayerID)
-            {
-                sb.Append(eachString);
-                myId += eachString;
-            }
-
-            s_FullID = myId;
-
-            /*//string currConcat=sb.ToString();
-            string currConcat = myId;
-            if (string.IsNullOrEmpty(currConcat))
-            {
-                FullID = 0;
-            }
-            else
-            {
-                FullID = Convert.ToInt32(currConcat);
-            }*/
-            
-        }
-
-        public string[] ID
-        {
-            get 
-            {
-                return LayerID;
-            }
-        }
-
-        public string getStringIDAtLevel(int LevelIndex)
-        {
-            int i = 0;
-            string StringID = "";
-            for (i = 0; (i <= LevelIndex - 1) && (LevelIndex < LayerID.Length); i++)
-            {
-                StringID += LayerID[i] + "_";
-            }
-            StringID += LayerID[LevelIndex];
-            return StringID;
-
-        }
-
-        public string getLevelID(int Level)
-        {
-            return LayerID[Level];
-        }
-
-        public string getCalendarEventID()
-        {
-            if (LayerID.Length > CalendarEvenntLimitIndex)
-            {
-                return getStringIDAtLevel(1);
-            }
-            else 
-            {
-                return getStringIDAtLevel(0);
-            }
-        }
-
-        
-        public override string ToString()
-        {
-            string IDCombination="";
-            if ((LayerID.Length == 1) && (LayerID[0] == ""))//checks if LayerID is empty
-            {
-                return "";
-            }
-            foreach (string MyString in LayerID)
-            {
-                IDCombination += MyString + "_";
-            }
-            return IDCombination.Substring(0, (IDCombination.Length - 1));
-        }
-        
-        public override bool Equals(object obj)
-        {
-            if (obj == null)
-            {
-                return false;
-            }
-
-
-            EventID p = obj as EventID;
-            if ((System.Object)p == null)
-            {
-                return false;
-            }
-
-            return (this.s_FullID == p.s_FullID);
-        }
-
-        public override int GetHashCode()
-        {
-            return s_FullID.GetHashCode();
-        }
-    }
-
-    
-    public class Repetition
-    {
-        
-        string RepetitionFrequency;
-        TimeLine RepetitionRange;
-        bool EnableRepeat;
-        CalendarEvent[] RepeatingEvents;
-        Dictionary<string, CalendarEvent> DictionaryOfIDAndCalendarEvents;
-        Location RepeatLocation;
-        TimeLine initializingRange;
-
-        public Repetition()
-        {
-            RepetitionFrequency = "";
-            RepetitionRange = new TimeLine();
-            EnableRepeat = false;
-            RepeatingEvents = new CalendarEvent[0];
-            RepeatLocation = new Location();
-            initializingRange = new TimeLine();
-            DictionaryOfIDAndCalendarEvents = new System.Collections.Generic.Dictionary<string, CalendarEvent>(); 
-        }
-        public Repetition(bool EnableFlag ,TimeLine RepetitionRange_Entry, string Frequency,TimeLine EventActualRange)
-        {
-            RepetitionRange = RepetitionRange_Entry;
-            RepetitionFrequency = Frequency.ToUpper();
-            EnableRepeat = EnableFlag;
-            RepeatLocation = new Location();
-            DictionaryOfIDAndCalendarEvents = new System.Collections.Generic.Dictionary<string, CalendarEvent>();
-            initializingRange = EventActualRange;
-        }
-
-        //public Repetition(bool EnableFlag,CalendarEvent BaseCalendarEvent,  TimeLine RepetitionRange_Entry, string Frequency)
-        public Repetition(bool ReadFromFileEnableFlag, TimeLine ReadFromFileRepetitionRange_Entry, string ReadFromFileFrequency, CalendarEvent[] ReadFromFileRecurringListOfCalendarEvents)
-        {
-            EnableRepeat = ReadFromFileEnableFlag;
-            DictionaryOfIDAndCalendarEvents = new System.Collections.Generic.Dictionary<string, CalendarEvent>();
-
-            foreach (CalendarEvent MyRepeatCalendarEvent in ReadFromFileRecurringListOfCalendarEvents)
-            {
-                DictionaryOfIDAndCalendarEvents.Add(MyRepeatCalendarEvent.ID, MyRepeatCalendarEvent);
-            }
-
-            RepeatingEvents = DictionaryOfIDAndCalendarEvents.Values.ToArray();
-            RepetitionFrequency = ReadFromFileFrequency;
-            RepetitionRange = ReadFromFileRepetitionRange_Entry;
-            if (ReadFromFileRecurringListOfCalendarEvents.Length > 0)
-            {
-                RepeatLocation=ReadFromFileRecurringListOfCalendarEvents[0].myLocation;
-            }
-        }
-        
-        /*public Repetition(bool EnableFlag,TimeLine RepetitionRange_Entry, CalendarEvent ParentEvent)
-        {
-            RepetitionRange = RepetitionRange_Entry;
-            RepetitionFrequency = Frequency.ToUpper();
-            EnableRepeat = EnableFlag;
-            DateTime RepeatCalendarStart = CalendarEventRepeatCalendarStart;
-            DateTime RepeatCalendarEnd = CalendarEventRepeatCalendarEnd;
-            //RepeatCalendarEnd =IncreaseByFrequency(RepeatCalendarStart, Frequency);
-            CalendarEvent MyRepeatCalendarEvent = new CalendarEvent(CalendarEventName, CalendarEventActiveDuration, CalendarEventRepeatCalendarStart, CalendarEventRepeatCalendarEnd, CalendarEventPreparation, CalendarEventPreDeadline, CalendarEventRigid, new Repetition(), CalendarEventNumberOfSplit);//first repeating calendar event
-            MyRepeatCalendarEvent = new CalendarEvent(new EventID(MyRepeatCalendarEvent.ID), MyRepeatCalendarEvent.Name, MyRepeatCalendarEvent.ActiveDuration, RepeatCalendarStart, RepeatCalendarEnd, MyRepeatCalendarEvent.Preparation, MyRepeatCalendarEvent.PreDeadline, MyRepeatCalendarEvent.Rigid, MyRepeatCalendarEvent.Repeat, MyRepeatCalendarEvent.NumberOfSplit);
-            List<CalendarEvent> MyArrayOfRepeatingCalendarEvents = new List<CalendarEvent>();
-
-            for (; MyRepeatCalendarEvent.Start < RepetitionRange_Entry.End; )
-            {
-                MyArrayOfRepeatingCalendarEvents.Add(MyRepeatCalendarEvent);
-                RepeatCalendarStart = IncreaseByFrequency(RepeatCalendarStart, Frequency); ;
-                RepeatCalendarEnd = IncreaseByFrequency(RepeatCalendarEnd, Frequency);
-                MyRepeatCalendarEvent = new CalendarEvent(new EventID(MyRepeatCalendarEvent.ID), MyRepeatCalendarEvent.Name, MyRepeatCalendarEvent.ActiveDuration, RepeatCalendarStart, RepeatCalendarEnd, MyRepeatCalendarEvent.Preparation, MyRepeatCalendarEvent.PreDeadline, MyRepeatCalendarEvent.Rigid, MyRepeatCalendarEvent.Repeat, MyRepeatCalendarEvent.NumberOfSplit);
-            }
-            RepeatingEvents = MyArrayOfRepeatingCalendarEvents.ToArray();
-        }*/
-
-        public CalendarEvent getCalendarEvent(string RepeatingEventID)
-        {
-            if(DictionaryOfIDAndCalendarEvents.ContainsKey(RepeatingEventID))
-            {
-                return DictionaryOfIDAndCalendarEvents[RepeatingEventID]; 
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        public void PopulateRepetitionParameters(CalendarEvent MyParentEvent)//this function of repetition, is responsible for populating the repetition object in the passed CalendarEvent.
-        {
-            if (!MyParentEvent.Repeat.Enable)//Checks if Repetition object is enabled or disabled. If Disabled then just return else continue
-            {
-                return;
-            }
-            
-            RepetitionRange = MyParentEvent.Repeat.Range;
-            RepetitionFrequency = MyParentEvent.Repeat.Frequency;
-            EnableRepeat = true;
-            DateTime EachRepeatCalendarStart = initializingRange.Start;//Start DateTime Object for each recurring Calendar Event
-            DateTime EachRepeatCalendarEnd = initializingRange.End;//End DateTime Object for each recurring Calendar Event
-
-            EventID MyEventCalendarID = new EventID(MyParentEvent.ID + "_" + EventIDGenerator.generate().ToString());
-            CalendarEvent MyRepeatCalendarEvent = new CalendarEvent(MyEventCalendarID, MyParentEvent.Name, MyParentEvent.ActiveDuration, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.Preparation, MyParentEvent.PreDeadline, MyParentEvent.Rigid, new Repetition(), MyParentEvent.Rigid ? 1 : MyParentEvent.NumberOfSplit, MyParentEvent.myLocation, MyParentEvent.isEnabled, MyParentEvent.UIParam, MyParentEvent.Notes, MyParentEvent.isComplete);
-            
-            List<CalendarEvent> MyArrayOfRepeatingCalendarEvents = new List<CalendarEvent>();
-
-            for (; MyRepeatCalendarEvent.Start < MyParentEvent.Repeat.Range.End; )
-            {
-                MyArrayOfRepeatingCalendarEvents.Add(MyRepeatCalendarEvent);
-                DictionaryOfIDAndCalendarEvents.Add(MyRepeatCalendarEvent.ID, MyRepeatCalendarEvent);
-                EachRepeatCalendarStart = IncreaseByFrequency(EachRepeatCalendarStart, Frequency); ;
-                EachRepeatCalendarEnd = IncreaseByFrequency(EachRepeatCalendarEnd, Frequency);
-                MyEventCalendarID = new EventID(MyParentEvent.ID + "_" + EventIDGenerator.generate().ToString());
-                MyRepeatCalendarEvent = new CalendarEvent(MyEventCalendarID, MyRepeatCalendarEvent.Name, MyRepeatCalendarEvent.ActiveDuration, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyRepeatCalendarEvent.Preparation, MyRepeatCalendarEvent.PreDeadline, MyRepeatCalendarEvent.Rigid, MyRepeatCalendarEvent.Repeat, MyRepeatCalendarEvent.NumberOfSplit, MyParentEvent.myLocation, MyParentEvent.isEnabled, MyParentEvent.UIParam, MyParentEvent.Notes, MyParentEvent.isComplete);
-                
-                if (MyParentEvent.myLocation == null)
-                {
-                    MessageBox.Show("weird error Jeromes");
-                }
-                MyRepeatCalendarEvent.myLocation = MyParentEvent.myLocation;
-            }
-            RepeatingEvents = DictionaryOfIDAndCalendarEvents.Values.ToArray();
-        }
-
-        public DateTime IncreaseByFrequency(DateTime MyTime, string Frequency)
-        {
-            Frequency = Frequency.ToUpper();
-            switch (Frequency)
-            {
-                case "DAILY":
-                    {
-                        return MyTime.AddDays(1);
-                    }
-                case "WEEKLY":
-                    {
-                        return MyTime.AddDays(7);
-                    }
-                case "BI-WEEKLY":
-                    {
-                        return MyTime.AddDays(14);
-                    }
-                case "MONTHLY":
-                    {
-                        return MyTime.AddMonths(1);
-                    }
-                case "YEARLY":
-                    {
-                        return MyTime.AddYears(1);
-                    }
-                default:
-                    {
-                        return MyTime;
-                    }
-            }
-        }
-
-        
-        /*public Repetition(bool EnableFlag, DateTime StartTime, TimeSpan Frequency)
-        {
-            Start = StartTime;
-            RepetitionFrequency = Frequency;
-            EnableRepeat = EnableFlag;
-        }*/
-
-        public bool Enable
-        {
-            get 
-            {
-                return EnableRepeat;
-            }
-        }
-
-        public string Frequency
-        {
-            get
-            {
-                return RepetitionFrequency;
-            }
-        }
-
-        public TimeLine Range
-        {
-            get
-            {
-                return RepetitionRange;
-            }
-        }
-
-        public CalendarEvent[] RecurringCalendarEvents
-        {
-            set 
-            {
-                foreach (CalendarEvent MyCalEvent in value)
-                {
-                    DictionaryOfIDAndCalendarEvents[MyCalEvent.ID] = MyCalEvent;
-                }
-
-                RepeatingEvents = DictionaryOfIDAndCalendarEvents.Values.ToArray();//assign od diffe list can generate inconsistencies...watchout for bugs
-            }
-            get 
-            {
-                return DictionaryOfIDAndCalendarEvents.Values.ToArray();
-            }
-        }
-
-        public Repetition CreateCopy()
-        {
-            Repetition repetition_cpy = new Repetition();
-            if (this.RepeatingEvents.Length < 1)
-            {
-                return repetition_cpy;
-            }
-            repetition_cpy.RepetitionFrequency = this.RepetitionFrequency;
-            repetition_cpy.RepetitionRange = this.RepetitionRange.CreateCopy();
-            repetition_cpy.RepeatingEvents = RepeatingEvents.Select(obj => obj.createCopy()).ToArray();
-            repetition_cpy.RepeatLocation = RepeatLocation.CreateCopy();
-            repetition_cpy.EnableRepeat = EnableRepeat;
-            repetition_cpy.DictionaryOfIDAndCalendarEvents = DictionaryOfIDAndCalendarEvents.ToDictionary(obj => obj.Key, obj1 => obj1.Value.createCopy());
-            return repetition_cpy;
-        }
-
-    }
-    
     
     public  class SystemTimeUpdate
     {

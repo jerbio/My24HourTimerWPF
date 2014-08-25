@@ -9,13 +9,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 //using System.Windows.Forms;
-using Google.Maps.Geocoding;
+using Google.Maps.Geocoding; 
 using System.Drawing;
+using TilerElements;
 
 
-namespace My24HourTimerWPF
+namespace TilerElements
 {
-    public class Location
+    public class Location : Location_Elements
     {
         string _token = string.Empty;
         enum requestType
@@ -27,12 +28,12 @@ namespace My24HourTimerWPF
             route
         };
 
-        double xValue;
+        /*double xValue;
         double yValue;
         string TaggedDescription;
         string TaggedAddress;
         bool NullLocation;
-        int CheckDefault;
+        int CheckDefault;*/
 
         public Location()
         {
@@ -58,18 +59,18 @@ namespace My24HourTimerWPF
         
         public Location(string Address, string tag="")
         {
-            Address=Address.Trim();
+            
             NullLocation = true;
-            if (string.IsNullOrEmpty(Address))
+            if (string.IsNullOrEmpty(Address)||string.IsNullOrWhiteSpace(Address))
             {
                 xValue = double.MaxValue;
                 yValue = double.MaxValue;
                 TaggedAddress = "";
                 TaggedDescription = "";
             }
-
             else
             {
+                Address = Address.Trim();
                 try
                 {
                     var request = new GeocodingRequest();
@@ -83,7 +84,7 @@ namespace My24HourTimerWPF
                     {
                         TaggedDescription = tag;
                     }
-                    TaggedAddress = result.FormattedAddress;
+                    TaggedAddress = result.FormattedAddress.ToLower();
                     xValue = Convert.ToDouble(result.Geometry.Location.Latitude);
                     yValue = Convert.ToDouble(result.Geometry.Location.Longitude);
                     NullLocation = false;
@@ -95,12 +96,14 @@ namespace My24HourTimerWPF
                     yValue = double.MaxValue;
                     if (tag == "")
                     { 
-                        TaggedDescription = Address; 
+                        TaggedDescription = Address.ToLower(); 
                     }
                     else
                     {
-                        TaggedDescription = tag;
+                        TaggedDescription = tag.ToLower();
                     }
+                    NullLocation = false;
+
                     TaggedAddress = Address;
                 }
             }
@@ -170,8 +173,10 @@ namespace My24HourTimerWPF
             return JSON;
         }
 
+        /*
         private Geocode Deserialize( string json)
         {
+            
             JavaScriptSerializer javaScriptSerializer = new JavaScriptSerializer();
             
             
@@ -180,7 +185,7 @@ namespace My24HourTimerWPF
                 return geocode;
             
         }
-
+        */
         public Location CreateCopy()
         {
             Location this_cpy = new Location();
@@ -276,18 +281,19 @@ namespace My24HourTimerWPF
         }
         #endregion
     }
-}
 
-
-public struct Location_struct
-{
-    public float xValue;
-    public float yValue;
-    public int Number;
-    /*
-    public override string ToString()
+    public struct Location_struct
     {
-        return yValue + "," + xValue;
+        public float xValue;
+        public float yValue;
+        public int Number;
+        /*
+        public override string ToString()
+        {
+            return yValue + "," + xValue;
+        }
+        */
     }
-    */
 }
+
+

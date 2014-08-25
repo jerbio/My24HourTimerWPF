@@ -39,7 +39,7 @@ namespace TilerElements
         protected EventDisplay UiParams= new EventDisplay();
         protected MiscData DataBlob=new MiscData();
 
-        protected Location_Elements LocationData;
+        private Location_Elements LocationData;
         protected string otherPartyID;
         List<mTuple<EventID,string>> RemovedIDs;
         #region Constructor

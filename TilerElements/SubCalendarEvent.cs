@@ -148,7 +148,7 @@ namespace TilerElements
 
         public SubCalendarEvent createCopy()
         {
-            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ID, new DateTime(Start.Ticks), new DateTime(End.Ticks), BusyFrame.CreateCopy(), this.RigidSchedule, this.isEnabled, this.UiParams.createCopy(), this.Notes.createCopy(), this.Complete, this.LocationData, new TimeLine(CalendarEventRange.Start, CalendarEventRange.End));
+            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ID, new DateTime(Start.Ticks), new DateTime(End.Ticks), BusyFrame.CreateCopy(), this.RigidSchedule, this.isEnabled, this.UiParams.createCopy(), this.Notes.createCopy(), this.Complete, this.EventLocation, new TimeLine(CalendarEventRange.Start, CalendarEventRange.End));
             //MySubCalendarEventCopy.LocationData = LocationData;//note check for possible reference issues for future versions
             /*MySubCalendarEventCopy.SubEventID = SubEventID;
             MySubCalendarEventCopy.BusyFrame = BusyFrame;
@@ -269,7 +269,7 @@ namespace TilerElements
                 AvailablePreceedingFreeSpace = SubEventEntry.AvailablePreceedingFreeSpace;
                 RigidSchedule = SubEventEntry.Rigid;
                 CalendarEventRange = SubEventEntry.CalendarEventRange;
-                EventLocation = SubEventEntry.LocationData;
+                EventLocation = SubEventEntry.EventLocation;
                 Enabled = SubEventEntry.Enabled;
                 ThirdPartyID = SubEventEntry.ThirdPartyID;
                 return true;
@@ -447,7 +447,7 @@ namespace TilerElements
 
          public static double CalculateDistance(SubCalendarEvent Arg1,SubCalendarEvent Arg2)
         {
-            if(Arg1.SubEvent_ID.getStringIDAtLevel(0)==Arg1.SubEvent_ID.getStringIDAtLevel(0))
+            if (Arg1.SubEvent_ID.getStringIDAtLevel(0) == Arg2.SubEvent_ID.getStringIDAtLevel(0))
             {
                 return double.MaxValue;
             }

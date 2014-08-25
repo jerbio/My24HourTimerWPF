@@ -102,6 +102,8 @@ namespace TilerElements
                     {
                         TaggedDescription = tag.ToLower();
                     }
+                    NullLocation = false;
+
                     TaggedAddress = Address;
                 }
             }

@@ -294,6 +294,21 @@ namespace TilerElements
             return MyCalendarEventCopy;
         }
 
+        public static CalendarEvent getEmptyCalendarEvent( EventID myEventID,DateTime Start=new DateTime(), DateTime End=new DateTime())
+        {
+            CalendarEvent retValue = new CalendarEvent();
+            retValue.CalendarEventID = myEventID;
+            retValue.StartDateTime = Start;
+            retValue.EndDateTime = End;
+            retValue.EventDuration = new TimeSpan(0);
+            SubCalendarEvent emptySubEvent = SubCalendarEvent.getEmptyCalendarEvent();
+            retValue.SubEvents.Add(emptySubEvent.SubEvent_ID, emptySubEvent);
+            retValue.Splits = 1;
+            retValue.Rigid = true;
+            retValue.Complete = true;
+            retValue.Enabled = false;
+            return retValue;
+        }
         virtual public void Disable(bool goDeep=true)
         { 
             this.Enabled=false;

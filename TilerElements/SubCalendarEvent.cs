@@ -11,12 +11,10 @@ namespace TilerElements
         BusyTimeLine BusyFrame;
         TimeSpan AvailablePreceedingFreeSpace;
         TimeLine CalendarEventRange;
-<<<<<<< HEAD:My24HourTimerWPF/SubCalendarEvent.cs
-        Location EventLocation;
-=======
+
         Location_Elements EventLocation;
         IList<EventID> InterferringEvents;
->>>>>>> f6675804696b1a4585a6ddada75e251663a1c4db:TilerElements/SubCalendarEvent.cs
+
         int MiscIntData;
 
         #region Classs Constructor
@@ -148,6 +146,20 @@ namespace TilerElements
         public bool IsDateTimeWithin(DateTime DateTimeEntry)
         {
             return RangeTimeLine.IsDateTimeWithin(DateTimeEntry);
+        }
+
+        public static SubCalendarEvent getEmptyCalendarEvent()
+        {
+            SubCalendarEvent retValue = new SubCalendarEvent();
+            retValue.SubEventID = new EventID("");
+            retValue.StartDateTime = DateTime.Now;
+            retValue.EndDateTime = DateTime.Now;
+            retValue.EventDuration = new TimeSpan(0);
+            retValue.Splits = 1;
+            retValue.Rigid = true;
+            retValue.Complete = true;
+            retValue.Enabled = false;
+            return retValue;
         }
 
         public SubCalendarEvent createCopy()
@@ -296,8 +308,6 @@ namespace TilerElements
                 }
             }
         }
-<<<<<<< HEAD:My24HourTimerWPF/SubCalendarEvent.cs
-=======
 
         public static void incrementMiscdata(IList<SubCalendarEvent> AllSubCalendarEvents)
         {
@@ -314,7 +324,6 @@ namespace TilerElements
                 --AllSubCalendarEvents[i].MiscIntData;// = IntData[i];
             }
         }
->>>>>>> f6675804696b1a4585a6ddada75e251663a1c4db:TilerElements/SubCalendarEvent.cs
 
 
 

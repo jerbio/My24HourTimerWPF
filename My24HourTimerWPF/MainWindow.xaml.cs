@@ -1139,6 +1139,9 @@ namespace My24HourTimerWPF
 
         private void LogInToWagtap()
         {
+            //string LogLocation = "";
+            //LogLocation = @"C:\Users\OluJerome\Documents\Visual Studio 2010\Projects\LearnCuDAVS2010\LearnCUDAConsoleApplication\WagTapCalLogs\";
+            //Tiler.LogControl.UpdateLogLocation(LogLocation);
             UserAccount currentUser = new UserAccount(UserNameTextBox.Text, PasswordTextBox.Text);
             DateTime refNow=DateTime.Now;
             //refNow = new DateTime(2014, 7,28, 8, 0, 0);

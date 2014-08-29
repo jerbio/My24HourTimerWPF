@@ -89,6 +89,8 @@ namespace My24HourTimerWPF
         {
             myAccount = AccountEntry;
             Now = referenceNow;
+            
+
             Initialize();
         }
 

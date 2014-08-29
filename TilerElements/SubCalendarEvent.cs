@@ -461,11 +461,11 @@ namespace TilerElements
         }
         
 
-         public static double CalculateDistance(SubCalendarEvent Arg1,SubCalendarEvent Arg2)
+         public static double CalculateDistance(SubCalendarEvent Arg1,SubCalendarEvent Arg2, double worstDistance=double.MaxValue)
         {
             if (Arg1.SubEvent_ID.getStringIDAtLevel(0) == Arg2.SubEvent_ID.getStringIDAtLevel(0))
             {
-                return double.MaxValue;
+                return worstDistance;
             }
             else
             {
@@ -473,6 +473,18 @@ namespace TilerElements
             }
         }
 
+
+         public static double CalculateDistance(IList<SubCalendarEvent> Allevents, double worstDistance=double.MaxValue)
+         {
+             int j=0;
+             double retValue = 0;
+             for (int i = 0; i < Allevents.Count - 1; i++)
+             { 
+                 j=i+1;
+                 retValue+=CalculateDistance(Allevents[i], Allevents[j], worstDistance);
+             }
+             return retValue;
+         }
 
          public bool canExistWithinTimeLine(TimeLine PossibleTimeLine)
          {

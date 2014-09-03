@@ -1155,7 +1155,7 @@ namespace My24HourTimerWPF
                 //datePicker1.SelectedDate = DateTime.Now.AddDays(0);
                 //datePicker1.SelectedDate = new DateTime(2013, 11, 20, 0, 0, 0);
                 //datePicker2.SelectedDate = DateTime.Now.AddDays(2);
-                datePicker2.SelectedDate = Schedule.Now.AddDays(2);//new DateTime(2014, 5, 15, 0, 0, 0);
+                datePicker2.SelectedDate = Schedule.Now.AddDays(1);//new DateTime(2014, 5, 15, 0, 0, 0);
                 calendar4.SelectedDate = DateTime.Now.AddDays(0);
                 Random myNumber = new Random();
                 int RandomHour = myNumber.Next(0, 24);

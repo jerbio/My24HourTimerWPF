@@ -1,4 +1,4 @@
-﻿//#define EnableOutlook
+﻿#define EnableOutlook
 
 using System;
 using System.Collections.Generic;

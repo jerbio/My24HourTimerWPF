@@ -495,7 +495,7 @@ namespace TilerElements
          public bool canExistTowardsEndWithoutSpace(TimeLine PossibleTimeLine)
          {
              TimeLine ParentCalRange = getCalendarEventRange;
-             bool retValue = (ParentCalRange.Start <= (PossibleTimeLine.End - ActiveDuration)) && (ParentCalRange.End>=PossibleTimeLine.End);
+             bool retValue = (ParentCalRange.Start <= (PossibleTimeLine.End - ActiveDuration)) && (ParentCalRange.End>=PossibleTimeLine.End)&&(canExistWithinTimeLine(PossibleTimeLine));
 
              return retValue;
          }
@@ -503,7 +503,7 @@ namespace TilerElements
          public bool canExistTowardsStartWithoutSpace(TimeLine PossibleTimeLine)
          {
              TimeLine ParentCalRange = getCalendarEventRange;
-             bool retValue = ((PossibleTimeLine.Start + ActiveDuration) <= ParentCalRange.End) && (ParentCalRange.Start <= PossibleTimeLine.Start);
+             bool retValue = ((PossibleTimeLine.Start + ActiveDuration) <= ParentCalRange.End) && (ParentCalRange.Start <= PossibleTimeLine.Start) && (canExistWithinTimeLine(PossibleTimeLine));
 
              return retValue;
          }

@@ -229,7 +229,7 @@ namespace My24HourTimerWPF
             bool retValue = true;
             if (arg1.Count > 0)
             {
-                retValue=arg1[0].PinSubEventsToStart(Arg2);
+                retValue=arg1[0].PinToStart(Arg2);
                 TimeLine var0 = new TimeLine(arg1[0].ActiveSlot.End, Arg2.End);
                 arg1.RemoveAt(0);
                 if (retValue && PinSubEventsToStart_NoEdit(arg1, var0))

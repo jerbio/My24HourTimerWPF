@@ -327,7 +327,7 @@ namespace TilerElements
             }
         }
 
-        virtual public void SetCompletionStatus(bool CompletionStatus, bool goDeep=false)
+        virtual public void SetCompletion(bool CompletionStatus, bool goDeep=false)
         {
             Complete = CompletionStatus;
 
@@ -335,7 +335,7 @@ namespace TilerElements
             {
                 foreach (CalendarEvent eachCalendarEvent in EventRepetition.RecurringCalendarEvents)
                 {
-                    eachCalendarEvent.SetCompletionStatus(CompletionStatus);
+                    eachCalendarEvent.SetCompletion(CompletionStatus);
                 }
             }
             else
@@ -344,7 +344,7 @@ namespace TilerElements
                 { 
                     foreach (SubCalendarEvent eachSubCalendarEvent in AllSubEvents)
                     {
-                        eachSubCalendarEvent.SetCompletionStatus(CompletionStatus);
+                        setSubEventCompletionStatus(CompletionStatus, eachSubCalendarEvent);
                     }
                 }
             }
@@ -353,6 +353,16 @@ namespace TilerElements
             UiParams.setCompleteUI(CompletionStatus);
         }
 
+
+        public void setSubEventCompletionStatus(bool completionStatus,SubCalendarEvent mySubEVent)
+        {
+            mySubEVent.Complete = completionStatus;
+            mySubEVent.UiParams.setCompleteUI(completionStatus);
+            if (ActiveSubEvents.Count() < 1)
+            {
+                Complete = true;//hack alert this can pose a problem if all events are not loaded into memory make a check if fully loaded into memory
+            }
+        }
         public override string ToString()
         {
             return this.ID+"::"+this.Start.ToString() + " - " + this.End.ToString();

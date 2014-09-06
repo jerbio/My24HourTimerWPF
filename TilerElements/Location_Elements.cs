@@ -81,9 +81,14 @@ namespace TilerElements
             return null;
         }
 
-        static public double calculateDistance(Location_Elements Location24A, Location_Elements Location24B)
+        static public double calculateDistance(Location_Elements Location24A, Location_Elements Location24B, double Worst=double.MaxValue)
         {
             //note .... this function does not take into consideration the calendar event. So if there are two locations of the same calendarevent they will get scheduled right next to each other
+            double maxDividedByTwo=double.MaxValue/2;
+            if ((Location24A.xValue >= maxDividedByTwo)||(Location24B.xValue >maxDividedByTwo))
+            {
+                return Worst;
+            }
             double R = 3958.7558657440545; // Radius of earth in Miles 
             double dLat = toRad(Location24A.xValue - Location24B.xValue);
             double dLon = toRad(Location24A.yValue - Location24B.yValue);

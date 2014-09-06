@@ -65,10 +65,44 @@ namespace My24HourTimerWPF
 
         double PercentageOccupancy = 0;
         //public static DateTime Now = new DateTime(2014,4,6,0,0,0);//DateTime.Now;
-        public static DateTime Now = DateTime.Now;
+        public static ReferenceNow Now = new ReferenceNow( DateTime.Now);
         //Schedule.Now = DateTime.Now;
         DateTime ReferenceDayTIime;
         static string stageOfProgram = "";
+
+        public class ReferenceNow
+        {
+            DateTime CalculationNow;
+            DateTime ImmutableNow;
+            public ReferenceNow(DateTime Now)
+            {
+                Now = new DateTime(Now.Year, Now.Month, Now.Day, Now.Hour, Now.Minute,0);
+                ImmutableNow = Now;
+                CalculationNow = Now;
+            }
+
+            public DateTime UpdateNow(DateTime UpdatedNow)
+            {
+                CalculationNow = UpdatedNow;
+                return CalculationNow;
+            }
+
+            public DateTime constNow
+            {
+                get
+                {
+                    return ImmutableNow;
+                }
+            }
+
+            public DateTime calculationNow
+            {
+                get
+                {
+                    return CalculationNow;
+                }
+            }
+        }
 
 
 
@@ -91,12 +125,12 @@ namespace My24HourTimerWPF
         public Schedule(UserAccount AccountEntry,DateTime referenceNow)
         {
             myAccount = AccountEntry;
-            Now = referenceNow;
+            Now =new ReferenceNow( referenceNow);
             
 
             Initialize();
         }
-
+        /*
         void setAsComplete()
         {
             DateTime TempNow = ReferenceDayTIime;
@@ -110,7 +144,7 @@ namespace My24HourTimerWPF
                     {
                         if (eachCalendarEvent.End <= TempNow)
                         {
-                            eachKeyValuePair.Value.SetCompletionStatus(true);
+                            eachKeyValuePair.Value.SetCompletion(true);
                         }
                     }
 
@@ -126,19 +160,20 @@ namespace My24HourTimerWPF
                 {
                     if (eachKeyValuePair.Value.End <= TempNow)
                     {
-                        eachKeyValuePair.Value.SetCompletionStatus(true);
+                        eachKeyValuePair.Value.SetCompletion(true);
                     }
 
                     foreach (SubCalendarEvent eachSubCalendarEvent in eachKeyValuePair.Value.AllSubEvents)
                     {
                         if (eachSubCalendarEvent.End <= TempNow)
                         {
-                            eachSubCalendarEvent.SetCompletionStatus(true);
+                            eachSubCalendarEvent.SetCompletionStatus(true, eachKeyValuePair.Value);
                         }
                     }
                 }
             }
         }
+        */
         private void Initialize()
         {
             myAccount.Login_NonTask();
@@ -147,7 +182,7 @@ namespace My24HourTimerWPF
             { 
                 ReferenceDayTIime = profileData.Item2;
                 DateTime referenceDayTimeNow = DateTime.Parse(ReferenceDayTIime.ToShortTimeString());
-                ReferenceDayTIime =Now <referenceDayTimeNow ?referenceDayTimeNow.AddDays(-1):referenceDayTimeNow ;
+                ReferenceDayTIime = Now.calculationNow < referenceDayTimeNow ? referenceDayTimeNow.AddDays(-1) : referenceDayTimeNow;
                 //ReferenceDayTIime = DateTime.Parse("4:00PM");
                 AllEventDictionary = profileData.Item1;
                 if (AllEventDictionary != null)
@@ -259,7 +294,7 @@ namespace My24HourTimerWPF
                     }
                 }
                 MyTotalSubEvents = Schedule.SortBusyTimeline(MyTotalSubEvents, true);
-                DateTime MyNow = Now;//Moved Out of For loop for Speed boost
+                DateTime MyNow = Now.calculationNow;//Moved Out of For loop for Speed boost
                 for (int i = 0; i < MyTotalSubEvents.Count; i++)
                 {
                     if (MyTotalSubEvents[i].Start > MyNow)
@@ -273,7 +308,7 @@ namespace My24HourTimerWPF
 
         TimeLine getTimeLine()
         {
-            DateTime LastDeadline = Now.AddHours(1);
+            DateTime LastDeadline = Now.calculationNow.AddHours(1);
             List<BusyTimeLine> MyTotalBusySlots = new List<BusyTimeLine>(0);
             //var Holder=new List();
             foreach (KeyValuePair<string, CalendarEvent> MyCalendarEvent in AllEventDictionary)
@@ -290,10 +325,10 @@ namespace My24HourTimerWPF
                 }*/
             }
             MyTotalBusySlots = SortBusyTimeline(MyTotalBusySlots, true);
-            TimeLine MyTimeLine = new TimeLine(Now, Now.AddHours(1));
+            TimeLine MyTimeLine = new TimeLine(Now.calculationNow, Now.calculationNow.AddHours(1));
             if (MyTotalBusySlots.Count > 0)
             {
-                MyTimeLine = new TimeLine(Now, MyTotalBusySlots[MyTotalBusySlots.Count - 1].End);
+                MyTimeLine = new TimeLine(Now.calculationNow, MyTotalBusySlots[MyTotalBusySlots.Count - 1].End);
             }
             MyTimeLine.OccupiedSlots = MyTotalBusySlots.ToArray();
             return MyTimeLine;
@@ -327,7 +362,7 @@ namespace My24HourTimerWPF
             int i = 0;
             List<BusyTimeLine> MyTotalSubEventBusySlots = new List<BusyTimeLine>(0);
             BusyTimeLine[] ArrayOfBusySlotsInRepeat = new BusyTimeLine[0];
-            DateTime LastDeadline = Now.AddHours(1);
+            DateTime LastDeadline = Now.calculationNow.AddHours(1);
 
             if (MyEvent.RepetitionStatus)
             {
@@ -426,7 +461,7 @@ namespace My24HourTimerWPF
         public void markAsCompleteCalendarEventAndReadjust(string EventID)
         {
             CalendarEvent CalendarEventTOBeRemoved = getCalendarEvent(EventID);
-            CalendarEventTOBeRemoved.SetCompletionStatus(true);
+            CalendarEventTOBeRemoved.SetCompletion(true);
             
             CalendarEventTOBeRemoved = new CalendarEvent(CalendarEventTOBeRemoved.Name, CalendarEventTOBeRemoved.ActiveDuration, CalendarEventTOBeRemoved.Start, CalendarEventTOBeRemoved.End, CalendarEventTOBeRemoved.Preparation, CalendarEventTOBeRemoved.PreDeadline, CalendarEventTOBeRemoved.Rigid, new Repetition(), 1, CalendarEventTOBeRemoved.myLocation, false, new EventDisplay(), new MiscData(), false);
             CalendarEventTOBeRemoved.DisableSubEvents(CalendarEventTOBeRemoved.ActiveSubEvents);
@@ -464,9 +499,9 @@ namespace My24HourTimerWPF
             Dictionary<string, CalendarEvent> AllEventDictionary_Cpy = new Dictionary<string, CalendarEvent>();
             AllEventDictionary_Cpy = AllEventDictionary.ToDictionary(obj => obj.Key, obj => obj.Value.createCopy());
             List<SubCalendarEvent> AllValidSubCalEvents = new List<SubCalendarEvent>() { ReferenceSubEvent };// ProcrastinateEvent.AllActiveSubEvents.Where(obj => obj.End > ReferenceSubEvent.Start).ToList();
-            DateTime StartTime = Now;
+            DateTime StartTime = Now.calculationNow;
             DateTime EndTime = StartTime.Add(ReferenceSubEvent.ActiveDuration); ;
-            ReferenceSubEvent.SetCompletionStatus(true);
+            ReferenceSubEvent.SetCompletionStatus(true, referenceCalendarEventWithSubEvent);
 
 
             TimeSpan TotalActiveDuration = Utility.SumOfActiveDuration(AllValidSubCalEvents);
@@ -508,7 +543,7 @@ namespace My24HourTimerWPF
             AllEventDictionary_Cpy = AllEventDictionary.ToDictionary(obj => obj.Key, obj => obj.Value.createCopy());
 
             List<SubCalendarEvent> AllValidSubCalEvents = new List<SubCalendarEvent>() { ReferenceSubEvent };// ProcrastinateEvent.AllActiveSubEvents.Where(obj => obj.End > ReferenceSubEvent.Start).ToList();
-            DateTime StartTime = Now;
+            DateTime StartTime = Now.calculationNow;
             DateTime EndTime = StartTime.Add(ReferenceSubEvent.ActiveDuration); ;
 
 
@@ -534,7 +569,7 @@ namespace My24HourTimerWPF
 
         public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ProcrastinateAll(TimeSpan DelaySpan, string NameOfEvent = "BLOCKED OUT")
         {
-            DateTime eventStartTime = Now;
+            DateTime eventStartTime = Now.calculationNow;
             DateTime eventEndTime = eventStartTime.Add( DelaySpan);
 
             EventDisplay ProcrastinateDisplay = new EventDisplay(true, new TilerColor(), 2);
@@ -585,7 +620,7 @@ namespace My24HourTimerWPF
 
             bool InitialRigid = ReferenceSubEvent.Rigid;
 
-            if (!ReferenceSubEvent.shiftEvent(Now - ReferenceSubEvent.Start) && !Force)
+            if (!ReferenceSubEvent.shiftEvent(Now.calculationNow - ReferenceSubEvent.Start) && !Force)
             {
                 return new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(new CustomErrors(true, "You will be going outside the limits of this event, Is that Ok?",5), AllEventDictionary);
             }
@@ -601,7 +636,7 @@ namespace My24HourTimerWPF
 
             List<SubCalendarEvent> AllValidSubCalEvents = new List<SubCalendarEvent>() { ReferenceSubEvent };// ProcrastinateEvent.AllActiveSubEvents.Where(obj => obj.End > ReferenceSubEvent.Start).ToList();
 
-            DateTime StartTime = Now;
+            DateTime StartTime = Now.calculationNow;
             DateTime EndTime = StartTime.Add(ReferenceSubEvent.ActiveDuration); ;
 
 
@@ -610,9 +645,9 @@ namespace My24HourTimerWPF
             
             TimeSpan TotalActiveDuration = Utility.SumOfActiveDuration(AllValidSubCalEvents);
             //CalendarEvent(string NameEntry, string StartTime, DateTime StartDateEntry, string EndTime, DateTime EventEndDateEntry, string eventSplit, string PreDeadlineTime, string EventDuration, Repetition EventRepetitionEntry, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag,Location EventLocation)
-            CalendarEvent ScheduleUpdated = new CalendarEvent(ProcrastinateEvent.Name, StartTime.ToString("hh:mm tt"), StartTime, EndTime.ToString("hh:mm tt"), EndTime, AllValidSubCalEvents.Count.ToString(), ProcrastinateEvent.PreDeadline.ToString(), TotalActiveDuration.ToString(), new Repetition(), true, true, ProcrastinateEvent.Preparation.ToString(), true, ReferenceSubEvent.myLocation,true, new EventDisplay(),new MiscData(),false);
+            CalendarEvent ScheduleUpdated = new CalendarEvent(ProcrastinateEvent.Name, StartTime.ToString(), StartTime, EndTime.ToString(), EndTime, AllValidSubCalEvents.Count.ToString(), ProcrastinateEvent.PreDeadline.ToString(), TotalActiveDuration.ToString(), new Repetition(), true, true, ProcrastinateEvent.Preparation.ToString(), true, ReferenceSubEvent.myLocation,true, new EventDisplay(),new MiscData(),false);
             SubCalendarEvent RigidizedEvent =ScheduleUpdated.ActiveSubEvents[0];
-            RigidizedEvent.shiftEvent(Now - RigidizedEvent.Start, Force);//remember to fix shift force option
+            RigidizedEvent.shiftEvent(Now.calculationNow - RigidizedEvent.Start, Force);//remember to fix shift force option
 
 
             SubCalendarEvent RigidSubCalendarEvent = new SubCalendarEvent(RigidizedEvent.ID, RigidizedEvent.Start, RigidizedEvent.End, RigidizedEvent.ActiveSlot, true, RigidizedEvent.isEnabled, ReferenceSubEvent.UIParam, ReferenceSubEvent.Notes, ReferenceSubEvent.isComplete, RigidizedEvent.myLocation, RigidizedEvent.getCalendarEventRange);
@@ -655,7 +690,7 @@ namespace My24HourTimerWPF
         public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> SetCalendarEventAsNow(string CalendarID, bool Force = false)
         {
             CalendarEvent CalendarEvent = getCalendarEvent(CalendarID);
-            IEnumerable<SubCalendarEvent> orderedSubEvents= CalendarEvent.ActiveSubEvents.Where(obj=>obj.End>=Now).OrderBy(obj => obj.Start);
+            IEnumerable<SubCalendarEvent> orderedSubEvents = CalendarEvent.ActiveSubEvents.Where(obj => obj.End >= Now.calculationNow).OrderBy(obj => obj.Start);
             Dictionary<string,CalendarEvent> AllEventDictionary_Cpy = AllEventDictionary.ToDictionary(obj => obj.Key, obj => obj.Value.createCopy());
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(new CustomErrors(true, "No Active Event Found", 100), AllEventDictionary_Cpy);
             if (orderedSubEvents.Count() > 0)
@@ -680,9 +715,7 @@ namespace My24HourTimerWPF
             else
             {
                 NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, NotdoneYet, null, 1);
-
             }
-
 
             sw.Stop();
             ///
@@ -1538,14 +1571,14 @@ namespace My24HourTimerWPF
              * It takes a collection of possible subcalendar events and an initializing reference time, the latter serves as the initializing position for the calculation.
              * It compares the referencetime with "Now". If Referencetime is earlier than Now it sets the reference time to now. Function checks if now clashes with any events. If it does, it checks if its past 10% of its duration. If yes, it drops it as an interferring element. It selects the end time of the Subcalendarevent (which is interferred by now) as the new reference time
              */
-            ReferenceTime = ReferenceTime > Now ? ReferenceTime : Now;
+            ReferenceTime = ReferenceTime > Now.calculationNow ? ReferenceTime : Now.calculationNow;
             IEnumerable<SubCalendarEvent> retrievedData;
             IEnumerable<SubCalendarEvent> tenPercentdateTimeLine;
             Tuple<IEnumerable<SubCalendarEvent>, DateTime, int> retValue;
             int retFlagType = FlagType;
             
             CollectionOfSubCalEvent = CollectionOfSubCalEvent.Where(obj => obj.End > ReferenceTime);//ensures we are selecting the sub events that are actuve after the reference time
-            if (ReferenceTime == Now)
+            if (ReferenceTime == Now.calculationNow)
             {
                 IEnumerable<SubCalendarEvent> interfersWithNow = CollectionOfSubCalEvent.Where(obj => obj.IsDateTimeWithin(ReferenceTime));
                 List<SubCalendarEvent> currentList = CollectionOfSubCalEvent.ToList();
@@ -1557,7 +1590,7 @@ namespace My24HourTimerWPF
                             {
                                 interfersWithNow = interfersWithNow.OrderBy(obj => obj.End);
                                 DateTime newNow = interfersWithNow.Last().End;
-                                UpdateNow(newNow);
+                                Now.UpdateNow(newNow);
                                 ReferenceTime = newNow;
                                 CollectionOfSubCalEvent = currentList.Where(obj => !interfersWithNow.Contains(obj));
                                 retFlagType = 1;
@@ -1663,13 +1696,10 @@ namespace My24HourTimerWPF
             List<IDefinedRange>[] MyEdgeElements = getEdgeElements(RangeForScheduleUpdate, ArrayOfInterferringSubEvents);//gets the subevents crossing over the timeLine
             EarliestStartTime = MyEdgeElements[0].Count > 0 ? MyEdgeElements[0].OrderBy(obj => obj.Start).ToList()[0].Start : RangeForScheduleUpdate.Start;
             LatestEndTime = MyEdgeElements[1].Count > 0 ? MyEdgeElements[1].OrderBy(obj => obj.End).ToList()[MyEdgeElements[1].Count - 1].End : RangeForScheduleUpdate.End;
-            EarliestStartTime = EarliestStartTime < Now ? Now : EarliestStartTime;
+            EarliestStartTime = EarliestStartTime < Now.calculationNow ? Now.calculationNow : EarliestStartTime;
             RangeForScheduleUpdate = new TimeLine(EarliestStartTime, LatestEndTime);//updates the range of schedule
 
-            /*
-             * Continue from here Jerome: You need to move all the unnecessary code from rearrange ReArrangeClashingEventsofRigid and  in to this function. The first section will be getting the initializing interferring events. After which you will update the interferring list with the not done yets.
-             * These not done yets will get pinned to end of the timeline. Remember we are already moving the excess functionality of the preceeding callers code into this section.
-             */
+            
 
 
             refinedStartTimeAndInterferringEvents = getStartTimeWhenCurrentTimeClashesWithSubcalevent(ArrayOfInterferringSubEvents, EarliestStartTime, FlagType);//gets the start time relatve to the ArrayOfInterferringSubEvents and flag type
@@ -1698,7 +1728,7 @@ namespace My24HourTimerWPF
                     ArrayOfInterferringSubEvents.AddRange(PertinentNotDoneYet.ToList());
                     EarliestStartTime = ArrayOfInterferringSubEvents.OrderBy(obj => obj.getCalendarEventRange.Start).ToList()[0].getCalendarEventRange.Start;//attempts to get subcalevent with a calendarevent with earliest start time
                     LatestEndTime = ArrayOfInterferringSubEvents.OrderBy(obj => obj.getCalendarEventRange.End).ToList()[ArrayOfInterferringSubEvents.Count() - 1].getCalendarEventRange.End;//attempts to get subcalevent with a calendarevent with latest Endtime
-                    EarliestStartTime = EarliestStartTime < Now ? Now : EarliestStartTime;
+                    EarliestStartTime = EarliestStartTime < Now.calculationNow ? Now.calculationNow : EarliestStartTime;
 
 
                     refinedStartTimeAndInterferringEvents = getStartTimeWhenCurrentTimeClashesWithSubcalevent(ArrayOfInterferringSubEvents, EarliestStartTime, FlagType);
@@ -1716,7 +1746,7 @@ namespace My24HourTimerWPF
                     MyEdgeElements = getEdgeElements(RangeForScheduleUpdate, ArrayOfInterferringSubEvents);
                     EarliestStartTime = MyEdgeElements[0].Count > 0 ? MyEdgeElements[0].OrderBy(obj => obj.Start).ToList()[0].Start : RangeForScheduleUpdate.Start;//if there is crossover with start time RangeForScheduleUpdate select the crossover subcalevent start time
                     LatestEndTime = MyEdgeElements[1].Count > 0 ? MyEdgeElements[1].OrderBy(obj => obj.End).ToList()[MyEdgeElements[1].Count - 1].End : RangeForScheduleUpdate.End;
-                    EarliestStartTime = EarliestStartTime < Now ? Now : EarliestStartTime;
+                    EarliestStartTime = EarliestStartTime < Now.calculationNow ? Now.calculationNow : EarliestStartTime;
 
 
                     refinedStartTimeAndInterferringEvents = getStartTimeWhenCurrentTimeClashesWithSubcalevent(ArrayOfInterferringSubEvents, EarliestStartTime, FlagType);
@@ -1774,9 +1804,9 @@ namespace My24HourTimerWPF
           */
 
 
-            TimeLine TimeLineBetweenNowAndReferenceStartTIme = new TimeLine(ReferenceDayTIime,Now);
+            TimeLine TimeLineBetweenNowAndReferenceStartTIme = new TimeLine(ReferenceDayTIime, Now.calculationNow);
             SubCalendarEvent[] NotDoneYet = getInterferringSubEvents(TimeLineBetweenNowAndReferenceStartTIme);
-            IEnumerable<SubCalendarEvent> retValue = NotDoneYet.Where(obj => (!obj.Rigid)&&(!obj.RangeTimeLine.IsDateTimeWithin(Now)));
+            IEnumerable<SubCalendarEvent> retValue = NotDoneYet.Where(obj => (!obj.Rigid) && (!obj.RangeTimeLine.IsDateTimeWithin(Now.calculationNow)));
             HashSet<SubCalendarEvent> retValue_HashSet = new HashSet<SubCalendarEvent>();
             foreach (SubCalendarEvent eachSubCalendarEvent in retValue)
             {
@@ -1918,7 +1948,7 @@ namespace My24HourTimerWPF
             NoneCommitedCalendarEventsEvents.Add(MyCalendarEvent);
 
 
-            ++CountCall;
+            
 
 
             DateTime testDateTime = new DateTime(2014, 8, 11);
@@ -2013,8 +2043,10 @@ namespace My24HourTimerWPF
             }
 
             NoneCommitedCalendarEventsEvents.Remove(MyCalendarEvent);
-
-            return EvaluateEachSnugPossibiliyOfSnugPossibility(SnugListOfPossibleSubCalendarEventsClumps, ReferenceTimeLine, MyCalendarEvent);
+            ReferenceTimeLine= ReferenceTimeLine.CreateCopy();
+            ReferenceTimeLine.Empty();
+            ReferenceTimeLine.AddBusySlots(SerializedResult.Select(obj => obj.ActiveSlot));
+            return new KeyValuePair<CalendarEvent, TimeLine>(MyCalendarEvent, ReferenceTimeLine); //EvaluateEachSnugPossibiliyOfSnugPossibility(SnugListOfPossibleSubCalendarEventsClumps, ReferenceTimeLine, MyCalendarEvent);
             ;//this will not be the final output. I'll need some class that stores the current output of both rearrange busytimelines and deleted timelines
         }
 
@@ -2083,71 +2115,10 @@ namespace My24HourTimerWPF
 
             Dictionary<string, double> DictionaryGraph = new System.Collections.Generic.Dictionary<string, double>();
 
-            /*
-            foreach (TimeLine MyTimeLine in SnugPossibilityTimeLine)
-            {
-                
-                CalendarEvent MyEventCopy=ReferenceCalendarEvent.createCopy();
-                
-                foreach (BusyTimeLine MyBusyPeriod in MyTimeLine.OccupiedSlots)
-                {
-                    EventID MyEventID = new EventID(MyBusyPeriod.TimeLineID);
-                    string ParentCalendarEventID = MyEventID.getLevelID(0);
-                    if (MyEventCopy.ID == ParentCalendarEventID)
-                    {
-
-                        SubCalendarEvent MySubCalendarEvent=MyBusyTimeLineToSubCalendarEventDict[MyBusyPeriod];
-                        for (int i = 0; i < MyEventCopy.AllEvents.Length; i++)
-                        {
-                            if (MyEventCopy.AllEvents[i].ID == MySubCalendarEvent.ID)
-                            {
-                                MyEventCopy.AllEvents[i] = MySubCalendarEvent;
-                                break;
-                            }
-                        }
-                        
-                    }
-                }
-                
-                //MyEventCopy=EvaluateTotalTimeLineAndAssignValidTimeSpotsWithReferenceTimeLine(MyEventCopy, MyTimeLine);
-
-                
-            }*/
-
             double HighestValue = 0;
 
             KeyValuePair<CalendarEvent, TimeLine> FinalSuggestion = new System.Collections.Generic.KeyValuePair<CalendarEvent, TimeLine>(CalendarEvent_EvaluationIndexDict.Keys.ToList()[0], CalendarEvent_EvaluationIndexDict.Values.ToList()[0]);
 
-            /*TimeLine TimeLineUpdated = null;
-            Dictionary<string, double> LocationVector = new System.Collections.Generic.Dictionary<string,double>();
-            LocationVector.Add("sameElement", 10000000000);
-
-
-            foreach (KeyValuePair<CalendarEvent, TimeLine> MyCalendarEvent_TimeLine in CalendarEvent_EvaluationIndexDict)
-            {
-                int RandomIndex = EvaluateRandomNetIndex(MyCalendarEvent_TimeLine.Value);
-                RandomIndex = 0;
-                LocationVector=BuildDictionaryDistanceEdge(MyCalendarEvent_TimeLine.Value, MyCalendarEvent_TimeLine.Key, LocationVector);
-                double ClumpIndex = EvaluateClumpingIndex(MyCalendarEvent_TimeLine.Value, LocationVector);
-                ClumpIndex = 1 / ClumpIndex;
-                double EvaluationSum = ClumpIndex + RandomIndex;
-                if (EvaluationSum < 0)
-                {
-                    EvaluationSum *= -1;
-                }
-
-                if ( EvaluationSum > HighestValue)
-                {
-                    HighestValue = EvaluationSum;
-                    FinalSuggestion = MyCalendarEvent_TimeLine;
-                }
-            }
-
-            if (FinalSuggestion.Equals(new KeyValuePair<CalendarEvent,TimeLine>()))
-            {
-                MessageBox.Show("Oh oh J, you'll need to look outside this range...Think of moving other events out of white box space");
-            }
-            */
             return FinalSuggestion;
         }
 
@@ -2265,7 +2236,10 @@ namespace My24HourTimerWPF
             TimeLine[] JustFreeSpots = getAllFreeSpots_NoCompleteSchedule(ReferenceTimeLine).OrderByDescending(obj => obj.End).ToArray();
 
             List<SubCalendarEvent> AllInterferringSubEvents= DictionaryWithBothCalendarEventsAndListOfInterferringSubEvents.SelectMany(obj => obj.Value).ToList();
+            List<SubCalendarEvent> NoChangeTOOrder_AllInterferringSubEvents = AllInterferringSubEvents.ToList();
             List<SubCalendarEvent> AllInterferringSubEvents_Cpy = AllInterferringSubEvents.ToList();
+            HashSet<SubCalendarEvent> AllInterferringSubEvents_Cpy_Hash = new HashSet<SubCalendarEvent>(AllInterferringSubEvents_Cpy);
+            
 
             Dictionary<TimeLine, List<SubCalendarEvent>> Dict_ConstrainedElements = generateConstrainedList(JustFreeSpots.ToList(), AllInterferringSubEvents_Cpy);
             Dict_ConstrainedElements = stitchRestrictedSubCalendarEvent(JustFreeSpots.ToList(), Dict_ConstrainedElements);
@@ -2282,7 +2256,7 @@ namespace My24HourTimerWPF
             FirstTwentyFourHours = FirstTwentyFourHours.OrderBy(obj => obj.Item1.Start).ToList();//orders the element by start time in order to preserve order for later calculation
             if (JustFreeSpots.Length > 0)
             {
-                DateTime refStartTime24Hour = JustFreeSpots[0].Start;
+                DateTime refStartTime24Hour = Now.calculationNow;
                 FirstTwentyFOurTimeLine = new TimeLine(refStartTime24Hour, refStartTime24Hour.AddDays(1));
             }
 
@@ -2321,26 +2295,60 @@ namespace My24HourTimerWPF
                 {
                     AllReassignedElements.Add(eachSubCalendarEvent.ID, eachSubCalendarEvent);
                     AllInterferringSubEvents_Cpy.Remove(eachSubCalendarEvent);
+                    AllInterferringSubEvents_Cpy_Hash.Remove(eachSubCalendarEvent);
                 }
-                
+
                 JustFreeSpots_Cpy.RemoveAt(0);
                 if (JustFreeSpots_Cpy.Count > 0)
                 {
                     SubCalendarEvent.updateMiscData(AllInterferringSubEvents_Cpy,0);
-                    Dict_ConstrainedElements[JustFreeSpots_Cpy[0]] = generateConstrainedList(new List<TimeLine>() { JustFreeSpots_Cpy[0] }, AllInterferringSubEvents_Cpy)[JustFreeSpots_Cpy[0]];
-                    Dict_ConstrainedElements[JustFreeSpots_Cpy[0]] = stitchRestrictedSubCalendarEvent(Utility.SubCalEventsTomTuple(Dict_ConstrainedElements[JustFreeSpots_Cpy[0]], true), JustFreeSpots_Cpy[0]).Select(obj => obj.Item2).ToList();
+                    //I believe the next two lines of code can be optimized and combined to one
+                    Dict_ConstrainedElements[JustFreeSpots_Cpy[0]] = generateConstrainedList(new List<TimeLine>() { JustFreeSpots_Cpy[0] }, AllInterferringSubEvents_Cpy)[JustFreeSpots_Cpy[0]];//gets all events that can only exist in one time line
+                    Dict_ConstrainedElements[JustFreeSpots_Cpy[0]] = stitchRestrictedSubCalendarEvent(Utility.SubCalEventsTomTuple(Dict_ConstrainedElements[JustFreeSpots_Cpy[0]], true), JustFreeSpots_Cpy[0]).Select(obj => obj.Item2).ToList();//calls stitch unrestricted to order the subcalendarevents from the preceeding call in according to their constrainement
                     if (!Utility.PinSubEventsToStart(Dict_ConstrainedElements[JustFreeSpots_Cpy[0]], JustFreeSpots_Cpy[0]))
                     {
-                        
                         bool testMe = Utility.PinSubEventsToEnd(Dict_ConstrainedElements[JustFreeSpots_Cpy[0]], JustFreeSpots_Cpy[0]);
                         throw new Exception("Error before call to stitchunrestricted");
                     }
                     
                 }
-                
+
+
                 retValue.Add(reassignedElements);
-                //hack alert, you might need to refresh the constrained list                
+           
             }
+
+
+            AllInterferringSubEvents_Cpy_Hash.AsParallel().ForAll(obj => obj.Conflicts.UpdateConflictFlag(true));
+            
+            List<SubCalendarEvent> toBemovedNewtwentyfourEvents = FirstTwentyFourHours.Select(obj => obj.Item1).ToList();
+
+            DateTime newEndTime = Now.calculationNow.AddDays(1);
+            
+            TimeLine currentTwentyFourHourTImeline = new TimeLine(Now.calculationNow, newEndTime);
+            List<SubCalendarEvent> CurrentTwentyFourHourCOnstituents = getInterferringSubEvents(currentTwentyFourHourTImeline, new List<CalendarEvent>() {ToBeFittedTimeLine}).ToList();//gets all event in twenty four hour span after stitch unrestriced
+
+            if (CurrentTwentyFourHourCOnstituents.Count() > 0)
+            {
+                SubCalendarEvent LastEvent = CurrentTwentyFourHourCOnstituents.OrderBy(obj=>obj.End).Last();//gets the last event after ordering by end time to get the latest possible new end time
+                if (newEndTime < LastEvent.End)
+                {
+                    newEndTime = LastEvent.End;
+                }
+            }
+
+            currentTwentyFourHourTImeline = new TimeLine(Now.calculationNow, newEndTime);//update the timeline with  newendtime just in case there is an extension
+            CurrentTwentyFourHourCOnstituents=CurrentTwentyFourHourCOnstituents.Where(obj=>!obj.Conflicts.isConflicting()) .OrderBy(obj=>obj.Start).ToList();//removes conflicting events and orders them
+
+            toBemovedNewtwentyfourEvents = toBemovedNewtwentyfourEvents.Where(obj => !CurrentTwentyFourHourCOnstituents.Contains(obj)).ToList();
+            bool PinSuccess= Utility.PinSubEventsToStart(CurrentTwentyFourHourCOnstituents, currentTwentyFourHourTImeline);
+
+            ///*
+            List<SubCalendarEvent> movedOverEvents= preserveTwentyFourHours(currentTwentyFourHourTImeline, CurrentTwentyFourHourCOnstituents,toBemovedNewtwentyfourEvents);
+
+
+            OPtimizeNextSevenDays(new List<CalendarEvent>(){ToBeFittedTimeLine});
+            //*/
 
             List<List<List<SubCalendarEvent>>> retValueContainer = new List<List<List<SubCalendarEvent>>>();
             retValueContainer.Add(retValue);
@@ -2368,12 +2376,315 @@ namespace My24HourTimerWPF
             
 #else
 
+#endif
+            return retValueContainer;
+        }
 
+        List<SubCalendarEvent> preserveTwentyFourHours(TimeLine myDay,List<SubCalendarEvent> currentConstituents , List<SubCalendarEvent> CanExistWInthinTImeLine_DoesNotIncludeCurrentConstituents, double averageOccupancy = 1)
+        {
+            
+            List<SubCalendarEvent> rigidEventsWithinCurrentDay = new List<SubCalendarEvent>();
+            List<SubCalendarEvent> refreshedeventsForthisTImeline = new List<SubCalendarEvent>();
+            
+
+            TimeLine timelineWithRigids = myDay.CreateCopy();
+            rigidEventsWithinCurrentDay = currentConstituents.Where(obj => obj.Rigid).ToList();
+            timelineWithRigids.AddBusySlots(rigidEventsWithinCurrentDay.Select(obj => obj.ActiveSlot));
+            IEnumerable<TimeLine> allFreeSPotsWithRigid = timelineWithRigids.getAllFreeSlots().ToList();
+
+
+            Dictionary<TimeLine, List<SubCalendarEvent>> freeTimeline_TO_CurrentEvents = allFreeSPotsWithRigid.ToDictionary(obj => obj, obj => currentConstituents.Where(obj1 => obj1.RangeTimeLine.InterferringTimeLine(obj) != null).ToList());
+
+
+            List<SubCalendarEvent> newArrangement = currentConstituents.ToList();
+            /*
+            List<SubCalendarEvent> newArrangement = currentListOrder.Where(obj=>obj.)
+            if (newArrangement.Count != currentListOrder.Count)
+            {
+                newArrangement = currentListOrder;
+            }
+            */
+
+            IEnumerable<TimeLine> freeSpots = myDay.getAllFreeSlots();
+
+
+            List<SubCalendarEvent> ValidForCalculation = freeSpots.AsParallel().SelectMany(obj => CanExistWInthinTImeLine_DoesNotIncludeCurrentConstituents.AsParallel().Where(obj0 => obj0.canExistWithinTimeLine(obj))).ToList();
+            List<SubCalendarEvent> NewPossibleEVents = new List<SubCalendarEvent>();
+            int precedingCountOfPossibleAssignableevents = 0;
+            while (true)
+            {
+                ScoreEvents(ValidForCalculation, NewPossibleEVents.Concat(newArrangement));
+                ValidForCalculation=ValidForCalculation.OrderBy(obj => obj.Score).ToList();
+
+                if (ValidForCalculation.Count > 0)
+                {
+
+                    SubCalendarEvent NewEvent = ValidForCalculation.First();
+                    NewPossibleEVents.Add(NewEvent);
+                    ValidForCalculation.Remove(NewEvent);
+                }
+                ValidForCalculation = Utility.RandomizeIEnumerable(ValidForCalculation);
+                List<SubCalendarEvent> totalNumberOfEvents = NewPossibleEVents.Concat(newArrangement).ToList();
+                double curroccupancy = ((double)totalNumberOfEvents.Sum(obj => obj.ActiveDuration.Ticks) / myDay.TimelineSpan.Ticks);
+                if ((curroccupancy > averageOccupancy)||(totalNumberOfEvents.Count==precedingCountOfPossibleAssignableevents))
+                {
+                    break;
+                }
+                precedingCountOfPossibleAssignableevents = totalNumberOfEvents.Count;
+            }
+
+            
+            foreach (KeyValuePair<TimeLine, List<SubCalendarEvent>> eachKeyValuePair0 in freeTimeline_TO_CurrentEvents)
+            {
+                List<SubCalendarEvent> ConflictingEvents = eachKeyValuePair0.Value.Where(obj => obj.Conflicts.isConflicting()).ToList();
+                List<SubCalendarEvent> listWithoutConflictingEvents = eachKeyValuePair0.Value.Where(obj => !ConflictingEvents.Contains(obj)).OrderBy(obj=>obj.Start).ToList();
+                if (!Utility.PinSubEventsToStart(listWithoutConflictingEvents, eachKeyValuePair0.Key))
+                {
+                    throw new Exception("Error with listWithoutConflictingEvents, seems like list will be invalid for stitchunrestricted");
+                    //this can throw an exception if the conflicting event is conflicting but not flagged. E.g when the event is retrieved from log which is yet to have conflict data
+                }
+                
+                List<SubCalendarEvent> realignedElements = StitchUnrestricted(eachKeyValuePair0.Key, listWithoutConflictingEvents, NewPossibleEVents.Concat(listWithoutConflictingEvents).ToList());
+                if (ConflictingEvents.Count > 0)
+                {
+                    realignedElements.AddRange(ConflictingEvents);
+                    realignedElements=realignedElements.OrderBy(obj => obj.Start).ToList();
+                }
+                
+                refreshedeventsForthisTImeline.AddRange(realignedElements);
+                refreshedeventsForthisTImeline = refreshedeventsForthisTImeline.OrderBy(obj => obj.Start).ToList();
+                CanExistWInthinTImeLine_DoesNotIncludeCurrentConstituents.RemoveAll(obj => realignedElements.Contains(obj));
+            }
+
+            refreshedeventsForthisTImeline.AddRange(rigidEventsWithinCurrentDay);
+            refreshedeventsForthisTImeline = refreshedeventsForthisTImeline.OrderBy(obj => obj.Start).ToList();
+
+            CreateBufferForEachEvent(refreshedeventsForthisTImeline,myDay);
+            
+            refreshedeventsForthisTImeline.RemoveAll(obj=>currentConstituents.Contains(obj));
+            return refreshedeventsForthisTImeline;
+        }
+
+        void CreateBufferForEachEvent(List<SubCalendarEvent> AllEvents, TimeLine restrictingTimeline)
+        {
+            if (AllEvents.Count < 1)
+            {
+                return;
+            }
+            
+
+            AllEvents = AllEvents.Where(obj => !obj.Conflicts.isConflicting()).ToList();//removes conflicting events from buffering options
+            HashSet<SubCalendarEvent> allEventshash = new HashSet<SubCalendarEvent>();
+            foreach(SubCalendarEvent eachSubcalendarEvent in AllEvents)
+            {
+                allEventshash.Add(eachSubcalendarEvent);
+            }
+
+            AllEvents = allEventshash.ToList();
+            List<SubCalendarEvent> justThemRigids = AllEvents.Where(obj => obj.Rigid).ToList();
+            TimeSpan bufferPerMile = new TimeSpan(0, 12, 0);
+            if (!Utility.PinSubEventsToEnd(AllEvents, restrictingTimeline))
+            {
+                throw new Exception("Invalid list used in CreateBufferForEachEvent");//hack alert we need to involve conflicting events
+            }
+            Dictionary<Tuple<SubCalendarEvent, SubCalendarEvent>, double> beforeAfterDistance = new Dictionary<Tuple<SubCalendarEvent, SubCalendarEvent>, double>();
+            Dictionary<SubCalendarEvent, mTuple<DateTime, DateTime>> beforeFailing = new Dictionary<SubCalendarEvent, mTuple<DateTime, DateTime>>();
+            
+            //AllEvents.Reverse();
+            int j=0;
+            TimeLine referencePinningTImeline = new TimeLine(restrictingTimeline.Start, restrictingTimeline.End);
+            SubCalendarEvent firstEvent = AllEvents[0];
+            if (!firstEvent.PinToStart(referencePinningTImeline))
+            {
+                throw new Exception("this is a weird bug to have in CreateBufferForEachEvent");
+            }
+            for (int i = 0; i < AllEvents.Count - 1; i++)
+            {
+                j = i + 1;
+                Tuple<SubCalendarEvent, SubCalendarEvent> myCoEvents = new Tuple<SubCalendarEvent, SubCalendarEvent>(AllEvents[i], AllEvents[j]);
+                double distance=SubCalendarEvent.CalculateDistance(myCoEvents.Item1,myCoEvents.Item2, -1);
+                if (distance <.5)
+                {
+                    distance = 1;
+                }
+                TimeSpan bufferSpan = new TimeSpan((long)(bufferPerMile.Ticks * distance));
+                referencePinningTImeline = new TimeLine(myCoEvents.Item1.End.Add(bufferSpan), myCoEvents.Item2.End);
+                if (!myCoEvents.Item2.PinToStart(referencePinningTImeline))
+                {
+                    //break;
+                }
+            }
+        }
+
+
+
+        void OPtimizeNextSevenDays(List<CalendarEvent>NonCommitedToMemory)
+        {
+            TimeLine nextSevenDaysTimeLine = new TimeLine(Now.calculationNow, Now.calculationNow.AddDays(6));
+            TimeLine nextThirtyDaysTimeLine = new TimeLine(Now.calculationNow, Now.calculationNow.AddDays(30));
+            List<SubCalendarEvent> AllEvents = getInterferringSubEvents(nextSevenDaysTimeLine, NonCommitedToMemory).ToList();
+            List<SubCalendarEvent> AllEvents_30day = getInterferringSubEvents(nextThirtyDaysTimeLine, NonCommitedToMemory).ToList();
+            double averageOccupancy = (double)AllEvents_30day.Sum(obj => obj.ActiveDuration.Ticks) / nextThirtyDaysTimeLine.TimelineSpan.Ticks;
+
+            AllEvents = AllEvents.ToList();
+
+
+
+
+            List<SubCalendarEvent> CurrentlyWithinNextSevendays = AllEvents.Where(obj => obj.ActiveSlot.InterferringTimeLine(nextSevenDaysTimeLine) != null).ToList();//gets allevents within seven days
+            CurrentlyWithinNextSevendays = CurrentlyWithinNextSevendays.OrderBy(obj => obj.End).ToList();
+            List<SubCalendarEvent> CanExsitWithinNextSevenDays = AllEventDictionary.AsParallel().SelectMany(obj => obj.Value.ActiveSubEvents.Where(obj1 => obj1.canExistWithinTimeLine(nextSevenDaysTimeLine))).ToList();//will host elements that can be used in seven day time frame. Selected from elements outside of seven day frame
+            //CanExsitWithinNextSevenDays.RemoveAll(obj => CurrentlyWithinNextSevendays.Contains(obj));//removes all events that are already within seven days
+
+            DateTime refStartOfDayTimeLine = nextSevenDaysTimeLine.Start;
+            DateTime refEndOfDayTimeLine = refStartOfDayTimeLine.AddDays(1);
+            TilerElements.TimeLine refTImeLine = new TilerElements.TimeLine(refStartOfDayTimeLine, refEndOfDayTimeLine);
+            Dictionary<SubCalendarEvent, int> justADict = new Dictionary<SubCalendarEvent, int>();
+            Dictionary<TimeLine, List<SubCalendarEvent>> TimeLine_ToNewAssignment = new Dictionary<TimeLine, List<SubCalendarEvent>>();
+            //Dictionary<TimeLine, SubCalendarEvent[]> DictionaryTimeLineToMatchingSubEvents_TIler = new Dictionary<TimeLine, SubCalendarEvent[]>();
+            TimeLine TotalTimeLine = nextSevenDaysTimeLine.CreateCopy();
+
+            int i = 0;
+            while (refTImeLine.TimelineSpan.Ticks != 0)
+            {
+
+                IEnumerable<SubCalendarEvent> pertinentSubCalEvents = CurrentlyWithinNextSevendays.Where(obj => refTImeLine.InterferringTimeLine(obj.RangeTimeLine) != null).ToList();
+
+
+
+                foreach (SubCalendarEvent eachSubCalendarEvent in pertinentSubCalEvents)
+                {
+                    if ((eachSubCalendarEvent.Conflicts.isConflicting() && justADict.ContainsKey(eachSubCalendarEvent)))
+                    {
+                        continue; 
+                    }
+                    
+                    justADict.Add(eachSubCalendarEvent, 1); 
+                    
+                }
+
+
+                DateTime newEndTime = refTImeLine.End;
+                if (pertinentSubCalEvents.Count() > 0)
+                {
+                    SubCalendarEvent LastEvent = pertinentSubCalEvents.Where(obj=>!obj.Conflicts.isConflicting()).Last();
+                    if (newEndTime < LastEvent.End)
+                    {
+                        newEndTime = LastEvent.End;
+                    }
+                }
+
+
+                refTImeLine = new TimeLine(refTImeLine.Start, newEndTime);
+
+
+                //DictionaryTimeLineToMatchingSubEvents_TIler.Add(refTImeLine, pertinentSubCalEvents.ToArray());
+                TimeLine_ToNewAssignment.Add(refTImeLine, pertinentSubCalEvents.ToList());
+
+                DateTime NextEndTime = newEndTime.AddDays(1);
+                NextEndTime = NextEndTime > TotalTimeLine.End ? TotalTimeLine.End : NextEndTime;
+                refTImeLine = new TimeLine(newEndTime, NextEndTime);
+                i++;
+            }
+
+
+
+            foreach (KeyValuePair<TimeLine, List<SubCalendarEvent>> eachKeyValuePair in TimeLine_ToNewAssignment)
+            {
+                List<SubCalendarEvent> nonWithCurrentCOnstituents = CanExsitWithinNextSevenDays.ToList();
+                nonWithCurrentCOnstituents.RemoveAll(obj => eachKeyValuePair.Value.Contains(obj));
+                List<SubCalendarEvent> newlyassignedElements = preserveTwentyFourHours(eachKeyValuePair.Key.CreateCopy(), eachKeyValuePair.Value, nonWithCurrentCOnstituents, averageOccupancy);
+                CanExsitWithinNextSevenDays.RemoveAll(obj => newlyassignedElements.Contains(obj));
+            }
+
+
+#if Disable
+            foreach (KeyValuePair<TimeLine, List<SubCalendarEvent>> eachKeyValuePair in TimeLine_ToNewAssignment)
+            {
+                TimeLine myDay = eachKeyValuePair.Key.CreateCopy();
+                List<SubCalendarEvent> rigidEventsWithinCurrentDay = new List<SubCalendarEvent>();
+                List<SubCalendarEvent> refreshedeventsForthisTImeline = new List<SubCalendarEvent>();
+                List<SubCalendarEvent> currentListOrder = eachKeyValuePair.Value.ToList();
+
+                TimeLine timelineWithRigids = myDay.CreateCopy();
+                rigidEventsWithinCurrentDay = currentListOrder.Where(obj => obj.Rigid).ToList();
+                timelineWithRigids.AddBusySlots(rigidEventsWithinCurrentDay.Select(obj => obj.ActiveSlot));
+                IEnumerable<TimeLine> allFreeSPotsWithRigid = timelineWithRigids.getAllFreeSlots().ToList();
+
+
+                Dictionary<TimeLine, List<SubCalendarEvent>> freeTimeline_TO_CurrentEvents = allFreeSPotsWithRigid.ToDictionary(obj => obj, obj => currentListOrder.Where(obj1 => obj1.RangeTimeLine.InterferringTimeLine(obj) != null).ToList());
+
+
+                List<SubCalendarEvent> newArrangement = currentListOrder.ToList();
+                /*
+                List<SubCalendarEvent> newArrangement = currentListOrder.Where(obj=>obj.)
+                if (newArrangement.Count != currentListOrder.Count)
+                {
+                    newArrangement = currentListOrder;
+                }
+                */
+
+                IEnumerable<TimeLine> freeSpots = myDay.getAllFreeSlots();
+
+
+                List<SubCalendarEvent> ValidForCalculation = freeSpots.AsParallel().SelectMany(obj => CanExsitWithinNextSevenDays.AsParallel().Where(obj0 => obj0.canExistWithinTimeLine(obj))).ToList();
+                List<SubCalendarEvent> NewPossibleEVents = new List<SubCalendarEvent>();
+                while (true)
+                {
+                    ScoreEvents(ValidForCalculation, NewPossibleEVents.Concat(newArrangement));
+                    ValidForCalculation.OrderBy(obj => obj.Score);
+
+                    if (ValidForCalculation.Count > 0)
+                    {
+
+                        SubCalendarEvent NewEvent = ValidForCalculation.First();
+                        NewPossibleEVents.Add(NewEvent);
+                        ValidForCalculation.Remove(NewEvent);
+                    }
+                    ValidForCalculation = Utility.RandomizeIEnumerable(ValidForCalculation);
+                    List<SubCalendarEvent> totalNumberOfEvents = NewPossibleEVents.Concat(newArrangement).ToList();
+                    double curroccupancy = ((double)totalNumberOfEvents.Sum(obj => obj.ActiveDuration.Ticks) / myDay.TimelineSpan.Ticks);
+                    if (curroccupancy > averageOccupancy)
+                    {
+                        break;
+                    }
+                }
+
+                refreshedeventsForthisTImeline.AddRange(rigidEventsWithinCurrentDay);
+                foreach (KeyValuePair<TimeLine, List<SubCalendarEvent>> eachKeyValuePair0 in freeTimeline_TO_CurrentEvents)
+                {
+                    List<SubCalendarEvent> realignedElements = StitchUnrestricted(eachKeyValuePair0.Key, eachKeyValuePair0.Value, NewPossibleEVents.Concat(eachKeyValuePair0.Value).ToList());
+                    refreshedeventsForthisTImeline.AddRange(realignedElements);
+                    refreshedeventsForthisTImeline = refreshedeventsForthisTImeline.OrderBy(obj => obj.Start).ToList();
+                    CanExsitWithinNextSevenDays.RemoveAll(obj => realignedElements.Contains(obj));
+                }
+            }
 #endif
 
+            ;
 
+        }
 
-            return retValueContainer;
+        void ScoreEvents(IEnumerable<SubCalendarEvent> EventsToBeScored, IEnumerable<SubCalendarEvent> referenceScoringEvents)
+        {
+            //continue from here Jerome. You need to write algorithm to score the various events against referenceScoringEvents. This will be used by the function OPtimizeNextSevenDays(). 
+            EventsToBeScored.AsParallel().ForAll(obj => obj.Score = EvaluateScore(referenceScoringEvents,obj,Now.calculationNow));
+        }
+
+        double EvaluateScore(IEnumerable<SubCalendarEvent> CurrentEvents, SubCalendarEvent refEvents, DateTime refTIme)
+        {
+            double score = 500;
+            score += CurrentEvents.AsParallel().Sum(obj1 => SubCalendarEvent.CalculateDistance(obj1, refEvents, 100));
+            TimeSpan spanBeforeDeadline = refEvents.getCalendarEventRange.End - refTIme;
+            if (spanBeforeDeadline < TwentyFourHourTimeSpan)
+            {
+                spanBeforeDeadline = TwentyFourHourTimeSpan;
+            }
+
+            long NumberOfhours= spanBeforeDeadline.Ticks / TwentyFourHourTimeSpan.Ticks;
+            score -= (double)100 / NumberOfhours;
+            return score;
+
         }
 
         List<SubCalendarEvent> stitchUnRestrictedSubCalendarEvent(TimeLine freeTimeLine, List<SubCalendarEvent> PinnedToStartRestrictedEvents, List<SubCalendarEvent> AllPossibleEvents, Tuple<SubCalendarEvent, SubCalendarEvent> BoundaryElements=null)
@@ -3802,6 +4113,7 @@ namespace My24HourTimerWPF
 
         public List<mTuple<bool, SubCalendarEvent>> stitchUnRestrictedSubCalendarEvent(TimeLine FreeBoundary, List<mTuple<bool, SubCalendarEvent>> restrictedSnugFitAvailable, Dictionary<TimeSpan, Dictionary<string, mTuple<bool, SubCalendarEvent>>> PossibleEntries, Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> CompatibleWithList, double Occupancy)
         {
+            ++CountCall;
             TimeLine[] AllFreeSpots = FreeBoundary.getAllFreeSlots();
             int TotalEventsForThisTImeLine = 0;
 
@@ -3997,7 +4309,10 @@ namespace My24HourTimerWPF
                         if (restrictedSnugFitAvailable[i].Item2.getCalendarEventRange.Start <= EarliestReferenceTIme)//this is to ensure the tightest configuration. If the restricted element calendarevent start range already preceedes the current start time then it can be appended immediately. because every other element is less restricted
                         {
                             CompleteArranegement.Add(restrictedSnugFitAvailable[i].Item2);
-                            Utility.PinSubEventsToStart(CompleteArranegement, FreeBoundary);
+                            if (!Utility.PinSubEventsToStart(CompleteArranegement, FreeBoundary))
+                            {
+                                throw new Exception("theres a bug in stitchunrestricted when restricted overlapsstart range  ");
+                            }
                             EarliestReferenceTIme = CompleteArranegement[CompleteArranegement.Count - 1].End;
                             List<SubCalendarEvent> TempList = new List<SubCalendarEvent>() { restrictedSnugFitAvailable[i].Item2 };
                             ContinueTrestrictedSnugFitAvailableoForLoop = true;//forces the continuation of the for loop for (; i < restrictedSnugFitAvailable.Count; i++)
@@ -4081,7 +4396,10 @@ namespace My24HourTimerWPF
                                  * *\//eliminating excess comments
                              */
                                 LowestCostArrangement = PlaceSubCalEventInLowestCostPosition(FreeBoundary, restrictedSnugFitAvailable[i].Item2, CompleteArranegement);
-                                Utility.PinSubEventsToStart(LowestCostArrangement, FreeBoundary);
+                                if (!Utility.PinSubEventsToStart(LowestCostArrangement, FreeBoundary))
+                                {
+                                    throw new Exception("theres a bug in stitchunrestricted when trying to place restricted n minimum");
+                                }
 
                                 CompleteArranegement = LowestCostArrangement;
                                 EarliestReferenceTIme = LowestCostArrangement[LowestCostArrangement.Count - 1].End;
@@ -4117,14 +4435,20 @@ namespace My24HourTimerWPF
                             if (!(LowestCostArrangement[0].getCalendarEventRange.Start == PertinentFreeSpot.Start))//Pin SubEvents To Start
                             {//if the first element is not a partial Sub Cal Event element
                                 FreeSpotUpdated = new TimeLine(EarliestReferenceTIme, PertinentFreeSpot.End);
-                                Utility.PinSubEventsToStart(LowestCostArrangement, FreeSpotUpdated);
+                                if(!Utility.PinSubEventsToStart(LowestCostArrangement, FreeSpotUpdated))
+                                {
+                                    throw new Exception("theres a bug in stitchunrestricted when trying to pin with partial subs, if the first element is not a partial Sub Cal Event element");
+                                }
 
                             }
                             else
                             {
                                 //FreeSpotUpdated = new TimeLine(LowestCostArrangement[0].getCalendarEventRange.Start, PertinentFreeSpot.End);
                                 FreeSpotUpdated = PertinentFreeSpot.CreateCopy();
-                                Utility.PinSubEventsToStart(LowestCostArrangement, PertinentFreeSpot);
+                                if(!Utility.PinSubEventsToStart(LowestCostArrangement, PertinentFreeSpot))
+                                {
+                                    throw new Exception("theres a bug in stitchunrestricted when trying to to pin with partial subs, if the first element is a partial Sub Cal Event element");
+                                }
                             }
                             EarliestReferenceTIme = PertinentFreeSpot.End;
 
@@ -4225,12 +4549,18 @@ namespace My24HourTimerWPF
                         if (!(LowestCostArrangement[0].getCalendarEventRange.Start == PertinentFreeSpot.Start))//Pin SubEvents To Start
                         {//if the first element is not a partial Sub Cal Event element
                             FreeSpotUpdated = new TimeLine(EarliestReferenceTIme, PertinentFreeSpot.End);
-                            Utility.PinSubEventsToStart(LowestCostArrangement, FreeSpotUpdated);
+                            if (!Utility.PinSubEventsToStart(LowestCostArrangement, FreeSpotUpdated))
+                            {
+                                throw new Exception("theres a bug in stitchunrestricted when trying to pin with partial subs, if the first element is not a partial Sub Cal Event element");
+                            }
                         }
                         else
                         {
                             FreeSpotUpdated = new TimeLine(LowestCostArrangement[0].getCalendarEventRange.Start, PertinentFreeSpot.End);
-                            Utility.PinSubEventsToStart(LowestCostArrangement, PertinentFreeSpot);
+                            if (!Utility.PinSubEventsToStart(LowestCostArrangement, PertinentFreeSpot))
+                            {
+                                throw new Exception("theres a bug in stitchunrestricted when trying to to pin with partial subs, if the first element is a partial Sub Cal Event element");
+                            }
                         }
                         EarliestReferenceTIme = LowestCostArrangement[LowestCostArrangement.Count - 1].End;
                     }
@@ -4277,12 +4607,19 @@ namespace My24HourTimerWPF
                             if (!(AdditionalCOstArrangement[0].getCalendarEventRange.Start == CurrentlyFittedTimeLine.Start))//Pin SubEvents To Start
                             {//if the first element is not a partial Sub Cal Event element
                                 FreeSpotUpdated = new TimeLine(EarliestReferenceTIme, CurrentlyFittedTimeLine.End);
-                                Utility.PinSubEventsToStart(AdditionalCOstArrangement, FreeSpotUpdated);
+                                if(!Utility.PinSubEventsToStart(AdditionalCOstArrangement, FreeSpotUpdated))
+                                {
+                                    throw new Exception("theres a bug in stitchunrestricted when trying to pin with partial subs, if the first element is not a partial Sub Cal Event element");
+                                }
                             }
                             else
                             {
                                 FreeSpotUpdated = new TimeLine(AdditionalCOstArrangement[0].getCalendarEventRange.Start, CurrentlyFittedTimeLine.End);
-                                Utility.PinSubEventsToStart(AdditionalCOstArrangement, FreeSpotUpdated);
+                                
+                                if (!Utility.PinSubEventsToStart(AdditionalCOstArrangement, FreeSpotUpdated))
+                                {
+                                    throw new Exception("theres a bug in stitchunrestricted when trying to to pin with partial subs, if the first element is a partial Sub Cal Event element");
+                                }
                             }
 
                             foreach (SubCalendarEvent eachSubCalendarEvent in AdditionalCOstArrangement)
@@ -4328,7 +4665,10 @@ namespace My24HourTimerWPF
                     CompleteArranegement.AddRange(AdditionalCOstArrangement);
                     TimeLine encasingTimeLine = new TimeLine(FreeBoundary.Start, RelativeEndTime);
                     CompleteArranegement = PlaceSubCalEventInLowestCostPosition(encasingTimeLine, restrictedSnugFitAvailable[i].Item2, CompleteArranegement);
-                    Utility.PinSubEventsToStart(CompleteArranegement, FreeBoundary);
+                    if(!Utility.PinSubEventsToStart(CompleteArranegement, FreeBoundary))
+                    {
+                        throw new Exception("theres a bug in stitchunrestricted when trying to pin CompleteArranegement");
+                    }
                     if (CompleteArranegement.Count > 0)
                     {
                         EarliestReferenceTIme = CompleteArranegement[CompleteArranegement.Count - 1].End;
@@ -4366,13 +4706,18 @@ namespace My24HourTimerWPF
                             if ((LowestCostArrangement[0].getCalendarEventRange.Start != PertinentFreeSpot.Start))//Pin SubEvents To Start
                             {//if the first element is not a partial Sub Cal Event element
                                 FreeSpotUpdated = new TimeLine(EarliestReferenceTIme, PertinentFreeSpot.End);
-                                Utility.PinSubEventsToStart(LowestCostArrangement, FreeSpotUpdated);
-
+                                if (!Utility.PinSubEventsToStart(LowestCostArrangement, FreeSpotUpdated))
+                                {
+                                    throw new Exception("theres a bug in stitchunrestricted when trying to pin in nonrigids section");
+                                }
                             }
                             else
                             {
                                 FreeSpotUpdated = PertinentFreeSpot.CreateCopy();// new TimeLine(LowestCostArrangement[0].getCalendarEventRange.Start, PertinentFreeSpot.End);
-                                Utility.PinSubEventsToStart(LowestCostArrangement, FreeSpotUpdated);
+                                if(!Utility.PinSubEventsToStart(LowestCostArrangement, FreeSpotUpdated))
+                                {
+                                    throw new Exception("theres a bug in stitchunrestricted when trying to pin in nonrigids section");
+                                }
                             }
                             EarliestReferenceTIme = PertinentFreeSpot.End;// LowestCostArrangement[LowestCostArrangement.Count - 1].End;
                             SubCalendarEvent LastSubCalEvent = LowestCostArrangement[LowestCostArrangement.Count - 1];
@@ -4467,13 +4812,18 @@ namespace My24HourTimerWPF
                     if ((LowestCostArrangement[0].getCalendarEventRange.Start != PertinentFreeSpot.Start))//Pin SubEvents To Start
                     {//if the first element is not a partial Sub Cal Event element
                         FreeSpotUpdated = new TimeLine(EarliestReferenceTIme, PertinentFreeSpot.End);
-                        Utility.PinSubEventsToStart(LowestCostArrangement, FreeSpotUpdated);
-
+                        if(!Utility.PinSubEventsToStart(LowestCostArrangement, FreeSpotUpdated))
+                        {
+                            throw new Exception("theres a bug in stitchunrestricted when trying to pin in nonrigids section");
+                        }
                     }
                     else
                     {
                         FreeSpotUpdated = PertinentFreeSpot.CreateCopy();// new TimeLine(LowestCostArrangement[0].getCalendarEventRange.Start, PertinentFreeSpot.End);
-                        Utility.PinSubEventsToStart(LowestCostArrangement, PertinentFreeSpot);
+                        if(!Utility.PinSubEventsToStart(LowestCostArrangement, PertinentFreeSpot))
+                        {
+                                throw new Exception("theres a bug in stitchunrestricted when trying to pin in nonrigids section");
+                        }
                     }
                     EarliestReferenceTIme = PertinentFreeSpot.End;// LowestCostArrangement[LowestCostArrangement.Count - 1].End;
                     SubCalendarEvent LastSubCalEvent = LowestCostArrangement[LowestCostArrangement.Count - 1];
@@ -4570,6 +4920,13 @@ namespace My24HourTimerWPF
             {
                 ;
             }
+            
+            if (!Utility.PinSubEventsToStart(retValue.Select(obj=>obj.Item2), FreeBoundary))
+            {
+                throw new Exception("theres an error with stitch unrestricted at iteration" + CountCall);
+            }
+
+            
             return retValue;
         }
 
@@ -4613,6 +4970,8 @@ namespace My24HourTimerWPF
 
             }
 
+            List<SubCalendarEvent> AllSubEvents_ForDebugging = PossibleSubCalEvents.SelectMany(obj => obj.Value.Select(obj1 => obj1.Value.Item2)).ToList();
+
 
             SnugArray BestFit_beforeBreak = new SnugArray(CompatibleWithList, PertinentFreeSpot.TimelineSpan);
             TimeSpan AverageTimeSpan = new TimeSpan((long)(occupancy * (double)PertinentFreeSpot.TimelineSpan.Ticks));
@@ -4630,7 +4989,7 @@ namespace My24HourTimerWPF
                 }
                 //List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>> AveragedBestFit = getAveragedOutTIimeLine(var3_beforeBreak, 0);
                 List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>> AveragedBestFit = OptimizeForDeadLine(DeadLineTODuration, PertinentFreeSpot.TimelineSpan);
-                Dictionary<TimeSpan, Dictionary<string, mTuple<bool, SubCalendarEvent>>> removedImpossibleValue = removeSubCalEventsThatCantWorkWithTimeLine(PertinentFreeSpot, PossibleEntries_Cpy);
+                Dictionary<TimeSpan, Dictionary<string, mTuple<bool, SubCalendarEvent>>> removedImpossibleValue = removeSubCalEventsThatCantWorkWithTimeLine(PertinentFreeSpot, PossibleSubCalEvents);
                 List<List<SubCalendarEvent>> PossibleSubCaleventsCobination = generateCombinationForDifferentEntries(AveragedBestFit[0], removedImpossibleValue);
 
                 if (Aggressive)
@@ -4710,7 +5069,7 @@ namespace My24HourTimerWPF
                 }
                 //List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>> AveragedBestFit = getAveragedOutTIimeLine(var3_beforeBreak, 0);
                 List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>> AveragedBestFit = OptimizeForDeadLine(DeadLineTODuration, PertinentFreeSpot.TimelineSpan);
-                Dictionary<TimeSpan, Dictionary<string, SubCalendarEvent>> removedImpossibleValue = removeSubCalEventsThatCantWorkWithTimeLine_NoMtuple(PertinentFreeSpot, PossibleEntries_Cpy);
+                Dictionary<TimeSpan, Dictionary<string, SubCalendarEvent>> removedImpossibleValue = removeSubCalEventsThatCantWorkWithTimeLine_NoMtuple(PertinentFreeSpot, PossibleSubCalEvents);
                 List<List<SubCalendarEvent>> PossibleSubCaleventsCobination = generateCombinationForDifferentEntries_NoMtuple (AveragedBestFit[0], removedImpossibleValue);
 
                 if (Aggressive)
@@ -5073,7 +5432,7 @@ namespace My24HourTimerWPF
 
 
 
-                if (!eachmTuple.Item2.PinSubEventsToStart(Boundary_Cpy))
+                if (!eachmTuple.Item2.PinToStart(Boundary_Cpy))
                 {
                     myClashers.Add(eachmTuple);
 
@@ -9226,26 +9585,26 @@ namespace My24HourTimerWPF
         }
 
 
-
+        /*
         DateTime UpdateNow(DateTime UpdatedNow)
         {
             Now = UpdatedNow;
             return Now;
         }
 
-
+        */
         public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ProcrastinateJustAnEvent(string EventID, TimeSpan RangeOfPush)
         {
 
             CalendarEvent ProcrastinateEvent = getCalendarEvent(EventID);
             SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
             EventID SubEventID = new EventID(EventID);
-            DateTime ReferenceStart = Now > ReferenceSubEvent.Start ? Now : ReferenceSubEvent.Start;
+            DateTime ReferenceStart = Now.calculationNow > ReferenceSubEvent.Start ? Now.calculationNow : ReferenceSubEvent.Start;
             //BusyTimeLine[] allBusySlots = CompleteSchedule.OccupiedSlots;
             //IEnumerable<BusyTimeLine> AllLesssTnanRefTime = allBusySlots.Where(obj => obj.End < ReferenceStart);
 
 
-            ReferenceStart = UpdateNow(ReferenceStart);
+            ReferenceStart = Now.UpdateNow(ReferenceStart);
             DateTime StartTimeOfProcrastinate = ReferenceStart + RangeOfPush;
 
             if (StartTimeOfProcrastinate > ReferenceSubEvent.getCalendarEventRange.End)

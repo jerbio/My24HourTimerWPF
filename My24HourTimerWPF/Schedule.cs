@@ -153,7 +153,8 @@ namespace My24HourTimerWPF
                     myCalendar = new ThirdPartyCalendarControl[1];
                     myCalendar[0] = new ThirdPartyCalendarControl(ThirdPartyCalendarControl.CalendarTool.Outlook);
                     CompleteSchedule = getTimeLine();
-                    EventIDGenerator.Initialize((uint)(this.LastScheduleIDNumber));
+                    EventID.Initialize((uint)(this.LastScheduleIDNumber));
+                    //EventIDGenerator.Initialize((uint)(this.LastScheduleIDNumber));
                 }
             }
         }
@@ -168,8 +169,11 @@ namespace My24HourTimerWPF
 
         public CalendarEvent getCalendarEvent(EventID myEventID)
         {
-
-            CalendarEvent calEvent = AllEventDictionary[myEventID.ID[0]];
+            /*
+             * function retrieves a calendarevent. 
+             * If the ID is repeating event ID it'll get the repeating calendar event
+             */
+            CalendarEvent calEvent = AllEventDictionary[myEventID.getSubCalendarEventComponent()];
 
             CalendarEvent repeatEvent = calEvent.getRepeatedCalendarEvent(myEventID.ToString());
 
@@ -738,8 +742,8 @@ namespace My24HourTimerWPF
             {
                 myCalendar[0].WriteToOutlook(MyCalEvent);
             }
-
-            myAccount.CommitEventToLog(AllEventDictionary.Values, EventIDGenerator.LatestID.ToString());
+            
+            myAccount.CommitEventToLog(AllEventDictionary.Values, EventID.LatestID.ToString());
 
         }
 
@@ -7394,93 +7398,7 @@ namespace My24HourTimerWPF
 
 
 
-        List<List<SubCalendarEvent>> BuildListMatchingTimelineAndSubCalendarEvent(List<List<TimeSpanWithEventID>> ListOfSnugPossibilities, List<SubCalendarEvent> ListOfSubCalendarEvents, List<SubCalendarEvent> ConsrainedList)
-        {
-            List<List<SubCalendarEvent>> retValue = new System.Collections.Generic.List<System.Collections.Generic.List<SubCalendarEvent>>();
-            Dictionary<string, SubCalendarEventListCounter> Dict_ParentIDListOfSubCalEvents = new System.Collections.Generic.Dictionary<string, SubCalendarEventListCounter>();
-            foreach (SubCalendarEvent eachSubCalendarEvent in ListOfSubCalendarEvents)
-            {
-                string ParentKey = eachSubCalendarEvent.SubEvent_ID.getCalendarEventID();
-                if (Dict_ParentIDListOfSubCalEvents.ContainsKey(ParentKey))
-                {
-                    Dict_ParentIDListOfSubCalEvents[ParentKey].UpdateList = eachSubCalendarEvent;
-                }
-                else
-                {
-                    Dict_ParentIDListOfSubCalEvents.Add(ParentKey, new SubCalendarEventListCounter(eachSubCalendarEvent, ParentKey));
-                }
-            }
-
-            foreach (List<TimeSpanWithEventID> eachListOfTimeSpanWithID in ListOfSnugPossibilities)
-            {
-                List<SubCalendarEvent> CurentLine = new System.Collections.Generic.List<SubCalendarEvent>();
-                CurentLine.AddRange(ConsrainedList);
-                foreach (TimeSpanWithEventID eachTimeSpanWithID in eachListOfTimeSpanWithID)
-                {
-                    CurentLine.Add(Dict_ParentIDListOfSubCalEvents[eachTimeSpanWithID.TimeSpanID.ToString()].getNextSubCalendarEvent);
-                }
-
-                retValue.Add(CurentLine);
-                foreach (SubCalendarEventListCounter eachSubCalendarEventListCounter in Dict_ParentIDListOfSubCalEvents.Values)
-                {
-                    eachSubCalendarEventListCounter.reset();
-                }
-
-            }
-
-            return retValue;
-
-
-
-            /*List<TimeSpan> AllTimesSpan = new List<TimeSpan>();
-            Dictionary<TimeSpanWithID, List<SubCalendarEvent>> DictionaryOfTimeSpanWithIDandSubCalendarEvent = new System.Collections.Generic.Dictionary<TimeSpanWithID, System.Collections.Generic.List<SubCalendarEvent>>();
-            List<List<SubCalendarEvent>> MatchingListOfSnugPossibilitesWithSubcalendarEvents = new System.Collections.Generic.List<System.Collections.Generic.List<SubCalendarEvent>>();
-            Dictionary<string, List<SubCalendarEvent>> ListOfCaleventIDAndListSubCalendarEvent = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<SubCalendarEvent>>();
-
-            
-            //foreach (List<TimeSpan> MySnugPossibility in ListOfSnugPossibilities)
-            //{
-                //var MyConcatList = AllTimesSpan.Concat(MySnugPossibility);
-              //  AllTimesSpan=MyConcatList.ToList();
-            //}
-            Dictionary <string ,int> DictCalendarEventID_Ini = new System.Collections.Generic.Dictionary<string,int>();
-            foreach (SubCalendarEvent MySubCalendarEvent in ListOfSubCalendarEvents)
-            { 
-                EventID MyEventID = new EventID( MySubCalendarEvent.ID);
-                if (ListOfCaleventIDAndListSubCalendarEvent.ContainsKey(MyEventID.getLevelID(0)))
-                {
-                    ListOfCaleventIDAndListSubCalendarEvent[MyEventID.getLevelID(0)].Add(MySubCalendarEvent);
-                }
-                else
-                {
-                    ListOfCaleventIDAndListSubCalendarEvent.Add(MyEventID.getLevelID(0),new System.Collections.Generic.List<SubCalendarEvent>());
-                    ListOfCaleventIDAndListSubCalendarEvent[MyEventID.getLevelID(0)].Add(MySubCalendarEvent);
-                    DictCalendarEventID_Ini.Add(MyEventID.getLevelID(0),0);
-                }
-            }
-
-
-            List<SubCalendarEvent> MyListOfSubCalendarEvent = new System.Collections.Generic.List<SubCalendarEvent>();
-            int Index = 0;
-            Dictionary <string ,int> DictCalendarEventID_Index = new System.Collections.Generic.Dictionary<string,int>(DictCalendarEventID_Ini);
-            foreach (List<TimeSpanWithID> MyListOfTimeSpanWithID in ListOfSnugPossibilities)
-            {
-                DictCalendarEventID_Index = new System.Collections.Generic.Dictionary<string,int>(DictCalendarEventID_Ini);
-                foreach (TimeSpanWithID MyTimeSpanWithID in MyListOfTimeSpanWithID)
-                {
-                    string ID=MyTimeSpanWithID.TimeSpanID.getLevelID(0);
-                    Index = DictCalendarEventID_Index[ID];
-                    MyListOfSubCalendarEvent.Add(ListOfCaleventIDAndListSubCalendarEvent[ID][Index]);
-                    ++Index;
-                    DictCalendarEventID_Index[ID] = Index;
-                }
-                MatchingListOfSnugPossibilitesWithSubcalendarEvents.Add(MyListOfSubCalendarEvent);
-                MyListOfSubCalendarEvent = new System.Collections.Generic.List<SubCalendarEvent>();
-            }
-            
-
-            return MatchingListOfSnugPossibilitesWithSubcalendarEvents;*/
-        }
+        
 
         List<List<List<SubCalendarEvent>>> BuildListMatchingTimelineAndSubCalendarEvent(List<List<TimeSpan>> ListOfSnugPossibilities, List<SubCalendarEvent> ListOfSubCalendarEvents)
         {

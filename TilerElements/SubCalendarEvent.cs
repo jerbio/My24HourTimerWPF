@@ -35,7 +35,7 @@ namespace TilerElements
             UiParams=UiParam;
             DataBlob = Notes;
             Complete=completeFlag;
-            SubEventID = new EventID(myParentID + "_" + EventIDGenerator.generate().ToString());
+            SubEventID = EventID.GenerateSubCalendarEvent(myParentID);
             BusyFrame = new BusyTimeLine(this.ID, StartDateTime, EndDateTime);//this is because in current implementation busy frame is the same as CalEvent frame
             this.EventLocation = EventLocation;
             EventSequence = new EventTimeLine(SubEventID.ToString(), StartDateTime, EndDateTime);
@@ -53,7 +53,7 @@ namespace TilerElements
             EventDuration = MyBusylot.End - MyBusylot.Start;
             BusyFrame = MyBusylot;
             PrepTime = EventPrepTime;
-            SubEventID = new EventID(MySubEventID.Split('_'));
+            SubEventID = new EventID(MySubEventID);
             this.EventLocation = EventLocation;
             
             UiParams=UiParam;
@@ -68,7 +68,7 @@ namespace TilerElements
         public SubCalendarEvent(string MySubEventID, DateTime EventStart, DateTime EventDeadline, BusyTimeLine SubEventBusy, bool Rigid, bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location_Elements EventLocation = null, TimeLine RangeOfSubCalEvent = null)
         {
             CalendarEventRange = RangeOfSubCalEvent;
-            SubEventID = new EventID(MySubEventID.Split('_'));
+            SubEventID = new EventID(MySubEventID);
             StartDateTime = EventStart;
             EndDateTime = EventDeadline;
             EventDuration = SubEventBusy.TimelineSpan;

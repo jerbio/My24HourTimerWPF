@@ -90,7 +90,7 @@ namespace TilerElements
 
         //CalendarEvent MyCalendarEvent = new CalendarEvent(NameEntry, Duration, StartDate, EndDate, PrepTime, PreDeadline, Rigid, Repeat, Split);
         public CalendarEvent(string EventIDEntry, string NameEntry, string StartTime, DateTime StartDateEntry, string EndTime, DateTime EventEndDateEntry, string eventSplit, string PreDeadlineTime, string EventDuration, Repetition EventRepetitionEntry, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag, Location_Elements EventLocation, bool EnableFlag, EventDisplay UiData, MiscData NoteData, bool CompletionFlag)
-            : this(new ConstructorModified(EventIDEntry, NameEntry, StartTime, StartDateEntry, EndTime, EventEndDateEntry, eventSplit, PreDeadlineTime, EventDuration, EventRepetitionEntry, DefaultPrepTimeflag, RigidScheduleFlag, eventPrepTime, PreDeadlineFlag, EnableFlag,  UiData,  NoteData, CompletionFlag), new EventID(EventIDEntry.Split('_')), EventLocation)
+            : this(new ConstructorModified(EventIDEntry, NameEntry, StartTime, StartDateEntry, EndTime, EventEndDateEntry, eventSplit, PreDeadlineTime, EventDuration, EventRepetitionEntry, DefaultPrepTimeflag, RigidScheduleFlag, eventPrepTime, PreDeadlineFlag, EnableFlag,  UiData,  NoteData, CompletionFlag), new EventID(EventIDEntry), EventLocation)
         { }
         public CalendarEvent(string NameEntry, string StartTime, DateTime StartDateEntry, string EndTime, DateTime EventEndDateEntry, string eventSplit, string PreDeadlineTime, string EventDuration, Repetition EventRepetitionEntry, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag,Location_Elements EventLocation,bool EnabledEventFlag, EventDisplay UiData,MiscData NoteData,bool CompletionFlag)
             : this(new ConstructorModified(NameEntry, StartTime, StartDateEntry, EndTime, EventEndDateEntry, eventSplit, PreDeadlineTime, EventDuration, EventRepetitionEntry, DefaultPrepTimeflag, RigidScheduleFlag, eventPrepTime, PreDeadlineFlag, EnabledEventFlag,  UiData, NoteData, CompletionFlag), EventLocation)
@@ -111,7 +111,7 @@ namespace TilerElements
             TimePerSplit = MyUpdated.TimePerSplit;
             if (MyUpdated.ID != null)
             {
-                CalendarEventID = new EventID(MyUpdated.ID.Split('_'));
+                CalendarEventID = new EventID(MyUpdated.ID);
             }
             Enabled = MyUpdated.isEnabled;
 
@@ -204,7 +204,7 @@ namespace TilerElements
             EventPreDeadline = Event_PreDeadline;
             RigidSchedule = EventRigidFlag;
             LocationData = EventLocation;
-            CalendarEventID = new EventID(new string[] { EventIDGenerator.generate().ToString() });
+            CalendarEventID = EventID.GenerateCalendarEvent();
             EventRepetition = EventRepetitionEntry;
 
             UiParams = UiData;
@@ -616,7 +616,7 @@ namespace TilerElements
 
             public ConstructorModified(string EventIDEntry, string NameEntry, string StartTime, DateTime StartDateEntry, string EndTime, DateTime EventEndDateEntry, string eventSplit, string PreDeadlineTime, string EventDuration, Repetition EventRepetition, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag, bool EnabledEventFlag, EventDisplay UiData, MiscData NoteData, bool CompletionFlag)
             {
-                CalendarEventID = new EventID(EventIDEntry.Split('_'));
+                CalendarEventID = new EventID(EventIDEntry);
                 Enabled = EnabledEventFlag;
                 Name = NameEntry;
                 EventDuration=EventDuration.Replace(".", ":");

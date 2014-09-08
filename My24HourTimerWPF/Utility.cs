@@ -221,15 +221,42 @@ namespace My24HourTimerWPF
 
         static public bool PinSubEventsToStart(IEnumerable<SubCalendarEvent> arg1, TimeLine Arg2)
         {
-            return PinSubEventsToStart_NoEdit(arg1.ToList(), Arg2);
+            return PinSubEventsToStart_NoEdit(arg1.ToArray(), Arg2);
         }
+
+        static private bool PinSubEventsToStart_NoEdit(SubCalendarEvent []arg1, TimeLine Arg2)
+        {
+            bool retValue = true;
+            long length=arg1.LongLength;
+            TimeLine refTimeline=Arg2.CreateCopy();
+            for (int i = 0; i < length; i++)
+            {
+                if (arg1[i].PinToStart(refTimeline))
+                {
+                    ;
+                }
+                else
+                {
+                    retValue = false;
+                    break;
+                }
+                refTimeline = new TimeLine(arg1[i].ActiveSlot.End, refTimeline.End);
+            }
+
+            return retValue;
+        }
+
+
+
+
+
 
         static private bool PinSubEventsToStart_NoEdit(List<SubCalendarEvent> arg1, TimeLine Arg2)
         {
             bool retValue = true;
             if (arg1.Count > 0)
             {
-                retValue=arg1[0].PinToStart(Arg2);
+                retValue = arg1[0].PinToStart(Arg2);
                 TimeLine var0 = new TimeLine(arg1[0].ActiveSlot.End, Arg2.End);
                 arg1.RemoveAt(0);
                 if (retValue && PinSubEventsToStart_NoEdit(arg1, var0))
@@ -249,8 +276,33 @@ namespace My24HourTimerWPF
         {
             //Pin Sub Events to the end of the TimeLine Each SubCalendarEvent Stays within the confines of its Calendar Event. The pinning starts from the last SubCalevent in the list
             
-            return PinSubEventsToEnd_NoEdit(arg1.ToList(), Arg2);
+            return PinSubEventsToEnd_NoEdit(arg1.ToArray(), Arg2);
         }
+
+
+        static private bool PinSubEventsToEnd_NoEdit(SubCalendarEvent[]arg1, TimeLine Arg2)
+        {
+            bool retValue = true;
+            long length = arg1.LongLength;
+            TimeLine refTimeline = Arg2.CreateCopy();
+            SubCalendarEvent refEvent;
+            for (long i = length-1; i >= 0;i-- )
+            {//hack notice you need to ensure that each subcalevent can fit within the timeline. YOu need a way to resolve this if not possible
+                refEvent=arg1[i];
+                if (refEvent.PinToEnd(refTimeline))
+                {
+
+                }
+                else 
+                {
+                    retValue = false;
+                    break;
+                }
+                refTimeline = new TimeLine(refTimeline.Start, refEvent.ActiveSlot.Start);
+            }
+            return retValue;
+        }
+
 
         static private bool PinSubEventsToEnd_NoEdit(List<SubCalendarEvent> arg1, TimeLine Arg2)
         {
@@ -260,7 +312,7 @@ namespace My24HourTimerWPF
                 retValue = arg1[arg1.Count - 1].PinToEnd(Arg2);
                 TimeLine var0 = new TimeLine(Arg2.Start, arg1[arg1.Count - 1].ActiveSlot.Start);
                 arg1.RemoveAt(arg1.Count - 1);
-                if (retValue && PinSubEventsToEnd(arg1, var0))
+                if (retValue && PinSubEventsToEnd_NoEdit(arg1, var0))
                 {
                     return true;
                 }

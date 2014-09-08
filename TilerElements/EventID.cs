@@ -8,32 +8,55 @@ namespace TilerElements
     public class EventID
     {
         private static int CalendarEvenntLimitIndex = 2;
-        List<string> LayerID;
+        string[] LayerID = new string[4];
         string s_FullID="";
         int FullID;
         static string delimiter = "_";
         public EventID(string myLayerID)
-            : this(myLayerID.Split('_').ToList())
+            : this(myLayerID.Split('_'))
         {
 
         }
 
         public EventID()
         {
-            LayerID = new List<string>();
         }
-        private EventID(List<string> myLayerID)
+        private EventID(string[] myLayerID)
         {
-            LayerID = myLayerID;
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
-            string myId = "";
-            foreach (string eachString in LayerID)
+            
+            switch (myLayerID.Length)
             {
-                sb.Append(eachString);
-                myId += eachString;
+                case 0:
+                {
+                    LayerID = new string[4] { "0", "7", "0", "0" };
+                }
+                break;
+                
+                case 1:
+                {
+                    LayerID = new string[4] { myLayerID[0], "7", "0", "0" };
+                }
+                break;
+                case 2:
+                {
+                    LayerID = new string[4] { myLayerID[0], "7", "0", myLayerID[1] };
+                }
+                break;
+                case 3:
+                {
+                    LayerID = new string[4] { myLayerID[0], "7", myLayerID[1], myLayerID[2] };
+                }
+                break;
+                case 4:
+                {
+                    LayerID = myLayerID.ToArray();
+                }
+                break;
+                default:
+                throw new Exception("Tried To initialize with invalid ID");
             }
 
-            s_FullID = myId;
+            s_FullID = string.Join(delimiter,LayerID);
 
             /*//string currConcat=sb.ToString();
             string currConcat = myId;
@@ -58,59 +81,41 @@ namespace TilerElements
         }
         */
 
-        private void AddNewComponentID()
+        private void AddNewComponentID(int index)
         { 
             string id= EventIDGenerator.generate().ToString();
-            LayerID.Add(id);
+            LayerID[index] = id;
             s_FullID = string.Join(delimiter, LayerID);
         }
 
         public static EventID GenerateCalendarEvent()
         {
             EventID retValue = new EventID();
-            retValue.AddNewComponentID();
+            retValue.AddNewComponentID(0);
             return retValue;
         }
 
-        public static EventID GenerateRepeatCalendarEvent(string ParentID)
-        {
-            EventID retValue = new EventID(ParentID);
-            if (retValue.LayerID.Count == 1)
-            {
-                retValue.AddNewComponentID();
-                return retValue;
-            }
-            else
-            {
-                throw new Exception("Invalid parent ID used for GenerateRepeatCalendarEvent");
-            }
-        }
+        
+        
 
-        public static EventID GenerateRepeatDayCalendarEvent(string ParentID)
+        public static EventID GenerateRepeatCalendarEvent(string ParentID,int weekDay=7)
         {
             EventID retValue = new EventID(ParentID);
-            if (retValue.LayerID.Count == 2)
+            //if (retValue.LayerID.Length == 1)
             {
-                retValue.AddNewComponentID();
+                retValue.LayerID[0]=weekDay.ToString();
+                retValue.AddNewComponentID(1);
                 return retValue;
-            }
-            else
-            {
-                throw new Exception("Invalid parent ID used for GenerateRepeatDayCalendarEvent");
             }
         }
 
         public static EventID GenerateSubCalendarEvent(string ParentID)
         {
             EventID retValue = new EventID(ParentID);
-            if (retValue.LayerID.Count > 1)
+            //if (retValue.LayerID.Count == 3)
             {
-                retValue.AddNewComponentID();
+                retValue.AddNewComponentID(3);
                 return retValue;
-            }
-            else
-            {
-                throw new Exception("Invalid parent ID used for GenerateSubCalendarEvent");
             }
         }
 
@@ -119,7 +124,7 @@ namespace TilerElements
         {
             int i = 0;
             string StringID = "";
-            for (i = 0; (i <= LevelIndex - 1) && (LevelIndex < LayerID.Count); i++)
+            for (i = 0; (i <= LevelIndex - 1) && (LevelIndex < LayerID.Length); i++)
             {
                 StringID += LayerID[i] + "_";
             }
@@ -140,7 +145,7 @@ namespace TilerElements
 
 
 
-        public string getCalendarEventPartition()
+        public string getCalendarEventComponent()
         {
             return getLevelID(0);
         }
@@ -166,7 +171,7 @@ namespace TilerElements
 
         public override string ToString()
         {
-            if ((LayerID.Count== 1) && (LayerID[0] == ""))//checks if LayerID is empty
+            if ((LayerID.Length== 1) && (LayerID[0] == ""))//checks if LayerID is empty
             {
                 return "";
             }

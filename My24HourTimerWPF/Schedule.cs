@@ -173,8 +173,7 @@ namespace My24HourTimerWPF
              * function retrieves a calendarevent. 
              * If the ID is repeating event ID it'll get the repeating calendar event
              */
-            CalendarEvent calEvent = AllEventDictionary[myEventID.getSubCalendarEventComponent()];
-
+            CalendarEvent calEvent = AllEventDictionary[myEventID.getCalendarEventComponent()];
             CalendarEvent repeatEvent = calEvent.getRepeatedCalendarEvent(myEventID.ToString());
 
 
@@ -186,8 +185,6 @@ namespace My24HourTimerWPF
             {
                 return repeatEvent;
             }
-            
-            //return AllEventDictionary[myEventID.ID[0]];
         }
 
         public SubCalendarEvent getSubCalendarEvent(string EventID)

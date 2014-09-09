@@ -11,6 +11,8 @@ namespace TilerElements
         BusyTimeLine BusyFrame;
         TimeSpan AvailablePreceedingFreeSpace;
         TimeLine CalendarEventRange;
+        double EventScore;
+        ConflictProfile ConflictinEvents;
 
         Location_Elements EventLocation;
         IList<EventID> InterferringEvents;
@@ -21,8 +23,13 @@ namespace TilerElements
         public SubCalendarEvent()
         { }
 
-        public SubCalendarEvent(TimeSpan Event_Duration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, bool Enabled, EventDisplay UiParam,MiscData Notes,bool completeFlag, Location_Elements EventLocation =null, TimeLine RangeOfSubCalEvent = null)
+        public SubCalendarEvent(TimeSpan Event_Duration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, bool Enabled, EventDisplay UiParam,MiscData Notes,bool completeFlag, Location_Elements EventLocation =null, TimeLine RangeOfSubCalEvent = null, ConflictProfile conflicts=null)
         {
+            if (conflicts == null)
+            {
+                conflicts = new ConflictProfile();
+            }
+            ConflictinEvents = conflicts;
             CalendarEventRange = RangeOfSubCalEvent;
             StartDateTime = EventStart;
             EndDateTime = EventDeadline;
@@ -44,8 +51,13 @@ namespace TilerElements
         }
 
 
-        public SubCalendarEvent(string MySubEventID, BusyTimeLine MyBusylot, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid,bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location_Elements EventLocation = null, TimeLine RangeOfSubCalEvent = null)
+        public SubCalendarEvent(string MySubEventID, BusyTimeLine MyBusylot, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location_Elements EventLocation = null, TimeLine RangeOfSubCalEvent = null, ConflictProfile conflicts = null)
         {
+            if (conflicts == null)
+            {
+                conflicts = new ConflictProfile();
+            }
+            ConflictinEvents = conflicts;
             CalendarEventRange = RangeOfSubCalEvent;
             //string eventName, TimeSpan EventDuration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, TimeSpan PreDeadline, bool EventRigidFlag, bool EventRepetition, int EventSplit
             StartDateTime = EventStart;
@@ -65,8 +77,13 @@ namespace TilerElements
             RigidSchedule = Rigid;
         }
 
-        public SubCalendarEvent(string MySubEventID, DateTime EventStart, DateTime EventDeadline, BusyTimeLine SubEventBusy, bool Rigid, bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location_Elements EventLocation = null, TimeLine RangeOfSubCalEvent = null)
+        public SubCalendarEvent(string MySubEventID, DateTime EventStart, DateTime EventDeadline, BusyTimeLine SubEventBusy, bool Rigid, bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location_Elements EventLocation = null, TimeLine RangeOfSubCalEvent = null, ConflictProfile conflicts = null)
         {
+            if (conflicts == null)
+            {
+                conflicts = new ConflictProfile();
+            }
+            ConflictinEvents = conflicts;
             CalendarEventRange = RangeOfSubCalEvent;
             SubEventID = new EventID(MySubEventID);
             StartDateTime = EventStart;
@@ -100,10 +117,11 @@ namespace TilerElements
             this.Enabled = true;
         }
 
-        public void SetCompletionStatus(bool CompletionStatus)
+        public void SetCompletionStatus(bool CompletionStatus,CalendarEvent myCalendarEvent)
         {
-            Complete = CompletionStatus;
-            UiParams.setCompleteUI(CompletionStatus);
+            //Complete = CompletionStatus;
+            myCalendarEvent.setSubEventCompletionStatus(CompletionStatus, this);
+            
         }
         public static int CompareByEndDate(SubCalendarEvent SubCalendarEvent1, SubCalendarEvent SubCalendarEvent2)
         {
@@ -164,7 +182,7 @@ namespace TilerElements
 
         public SubCalendarEvent createCopy()
         {
-            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ID, new DateTime(Start.Ticks), new DateTime(End.Ticks), BusyFrame.CreateCopy(), this.RigidSchedule, this.isEnabled, this.UiParams.createCopy(), this.Notes.createCopy(), this.Complete, this.EventLocation, new TimeLine(CalendarEventRange.Start, CalendarEventRange.End));
+            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ID, new DateTime(Start.Ticks), new DateTime(End.Ticks), BusyFrame.CreateCopy(), this.RigidSchedule, this.isEnabled, this.UiParams.createCopy(), this.Notes.createCopy(), this.Complete, this.EventLocation, new TimeLine(CalendarEventRange.Start, CalendarEventRange.End),ConflictinEvents.CreateCopy());
             //MySubCalendarEventCopy.LocationData = LocationData;//note check for possible reference issues for future versions
             /*MySubCalendarEventCopy.SubEventID = SubEventID;
             MySubCalendarEventCopy.BusyFrame = BusyFrame;
@@ -198,7 +216,7 @@ namespace TilerElements
             return TotalTimeSpan;
         }
 
-        public bool PinSubEventsToStart(TimeLine MyTimeLine)
+        public bool PinToStart(TimeLine MyTimeLine)
         {
             TimeSpan SubCalendarTimeSpan = new TimeSpan();
             DateTime ReferenceStartTime = new DateTime();
@@ -224,7 +242,7 @@ namespace TilerElements
 
             if (this.Rigid)
             {
-                return true;
+                return (MyTimeLine.IsTimeLineWithin( this.RangeTimeLine));
             }
 
             if (this.EventDuration > TimeDifference)
@@ -409,6 +427,13 @@ namespace TilerElements
             {
                 ReferenceTime = LimitingTimeLine.End;
             }
+
+            if (this.Rigid)
+            {
+                return (LimitingTimeLine.IsTimeLineWithin(this.RangeTimeLine));
+            }
+
+
             DateTime MyStartTime = ReferenceTime - this.EventDuration;
             if (this.getCalendarEventRange.IsTimeLineWithin(new TimeLine(MyStartTime, ReferenceTime)))
             {
@@ -469,7 +494,7 @@ namespace TilerElements
             }
             else
             {
-                return Location_Elements.calculateDistance(Arg1.myLocation,Arg2.myLocation);
+                return Location_Elements.calculateDistance(Arg1.myLocation, Arg2.myLocation, worstDistance);
             }
         }
 
@@ -489,13 +514,13 @@ namespace TilerElements
          public bool canExistWithinTimeLine(TimeLine PossibleTimeLine)
          {
              SubCalendarEvent thisCopy = this.createCopy();
-             return (thisCopy.PinSubEventsToStart(PossibleTimeLine) && thisCopy.PinToEnd(PossibleTimeLine));
+             return (thisCopy.PinToStart(PossibleTimeLine) && thisCopy.PinToEnd(PossibleTimeLine));
          }
 
          public bool canExistTowardsEndWithoutSpace(TimeLine PossibleTimeLine)
          {
              TimeLine ParentCalRange = getCalendarEventRange;
-             bool retValue = (ParentCalRange.Start <= (PossibleTimeLine.End - ActiveDuration)) && (ParentCalRange.End>=PossibleTimeLine.End);
+             bool retValue = (ParentCalRange.Start <= (PossibleTimeLine.End - ActiveDuration)) && (ParentCalRange.End>=PossibleTimeLine.End)&&(canExistWithinTimeLine(PossibleTimeLine));
 
              return retValue;
          }
@@ -503,7 +528,7 @@ namespace TilerElements
          public bool canExistTowardsStartWithoutSpace(TimeLine PossibleTimeLine)
          {
              TimeLine ParentCalRange = getCalendarEventRange;
-             bool retValue = ((PossibleTimeLine.Start + ActiveDuration) <= ParentCalRange.End) && (ParentCalRange.Start <= PossibleTimeLine.Start);
+             bool retValue = ((PossibleTimeLine.Start + ActiveDuration) <= ParentCalRange.End) && (ParentCalRange.Start <= PossibleTimeLine.Start) && (canExistWithinTimeLine(PossibleTimeLine));
 
              return retValue;
          }
@@ -518,11 +543,31 @@ namespace TilerElements
 
         #region Class Properties
 
+         public ConflictProfile Conflicts
+         {
+             get
+             {
+                 return ConflictinEvents;
+             }
+         }
+
         public TimeLine getCalendarEventRange
         {
             get 
             {
                 return CalendarEventRange;
+            }
+        }
+
+        public double Score
+        {
+            get 
+            {
+                return EventScore;
+            }
+            set
+            {
+                EventScore = value;
             }
         }
 

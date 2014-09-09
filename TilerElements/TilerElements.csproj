@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="BusyTimeLine.cs" />
     <Compile Include="CalendarEvent.cs" />
+    <Compile Include="ConflictProfile.cs" />
     <Compile Include="EventLearn.cs" />
     <Compile Include="TilerColor.cs" />
     <Compile Include="CustomErrors.cs" />

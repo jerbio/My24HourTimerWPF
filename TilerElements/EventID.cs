@@ -39,7 +39,7 @@ namespace TilerElements
                 break;
                 case 2:
                 {
-                    LayerID = new string[4] { myLayerID[0], "7", "0", myLayerID[1] };
+                    LayerID = new string[4] { myLayerID[0], "7", myLayerID[1],"0" };
                 }
                 break;
                 case 3:
@@ -98,13 +98,22 @@ namespace TilerElements
         
         
 
-        public static EventID GenerateRepeatCalendarEvent(string ParentID,int weekDay=7)
+        public static EventID GenerateRepeatCalendarEvent(string ParentID)//,int weekDay=7)
         {
             EventID retValue = new EventID(ParentID);
-            //if (retValue.LayerID.Length == 1)
             {
-                retValue.LayerID[0]=weekDay.ToString();
-                retValue.AddNewComponentID(1);
+                retValue.LayerID[1] = "7";
+                retValue.AddNewComponentID(2);
+                return retValue;
+            }
+        }
+
+        public static EventID GenerateRepeatDayCalendarEvent(string ParentID,int weekDay)
+        {
+            EventID retValue = new EventID(ParentID);
+            {
+                retValue.LayerID[1]=weekDay.ToString();
+                retValue.AddNewComponentID(2);
                 return retValue;
             }
         }
@@ -143,6 +152,25 @@ namespace TilerElements
             return  Convert.ToInt32( LayerID[Level]);
         }
 
+        public string getIDUpToCalendarEvent()
+        {
+            return getStringIDAtLevel(0);
+        }
+
+        public string getIDUpToRepeatDayCalendarEvent()
+        {
+            return getStringIDAtLevel(1);
+        }
+
+        public string getIDUpToRepeatCalendarEvent()
+        {
+            return getStringIDAtLevel(2);
+        }
+
+        public string getIDUpToSubCalendarEvent()
+        {
+            return getStringIDAtLevel(3);
+        }
 
 
         public string getCalendarEventComponent()

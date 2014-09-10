@@ -550,14 +550,14 @@ namespace My24HourTimerWPF
                 //RepeatStart = (DateTime)calendar3.SelectedDate.Value;
                 DateTime FullStartTime = DateTime.Parse(eventStartDate.ToShortDateString() + " " + eventStartTime);
                 DateTime FullEndTime = DateTime.Parse(eventEndDate.ToShortDateString() + " " + eventEndTime);
-                
-                
+
+                List<int> selectedDaysOftheweek = getDaysOfWeek();
 
 
                 RepeatStart = DateTime.Parse(eventStartTime);
                 RepeatEnd = (DateTime)calendar4.SelectedDate.Value;
                 RepetitionFlag = true;
-                MyRepetition = new Repetition(RepetitionFlag, new TimeLine(RepeatStart, RepeatEnd), RepeatFrequency, new TimeLine((FullStartTime),(FullEndTime)));
+                MyRepetition = new Repetition(RepetitionFlag, new TimeLine(RepeatStart, RepeatEnd), RepeatFrequency, new TimeLine((FullStartTime), (FullEndTime)), selectedDaysOftheweek.ToArray());
                 //eventStartDate = RepeatStart;
                 eventEndDate = RepeatEnd;
             }
@@ -1080,15 +1080,16 @@ namespace My24HourTimerWPF
 
                     DateTime FullStartTime = DateTime.Parse(eventStartDate.ToShortDateString() + " " + eventStartTime);
                     DateTime FullEndTime = DateTime.Parse(eventEndDate.ToShortDateString() + " " + eventEndTime);
-                
 
+                    List<int> selectedDaysOftheweek = getDaysOfWeek();
 
                     //RepeatStart = (DateTime)calendar3.SelectedDate.Value;
                     RepeatStart = DateTime.Parse(eventStartTime);
                     RepeatEnd = (DateTime)calendar4.SelectedDate.Value;
                     //RepeatEnd = (DateTime.Now).AddDays(7);
                     RepetitionFlag = true;
-                    MyRepetition = new Repetition(RepetitionFlag, new TimeLine(RepeatStart, RepeatEnd), RepeatFrequency, new TimeLine((FullStartTime),(FullEndTime)));
+                                                //(bool EnableFlag, TimeLine RepetitionRange_Entry, string Frequency, TimeLine EventActualRange, int[] WeekDayData)
+                    MyRepetition = new Repetition(RepetitionFlag, new TimeLine(RepeatStart, RepeatEnd), RepeatFrequency, new TimeLine((FullStartTime), (FullEndTime)), selectedDaysOftheweek.ToArray());
 
                     //eventStartDate = RepeatStart;
                     eventEndDate = RepeatStart;
@@ -1135,6 +1136,46 @@ namespace My24HourTimerWPF
 
 
             textBlock9.Text += "Average is " + totalTIme;
+        }
+
+        private List<int> getDaysOfWeek()
+        {
+            List<int> retValue = new System.Collections.Generic.List<int>();
+            
+            
+            if (TueCheckbox.IsChecked.Value)
+            {
+                retValue.Add((int)DayOfWeek.Tuesday);
+            }
+
+            if (WedCheckbox.IsChecked.Value)
+            {
+                retValue.Add((int)DayOfWeek.Wednesday);
+            }
+
+            if (ThuCheckbox.IsChecked.Value)
+            {
+                retValue.Add((int)DayOfWeek.Thursday);
+            }
+            if (FriCheckbox.IsChecked.Value)
+            {
+                retValue.Add((int)DayOfWeek.Friday);
+            }
+            if (SatCheckbox.IsChecked.Value)
+            {
+                retValue.Add((int)DayOfWeek.Saturday);
+            }
+            if (MonCheckbox.IsChecked.Value)
+            {
+                retValue.Add((int)DayOfWeek.Monday);
+            }
+            if (SunCheckbox.IsChecked.Value)
+            {
+                retValue.Add((int)DayOfWeek.Sunday);
+            }
+
+            
+            return retValue;
         }
 
         private void LogInToWagtap()
@@ -1233,6 +1274,16 @@ namespace My24HourTimerWPF
             string FinalBox = string.Join("\n", WITHnAME.Select(OBJ => OBJ.Name));
             ResultOfSearch.Text = FinalBox;
             */
+        }
+
+        private void ForceCheckBoxDetection(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void ForceClickDetection(object sender, RoutedEventArgs e)
+        {
+            return;
         }
 
         

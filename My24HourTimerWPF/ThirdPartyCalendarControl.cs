@@ -169,9 +169,10 @@ namespace My24HourTimerWPF
         public void LoopThroughAddRepeatEvents(Repetition MyRepetition)
         {
             int i = 0;
-            for (; i < MyRepetition.RecurringCalendarEvents.Length; i++)
+            CalendarEvent[] recurringEvents=MyRepetition.RecurringCalendarEvents();
+            for (; i < recurringEvents.Length; i++)
             {
-                WriteToOutlook(MyRepetition.RecurringCalendarEvents[i]);
+                WriteToOutlook(recurringEvents[i]);
             }
         }
 
@@ -180,9 +181,10 @@ namespace My24HourTimerWPF
         public void LoopThroughRemoveRepeatEvents(Repetition MyRepetition)
         {
             int i = 0;
-            for (; i < MyRepetition.RecurringCalendarEvents.Length; i++)
+            CalendarEvent[] recurringEvents = MyRepetition.RecurringCalendarEvents();
+            for (; i < recurringEvents.Length; i++)
             {
-                RemoveFromOutlook(MyRepetition.RecurringCalendarEvents[i]);
+                RemoveFromOutlook(recurringEvents[i]);
             }
         }
 

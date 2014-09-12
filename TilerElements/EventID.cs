@@ -8,10 +8,11 @@ namespace TilerElements
     public class EventID
     {
         private static int CalendarEvenntLimitIndex = 2;
-        string[] LayerID = new string[4];
+        string[] LayerID = new string[4] { "0", "7", "0", "0"};
         string s_FullID="";
         int FullID;
         static string delimiter = "_";
+        static char delimiter_char ='_';
         public EventID(string myLayerID)
             : this(myLayerID.Split('_'))
         {
@@ -71,15 +72,61 @@ namespace TilerElements
 
         }
 
-        /*
-        public string[] ID
+        public static EventID convertToSubcalendarEventID(string stringID)
         {
-            get
+            string[] splitStringResult = stringID.Split(delimiter_char);
+            EventID retValue = new EventID();
+            if (splitStringResult.Length > 3)
             {
-                return LayerID;
+                retValue.LayerID[0] = splitStringResult[0];
+                retValue.LayerID[1] = splitStringResult[1];
+                retValue.LayerID[2] = splitStringResult[2];
+                retValue.LayerID[3] = splitStringResult[3];
             }
+            else 
+            {
+                if (splitStringResult.Length > 2)
+                {
+                    retValue.LayerID[0] = splitStringResult[0];
+                    retValue.LayerID[2] = splitStringResult[1];
+                    retValue.LayerID[3] = splitStringResult[2];
+                }
+                else
+                {
+                    retValue.LayerID[0] = splitStringResult[0];
+                    retValue.LayerID[3] = splitStringResult[1];
+                }
+                
+            }
+            retValue.updateSFullID();
+            return retValue;
         }
-        */
+
+        private void updateSFullID()
+        {
+            s_FullID=string.Join("_", LayerID);
+        }
+
+        public static EventID convertToRepeatCalendarEventID(string stringID)
+        {
+            string[] splitStringResult = stringID.Split(delimiter_char);
+            EventID retValue = new EventID();
+            if (splitStringResult.Length > 3)
+            {
+                retValue.LayerID[0] = splitStringResult[0];
+                retValue.LayerID[1] = splitStringResult[1];
+                retValue.LayerID[2] = splitStringResult[2];
+                retValue.LayerID[3] = splitStringResult[3];
+            }
+            else
+            {
+                retValue.LayerID[0] = splitStringResult[0];
+                retValue.LayerID[2] = splitStringResult[1];
+            }
+            return retValue;
+        }
+
+
 
         private void AddNewComponentID(int index)
         { 
@@ -90,7 +137,7 @@ namespace TilerElements
 
         public static EventID GenerateCalendarEvent()
         {
-            EventID retValue = new EventID();
+            EventID retValue = new EventID("0_7_0_0");
             retValue.AddNewComponentID(0);
             return retValue;
         }
@@ -102,7 +149,6 @@ namespace TilerElements
         {
             EventID retValue = new EventID(ParentID);
             {
-                retValue.LayerID[1] = "7";
                 retValue.AddNewComponentID(2);
                 return retValue;
             }
@@ -129,7 +175,7 @@ namespace TilerElements
         }
 
 
-        public string getStringIDAtLevel(int LevelIndex)
+        private string getStringIDAtLevel(int LevelIndex)
         {
             int i = 0;
             string StringID = "";
@@ -142,7 +188,7 @@ namespace TilerElements
 
         }
 
-        public string getLevelID(int Level)
+        private string getLevelID(int Level)
         {
             return LayerID[Level];
         }

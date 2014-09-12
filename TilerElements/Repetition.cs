@@ -64,7 +64,7 @@ namespace TilerElements
             RepetitionWeekDay = DayOfWeek;
             foreach (CalendarEvent MyRepeatCalendarEvent in ReadFromFileRecurringListOfCalendarEvents)
             {
-                DictionaryOfIDAndCalendarEvents.Add(MyRepeatCalendarEvent.ID, MyRepeatCalendarEvent);
+                DictionaryOfIDAndCalendarEvents.Add(MyRepeatCalendarEvent.Calendar_EventID.getIDUpToRepeatCalendarEvent(), MyRepeatCalendarEvent);
             }
 
             RepeatingEvents = DictionaryOfIDAndCalendarEvents.Values.ToArray();
@@ -176,9 +176,15 @@ namespace TilerElements
             TimeLine ActiveTimeline = new TimeLine(StartTimeLineForActity, EndTimeLineForActity);
 
             Repetition repetitionData = new Repetition(MyParentEvent.isEnabled, repetitionTimeline, this.Frequency, ActiveTimeline,7);
+
+
+            this.initializingRange = ActiveTimeline;
+            this.RepetitionRange = repetitionTimeline;
             EventID MyEventCalendarID = EventID.GenerateRepeatDayCalendarEvent(MyParentEvent.ID, WeekDay);
             CalendarEvent MyRepeatCalendarEvent = new CalendarEvent(MyEventCalendarID, MyParentEvent.Name, MyParentEvent.ActiveDuration, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.Preparation, MyParentEvent.PreDeadline, MyParentEvent.Rigid,repetitionData , MyParentEvent.Rigid ? 1 : MyParentEvent.NumberOfSplit, MyParentEvent.myLocation, MyParentEvent.isEnabled, MyParentEvent.UIParam, MyParentEvent.Notes, MyParentEvent.isComplete);
-            PopulateRepetitionParameters(MyRepeatCalendarEvent);
+
+            //continue from here Jerome. You need to bind with this repetition instance. you are not doing that so it never gets stored.
+            this.PopulateRepetitionParameters(MyRepeatCalendarEvent);
         }
         DateTime IncreaseByFrequency(DateTime MyTime, string Frequency)
         {
@@ -264,20 +270,19 @@ namespace TilerElements
             }
         }
 
-        public CalendarEvent[] RecurringCalendarEvents
+        public CalendarEvent[] RecurringCalendarEvents()
         {
-            set
+            CalendarEvent[] retValue = null;
+
+            if (DictionaryOfWeekDayToRepetition.Count > 0)
             {
-                foreach (CalendarEvent MyCalEvent in value)
-                {
-                    DictionaryOfIDAndCalendarEvents[MyCalEvent.ID] = MyCalEvent;
-                }
-                RepeatingEvents = DictionaryOfIDAndCalendarEvents.Values.ToArray();//assign od diffe list can generate inconsistencies...watchout for bugs
+                retValue = DictionaryOfWeekDayToRepetition.SelectMany(obj => obj.Value.RecurringCalendarEvents()).ToArray();
             }
-            get
+            else
             {
-                return DictionaryOfIDAndCalendarEvents.Values.ToArray();
+                retValue= DictionaryOfIDAndCalendarEvents.Values.ToArray();
             }
+            return retValue;
         }
 
         public Repetition CreateCopy()

@@ -333,7 +333,8 @@ namespace TilerElements
 
             if (RepetitionStatus)
             {
-                foreach (CalendarEvent eachCalendarEvent in EventRepetition.RecurringCalendarEvents)
+                IEnumerable<CalendarEvent> AllrepeatingCalEvents=EventRepetition.RecurringCalendarEvents();
+                foreach (CalendarEvent eachCalendarEvent in AllrepeatingCalEvents)
                 {
                     eachCalendarEvent.SetCompletion(CompletionStatus);
                 }
@@ -389,9 +390,9 @@ namespace TilerElements
                 Horizontal= new List<Location_Elements>();
             }
 
-            if(!DistanceMatrix.ContainsKey(this.CalendarEventID.getLevelID(0)))
+            if(!DistanceMatrix.ContainsKey(this.CalendarEventID.getCalendarEventComponent()))
             {
-                string myCalString = this.CalendarEventID.getLevelID(0);
+                string myCalString = this.CalendarEventID.getCalendarEventComponent();
                 DistanceMatrix.Add(myCalString, new List<double>());
                 Horizontal.Add(newLocation);
                 DistanceMatixKeys= DistanceMatrix.Keys.ToList();
@@ -406,7 +407,7 @@ namespace TilerElements
                             ;
                         }
 
-                        if (eachString == this.CalendarEventID.getLevelID(0))
+                        if (eachString == this.CalendarEventID.getCalendarEventComponent())
                         {
                             //MyDistance = double.MaxValue / DistanceMatixKeys.Count;
 
@@ -434,7 +435,7 @@ namespace TilerElements
         {
             //get
             {
-                return DistanceMatrix[this.CalendarEventID.getLevelID(0)][DistanceMatixKeys.IndexOf(CalEvent.CalendarEventID.getLevelID(0))];
+                return DistanceMatrix[this.CalendarEventID.getCalendarEventComponent()][DistanceMatixKeys.IndexOf(CalEvent.CalendarEventID.getCalendarEventComponent())];
             }
         }
 
@@ -450,7 +451,7 @@ namespace TilerElements
             Dictionary<string, double> retValue = new Dictionary<string, double>();
             List<Tuple<string, double>> AllCombos = new List<Tuple<string, double>>();
 
-             //= this.CalendarEventID.getLevelID(0); ;
+             //= this.CalendarEventID.getCalendarEventComponent(); ;
             for (int i = 0; i < DistanceMatixKeys.Count; i++)
             {
 
@@ -470,7 +471,7 @@ namespace TilerElements
 
         public Dictionary<string, double> DistanceToAllNodes()
         {
-            return DistanceToAllNodes(this.CalendarEventID.getLevelID(0));
+            return DistanceToAllNodes(this.CalendarEventID.getCalendarEventComponent());
         }
         /*
         CalendarEvent getRepeatingCalendarEvent(string RepeatingEventID)
@@ -811,7 +812,8 @@ namespace TilerElements
 
             if (Repeat.Enable)
             {
-                foreach (CalendarEvent MyCalendarEvent in EventRepetition.RecurringCalendarEvents)
+                IEnumerable<CalendarEvent> AllrepeatingCalEvents = EventRepetition.RecurringCalendarEvents();
+                foreach (CalendarEvent MyCalendarEvent in AllrepeatingCalEvents)
                 {
                     SubCalendarEvent MySubEvent = MyCalendarEvent.getSubEvent(SubEventID);
                     if (MySubEvent != null)
@@ -836,7 +838,9 @@ namespace TilerElements
         {
             if (this.RepetitionStatus)
             {
-                foreach (CalendarEvent MyCalendarEvent in Repeat.RecurringCalendarEvents)
+                IEnumerable<CalendarEvent> AllrepeatingCalEvents = Repeat.RecurringCalendarEvents();
+
+                foreach (CalendarEvent MyCalendarEvent in AllrepeatingCalEvents)
                 {
                     if (MyCalendarEvent.updateSubEvent(SubEventID, UpdatedSubEvent))
                     {
@@ -1267,7 +1271,7 @@ namespace TilerElements
             {
                 if (this.Repeat.Enable)
                 {
-                    return this.Repeat.RecurringCalendarEvents.SelectMany(obj => obj.AllSubEvents).ToArray();
+                    return this.Repeat.RecurringCalendarEvents().SelectMany(obj => obj.AllSubEvents).ToArray();
                 }
 
                 return SubEvents.Values.Where(obj=>obj!=null).ToArray();
@@ -1318,7 +1322,7 @@ namespace TilerElements
                 List<SubCalendarEvent> MyRepeatingSubCalendarEvents = new List<SubCalendarEvent>();
                 if (this.Repeat.Enable)
                 {
-                    return this.Repeat.RecurringCalendarEvents.SelectMany(obj => obj.ActiveSubEvents).ToArray();
+                    return this.Repeat.RecurringCalendarEvents().SelectMany(obj => obj.ActiveSubEvents).ToArray();
                     /*foreach (CalendarEvent RepeatingElement in this.EventRepetition.RecurringCalendarEvents)
                     {
                         var HolderConcat = MyRepeatingSubCalendarEvents.Concat(RepeatingElement.AllActiveSubEvents.ToList());
@@ -1340,7 +1344,7 @@ namespace TilerElements
                 List<SubCalendarEvent> MyRepeatingSubCalendarEvents = new List<SubCalendarEvent>();
                 if (this.Repeat.Enable)
                 {
-                    return this.Repeat.RecurringCalendarEvents.SelectMany(obj => obj.EnabledSubEvents).ToArray();
+                    return this.Repeat.RecurringCalendarEvents().SelectMany(obj => obj.EnabledSubEvents).ToArray();
                 }
 
                 return MyRepeatingSubCalendarEvents.ToArray();

@@ -387,7 +387,7 @@ namespace TilerElements
 
         public  bool PinToEndAndIncludeInTimeLine(TimeLine LimitingTimeLine, CalendarEvent RestrctingCalendarEvent)
         {
-            if (new EventID(RestrctingCalendarEvent.ID).getLevelID(0) != SubEventID.getLevelID(0))
+            if (new EventID(RestrctingCalendarEvent.ID).getCalendarEventComponent() != SubEventID.getCalendarEventComponent())
             {
                 throw new Exception("Oh oh Sub calendar event Trying to pin to end of invalid calendar event. Check that you have matchin IDs");
             }
@@ -435,7 +435,9 @@ namespace TilerElements
 
 
             DateTime MyStartTime = ReferenceTime - this.EventDuration;
-            if (this.getCalendarEventRange.IsTimeLineWithin(new TimeLine(MyStartTime, ReferenceTime)))
+
+
+            if ((MyStartTime>=LimitingTimeLine.Start )&&(MyStartTime>=getCalendarEventRange.Start))
             {
 
                 StartDateTime = MyStartTime;
@@ -455,7 +457,7 @@ namespace TilerElements
 
         public void PinToEnd(CalendarEvent RestrctingCalendarEvent)
         {
-            if (new EventID(RestrctingCalendarEvent.ID).getLevelID(0) != SubEventID.getLevelID(0))
+            if (new EventID(RestrctingCalendarEvent.ID).getCalendarEventComponent() != SubEventID.getCalendarEventComponent())
             {
                 throw new Exception("Oh oh Sub calendar event Trying to pin to end of invalid calendar event. Check that you have matchin IDs");
             }
@@ -488,7 +490,7 @@ namespace TilerElements
 
          public static double CalculateDistance(SubCalendarEvent Arg1,SubCalendarEvent Arg2, double worstDistance=double.MaxValue)
         {
-            if (Arg1.SubEvent_ID.getStringIDAtLevel(0) == Arg2.SubEvent_ID.getStringIDAtLevel(0))
+            if (Arg1.SubEvent_ID.getIDUpToCalendarEvent() == Arg2.SubEvent_ID.getIDUpToCalendarEvent())
             {
                 return worstDistance;
             }

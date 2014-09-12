@@ -1185,7 +1185,7 @@ namespace My24HourTimerWPF
             //Tiler.LogControl.UpdateLogLocation(LogLocation);
             UserAccount currentUser = new UserAccount(UserNameTextBox.Text, PasswordTextBox.Text);
             DateTime refNow=DateTime.Now;
-            refNow = DateTime.Parse("9/7/2014 3:45 PM");
+            refNow = DateTime.Parse("9/11/2014 10:57 PM");
             MySchedule = new Schedule(currentUser, refNow);
             
             if (MySchedule.isScheduleLoadSuccessful)

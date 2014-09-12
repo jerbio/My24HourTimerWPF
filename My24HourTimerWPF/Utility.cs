@@ -393,7 +393,7 @@ namespace My24HourTimerWPF
 
         static public double calculateDistance(List<SubCalendarEvent>  allSubCalEvents,Dictionary<string, List<Double>> DistanceMatrix)
         {
-            List<string> AllIds = allSubCalEvents.Select(obj => obj.SubEvent_ID.getLevelID(0)).ToList();
+            List<string> AllIds = allSubCalEvents.Select(obj => obj.SubEvent_ID.getCalendarEventComponent()).ToList();
             List<string> Allkeys = DistanceMatrix.Keys.ToList();
             int i = 0;
             int j = i + 1;

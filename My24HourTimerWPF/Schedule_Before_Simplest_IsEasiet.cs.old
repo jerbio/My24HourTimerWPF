@@ -641,7 +641,7 @@ namespace My24HourTimerWPF
                 if (MyBusySlot.doesTimeLineInterfere(MyPotentialCalendarEvent.EventTimeLine))
                 {
                     StatusOfCollision[0] = true;
-                    if (AllEventDictionary[(new EventID(MyBusySlot.TimeLineID)).getLevelID(0)].Rigid)
+                    if (AllEventDictionary[(new EventID(MyBusySlot.TimeLineID)).getCalendarEventComponent()].Rigid)
                     {
                         StatusOfCollision[1] = true;
                     }
@@ -746,10 +746,10 @@ namespace My24HourTimerWPF
                         //CompleteSchedule.OccupiedSlots = TimeLineAndCalendarUpdated.Value.OccupiedSlots;//hack need to review architecture to avoid this assignment
                         if (MyCalendarEventUpdated != null)
                         {
-                            string MyEventParentID = (new EventID(MyEvent.ID)).getLevelID(0);
+                            string MyEventParentID = (new EventID(MyEvent.ID)).getCalendarEventComponent();
                             foreach (BusyTimeLine MyBusyTimeLine in TimeLineAndCalendarUpdated.Value.OccupiedSlots)
                             {
-                                string ParentID = (new EventID(MyBusyTimeLine.TimeLineID)).getLevelID(0);
+                                string ParentID = (new EventID(MyBusyTimeLine.TimeLineID)).getCalendarEventComponent();
                                 if (ParentID != MyEventParentID)
                                 {
                                     SubCalendarEvent[] MyArrayOfSubCalendarEvents;
@@ -900,7 +900,7 @@ namespace My24HourTimerWPF
                         {
                             foreach (BusyTimeLine MyBusyTimeLine in CompleteSchedule.OccupiedSlots)
                             {
-                                string ParentID = (new EventID(MyBusyTimeLine.TimeLineID)).getLevelID(0);
+                                string ParentID = (new EventID(MyBusyTimeLine.TimeLineID)).getCalendarEventComponent();
                                 SubCalendarEvent[] MyArrayOfSubCalendarEvents = AllEventDictionary[ParentID].AllEvents;
                                 for (i = 0; i < MyArrayOfSubCalendarEvents.Length; i++)
                                 {
@@ -962,7 +962,7 @@ namespace My24HourTimerWPF
             for (; i < ListOfInterferringElements.Count; i++)
             {
                 EventID MyEventID = new EventID(ListOfInterferringElements[i].ID);
-                string ParentID = MyEventID.getLevelID(0);//This gets the parentID of the SubCalendarEventID
+                string ParentID = MyEventID.getCalendarEventComponent();//This gets the parentID of the SubCalendarEventID
 
                 //try//Try bock attempts to create new dictionary entry for Calendar event. Else it simply adds an element to the list created by the error
                 {
@@ -1248,7 +1248,7 @@ namespace My24HourTimerWPF
                 foreach (BusyTimeLine MyBusyPeriod in MyTimeLine.OccupiedSlots)
                 {
                     EventID MyEventID = new EventID(MyBusyPeriod.TimeLineID);
-                    string ParentCalendarEventID = MyEventID.getLevelID(0);
+                    string ParentCalendarEventID = MyEventID.getCalendarEventComponent();
                     if (MyEventCopy.ID == ParentCalendarEventID)
                     {
 
@@ -1319,8 +1319,8 @@ namespace My24HourTimerWPF
         string BuildStringIndexForMatch(BusyTimeLine PrecedingTimeLineEvent, BusyTimeLine NextTimeLineEvent)
         {
             EventID MyEventID = new EventID(PrecedingTimeLineEvent.TimeLineID);
-            int PrecedingCalendarEventID = Convert.ToInt16(MyEventID.getLevelID(0));
-            int NextCalendarEventID = Convert.ToInt16(new EventID(NextTimeLineEvent.TimeLineID).getLevelID(0));
+            int PrecedingCalendarEventID = Convert.ToInt16(MyEventID.getCalendarEventComponent());
+            int NextCalendarEventID = Convert.ToInt16(new EventID(NextTimeLineEvent.TimeLineID).getCalendarEventComponent());
 
             if (PrecedingCalendarEventID == NextCalendarEventID)
             {
@@ -3965,15 +3965,15 @@ namespace My24HourTimerWPF
             foreach (SubCalendarEvent MySubCalendarEvent in ListOfSubCalendarEvents)
             { 
                 EventID MyEventID = new EventID( MySubCalendarEvent.ID);
-                if (ListOfCaleventIDAndListSubCalendarEvent.ContainsKey(MyEventID.getLevelID(0)))
+                if (ListOfCaleventIDAndListSubCalendarEvent.ContainsKey(MyEventID.getCalendarEventComponent()))
                 {
-                    ListOfCaleventIDAndListSubCalendarEvent[MyEventID.getLevelID(0)].Add(MySubCalendarEvent);
+                    ListOfCaleventIDAndListSubCalendarEvent[MyEventID.getCalendarEventComponent()].Add(MySubCalendarEvent);
                 }
                 else
                 {
-                    ListOfCaleventIDAndListSubCalendarEvent.Add(MyEventID.getLevelID(0),new System.Collections.Generic.List<SubCalendarEvent>());
-                    ListOfCaleventIDAndListSubCalendarEvent[MyEventID.getLevelID(0)].Add(MySubCalendarEvent);
-                    DictCalendarEventID_Ini.Add(MyEventID.getLevelID(0),0);
+                    ListOfCaleventIDAndListSubCalendarEvent.Add(MyEventID.getCalendarEventComponent(),new System.Collections.Generic.List<SubCalendarEvent>());
+                    ListOfCaleventIDAndListSubCalendarEvent[MyEventID.getCalendarEventComponent()].Add(MySubCalendarEvent);
+                    DictCalendarEventID_Ini.Add(MyEventID.getCalendarEventComponent(),0);
                 }
             }
 
@@ -3986,7 +3986,7 @@ namespace My24HourTimerWPF
                 DictCalendarEventID_Index = new System.Collections.Generic.Dictionary<string,int>(DictCalendarEventID_Ini);
                 foreach (TimeSpanWithID MyTimeSpanWithID in MyListOfTimeSpanWithID)
                 {
-                    string ID=MyTimeSpanWithID.TimeSpanID.getLevelID(0);
+                    string ID=MyTimeSpanWithID.TimeSpanID.getCalendarEventComponent();
                     Index = DictCalendarEventID_Index[ID];
                     MyListOfSubCalendarEvent.Add(ListOfCaleventIDAndListSubCalendarEvent[ID][Index]);
                     ++Index;
@@ -4091,7 +4091,7 @@ namespace My24HourTimerWPF
             for (; i < SortedByStartArrayOfBusyTimeLine.Length; i++)
             {
                 EventID MyEventID = new EventID(SortedByStartArrayOfBusyTimeLine[i].TimeLineID);
-                string ParentCalendarEventID = MyEventID.getLevelID(0);
+                string ParentCalendarEventID = MyEventID.getCalendarEventComponent();
 
                 if ((MyRange.Start < SortedByStartArrayOfBusyTimeLine[i].Start) && (MyRange.End > SortedByStartArrayOfBusyTimeLine[i].End))//checks if Calendar Event Starts starts before range and ends after range
                 {
@@ -4148,7 +4148,7 @@ namespace My24HourTimerWPF
             for (; i < SortedByStartArrayOfBusyTimeLine.Length; i++)
             {
                 EventID MyEventID = new EventID(SortedByStartArrayOfBusyTimeLine[i].TimeLineID);
-                string ParentCalendarEventID = MyEventID.getLevelID(0);
+                string ParentCalendarEventID = MyEventID.getCalendarEventComponent();
 
                 if ((AllEventDictionary[ParentCalendarEventID].Start < MyRange.Start) && (AllEventDictionary[ParentCalendarEventID].End > MyRange.End))//checks if Calendar Event Starts starts before range and ends after range
                 {
@@ -4206,7 +4206,7 @@ namespace My24HourTimerWPF
             for (; i < SortedByStartArrayOfBusyTimeLine.Length; i++)
             {
                 EventID MyEventID = new EventID(SortedByStartArrayOfBusyTimeLine[i].TimeLineID);
-                string ParentCalendarEventID = MyEventID.getLevelID(0);
+                string ParentCalendarEventID = MyEventID.getCalendarEventComponent();
 
                 if ((AllEventDictionary[ParentCalendarEventID].Start < MyRange.Start) && (AllEventDictionary[ParentCalendarEventID].End > MyRange.End))//checks if Calendar Event Starts starts before range and ends after range
                 {

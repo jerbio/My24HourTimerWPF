@@ -142,9 +142,9 @@ namespace My24HourTimerWPF
         {
             double retValue = 0;
 
-            List<string> AllIds = allSubCalEvents.Select(obj => obj.SubEvent_ID.getLevelID(0)).ToList();
+            List<string> AllIds = allSubCalEvents.Select(obj => obj.SubEvent_ID.getCalendarEventComponent()).ToList();
             List<string> Allkeys = DistanceMatrix.Keys.ToList();
-            string iIndex = MySubEvents.SubEvent_ID.getLevelID(0);
+            string iIndex = MySubEvents.SubEvent_ID.getCalendarEventComponent();
             int i = 0;
             
             while (i < allSubCalEvents.Count)
@@ -228,8 +228,8 @@ namespace My24HourTimerWPF
             string s = "";
             s += "Best path found: ";
             for (int i = 0; i < this.bestMemoryMatrix.Length - 1; ++i)
-                s += this.bestMemoryMatrix[i].SubEvent_ID.getLevelID(0) + "->";
-            s += this.bestMemoryMatrix[this.bestMemoryMatrix.Length - 1].SubEvent_ID.getLevelID(0) + "\n";
+                s += this.bestMemoryMatrix[i].SubEvent_ID.getCalendarEventComponent() + "->";
+            s += this.bestMemoryMatrix[this.bestMemoryMatrix.Length - 1].SubEvent_ID.getCalendarEventComponent() + "\n";
 
             s += "Path quality:    ";
             if (bestMeasureOfQuality < 10000.0)
@@ -307,15 +307,15 @@ namespace My24HourTimerWPF
 
             for (int j = 0; j < this.citiesData.cities.Length; j++)
             {
-                if (DictCities.ContainsKey(this.citiesData.cities[j].SubEvent_ID.getLevelID(0)))
+                if (DictCities.ContainsKey(this.citiesData.cities[j].SubEvent_ID.getCalendarEventComponent()))
                 {
-                    //++DictCount[this.citiesData.cities[j].SubEvent_ID.getLevelID(0)];
-                    DictCities[this.citiesData.cities[j].SubEvent_ID.getLevelID(0)].Add(this.citiesData.cities[j]);
+                    //++DictCount[this.citiesData.cities[j].SubEvent_ID.getCalendarEventComponent()];
+                    DictCities[this.citiesData.cities[j].SubEvent_ID.getCalendarEventComponent()].Add(this.citiesData.cities[j]);
                 }
                 else
                 {
-                    //DictCount.Add(this.citiesData.cities[j].SubEvent_ID.getLevelID(0), 1);
-                    DictCities.Add(this.citiesData.cities[j].SubEvent_ID.getLevelID(0), new List<SubCalendarEvent>() { this.citiesData.cities[j] });
+                    //DictCount.Add(this.citiesData.cities[j].SubEvent_ID.getCalendarEventComponent(), 1);
+                    DictCities.Add(this.citiesData.cities[j].SubEvent_ID.getCalendarEventComponent(), new List<SubCalendarEvent>() { this.citiesData.cities[j] });
                 }
             }
 
@@ -327,7 +327,7 @@ namespace My24HourTimerWPF
                 case 1://must Beginning with City
                     {
                         result[0] = this.citiesData.cities[0];
-                        string ConcernedIndex = result[0].SubEvent_ID.getLevelID(0);
+                        string ConcernedIndex = result[0].SubEvent_ID.getCalendarEventComponent();
                         DictCities[ConcernedIndex].Remove(result[0]);
                         if (DictCities[ConcernedIndex].Count < 1)
                         {
@@ -339,7 +339,7 @@ namespace My24HourTimerWPF
                 case 2://must End with City
                     {
                         result[this.citiesData.cities.Length - 1] = this.citiesData.cities[this.citiesData.cities.Length - 1];
-                        string ConcernedIndex = result[this.citiesData.cities.Length - 1].SubEvent_ID.getLevelID(0);
+                        string ConcernedIndex = result[this.citiesData.cities.Length - 1].SubEvent_ID.getCalendarEventComponent();
                         DictCities[ConcernedIndex].Remove(result[this.citiesData.cities.Length - 1]);
                         if (DictCities[ConcernedIndex].Count < 1)
                         {
@@ -355,13 +355,13 @@ namespace My24HourTimerWPF
                         result[this.citiesData.cities.Length - 1] = this.citiesData.cities[this.citiesData.cities.Length - 1];
                         MaxResultIndex-=1;
 
-                        string ConcernedIndex=result[0].SubEvent_ID.getLevelID(0);
+                        string ConcernedIndex=result[0].SubEvent_ID.getCalendarEventComponent();
                         DictCities[ConcernedIndex].Remove(result[0]);
                         if (DictCities[ConcernedIndex].Count < 1)
                         {
                             DictCities.Remove(ConcernedIndex);
                         }
-                        ConcernedIndex = result[this.citiesData.cities.Length - 1].SubEvent_ID.getLevelID(0);
+                        ConcernedIndex = result[this.citiesData.cities.Length - 1].SubEvent_ID.getCalendarEventComponent();
                         DictCities[ConcernedIndex].Remove(result[this.citiesData.cities.Length - 1]);
                         if (DictCities[ConcernedIndex].Count < 1)
                         {
@@ -658,18 +658,18 @@ namespace My24HourTimerWPF
             int j = 0;
             foreach (SubCalendarEvent eachSubCalendarEvent in MyLocations)
             {
-                if (!this.DistanceMatrix.ContainsKey(eachSubCalendarEvent.SubEvent_ID.getLevelID(0)))
+                if (!this.DistanceMatrix.ContainsKey(eachSubCalendarEvent.SubEvent_ID.getCalendarEventComponent()))
                 {
-                    this.DistanceMatrix.Add(eachSubCalendarEvent.SubEvent_ID.getLevelID(0), new List<double>());
+                    this.DistanceMatrix.Add(eachSubCalendarEvent.SubEvent_ID.getCalendarEventComponent(), new List<double>());
                     //rizontal = DistanceMatrix.Keys.ToList();
                     foreach (SubCalendarEvent eachSubCalendarEvent0 in MyLocations)
                     {
                         double MyDistance = Location_Elements.calculateDistance(eachSubCalendarEvent.myLocation, eachSubCalendarEvent0.myLocation);
-                        if (eachSubCalendarEvent0.SubEvent_ID.getLevelID(0) == eachSubCalendarEvent.SubEvent_ID.getLevelID(0))
+                        if (eachSubCalendarEvent0.SubEvent_ID.getCalendarEventComponent() == eachSubCalendarEvent.SubEvent_ID.getCalendarEventComponent())
                         {
                             MyDistance = double.MaxValue / MyLocations.Count;
                         }
-                        this.DistanceMatrix[eachSubCalendarEvent.SubEvent_ID.getLevelID(0)].Add(MyDistance);
+                        this.DistanceMatrix[eachSubCalendarEvent.SubEvent_ID.getCalendarEventComponent()].Add(MyDistance);
                     }
                 }
 
@@ -679,7 +679,7 @@ namespace My24HourTimerWPF
         }
         public double Distance(SubCalendarEvent firstCity, SubCalendarEvent secondCity)
         {
-            return DistanceMatrix[firstCity.SubEvent_ID.getLevelID(0)][Horizontal.IndexOf(secondCity.SubEvent_ID.getLevelID(0))];
+            return DistanceMatrix[firstCity.SubEvent_ID.getCalendarEventComponent()][Horizontal.IndexOf(secondCity.SubEvent_ID.getCalendarEventComponent())];
         }
         public double ShortestPathLength()
         {
@@ -699,7 +699,7 @@ namespace My24HourTimerWPF
             string s = "";
             s += "Cities: ";
             for (int i = 0; i < this.cities.Length; ++i)
-                s += this.cities[i].SubEvent_ID.getLevelID(0) + " ";
+                s += this.cities[i].SubEvent_ID.getCalendarEventComponent() + " ";
             return s;
         }
     } 
@@ -714,7 +714,7 @@ namespace My24HourTimerWPF
             {
                 Name = name;
                 Event = MyEvent;
-                ID = MyEvent.SubEvent_ID.getStringIDAtLevel(0);
+                ID = MyEvent.SubEvent_ID.getIDUpToCalendarEvent();
             }
             
             public double Distance(Coordinate p,int Divider)

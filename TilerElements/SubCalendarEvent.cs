@@ -527,6 +527,12 @@ namespace TilerElements
              return retValue;
          }
 
+        static public bool isConflicting(SubCalendarEvent firstEvent, SubCalendarEvent secondEvent)
+        {
+            bool retValue = firstEvent.RangeTimeLine.InterferringTimeLine(secondEvent.RangeTimeLine) != null;
+            return retValue;
+        }
+
          public bool canExistTowardsStartWithoutSpace(TimeLine PossibleTimeLine)
          {
              TimeLine ParentCalRange = getCalendarEventRange;

@@ -240,6 +240,35 @@ namespace TilerElements
         }
 
 
+
+
+
+
+        public string getCalendarEventID()
+        {
+            string retValue = getIDUpToCalendarEvent() + "_7_0_0";
+            return retValue;
+        }
+
+        public string getRepeatCalendarEventID()
+        {
+            string retValue = getIDUpToRepeatCalendarEvent() + "_0";
+            return retValue;
+        }
+
+        public string getRepeatDayCalendarEventID()
+        {
+            string retValue = getIDUpToRepeatDayCalendarEvent() + "_0_0";
+            return retValue;
+        }
+
+        public string getSubCalendarEventID()
+        {
+            string retValue = getIDUpToSubCalendarEvent();
+            return retValue;
+        }
+
+
         
 
 

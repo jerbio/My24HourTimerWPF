@@ -2288,9 +2288,10 @@ namespace My24HourTimerWPF
             List<SubCalendarEvent> AllInterferringSubEvents_Cpy = AllInterferringSubEvents.ToList();
 
             
+            
             HashSet<SubCalendarEvent> AllInterferringSubEvents_Cpy_Hash = new HashSet<SubCalendarEvent>(AllInterferringSubEvents_Cpy);
             AllInterferringSubEvents_Cpy = AllInterferringSubEvents_Cpy_Hash.ToList();
-            
+            Dictionary<string, SubCalendarEvent> AllEvents_Dict=AllInterferringSubEvents_Cpy_Hash.ToDictionary(obj=>obj.ID,obj=>obj);
 
             Dictionary<TimeLine, List<SubCalendarEvent>> Dict_ConstrainedElements = generateConstrainedList(JustFreeSpots.ToList(), AllInterferringSubEvents_Cpy);
             Dict_ConstrainedElements = stitchRestrictedSubCalendarEvent(JustFreeSpots.ToList(), Dict_ConstrainedElements);
@@ -2346,6 +2347,7 @@ namespace My24HourTimerWPF
                 }
 
                 List<SubCalendarEvent> reassignedElements= stitchUnRestrictedSubCalendarEvent(JustFreeSpots[i], COnstrainedElementsForTimeLine, AllInterferringSubEvents_Cpy.ToList());
+                reassignedElements.AsParallel().ForAll(obj => obj.Conflicts.UpdateConflictFlag(false));
                 foreach (SubCalendarEvent eachSubCalendarEvent in reassignedElements)
                 {
                     AllReassignedElements.Add(eachSubCalendarEvent.ID, eachSubCalendarEvent);
@@ -2385,7 +2387,7 @@ namespace My24HourTimerWPF
             AllInterferringSubEvents_Cpy_Hash.AsParallel().ForAll(obj => obj.Conflicts.UpdateConflictFlag(true));
             List<SubCalendarEvent> allCOnflictingEvents = AllInterferringSubEvents_Cpy_Hash.Where(obj => obj.Conflicts.isConflicting()).ToList();
             
-            
+            ///*
             List<SubCalendarEvent> toBemovedNewtwentyfourEvents = FirstTwentyFourHours.Select(obj => obj.Item1).ToList();
 
             DateTime newEndTime = Now.calculationNow.AddDays(1);
@@ -2559,6 +2561,8 @@ namespace My24HourTimerWPF
             return refreshedeventsForthisTImeline;
         }
 
+        
+
         void CreateBufferForEachEvent(List<SubCalendarEvent> AllEvents, TimeLine restrictingTimeline)
         {
             if (AllEvents.Count < 1)
@@ -2576,11 +2580,24 @@ namespace My24HourTimerWPF
 
             AllEvents = allEventshash.ToList();
             List<SubCalendarEvent> justThemRigids = AllEvents.Where(obj => obj.Rigid).ToList();
-            TimeSpan bufferPerMile = new TimeSpan(0, 12, 0);
-            if (!Utility.PinSubEventsToEnd(AllEvents, restrictingTimeline))
+
+            TimeLine myTimeLines = new TimeLine(restrictingTimeline.Start, restrictingTimeline.End);
+            List<SubCalendarEvent> allEvents_reversed=AllEvents.ToList();
+            allEvents_reversed.Reverse();
+            foreach (SubCalendarEvent eachSubCalendarEvent in allEvents_reversed)
             {
-                throw new Exception("Invalid list used in CreateBufferForEachEvent");//hack alert we need to involve conflicting events
+                bool pinSuccess=eachSubCalendarEvent.PinToEnd(myTimeLines);
+                myTimeLines = new TimeLine(restrictingTimeline.Start, eachSubCalendarEvent.Start);
+                if (!pinSuccess && !eachSubCalendarEvent.Rigid)
+                {
+                    throw new Exception("Invalid list used in CreateBufferForEachEvent");//hack alert we need to involve conflicting events
+                }
+
             }
+            
+
+            TimeSpan bufferPerMile = new TimeSpan(0, 12, 0);
+            
             Dictionary<Tuple<SubCalendarEvent, SubCalendarEvent>, double> beforeAfterDistance = new Dictionary<Tuple<SubCalendarEvent, SubCalendarEvent>, double>();
             Dictionary<SubCalendarEvent, mTuple<DateTime, DateTime>> beforeFailing = new Dictionary<SubCalendarEvent, mTuple<DateTime, DateTime>>();
             
@@ -2588,10 +2605,12 @@ namespace My24HourTimerWPF
             int j=0;
             TimeLine referencePinningTImeline = new TimeLine(restrictingTimeline.Start, restrictingTimeline.End);
             SubCalendarEvent firstEvent = AllEvents[0];
-            if (!firstEvent.PinToStart(referencePinningTImeline))
+            if (!firstEvent.PinToStart(referencePinningTImeline) && !firstEvent.Rigid)
             {
                 throw new Exception("this is a weird bug to have in CreateBufferForEachEvent");
             }
+
+
             for (int i = 0; i < AllEvents.Count - 1; i++)
             {
                 j = i + 1;

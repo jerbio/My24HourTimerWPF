@@ -56,7 +56,7 @@ namespace TilerElements
         public void LoadConflictingIDs(IEnumerable<string> EventIDs)
         {
             string []myArrayOfStrings=EventIDs.ToArray();
-            ConflictFlag = false;
+            //ConflictFlag = false;
             int i=0;
             for (; i < myArrayOfStrings.Length;i++ )
             {

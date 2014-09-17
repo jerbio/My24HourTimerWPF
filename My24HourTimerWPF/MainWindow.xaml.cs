@@ -487,10 +487,10 @@ namespace My24HourTimerWPF
                 eventName += "," + LocationString;
             }*/
 
-            
-            
-            
-            DateTime CurrentTimeOfExecution =DateTime.Now;
+
+
+
+            DateTime CurrentTimeOfExecution = Schedule.Now.calculationNow;
             string eventStartTime = textBox5.Text;
             string locationInformation = textBox8.Text;
             DateTime eventStartDate = (DateTime)datePicker1.SelectedDate.Value;
@@ -1185,18 +1185,18 @@ namespace My24HourTimerWPF
             //Tiler.LogControl.UpdateLogLocation(LogLocation);
             UserAccount currentUser = new UserAccount(UserNameTextBox.Text, PasswordTextBox.Text);
             DateTime refNow=DateTime.Now;
-            refNow = DateTime.Parse("9/11/2014 10:57 PM");
+            refNow = DateTime.Parse("9/16/2014 3:45 PM");
             MySchedule = new Schedule(currentUser, refNow);
             
             if (MySchedule.isScheduleLoadSuccessful)
             {
                 
                 tabItem2.IsEnabled = true;
-                datePicker1.SelectedDate = Schedule.Now.calculationNow.AddDays(0);// DateTime.Now.AddDays(0);
+                datePicker1.SelectedDate = Schedule.Now.calculationNow.AddDays(1);// DateTime.Now.AddDays(0);
                 //datePicker1.SelectedDate = DateTime.Now.AddDays(0);
                 //datePicker1.SelectedDate = new DateTime(2013, 11, 20, 0, 0, 0);
                 //datePicker2.SelectedDate = DateTime.Now.AddDays(2);
-                datePicker2.SelectedDate = Schedule.Now.calculationNow.AddDays(0);//new DateTime(2014, 5, 15, 0, 0, 0);
+                datePicker2.SelectedDate = Schedule.Now.calculationNow.AddDays(1);//new DateTime(2014, 5, 15, 0, 0, 0);
                 calendar4.SelectedDate = DateTime.Now.AddDays(0);
                 Random myNumber = new Random();
                 int RandomHour = myNumber.Next(0, 24);
@@ -1206,7 +1206,7 @@ namespace My24HourTimerWPF
                 textBox4.Text = 0+ ":" + "15" + ":" + "00";//total time
                 textBox2.Text = 1.ToString();//number of splits
                 int ProcrastinateStartDay = 0;
-                int ProcrastinateEndDay = 365;
+                int ProcrastinateEndDay = 365; 
                 int ProcrastinateStartHour = 0;
                 int ProcrastinateEndHour = 24;
                 int ProcrastinateStartMin = 0;
@@ -1254,7 +1254,7 @@ namespace My24HourTimerWPF
         {
             //Register(string FirstName, string LastName, string NickName, string UserName, string PassWord)
             UserAccount newUser = new UserAccount();
-            if (!newUser.Register(FirstNameRegisterTextBox.Text, LastNameRegisterTextBox.Text, NickNameRegisterTextBox.Text, UserNameRegisterTextBox.Text, PasswordRegisterTextBox.Text).Status)
+            if (!newUser.Register(FirstNameRegisterTextBox.Text, LastNameRegisterTextBox.Text, NickNameRegisterTextBox.Text, UserNameRegisterTextBox.Text, PasswordRegisterTextBox.Text).Item2.Status)
             {
                 UserNameTextBox.Text = UserNameRegisterTextBox.Text;
                 PasswordTextBox.Text = PasswordRegisterTextBox.Text;

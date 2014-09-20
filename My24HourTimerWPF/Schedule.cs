@@ -2572,6 +2572,10 @@ namespace My24HourTimerWPF
             
 
             AllEvents = AllEvents.Where(obj => !obj.Conflicts.isConflicting()).ToList();//removes conflicting events from buffering options
+            if (AllEvents.Count < 1)
+            {
+                return;
+            }
             HashSet<SubCalendarEvent> allEventshash = new HashSet<SubCalendarEvent>();
             foreach(SubCalendarEvent eachSubcalendarEvent in AllEvents)
             {
@@ -2700,7 +2704,7 @@ namespace My24HourTimerWPF
 
 
                 DateTime newEndTime = refTImeLine.End;
-                if (pertinentSubCalEvents.Count() > 0)
+                if (pertinentSubCalEvents.Where(obj => !obj.Conflicts.isConflicting()).Count() > 0)
                 {
                     SubCalendarEvent LastEvent = pertinentSubCalEvents.Where(obj=>!obj.Conflicts.isConflicting()).Last();
                     if (newEndTime < LastEvent.End)

@@ -2407,11 +2407,11 @@ namespace My24HourTimerWPF
             currentTwentyFourHourTImeline = new TimeLine(Now.calculationNow, newEndTime);//update the timeline with  newendtime just in case there is an extension
             CurrentTwentyFourHourCOnstituents=CurrentTwentyFourHourCOnstituents.Where(obj=>!obj.Conflicts.isConflicting()) .OrderBy(obj=>obj.Start).ToList();//removes conflicting events and orders them
 
-            toBemovedNewtwentyfourEvents = toBemovedNewtwentyfourEvents.Where(obj => !CurrentTwentyFourHourCOnstituents.Contains(obj)).ToList();
+            //toBemovedNewtwentyfourEvents = toBemovedNewtwentyfourEvents.Where(obj => !CurrentTwentyFourHourCOnstituents.Contains(obj)).ToList();
             bool PinSuccess= Utility.PinSubEventsToStart(CurrentTwentyFourHourCOnstituents, currentTwentyFourHourTImeline);
 
             ///*
-            List<SubCalendarEvent> movedOverEvents= preserveTwentyFourHours(currentTwentyFourHourTImeline, CurrentTwentyFourHourCOnstituents,toBemovedNewtwentyfourEvents);
+            List<SubCalendarEvent> movedOverEvents = PreserveFirstTwentyFourHours(CurrentTwentyFourHourCOnstituents, toBemovedNewtwentyfourEvents, currentTwentyFourHourTImeline);
 
 
             OPtimizeNextSevenDays(new List<CalendarEvent>(){ToBeFittedTimeLine});
@@ -2451,7 +2451,6 @@ namespace My24HourTimerWPF
 
         List<TimeLine> reorderFreeSpotBasedOnTimeSpanAndEndtime(IEnumerable<TimeLine> AllTImeLines)
         {
-
             Dictionary<TimeSpan, List<TimeLine>> TImespanTOEvents = new Dictionary<TimeSpan, List<TimeLine>>();
             IList<KeyValuePair<TimeSpan, List<TimeLine>>> TImespanTOEvents_list;
             foreach (TimeLine eachTimeLine in AllTImeLines)
@@ -2476,7 +2475,111 @@ namespace My24HourTimerWPF
             return retValue;
         }
 
-        List<SubCalendarEvent> preserveTwentyFourHours(TimeLine myDay,List<SubCalendarEvent> currentConstituents , List<SubCalendarEvent> CanExistWInthinTImeLine_DoesNotIncludeCurrentConstituents, double averageOccupancy = 1)
+
+        List<SubCalendarEvent> PreserveFirstTwentyFourHours(List<SubCalendarEvent> CurrentConstituents, List<SubCalendarEvent>OrderedPreviousTwentyFOurHours, TimeLine refTImeLine)
+        {
+            List<SubCalendarEvent> CurrentConstituents_ini = CurrentConstituents.ToList();
+            List<SubCalendarEvent> OrderedPreviousTwentyFOurHours_ini = OrderedPreviousTwentyFOurHours.ToList();
+            HashSet<SubCalendarEvent> AllEvents = new HashSet<SubCalendarEvent>(CurrentConstituents_ini.Concat(OrderedPreviousTwentyFOurHours_ini));
+            CurrentConstituents = CurrentConstituents.ToList();
+            refTImeLine = refTImeLine.CreateCopy();
+            TimeLine refTImeLine_Ini = refTImeLine.CreateCopy();
+
+            OrderedPreviousTwentyFOurHours = OrderedPreviousTwentyFOurHours.Distinct().ToList();
+
+            List<SubCalendarEvent> AlreadyInCurrentConstituents = CurrentConstituents.Intersect(OrderedPreviousTwentyFOurHours).ToList();
+
+            List<SubCalendarEvent> AlreadyInCurrentConstituents_ini = AlreadyInCurrentConstituents.ToList();
+            //HashSet<SubCalendarEvent> AllreadyInConstituents_Hash = new HashSet<SubCalendarEvent>(AlreadyInCurrentConstituents_ini);
+            HashSet<SubCalendarEvent> OrderedPreviousTwentyFOurHours_Hash = new HashSet<SubCalendarEvent>(OrderedPreviousTwentyFOurHours);
+            HashSet<SubCalendarEvent> AllreadyInConstituents_HashOrdered = new HashSet<SubCalendarEvent>();
+            
+            foreach (SubCalendarEvent eachSubcalendarEvent in OrderedPreviousTwentyFOurHours)
+            {
+                if (OrderedPreviousTwentyFOurHours_Hash.Contains(eachSubcalendarEvent))
+                {
+                    AllreadyInConstituents_HashOrdered.Add(eachSubcalendarEvent);
+                }
+            }
+
+            AlreadyInCurrentConstituents=AlreadyInCurrentConstituents.OrderBy(obj => obj.End).ToList();
+            HashSet<SubCalendarEvent> CurrentConstituents_hash = new HashSet<SubCalendarEvent>(CurrentConstituents);
+            if (!Utility.PinSubEventsToEnd(CurrentConstituents, refTImeLine_Ini))
+            {
+                throw new Exception("Theres an issue with preserving the first twenty four. Check pin to start 1");
+            }
+            List<SubCalendarEvent> newlyArranged = new List<SubCalendarEvent>();
+            List<SubCalendarEvent> restrictedElements = new List<SubCalendarEvent>();
+            HashSet <SubCalendarEvent> restrictedElements_Updated = new HashSet<SubCalendarEvent>(CurrentConstituents_hash);//restricted elements for next call of stitchunrestricted
+            List<SubCalendarEvent> possibleElements = new List<SubCalendarEvent>();
+            TimeLine IterarionrefTimeLine = refTImeLine.CreateCopy();
+
+            List<SubCalendarEvent> retValue = restrictedElements_Updated.OrderBy(obj => obj.End).ToList();
+            Dictionary<SubCalendarEvent, DateTime> preservedStartTime = new Dictionary<SubCalendarEvent, DateTime>();
+            foreach (SubCalendarEvent eachSubCalendarEvent in OrderedPreviousTwentyFOurHours_Hash)
+            {
+                possibleElements.Clear();
+                preservedStartTime = AllEvents.ToDictionary(obj => obj, obj => obj.Start);
+                IterarionrefTimeLine=refTImeLine_Ini.CreateCopy();
+                restrictedElements = restrictedElements_Updated.ToList();
+                DateTime iterationEndTime = refTImeLine_Ini.End;
+                if (!Utility.PinSubEventsToEnd(restrictedElements_Updated.OrderBy(obj=>obj.End), refTImeLine_Ini))
+                {
+                    throw new Exception("Theres an issue with preserving the first twenty four. Check pin to end 1");
+                }
+
+                if (AllreadyInConstituents_HashOrdered.Remove(eachSubCalendarEvent))
+                {
+                    IterarionrefTimeLine = refTImeLine.CreateCopy();
+                    restrictedElements = restrictedElements_Updated.OrderBy(obj => obj.End).ToList();
+                    restrictedElements.Remove(eachSubCalendarEvent);//removing from restricted list so that it is not part of restricted element in call to stitcunrestricted. If included It will not be allowedd to move to the possble earlier position.
+
+                    if (AllreadyInConstituents_HashOrdered.Count > 0)
+                    {
+                        List<SubCalendarEvent> myrestrictedElements_Updated=restrictedElements_Updated.OrderBy(obj => obj.End).ToList();
+                        myrestrictedElements_Updated.Remove(eachSubCalendarEvent);
+                        Utility.PinSubEventsToEnd(myrestrictedElements_Updated, IterarionrefTimeLine);
+                        iterationEndTime = AllreadyInConstituents_HashOrdered.First().Start;
+                        IterarionrefTimeLine = new TimeLine(IterarionrefTimeLine.Start, iterationEndTime);//if there is already an element from the ordered 24, let it's start time be the end time for the ref timeline in stitch unrestricted. This ensures that elements preserve their order in the calculation.
+                        restrictedElements = getInterferringSubEvents(IterarionrefTimeLine, myrestrictedElements_Updated).ToList();
+                    }
+                    
+                    
+                    possibleElements = restrictedElements.ToList();
+                    possibleElements.Add(eachSubCalendarEvent);
+                }
+                else 
+                {
+                    if (AllreadyInConstituents_HashOrdered.Count > 0)
+                    {
+                        iterationEndTime = AllreadyInConstituents_HashOrdered.First().Start;
+                        IterarionrefTimeLine = new TimeLine(IterarionrefTimeLine.Start, iterationEndTime);//if there is already an element from the ordered 24, let it's start time be the end time for the ref timeline in stitch unrestricted. This ensures that elements preserve their order in the calculation.
+                        restrictedElements = getInterferringSubEvents(IterarionrefTimeLine, restrictedElements_Updated).ToList();
+                    }
+                    possibleElements = restrictedElements.ToList();
+                    possibleElements.Add(eachSubCalendarEvent);
+                }
+                Utility.PinSubEventsToEnd(restrictedElements,IterarionrefTimeLine);
+
+                List<SubCalendarEvent> reassignedElements = StitchUnrestricted(IterarionrefTimeLine, restrictedElements, possibleElements);
+                if (reassignedElements.Count > restrictedElements.Count)
+                {
+                    restrictedElements_Updated.Add(eachSubCalendarEvent);
+                }
+                else 
+                {
+                    preservedStartTime.AsParallel().ForAll(obj =>
+                    {
+                        obj.Key.shiftEvent((obj.Key.Start - obj.Value));//if there are no new additions send all events to initial positions
+                    });
+                }
+                retValue = restrictedElements_Updated.OrderBy(obj => obj.End).ToList();
+            }
+            return restrictedElements_Updated.OrderBy(obj=>obj.End).ToList();
+        }
+
+
+        List<SubCalendarEvent> OptimizeTwentyFourHours(TimeLine myDay,List<SubCalendarEvent> currentConstituents , List<SubCalendarEvent> CanExistWInthinTImeLine_DoesNotIncludeCurrentConstituents, double averageOccupancy = 1)
         {
             
             List<SubCalendarEvent> rigidEventsWithinCurrentDay = new List<SubCalendarEvent>();
@@ -2719,7 +2822,7 @@ namespace My24HourTimerWPF
 
                 List<SubCalendarEvent> nonWithCurrentCOnstituents = CanExsitWithinNextSevenDays.ToList();
                 nonWithCurrentCOnstituents.RemoveAll(obj => pertinentSubCalEvents.Contains(obj));
-                List<SubCalendarEvent> newlyassignedElements = preserveTwentyFourHours(refTImeLine.CreateCopy(), pertinentSubCalEvents.ToList(), nonWithCurrentCOnstituents, averageOccupancy);
+                List<SubCalendarEvent> newlyassignedElements = OptimizeTwentyFourHours(refTImeLine.CreateCopy(), pertinentSubCalEvents.ToList(), nonWithCurrentCOnstituents, averageOccupancy);
                 CanExsitWithinNextSevenDays.RemoveAll(obj => newlyassignedElements.Contains(obj));
 
                 
@@ -3677,7 +3780,7 @@ namespace My24HourTimerWPF
         public List<SubCalendarEvent> StitchUnrestricted(TimeLine ReferenceTImeLine, List<SubCalendarEvent> orderedCOnstrictingevents, List<SubCalendarEvent> PossibleSubcalevents)
         {
             Dictionary<TimeSpan, Dictionary<string, mTuple<bool, SubCalendarEvent>>> PossibleEntries = new Dictionary<TimeSpan, Dictionary<string, mTuple<bool, SubCalendarEvent>>>();
-
+            PossibleSubcalevents = PossibleSubcalevents.Distinct().ToList();
 
             foreach (SubCalendarEvent eachmTuple in PossibleSubcalevents)
             {
@@ -4437,6 +4540,22 @@ namespace My24HourTimerWPF
                 TimeLineUpdated = null;
 
 
+
+                if (restrictedSnugFitAvailable[i].Item2.getCalendarEventRange.Start <= EarliestReferenceTIme)//this is to ensure the tightest configuration. If the restricted element calendarevent start range already preceedes the current start time then it can be appended immediately. because every other element is less restricted
+                {
+                    CompleteArranegement.Add(restrictedSnugFitAvailable[i].Item2);
+                    if (!Utility.PinSubEventsToStart(CompleteArranegement, FreeBoundary))
+                    {
+                        throw new Exception("theres a bug in stitchunrestricted when restricted overlapsstart range  ");
+                    }
+                    EarliestReferenceTIme = CompleteArranegement[CompleteArranegement.Count - 1].End;
+                    List<SubCalendarEvent> TempList = new List<SubCalendarEvent>() { restrictedSnugFitAvailable[i].Item2 };
+                    //ContinueTrestrictedSnugFitAvailableoForLoop = true;//forces the continuation of the for loop for (; i < restrictedSnugFitAvailable.Count; i++)
+                    //PreserveRestrictedIndex = false;
+                    continue;
+                }
+
+
                 if (a != restrictedSnugFitAvailable.Count)
                 {
                     ;
@@ -4482,19 +4601,7 @@ namespace My24HourTimerWPF
                         DateTime PertinentFreeSpotStart = EarliestReferenceTIme;
                         DateTime PertinentFreeSpotEnd;
 
-                        if (restrictedSnugFitAvailable[i].Item2.getCalendarEventRange.Start <= EarliestReferenceTIme)//this is to ensure the tightest configuration. If the restricted element calendarevent start range already preceedes the current start time then it can be appended immediately. because every other element is less restricted
-                        {
-                            CompleteArranegement.Add(restrictedSnugFitAvailable[i].Item2);
-                            if (!Utility.PinSubEventsToStart(CompleteArranegement, FreeBoundary))
-                            {
-                                throw new Exception("theres a bug in stitchunrestricted when restricted overlapsstart range  ");
-                            }
-                            EarliestReferenceTIme = CompleteArranegement[CompleteArranegement.Count - 1].End;
-                            List<SubCalendarEvent> TempList = new List<SubCalendarEvent>() { restrictedSnugFitAvailable[i].Item2 };
-                            ContinueTrestrictedSnugFitAvailableoForLoop = true;//forces the continuation of the for loop for (; i < restrictedSnugFitAvailable.Count; i++)
-                            PreserveRestrictedIndex = false;
-                            break;
-                        }
+                        
 
 
 

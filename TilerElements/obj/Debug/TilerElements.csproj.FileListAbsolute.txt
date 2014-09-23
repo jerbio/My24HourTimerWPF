@@ -1,4 +1,5 @@
 C:\Users\OluJerome\Documents\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\TilerElements.dll
 C:\Users\OluJerome\Documents\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\TilerElements.pdb
+C:\Users\OluJerome\Documents\WagTap\My24HourTimerWPF\TilerElements\obj\Debug\TilerElements.csprojResolveAssemblyReference.cache
 C:\Users\OluJerome\Documents\WagTap\My24HourTimerWPF\TilerElements\obj\Debug\TilerElements.dll
 C:\Users\OluJerome\Documents\WagTap\My24HourTimerWPF\TilerElements\obj\Debug\TilerElements.pdb

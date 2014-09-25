@@ -161,6 +161,14 @@ namespace TilerElements
             Rigid = false;
         }
 
+        public void DisableIfPastDeadline(DateTime CurrNow)
+        {
+            if (CalendarEventRange.End < CurrNow)
+            {
+                Disable();
+            }
+        }
+
         public bool IsDateTimeWithin(DateTime DateTimeEntry)
         {
             return RangeTimeLine.IsDateTimeWithin(DateTimeEntry);

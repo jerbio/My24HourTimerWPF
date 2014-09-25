@@ -1185,18 +1185,18 @@ namespace My24HourTimerWPF
             //Tiler.LogControl.UpdateLogLocation(LogLocation);
             UserAccount currentUser = new UserAccount(UserNameTextBox.Text, PasswordTextBox.Text);
             DateTime refNow=DateTime.Now;
-            refNow = DateTime.Parse("9/19/2014 5:39 AM");
+            refNow = DateTime.Parse("9/19/2014 5:45 AM");
             MySchedule = new Schedule(currentUser, refNow);
             
             if (MySchedule.isScheduleLoadSuccessful)
             {
                 
                 tabItem2.IsEnabled = true;
-                datePicker1.SelectedDate = Schedule.Now.calculationNow.AddDays(1);// DateTime.Now.AddDays(0);
+                datePicker1.SelectedDate = Schedule.Now.calculationNow.AddDays(0);// DateTime.Now.AddDays(0);
                 //datePicker1.SelectedDate = DateTime.Now.AddDays(0);
                 //datePicker1.SelectedDate = new DateTime(2013, 11, 20, 0, 0, 0);
                 //datePicker2.SelectedDate = DateTime.Now.AddDays(2);
-                datePicker2.SelectedDate = Schedule.Now.calculationNow.AddDays(1);//new DateTime(2014, 5, 15, 0, 0, 0);
+                datePicker2.SelectedDate = Schedule.Now.calculationNow.AddDays(0);//new DateTime(2014, 5, 15, 0, 0, 0);
                 calendar4.SelectedDate = DateTime.Now.AddDays(0);
                 Random myNumber = new Random();
                 int RandomHour = myNumber.Next(0, 24);

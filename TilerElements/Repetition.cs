@@ -183,7 +183,6 @@ namespace TilerElements
             EventID MyEventCalendarID = EventID.GenerateRepeatDayCalendarEvent(MyParentEvent.ID, WeekDay);
             CalendarEvent MyRepeatCalendarEvent = new CalendarEvent(MyEventCalendarID, MyParentEvent.Name, MyParentEvent.ActiveDuration, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.Preparation, MyParentEvent.PreDeadline, MyParentEvent.Rigid,repetitionData , MyParentEvent.Rigid ? 1 : MyParentEvent.NumberOfSplit, MyParentEvent.myLocation, MyParentEvent.isEnabled, MyParentEvent.UIParam, MyParentEvent.Notes, MyParentEvent.isComplete);
 
-            //continue from here Jerome. You need to bind with this repetition instance. you are not doing that so it never gets stored.
             this.PopulateRepetitionParameters(MyRepeatCalendarEvent);
         }
         DateTime IncreaseByFrequency(DateTime MyTime, string Frequency)

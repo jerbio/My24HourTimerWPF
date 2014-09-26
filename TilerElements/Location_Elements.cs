@@ -167,11 +167,11 @@ namespace TilerElements
             {
                 double xCoord = Locations.Average(obj => obj.xValue);
                 double yCoord = Locations.Average(obj => obj.yValue);
-                retValue = new Location_Elements(xCoord, yCoord);
+                retValue = new Location_Elements(xCoord, yCoord, -1);
             }
             else 
             {
-                retValue=new Location_Elements(0, 0);
+                retValue=new Location_Elements(0, 0,-1);
             }
 
             return retValue;

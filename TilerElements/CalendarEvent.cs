@@ -28,7 +28,7 @@ namespace TilerElements
         protected bool RigidSchedule;
         protected int Splits;
         protected TimeSpan TimePerSplit;
-        private EventID CalendarEventID;
+        protected EventID UniqueID;
         protected TimeLine EventSequence;
         Dictionary<EventID, SubCalendarEvent> SubEvents;
         
@@ -57,7 +57,7 @@ namespace TilerElements
             RigidSchedule = false;
             Splits = 1;
             LocationData = new Location_Elements();
-            CalendarEventID = new EventID("");
+            UniqueID = new EventID("");
             SubEvents = new Dictionary<EventID, SubCalendarEvent>();
             SchedulStatus = false;
             otherPartyID = "";
@@ -80,7 +80,7 @@ namespace TilerElements
             RigidSchedule = false;
             Splits = 1;
             LocationData = new Location_Elements();
-            CalendarEventID = new EventID("");
+            UniqueID = new EventID("");
             SubEvents = new Dictionary<EventID, SubCalendarEvent>();
             SchedulStatus = false;
             otherPartyID = "";
@@ -111,7 +111,7 @@ namespace TilerElements
             TimePerSplit = MyUpdated.TimePerSplit;
             if (MyUpdated.ID != null)
             {
-                CalendarEventID = new EventID(MyUpdated.ID);
+                UniqueID = new EventID(MyUpdated.ID);
             }
             Enabled = MyUpdated.isEnabled;
 
@@ -155,7 +155,7 @@ namespace TilerElements
             EventPreDeadline = Event_PreDeadline;
             RigidSchedule = EventRigidFlag;
             LocationData = EventLocation;
-            CalendarEventID = EventIDEntry;
+            UniqueID = EventIDEntry;
             UiParams = UiData;
             DataBlob = NoteData;
             Complete = CompletionFlag;
@@ -174,7 +174,7 @@ namespace TilerElements
             for (int i = 0; i < Splits; i++)
             {
                 //(TimeSpan Event_Duration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, Location EventLocation =null, TimeLine RangeOfSubCalEvent = null)
-                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(TimePerSplit, (EndDateTime - TimePerSplit), this.End, new TimeSpan(), CalendarEventID.ToString(), RigidSchedule,this.isEnabled, this.UiParams,this.Notes,this.Complete, EventLocation, this.RangeTimeLine);
+                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(TimePerSplit, (EndDateTime - TimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), RigidSchedule,this.isEnabled, this.UiParams,this.Notes,this.Complete, EventLocation, this.RangeTimeLine);
                 SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
             }
 
@@ -204,7 +204,7 @@ namespace TilerElements
             EventPreDeadline = Event_PreDeadline;
             RigidSchedule = EventRigidFlag;
             LocationData = EventLocation;
-            CalendarEventID = EventID.GenerateCalendarEvent();
+            UniqueID = EventID.GenerateCalendarEvent();
             EventRepetition = EventRepetitionEntry;
 
             UiParams = UiData;
@@ -226,7 +226,7 @@ namespace TilerElements
             SubEvents = new Dictionary<EventID, SubCalendarEvent>();
             for (int i = 0; i < Splits; i++)
             {
-                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(TimePerSplit, (EndDateTime - TimePerSplit), this.End, new TimeSpan(), CalendarEventID.ToString(), RigidSchedule, this.Enabled, this.UiParams, this.Notes, this.Complete, EventLocation, this.RangeTimeLine); //new SubCalendarEvent(CalendarEventID);
+                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(TimePerSplit, (EndDateTime - TimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), RigidSchedule, this.Enabled, this.UiParams, this.Notes, this.Complete, EventLocation, this.RangeTimeLine); //new SubCalendarEvent(CalendarEventID);
                 SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
             }
 
@@ -273,7 +273,7 @@ namespace TilerElements
             MyCalendarEventCopy.RigidSchedule = RigidSchedule;//hack
             MyCalendarEventCopy.Splits = Splits;
             MyCalendarEventCopy.TimePerSplit = new TimeSpan(TimePerSplit.Ticks);
-            MyCalendarEventCopy.CalendarEventID = CalendarEventID;//hack
+            MyCalendarEventCopy.UniqueID = UniqueID;//hack
             MyCalendarEventCopy.EventSequence = EventSequence.CreateCopy();
             MyCalendarEventCopy.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
             MyCalendarEventCopy.UiParams = this.UiParams.createCopy();
@@ -297,7 +297,7 @@ namespace TilerElements
         public static CalendarEvent getEmptyCalendarEvent( EventID myEventID,DateTime Start=new DateTime(), DateTime End=new DateTime())
         {
             CalendarEvent retValue = new CalendarEvent();
-            retValue.CalendarEventID = myEventID;
+            retValue.UniqueID = myEventID;
             retValue.StartDateTime = Start;
             retValue.EndDateTime = End;
             retValue.EventDuration = new TimeSpan(0);
@@ -390,9 +390,9 @@ namespace TilerElements
                 Horizontal= new List<Location_Elements>();
             }
 
-            if(!DistanceMatrix.ContainsKey(this.CalendarEventID.getCalendarEventComponent()))
+            if(!DistanceMatrix.ContainsKey(this.UniqueID.getCalendarEventComponent()))
             {
-                string myCalString = this.CalendarEventID.getCalendarEventComponent();
+                string myCalString = this.UniqueID.getCalendarEventComponent();
                 DistanceMatrix.Add(myCalString, new List<double>());
                 Horizontal.Add(newLocation);
                 DistanceMatixKeys= DistanceMatrix.Keys.ToList();
@@ -407,7 +407,7 @@ namespace TilerElements
                             ;
                         }
 
-                        if (eachString == this.CalendarEventID.getCalendarEventComponent())
+                        if (eachString == this.UniqueID.getCalendarEventComponent())
                         {
                             //MyDistance = double.MaxValue / DistanceMatixKeys.Count;
 
@@ -435,7 +435,7 @@ namespace TilerElements
         {
             //get
             {
-                return DistanceMatrix[this.CalendarEventID.getCalendarEventComponent()][DistanceMatixKeys.IndexOf(CalEvent.CalendarEventID.getCalendarEventComponent())];
+                return DistanceMatrix[this.UniqueID.getCalendarEventComponent()][DistanceMatixKeys.IndexOf(CalEvent.UniqueID.getCalendarEventComponent())];
             }
         }
 
@@ -471,7 +471,7 @@ namespace TilerElements
 
         public Dictionary<string, double> DistanceToAllNodes()
         {
-            return DistanceToAllNodes(this.CalendarEventID.getCalendarEventComponent());
+            return DistanceToAllNodes(this.UniqueID.getCalendarEventComponent());
         }
         /*
         CalendarEvent getRepeatingCalendarEvent(string RepeatingEventID)
@@ -1053,7 +1053,7 @@ namespace TilerElements
                 RigidSchedule = CalendarEventEntry.RigidSchedule;
                 Splits=CalendarEventEntry.Splits;
                 TimePerSplit=CalendarEventEntry.TimePerSplit;
-                CalendarEventID=CalendarEventEntry.CalendarEventID;
+                UniqueID=CalendarEventEntry.UniqueID;
                 EventSequence=CalendarEventEntry.EventSequence;;
                 SubEvents=CalendarEventEntry.SubEvents;
                 SchedulStatus=CalendarEventEntry.SchedulStatus;
@@ -1110,7 +1110,7 @@ namespace TilerElements
         {
             get
             {
-                return CalendarEventID.ToString();
+                return UniqueID.ToString();
             }
         }
 
@@ -1119,7 +1119,7 @@ namespace TilerElements
         {
             get
             {
-                return CalendarEventID;
+                return UniqueID;
             }
         }
 

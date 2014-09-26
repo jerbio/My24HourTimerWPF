@@ -7,14 +7,14 @@ namespace TilerElements
 {
     public class SubCalendarEvent : CalendarEvent
     {
-        EventID SubEventID;
-        BusyTimeLine BusyFrame;
+        protected EventID UniqueID;
+        protected BusyTimeLine BusyFrame;
         TimeSpan AvailablePreceedingFreeSpace;
-        TimeLine CalendarEventRange;
-        double EventScore;
-        ConflictProfile ConflictinEvents;
+        protected TimeLine CalendarEventRange;
+        protected double EventScore;
+        protected ConflictProfile ConflictingEvents;
 
-        Location_Elements EventLocation;
+        protected Location_Elements EventLocation;
         IList<EventID> InterferringEvents;
 
         int MiscIntData;
@@ -29,7 +29,7 @@ namespace TilerElements
             {
                 conflicts = new ConflictProfile();
             }
-            ConflictinEvents = conflicts;
+            ConflictingEvents = conflicts;
             CalendarEventRange = RangeOfSubCalEvent;
             StartDateTime = EventStart;
             EndDateTime = EventDeadline;
@@ -42,10 +42,10 @@ namespace TilerElements
             UiParams=UiParam;
             DataBlob = Notes;
             Complete=completeFlag;
-            SubEventID = EventID.GenerateSubCalendarEvent(myParentID);
+            UniqueID = EventID.GenerateSubCalendarEvent(myParentID);
             BusyFrame = new BusyTimeLine(this.ID, StartDateTime, EndDateTime);//this is because in current implementation busy frame is the same as CalEvent frame
             this.EventLocation = EventLocation;
-            EventSequence = new EventTimeLine(SubEventID.ToString(), StartDateTime, EndDateTime);
+            EventSequence = new EventTimeLine(UniqueID.ToString(), StartDateTime, EndDateTime);
             RigidSchedule = Rigid;
             this.Enabled = Enabled;
         }
@@ -57,7 +57,7 @@ namespace TilerElements
             {
                 conflicts = new ConflictProfile();
             }
-            ConflictinEvents = conflicts;
+            ConflictingEvents = conflicts;
             CalendarEventRange = RangeOfSubCalEvent;
             //string eventName, TimeSpan EventDuration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, TimeSpan PreDeadline, bool EventRigidFlag, bool EventRepetition, int EventSplit
             StartDateTime = EventStart;
@@ -65,7 +65,7 @@ namespace TilerElements
             EventDuration = MyBusylot.End - MyBusylot.Start;
             BusyFrame = MyBusylot;
             PrepTime = EventPrepTime;
-            SubEventID = new EventID(MySubEventID);
+            UniqueID = new EventID(MySubEventID);
             this.EventLocation = EventLocation;
             
             UiParams=UiParam;
@@ -73,7 +73,7 @@ namespace TilerElements
             Complete = completeFlag;
 
             this.Enabled = Enabled;
-            EventSequence = new EventTimeLine(SubEventID.ToString(), StartDateTime, EndDateTime);
+            EventSequence = new EventTimeLine(UniqueID.ToString(), StartDateTime, EndDateTime);
             RigidSchedule = Rigid;
         }
 
@@ -83,9 +83,9 @@ namespace TilerElements
             {
                 conflicts = new ConflictProfile();
             }
-            ConflictinEvents = conflicts;
+            ConflictingEvents = conflicts;
             CalendarEventRange = RangeOfSubCalEvent;
-            SubEventID = new EventID(MySubEventID);
+            UniqueID = new EventID(MySubEventID);
             StartDateTime = EventStart;
             EndDateTime = EventDeadline;
             EventDuration = SubEventBusy.TimelineSpan;
@@ -147,7 +147,7 @@ namespace TilerElements
         {
             EndDateTime = (EndTime);
             StartDateTime = StartTime;
-            BusyFrame = new BusyTimeLine(SubEventID.ToString(), StartTime, EndTime);
+            BusyFrame = new BusyTimeLine(UniqueID.ToString(), StartTime, EndTime);
         }
 
 
@@ -177,7 +177,7 @@ namespace TilerElements
         public static SubCalendarEvent getEmptyCalendarEvent()
         {
             SubCalendarEvent retValue = new SubCalendarEvent();
-            retValue.SubEventID = new EventID("");
+            retValue.UniqueID = new EventID("");
             retValue.StartDateTime = DateTime.Now;
             retValue.EndDateTime = DateTime.Now;
             retValue.EventDuration = new TimeSpan(0);
@@ -190,7 +190,7 @@ namespace TilerElements
 
         public SubCalendarEvent createCopy()
         {
-            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ID, new DateTime(Start.Ticks), new DateTime(End.Ticks), BusyFrame.CreateCopy(), this.RigidSchedule, this.isEnabled, this.UiParams.createCopy(), this.Notes.createCopy(), this.Complete, this.EventLocation, new TimeLine(CalendarEventRange.Start, CalendarEventRange.End),ConflictinEvents.CreateCopy());
+            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ID, new DateTime(Start.Ticks), new DateTime(End.Ticks), BusyFrame.CreateCopy(), this.RigidSchedule, this.isEnabled, this.UiParams.createCopy(), this.Notes.createCopy(), this.Complete, this.EventLocation, new TimeLine(CalendarEventRange.Start, CalendarEventRange.End),ConflictingEvents.CreateCopy());
             //MySubCalendarEventCopy.LocationData = LocationData;//note check for possible reference issues for future versions
             /*MySubCalendarEventCopy.SubEventID = SubEventID;
             MySubCalendarEventCopy.BusyFrame = BusyFrame;
@@ -395,7 +395,7 @@ namespace TilerElements
 
         public  bool PinToEndAndIncludeInTimeLine(TimeLine LimitingTimeLine, CalendarEvent RestrctingCalendarEvent)
         {
-            if (new EventID(RestrctingCalendarEvent.ID).getCalendarEventComponent() != SubEventID.getCalendarEventComponent())
+            if (new EventID(RestrctingCalendarEvent.ID).getCalendarEventComponent() != UniqueID.getCalendarEventComponent())
             {
                 throw new Exception("Oh oh Sub calendar event Trying to pin to end of invalid calendar event. Check that you have matchin IDs");
             }
@@ -465,7 +465,7 @@ namespace TilerElements
 
         public void PinToEnd(CalendarEvent RestrctingCalendarEvent)
         {
-            if (new EventID(RestrctingCalendarEvent.ID).getCalendarEventComponent() != SubEventID.getCalendarEventComponent())
+            if (new EventID(RestrctingCalendarEvent.ID).getCalendarEventComponent() != UniqueID.getCalendarEventComponent())
             {
                 throw new Exception("Oh oh Sub calendar event Trying to pin to end of invalid calendar event. Check that you have matchin IDs");
             }
@@ -563,7 +563,7 @@ namespace TilerElements
          {
              get
              {
-                 return ConflictinEvents;
+                 return ConflictingEvents;
              }
          }
 
@@ -655,7 +655,7 @@ namespace TilerElements
         {
             get
             {
-                return SubEventID.ToString();
+                return UniqueID.ToString();
             }
         }
 
@@ -665,7 +665,7 @@ namespace TilerElements
         {
             get
             {
-                return SubEventID;//.ToString();
+                return UniqueID;//.ToString();
             }
         }
 

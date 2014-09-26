@@ -2473,6 +2473,10 @@ namespace My24HourTimerWPF
         {
             foreach (CalendarEvent eachCalendarEvent in AllEventDictionary.Values)
             {
+                if (eachCalendarEvent.Rigid)
+                {
+                    continue;
+                }
                 eachCalendarEvent.ActiveSubEvents.AsParallel().ForAll(obj => obj.DisableIfPastDeadline(Now.constNow));
                 
                 List<DateTime> AllStratTImes = eachCalendarEvent.ActiveSubEvents.AsParallel().Select(obj => obj.Start).ToList();
@@ -2717,6 +2721,9 @@ namespace My24HourTimerWPF
             {
                 List<SubCalendarEvent> ConflictingEvents = eachKeyValuePair0.Value.Where(obj => obj.Conflicts.isConflicting()).ToList();
                 List<SubCalendarEvent> listWithoutConflictingEvents = eachKeyValuePair0.Value.Where(obj => !ConflictingEvents.Contains(obj)).OrderBy(obj=>obj.Start).ToList();
+                
+                
+                
                 if (!Utility.PinSubEventsToStart(listWithoutConflictingEvents, eachKeyValuePair0.Key))
                 {
                     throw new Exception("Error with listWithoutConflictingEvents, seems like list will be invalid for stitchunrestricted");
@@ -2858,6 +2865,21 @@ namespace My24HourTimerWPF
             List<SubCalendarEvent> CanExsitWithinNextSevenDays = AllEventDictionary.AsParallel().SelectMany(obj => obj.Value.ActiveSubEvents.Where(obj1 => obj1.canExistWithinTimeLine(nextSevenDaysTimeLine))).ToList();//will host elements that can be used in seven day time frame. Selected from elements outside of seven day frame
             //CanExsitWithinNextSevenDays.RemoveAll(obj => CurrentlyWithinNextSevendays.Contains(obj));//removes all events that are already within seven days
 
+
+            IEnumerable<BlobSubCalendarEvent> InterferringBlob = Utility.getInterferringEvents(CanExsitWithinNextSevenDays.Distinct());
+            IEnumerable<SubCalendarEvent> AllInterFerringEvents = InterferringBlob.SelectMany(obj => obj.getSubCalendarEventsInBlob());
+
+            
+            CanExsitWithinNextSevenDays = CanExsitWithinNextSevenDays.Except(AllInterFerringEvents).ToList();
+            CanExsitWithinNextSevenDays=CanExsitWithinNextSevenDays.Concat(InterferringBlob).ToList();
+
+
+            InterferringBlob = Utility.getInterferringEvents(CurrentlyWithinNextSevendays.Distinct());
+            AllInterFerringEvents = InterferringBlob.SelectMany(obj => obj.getSubCalendarEventsInBlob());
+            
+            CurrentlyWithinNextSevendays = CurrentlyWithinNextSevendays.Except(AllInterFerringEvents).ToList();
+            CurrentlyWithinNextSevendays=CurrentlyWithinNextSevendays.Concat(InterferringBlob).ToList();
+
             DateTime refStartOfDayTimeLine = Now.calculationNow;
             DateTime refEndOfDayTimeLine = ReferenceDayTIime.AddDays(1);
             TilerElements.TimeLine refTImeLine = new TilerElements.TimeLine(refStartOfDayTimeLine, refEndOfDayTimeLine);//initializing refTImeLine Now of calculation to beginning of next day of reference day. hense the use of  "ReferenceDayTIime"
@@ -2900,8 +2922,8 @@ namespace My24HourTimerWPF
                 refTImeLine = new TimeLine(refTImeLine.Start, newEndTime);
 
 
-                List<SubCalendarEvent> nonWithCurrentCOnstituents = CanExsitWithinNextSevenDays.ToList();
-                nonWithCurrentCOnstituents.RemoveAll(obj => pertinentSubCalEvents.Contains(obj));
+                List<SubCalendarEvent> nonWithCurrentCOnstituents = CanExsitWithinNextSevenDays.Except(pertinentSubCalEvents).ToList();
+                
                 List<SubCalendarEvent> newlyassignedElements = OptimizeTwentyFourHours(refTImeLine.CreateCopy(), pertinentSubCalEvents.ToList(), nonWithCurrentCOnstituents, averageOccupancy);
                 CanExsitWithinNextSevenDays.RemoveAll(obj => newlyassignedElements.Contains(obj));
 
@@ -2934,7 +2956,6 @@ namespace My24HourTimerWPF
 
         void ScoreEvents(IEnumerable<SubCalendarEvent> EventsToBeScored, IEnumerable<SubCalendarEvent> referenceScoringEvents)
         {
-            //continue from here Jerome. You need to write algorithm to score the various events against referenceScoringEvents. This will be used by the function OPtimizeNextSevenDays(). 
             EventsToBeScored.AsParallel().ForAll(obj => obj.Score = EvaluateScore(referenceScoringEvents,obj,Now.calculationNow));
         }
 
@@ -5813,6 +5834,8 @@ namespace My24HourTimerWPF
 
             return ListOfEvents;
         }
+
+
 
         List<SubCalendarEvent> PlaceSubCalEventInLowestCostPosition(TimeLine MyLimitingTimeLine, SubCalendarEvent mySubcalevent, List<SubCalendarEvent> OptimizedArrangementOfEvent)
         {

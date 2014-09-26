@@ -135,6 +135,46 @@ namespace My24HourTimerWPF
         }
 
 
+        public static IEnumerable<BlobSubCalendarEvent> getInterferringEvents(IEnumerable<SubCalendarEvent> AllSubEvents)
+        {
+            List<BlobSubCalendarEvent> retValue = new List<BlobSubCalendarEvent>();
+            IEnumerable<SubCalendarEvent> orderedByStart = AllSubEvents.OrderBy(obj => obj.Start).ToList();
+            List<SubCalendarEvent> AllSubEvents_List = orderedByStart.ToList();
+
+            
+            Dictionary<SubCalendarEvent, List<SubCalendarEvent>> subEventToConflicting = new Dictionary<SubCalendarEvent, List<SubCalendarEvent>>();
+
+
+            for (int i = 0; i < AllSubEvents_List.Count&&i>=0; i++)
+            {
+                SubCalendarEvent refSubCalendarEvent = AllSubEvents_List[i];
+                List<SubCalendarEvent> possibleInterferring = AllSubEvents_List.Where(obj => obj != refSubCalendarEvent).ToList();
+                List<SubCalendarEvent> InterferringEvents = possibleInterferring.AsParallel().Where(obj => obj.RangeTimeLine.InterferringTimeLine(refSubCalendarEvent.RangeTimeLine) != null).ToList();
+                if (InterferringEvents.Count() > 0)//this tries to select the rest of 
+                {
+                    List<SubCalendarEvent> ExtraInterferringEVents = new List<SubCalendarEvent>();
+                    do
+                    {
+                        AllSubEvents_List = AllSubEvents_List.Except(InterferringEvents).ToList();
+                        DateTime LatestEndTime = InterferringEvents.Max(obj => obj.End);
+                        TimeLine possibleInterferringTimeLine = new TimeLine(refSubCalendarEvent.Start, LatestEndTime);
+                        ExtraInterferringEVents = AllSubEvents_List.AsParallel().Where(obj => obj.RangeTimeLine.InterferringTimeLine(possibleInterferringTimeLine) != null).ToList();
+                        InterferringEvents=InterferringEvents.Concat(ExtraInterferringEVents).ToList();
+                    }
+                    while (ExtraInterferringEVents.Count>0);
+                    --i;
+                }
+                if (InterferringEvents.Count > 0)
+                {
+                    retValue.Add(new BlobSubCalendarEvent(InterferringEvents));
+                }
+            }
+
+            return retValue;
+            //Continue from here Jerome you need to write the function for detecting conflicting events and then creating the interferring list.
+        }
+
+
         /*public static List<SubCalendarEvent> ListIntersection(List<SubCalendarEvent> ListToCheck, List<SubCalendarEvent> MyCurrentList)
         {
             List<SubCalendarEvent> InListElements = new List<SubCalendarEvent>();

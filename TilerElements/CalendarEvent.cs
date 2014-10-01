@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace TilerElements
@@ -297,7 +299,7 @@ namespace TilerElements
         public static CalendarEvent getEmptyCalendarEvent( EventID myEventID,DateTime Start=new DateTime(), DateTime End=new DateTime())
         {
             CalendarEvent retValue = new CalendarEvent();
-            retValue.UniqueID = myEventID;
+            retValue.UniqueID = new EventID( myEventID.getCalendarEventID());
             retValue.StartDateTime = Start;
             retValue.EndDateTime = End;
             retValue.EventDuration = new TimeSpan(0);
@@ -306,7 +308,9 @@ namespace TilerElements
             retValue.Splits = 1;
             retValue.Rigid = true;
             retValue.Complete = true;
+
             retValue.Enabled = false;
+            retValue.UpdateLocationMatrix(new Location_Elements());
             return retValue;
         }
         virtual public void Disable(bool goDeep=true)
@@ -889,21 +893,24 @@ namespace TilerElements
              * Function replaces sets the enable flag of the subevents as false
              */
 
-            foreach (SubCalendarEvent eachSubCalendarEvent in ElementsToBeRemoved)
+            Parallel.ForEach(ElementsToBeRemoved, eachSubCalendarEvent => { SubEvents[eachSubCalendarEvent.SubEvent_ID].SetEventEnableStatus(false); });
+
+            if (ActiveSubEvents.Count() <1)
             {
-                eachSubCalendarEvent.SetEventEnableStatus(false);
+                Enabled = false;
             }
         }
 
         public void EnableSubEvents(IEnumerable<SubCalendarEvent> ElementsToBeRemoved)
         {
             /*
-             * Function replaces sets the enable flag of the subevents as false
+             * Function replaces sets the enable flag of the subevents as true
              */
 
-            foreach (SubCalendarEvent eachSubCalendarEvent in ElementsToBeRemoved)
+            Parallel.ForEach(ElementsToBeRemoved, eachSubCalendarEvent => { SubEvents[eachSubCalendarEvent.SubEvent_ID].SetEventEnableStatus(true); });
+            if (ActiveSubEvents.Count() > 0)
             {
-                SubEvents[ eachSubCalendarEvent.SubEvent_ID].SetEventEnableStatus(true); 
+                Enabled = true;
             }
         }
 

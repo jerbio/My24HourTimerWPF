@@ -135,7 +135,7 @@ namespace My24HourTimerWPF
         }
 
 
-        public static IEnumerable<BlobSubCalendarEvent> getInterferringEvents(IEnumerable<SubCalendarEvent> AllSubEvents)
+        public static IEnumerable<BlobSubCalendarEvent> getConflictingEvents(IEnumerable<SubCalendarEvent> AllSubEvents)
         {
             List<BlobSubCalendarEvent> retValue = new List<BlobSubCalendarEvent>();
             IEnumerable<SubCalendarEvent> orderedByStart = AllSubEvents.OrderBy(obj => obj.Start).ToList();
@@ -172,6 +172,22 @@ namespace My24HourTimerWPF
 
             return retValue;
             //Continue from here Jerome you need to write the function for detecting conflicting events and then creating the interferring list.
+        }
+
+
+        public static Tuple<IEnumerable<IDefinedRange>,IEnumerable<IDefinedRange>> DetectInterferringTimelines(IEnumerable<IDefinedRange> AllSubEvents)
+        {
+            AllSubEvents = AllSubEvents.OrderBy(obj => obj.Start);
+            List<IDefinedRange> EventsWithTImeline = AllSubEvents.ToList();
+            for(int i=0; i<EventsWithTImeline.Count;)
+            {
+                IDefinedRange refEvent = EventsWithTImeline[i];
+                EventsWithTImeline.Remove(refEvent);
+                IEnumerable<IDefinedRange>InterferringEvents= EventsWithTImeline.Where(obj => obj.RangeTimeLine.InterferringTimeLine(refEvent.RangeTimeLine) != null);
+            }
+
+
+            return new Tuple<IEnumerable<IDefinedRange>, IEnumerable<IDefinedRange>>(new List<SubCalendarEvent>(), new List<SubCalendarEvent>());
         }
 
 

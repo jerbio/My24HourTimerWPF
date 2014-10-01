@@ -16,6 +16,7 @@ namespace TilerElements
             UniqueID=EventID.GenerateSubCalendarEvent(EventID.GenerateCalendarEvent().ToString());
             BusyFrame = new BusyTimeLine(UniqueID.ToString(), StartDateTime, EndDateTime);
             CalendarEventRange = new TimeLine(StartDateTime,EndDateTime);
+            CalendarEvent nullEvent = CalendarEvent.getEmptyCalendarEvent(UniqueID, StartDateTime, EndDateTime);
             RigidSchedule = true;
             EventLocation = Location_Elements.AverageGPSLocation(InterFerringEvents.Select(obj => obj.myLocation));
             EventScore = 0;

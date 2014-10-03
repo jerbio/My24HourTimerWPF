@@ -191,7 +191,12 @@ namespace TilerElements
 
             DateTime PreceedingDateTime = StartTime;
 
-            foreach (BusyTimeLine MyActiveSlot in ActiveTimeSlots)
+
+            Tuple<IEnumerable<IDefinedRange>, IEnumerable<IDefinedRange>> BusySlotsAndSeparateActiveSlots = Utility.getConflictingRangeElements(ActiveTimeSlots);
+
+            IEnumerable<IDefinedRange> AllActiveSlots = BusySlotsAndSeparateActiveSlots.Item1.Concat(BusySlotsAndSeparateActiveSlots.Item2).OrderBy(obj => obj.End);
+
+            foreach (TimeLine MyActiveSlot in AllActiveSlots)
             {
                 TimeLine FreeSpot = new TimeLine(PreceedingDateTime, MyActiveSlot.Start);
                 if (FreeSpot.TimelineSpan.Ticks > 0)
@@ -201,7 +206,7 @@ namespace TilerElements
 
                 PreceedingDateTime = MyActiveSlot.End;
             }
-            ListOfFreeSpots.Add(new TimeLine(ActiveTimeSlots[ActiveTimeSlots.Length - 1].End, EndTime));
+            ListOfFreeSpots.Add(new TimeLine(AllActiveSlots.Last().End, EndTime));
 
             return ListOfFreeSpots.ToArray();
         }

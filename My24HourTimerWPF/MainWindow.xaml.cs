@@ -851,8 +851,6 @@ namespace My24HourTimerWPF
             eventStartDate = new DateTime(eventStartDate.Year, eventStartDate.Month, eventStartDate.Day, Convert.ToInt32(TimeElements[0]), Convert.ToInt32(TimeElements[1]), 0);
             TimeElements = CalendarEvent.convertTimeToMilitary(eventEndTime).Split(':');
             eventEndDate = new DateTime(eventEndDate.Year, eventEndDate.Month, eventEndDate.Day, Convert.ToInt32(TimeElements[0]), Convert.ToInt32(TimeElements[1]), 0);
-            
-            
             if (checkBox5.IsChecked.Value)
             {
                 PreceedingSplitString = textBox2.Text;
@@ -871,8 +869,6 @@ namespace My24HourTimerWPF
                 textBox4.IsEnabled = true;
                 
             }
-            
-            
         }
 
         private void checkBox2_Checked_1(object sender, RoutedEventArgs e)
@@ -1015,9 +1011,6 @@ namespace My24HourTimerWPF
                 {
                     eventName += "," + LocationString;
                 }*/
-
-
-
 
                 DateTime CurrentTimeOfExecution = DateTime.Now;
                 string eventStartTime = textBox5.Text;
@@ -1185,7 +1178,7 @@ namespace My24HourTimerWPF
             //Tiler.LogControl.UpdateLogLocation(LogLocation);
             UserAccount currentUser = new UserAccount(UserNameTextBox.Text, PasswordTextBox.Text);
             DateTime refNow=DateTime.Now;
-            refNow = DateTime.Parse("9/30/2014 1:15 PM");
+            refNow = DateTime.Parse("9/22/2014 10:05 PM");
             MySchedule = new Schedule(currentUser, refNow);
             
             if (MySchedule.isScheduleLoadSuccessful)

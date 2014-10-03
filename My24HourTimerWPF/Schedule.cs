@@ -1878,9 +1878,13 @@ namespace My24HourTimerWPF
                     eachSubCalendarEvent.SetAsRigid();
                 }
             }
-            
+            Now.UpdateNow(RangeForScheduleUpdate.Start);
 
             TimeSpan SumOfAllEventsTimeSpan = Utility.SumOfActiveDuration(ArrayOfInterferringSubEvents);
+            Tuple<List<SubCalendarEvent>, List<BlobSubCalendarEvent>> preppedDataForNExtStage= PrepareElementsThatWillNotFit(ArrayOfInterferringSubEvents, RangeForScheduleUpdate);
+            ArrayOfInterferringSubEvents = preppedDataForNExtStage.Item1;
+
+            List<SubCalendarEvent> AllInterferringEvents = new List<SubCalendarEvent>(preppedDataForNExtStage.Item2.SelectMany(obj => obj.getSubCalendarEventsInBlob()));
 
 
             int i = 0;
@@ -1902,31 +1906,6 @@ namespace My24HourTimerWPF
             ArrayOfFreeSpots = getOnlyPertinentTimeFrame(ArrayOfFreeSpots, ReferenceTimeLine).ToArray();
 
 
-            /*
-            List<SubCalendarEvent> WillNotfit = getWillNotFit(ArrayOfFreeSpots, ArrayOfInterferringSubEvents);
-            List<mTuple<SubCalendarEvent, TimeLineWithEdgeElements>> reassignedElements = DealWithWillNotFit(WillNotfit, ArrayOfFreeSpots.Select(obj => new TimeLineWithEdgeElements(obj.Start, obj.End, "", "")).ToList());
-
-
-            if (reassignedElements.Count > 0)
-            {
-                foreach (mTuple<SubCalendarEvent, TimeLineWithEdgeElements> eachmTuple in reassignedElements)
-                {
-                    RigidSubCalendarEvents.Add(eachmTuple.Item1);
-                    ArrayOfInterferringSubEvents.Remove(eachmTuple.Item1);
-                }
-
-                RigidSubCalendarEventsBusyTimeLine = RigidSubCalendarEvents.Select(obj => obj.ActiveSlot).ToList();
-                ReferenceTimeLine = RangeForScheduleUpdate.CreateCopy();
-                ReferenceTimeLine.AddBusySlots(RigidSubCalendarEventsBusyTimeLine.ToArray());//Adds all the rigid elements
-
-                ArrayOfFreeSpots = getOnlyPertinentTimeFrame(getAllFreeSpots_NoCompleteSchedule(ReferenceTimeLine), ReferenceTimeLine).ToArray();
-                ArrayOfFreeSpots = getOnlyPertinentTimeFrame(ArrayOfFreeSpots, ReferenceTimeLine).ToArray();
-
-
-            }
-
-            */
-
             DictionaryWithBothCalendarEventIDAndListOfInterferringSubEvents = generateDictionaryWithBothCalendarEventIDAndListOfInterferringSubEvents(ArrayOfInterferringSubEvents.ToList(), NoneCommitedCalendarEventsEvents);
 
 
@@ -1945,7 +1924,7 @@ namespace My24HourTimerWPF
             List<List<List<SubCalendarEvent>>> SnugListOfPossibleSubCalendarEventsClumps = BuildAllPossibleSnugLists(SortedInterFerringCalendarEvents_Deadline, MyCalendarEvent, DictionaryWithBothCalendarEventIDAndListOfInterferringSubEvents, ReferenceTimeLine, OccupancyOfTimeLineSPan);
             //Remember Jerome, I need to implement a functionality that permutates through the various options of pin to start option. So take for example two different event timeline that are pertinent to a free spot however one has a dead line preceeding the other, there will be a pin to start for two scenarios, one for each calendar event in which either of them gets pinned first.
 
-
+            List<SubCalendarEvent> SerializedResult = SnugListOfPossibleSubCalendarEventsClumps[0].SelectMany(obj => obj).ToList().Except(preppedDataForNExtStage.Item2.SelectMany(obj=>obj.getSubCalendarEventsInBlob())).ToList();
 
             if (!MyCalendarEvent.ErrorStatus && allInterferringSubCalEventsAndTimeLine.Item3.Status)
             {
@@ -1960,16 +1939,61 @@ namespace My24HourTimerWPF
             }
 
             NoneCommitedCalendarEventsEvents.Remove(MyCalendarEvent);
+            ReferenceTimeLine = ReferenceTimeLine.CreateCopy();
+            ReferenceTimeLine.Empty();
+            ReferenceTimeLine.AddBusySlots(SerializedResult.Select(obj => obj.ActiveSlot));
+            return new KeyValuePair<CalendarEvent, TimeLine>(MyCalendarEvent, ReferenceTimeLine);
 
-            return EvaluateEachSnugPossibiliyOfSnugPossibility(SnugListOfPossibleSubCalendarEventsClumps, ReferenceTimeLine, MyCalendarEvent);
         }
 
 
-        List<SubCalendarEvent> PrepareElementsThatWillNotFit(IEnumerable<SubCalendarEvent> AllEvents, TimeLine ReferenceTimeline)
+        Tuple<List<SubCalendarEvent>, List<BlobSubCalendarEvent>> PrepareElementsThatWillNotFit(IEnumerable<SubCalendarEvent> AllEvents, TimeLine ReferenceTimeline)
         {
-            List<SubCalendarEvent> retValue=new List<SubCalendarEvent>();
+            List<SubCalendarEvent> retValue = AllEvents.ToList();
             IEnumerable<SubCalendarEvent> AllRigidEvents = AllEvents.Where(obj => obj.Rigid);
-            return retValue;
+            List<SubCalendarEvent> CannotFitInAnyFreespot = AllEvents.Except(AllRigidEvents).ToList();
+
+            TimeLine refTImeLine = ReferenceTimeline.CreateCopy();
+
+            refTImeLine.AddBusySlots(AllRigidEvents.Select(obj => obj.ActiveSlot));
+            IEnumerable<TimeLine> AllFreeSpots= refTImeLine.getAllFreeSlots();
+            foreach (TimeLine eachTimeLine in AllFreeSpots)// gets all events that cannot fully exsit in any free spot
+            {
+                CannotFitInAnyFreespot=CannotFitInAnyFreespot.Except(CannotFitInAnyFreespot.AsParallel().Where(obj => obj.canExistWithinTimeLine(eachTimeLine))).ToList();
+            }
+
+            Dictionary<SubCalendarEvent, List<TimeLine>> NoFreeSpaceToConflictingSpaces= new Dictionary<SubCalendarEvent,List<TimeLine>>();
+
+            foreach (SubCalendarEvent eachSubCalendarEvent in CannotFitInAnyFreespot)//builds dictionary NoFreeSpaceToConflictingSpaces by getting all the non free spots possible withing the attained freespots
+            {
+                List<TimeLine> PossibleSpaces = AllFreeSpots.Select(obj => obj.InterferringTimeLine(eachSubCalendarEvent.RangeTimeLine)).Where(obj => obj != null).OrderByDescending(obj => obj.RangeSpan).ToList();
+                
+                NoFreeSpaceToConflictingSpaces.Add(eachSubCalendarEvent, PossibleSpaces);
+            }
+
+
+            foreach (KeyValuePair<SubCalendarEvent, List<TimeLine>> AllAvailableTimeLines in NoFreeSpaceToConflictingSpaces.OrderBy(obj => obj.Value.Count))
+            {
+                if (AllAvailableTimeLines.Value.Count > 0)
+                {
+                    TimeLine MaxFreeSpotAvailable = AllAvailableTimeLines.Value.First();
+                    if (!AllAvailableTimeLines.Key.PinToPossibleLimit(MaxFreeSpotAvailable))
+                    {
+                        throw new Exception("There is an error in PrepareElementsThatWillNotFit PinToPossibleLimit");
+                    }
+                }
+            }
+
+
+            List<BlobSubCalendarEvent> AllConflictingEvents = Utility.getConflictingEvents(AllRigidEvents.Concat(NoFreeSpaceToConflictingSpaces.Keys)).ToList();
+
+
+            retValue=retValue.Except(AllConflictingEvents.SelectMany(obj=>obj.getSubCalendarEventsInBlob())).ToList();
+            retValue = retValue.Concat(AllConflictingEvents).ToList();
+
+
+            Tuple<List<SubCalendarEvent>, List<BlobSubCalendarEvent>> retValueTuple = new Tuple<List<SubCalendarEvent>, List<BlobSubCalendarEvent>>(retValue, AllConflictingEvents);
+            return retValueTuple;
 
         }
 
@@ -2009,6 +2033,8 @@ namespace My24HourTimerWPF
             
             
             TimeSpan SumOfAllEventsTimeSpan = Utility.SumOfActiveDuration(ArrayOfInterferringSubEvents);
+            Tuple<List<SubCalendarEvent>, List<BlobSubCalendarEvent>> preppedDataForNExtStage = PrepareElementsThatWillNotFit(ArrayOfInterferringSubEvents, RangeForScheduleUpdate);
+            ArrayOfInterferringSubEvents = preppedDataForNExtStage.Item1;
 
             Dictionary<CalendarEvent, List<SubCalendarEvent>> DictionaryWithBothCalendarEventIDAndListOfInterferringSubEvents = new Dictionary<CalendarEvent, List<SubCalendarEvent>>();
             List<SubCalendarEvent> RigidSubCalendarEvents = new List<SubCalendarEvent>(0);
@@ -2076,17 +2102,9 @@ namespace My24HourTimerWPF
             List<List<List<SubCalendarEvent>>> SnugListOfPossibleSubCalendarEventsClumps = BuildAllPossibleSnugLists(SortedInterFerringCalendarEvents_Deadline, MyCalendarEvent, DictionaryWithBothCalendarEventIDAndListOfInterferringSubEvents, ReferenceTimeLine, OccupancyOfTimeLineSPan);
             //Remember Jerome, I need to implement a functionality that permutates through the various options of pin to start option. So take for example two different event timeline that are pertinent to a free spot however one has a dead line preceeding the other, there will be a pin to start for two scenarios, one for each calendar event in which either of them gets pinned first.
 
-            List<SubCalendarEvent> SerializedResult = SnugListOfPossibleSubCalendarEventsClumps[0].SelectMany(obj => obj).ToList();
+            List<SubCalendarEvent> SerializedResult = SnugListOfPossibleSubCalendarEventsClumps[0].SelectMany(obj => obj).ToList().Except(preppedDataForNExtStage.Item2.SelectMany(obj => obj.getSubCalendarEventsInBlob())).ToList();
             IEnumerable<SubCalendarEvent> InputSubEvents_Cpy=collectionOfInterferringSubCalEvents;
 
-            int TotalUpdatedSchedule = SerializedResult.Count + RigidSubCalendarEvents.Count;
-
-            if (TotalUpdatedSchedule != collectionOfInterferringSubCalEvents.Count)
-            {
-                
-                
-                MyCalendarEvent.UpdateError(new CustomErrors(true, "There is a clash in event"));
-            }
 
             if (!MyCalendarEvent.ErrorStatus && allInterferringSubCalEventsAndTimeLine.Item3.Status)
             {
@@ -2393,7 +2411,7 @@ namespace My24HourTimerWPF
             Dictionary<string, SubCalendarEvent> AllReassignedElements = new Dictionary<string, SubCalendarEvent>();
             List<TimeLine> JustFreeSpots_Cpy = JustFreeSpots.ToList();
 
-            DateTime TestTime = new DateTime(2014, 9, 19, 10, 0, 0);
+            DateTime TestTime = new DateTime(2014, 9, 30, 0, 0, 0);
 
             for (int i = 0; i < JustFreeSpots.Length; i++)
             {
@@ -2478,9 +2496,9 @@ namespace My24HourTimerWPF
             //toBemovedNewtwentyfourEvents = toBemovedNewtwentyfourEvents.Where(obj => !CurrentTwentyFourHourCOnstituents.Contains(obj)).ToList();
             bool PinSuccess= Utility.PinSubEventsToStart(CurrentTwentyFourHourCOnstituents, currentTwentyFourHourTImeline);
 
-            ///*
+            /*
             List<SubCalendarEvent> movedOverEvents = PreserveFirstTwentyFourHours(CurrentTwentyFourHourCOnstituents, toBemovedNewtwentyfourEvents, currentTwentyFourHourTImeline);
-
+            ///*
 
             OPtimizeNextSevenDays(new List<CalendarEvent>(){ToBeFittedTimeLine});
             //*/
@@ -2602,7 +2620,7 @@ namespace My24HourTimerWPF
         {
             TimeLine refTImeLine_Ini = refTImeLine.CreateCopy();
 
-
+            CurrentConstituents = CurrentConstituents.OrderBy(obj => obj.Start).ToList();
 
             HashSet<SubCalendarEvent> AllEvents = new HashSet<SubCalendarEvent>(CurrentConstituents.Concat(OrderedPreviousTwentyFOurHours));
             ///*

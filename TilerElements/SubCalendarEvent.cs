@@ -161,7 +161,7 @@ namespace TilerElements
             Rigid = false;
         }
 
-        public void DisableIfPastDeadline(DateTime CurrNow)
+        public void DisableIfDeadlineHasPassed(DateTime CurrNow)
         {
             if (CalendarEventRange.End < CurrNow)
             {
@@ -285,7 +285,7 @@ namespace TilerElements
             DateTime EarliestEndTime = CalendarEventRange.Start + ActiveDuration;
             DateTime LatestEndTime = CalendarEventRange.End;
 
-            DateTime DesiredEndtime = referenceTimeLine.End + (TimeSpan.FromTicks((long)(ActiveDuration - referenceTimeLine.TimelineSpan).Ticks / 2));
+            DateTime DesiredEndtime = interferringTImeLine.End + (TimeSpan.FromTicks(((long)(ActiveDuration - interferringTImeLine.TimelineSpan).Ticks) / 2));
 
             if (DesiredEndtime < EarliestEndTime)
             {
@@ -296,9 +296,8 @@ namespace TilerElements
             {
                 DesiredEndtime = LatestEndTime;
             }
-            TimeSpan shiftInEvent= End - DesiredEndtime;
-            shiftEvent(shiftInEvent);
-            return true;
+            TimeSpan shiftInEvent = DesiredEndtime-End;
+            return shiftEvent(shiftInEvent);
         }
 
         public bool UpdateThis(SubCalendarEvent SubEventEntry)

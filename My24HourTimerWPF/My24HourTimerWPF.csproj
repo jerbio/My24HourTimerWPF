@@ -126,9 +126,7 @@
     <Compile Include="SpreadOutList.cs" />
     <Compile Include="SubCalendarEventListCounter.cs" />
     <Compile Include="ThirdPartyCalendarControl.cs" />
-    <Compile Include="TimeSpanWithID.cs" />
     <Compile Include="TupleDict.cs" />
-    <Compile Include="Utility.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

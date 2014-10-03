@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using TilerElements;
 
-namespace My24HourTimerWPF
+namespace TilerElements
 {
-    public class Utility
+    public static class Utility
     {
         static Utility()
         { 
@@ -175,19 +175,49 @@ namespace My24HourTimerWPF
         }
 
 
-        public static Tuple<IEnumerable<IDefinedRange>,IEnumerable<IDefinedRange>> DetectInterferringTimelines(IEnumerable<IDefinedRange> AllSubEvents)
+        public static Tuple<IEnumerable<IDefinedRange>,IEnumerable<IDefinedRange>> getConflictingRangeElements(IEnumerable<IDefinedRange> AllSubEvents)
         {
             AllSubEvents = AllSubEvents.OrderBy(obj => obj.Start);
             List<IDefinedRange> EventsWithTImeline = AllSubEvents.ToList();
+            List<TimeLine> retValue_ItemA=new List<TimeLine>();
+            
+            List<IDefinedRange> retValue_ItemB = AllSubEvents.ToList();
+            retValue_ItemB.Clear();//trying to make retValue_ItemB an empty collection with the same data type of AllSubEvents
+            
             for(int i=0; i<EventsWithTImeline.Count;)
             {
                 IDefinedRange refEvent = EventsWithTImeline[i];
                 EventsWithTImeline.Remove(refEvent);
                 IEnumerable<IDefinedRange>InterferringEvents= EventsWithTImeline.Where(obj => obj.RangeTimeLine.InterferringTimeLine(refEvent.RangeTimeLine) != null);
+                bool AddrefTOretValue_ItemB = true;//flag will be set if refEvent is conflicitng
+                while (true && InterferringEvents.LongCount() > 0)
+                {
+                    AddrefTOretValue_ItemB = false;
+                    DateTime LowestInterferingStartTime = InterferringEvents.Select(obj => obj.Start).Min();
+                    DateTime LatesInterferingEndTime = InterferringEvents.Select(obj => obj.End).Max();
+                    DateTime refStartTIme = refEvent.Start <= LowestInterferingStartTime ? refEvent.Start : LowestInterferingStartTime;
+                    DateTime refEndTIme = refEvent.End <= LatesInterferingEndTime ? refEvent.End : LatesInterferingEndTime;
+                    TimeLine refTimeLineForInterferrers = new TimeLine(refStartTIme, refEndTIme);
+                    EventsWithTImeline = EventsWithTImeline.Except(InterferringEvents).ToList();
+                    IEnumerable<IDefinedRange> ExtraInterferringEvents = EventsWithTImeline.Where(obj => obj.RangeTimeLine.InterferringTimeLine(refTimeLineForInterferrers) != null);
+                    if (ExtraInterferringEvents.LongCount() < 1)
+                    {
+                        retValue_ItemA.Add(refTimeLineForInterferrers);
+                        break;
+                    }
+                    else
+                    {
+                        InterferringEvents = InterferringEvents.Concat(ExtraInterferringEvents);
+                    }
+                }
+                if (AddrefTOretValue_ItemB)
+                {
+                    retValue_ItemB.Add(refEvent);
+                }   
             }
 
 
-            return new Tuple<IEnumerable<IDefinedRange>, IEnumerable<IDefinedRange>>(new List<SubCalendarEvent>(), new List<SubCalendarEvent>());
+            return new Tuple<IEnumerable<IDefinedRange>, IEnumerable<IDefinedRange>>(retValue_ItemA, retValue_ItemB);
         }
 
 

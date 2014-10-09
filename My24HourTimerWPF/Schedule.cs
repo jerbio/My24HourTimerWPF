@@ -181,9 +181,8 @@ namespace My24HourTimerWPF
             myAccount.Login_NonTask();
             Tuple<Dictionary<string, CalendarEvent>, DateTime, Dictionary<string, Location_Elements>> profileData = myAccount.ScheduleData.getProfileInfo();
             if (profileData!=null)
-            { 
-                ReferenceDayTIime = profileData.Item2;
-                DateTime referenceDayTimeNow = DateTime.Parse(ReferenceDayTIime.ToShortTimeString());
+            {
+                DateTime referenceDayTimeNow = new DateTime(Now.calculationNow.Year, Now.calculationNow.Month, Now.calculationNow.Day, profileData.Item2.Hour, profileData.Item2.Minute, profileData.Item2.Second);// profileData.Item2;
                 ReferenceDayTIime = Now.calculationNow < referenceDayTimeNow ? referenceDayTimeNow.AddDays(-1) : referenceDayTimeNow;
                 //ReferenceDayTIime = DateTime.Parse("4:00PM");
                 AllEventDictionary = profileData.Item1;
@@ -694,7 +693,7 @@ namespace My24HourTimerWPF
         public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> SetCalendarEventAsNow(string CalendarID, bool Force = false)
         {
             CalendarEvent CalendarEvent = getCalendarEvent(CalendarID);
-            IEnumerable<SubCalendarEvent> orderedSubEvents = CalendarEvent.ActiveSubEvents.Where(obj => obj.End >= Now.calculationNow).OrderBy(obj => obj.Start);
+            IEnumerable<SubCalendarEvent> orderedSubEvents = CalendarEvent.ActiveSubEvents.OrderBy(obj => obj.Start);
             Dictionary<string,CalendarEvent> AllEventDictionary_Cpy = AllEventDictionary.ToDictionary(obj => obj.Key, obj => obj.Value.createCopy());
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(new CustomErrors(true, "No Active Event Found", 100), AllEventDictionary_Cpy);
             if (orderedSubEvents.Count() > 0)
@@ -1966,7 +1965,7 @@ namespace My24HourTimerWPF
 
             foreach (SubCalendarEvent eachSubCalendarEvent in CannotFitInAnyFreespot)//builds dictionary NoFreeSpaceToConflictingSpaces by getting all the non free spots possible withing the attained freespots
             {
-                List<TimeLine> PossibleSpaces = AllFreeSpots.Select(obj => obj.InterferringTimeLine(eachSubCalendarEvent.RangeTimeLine)).Where(obj => obj != null).OrderByDescending(obj => obj.RangeSpan).ToList();
+                List<TimeLine> PossibleSpaces = AllFreeSpots.Select(obj => obj.InterferringTimeLine(eachSubCalendarEvent.getCalendarEventRange)).Where(obj => obj != null).OrderByDescending(obj => obj.RangeSpan).ToList();
                 
                 NoFreeSpaceToConflictingSpaces.Add(eachSubCalendarEvent, PossibleSpaces);
             }
@@ -2467,9 +2466,10 @@ namespace My24HourTimerWPF
             ///*
             List<SubCalendarEvent> toBemovedNewtwentyfourEvents = FirstTwentyFourHours.Select(obj => obj.Item1).ToList();
 
+            DateTime newStartTime = Now.calculationNow;
             DateTime newEndTime = Now.calculationNow.AddDays(1);
-            
-            TimeLine currentTwentyFourHourTImeline = new TimeLine(Now.calculationNow, newEndTime);
+
+            TimeLine currentTwentyFourHourTImeline = new TimeLine(newStartTime, newEndTime);
             List<SubCalendarEvent> CurrentTwentyFourHourCOnstituents = getInterferringSubEvents(currentTwentyFourHourTImeline, new List<CalendarEvent>() {ToBeFittedTimeLine}).ToList();//gets all event in twenty four hour span after stitch unrestriced
 
             IEnumerable<BlobSubCalendarEvent> InterferringBlob = Utility.getConflictingEvents(CurrentTwentyFourHourCOnstituents.Distinct());
@@ -2484,19 +2484,25 @@ namespace My24HourTimerWPF
             if (CurrentTwentyFourHourCOnstituents.Count() > 0)
             {
                 SubCalendarEvent LastEvent = CurrentTwentyFourHourCOnstituents.OrderBy(obj=>obj.End).Last();//gets the last event after ordering by end time to get the latest possible new end time
+                newStartTime = CurrentTwentyFourHourCOnstituents.Select(obj => obj.Start).Min();
+                
                 if (newEndTime < LastEvent.End)
                 {
                     newEndTime = LastEvent.End;
                 }
+                if (newStartTime > Now.calculationNow)
+                {
+                    newStartTime = Now.calculationNow;
+                }
             }
 
-            currentTwentyFourHourTImeline = new TimeLine(Now.calculationNow, newEndTime);//update the timeline with  newendtime just in case there is an extension
+            currentTwentyFourHourTImeline = new TimeLine(newStartTime, newEndTime);//update the timeline with  newendtime just in case there is an extension
             CurrentTwentyFourHourCOnstituents=CurrentTwentyFourHourCOnstituents.Where(obj=>!obj.Conflicts.isConflicting()) .OrderBy(obj=>obj.Start).ToList();//removes conflicting events and orders them
 
             //toBemovedNewtwentyfourEvents = toBemovedNewtwentyfourEvents.Where(obj => !CurrentTwentyFourHourCOnstituents.Contains(obj)).ToList();
             bool PinSuccess= Utility.PinSubEventsToStart(CurrentTwentyFourHourCOnstituents, currentTwentyFourHourTImeline);
 
-            /*
+            ///*
             List<SubCalendarEvent> movedOverEvents = PreserveFirstTwentyFourHours(CurrentTwentyFourHourCOnstituents, toBemovedNewtwentyfourEvents, currentTwentyFourHourTImeline);
             ///*
 
@@ -3017,7 +3023,8 @@ namespace My24HourTimerWPF
             TimeLine TotalTimeLine = nextSevenDaysTimeLine.CreateCopy();
 
             int i = 0;
-            while (refTImeLine.TimelineSpan.Ticks != 0)
+            int DayCounter = 7;
+            while ((refTImeLine.TimelineSpan.Ticks != 0)||DayCounter >0)
             {
 
                 IEnumerable<SubCalendarEvent> pertinentSubCalEvents = CurrentlyWithinNextSevendays.Where(obj => refTImeLine.InterferringTimeLine(obj.RangeTimeLine) != null).ToList();
@@ -3064,6 +3071,7 @@ namespace My24HourTimerWPF
                 DateTime NextEndTime = newEndTime.AddDays(1);
                 NextEndTime = NextEndTime > TotalTimeLine.End ? TotalTimeLine.End : NextEndTime;
                 refTImeLine = new TimeLine(newEndTime, NextEndTime);
+                --DayCounter;
                 i++;
             }
 

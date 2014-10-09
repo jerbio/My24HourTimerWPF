@@ -427,10 +427,9 @@ namespace TilerElements
 
         public bool PinToEnd(TimeLine LimitingTimeLine)
         {
-            DateTime ReferenceTime = new DateTime();
-            EndDateTime = this.getCalendarEventRange.End;
-            ReferenceTime = EndDateTime;
-            if (EndDateTime > LimitingTimeLine.End)
+            DateTime ReferenceTime = this.getCalendarEventRange.End;
+            EndDateTime.ToShortDateString();
+            if (ReferenceTime > LimitingTimeLine.End)
             {
                 ReferenceTime = LimitingTimeLine.End;
             }

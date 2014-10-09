@@ -961,13 +961,13 @@ namespace My24HourTimerWPF
         private void NowButtonClick(object sender, RoutedEventArgs e)
         {
             string EventID = textBox9.Text.Trim();
-            /*
+            ///*
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ScheduleUpdateMessage=MySchedule.SetCalendarEventAsNow(EventID);
 
-             MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2);
-            */
+             //MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2);
+            //*/
             
-            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ScheduleUpdateMessage = MySchedule.SetEventAsNow(EventID);
+           // Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ScheduleUpdateMessage = MySchedule.SetEventAsNow(EventID);
             if (ScheduleUpdateMessage.Item1.Status)
             {
                 switch (ScheduleUpdateMessage.Item1.Code)
@@ -975,7 +975,6 @@ namespace My24HourTimerWPF
                     case 5:
                         {
                             MessageBoxResult result = MessageBox.Show(ScheduleUpdateMessage.Item1.Message, "Do you want to continue with this collision? ", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
                             if (result == MessageBoxResult.Yes)
                             {
                                 ScheduleUpdateMessage=MySchedule.SetEventAsNow(EventID, true); ;
@@ -1178,18 +1177,18 @@ namespace My24HourTimerWPF
             //Tiler.LogControl.UpdateLogLocation(LogLocation);
             UserAccount currentUser = new UserAccount(UserNameTextBox.Text, PasswordTextBox.Text);
             DateTime refNow=DateTime.Now;
-            refNow = DateTime.Parse("9/22/2014 10:05 PM");
+            refNow = DateTime.Parse("10/5/2014 4:41 PM");
             MySchedule = new Schedule(currentUser, refNow);
             
             if (MySchedule.isScheduleLoadSuccessful)
             {
                 
                 tabItem2.IsEnabled = true;
-                datePicker1.SelectedDate = Schedule.Now.calculationNow.AddDays(1);// DateTime.Now.AddDays(0);
+                datePicker1.SelectedDate = Schedule.Now.calculationNow.AddDays(2);// DateTime.Now.AddDays(0);
                 //datePicker1.SelectedDate = DateTime.Now.AddDays(0);
                 //datePicker1.SelectedDate = new DateTime(2013, 11, 20, 0, 0, 0);
                 //datePicker2.SelectedDate = DateTime.Now.AddDays(2);
-                datePicker2.SelectedDate = Schedule.Now.calculationNow.AddDays(1);//new DateTime(2014, 5, 15, 0, 0, 0);
+                datePicker2.SelectedDate = Schedule.Now.calculationNow.AddDays(2);//new DateTime(2014, 5, 15, 0, 0, 0);
                 calendar4.SelectedDate = DateTime.Now.AddDays(0);
                 Random myNumber = new Random();
                 int RandomHour = myNumber.Next(0, 24);

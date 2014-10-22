@@ -44,9 +44,11 @@
   <ItemGroup>
     <Compile Include="BlobSubCalendarEvent.cs" />
     <Compile Include="BusyTimeLine.cs" />
+    <Compile Include="ConstrainedCalendarEvent.cs" />
     <Compile Include="CalendarEvent.cs" />
     <Compile Include="ConflictProfile.cs" />
     <Compile Include="EventLearn.cs" />
+    <Compile Include="ConstrainedSubCalendarEvent.cs" />
     <Compile Include="TilerColor.cs" />
     <Compile Include="CustomErrors.cs" />
     <Compile Include="EventDisplay.cs" />

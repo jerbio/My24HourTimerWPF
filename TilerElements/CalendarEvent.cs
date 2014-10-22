@@ -40,10 +40,10 @@ namespace TilerElements
         protected bool Enabled=true;
         protected EventDisplay UiParams= new EventDisplay();
         protected MiscData DataBlob=new MiscData();
-
         private Location_Elements LocationData;
         protected string otherPartyID;
         List<mTuple<EventID,string>> RemovedIDs;
+        protected ConstrictProfile ConstrictRange=null;
         #region Constructor
         public CalendarEvent(CustomErrors Error)
         {

@@ -585,20 +585,12 @@ namespace My24HourTimerWPF
         private Tuple<CustomErrors, Dictionary<string, CalendarEvent>> Procrastinate(CalendarEvent NewEvent)
         {
             HashSet<SubCalendarEvent> NotdoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
+            /*Dictionary<string, CalendarEvent> AllEventDictionary_Cpy = new Dictionary<string, CalendarEvent>();
+            AllEventDictionary_Cpy = AllEventDictionary.ToDictionary(obj => obj.Key, obj => obj.Value.createCopy());*/
             NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, NotdoneYet);
-            Dictionary<string, CalendarEvent> AllEventDictionary_Cpy = new Dictionary<string, CalendarEvent>();
-            AllEventDictionary_Cpy = AllEventDictionary.ToDictionary(obj => obj.Key, obj => obj.Value.createCopy());
-            try
-            {
-                AllEventDictionary.Add(NewEvent.ID, NewEvent);
-            }
-            catch
-            {
-                AllEventDictionary[NewEvent.ID] = NewEvent;
-            }
+            AllEventDictionary.Remove(NewEvent.ID);
 
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(NewEvent.Error, AllEventDictionary);
-            AllEventDictionary = AllEventDictionary_Cpy;
             return retValue;
         }
 
@@ -1300,7 +1292,7 @@ namespace My24HourTimerWPF
                     }
                 }
                 */
-                CalendarEvent tempCalendarEvent = CalendarEvent.getEmptyCalendarEvent(MyEvent.Calendar_EventID, MyEvent.Start, MyEvent.End);
+                CalendarEvent tempCalendarEvent = CalendarEvent.getEmptyCalendarEvent(MyEvent.Calendar_EventID, MyEvent.Start,MyEvent.Rigid?MyEvent.Start: MyEvent.End);//creates an "empty" calendar event. If the calEvent is rigid it has time span of zero
 
                 EvaluateTotalTimeLineAndAssignValidTimeSpots(tempCalendarEvent, UnDoneEvents, MyEvent.Repeat.RecurringCalendarEvents().ToList());
                 return MyEvent;
@@ -1319,7 +1311,7 @@ namespace My24HourTimerWPF
 
             i = 0;
             TimeSpan TotalFreeTimeAvailable = new TimeSpan();
-            if (MyEvent.Rigid)
+            /*if (MyEvent.Rigid)
             {
                 TempSubEvent = new SubCalendarEvent(MyEvent.ActiveDuration, MyEvent.Start, MyEvent.End, MyEvent.Preparation, MyEvent.ID, MyEvent.Rigid, MyEvent.isEnabled, MyEvent.UIParam, MyEvent.Notes, MyEvent.isComplete, MyEvent.myLocation, MyEvent.RangeTimeLine);
                 MyTempBusyTimerLine = new BusyTimeLine(TempSubEvent.ID, TempSubEvent.Start, TempSubEvent.End);
@@ -1328,10 +1320,9 @@ namespace My24HourTimerWPF
 
 
                 KeyValuePair<CalendarEvent, TimeLine> TimeLineAndCalendarUpdated = ReArrangeClashingEventsofRigid(MyEvent, NoneCOmmitedCalendarEvent.ToList(), InterringWithNowEvent);
-
                 CalendarEvent MyCalendarEventUpdated = TimeLineAndCalendarUpdated.Key;
 
-                if (MyCalendarEventUpdated != null && !MyCalendarEventUpdated.ErrorStatus)
+                if (MyCalendarEventUpdated != null)// && !MyCalendarEventUpdated.ErrorStatus)
                 {
                     string MyEventParentID = (new EventID(MyEvent.ID)).getCalendarEventComponent();
                     foreach (BusyTimeLine MyBusyTimeLine in TimeLineAndCalendarUpdated.Value.OccupiedSlots)
@@ -1353,10 +1344,6 @@ namespace My24HourTimerWPF
                                 {
                                     if (MyArrayOfSubCalendarEvents[i].ID == MyBusyTimeLine.TimeLineID)
                                     {
-                                        //string ThirdPartyID = MyArrayOfSubCalendarEvents[i].ThirdPartyID;
-                                        //SubCalendarEvent newSubCalevent = new SubCalendarEvent(MyBusyTimeLine.TimeLineID, MyBusyTimeLine.Start, MyBusyTimeLine.End, MyBusyTimeLine, MyArrayOfSubCalendarEvents[i].Rigid, MyArrayOfSubCalendarEvents[i].myLocation, AllEventDictionary[ParentID].RangeTimeLine);
-                                        //newSubCalevent.ThirdPartyID = ThirdPartyID;
-                                        //AllEventDictionary[ParentID].updateSubEvent(newSubCalevent.SubEvent_ID, newSubCalevent);
                                         SubCalendarEvent referenceSubCalEvent = MyArrayOfSubCalendarEvents[i];
                                         referenceSubCalEvent.shiftEvent(MyBusyTimeLine.Start - referenceSubCalEvent.Start);
                                         
@@ -1376,23 +1363,25 @@ namespace My24HourTimerWPF
 
                 return MyCalendarEventUpdated;
             }
-            else
+            else*/
             {
+                /*
+                 * used in previous system when we demacated without smartness
                 for (i = 0; i < FreeSpotsAvailableWithinValidTimeline.Count; i++)
                 {
                     TotalFreeTimeAvailable += FreeSpotsAvailableWithinValidTimeline[i].TimelineSpan;
                 }
-
+                */
                 //if (TotalFreeTimeAvailable >= MyEvent.ActiveDuration)
                 {
                     /*TimeLineArrayWithSubEventsAssigned = SplitFreeSpotsInToSubEventTimeSlots(FreeSpotsAvailableWithinValidTimeline.ToArray(), MyEvent.AllEvents.Length, MyEvent.ActiveDuration);
                     if (TimeLineArrayWithSubEventsAssigned == null)*/
                     {
-                        
-                        BusyTimeLine[] CompleteScheduleOccupiedSlots = CompleteSchedule.OccupiedSlots;
                         KeyValuePair<CalendarEvent, TimeLine> TimeLineAndCalendarUpdated = ReArrangeTimeLineWithinWithinCalendaEventRange(MyEvent, NoneCOmmitedCalendarEvent.ToList(), InterringWithNowEvent, UnDoneEvents);
                         CalendarEvent MyCalendarEventUpdated = TimeLineAndCalendarUpdated.Key;
+                        return MyCalendarEventUpdated;
                         //CompleteSchedule.OccupiedSlots = TimeLineAndCalendarUpdated.Value.OccupiedSlots;//hack need to review architecture to avoid this assignment
+                        /*
                         if (MyCalendarEventUpdated != null)// && !MyCalendarEventUpdated.ErrorStatus)
                         {
                             string MyEventParentID = (new EventID(MyEvent.ID)).getCalendarEventComponent();
@@ -1430,7 +1419,7 @@ namespace My24HourTimerWPF
                         else
                         {
                             throw new Exception("code generated a null calendar event. THis is weird");
-                        }
+                        }*/
                     }
                 }
             }
@@ -1697,9 +1686,13 @@ namespace My24HourTimerWPF
             List<SubCalendarEvent> SubEventsholder;
             TimeLine RangeForScheduleUpdate = initializingCalendarEvent.RangeTimeLine;
             IEnumerable<SubCalendarEvent> PertinentNotDoneYet = NotDoneYet.Where(obj => obj.getCalendarEventRange.InterferringTimeLine(RangeForScheduleUpdate) != null);
-
+            DateTime LatestInNonComited = new DateTime(NoneCommitedCalendarEventsEvents.Max(obj => obj.End.Ticks));
 
             LatestEndTime = PertinentNotDoneYet != null ? (PertinentNotDoneYet.Count() > 0 ? PertinentNotDoneYet.Select(obj => obj.getCalendarEventRange.End).Max() > RangeForScheduleUpdate.End ? PertinentNotDoneYet.Select(obj => obj.getCalendarEventRange.End).Max() : RangeForScheduleUpdate.End : RangeForScheduleUpdate.End) : RangeForScheduleUpdate.End;
+
+
+
+            LatestEndTime = LatestEndTime >= LatestInNonComited ? LatestEndTime : LatestInNonComited;
 
             //LatestEndTime=LatestEndTime.AddDays(6);
 
@@ -2021,12 +2014,16 @@ namespace My24HourTimerWPF
             List<SubCalendarEvent> ArrayOfInterferringSubEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToList();
             TimeLine RangeForScheduleUpdate = allInterferringSubCalEventsAndTimeLine.Item1;
             IEnumerable<SubCalendarEvent> NowEvents = allInterferringSubCalEventsAndTimeLine.Item4.Where(obj=>!obj.Rigid);
-            foreach (SubCalendarEvent eachSubCalendarEvent in NowEvents)
-            { 
-                //if(!eachSubCalendarEvent.Rigid)
-                {
-                    eachSubCalendarEvent.SetAsRigid();
+            if(InterferringWithNowFlag==0)
+            {
+                foreach (SubCalendarEvent eachSubCalendarEvent in NowEvents)
+                { 
+                    //if(!eachSubCalendarEvent.Rigid)
+                    {
+                        eachSubCalendarEvent.SetAsRigid();
+                    }
                 }
+
             }
             Now.UpdateNow(RangeForScheduleUpdate.Start);
             
@@ -2110,15 +2107,16 @@ namespace My24HourTimerWPF
                 MyCalendarEvent.UpdateError(allInterferringSubCalEventsAndTimeLine.Item3);
             }
 
-            
-            foreach (SubCalendarEvent eachSubCalendarEvent in NowEvents)
+            if (InterferringWithNowFlag == 0)
             {
-                //if(!eachSubCalendarEvent.Rigid)
+                foreach (SubCalendarEvent eachSubCalendarEvent in NowEvents)
                 {
-                    eachSubCalendarEvent.SetAsNonRigid();
+                    //if(!eachSubCalendarEvent.Rigid)
+                    {
+                        eachSubCalendarEvent.SetAsNonRigid();
+                    }
                 }
             }
-
             NoneCommitedCalendarEventsEvents.Remove(MyCalendarEvent);
             ReferenceTimeLine= ReferenceTimeLine.CreateCopy();
             ReferenceTimeLine.Empty();

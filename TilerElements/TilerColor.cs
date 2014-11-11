@@ -11,13 +11,15 @@ namespace TilerElements
         int Blue;
         int Green;
         double Opacity;
+        int ColorSelection;
         
-        public TilerColor(int RedColor = 255, int BlueColor = 255, int GreenColor = 255, double Opacity=1)
+        public TilerColor(int RedColor = 255, int BlueColor = 255, int GreenColor = 255, double Opacity=1, int Selection=-1)
         {
             Red = RedColor;
             Blue = BlueColor;
             Green = GreenColor;
             this.Opacity = Opacity;
+            ColorSelection = Selection;
         }
         
         #region Functions
@@ -107,6 +109,18 @@ namespace TilerElements
             get
             {
                 return Opacity;
+            }
+        }
+
+        public int User
+        {
+            set
+            {
+                ColorSelection=value;
+            }
+            get
+            {
+                return ColorSelection;
             }
         }
         #endregion

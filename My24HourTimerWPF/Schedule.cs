@@ -587,7 +587,7 @@ namespace My24HourTimerWPF
             HashSet<SubCalendarEvent> NotdoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
             /*Dictionary<string, CalendarEvent> AllEventDictionary_Cpy = new Dictionary<string, CalendarEvent>();
             AllEventDictionary_Cpy = AllEventDictionary.ToDictionary(obj => obj.Key, obj => obj.Value.createCopy());*/
-            NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, NotdoneYet);
+            NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, NotdoneYet,null,1);
             AllEventDictionary.Remove(NewEvent.ID);
 
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(NewEvent.Error, AllEventDictionary);
@@ -2501,12 +2501,19 @@ namespace My24HourTimerWPF
             bool PinSuccess= Utility.PinSubEventsToStart(CurrentTwentyFourHourCOnstituents, currentTwentyFourHourTImeline);
 
             ///*
-            List<SubCalendarEvent> movedOverEvents = PreserveFirstTwentyFourHours(CurrentTwentyFourHourCOnstituents, toBemovedNewtwentyfourEvents, currentTwentyFourHourTImeline);
-            ///*
+            ///
+            try
+            {
+                List<SubCalendarEvent> movedOverEvents = PreserveFirstTwentyFourHours(CurrentTwentyFourHourCOnstituents, toBemovedNewtwentyfourEvents, currentTwentyFourHourTImeline);
+                ///*
 
-            OPtimizeNextSevenDays(new List<CalendarEvent>(){ToBeFittedTimeLine});
+                OPtimizeNextSevenDays(new List<CalendarEvent>(){ToBeFittedTimeLine});
             //*/
-
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
             
 
             List<List<List<SubCalendarEvent>>> retValueContainer = new List<List<List<SubCalendarEvent>>>();

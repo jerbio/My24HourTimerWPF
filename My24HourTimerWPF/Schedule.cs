@@ -459,6 +459,7 @@ namespace My24HourTimerWPF
             return retValue.Error;
         }
 
+        
 
         
         public void markAsCompleteCalendarEventAndReadjust(string EventID)
@@ -2335,6 +2336,115 @@ namespace My24HourTimerWPF
             return RetValue;
         }
 
+        void resolveFirstTwentyFourHours(IEnumerable<SubCalendarEvent>AllSubCalEvents,CalendarEvent ToBeFittedTimeLine, IEnumerable<TimeLine> AllFreeSpots)
+        {
+            //function tries to preserve the order of the first twenty four hours. It starts by inserting the events that must be in the first twenty four timespan and then inserts the other ordered elements
+            /*
+            IEnumerable<SubCalendarEvent> MustExistWithinNextTwentyFour = mustExistInTheNextTwentyFourHours(AllSubCalEvents);
+            
+
+            DateTime endOfRestriction = Now.constNow.AddDays(1);
+            if (MustExistWithinNextTwentyFour.Count() > 0)
+            {
+                DateTime LatestEndTIme = MustExistWithinNextTwentyFour.OrderBy(obj => obj.getCalendarEventRange.End).Last().getCalendarEventRange.End;
+                endOfRestriction =  LatestEndTIme> endOfRestriction?LatestEndTIme:endOfRestriction;
+            }
+
+            TimeLine currentTwentyFourHourTImeline = new TimeLine(Now.constNow, endOfRestriction);
+
+            Dictionary<TimeLine,List<SubCalendarEvent>>RestrictedElements= stitchRestrictedSubCalendarEvent(AllFreeSpots.ToList(), MustExistWithinNextTwentyFour.ToList());
+            Dictionary<TimeLine, List<SubCalendarEvent>> resultOfStitchingFirstTwentyFour = new Dictionary<TimeLine, List<SubCalendarEvent>>();
+
+
+            foreach (TimeLine eachTimeLine  in  RestrictedElements.Select(obj=>obj.Key).OrderByDescending(obj=>obj.End))//tries top populate the first twenty four hour elements with elements that must be within first twenty four hours.
+            {
+                if(! Utility.PinSubEventsToStart(RestrictedElements[eachTimeLine],eachTimeLine))
+                {
+                    throw new Exception("theres an issue with pinning your events in the first twenty four hours");
+                }
+                resultOfStitchingFirstTwentyFour[eachTimeLine]=StitchUnrestricted(eachTimeLine, RestrictedElements[eachTimeLine], MustExistWithinNextTwentyFour.ToList());
+            }
+
+
+
+
+            ///*
+            List<SubCalendarEvent> toBemovedNewtwentyfourEvents = AllSubCalEvents.Where(obj => obj.RangeTimeLine.InterferringTimeLine(currentTwentyFourHourTImeline) != null).ToList();
+
+
+
+
+
+
+            List<SubCalendarEvent> CurrentTwentyFourHourCOnstituents = getInterferringSubEvents(currentTwentyFourHourTImeline, new List<CalendarEvent>() {ToBeFittedTimeLine}).ToList();//gets all event in twenty four hour span after stitch unrestriced
+
+            IEnumerable<BlobSubCalendarEvent> InterferringBlob = Utility.getConflictingEvents(CurrentTwentyFourHourCOnstituents.Distinct());
+            IEnumerable<SubCalendarEvent> AllInterFerringEvents = InterferringBlob.SelectMany(obj => obj.getSubCalendarEventsInBlob());
+
+
+            CurrentTwentyFourHourCOnstituents = CurrentTwentyFourHourCOnstituents.Except(AllInterFerringEvents).ToList();
+            CurrentTwentyFourHourCOnstituents = CurrentTwentyFourHourCOnstituents.Concat(InterferringBlob).ToList();
+
+            List<SubCalendarEvent> ordered_CurrentTwentyFourHourCOnstituents = CurrentTwentyFourHourCOnstituents.OrderBy(obj => obj.Start).ToList();
+
+            if (CurrentTwentyFourHourCOnstituents.Count() > 0)
+            {
+                SubCalendarEvent LastEvent = CurrentTwentyFourHourCOnstituents.OrderBy(obj=>obj.End).Last();//gets the last event after ordering by end time to get the latest possible new end time
+                newStartTime = CurrentTwentyFourHourCOnstituents.Select(obj => obj.Start).Min();
+                
+                if (newEndTime < LastEvent.End)
+                {
+                    newEndTime = LastEvent.End;
+                }
+                if (newStartTime > Now.calculationNow)
+                {
+                    newStartTime = Now.calculationNow;
+                }
+            }
+
+            currentTwentyFourHourTImeline = new TimeLine(newStartTime, newEndTime);//update the timeline with  newendtime just in case there is an extension
+            CurrentTwentyFourHourCOnstituents=CurrentTwentyFourHourCOnstituents.Where(obj=>!obj.Conflicts.isConflicting()) .OrderBy(obj=>obj.Start).ToList();//removes conflicting events and orders them
+
+            //toBemovedNewtwentyfourEvents = toBemovedNewtwentyfourEvents.Where(obj => !CurrentTwentyFourHourCOnstituents.Contains(obj)).ToList();
+            bool PinSuccess= Utility.PinSubEventsToStart(CurrentTwentyFourHourCOnstituents, currentTwentyFourHourTImeline);
+            List<SubCalendarEvent> movedOverEvents = PreserveFirstTwentyFourHours(CurrentTwentyFourHourCOnstituents, toBemovedNewtwentyfourEvents, currentTwentyFourHourTImeline);
+
+
+
+
+
+
+
+            ///new stuff
+
+
+
+
+            IEnumerable<SubCalendarEvent> MustExistWithinNextTwentyFour = mustExistInTheNextTwentyFourHours(AllSubCalEvents);
+
+            DateTime endOfRestriction = Now.constNow.AddDays(1);
+            if(MustExistWithinNextTwentyFour.Count()>0)
+            {
+                endOfRestriction= MustExistWithinNextTwentyFour.OrderBy(obj=>obj.getCalendarEventRange.End).Last().getCalendarEventRange.End;
+                
+            }
+
+            TimeLine restrictingTimeLine = new TimeLine(Now.constNow,endOfRestriction);
+
+
+            Dictionary<SubCalendarEvent, double> Fittability = MustExistWithinNextTwentyFour.ToDictionary(obj => obj, obj =>(double)obj.RangeTimeLine.TimelineSpan.Ticks/ obj.getCalendarEventRange.InterferringTimeLine(restrictingTimeLine).TimelineSpan.Ticks);
+            Fittability = Fittability.OrderByDescending(obj => obj.Value).ToDictionary(obj => obj.Key, obj => obj.Value);
+            */
+        }
+
+        IEnumerable<SubCalendarEvent> mustExistInTheNextTwentyFourHours(IEnumerable<SubCalendarEvent> AllSubCalEvents)
+        {
+            TimeLine DayTimeLine = new TimeLine(Now.constNow.AddDays(1), Now.constNow.AddYears(50));
+            IEnumerable<SubCalendarEvent> mustExistWithinTwentyFOur = AllSubCalEvents.Where(obj => !obj.canExistWithinTimeLine(DayTimeLine));
+            List<SubCalendarEvent> retValue = mustExistWithinTwentyFOur.ToList();
+            return retValue;
+        }
+
         List<List<List<SubCalendarEvent>>> BuildAllPossibleSnugLists(List<CalendarEvent> SortedInterferringCalendarEvents, CalendarEvent ToBeFittedTimeLine, Dictionary<CalendarEvent, List<SubCalendarEvent>> DictionaryWithBothCalendarEventsAndListOfInterferringSubEvents, TimeLine ReferenceTimeLine, double Occupancy)
         {
 
@@ -2459,52 +2569,9 @@ namespace My24HourTimerWPF
 
 
             AllInterferringSubEvents_Cpy_Hash.AsParallel().ForAll(obj => obj.Conflicts.UpdateConflictFlag(true));
-            List<SubCalendarEvent> allCOnflictingEvents = AllInterferringSubEvents_Cpy_Hash.Where(obj => obj.Conflicts.isConflicting()).ToList();
-            
-            ///*
-            List<SubCalendarEvent> toBemovedNewtwentyfourEvents = FirstTwentyFourHours.Select(obj => obj.Item1).ToList();
-
-            DateTime newStartTime = Now.calculationNow;
-            DateTime newEndTime = Now.calculationNow.AddDays(1);
-
-            TimeLine currentTwentyFourHourTImeline = new TimeLine(newStartTime, newEndTime);
-            List<SubCalendarEvent> CurrentTwentyFourHourCOnstituents = getInterferringSubEvents(currentTwentyFourHourTImeline, new List<CalendarEvent>() {ToBeFittedTimeLine}).ToList();//gets all event in twenty four hour span after stitch unrestriced
-
-            IEnumerable<BlobSubCalendarEvent> InterferringBlob = Utility.getConflictingEvents(CurrentTwentyFourHourCOnstituents.Distinct());
-            IEnumerable<SubCalendarEvent> AllInterFerringEvents = InterferringBlob.SelectMany(obj => obj.getSubCalendarEventsInBlob());
-
-
-            CurrentTwentyFourHourCOnstituents = CurrentTwentyFourHourCOnstituents.Except(AllInterFerringEvents).ToList();
-            CurrentTwentyFourHourCOnstituents = CurrentTwentyFourHourCOnstituents.Concat(InterferringBlob).ToList();
-
-            List<SubCalendarEvent> ordered_CurrentTwentyFourHourCOnstituents = CurrentTwentyFourHourCOnstituents.OrderBy(obj => obj.Start).ToList();
-
-            if (CurrentTwentyFourHourCOnstituents.Count() > 0)
-            {
-                SubCalendarEvent LastEvent = CurrentTwentyFourHourCOnstituents.OrderBy(obj=>obj.End).Last();//gets the last event after ordering by end time to get the latest possible new end time
-                newStartTime = CurrentTwentyFourHourCOnstituents.Select(obj => obj.Start).Min();
-                
-                if (newEndTime < LastEvent.End)
-                {
-                    newEndTime = LastEvent.End;
-                }
-                if (newStartTime > Now.calculationNow)
-                {
-                    newStartTime = Now.calculationNow;
-                }
-            }
-
-            currentTwentyFourHourTImeline = new TimeLine(newStartTime, newEndTime);//update the timeline with  newendtime just in case there is an extension
-            CurrentTwentyFourHourCOnstituents=CurrentTwentyFourHourCOnstituents.Where(obj=>!obj.Conflicts.isConflicting()) .OrderBy(obj=>obj.Start).ToList();//removes conflicting events and orders them
-
-            //toBemovedNewtwentyfourEvents = toBemovedNewtwentyfourEvents.Where(obj => !CurrentTwentyFourHourCOnstituents.Contains(obj)).ToList();
-            bool PinSuccess= Utility.PinSubEventsToStart(CurrentTwentyFourHourCOnstituents, currentTwentyFourHourTImeline);
-
-            ///*
-            ///
             try
             {
-                List<SubCalendarEvent> movedOverEvents = PreserveFirstTwentyFourHours(CurrentTwentyFourHourCOnstituents, toBemovedNewtwentyfourEvents, currentTwentyFourHourTImeline);
+                
                 ///*
 
                 OPtimizeNextSevenDays(new List<CalendarEvent>(){ToBeFittedTimeLine});

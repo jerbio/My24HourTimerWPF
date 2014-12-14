@@ -5,16 +5,17 @@ using System.Text;
 
 namespace TilerElements
 {
-    public class SubCalendarEvent : CalendarEvent
+    public class SubCalendarEvent : TilerEvent,IDefinedRange
     {
-        protected EventID UniqueID;
+        
         protected BusyTimeLine BusyFrame;
+        protected BusyTimeLine NonHumaneTimeLine;
+        protected BusyTimeLine HumaneTimeLine;
         TimeSpan AvailablePreceedingFreeSpace;
         protected TimeLine CalendarEventRange;
         protected double EventScore;
         protected ConflictProfile ConflictingEvents;
 
-        protected Location_Elements EventLocation;
         IList<EventID> InterferringEvents;
 
         int MiscIntData;
@@ -44,7 +45,7 @@ namespace TilerElements
             Complete=completeFlag;
             UniqueID = EventID.GenerateSubCalendarEvent(myParentID);
             BusyFrame = new BusyTimeLine(this.ID, StartDateTime, EndDateTime);//this is because in current implementation busy frame is the same as CalEvent frame
-            this.EventLocation = EventLocation;
+            this.LocationData = EventLocation;
             EventSequence = new EventTimeLine(UniqueID.ToString(), StartDateTime, EndDateTime);
             RigidSchedule = Rigid;
             this.Enabled = Enabled;
@@ -66,7 +67,7 @@ namespace TilerElements
             BusyFrame = MyBusylot;
             PrepTime = EventPrepTime;
             UniqueID = new EventID(MySubEventID);
-            this.EventLocation = EventLocation;
+            this.LocationData = EventLocation;
             
             UiParams=UiParam;
             DataBlob= Notes;
@@ -92,7 +93,7 @@ namespace TilerElements
             BusyFrame = SubEventBusy;
             RigidSchedule = Rigid;
             this.Enabled = Enabled;
-            this.EventLocation = EventLocation;
+            this.LocationData = EventLocation;
             UiParams = UiParam;
             DataBlob = Notes;
             Complete = completeFlag;
@@ -102,7 +103,7 @@ namespace TilerElements
 
         #region Class functions
 
-        public override string ToString()
+        public  string ToString()
         {
             return this.Start.ToString() + " - " + this.End.ToString() + "::" + this.ID + "\t\t::" + this.ActiveDuration.ToString();
         }
@@ -119,7 +120,8 @@ namespace TilerElements
 
         public void SetCompletionStatus(bool CompletionStatus,CalendarEvent myCalendarEvent)
         {
-            //Complete = CompletionStatus;
+            Complete = CompletionStatus;
+            UiParams.setCompleteUI(Complete);
             myCalendarEvent.setSubEventCompletionStatus(CompletionStatus, this);
             
         }
@@ -143,7 +145,7 @@ namespace TilerElements
             return arg1.ID != arg2.ID;
         }
         */
-        public override void ReassignTime(DateTime StartTime, DateTime EndTime)
+        public void ReassignTime(DateTime StartTime, DateTime EndTime)
         {
             EndDateTime = (EndTime);
             StartDateTime = StartTime;
@@ -153,12 +155,12 @@ namespace TilerElements
 
         public void SetAsRigid()
         {
-            Rigid = true;
+            RigidSchedule = true;
         }
 
         public void SetAsNonRigid()
         {
-            Rigid = false;
+            RigidSchedule = false;
         }
 
         public void DisableIfDeadlineHasPassed(DateTime CurrNow)
@@ -181,8 +183,8 @@ namespace TilerElements
             retValue.StartDateTime = DateTime.Now;
             retValue.EndDateTime = DateTime.Now;
             retValue.EventDuration = new TimeSpan(0);
-            retValue.Splits = 1;
-            retValue.Rigid = true;
+            
+            retValue.RigidSchedule= true;
             retValue.Complete = true;
             retValue.Enabled = false;
             return retValue;
@@ -190,7 +192,7 @@ namespace TilerElements
 
         public SubCalendarEvent createCopy()
         {
-            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ID, new DateTime(Start.Ticks), new DateTime(End.Ticks), BusyFrame.CreateCopy(), this.RigidSchedule, this.isEnabled, this.UiParams.createCopy(), this.Notes.createCopy(), this.Complete, this.EventLocation, new TimeLine(CalendarEventRange.Start, CalendarEventRange.End),ConflictingEvents.CreateCopy());
+            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ID, new DateTime(Start.Ticks), new DateTime(End.Ticks), BusyFrame.CreateCopy(), this.RigidSchedule, this.isEnabled, this.UiParams.createCopy(), this.Notes.createCopy(), this.Complete, this.LocationData, new TimeLine(CalendarEventRange.Start, CalendarEventRange.End),ConflictingEvents.CreateCopy());
             //MySubCalendarEventCopy.LocationData = LocationData;//note check for possible reference issues for future versions
             /*MySubCalendarEventCopy.SubEventID = SubEventID;
             MySubCalendarEventCopy.BusyFrame = BusyFrame;
@@ -206,7 +208,7 @@ namespace TilerElements
             return MySubCalendarEventCopy;
         }
 
-        override public void updateEventSequence()
+         public void updateEventSequence()
         {
             EventSequence = new TimeLine(this.Start, this.End);
             EventSequence.AddBusySlots(BusyFrame);
@@ -310,7 +312,7 @@ namespace TilerElements
                 AvailablePreceedingFreeSpace = SubEventEntry.AvailablePreceedingFreeSpace;
                 RigidSchedule = SubEventEntry.Rigid;
                 CalendarEventRange = SubEventEntry.CalendarEventRange;
-                EventLocation = SubEventEntry.EventLocation;
+                LocationData = SubEventEntry.LocationData;
                 Enabled = SubEventEntry.Enabled;
                 ThirdPartyID = SubEventEntry.ThirdPartyID;
                 return true;
@@ -547,11 +549,21 @@ namespace TilerElements
              return retValue;
          }
 
-         override public void SetEventEnableStatus(bool EnableDisableFlag)
+         public void SetEventEnableStatus(bool EnableDisableFlag)
          {
              /*Function enables or disables SubCalEvent*/
              
              this.Enabled = EnableDisableFlag;
+         }
+
+         public void UpdateInHumaneTimeLine()
+         {
+             NonHumaneTimeLine = ActiveSlot.CreateCopy();
+         }
+
+         public void UpdateHumaneTimeLine()
+         {
+             HumaneTimeLine = ActiveSlot.CreateCopy();
          }
         #endregion
 
@@ -592,33 +604,9 @@ namespace TilerElements
                 return MiscIntData;
             }
         }
-        public override DateTime End
-        {
-            get
-            {
-                return base.End;
-            }
-        }
-
-        public override DateTime Start
-        {
-            get
-            {
-                return base.Start;
-            }
-        }
         
-        public override string ThirdPartyID
-        {
-            get
-            {
-                return otherPartyID;
-            }
-            set
-            {
-                otherPartyID = value;
-            }
-        }
+        
+        
 
         public BusyTimeLine ActiveSlot
         {
@@ -667,7 +655,7 @@ namespace TilerElements
             }
         }
 
-        override public bool Rigid
+         public bool Rigid
         {
             get
             {
@@ -675,7 +663,7 @@ namespace TilerElements
             }
         }
 
-        public override TimeLine RangeTimeLine
+        public  TimeLine RangeTimeLine
         {
             get
             {
@@ -693,28 +681,10 @@ namespace TilerElements
             }
         }
 
-        override public Location_Elements myLocation
-        {
-            set
-            {
-                EventLocation = value;
-            }
-            get
-            {
-                return EventLocation;
-            }
-        }
-
-        override public bool isEnabled
-        {
-            get
-            {
-                return Enabled;
-            }
-        }
+        
 
 
-        override public Event_Struct toEvent_Struct
+        public Event_Struct toEvent_Struct
         {
             get
             {
@@ -728,7 +698,7 @@ namespace TilerElements
             }
         }
 
-        override public MiscData Notes
+         public MiscData Notes
         { 
             get
             {

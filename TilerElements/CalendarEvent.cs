@@ -9,46 +9,25 @@ using System.Xml;
 
 namespace TilerElements
 {
-    public class CalendarEvent : IDefinedRange
+    public class CalendarEvent : TilerEvent, IDefinedRange
     {
         // Fields
         public static Dictionary<string, List<Double>> DistanceMatrix;
         static List<string> DistanceMatixKeys;
         static List<Location_Elements> Horizontal;
-        
-        
-        protected TimeSpan EventDuration;
-        string CalendarEventName;
-        protected DateTime StartDateTime;
-        protected DateTime EndDateTime;
-        protected TimeSpan EventPreDeadline;
-        protected TimeSpan PrepTime;
-        protected int Priority;
-        protected bool RepetitionFlag;
         protected Repetition EventRepetition;
-        protected bool Complete = false;
-        protected bool RigidSchedule;
         protected int Splits;
         protected TimeSpan TimePerSplit;
-        protected EventID UniqueID;
-        protected TimeLine EventSequence;
-        Dictionary<EventID, SubCalendarEvent> SubEvents;
-        
-        //SubCalendarEvent[] ArrayOfSubEvents;
+//        protected bool FromRepetion=false;
+        protected Dictionary<EventID, SubCalendarEvent> SubEvents;
         protected bool SchedulStatus;
         CustomErrors CalendarError = new CustomErrors(false, string.Empty);
-        protected bool Enabled=true;
-        protected EventDisplay UiParams= new EventDisplay();
-        protected MiscData DataBlob=new MiscData();
-
-        private Location_Elements LocationData;
-        protected string otherPartyID;
         List<mTuple<EventID,string>> RemovedIDs;
         #region Constructor
         public CalendarEvent(CustomErrors Error)
         {
             EventDuration = new TimeSpan();
-            CalendarEventName = "";
+            EventName = "";
             StartDateTime = new DateTime();
             EndDateTime = new DateTime();
             EventPreDeadline = new TimeSpan();
@@ -71,7 +50,7 @@ namespace TilerElements
         public CalendarEvent()
         {
             EventDuration = new TimeSpan();
-            CalendarEventName = "";
+            EventName = "";
             StartDateTime = new DateTime();
             EndDateTime = new DateTime();
             EventPreDeadline = new TimeSpan();
@@ -100,7 +79,7 @@ namespace TilerElements
         }
         public CalendarEvent(CalendarEvent MyUpdated, SubCalendarEvent[] MySubEvents)
         {
-            CalendarEventName = MyUpdated.Name;
+            EventName = MyUpdated.Name;
             
             StartDateTime = MyUpdated.StartDateTime;
             EndDateTime = MyUpdated.End;
@@ -147,7 +126,7 @@ namespace TilerElements
         }
         public CalendarEvent(EventID EventIDEntry, string EventName, TimeSpan Event_Duration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, TimeSpan Event_PreDeadline, bool EventRigidFlag, Repetition EventRepetitionEntry, int EventSplit, Location_Elements EventLocation, bool enabledFlag, EventDisplay UiData, MiscData NoteData, bool CompletionFlag)
         {
-            CalendarEventName = EventName;
+            EventName = EventName;
             StartDateTime = EventStart;
             EndDateTime = EventDeadline;
             EventDuration = Event_Duration;
@@ -185,7 +164,7 @@ namespace TilerElements
         }
         public CalendarEvent(string EventName, TimeSpan Event_Duration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, TimeSpan Event_PreDeadline, bool EventRigidFlag, Repetition EventRepetitionEntry, int EventSplit, Location_Elements EventLocation, bool EnableFlag, EventDisplay UiData, MiscData NoteData, bool CompletionFlag)
         {
-            CalendarEventName = EventName;
+            EventName = EventName;
             /*CalendarEventName = EventName.Split(',')[0];
             LocationString = "";
             if (EventName.Split(',').Length > 1)
@@ -261,9 +240,9 @@ namespace TilerElements
 
         public CalendarEvent createCopy()
         {
-            CalendarEvent MyCalendarEventCopy = new SubCalendarEvent();
+            CalendarEvent MyCalendarEventCopy = new CalendarEvent();
             MyCalendarEventCopy.EventDuration = new TimeSpan(EventDuration.Ticks);
-            MyCalendarEventCopy.CalendarEventName = CalendarEventName.ToString();
+            MyCalendarEventCopy.EventName = EventName.ToString();
             MyCalendarEventCopy.StartDateTime = new DateTime(StartDateTime.Ticks);
             MyCalendarEventCopy.EndDateTime = new DateTime(EndDateTime.Ticks);
             MyCalendarEventCopy.EventPreDeadline = new TimeSpan(EventPreDeadline.Ticks);
@@ -361,8 +340,6 @@ namespace TilerElements
 
         public void setSubEventCompletionStatus(bool completionStatus,SubCalendarEvent mySubEVent)
         {
-            mySubEVent.Complete = completionStatus;
-            mySubEVent.UiParams.setCompleteUI(completionStatus);
             if (ActiveSubEvents.Count() < 1)
             {
                 Complete = true;//hack alert this can pose a problem if all events are not loaded into memory make a check if fully loaded into memory
@@ -856,7 +833,7 @@ namespace TilerElements
             {
                 if (SubEvents.ContainsKey(SubEventID))
                 {
-                    SubCalendarEvent NewSubCalEvent = new SubCalendarEvent(SubEventID.ToString(), UpdatedSubEvent.Start, UpdatedSubEvent.End, UpdatedSubEvent.ActiveSlot, UpdatedSubEvent.Rigid, UpdatedSubEvent.isEnabled, UpdatedSubEvent.UiParams, UpdatedSubEvent.Notes, UpdatedSubEvent.Complete, UpdatedSubEvent.myLocation, this.RangeTimeLine);
+                    SubCalendarEvent NewSubCalEvent = new SubCalendarEvent(SubEventID.ToString(), UpdatedSubEvent.Start, UpdatedSubEvent.End, UpdatedSubEvent.ActiveSlot, UpdatedSubEvent.Rigid, UpdatedSubEvent.isEnabled, UpdatedSubEvent.UIParam, UpdatedSubEvent.Notes, UpdatedSubEvent.isComplete, UpdatedSubEvent.myLocation, this.RangeTimeLine);
                     SubCalendarEvent CurrentSubEvent = SubEvents[SubEventID];
                     NewSubCalEvent.ThirdPartyID = CurrentSubEvent.ThirdPartyID;
                     SubEvents[SubEventID] = NewSubCalEvent;//using method as opposed to the UpdateThis function because of the canexistwithintimeline function test in the UpdateThis function
@@ -1048,7 +1025,7 @@ namespace TilerElements
             if ((this.ID == CalendarEventEntry.ID))
             {
                 EventDuration=CalendarEventEntry.ActiveDuration;
-                CalendarEventName=CalendarEventEntry.Name;
+                EventName=CalendarEventEntry.Name;
                 StartDateTime=CalendarEventEntry.StartDateTime;
                 EndDateTime=CalendarEventEntry.EndDateTime;
                 EventPreDeadline=CalendarEventEntry.PreDeadline;
@@ -1147,7 +1124,7 @@ namespace TilerElements
         {
             get
             {
-                return CalendarEventName;
+                return EventName;
             }
         }
         public TimeSpan TimeLeftBeforeDeadline
@@ -1203,35 +1180,10 @@ namespace TilerElements
                 return EventRepetition;
             }
         }
-        public bool isComplete
-        {
-            get
-            {
-                return Complete;
-            }
-        }
+        
 
-        public virtual bool isActive
-        {
-            get
-            {
-                return ((!isComplete)&&(isEnabled));
-            }
-        }
-        public TimeSpan Preparation
-        {
-            get
-            {
-                return PrepTime;
-            }
-        }
-        public TimeSpan PreDeadline
-        {
-            get
-            {
-                return EventPreDeadline;
-            }
-        }
+        
+        
         public TimeSpan ActiveDuration
         {
             get
@@ -1388,13 +1340,7 @@ namespace TilerElements
             }
         }
 
-        virtual public bool isEnabled
-        {
-            get
-            {
-                return Enabled;
-            }
-        }
+        
 
         virtual public Event_Struct toEvent_Struct
         {
@@ -1411,13 +1357,7 @@ namespace TilerElements
         }
 
 
-        virtual public EventDisplay UIParam
-        {
-            get
-            {
-                return UiParams;
-            }
-        }
+        
 
         virtual public MiscData Notes
         {

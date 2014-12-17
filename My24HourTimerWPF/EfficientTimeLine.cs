@@ -9,7 +9,7 @@ namespace My24HourTimerWPF
     class EfficientTimeLine
     {
 
-        public Dictionary<int, Tuple<DateTime, TimeLine, DateTime, TimeLine>> TimeLineData;
+        public Dictionary<int, Tuple<DateTimeOffset, TimeLine, DateTimeOffset, TimeLine>> TimeLineData;
         public TimeLine RestrictingTimeLine;
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
         public EfficientTimeLine(TimeLine RestrictiveTimeLine, Dictionary<SubCalendarEvent, TimeLine> SubCalEvent_RestrictingTimeLine)
@@ -54,12 +54,12 @@ namespace My24HourTimerWPF
         {
             int Index = 0;
             SubCalendarEvent[] ListOfSortedSubCalEvents = SubCalEvent_RestrictingTimeLine.Keys.ToArray();
-            TimeLineData.Add(Index, new Tuple<DateTime,TimeLine,DateTime,TimeLine>(RestrictingTimeLine.Start,new TimeLine(RestrictingTimeLine.Start,RestrictingTimeLine.Start), ListOfSortedSubCalEvents[Index].Start,SubCalEvent_RestrictingTimeLine[ListOfSortedSubCalEvents[Index]]));
+            TimeLineData.Add(Index, new Tuple<DateTimeOffset,TimeLine,DateTimeOffset,TimeLine>(RestrictingTimeLine.Start,new TimeLine(RestrictingTimeLine.Start,RestrictingTimeLine.Start), ListOfSortedSubCalEvents[Index].Start,SubCalEvent_RestrictingTimeLine[ListOfSortedSubCalEvents[Index]]));
             for (; Index < ListOfSortedSubCalEvents.Length-1; Index++)
             {
-                TimeLineData.Add(Index+1, new Tuple<DateTime, TimeLine, DateTime, TimeLine>(ListOfSortedSubCalEvents[Index].End, SubCalEvent_RestrictingTimeLine[ListOfSortedSubCalEvents[Index]], ListOfSortedSubCalEvents[Index+1].Start, SubCalEvent_RestrictingTimeLine[ListOfSortedSubCalEvents[Index+1]])); 
+                TimeLineData.Add(Index+1, new Tuple<DateTimeOffset, TimeLine, DateTimeOffset, TimeLine>(ListOfSortedSubCalEvents[Index].End, SubCalEvent_RestrictingTimeLine[ListOfSortedSubCalEvents[Index]], ListOfSortedSubCalEvents[Index+1].Start, SubCalEvent_RestrictingTimeLine[ListOfSortedSubCalEvents[Index+1]])); 
             }
-            TimeLineData.Add(Index + 1, new Tuple<DateTime, TimeLine, DateTime, TimeLine>(ListOfSortedSubCalEvents[Index].End, SubCalEvent_RestrictingTimeLine[ListOfSortedSubCalEvents[Index]], RestrictingTimeLine.End,new TimeLine(RestrictingTimeLine.End,RestrictingTimeLine.End)  )); 
+            TimeLineData.Add(Index + 1, new Tuple<DateTimeOffset, TimeLine, DateTimeOffset, TimeLine>(ListOfSortedSubCalEvents[Index].End, SubCalEvent_RestrictingTimeLine[ListOfSortedSubCalEvents[Index]], RestrictingTimeLine.End,new TimeLine(RestrictingTimeLine.End,RestrictingTimeLine.End)  )); 
         }
 
 

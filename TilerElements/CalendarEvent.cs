@@ -28,8 +28,8 @@ namespace TilerElements
         {
             EventDuration = new TimeSpan();
             EventName = "";
-            StartDateTime = new DateTime();
-            EndDateTime = new DateTime();
+            StartDateTime = new DateTimeOffset();
+            EndDateTime = new DateTimeOffset();
             EventPreDeadline = new TimeSpan();
             PrepTime = new TimeSpan();
             Priority = 0;
@@ -51,8 +51,8 @@ namespace TilerElements
         {
             EventDuration = new TimeSpan();
             EventName = "";
-            StartDateTime = new DateTime();
-            EndDateTime = new DateTime();
+            StartDateTime = new DateTimeOffset();
+            EndDateTime = new DateTimeOffset();
             EventPreDeadline = new TimeSpan();
             PrepTime = new TimeSpan();
             Priority = 0;
@@ -70,10 +70,10 @@ namespace TilerElements
         }
 
         //CalendarEvent MyCalendarEvent = new CalendarEvent(NameEntry, Duration, StartDate, EndDate, PrepTime, PreDeadline, Rigid, Repeat, Split);
-        public CalendarEvent(string EventIDEntry, string NameEntry, string StartTime, DateTime StartDateEntry, string EndTime, DateTime EventEndDateEntry, string eventSplit, string PreDeadlineTime, string EventDuration, Repetition EventRepetitionEntry, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag, Location_Elements EventLocation, bool EnableFlag, EventDisplay UiData, MiscData NoteData, bool CompletionFlag)
+        public CalendarEvent(string EventIDEntry, string NameEntry, string StartTime, DateTimeOffset StartDateEntry, string EndTime, DateTimeOffset EventEndDateEntry, string eventSplit, string PreDeadlineTime, string EventDuration, Repetition EventRepetitionEntry, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag, Location_Elements EventLocation, bool EnableFlag, EventDisplay UiData, MiscData NoteData, bool CompletionFlag)
             : this(new ConstructorModified(EventIDEntry, NameEntry, StartTime, StartDateEntry, EndTime, EventEndDateEntry, eventSplit, PreDeadlineTime, EventDuration, EventRepetitionEntry, DefaultPrepTimeflag, RigidScheduleFlag, eventPrepTime, PreDeadlineFlag, EnableFlag,  UiData,  NoteData, CompletionFlag), new EventID(EventIDEntry), EventLocation)
         { }
-        public CalendarEvent(string NameEntry, string StartTime, DateTime StartDateEntry, string EndTime, DateTime EventEndDateEntry, string eventSplit, string PreDeadlineTime, string EventDuration, Repetition EventRepetitionEntry, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag,Location_Elements EventLocation,bool EnabledEventFlag, EventDisplay UiData,MiscData NoteData,bool CompletionFlag)
+        public CalendarEvent(string NameEntry, string StartTime, DateTimeOffset StartDateEntry, string EndTime, DateTimeOffset EventEndDateEntry, string eventSplit, string PreDeadlineTime, string EventDuration, Repetition EventRepetitionEntry, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag,Location_Elements EventLocation,bool EnabledEventFlag, EventDisplay UiData,MiscData NoteData,bool CompletionFlag)
             : this(new ConstructorModified(NameEntry, StartTime, StartDateEntry, EndTime, EventEndDateEntry, eventSplit, PreDeadlineTime, EventDuration, EventRepetitionEntry, DefaultPrepTimeflag, RigidScheduleFlag, eventPrepTime, PreDeadlineFlag, EnabledEventFlag,  UiData, NoteData, CompletionFlag), EventLocation)
         {
         }
@@ -124,9 +124,9 @@ namespace TilerElements
             : this(UpdatedConstructor.Name, UpdatedConstructor.Duration, UpdatedConstructor.StartDate, UpdatedConstructor.EndDate, UpdatedConstructor.PrepTime, UpdatedConstructor.PreDeadline, UpdatedConstructor.Rigid, UpdatedConstructor.Repeat, UpdatedConstructor.Split, EventLocation,UpdatedConstructor.Enabled,UpdatedConstructor.ui,UpdatedConstructor.noteData,UpdatedConstructor.complete)
         {
         }
-        public CalendarEvent(EventID EventIDEntry, string EventName, TimeSpan Event_Duration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, TimeSpan Event_PreDeadline, bool EventRigidFlag, Repetition EventRepetitionEntry, int EventSplit, Location_Elements EventLocation, bool enabledFlag, EventDisplay UiData, MiscData NoteData, bool CompletionFlag)
+        public CalendarEvent(EventID EventIDEntry, string EventName, TimeSpan Event_Duration, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, TimeSpan Event_PreDeadline, bool EventRigidFlag, Repetition EventRepetitionEntry, int EventSplit, Location_Elements EventLocation, bool enabledFlag, EventDisplay UiData, MiscData NoteData, bool CompletionFlag)
         {
-            EventName = EventName;
+            this.EventName = EventName;
             StartDateTime = EventStart;
             EndDateTime = EventDeadline;
             EventDuration = Event_Duration;
@@ -154,7 +154,7 @@ namespace TilerElements
             SubEvents = new Dictionary<EventID, SubCalendarEvent>();
             for (int i = 0; i < Splits; i++)
             {
-                //(TimeSpan Event_Duration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, Location EventLocation =null, TimeLine RangeOfSubCalEvent = null)
+                //(TimeSpan Event_Duration, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, Location EventLocation =null, TimeLine RangeOfSubCalEvent = null)
                 SubCalendarEvent newSubCalEvent = new SubCalendarEvent(TimePerSplit, (EndDateTime - TimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), RigidSchedule,this.isEnabled, this.UiParams,this.Notes,this.Complete, EventLocation, this.RangeTimeLine);
                 SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
             }
@@ -162,9 +162,9 @@ namespace TilerElements
             EventSequence = new TimeLine(StartDateTime, EndDateTime);
             UpdateLocationMatrix(EventLocation);
         }
-        public CalendarEvent(string EventName, TimeSpan Event_Duration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, TimeSpan Event_PreDeadline, bool EventRigidFlag, Repetition EventRepetitionEntry, int EventSplit, Location_Elements EventLocation, bool EnableFlag, EventDisplay UiData, MiscData NoteData, bool CompletionFlag)
+        public CalendarEvent(string EventName, TimeSpan Event_Duration, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, TimeSpan Event_PreDeadline, bool EventRigidFlag, Repetition EventRepetitionEntry, int EventSplit, Location_Elements EventLocation, bool EnableFlag, EventDisplay UiData, MiscData NoteData, bool CompletionFlag)
         {
-            EventName = EventName;
+            this.EventName = EventName;
             /*CalendarEventName = EventName.Split(',')[0];
             LocationString = "";
             if (EventName.Split(',').Length > 1)
@@ -225,8 +225,8 @@ namespace TilerElements
             //new TimeSpan((long)((().TotalSeconds/ ArrayOfEvents.Length)*100000000));
             TimeSpanEvent = new TimeSpan(((long)TimeSpanEvent.TotalMilliseconds * 10000) / ArrayOfEvents.Length);
             TimeSpan ActiveDurationPerSubEvents = new TimeSpan((long)(((TotalActiveDurationSubEvents.TotalSeconds) * 10000000) / ArrayOfEvents.Length));
-            DateTime SubStart;
-            DateTime SubEnd;
+            DateTimeOffset SubStart;
+            DateTimeOffset SubEnd;
             for (int i = 0; i < ArrayOfEvents.Length; i++)
             {
                 SubStart = StartDateTime.AddSeconds(TimeSpanEvent.TotalSeconds * i);
@@ -243,8 +243,8 @@ namespace TilerElements
             CalendarEvent MyCalendarEventCopy = new CalendarEvent();
             MyCalendarEventCopy.EventDuration = new TimeSpan(EventDuration.Ticks);
             MyCalendarEventCopy.EventName = EventName.ToString();
-            MyCalendarEventCopy.StartDateTime = new DateTime(StartDateTime.Ticks);
-            MyCalendarEventCopy.EndDateTime = new DateTime(EndDateTime.Ticks);
+            MyCalendarEventCopy.StartDateTime = new DateTimeOffset(StartDateTime.Ticks, new TimeSpan());
+            MyCalendarEventCopy.EndDateTime = new DateTimeOffset(EndDateTime.Ticks, new TimeSpan());
             MyCalendarEventCopy.EventPreDeadline = new TimeSpan(EventPreDeadline.Ticks);
             MyCalendarEventCopy.PrepTime = new TimeSpan(PrepTime.Ticks);
             MyCalendarEventCopy.Priority = Priority;
@@ -275,7 +275,7 @@ namespace TilerElements
             return MyCalendarEventCopy;
         }
 
-        public static CalendarEvent getEmptyCalendarEvent( EventID myEventID,DateTime Start=new DateTime(), DateTime End=new DateTime())
+        public static CalendarEvent getEmptyCalendarEvent( EventID myEventID,DateTimeOffset Start=new DateTimeOffset(), DateTimeOffset End=new DateTimeOffset())
         {
             CalendarEvent retValue = new CalendarEvent();
             retValue.UniqueID = new EventID( myEventID.getCalendarEventID());
@@ -351,7 +351,7 @@ namespace TilerElements
         }
 
 
-        public bool IsDateTimeWithin(DateTime DateTimeEntry)
+        public bool IsDateTimeWithin(DateTimeOffset DateTimeEntry)
         {
             return RangeTimeLine.IsDateTimeWithin(DateTimeEntry);
         }
@@ -489,7 +489,7 @@ namespace TilerElements
             {
                 throw new Exception("Oh oh Calendar event isn't within Timeline range. Check PinSubEventsToEnd :(");
             }
-            DateTime ReferenceTime = new DateTime();
+            DateTimeOffset ReferenceTime = new DateTimeOffset();
             if (End > MyTimeLine.End)
             {
                 ReferenceTime = MyTimeLine.End;
@@ -508,7 +508,7 @@ namespace TilerElements
             return MyTimeLine;
         }
 
-        virtual public void ReassignTime(DateTime StartTime, DateTime EndTime)
+        virtual public void ReassignTime(DateTimeOffset StartTime, DateTimeOffset EndTime)
         {
             StartDateTime = StartTime;
             EndDateTime = EndTime;
@@ -537,8 +537,8 @@ namespace TilerElements
         virtual public TimeLine PinSubEventsToStart(TimeLine MyTimeLine, List<SubCalendarEvent> MySubCalendarEventList)
         {
             TimeSpan SubCalendarTimeSpan = new TimeSpan();
-            DateTime ReferenceStartTime = new DateTime();
-            DateTime ReferenceEndTime = new DateTime();
+            DateTimeOffset ReferenceStartTime = new DateTimeOffset();
+            DateTimeOffset ReferenceEndTime = new DateTimeOffset();
             
             ReferenceStartTime = MyTimeLine.Start;
             if (this.Start > MyTimeLine.Start)
@@ -577,8 +577,8 @@ namespace TilerElements
             List<BusyTimeLine> MyActiveSlot = new List<BusyTimeLine>();
             foreach (SubCalendarEvent MySubCalendarEvent in MySubCalendarEventList)
             {
-                DateTime MyStartTime = ReferenceStartTime;
-                DateTime EndTIme = MyStartTime + MySubCalendarEvent.ActiveDuration;
+                DateTimeOffset MyStartTime = ReferenceStartTime;
+                DateTimeOffset EndTIme = MyStartTime + MySubCalendarEvent.ActiveDuration;
                 MySubCalendarEvent.ActiveSlot = new BusyTimeLine(MySubCalendarEvent.ID, (MyStartTime), EndTIme);
                 ReferenceStartTime = EndTIme;
                 MyActiveSlot.Add(MySubCalendarEvent.ActiveSlot);
@@ -591,8 +591,8 @@ namespace TilerElements
         {
             public string Name;
             public TimeSpan Duration;
-            public DateTime StartDate;
-            public DateTime EndDate;
+            public DateTimeOffset StartDate;
+            public DateTimeOffset EndDate;
             public TimeSpan PrepTime;
             public TimeSpan PreDeadline;
             public bool Rigid;
@@ -606,7 +606,7 @@ namespace TilerElements
             
             public Location_Elements CalendarEventLocation;
 
-            public ConstructorModified(string EventIDEntry, string NameEntry, string StartTime, DateTime StartDateEntry, string EndTime, DateTime EventEndDateEntry, string eventSplit, string PreDeadlineTime, string EventDuration, Repetition EventRepetition, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag, bool EnabledEventFlag, EventDisplay UiData, MiscData NoteData, bool CompletionFlag)
+            public ConstructorModified(string EventIDEntry, string NameEntry, string StartTime, DateTimeOffset StartDateEntry, string EndTime, DateTimeOffset EventEndDateEntry, string eventSplit, string PreDeadlineTime, string EventDuration, Repetition EventRepetition, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag, bool EnabledEventFlag, EventDisplay UiData, MiscData NoteData, bool CompletionFlag)
             {
                 CalendarEventID = new EventID(EventIDEntry);
                 Enabled = EnabledEventFlag;
@@ -614,9 +614,9 @@ namespace TilerElements
                 EventDuration=EventDuration.Replace(".", ":");
                 //EventDuration = EventDuration + ":00";
                 string MiltaryStartTime = convertTimeToMilitary(StartTime);
-                StartDate = new DateTime(StartDateEntry.Year, StartDateEntry.Month, StartDateEntry.Day, Convert.ToInt32(MiltaryStartTime.Split(':')[0]), Convert.ToInt32(MiltaryStartTime.Split(':')[1]), 0);
+                StartDate = new DateTimeOffset(StartDateEntry.Year, StartDateEntry.Month, StartDateEntry.Day, Convert.ToInt32(MiltaryStartTime.Split(':')[0]), Convert.ToInt32(MiltaryStartTime.Split(':')[1]), 0, new TimeSpan());
                 string MiltaryEndTime = convertTimeToMilitary(EndTime);
-                EndDate = new DateTime(EventEndDateEntry.Year, EventEndDateEntry.Month, EventEndDateEntry.Day, Convert.ToInt32(MiltaryEndTime.Split(':')[0]), Convert.ToInt32(MiltaryEndTime.Split(':')[1]), 0);
+                EndDate = new DateTimeOffset(EventEndDateEntry.Year, EventEndDateEntry.Month, EventEndDateEntry.Day, Convert.ToInt32(MiltaryEndTime.Split(':')[0]), Convert.ToInt32(MiltaryEndTime.Split(':')[1]), 0, new TimeSpan());
                 
                 string[] TimeDuration = EventDuration.Split(':');
                 double AllMinutes = TimeSpan.Parse(EventDuration).TotalMinutes;
@@ -658,15 +658,15 @@ namespace TilerElements
                 Rigid = RigidScheduleFlag;
                 Repeat = EventRepetition;
             }
-            public ConstructorModified(string NameEntry, string StartTime, DateTime StartDateEntry, string EndTime, DateTime EventEndDateEntry, string eventSplit, string PreDeadlineTime, string EventDuration, Repetition EventRepetition, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag, bool EnabledEventFlag, EventDisplay UiData, MiscData NoteData, bool CompletionFlag)
+            public ConstructorModified(string NameEntry, string StartTime, DateTimeOffset StartDateEntry, string EndTime, DateTimeOffset EventEndDateEntry, string eventSplit, string PreDeadlineTime, string EventDuration, Repetition EventRepetition, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag, bool EnabledEventFlag, EventDisplay UiData, MiscData NoteData, bool CompletionFlag)
             {
                 Name = NameEntry;//.Split(',')[0];
                 
                 //EventDuration = EventDuration
                 string MiltaryStartTime = convertTimeToMilitary(StartTime);
-                StartDate = new DateTime(StartDateEntry.Year, StartDateEntry.Month, StartDateEntry.Day, Convert.ToInt32(MiltaryStartTime.Split(':')[0]), Convert.ToInt32(MiltaryStartTime.Split(':')[1]), 0);
+                StartDate = new DateTimeOffset(StartDateEntry.Year, StartDateEntry.Month, StartDateEntry.Day, Convert.ToInt32(MiltaryStartTime.Split(':')[0]), Convert.ToInt32(MiltaryStartTime.Split(':')[1]), 0, new TimeSpan());
                 string MiltaryEndTime = convertTimeToMilitary(EndTime);
-                EndDate = new DateTime(EventEndDateEntry.Year, EventEndDateEntry.Month, EventEndDateEntry.Day, Convert.ToInt32(MiltaryEndTime.Split(':')[0]), Convert.ToInt32(MiltaryEndTime.Split(':')[1]), 0);
+                EndDate = new DateTimeOffset(EventEndDateEntry.Year, EventEndDateEntry.Month, EventEndDateEntry.Day, Convert.ToInt32(MiltaryEndTime.Split(':')[0]), Convert.ToInt32(MiltaryEndTime.Split(':')[1]), 0, new TimeSpan());
                 //
                 //string[] TimeDuration = EventDuration.Split(':');
                 double AllMinutes = TimeSpan.Parse(EventDuration).TotalMinutes;
@@ -749,8 +749,8 @@ namespace TilerElements
 
             string convertTimeToMilitary(string TimeString)
             {
-               // TimeString = (DateTime.Parse(TimeString)).ToString("YYYY-MM-DD HH:mm:ss");
-                DateTime ParsedTime = (DateTime.Parse(TimeString));
+               // TimeString = (DateTimeOffset.Parse(TimeString)).ToString("YYYY-MM-DD HH:mm:ss");
+                DateTimeOffset ParsedTime = (DateTimeOffset.Parse(TimeString));
                 TimeString = ParsedTime.ToString("HH:mm");
                 return TimeString;
                 
@@ -978,9 +978,9 @@ namespace TilerElements
             //TimeString=TimeString.Substring(0, 5);
             return TimeString;
         }
-        protected DateTime[] getActiveSlots()
+        protected DateTimeOffset[] getActiveSlots()
         {
-            return new DateTime[0];
+            return new DateTimeOffset[0];
         }
         public CalendarEvent GetAllScheduleEventsFromXML()
         {
@@ -1131,17 +1131,17 @@ namespace TilerElements
         {
             get
             {
-                return EndDateTime - DateTime.Now;
+                return EndDateTime - DateTimeOffset.Now;
             }
         }
-        virtual public DateTime Start
+        virtual public DateTimeOffset Start
         {
             get
             {
                 return StartDateTime;
             }
         }
-        virtual public DateTime End
+        virtual public DateTimeOffset End
         {
             get
             {

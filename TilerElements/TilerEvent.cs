@@ -8,8 +8,8 @@ namespace TilerElements
     public abstract class TilerEvent
     {
         protected string EventName;
-        protected DateTime StartDateTime;
-        protected DateTime EndDateTime;
+        protected DateTimeOffset StartDateTime;
+        protected DateTimeOffset EndDateTime;
         protected bool Complete = false;
         protected bool Enabled = true;
         protected bool FromRepeatEvent=false;
@@ -58,7 +58,7 @@ namespace TilerElements
             }
         }
 
-        public  DateTime End
+        public  DateTimeOffset End
         {
             get
             {
@@ -66,7 +66,7 @@ namespace TilerElements
             }
         }
 
-        public  DateTime Start
+        public  DateTimeOffset Start
         {
             get
             {

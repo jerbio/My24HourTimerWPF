@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
 namespace TilerElements
 {
     public class SubCalendarEvent : TilerEvent,IDefinedRange
@@ -24,7 +23,7 @@ namespace TilerElements
         public SubCalendarEvent()
         { }
 
-        public SubCalendarEvent(TimeSpan Event_Duration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, bool Enabled, EventDisplay UiParam,MiscData Notes,bool completeFlag, Location_Elements EventLocation =null, TimeLine RangeOfSubCalEvent = null, ConflictProfile conflicts=null)
+        public SubCalendarEvent(TimeSpan Event_Duration, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, bool Enabled, EventDisplay UiParam,MiscData Notes,bool completeFlag, Location_Elements EventLocation =null, TimeLine RangeOfSubCalEvent = null, ConflictProfile conflicts=null)
         {
             if (conflicts == null)
             {
@@ -52,7 +51,7 @@ namespace TilerElements
         }
 
 
-        public SubCalendarEvent(string MySubEventID, BusyTimeLine MyBusylot, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location_Elements EventLocation = null, TimeLine RangeOfSubCalEvent = null, ConflictProfile conflicts = null)
+        public SubCalendarEvent(string MySubEventID, BusyTimeLine MyBusylot, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location_Elements EventLocation = null, TimeLine RangeOfSubCalEvent = null, ConflictProfile conflicts = null)
         {
             if (conflicts == null)
             {
@@ -60,7 +59,7 @@ namespace TilerElements
             }
             ConflictingEvents = conflicts;
             CalendarEventRange = RangeOfSubCalEvent;
-            //string eventName, TimeSpan EventDuration, DateTime EventStart, DateTime EventDeadline, TimeSpan EventPrepTime, TimeSpan PreDeadline, bool EventRigidFlag, bool EventRepetition, int EventSplit
+            //string eventName, TimeSpan EventDuration, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, TimeSpan PreDeadline, bool EventRigidFlag, bool EventRepetition, int EventSplit
             StartDateTime = EventStart;
             EndDateTime = EventDeadline;
             EventDuration = MyBusylot.End - MyBusylot.Start;
@@ -78,7 +77,7 @@ namespace TilerElements
             RigidSchedule = Rigid;
         }
 
-        public SubCalendarEvent(string MySubEventID, DateTime EventStart, DateTime EventDeadline, BusyTimeLine SubEventBusy, bool Rigid, bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location_Elements EventLocation = null, TimeLine RangeOfSubCalEvent = null, ConflictProfile conflicts = null)
+        public SubCalendarEvent(string MySubEventID, DateTimeOffset EventStart, DateTimeOffset EventDeadline, BusyTimeLine SubEventBusy, bool Rigid, bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location_Elements EventLocation = null, TimeLine RangeOfSubCalEvent = null, ConflictProfile conflicts = null)
         {
             if (conflicts == null)
             {
@@ -145,7 +144,7 @@ namespace TilerElements
             return arg1.ID != arg2.ID;
         }
         */
-        public void ReassignTime(DateTime StartTime, DateTime EndTime)
+        public void ReassignTime(DateTimeOffset StartTime, DateTimeOffset EndTime)
         {
             EndDateTime = (EndTime);
             StartDateTime = StartTime;
@@ -163,7 +162,7 @@ namespace TilerElements
             RigidSchedule = false;
         }
 
-        public void DisableIfDeadlineHasPassed(DateTime CurrNow)
+        public void DisableIfDeadlineHasPassed(DateTimeOffset CurrNow)
         {
             if (CalendarEventRange.End < CurrNow)
             {
@@ -171,7 +170,7 @@ namespace TilerElements
             }
         }
 
-        public bool IsDateTimeWithin(DateTime DateTimeEntry)
+        public bool IsDateTimeWithin(DateTimeOffset DateTimeEntry)
         {
             return RangeTimeLine.IsDateTimeWithin(DateTimeEntry);
         }
@@ -180,8 +179,8 @@ namespace TilerElements
         {
             SubCalendarEvent retValue = new SubCalendarEvent();
             retValue.UniqueID = new EventID("");
-            retValue.StartDateTime = DateTime.Now;
-            retValue.EndDateTime = DateTime.Now;
+            retValue.StartDateTime = DateTimeOffset.Now;
+            retValue.EndDateTime = DateTimeOffset.Now;
             retValue.EventDuration = new TimeSpan(0);
             
             retValue.RigidSchedule= true;
@@ -192,7 +191,7 @@ namespace TilerElements
 
         public SubCalendarEvent createCopy()
         {
-            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ID, new DateTime(Start.Ticks), new DateTime(End.Ticks), BusyFrame.CreateCopy(), this.RigidSchedule, this.isEnabled, this.UiParams.createCopy(), this.Notes.createCopy(), this.Complete, this.LocationData, new TimeLine(CalendarEventRange.Start, CalendarEventRange.End),ConflictingEvents.CreateCopy());
+            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ID, new DateTimeOffset(Start.Ticks, new TimeSpan()), new DateTimeOffset(End.Ticks, new TimeSpan()), BusyFrame.CreateCopy(), this.RigidSchedule, this.isEnabled, this.UiParams.createCopy(), this.Notes.createCopy(), this.Complete, this.LocationData, new TimeLine(CalendarEventRange.Start, CalendarEventRange.End), ConflictingEvents.CreateCopy());
             //MySubCalendarEventCopy.LocationData = LocationData;//note check for possible reference issues for future versions
             /*MySubCalendarEventCopy.SubEventID = SubEventID;
             MySubCalendarEventCopy.BusyFrame = BusyFrame;
@@ -229,8 +228,8 @@ namespace TilerElements
         public bool PinToStart(TimeLine MyTimeLine)
         {
             TimeSpan SubCalendarTimeSpan = new TimeSpan();
-            DateTime ReferenceStartTime = new DateTime();
-            DateTime ReferenceEndTime = new DateTime();
+            DateTimeOffset ReferenceStartTime = new DateTimeOffset();
+            DateTimeOffset ReferenceEndTime = new DateTimeOffset();
 
             ReferenceStartTime = MyTimeLine.Start;
             if (this.getCalendarEventRange.Start > MyTimeLine.Start)
@@ -284,10 +283,10 @@ namespace TilerElements
             {
                 return false;
             }
-            DateTime EarliestEndTime = CalendarEventRange.Start + ActiveDuration;
-            DateTime LatestEndTime = CalendarEventRange.End;
+            DateTimeOffset EarliestEndTime = CalendarEventRange.Start + ActiveDuration;
+            DateTimeOffset LatestEndTime = CalendarEventRange.End;
 
-            DateTime DesiredEndtime = interferringTImeLine.End + (TimeSpan.FromTicks(((long)(ActiveDuration - interferringTImeLine.TimelineSpan).Ticks) / 2));
+            DateTimeOffset DesiredEndtime = interferringTImeLine.End + (TimeSpan.FromTicks(((long)(ActiveDuration - interferringTImeLine.TimelineSpan).Ticks) / 2));
 
             if (DesiredEndtime < EarliestEndTime)
             {
@@ -371,14 +370,14 @@ namespace TilerElements
 
         public bool PinToEndAndIncludeInTimeLine(TimeLine LimitingTimeLine)
         {
-            DateTime ReferenceTime = new DateTime();
+            DateTimeOffset ReferenceTime = new DateTimeOffset();
             EndDateTime = this.getCalendarEventRange.End;
             ReferenceTime = EndDateTime;
             if (EndDateTime > LimitingTimeLine.End)
             {
                 ReferenceTime = LimitingTimeLine.End;
             }
-            DateTime MyStartTime = ReferenceTime - this.EventDuration;
+            DateTimeOffset MyStartTime = ReferenceTime - this.EventDuration;
             if(this.getCalendarEventRange.IsTimeLineWithin(new TimeLine(MyStartTime,ReferenceTime)))
             {
 
@@ -400,7 +399,7 @@ namespace TilerElements
             {
                 throw new Exception("Oh oh Sub calendar event Trying to pin to end of invalid calendar event. Check that you have matchin IDs");
             }
-            DateTime ReferenceTime = new DateTime();
+            DateTimeOffset ReferenceTime = new DateTimeOffset();
             EndDateTime=RestrctingCalendarEvent.End;
             if (EndDateTime > LimitingTimeLine.End)
             {
@@ -411,7 +410,7 @@ namespace TilerElements
                 ReferenceTime = End;
             }*/
             
-            DateTime MyStartTime = ReferenceTime - this.EventDuration;
+            DateTimeOffset MyStartTime = ReferenceTime - this.EventDuration;
 
             if (this.getCalendarEventRange.IsTimeLineWithin(new TimeLine(MyStartTime, ReferenceTime)))
             {
@@ -429,8 +428,7 @@ namespace TilerElements
 
         public bool PinToEnd(TimeLine LimitingTimeLine)
         {
-            DateTime ReferenceTime = this.getCalendarEventRange.End;
-            EndDateTime.ToShortDateString();
+            DateTimeOffset ReferenceTime = this.getCalendarEventRange.End;
             if (ReferenceTime > LimitingTimeLine.End)
             {
                 ReferenceTime = LimitingTimeLine.End;
@@ -442,7 +440,7 @@ namespace TilerElements
             }
 
 
-            DateTime MyStartTime = ReferenceTime - this.EventDuration;
+            DateTimeOffset MyStartTime = ReferenceTime - this.EventDuration;
 
 
             if ((MyStartTime>=LimitingTimeLine.Start )&&(MyStartTime>=getCalendarEventRange.Start))
@@ -469,10 +467,10 @@ namespace TilerElements
             {
                 throw new Exception("Oh oh Sub calendar event Trying to pin to end of invalid calendar event. Check that you have matchin IDs");
             }
-            DateTime ReferenceTime = new DateTime();
+            DateTimeOffset ReferenceTime = new DateTimeOffset();
             EndDateTime = RestrctingCalendarEvent.End;
             ReferenceTime = EndDateTime;
-            DateTime MyStartTime = ReferenceTime - this.EventDuration;
+            DateTimeOffset MyStartTime = ReferenceTime - this.EventDuration;
             StartDateTime = MyStartTime;
 
             
@@ -705,6 +703,14 @@ namespace TilerElements
                 return DataBlob;
             }
         }
+
+         public int EventPriority
+         {
+             get 
+             {
+                 return Priority;
+             }
+         }
         
         #endregion
 

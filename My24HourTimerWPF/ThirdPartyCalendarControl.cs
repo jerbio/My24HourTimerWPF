@@ -50,7 +50,7 @@ namespace My24HourTimerWPF
             /*Outlook.RecurrencePattern pattern =
                 item.GetRecurrencePattern();
             Outlook.AppointmentItem itemDelete = pattern.
-                GetOccurrence(new DateTime(2006, 6, 28, 8, 0, 0));
+                GetOccurrence(new DateTimeOffset(2006, 6, 28, 8, 0, 0));
 
             if (itemDelete != null)
             {
@@ -72,8 +72,8 @@ namespace My24HourTimerWPF
                 Outlook.AppointmentItem newAppointment = (Outlook.AppointmentItem)app.CreateItem(Outlook.OlItemType.olAppointmentItem);
                 /*(Outlook.AppointmentItem)
             this.Application.CreateItem(Outlook.OlItemType.olAppointmentItem);*/
-                newAppointment.Start = ActiveSection.Start;// DateTime.Now.AddHours(2);
-                newAppointment.End = ActiveSection.End;// DateTime.Now.AddHours(3);
+                newAppointment.Start = ActiveSection.Start;// DateTimeOffset.Now.AddHours(2);
+                newAppointment.End = ActiveSection.End;// DateTimeOffset.Now.AddHours(3);
                 newAppointment.Location = "TBD";
                 newAppointment.Body = "JustTesting";
                 newAppointment.AllDayEvent = false;

@@ -7,21 +7,21 @@ namespace TilerElements
 {
     public class TimeLine : IDefinedRange
     {
-        protected DateTime EndTime;
-        protected DateTime StartTime;
+        protected DateTimeOffset EndTime;
+        protected DateTimeOffset StartTime;
         protected BusyTimeLine[] ActiveTimeSlots;
 
         #region constructor
         public TimeLine()
         {
-            StartTime = new DateTime(0);
+            StartTime = new DateTimeOffset(0, new TimeSpan());
             EndTime = StartTime;
             ActiveTimeSlots = new BusyTimeLine[0];
             
         }
 
 
-        public TimeLine(DateTime MyStartTime, DateTime MyEndTime)
+        public TimeLine(DateTimeOffset MyStartTime, DateTimeOffset MyEndTime)
         {
             StartTime = MyStartTime;
             EndTime = MyEndTime;
@@ -48,7 +48,7 @@ namespace TilerElements
 
         #region functions
 
-        public bool IsDateTimeWithin(DateTime MyDateTime)
+        public bool IsDateTimeWithin(DateTimeOffset MyDateTime)
         {
             if ((MyDateTime > StartTime) && (MyDateTime < EndTime))//you might need to review semantics
             {
@@ -60,8 +60,8 @@ namespace TilerElements
 
         public TimeLine InterferringTimeLine(TimeLine PossibleTimeLine)
         {
-            DateTime InterferringStarTime;
-            DateTime InterferringEndTime;
+            DateTimeOffset InterferringStarTime;
+            DateTimeOffset InterferringEndTime;
             if ((this.Start == PossibleTimeLine.Start) && (this.End == PossibleTimeLine.End))//checks if both "this and "PossibleTimeLine" are within the same range
             {
                 return this.CreateCopy();
@@ -124,8 +124,8 @@ namespace TilerElements
         public TimeLine CreateCopy()
         {
             TimeLine CopyTimeLine = new TimeLine();
-            CopyTimeLine.EndTime = new DateTime(EndTime.Ticks);
-            CopyTimeLine.StartTime = new DateTime(StartTime.Ticks);
+            CopyTimeLine.EndTime = new DateTimeOffset(EndTime.Ticks,new TimeSpan());
+            CopyTimeLine.StartTime = new DateTimeOffset(StartTime.Ticks, new TimeSpan());
             List<BusyTimeLine> TempActiveSlotsHolder = new List<BusyTimeLine>();
             foreach (BusyTimeLine MyBusyTimeLine in ActiveTimeSlots)
             {
@@ -164,7 +164,7 @@ namespace TilerElements
             AddBusySlots(OtherTimeLine.OccupiedSlots);
         }
 
-        public List<BusyTimeLine> getBusyTimeLineWithinSlots(DateTime StartTime, DateTime EndTime)
+        public List<BusyTimeLine> getBusyTimeLineWithinSlots(DateTimeOffset StartTime, DateTimeOffset EndTime)
         {
             TimeLine TempTimeLine = new TimeLine(StartTime, EndTime);
             List<BusyTimeLine> ActiveSlots = new List<BusyTimeLine>();
@@ -189,7 +189,7 @@ namespace TilerElements
                 return ListOfFreeSpots.ToArray();
             }
 
-            DateTime PreceedingDateTime = StartTime;
+            DateTimeOffset PreceedingDateTime = StartTime;
 
 
             Tuple<IEnumerable<IDefinedRange>, IEnumerable<IDefinedRange>> BusySlotsAndSeparateActiveSlots = Utility.getConflictingRangeElements(ActiveTimeSlots);
@@ -223,7 +223,7 @@ namespace TilerElements
                 return ListOfFreeSpots.ToArray();
             }
 
-            DateTime PreceedingDateTime = StartTime;
+            DateTimeOffset PreceedingDateTime = StartTime;
             string startEdgeElement = null;
 
             foreach (BusyTimeLine MyActiveSlot in ActiveTimeSlots)
@@ -259,7 +259,7 @@ namespace TilerElements
 
         #endregion
 
-        public DateTime Start
+        public DateTimeOffset Start
         {
             get
             {
@@ -267,7 +267,7 @@ namespace TilerElements
             }
         }
 
-        public DateTime End
+        public DateTimeOffset End
         {
             get
             {
@@ -287,14 +287,14 @@ namespace TilerElements
         {
             get
             {
-                return EndTime - DateTime.Now;
+                return EndTime - DateTimeOffset.Now;
             }
         }
         public TimeSpan TimeTillStart
         {
             get
             {
-                return StartTime - DateTime.Now;
+                return StartTime - DateTimeOffset.Now;
             }
         }
 
@@ -333,7 +333,7 @@ namespace TilerElements
                 //AllFreeSlots = AllFreeSlots.OrderBy(obj => obj.Start).ToArray();
                 TimeSpan SumOfNoneClashing = new TimeSpan(0);
                 TimeSpan SumOfClashing = new TimeSpan(0);
-                DateTime LatestDeadlineOfClashing = new DateTime(0);
+                DateTimeOffset LatestDeadlineOfClashing = new DateTimeOffset(0, new TimeSpan());
                 BusyTimeLine busyTimeSlotWithLatestEnd = new BusyTimeLine();
 
 
@@ -344,7 +344,7 @@ namespace TilerElements
                     return new TimeSpan(0);
                 }
 
-                DateTime ReferenceStartTime = ActiveTimeSlots[0].Start;
+                DateTimeOffset ReferenceStartTime = ActiveTimeSlots[0].Start;
                 busyTimeSlotWithLatestEnd = ActiveTimeSlots[0];
 
                 foreach (int Index in ArrayOfIndex)
@@ -445,7 +445,7 @@ namespace TilerElements
                     }
                 }
 
-                DateTime ReferenceTimeLine = ActiveTimeSlots[0].Start;
+                DateTimeOffset ReferenceTimeLine = ActiveTimeSlots[0].Start;
 
                 List<BusyTimeLine> InterferringBusyTimeLines = new System.Collections.Generic.List<BusyTimeLine>();
 

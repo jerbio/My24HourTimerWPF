@@ -156,7 +156,7 @@ namespace TilerElements
                     do
                     {
                         AllSubEvents_List = AllSubEvents_List.Except(InterferringEvents).ToList();
-                        DateTime LatestEndTime = InterferringEvents.Max(obj => obj.End);
+                        DateTimeOffset LatestEndTime = InterferringEvents.Max(obj => obj.End);
                         TimeLine possibleInterferringTimeLine = new TimeLine(refSubCalendarEvent.Start, LatestEndTime);
                         ExtraInterferringEVents = AllSubEvents_List.AsParallel().Where(obj => obj.RangeTimeLine.InterferringTimeLine(possibleInterferringTimeLine) != null).ToList();
                         InterferringEvents=InterferringEvents.Concat(ExtraInterferringEVents).ToList();
@@ -193,10 +193,10 @@ namespace TilerElements
                 while (true && InterferringEvents.LongCount() > 0)
                 {
                     AddrefTOretValue_ItemB = false;
-                    DateTime LowestInterferingStartTime = InterferringEvents.Select(obj => obj.Start).Min();
-                    DateTime LatesInterferingEndTime = InterferringEvents.Select(obj => obj.End).Max();
-                    DateTime refStartTIme = refEvent.Start <= LowestInterferingStartTime ? refEvent.Start : LowestInterferingStartTime;
-                    DateTime refEndTIme = refEvent.End <= LatesInterferingEndTime ? refEvent.End : LatesInterferingEndTime;
+                    DateTimeOffset LowestInterferingStartTime = InterferringEvents.Select(obj => obj.Start).Min();
+                    DateTimeOffset LatesInterferingEndTime = InterferringEvents.Select(obj => obj.End).Max();
+                    DateTimeOffset refStartTIme = refEvent.Start <= LowestInterferingStartTime ? refEvent.Start : LowestInterferingStartTime;
+                    DateTimeOffset refEndTIme = refEvent.End <= LatesInterferingEndTime ? refEvent.End : LatesInterferingEndTime;
                     TimeLine refTimeLineForInterferrers = new TimeLine(refStartTIme, refEndTIme);
                     EventsWithTImeline = EventsWithTImeline.Except(InterferringEvents).ToList();
                     IEnumerable<IDefinedRange> ExtraInterferringEvents = EventsWithTImeline.Where(obj => obj.RangeTimeLine.InterferringTimeLine(refTimeLineForInterferrers) != null);

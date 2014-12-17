@@ -13,7 +13,7 @@ namespace TilerElements
         { 
         
         }
-        public TimeLineWithEdgeElements(DateTime start, DateTime End, string StartingEdgeEleemnt, string EndingEdgeElement)
+        public TimeLineWithEdgeElements(DateTimeOffset start, DateTimeOffset End, string StartingEdgeEleemnt, string EndingEdgeElement)
         {
             StartTime = start;
             EndTime = End;

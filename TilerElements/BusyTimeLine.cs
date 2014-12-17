@@ -19,7 +19,7 @@ namespace TilerElements
             BusySpan = MyBusySpan;
             TimeLineEventID = null;
         }
-        public BusyTimeLine(string MyEventID, DateTime MyStartTime, DateTime MyEndTime)
+        public BusyTimeLine(string MyEventID, DateTimeOffset MyStartTime, DateTimeOffset MyEndTime)
         {
             StartTime = MyStartTime;
             EndTime = MyEndTime;
@@ -30,7 +30,7 @@ namespace TilerElements
         #region functions
         public BusyTimeLine CreateCopy()
         {
-            BusyTimeLine MyBusyTimlineCopy = new BusyTimeLine(this.TimeLineID, new DateTime(StartTime.Ticks), new DateTime(EndTime.Ticks));
+            BusyTimeLine MyBusyTimlineCopy = new BusyTimeLine(this.TimeLineID, new DateTimeOffset(StartTime.Ticks, new TimeSpan()), new DateTimeOffset(EndTime.Ticks, new TimeSpan()));
             return MyBusyTimlineCopy;
         }
 
@@ -68,14 +68,14 @@ namespace TilerElements
         }
 
 
-        public DateTime Start
+        public DateTimeOffset Start
         {
             get
             {
                 return StartTime;
             }
         }
-        public DateTime End
+        public DateTimeOffset End
         {
             get
             {

@@ -72,8 +72,8 @@ namespace My24HourTimerWPF
                 Outlook.AppointmentItem newAppointment = (Outlook.AppointmentItem)app.CreateItem(Outlook.OlItemType.olAppointmentItem);
                 /*(Outlook.AppointmentItem)
             this.Application.CreateItem(Outlook.OlItemType.olAppointmentItem);*/
-                newAppointment.Start = ActiveSection.Start;// DateTimeOffset.Now.AddHours(2);
-                newAppointment.End = ActiveSection.End;// DateTimeOffset.Now.AddHours(3);
+                newAppointment.Start = ActiveSection.Start.DateTime;// DateTimeOffset.Now.AddHours(2);
+                newAppointment.End = ActiveSection.End.DateTime;// DateTimeOffset.Now.AddHours(3);
                 newAppointment.Location = "TBD";
                 newAppointment.Body = "JustTesting";
                 newAppointment.AllDayEvent = false;

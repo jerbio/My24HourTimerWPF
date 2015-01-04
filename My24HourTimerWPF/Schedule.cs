@@ -1378,7 +1378,7 @@ namespace My24HourTimerWPF
                     /*TimeLineArrayWithSubEventsAssigned = SplitFreeSpotsInToSubEventTimeSlots(FreeSpotsAvailableWithinValidTimeline.ToArray(), MyEvent.AllEvents.Length, MyEvent.ActiveDuration);
                     if (TimeLineArrayWithSubEventsAssigned == null)*/
                     {
-                        return MyEvent;
+                        //return MyEvent;
                         KeyValuePair<CalendarEvent, TimeLine> TimeLineAndCalendarUpdated = ReArrangeTimeLineWithinWithinCalendaEventRange(MyEvent, NoneCOmmitedCalendarEvent.ToList(), InterringWithNowEvent, UnDoneEvents);
                         CalendarEvent MyCalendarEventUpdated = TimeLineAndCalendarUpdated.Key;
                         return MyCalendarEventUpdated;
@@ -1740,6 +1740,12 @@ namespace My24HourTimerWPF
                 {
                     PertinentNotDoneYet = NotDoneYet.Where(obj => obj.getCalendarEventRange.InterferringTimeLine(RangeForScheduleUpdate) != null);
                     ArrayOfInterferringSubEvents.AddRange(PertinentNotDoneYet.ToList());
+                    if (ArrayOfInterferringSubEvents.Count < 1)
+                    {
+                        EarliestStartTime = RangeForScheduleUpdate.Start;
+                        LatestEndTime = RangeForScheduleUpdate.End;
+                        break;
+                    }
                     EarliestStartTime = ArrayOfInterferringSubEvents.OrderBy(obj => obj.getCalendarEventRange.Start).ToList()[0].getCalendarEventRange.Start;//attempts to get subcalevent with a calendarevent with earliest start time
                     LatestEndTime = ArrayOfInterferringSubEvents.OrderBy(obj => obj.getCalendarEventRange.End).ToList()[ArrayOfInterferringSubEvents.Count() - 1].getCalendarEventRange.End;//attempts to get subcalevent with a calendarevent with latest Endtime
                     EarliestStartTime = EarliestStartTime < Now.calculationNow ? Now.calculationNow : EarliestStartTime;

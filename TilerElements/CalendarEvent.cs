@@ -12,7 +12,7 @@ namespace TilerElements
     public class CalendarEvent : TilerEvent, IDefinedRange
     {
         // Fields
-        public static Dictionary<string, List<Double>> DistanceMatrix;
+        static Dictionary<string, List<Double>> DistanceMatrixData;
         static List<string> DistanceMatixKeys;
         static List<Location_Elements> Horizontal;
         protected Repetition EventRepetition;
@@ -357,26 +357,34 @@ namespace TilerElements
         }
 
 
+        static public void UpdateLocationMatrixFromCassandra(Dictionary<string, CalendarEvent> AllEvents)
+        {
+            foreach (CalendarEvent eachCalendarEvent in AllEvents.Select(obj => obj.Value))
+            {
+                eachCalendarEvent.UpdateLocationMatrix(eachCalendarEvent.myLocation);
+            }
+        }
+
         void UpdateLocationMatrix(Location_Elements newLocation)
         { 
             
             int i = 0;
             int j = 0;
-            if (DistanceMatrix == null)
+            if (DistanceMatrixData == null)
             {
-                DistanceMatrix = new Dictionary<string, List<double>>();
+                DistanceMatrixData = new Dictionary<string, List<double>>();
             }
             if(Horizontal==null)
             {
                 Horizontal= new List<Location_Elements>();
             }
 
-            if(!DistanceMatrix.ContainsKey(this.UniqueID.getCalendarEventComponent()))
+            if(!DistanceMatrixData.ContainsKey(this.UniqueID.getCalendarEventComponent()))
             {
                 string myCalString = this.UniqueID.getCalendarEventComponent();
-                DistanceMatrix.Add(myCalString, new List<double>());
+                DistanceMatrixData.Add(myCalString, new List<double>());
                 Horizontal.Add(newLocation);
-                DistanceMatixKeys= DistanceMatrix.Keys.ToList();
+                DistanceMatixKeys= DistanceMatrixData.Keys.ToList();
                 foreach (string eachString in DistanceMatixKeys)
                 {
                         
@@ -394,17 +402,17 @@ namespace TilerElements
 
                             MyDistance = 200000;
 
-                            DistanceMatrix[myCalString].Add(MyDistance);
+                            DistanceMatrixData[myCalString].Add(MyDistance);
                         }
                         else
                         {
 
-                            DistanceMatrix[eachString].Add(MyDistance);
-                            DistanceMatrix[myCalString].Add(MyDistance);
+                            DistanceMatrixData[eachString].Add(MyDistance);
+                            DistanceMatrixData[myCalString].Add(MyDistance);
                         }
 
 
-                        DistanceMatrix[eachString][DistanceMatixKeys.IndexOf(eachString)] = 200000;
+                        DistanceMatrixData[eachString][DistanceMatixKeys.IndexOf(eachString)] = 200000;
                         
                 }
                 
@@ -416,7 +424,7 @@ namespace TilerElements
         {
             //get
             {
-                return DistanceMatrix[this.UniqueID.getCalendarEventComponent()][DistanceMatixKeys.IndexOf(CalEvent.UniqueID.getCalendarEventComponent())];
+                return DistanceMatrixData[this.UniqueID.getCalendarEventComponent()][DistanceMatixKeys.IndexOf(CalEvent.UniqueID.getCalendarEventComponent())];
             }
         }
 
@@ -426,8 +434,8 @@ namespace TilerElements
             { 
                 int randIndex=0;
                 Random randNum= new Random();
-                randIndex=randNum.Next(0,DistanceMatrix.Count);
-                CalEventstring = DistanceMatrix.Keys.ToList()[randIndex];
+                randIndex=randNum.Next(0,DistanceMatrixData.Count);
+                CalEventstring = DistanceMatrixData.Keys.ToList()[randIndex];
             }
             Dictionary<string, double> retValue = new Dictionary<string, double>();
             List<Tuple<string, double>> AllCombos = new List<Tuple<string, double>>();
@@ -436,7 +444,7 @@ namespace TilerElements
             for (int i = 0; i < DistanceMatixKeys.Count; i++)
             {
 
-                AllCombos.Add(new Tuple<string, double>(DistanceMatixKeys[i], DistanceMatrix[CalEventstring][i]));
+                AllCombos.Add(new Tuple<string, double>(DistanceMatixKeys[i], DistanceMatrixData[CalEventstring][i]));
             }
             AllCombos = AllCombos.OrderBy(obj => obj.Item2).ToList();
 
@@ -1340,6 +1348,13 @@ namespace TilerElements
             }
         }
 
+        static public Dictionary<string, List<Double>> DistanceMatrix
+        {
+            get
+            {
+                return DistanceMatrixData;
+            }
+        }
         
 
         virtual public Event_Struct toEvent_Struct

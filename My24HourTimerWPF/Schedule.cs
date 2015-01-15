@@ -176,10 +176,10 @@ namespace My24HourTimerWPF
             }
         }
         */
-        private void Initialize()
+        async private void Initialize()
         {
             myAccount.Login_NonTask();
-            Tuple<Dictionary<string, CalendarEvent>, DateTimeOffset, Dictionary<string, Location_Elements>> profileData = myAccount.ScheduleData.getProfileInfo();
+            Tuple<Dictionary<string, CalendarEvent>, DateTimeOffset, Dictionary<string, Location_Elements>> profileData =await  myAccount.ScheduleData.getProfileInfo();
             if (profileData!=null)
             {
                 DateTimeOffset referenceDayTimeNow = new DateTimeOffset(Now.calculationNow.Year, Now.calculationNow.Month, Now.calculationNow.Day, profileData.Item2.Hour, profileData.Item2.Minute, profileData.Item2.Second, new TimeSpan());// profileData.Item2;
@@ -343,7 +343,10 @@ namespace My24HourTimerWPF
             myAccount.DeleteAllCalendarEvents();
             removeAllFromOutlook();
         }
-
+        /// <summary>
+        /// Gets current Calendar events in Memory. It does not retrieve data from DB
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<CalendarEvent> getAllCalendarEvents()
         {
             return AllEventDictionary.Values;
@@ -714,6 +717,44 @@ namespace My24HourTimerWPF
             }
 
             
+            ///
+
+            if (NewEvent == null)//checks if event was assigned and ID ehich means it was successfully able to find a spot
+            {
+
+                return new CustomErrors(NewEvent.ErrorStatus, NewEvent.ErrorMessage);
+            }
+
+            if (NewEvent.ID == "" || NewEvent == null)//checks if event was assigned and ID ehich means it was successfully able to find a spot
+            {
+                return new CustomErrors(NewEvent.ErrorStatus, NewEvent.ErrorMessage);
+            }
+
+
+            if (NewEvent.ErrorStatus)
+            {
+                LogStatus(NewEvent, "Adding New Event");
+            }
+
+            return new CustomErrors(NewEvent.ErrorStatus, NewEvent.ErrorMessage);
+        }
+
+        public CustomErrors AddToScheduleAndCommit(CalendarEvent NewEvent)
+        {
+#if enableTimer
+            myWatch.Start();
+#endif
+            HashSet<SubCalendarEvent> NotdoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
+            if (!NewEvent.Rigid)
+            {
+                NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, NotdoneYet);
+            }
+            else
+            {
+                NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, NotdoneYet, null, 1);
+            }
+
+
             ///
 
             if (NewEvent == null)//checks if event was assigned and ID ehich means it was successfully able to find a spot

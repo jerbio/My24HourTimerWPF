@@ -584,7 +584,7 @@ namespace My24HourTimerWPF
             textBlock9.Text = "...Loading";
             Stopwatch snugarrayTester = new Stopwatch();
             snugarrayTester.Start();
-            CustomErrors ScheduleUpdateMessage = MySchedule.AddToSchedule(ScheduleUpdated);
+            CustomErrors ScheduleUpdateMessage = MySchedule.AddToScheduleAndCommit(ScheduleUpdated);
             snugarrayTester.Stop();
             //MessageBox.Show("It took " + snugarrayTester.ElapsedMilliseconds.ToString() + "ms max thread count is ");
 
@@ -1110,7 +1110,7 @@ namespace My24HourTimerWPF
                 
                 Stopwatch snugarrayTester = new Stopwatch();
                 snugarrayTester.Start();
-                CustomErrors ScheduleUpdateMessage = MySchedule.AddToSchedule(ScheduleUpdated);
+                CustomErrors ScheduleUpdateMessage = MySchedule.AddToScheduleAndCommit(ScheduleUpdated);
                 snugarrayTester.Stop();
                 AllData[NumberOfRetries] = snugarrayTester.ElapsedMilliseconds;
 

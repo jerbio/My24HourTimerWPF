@@ -192,7 +192,7 @@ namespace My24HourTimerWPF
                     myCalendar = new ThirdPartyCalendarControl[1];
                     myCalendar[0] = new ThirdPartyCalendarControl(ThirdPartyCalendarControl.CalendarTool.Outlook);
                     CompleteSchedule = getTimeLine();
-                    EventID.Initialize((uint)(this.LastScheduleIDNumber));
+                    EventID.Initialize((uint)(myAccount.LastEventTopNodeID));
                     //EventIDGenerator.Initialize((uint)(this.LastScheduleIDNumber));
                 }
             }
@@ -10275,11 +10275,11 @@ namespace My24HourTimerWPF
 
         //Properties
 
-        public int LastScheduleIDNumber
+        public uint LastScheduleIDNumber
         {
             get
             {
-                return (myAccount.LastEventTopNodeID);
+                return (EventID.LatestID);
             }
         }
 

@@ -7,11 +7,11 @@ namespace TilerElements
 {
     public interface IDefinedRange
     {
-        DateTime Start
+        DateTimeOffset Start
         {
               get;
         }
-        DateTime End
+        DateTimeOffset End
         {
             get;
         }
@@ -23,6 +23,6 @@ namespace TilerElements
 
         
 
-       bool IsDateTimeWithin(DateTime DateTimeEntry);
+       bool IsDateTimeWithin(DateTimeOffset DateTimeEntry);
     }
 }

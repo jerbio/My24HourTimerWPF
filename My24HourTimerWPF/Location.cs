@@ -78,7 +78,7 @@ namespace TilerElements
                     request.Sensor = false;
                     var response = new GeocodingService().GetResponse(request);
                     var result = response.Results.First();
-                    if (tag == "")
+                    if (string.IsNullOrEmpty(tag))
                     { TaggedDescription = Address; }
                     else 
                     {
@@ -94,7 +94,7 @@ namespace TilerElements
                 {
                     xValue = double.MaxValue;
                     yValue = double.MaxValue;
-                    if (tag == "")
+                    if (string.IsNullOrEmpty(tag ))
                     { 
                         TaggedDescription = Address.ToLower(); 
                     }

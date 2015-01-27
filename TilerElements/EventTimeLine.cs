@@ -15,7 +15,7 @@ namespace TilerElements
 
         }
 
-        public EventTimeLine(string MyEventID, DateTime MyStartTime, DateTime MyEndTime)
+        public EventTimeLine(string MyEventID, DateTimeOffset MyStartTime, DateTimeOffset MyEndTime)
         {
             StartTime = MyStartTime;
             EndTime = MyEndTime;

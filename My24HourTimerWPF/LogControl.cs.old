@@ -88,7 +88,7 @@ namespace My24HourTimerWPF
             return retValue;
         }
 
-        public void UpdateReferenceDay(DateTime referenceDay, string LogFile = "")
+        public void UpdateReferenceDay(DateTimeOffset referenceDay, string LogFile = "")
         {
             if (LogFile == "")
             { LogFile = WagTapLogLocation + CurrentLog; }
@@ -253,7 +253,7 @@ namespace My24HourTimerWPF
             return MyEventScheduleNode;
         }
 
-        public DateTime Truncate(DateTime dateTime, TimeSpan timeSpan)
+        public DateTimeOffset Truncate(DateTimeOffset dateTime, TimeSpan timeSpan)
         {
             if (timeSpan == TimeSpan.Zero) return dateTime; // Or could throw an ArgumentException
             return dateTime.AddTicks(-(dateTime.Ticks % timeSpan.Ticks));
@@ -287,9 +287,9 @@ namespace My24HourTimerWPF
             XmlDocument xmldoc = new XmlDocument();
             XmlElement MyEventSubScheduleNode = xmldoc.CreateElement("EventSubSchedule");
 
-            DateTime StartTime = MySubEvent.Start;
+            DateTimeOffset StartTime = MySubEvent.Start;
             StartTime = Truncate(StartTime, TimeSpan.FromSeconds(1));
-            DateTime EndTime = MySubEvent.End;
+            DateTimeOffset EndTime = MySubEvent.End;
             EndTime = Truncate(EndTime, TimeSpan.FromSeconds(1));
             TimeSpan EventTimeSpan = MySubEvent.ActiveDuration;
             long AllSecs = (long)EventTimeSpan.TotalSeconds;
@@ -513,11 +513,11 @@ namespace My24HourTimerWPF
             }
         }
 
-        public DateTime getDayReferenceTime(string NameOfFile)
+        public DateTimeOffset getDayReferenceTime(string NameOfFile)
         {
             XmlDocument doc = getLogDataStore(NameOfFile);
             XmlNode node = doc.DocumentElement.SelectSingleNode("/ScheduleLog/referenceDay");
-            DateTime retValue = DateTime.Parse(node.InnerText);
+            DateTimeOffset retValue = DateTimeOffset.Parse(node.InnerText);
 
             return retValue;
         }
@@ -572,7 +572,7 @@ namespace My24HourTimerWPF
             XmlNode node = doc.DocumentElement.SelectSingleNode("/ScheduleLog/LastIDCounter");
             string LastUsedIndex = node.InnerText;
             LastIDNumber = LastUsedIndex;
-            DateTime userReferenceDay;
+            DateTimeOffset userReferenceDay;
             XmlNode EventSchedulesNodes = doc.DocumentElement.SelectSingleNode("/ScheduleLog/EventSchedules");
 
             string ID;
@@ -645,8 +645,8 @@ namespace My24HourTimerWPF
             EndDateTime = EventScheduleNode.SelectSingleNode("Deadline").InnerText.Split(' ');
             EndDate = EndDateTime[0];
             EndTime = EndDateTime[1] + EndDateTime[2];
-            DateTime StartTimeConverted = DateTime.Parse(StartDate);// new DateTime(Convert.ToInt32(StartDate.Split('/')[2]), Convert.ToInt32(StartDate.Split('/')[0]), Convert.ToInt32(StartDate.Split('/')[1]));
-            DateTime EndTimeConverted = DateTime.Parse(EndDate); //new DateTime(Convert.ToInt32(EndDate.Split('/')[2]), Convert.ToInt32(EndDate.Split('/')[0]), Convert.ToInt32(EndDate.Split('/')[1]));
+            DateTimeOffset StartTimeConverted = DateTimeOffset.Parse(StartDate);// new DateTimeOffset(Convert.ToInt32(StartDate.Split('/')[2]), Convert.ToInt32(StartDate.Split('/')[0]), Convert.ToInt32(StartDate.Split('/')[1]));
+            DateTimeOffset EndTimeConverted = DateTimeOffset.Parse(EndDate); //new DateTimeOffset(Convert.ToInt32(EndDate.Split('/')[2]), Convert.ToInt32(EndDate.Split('/')[0]), Convert.ToInt32(EndDate.Split('/')[1]));
 
             Repetition Recurrence;
             if (Convert.ToBoolean(EventRepetitionflag))
@@ -655,11 +655,11 @@ namespace My24HourTimerWPF
                 RepeatEnd = RecurrenceXmlNode.SelectSingleNode("RepeatEndDate").InnerText;
                 RepeatFrequency = RecurrenceXmlNode.SelectSingleNode("RepeatFrequency").InnerText;
                 XmlNode XmlNodeWithList = RecurrenceXmlNode.SelectSingleNode("RepeatCalendarEvents");
-                Recurrence = new Repetition(true, new TimeLine(DateTime.Parse(RepeatStart), DateTime.Parse(RepeatEnd)), RepeatFrequency, getAllRepeatCalendarEvents(XmlNodeWithList));
+                Recurrence = new Repetition(true, new TimeLine(DateTimeOffset.Parse(RepeatStart), DateTimeOffset.Parse(RepeatEnd)), RepeatFrequency, getAllRepeatCalendarEvents(XmlNodeWithList));
 
 
-                StartTimeConverted = DateTime.Parse(RepeatStart);
-                EndTimeConverted = DateTime.Parse(RepeatEnd);
+                StartTimeConverted = DateTimeOffset.Parse(RepeatStart);
+                EndTimeConverted = DateTimeOffset.Parse(RepeatEnd);
             }
             else
             {
@@ -679,9 +679,9 @@ namespace My24HourTimerWPF
 
 
 
-            //string Name, string StartTime, DateTime StartDate, string EndTime, DateTime EventEndDate, string eventSplit, string PreDeadlineTime, string EventDuration, bool EventRepetitionflag, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag
+            //string Name, string StartTime, DateTimeOffset StartDate, string EndTime, DateTimeOffset EventEndDate, string eventSplit, string PreDeadlineTime, string EventDuration, bool EventRepetitionflag, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag
 
-            //MainWindow.CreateSchedule("","",new DateTime(),"",new DateTime(),"","","",true,true,true,"",false);
+            //MainWindow.CreateSchedule("","",new DateTimeOffset(),"",new DateTimeOffset(),"","","",true,true,true,"",false);
             Recurrence = Recurrence;
 
             Location var3 = getLocation(EventScheduleNode);
@@ -699,8 +699,8 @@ namespace My24HourTimerWPF
         {
             SubCalendarEvent[] MyArrayOfNodes = new SubCalendarEvent[MyXmlNode.ChildNodes.Count];
             string ID = "";
-            DateTime Start = new DateTime();
-            DateTime End = new DateTime();
+            DateTimeOffset Start = new DateTimeOffset();
+            DateTimeOffset End = new DateTimeOffset();
             TimeSpan SubScheduleDuration = new TimeSpan();
             TimeSpan PrepTime = new TimeSpan();
             BusyTimeLine BusySlot = new BusyTimeLine();
@@ -709,13 +709,13 @@ namespace My24HourTimerWPF
             {
                 BusyTimeLine SubEventActivePeriod = new BusyTimeLine(MyXmlNode.ChildNodes[i].SelectSingleNode("ID").InnerText, stringToDateTime(MyXmlNode.ChildNodes[i].SelectSingleNode("ActiveStartTime").InnerText), stringToDateTime(MyXmlNode.ChildNodes[i].SelectSingleNode("ActiveEndTime").InnerText));
                 ID = MyXmlNode.ChildNodes[i].SelectSingleNode("ID").InnerText;
-                Start = DateTime.Parse(MyXmlNode.ChildNodes[i].SelectSingleNode("ActiveStartTime").InnerText);
-                End = DateTime.Parse(MyXmlNode.ChildNodes[i].SelectSingleNode("ActiveEndTime").InnerText);
+                Start = DateTimeOffset.Parse(MyXmlNode.ChildNodes[i].SelectSingleNode("ActiveStartTime").InnerText);
+                End = DateTimeOffset.Parse(MyXmlNode.ChildNodes[i].SelectSingleNode("ActiveEndTime").InnerText);
                 BusySlot = new BusyTimeLine(ID, Start, End);
                 PrepTime = new TimeSpan(ConvertToMinutes(MyXmlNode.ChildNodes[i].SelectSingleNode("PrepTime").InnerText) * 60 * 10000000);
                 //stringToDateTime();
-                Start = DateTime.Parse(MyXmlNode.ChildNodes[i].SelectSingleNode("StartTime").InnerText);
-                End = DateTime.Parse(MyXmlNode.ChildNodes[i].SelectSingleNode("EndTime").InnerText);
+                Start = DateTimeOffset.Parse(MyXmlNode.ChildNodes[i].SelectSingleNode("StartTime").InnerText);
+                End = DateTimeOffset.Parse(MyXmlNode.ChildNodes[i].SelectSingleNode("EndTime").InnerText);
                 Enabled = Convert.ToBoolean(MyXmlNode.ChildNodes[i].SelectSingleNode("Enabled").InnerText);
                 bool CompleteFlag = Convert.ToBoolean(MyXmlNode.ChildNodes[i].SelectSingleNode("Complete").InnerText);
                 Location var1 = getLocation(MyXmlNode.ChildNodes[i]);
@@ -842,22 +842,22 @@ namespace My24HourTimerWPF
 
         #endregion
 
-        private DateTime stringToDateTime(string MyDateTimeString)//String should be in format "MM/DD/YY HH:MM:SSA"
+        private DateTimeOffset stringToDateTime(string MyDateTimeString)//String should be in format "MM/DD/YY HH:MM:SSA"
         {
 
-            DateTime MyDateTime, MyNow;
-            MyDateTime = DateTime.Parse(MyDateTimeString);
+            DateTimeOffset MyDateTime, MyNow;
+            MyDateTime = DateTimeOffset.Parse(MyDateTimeString);
 
 
             return MyDateTime;
         }
 
-        public static DateTime ConvertToDateTime(string StringOfDateTime)
+        public static DateTimeOffset ConvertToDateTime(string StringOfDateTime)
         {
             string[] strArray = StringOfDateTime.Split(new char[] { '|' });
             string[] strArray2 = strArray[0].Split(new char[] { ' ' });
             string[] strArray3 = strArray[1].Split(new char[] { ' ' });
-            return new DateTime(Convert.ToInt16(strArray2[0]), Convert.ToInt16(strArray2[1]), Convert.ToInt16(strArray2[2]), Convert.ToInt16(strArray3[0]), Convert.ToInt16(strArray3[1]), Convert.ToInt16(strArray3[2]));
+            return new DateTimeOffset(Convert.ToInt16(strArray2[0]), Convert.ToInt16(strArray2[1]), Convert.ToInt16(strArray2[2]), Convert.ToInt16(strArray3[0]), Convert.ToInt16(strArray3[1]), Convert.ToInt16(strArray3[2]));
         }
         static public uint ConvertToMinutes(string TimeEntry)
         {
@@ -896,14 +896,14 @@ namespace My24HourTimerWPF
 
         }
 
-        public Tuple<Dictionary<string, CalendarEvent>, DateTime> getProfileInfo(string desiredDirectory = "")
+        public Tuple<Dictionary<string, CalendarEvent>, DateTimeOffset> getProfileInfo(string desiredDirectory = "")
         {
-            Tuple<Dictionary<string, CalendarEvent>, DateTime> retValue;
+            Tuple<Dictionary<string, CalendarEvent>, DateTimeOffset> retValue;
             if (this.Status)
             {
                 Dictionary<string, CalendarEvent> AllScheduleData = this.getAllCalendarFromXml(desiredDirectory);
-                DateTime ReferenceTime = getDayReferenceTime(desiredDirectory);
-                retValue = new Tuple<Dictionary<string, CalendarEvent>, DateTime>(AllScheduleData, ReferenceTime);
+                DateTimeOffset ReferenceTime = getDayReferenceTime(desiredDirectory);
+                retValue = new Tuple<Dictionary<string, CalendarEvent>, DateTimeOffset>(AllScheduleData, ReferenceTime);
             }
             else
             {

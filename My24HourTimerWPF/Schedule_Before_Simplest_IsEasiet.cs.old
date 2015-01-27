@@ -59,7 +59,7 @@ namespace My24HourTimerWPF
                     }
                 }
                 MyTotalSubEvents = Schedule.SortBusyTimeline(MyTotalSubEvents, true);
-                DateTime MyNow = DateTime.Now;//Moved Out of For loop for Speed boost
+                DateTimeOffset MyNow = DateTimeOffset.Now;//Moved Out of For loop for Speed boost
                 for (int i = 0; i < MyTotalSubEvents.Count; i++)
                 {
                     if (MyTotalSubEvents[i].Start > MyNow)
@@ -73,7 +73,7 @@ namespace My24HourTimerWPF
 
         TimeLine getTimeLine()
         {
-            DateTime LastDeadline = DateTime.Now.AddHours(1);
+            DateTimeOffset LastDeadline = DateTimeOffset.Now.AddHours(1);
             List<BusyTimeLine> MyTotalBusySlots = new List<BusyTimeLine>(0);
             //var Holder=new List();
             foreach (KeyValuePair<string, CalendarEvent> MyCalendarEvent in AllEventDictionary)
@@ -90,10 +90,10 @@ namespace My24HourTimerWPF
                 }*/
             }
             MyTotalBusySlots = SortBusyTimeline(MyTotalBusySlots, true);
-            TimeLine MyTimeLine = new TimeLine(DateTime.Now, DateTime.Now.AddHours(1));
+            TimeLine MyTimeLine = new TimeLine(DateTimeOffset.Now, DateTimeOffset.Now.AddHours(1));
             if (MyTotalBusySlots.Count > 0)
             {
-                MyTimeLine = new TimeLine(DateTime.Now, MyTotalBusySlots[MyTotalBusySlots.Count - 1].End);
+                MyTimeLine = new TimeLine(DateTimeOffset.Now, MyTotalBusySlots[MyTotalBusySlots.Count - 1].End);
             }
             MyTimeLine.OccupiedSlots = MyTotalBusySlots.ToArray();
             return MyTimeLine;
@@ -127,7 +127,7 @@ namespace My24HourTimerWPF
             int i = 0;
             List<BusyTimeLine> MyTotalSubEventBusySlots = new List<BusyTimeLine>(0);
             BusyTimeLine[] ArrayOfBusySlotsInRepeat = new BusyTimeLine[0];
-            DateTime LastDeadline = DateTime.Now.AddHours(1);
+            DateTimeOffset LastDeadline = DateTimeOffset.Now.AddHours(1);
 
             if (MyEvent.RepetitionStatus)
             {
@@ -236,12 +236,12 @@ namespace My24HourTimerWPF
             return MyCalendarEventDictionary;
         }
 
-        public static DateTime ConvertToDateTime(string StringOfDateTime)
+        public static DateTimeOffset ConvertToDateTime(string StringOfDateTime)
         {
             string[] strArray = StringOfDateTime.Split(new char[] { '|' });
             string[] strArray2 = strArray[0].Split(new char[] { ' ' });
             string[] strArray3 = strArray[1].Split(new char[] { ' ' });
-            return new DateTime(Convert.ToInt16(strArray2[0]), Convert.ToInt16(strArray2[1]), Convert.ToInt16(strArray2[2]), Convert.ToInt16(strArray3[0]), Convert.ToInt16(strArray3[1]), Convert.ToInt16(strArray3[2]));
+            return new DateTimeOffset(Convert.ToInt16(strArray2[0]), Convert.ToInt16(strArray2[1]), Convert.ToInt16(strArray2[2]), Convert.ToInt16(strArray3[0]), Convert.ToInt16(strArray3[1]), Convert.ToInt16(strArray3[2]));
         }
         string LogInfo = "";
         CalendarEvent getCalendarEventObjFromNode(XmlNode EventScheduleNode)
@@ -305,10 +305,10 @@ namespace My24HourTimerWPF
             EndDateTime = EventScheduleNode.SelectSingleNode("Deadline").InnerText.Split(' ');
             EndDate = EndDateTime[0];
             EndTime = EndDateTime[1] + EndDateTime[2];
-            //string Name, string StartTime, DateTime StartDate, string EndTime, DateTime EventEndDate, string eventSplit, string PreDeadlineTime, string EventDuration, bool EventRepetitionflag, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag
-            DateTime StartTimeConverted = new DateTime(Convert.ToInt32(StartDate.Split('/')[2]), Convert.ToInt32(StartDate.Split('/')[0]), Convert.ToInt32(StartDate.Split('/')[1]));
-            DateTime EndTimeConverted = new DateTime(Convert.ToInt32(EndDate.Split('/')[2]), Convert.ToInt32(EndDate.Split('/')[0]), Convert.ToInt32(EndDate.Split('/')[1]));
-            //MainWindow.CreateSchedule("","",new DateTime(),"",new DateTime(),"","","",true,true,true,"",false);
+            //string Name, string StartTime, DateTimeOffset StartDate, string EndTime, DateTimeOffset EventEndDate, string eventSplit, string PreDeadlineTime, string EventDuration, bool EventRepetitionflag, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag
+            DateTimeOffset StartTimeConverted = new DateTimeOffset(Convert.ToInt32(StartDate.Split('/')[2]), Convert.ToInt32(StartDate.Split('/')[0]), Convert.ToInt32(StartDate.Split('/')[1]));
+            DateTimeOffset EndTimeConverted = new DateTimeOffset(Convert.ToInt32(EndDate.Split('/')[2]), Convert.ToInt32(EndDate.Split('/')[0]), Convert.ToInt32(EndDate.Split('/')[1]));
+            //MainWindow.CreateSchedule("","",new DateTimeOffset(),"",new DateTimeOffset(),"","","",true,true,true,"",false);
             Recurrence = Recurrence;
 
             Location var3 = getLocation(EventScheduleNode);
@@ -375,8 +375,8 @@ namespace My24HourTimerWPF
         {
             SubCalendarEvent[] MyArrayOfNodes = new SubCalendarEvent[MyXmlNode.ChildNodes.Count];
             string ID = "";
-            DateTime Start = new DateTime();
-            DateTime End = new DateTime();
+            DateTimeOffset Start = new DateTimeOffset();
+            DateTimeOffset End = new DateTimeOffset();
             TimeSpan SubScheduleDuration = new TimeSpan();
             TimeSpan PrepTime = new TimeSpan();
             BusyTimeLine BusySlot = new BusyTimeLine();
@@ -400,7 +400,7 @@ namespace My24HourTimerWPF
             return MyArrayOfNodes;
         }
 
-        public static DateTime stringToDateTime(string MyDateTimeString)//String should be in format "MM/DD/YY HH:MM:SSA"
+        public static DateTimeOffset stringToDateTime(string MyDateTimeString)//String should be in format "MM/DD/YY HH:MM:SSA"
         {
             //4/19/2013 11:34:40 AM
             string[] DateTimeComponents = MyDateTimeString.Split(' ');
@@ -414,15 +414,15 @@ namespace My24HourTimerWPF
             int sec;
             DateComponents = DateTimeComponents[0].Split('/');
             TimeComponents = (CalendarEvent.convertTimeToMilitary(DateTimeComponents[1] + DateTimeComponents[2])).Split(':');
-            DateTime MyDateTime, MyNow;
+            DateTimeOffset MyDateTime, MyNow;
 
             if (DateComponents.Length < 2)
             {
-                MyNow = DateTime.Now;
+                MyNow = DateTimeOffset.Now;
                 Hour = Convert.ToInt32(TimeComponents[0]);
                 Min = Convert.ToInt32(TimeComponents[1]);
                 sec = 0;
-                MyDateTime = new DateTime(MyNow.Year, MyNow.Month, MyNow.Day, Hour, Min, sec);
+                MyDateTime = new DateTimeOffset(MyNow.Year, MyNow.Month, MyNow.Day, Hour, Min, sec);
                 return MyDateTime;
             }
             if (TimeComponents.Length < 2)
@@ -430,7 +430,7 @@ namespace My24HourTimerWPF
                 Year = Convert.ToInt32(DateComponents[2]);
                 Month = Convert.ToInt32(DateComponents[0]);
                 Day = Convert.ToInt32(DateComponents[1]);
-                MyDateTime = new DateTime(Year, Month, Day, 0, 0, 0);
+                MyDateTime = new DateTimeOffset(Year, Month, Day, 0, 0, 0);
                 return MyDateTime;
             }
 
@@ -440,7 +440,7 @@ namespace My24HourTimerWPF
             Hour = Convert.ToInt32(TimeComponents[0]);
             Min = Convert.ToInt32(TimeComponents[1]);
             sec = 0;
-            MyDateTime = new DateTime(Year, Month, Day, Hour, Min, sec);
+            MyDateTime = new DateTimeOffset(Year, Month, Day, Hour, Min, sec);
             return MyDateTime;
         }
 
@@ -1216,7 +1216,7 @@ namespace My24HourTimerWPF
                 List<SubCalendarEvent> ReassignedSubEvents = new System.Collections.Generic.List<SubCalendarEvent>();
                 for (int i=0; i<ListOfFreeSpots.Count;i++)
                 {
-                    DateTime RelativeStartTime = ListOfFreeSpots[i].Start;
+                    DateTimeOffset RelativeStartTime = ListOfFreeSpots[i].Start;
 
                     TimeLine UpdatedTimeLine=Utility.AddSubCaleventsToTimeLine(ListOfFreeSpots[i], SnugPermutation[i]);
                     ListOfFreeSpots[i].AddBusySlots(UpdatedTimeLine.OccupiedSlots);
@@ -1225,7 +1225,7 @@ namespace My24HourTimerWPF
                     {//tries to reassign each element in a snug permutation into the referencetimeLine
                         SubCalendarEvent CopyOfMySubCalendarEvent = MySubCalendarEvent.createCopy();
                         TimeSpan MySubCalendarDuration = (CopyOfMySubCalendarEvent.End - CopyOfMySubCalendarEvent.Start);
-                        DateTime RelativeEndtime = RelativeStartTime + MySubCalendarDuration;
+                        DateTimeOffset RelativeEndtime = RelativeStartTime + MySubCalendarDuration;
                         CopyOfMySubCalendarEvent.ReassignTime(RelativeStartTime, RelativeEndtime);
                         CopyOfMySubCalendarEvent.ActiveSlot = new BusyTimeLine(CopyOfMySubCalendarEvent.ID, RelativeStartTime, RelativeEndtime);//Note this is a hack to resolve the reassignment of time since we dont know currently know the distiction between BusyTimeLine and SubCalendarEvent(TimeLine)
                         TimeLine MyTimeLine=CopyOfMySubCalendarEvent.EventTimeLine;
@@ -2250,11 +2250,11 @@ namespace My24HourTimerWPF
             }
 
 
-            DateTime EarliestReferenceTIme = FreeBoundary.Start;
+            DateTimeOffset EarliestReferenceTIme = FreeBoundary.Start;
             List<mTuple<bool, SubCalendarEvent>> FrontPartials = new System.Collections.Generic.List<mTuple<bool, SubCalendarEvent>>();
             List<mTuple<bool, SubCalendarEvent>> EndPartials = new System.Collections.Generic.List<mTuple<bool, SubCalendarEvent>>();
-            Dictionary<DateTime, List<mTuple<bool, SubCalendarEvent>>> FrontPartials_Dict = new System.Collections.Generic.Dictionary<DateTime, System.Collections.Generic.List<mTuple<bool, SubCalendarEvent>>>();
-            Dictionary<DateTime, List<mTuple<bool, SubCalendarEvent>>> EndPartials_Dict = new System.Collections.Generic.Dictionary<DateTime, System.Collections.Generic.List<mTuple<bool, SubCalendarEvent>>>();
+            Dictionary<DateTimeOffset, List<mTuple<bool, SubCalendarEvent>>> FrontPartials_Dict = new System.Collections.Generic.Dictionary<DateTimeOffset, System.Collections.Generic.List<mTuple<bool, SubCalendarEvent>>>();
+            Dictionary<DateTimeOffset, List<mTuple<bool, SubCalendarEvent>>> EndPartials_Dict = new System.Collections.Generic.Dictionary<DateTimeOffset, System.Collections.Generic.List<mTuple<bool, SubCalendarEvent>>>();
             Dictionary<string, Dictionary<string, mTuple<bool, SubCalendarEvent>>> PossibleEntries_Cpy = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.Dictionary<string, mTuple<bool, SubCalendarEvent>>>();
             foreach (KeyValuePair<string, Dictionary<string, mTuple<bool, SubCalendarEvent>>> eachKeyValuePair in PossibleEntries)//populates PossibleEntries_Cpy. I need a copy to maintain all references to PossibleEntries
             {
@@ -2333,7 +2333,7 @@ namespace My24HourTimerWPF
                 //PossibleEntries_Cpy[eachmTuple.Item2.ActiveDuration.Ticks.ToString()].Remove(eachmTuple.Item2.ID);
             }
 
-            List<DateTime> ListOfFrontPartialsStartTime = FrontPartials_Dict.Keys.ToList();
+            List<DateTimeOffset> ListOfFrontPartialsStartTime = FrontPartials_Dict.Keys.ToList();
 
             int i = 0;
             int j = 0;
@@ -2385,15 +2385,15 @@ namespace My24HourTimerWPF
                 j = i + 1;
                 if (ListOfFrontPartialsStartTime.Count > 0)//fits any sub calEvent in preceeding restricting free spot
                 {
-                    DateTime RestrictedStopper = restrictedSnugFitAvailable[i].Item2.Start;
+                    DateTimeOffset RestrictedStopper = restrictedSnugFitAvailable[i].Item2.Start;
 
 
                     bool breakForLoop = false;
                     bool PreserveRestrictedIndex = false;
                     for (; FrontPartialCounter < ListOfFrontPartialsStartTime.Count; FrontPartialCounter++)
                     {
-                        DateTime PertinentFreeSpotStart = EarliestReferenceTIme;
-                        DateTime PertinentFreeSpotEnd;
+                        DateTimeOffset PertinentFreeSpotStart = EarliestReferenceTIme;
+                        DateTimeOffset PertinentFreeSpotEnd;
                         if ((ListOfFrontPartialsStartTime[FrontPartialCounter] < RestrictedStopper))
                         {
                             PertinentFreeSpotEnd = ListOfFrontPartialsStartTime[FrontPartialCounter];
@@ -2488,7 +2488,7 @@ namespace My24HourTimerWPF
                 }
                 else
                 {//No FrontPartials
-                    DateTime ReferenceEndTime = restrictedSnugFitAvailable[i].Item2.Start;
+                    DateTimeOffset ReferenceEndTime = restrictedSnugFitAvailable[i].Item2.Start;
                     PertinentFreeSpot = new TimeLine(EarliestReferenceTIme, ReferenceEndTime);
                     LowestCostArrangement = OptimizeArrangeOfSubCalEvent(PertinentFreeSpot, new Tuple<SubCalendarEvent, SubCalendarEvent>(null, restrictedSnugFitAvailable[i].Item2), CompatibleWithList.Values.ToList(), PossibleEntries_Cpy);
 
@@ -2517,9 +2517,9 @@ namespace My24HourTimerWPF
                     List<SubCalendarEvent> AdditionalCOstArrangement = new System.Collections.Generic.List<SubCalendarEvent>();
                     if (j < restrictedSnugFitAvailable.Count)
                     {
-                        DateTime StartDateTimeAfterFitting = PertinentFreeSpot.End;//this is the barring end time of the preceding boundary search
+                        DateTimeOffset StartDateTimeAfterFitting = PertinentFreeSpot.End;//this is the barring end time of the preceding boundary search
 
-                        DateTime RelativeEndTime = restrictedSnugFitAvailable[i].Item2.getCalendarEventRange.End > restrictedSnugFitAvailable[j].Item2.Start ? restrictedSnugFitAvailable[j].Item2.Start : restrictedSnugFitAvailable[i].Item2.getCalendarEventRange.End;
+                        DateTimeOffset RelativeEndTime = restrictedSnugFitAvailable[i].Item2.getCalendarEventRange.End > restrictedSnugFitAvailable[j].Item2.Start ? restrictedSnugFitAvailable[j].Item2.Start : restrictedSnugFitAvailable[i].Item2.getCalendarEventRange.End;
 
                         RelativeEndTime -= restrictedSnugFitAvailable[i].Item2.ActiveDuration;
                         TimeLine CurrentlyFittedTimeLine = new TimeLine(StartDateTimeAfterFitting, RelativeEndTime);
@@ -2560,7 +2560,7 @@ namespace My24HourTimerWPF
                     }
                     else
                     {
-                        DateTime RelativeEndTime = restrictedSnugFitAvailable[i].Item2.getCalendarEventRange.End > FreeBoundary.End ? FreeBoundary.End : restrictedSnugFitAvailable[i].Item2.getCalendarEventRange.End;
+                        DateTimeOffset RelativeEndTime = restrictedSnugFitAvailable[i].Item2.getCalendarEventRange.End > FreeBoundary.End ? FreeBoundary.End : restrictedSnugFitAvailable[i].Item2.getCalendarEventRange.End;
                         TimeLine CurrentlyFittedTimeLine = new TimeLine(EarliestReferenceTIme, RelativeEndTime);
                         AdditionalCOstArrangement = PlaceSubCalEventInLowestCostPosition(CurrentlyFittedTimeLine, restrictedSnugFitAvailable[i].Item2, AdditionalCOstArrangement);
                     }
@@ -2587,8 +2587,8 @@ namespace My24HourTimerWPF
                 {
                     for (FrontPartialCounter = 0; FrontPartialCounter < ListOfFrontPartialsStartTime.Count; FrontPartialCounter++)
                     {
-                        DateTime PertinentFreeSpotStart = EarliestReferenceTIme;
-                        DateTime PertinentFreeSpotEnd;
+                        DateTimeOffset PertinentFreeSpotStart = EarliestReferenceTIme;
+                        DateTimeOffset PertinentFreeSpotEnd;
                         PertinentFreeSpotEnd = ListOfFrontPartialsStartTime[FrontPartialCounter];
                         FrontPartials_Dict.Remove(ListOfFrontPartialsStartTime[FrontPartialCounter]);
                         ListOfFrontPartialsStartTime.RemoveAt(FrontPartialCounter);
@@ -2764,7 +2764,7 @@ namespace My24HourTimerWPF
 
         List<mTuple<bool, SubCalendarEvent>> reAlignSubCalEvents(TimeLine BoundaryTimeLine, List<mTuple<bool, SubCalendarEvent>> ListOfEvents)
         {
-            DateTime ReferenceTime = BoundaryTimeLine.Start;
+            DateTimeOffset ReferenceTime = BoundaryTimeLine.Start;
             TimeLine Boundary_Cpy = BoundaryTimeLine.CreateCopy();
             List<mTuple<bool, SubCalendarEvent>> myClashers = new System.Collections.Generic.List<mTuple<bool, SubCalendarEvent>>();
 
@@ -2800,7 +2800,7 @@ namespace My24HourTimerWPF
         {
 
             /**Hack Solution Start, this just assumes all events are right next to each other and appends mySubcalevetn to the end. It also shifts this sub cal event to represent this shift **/
-            DateTime RelativeStartTime = MyLimitingTimeLine.Start + Utility.SumOfActiveDuration(OptimizedArrangementOfEvent);
+            DateTimeOffset RelativeStartTime = MyLimitingTimeLine.Start + Utility.SumOfActiveDuration(OptimizedArrangementOfEvent);
 
             TimeSpan DifferenceInTimeSpan = RelativeStartTime - mySubcalevetn.ActiveSlot.Start;
             //mySubcalevetn.shiftEvent(DifferenceInTimeSpan);
@@ -3672,7 +3672,7 @@ namespace My24HourTimerWPF
                 Pseudo_rigidSubcalEvent = new SubCalendarEvent(Pseudo_rigidSubcalEvent.ID, Pseudo_rigidSubcalEvent.Start.Add(-PossibleLeftMovement), Pseudo_rigidSubcalEvent.End.Add(-PossibleLeftMovement), new BusyTimeLine(Pseudo_rigidSubcalEvent.ID, Pseudo_rigidSubcalEvent.Start.Add(-PossibleLeftMovement), Pseudo_rigidSubcalEvent.End.Add(-PossibleLeftMovement)), Pseudo_rigidSubcalEvent.myLocation, Pseudo_rigidSubcalEvent.getCalendarEventRange);// this can be optimized with a shift function
             }
             RelativeSubcalendarList.Add(Pseudo_rigidSubcalEvent, PertinentTimeLine);
-            DateTime LastDateTime = (InEfficientTimeLine[Index].OccupiedSlots.OrderBy(obj => obj.End).ToList())[InEfficientTimeLine.Count - 1].End;
+            DateTimeOffset LastDateTime = (InEfficientTimeLine[Index].OccupiedSlots.OrderBy(obj => obj.End).ToList())[InEfficientTimeLine.Count - 1].End;
             RelativeSubcalendarList.Remove(RelativeSubCalendarEvent_list[Index]);
             InEfficientTimeLine[Index] = new TimeLine(InEfficientTimeLine[Index].Start, LastDateTime);
             InEfficientTimeLine[Index].OccupiedSlots = CurrenlyOccupied;//check for bugs to ensure not out of timeLine Range;You also need to ensure that Pseudo_rigidSubcalEvent gets perpetuated to what ever func will be using it later
@@ -4476,8 +4476,8 @@ namespace My24HourTimerWPF
             int i = 0;
             TimeLine MyReferenceRange = new TimeLine();
             double TotalMilliseconds = i * (MySpanForEachSection.TotalMilliseconds);
-            DateTime RangeStart;
-            DateTime RangeEnd;
+            DateTimeOffset RangeStart;
+            DateTimeOffset RangeEnd;
             for (; i < NumberOfSplits; i++)
             {
                 TotalMilliseconds = i * (MySpanForEachSection.TotalMilliseconds);
@@ -4499,7 +4499,7 @@ namespace My24HourTimerWPF
                 throw (new System.Exception("Cannot generate CentralizeYourSelfWithinRange TimeLine Because Difference is less than zero.\nWill Not Fit!!!"));
                 //return CentralizedTimeline;
             }
-            DateTime MyStart = Range.Start.AddSeconds(Difference.TotalSeconds / 2);
+            DateTimeOffset MyStart = Range.Start.AddSeconds(Difference.TotalSeconds / 2);
             CentralizedTimeline = new TimeLine(MyStart, MyStart.Add(Centralized));
             return CentralizedTimeline;
         }
@@ -4512,7 +4512,7 @@ namespace My24HourTimerWPF
             {
                 if (AvailableFreeSpots[i].TimelineSpan > (MySubEvent.ActiveDuration))
                 {
-                    DateTime DurationStartTime;
+                    DateTimeOffset DurationStartTime;
                     TimeSpan MyTimeSpan = new TimeSpan((((AvailableFreeSpots[i].TimelineSpan - MySubEvent.ActiveDuration).Milliseconds) / 2) * 10000);
                     DurationStartTime = AvailableFreeSpots[i].Start.Add(MyTimeSpan);
                     MySubEvent.ActiveSlot = new BusyTimeLine(MySubEvent.ID, DurationStartTime, DurationStartTime.Add(MySubEvent.ActiveDuration));
@@ -5192,7 +5192,7 @@ namespace My24HourTimerWPF
         static public TimeLine[] getAllFreeSpots_NoCompleteSchedule(TimeLine MyTimeLine)//Gets an array of all the freespots between busy spots in given time line, note attribute completeschedule is not used in finding freespots
         {
             BusyTimeLine[] AllBusySlots = MyTimeLine.OccupiedSlots;
-            DateTime FinalCompleteScheduleDate;
+            DateTimeOffset FinalCompleteScheduleDate;
             AllBusySlots = SortBusyTimeline(AllBusySlots.ToList(), true).ToArray();
             TimeLine[] AllFreeSlots = new TimeLine[AllBusySlots.Length];
 
@@ -5207,7 +5207,7 @@ namespace My24HourTimerWPF
                     AllFreeSlots = new TimeLine[2];
                     AllFreeSlots[0] = new TimeLine(MyTimeLine.Start, AllBusySlots[0].Start.AddMilliseconds(0));
                     AllFreeSlots[1] = new TimeLine(AllBusySlots[0].End.AddMilliseconds(0), MyTimeLine.End);
-                    /*AllFreeSlots[0] = new TimeLine(DateTime.Now, AllBusySlots[0].Start.AddMilliseconds(-1));
+                    /*AllFreeSlots[0] = new TimeLine(DateTimeOffset.Now, AllBusySlots[0].Start.AddMilliseconds(-1));
                     AllFreeSlots[1] = new TimeLine(AllBusySlots[0].End.AddMilliseconds(1), AllBusySlots[0].End.AddYears(10));*/
                 }
                 else
@@ -5217,7 +5217,7 @@ namespace My24HourTimerWPF
                 }
                 return AllFreeSlots;
             }
-            DateTime ReferenceTime = MyTimeLine.Start;
+            DateTimeOffset ReferenceTime = MyTimeLine.Start;
             /*if (MyTimeLine.Start < MyTimeLine.Start)
             {
                 ReferenceTime = MyTimeLine.Start;
@@ -5235,7 +5235,7 @@ namespace My24HourTimerWPF
             {
                 FinalCompleteScheduleDate = MyTimeLine.End;
             }
-            //AllFreeSlots[AllBusySlots.Length-1] = new TimeLine(DateTime.Now, AllBusySlots[0].Start);
+            //AllFreeSlots[AllBusySlots.Length-1] = new TimeLine(DateTimeOffset.Now, AllBusySlots[0].Start);
             AllFreeSlots[AllFreeSlots.Length - 1] = new TimeLine(AllBusySlots[AllBusySlots.Length - 1].End, FinalCompleteScheduleDate);
             List<TimeLine> SpecificFreeSpots = new List<TimeLine>(0);
             for (int i = 0; i < AllFreeSlots.Length; i++)//Free Spots Are only between two busy Slots. So Index Counter starts from 1 get start of second busy
@@ -5254,7 +5254,7 @@ namespace My24HourTimerWPF
         public TimeLine[] getAllFreeSpots(TimeLine MyTimeLine)//Gets an array of all the freespots between busy spots in given time line. Checks CompleteSchedule for the limits of free spots
         {
             BusyTimeLine[] AllBusySlots = CompleteSchedule.OccupiedSlots;
-            DateTime FinalCompleteScheduleDate;
+            DateTimeOffset FinalCompleteScheduleDate;
             AllBusySlots = SortBusyTimeline(AllBusySlots.ToList(), true).ToArray();
             TimeLine[] AllFreeSlots = new TimeLine[AllBusySlots.Length];
 
@@ -5269,7 +5269,7 @@ namespace My24HourTimerWPF
                     AllFreeSlots = new TimeLine[2];
                     AllFreeSlots[0] = new TimeLine(MyTimeLine.Start, AllBusySlots[0].Start.AddMilliseconds(0));
                     AllFreeSlots[1] = new TimeLine(AllBusySlots[0].End.AddMilliseconds(0), MyTimeLine.End);
-                    /*AllFreeSlots[0] = new TimeLine(DateTime.Now, AllBusySlots[0].Start.AddMilliseconds(-1));
+                    /*AllFreeSlots[0] = new TimeLine(DateTimeOffset.Now, AllBusySlots[0].Start.AddMilliseconds(-1));
                     AllFreeSlots[1] = new TimeLine(AllBusySlots[0].End.AddMilliseconds(1), AllBusySlots[0].End.AddYears(10));*/
                 }
                 else
@@ -5279,7 +5279,7 @@ namespace My24HourTimerWPF
                 }
                 return AllFreeSlots;
             }
-            DateTime ReferenceTime = CompleteSchedule.Start;
+            DateTimeOffset ReferenceTime = CompleteSchedule.Start;
             /*if (MyTimeLine.Start < CompleteSchedule.Start)
             {
                 ReferenceTime = MyTimeLine.Start;
@@ -5297,7 +5297,7 @@ namespace My24HourTimerWPF
             {
                 FinalCompleteScheduleDate = MyTimeLine.End;
             }
-            //AllFreeSlots[AllBusySlots.Length-1] = new TimeLine(DateTime.Now, AllBusySlots[0].Start);
+            //AllFreeSlots[AllBusySlots.Length-1] = new TimeLine(DateTimeOffset.Now, AllBusySlots[0].Start);
             AllFreeSlots[AllFreeSlots.Length - 1] = new TimeLine(AllBusySlots[AllBusySlots.Length - 1].End, FinalCompleteScheduleDate);
             List<TimeLine> SpecificFreeSpots = new List<TimeLine>(0);
             for (int i = 0; i < AllFreeSlots.Length; i++)//Free Spots Are only between two busy Slots. So Index Counter starts from 1 get start of second busy

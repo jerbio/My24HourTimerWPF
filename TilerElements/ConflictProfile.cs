@@ -18,6 +18,17 @@ namespace TilerElements
             this.ConflictType = conflictType;
         }
 
+        public ConflictProfile(string allIds)
+        {
+            ConflictingEvents = new HashSet<string>();
+            ConflictFlag = false;
+            if(!string.IsNullOrEmpty(allIds))
+            {
+                LoadConflictingIDs(allIds.Split(','));
+            }
+
+        }
+
         public ConflictProfile CreateCopy()
         {
             ConflictProfile retValue = new ConflictProfile();
@@ -77,6 +88,8 @@ namespace TilerElements
         {
             return ConflictingEvents;
         }
+
+        
 
     }
 }

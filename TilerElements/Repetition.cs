@@ -130,8 +130,8 @@ namespace TilerElements
 
             
             
-            DateTime EachRepeatCalendarStart = initializingRange.Start;//Start DateTime Object for each recurring Calendar Event
-            DateTime EachRepeatCalendarEnd = initializingRange.End;//End DateTime Object for each recurring Calendar Event
+            DateTimeOffset EachRepeatCalendarStart = initializingRange.Start;//Start DateTimeOffset Object for each recurring Calendar Event
+            DateTimeOffset EachRepeatCalendarEnd = initializingRange.End;//End DateTimeOffset Object for each recurring Calendar Event
 
             EventID MyEventCalendarID = EventID.GenerateRepeatCalendarEvent(MyParentEvent.ID);
             CalendarEvent MyRepeatCalendarEvent = new CalendarEvent(MyEventCalendarID, MyParentEvent.Name, MyParentEvent.ActiveDuration, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.Preparation, MyParentEvent.PreDeadline, MyParentEvent.Rigid, new Repetition(), MyParentEvent.Rigid ? 1 : MyParentEvent.NumberOfSplit, MyParentEvent.myLocation, MyParentEvent.isEnabled, MyParentEvent.UIParam, MyParentEvent.Notes, MyParentEvent.isComplete);
@@ -152,7 +152,7 @@ namespace TilerElements
             RepeatingEvents = DictionaryOfIDAndCalendarEvents.Values.ToArray();
         }
 
-        private DateTime getStartTimeForAppropriateWeek(DateTime refTime, DayOfWeek SearchedDayOfweek)
+        private DateTimeOffset getStartTimeForAppropriateWeek(DateTimeOffset refTime, DayOfWeek SearchedDayOfweek)
         {
             while (refTime.DayOfWeek != SearchedDayOfweek)
             {
@@ -167,10 +167,10 @@ namespace TilerElements
             RepetitionRange = MyParentEvent.Repeat.Range;
             RepetitionFrequency = MyParentEvent.Repeat.Frequency;
             EnableRepeat = true;
-            DateTime EachRepeatCalendarStart = RepetitionRange.Start;
-            DateTime EachRepeatCalendarEnd = RepetitionRange.End;
-            DateTime StartTimeLineForActity = getStartTimeForAppropriateWeek(initializingRange.Start, Weekdays[WeekDay]);
-            DateTime EndTimeLineForActity = StartTimeLineForActity.Add(initializingRange.RangeSpan);
+            DateTimeOffset EachRepeatCalendarStart = RepetitionRange.Start;
+            DateTimeOffset EachRepeatCalendarEnd = RepetitionRange.End;
+            DateTimeOffset StartTimeLineForActity = getStartTimeForAppropriateWeek(initializingRange.Start, Weekdays[WeekDay]);
+            DateTimeOffset EndTimeLineForActity = StartTimeLineForActity.Add(initializingRange.RangeSpan);
 
             TimeLine repetitionTimeline= new TimeLine(EachRepeatCalendarStart,EachRepeatCalendarEnd);
             TimeLine ActiveTimeline = new TimeLine(StartTimeLineForActity, EndTimeLineForActity);
@@ -185,7 +185,7 @@ namespace TilerElements
 
             this.PopulateRepetitionParameters(MyRepeatCalendarEvent);
         }
-        DateTime IncreaseByFrequency(DateTime MyTime, string Frequency)
+        DateTimeOffset IncreaseByFrequency(DateTimeOffset MyTime, string Frequency)
         {
             Frequency = Frequency.ToUpper();
             switch (Frequency)
@@ -218,7 +218,7 @@ namespace TilerElements
         }
 
 
-        /*public Repetition(bool EnableFlag, DateTime StartTime, TimeSpan Frequency)
+        /*public Repetition(bool EnableFlag, DateTimeOffset StartTime, TimeSpan Frequency)
         {
             Start = StartTime;
             RepetitionFrequency = Frequency;

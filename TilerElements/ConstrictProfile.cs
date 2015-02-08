@@ -10,6 +10,7 @@ namespace TilerElements
         DateTimeOffset StartTime;
         TimeSpan SpanOfConstriction;
         static TimeSpan ZeroTimeSpan = new TimeSpan(0);
+        int[] DaySelection = new int[7];
         bool isSet;
 
 

@@ -14,7 +14,7 @@ namespace TilerElements
         #region constructor
         public TimeLine()
         {
-            StartTime = new DateTimeOffset(0, new TimeSpan());
+            StartTime = new DateTimeOffset();
             EndTime = StartTime;
             ActiveTimeSlots = new BusyTimeLine[0];
             
@@ -124,8 +124,8 @@ namespace TilerElements
         public TimeLine CreateCopy()
         {
             TimeLine CopyTimeLine = new TimeLine();
-            CopyTimeLine.EndTime = new DateTimeOffset(EndTime.Ticks,new TimeSpan());
-            CopyTimeLine.StartTime = new DateTimeOffset(StartTime.Ticks, new TimeSpan());
+            CopyTimeLine.EndTime = EndTime; 
+            CopyTimeLine.StartTime = StartTime;
             List<BusyTimeLine> TempActiveSlotsHolder = new List<BusyTimeLine>();
             foreach (BusyTimeLine MyBusyTimeLine in ActiveTimeSlots)
             {
@@ -333,7 +333,7 @@ namespace TilerElements
                 //AllFreeSlots = AllFreeSlots.OrderBy(obj => obj.Start).ToArray();
                 TimeSpan SumOfNoneClashing = new TimeSpan(0);
                 TimeSpan SumOfClashing = new TimeSpan(0);
-                DateTimeOffset LatestDeadlineOfClashing = new DateTimeOffset(0, new TimeSpan());
+                DateTimeOffset LatestDeadlineOfClashing = new DateTimeOffset();;
                 BusyTimeLine busyTimeSlotWithLatestEnd = new BusyTimeLine();
 
 

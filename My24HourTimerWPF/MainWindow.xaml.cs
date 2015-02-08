@@ -23,8 +23,9 @@ using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using Google.Maps.Geocoding;
 using WinForms = System.Windows.Forms;
-using Tiler;
+using TilerFront;
 using TilerElements;
+using System.Web.Mvc;
 
 
 
@@ -994,14 +995,15 @@ namespace My24HourTimerWPF
             
         }
 
-        private void RunEvaluation(object sender, RoutedEventArgs e)
+        async private void RunEvaluation(object sender, RoutedEventArgs e)
         {
             int NumberOfRetries = Convert.ToInt32(textBox10.Text);
             long[] AllData = new long[NumberOfRetries];
             
             while(--NumberOfRetries>=0)
             {
-                UserAccount currentUser = new UserAccount(UserNameTextBox.Text, PasswordTextBox.Text);
+                TilerFront.Models.LoginViewModel myLogin = new TilerFront.Models.LoginViewModel() { Username = UserNameTextBox.Text, Password = PasswordTextBox.Text, RememberMe = true };
+                UserAccountDirect currentUser = await new TilerFront.Controllers.AccountController().LoginStatic(myLogin);
                 MySchedule = new Schedule(currentUser,DateTimeOffset.Now);
                 
                 string eventName = textBox1.Text;
@@ -1170,12 +1172,14 @@ namespace My24HourTimerWPF
             return retValue;
         }
 
-        private void LogInToWagtap()
+        private async void LogInToWagtap()
         {
             //string LogLocation = "";
             //LogLocation = @"C:\Users\OluJerome\Documents\Visual Studio 2010\Projects\LearnCuDAVS2010\LearnCUDAConsoleApplication\WagTapCalLogs\";
             //Tiler.LogControl.UpdateLogLocation(LogLocation);
-            UserAccount currentUser = new UserAccount(UserNameTextBox.Text, PasswordTextBox.Text);
+
+            TilerFront.Models.LoginViewModel myLogin = new TilerFront.Models.LoginViewModel() { Username = UserNameTextBox.Text, Password = PasswordTextBox.Text, RememberMe = true };
+            UserAccountDirect currentUser = await new TilerFront.Controllers.AccountController().LoginStatic(myLogin);
             DateTimeOffset refNow=DateTimeOffset.Now;
             //refNow = DateTimeOffset.Parse("10/26/2014 5:13 PM");
             MySchedule = new Schedule(currentUser, refNow);
@@ -1242,16 +1246,21 @@ namespace My24HourTimerWPF
             currentUser.EncryptPassword();*/
         }
 
-        private void LogInButton_Copy_Click(object sender, RoutedEventArgs e)
+        private async void LogInButton_Copy_Click(object sender, RoutedEventArgs e)
         {
             //Register(string FirstName, string LastName, string NickName, string UserName, string PassWord)
+            MessageBox.Show("Uhm Jerome remember you havent implemented this for tilerfront");
+            return;
+            
+            /*
             UserAccount newUser = new UserAccount();
-            if (!newUser.Register(FirstNameRegisterTextBox.Text, LastNameRegisterTextBox.Text, NickNameRegisterTextBox.Text, UserNameRegisterTextBox.Text, PasswordRegisterTextBox.Text).Item2.Status)
+            ;
+            if (!(await newUser.Register(FirstNameRegisterTextBox.Text, LastNameRegisterTextBox.Text, NickNameRegisterTextBox.Text, UserNameRegisterTextBox.Text, PasswordRegisterTextBox.Text)).Item2.Status)
             {
                 UserNameTextBox.Text = UserNameRegisterTextBox.Text;
                 PasswordTextBox.Text = PasswordRegisterTextBox.Text;
                 LogInToWagtap();
-            }
+            }*/
             
         }
 

@@ -277,11 +277,11 @@ namespace My24HourTimerWPF
         {
             if (Boundary.Start >= Sorted.getCalendarEventRange.Start)
             {
-                return new DateTimeOffset(Boundary.Start.Ticks, new TimeSpan());
+                return Boundary.Start;// new DateTimeOffset(Boundary.Start.Ticks, new TimeSpan());
             }
             else
             {
-                return new DateTimeOffset(Sorted.getCalendarEventRange.Start.Ticks, new TimeSpan());
+                return Sorted.getCalendarEventRange.Start;//new DateTimeOffset(.Ticks, new TimeSpan());
             }
         }
 

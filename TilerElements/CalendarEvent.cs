@@ -11,6 +11,7 @@ namespace TilerElements
 {
     public class CalendarEvent : TilerEvent, IDefinedRange
     {
+        static DateTime EndOfCalculation = DateTime.Now.AddMonths(3);
         // Fields
         static Dictionary<string, List<Double>> DistanceMatrixData;
         static List<string> DistanceMatixKeys;
@@ -27,7 +28,7 @@ namespace TilerElements
         protected MiscData DataBlob=new MiscData();
         private Location_Elements LocationData;
         protected string otherPartyID;
-
+        DateTime CalculationEnd;
         List<mTuple<EventID,string>> RemovedIDs;
         protected ConstrictProfile ConstrictRange=null;
         #region Constructor
@@ -250,8 +251,8 @@ namespace TilerElements
             CalendarEvent MyCalendarEventCopy = new CalendarEvent();
             MyCalendarEventCopy.EventDuration = new TimeSpan(EventDuration.Ticks);
             MyCalendarEventCopy.EventName = EventName.ToString();
-            MyCalendarEventCopy.StartDateTime = new DateTimeOffset(StartDateTime.Ticks, new TimeSpan());
-            MyCalendarEventCopy.EndDateTime = new DateTimeOffset(EndDateTime.Ticks, new TimeSpan());
+            MyCalendarEventCopy.StartDateTime = StartDateTime;
+            MyCalendarEventCopy.EndDateTime = EndDateTime;
             MyCalendarEventCopy.EventPreDeadline = new TimeSpan(EventPreDeadline.Ticks);
             MyCalendarEventCopy.PrepTime = new TimeSpan(PrepTime.Ticks);
             MyCalendarEventCopy.Priority = Priority;

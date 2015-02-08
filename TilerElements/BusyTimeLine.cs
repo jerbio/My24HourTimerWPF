@@ -30,7 +30,7 @@ namespace TilerElements
         #region functions
         public BusyTimeLine CreateCopy()
         {
-            BusyTimeLine MyBusyTimlineCopy = new BusyTimeLine(this.TimeLineID, new DateTimeOffset(StartTime.Ticks, new TimeSpan()), new DateTimeOffset(EndTime.Ticks, new TimeSpan()));
+            BusyTimeLine MyBusyTimlineCopy = new BusyTimeLine(this.TimeLineID, StartTime, EndTime);
             return MyBusyTimlineCopy;
         }
 

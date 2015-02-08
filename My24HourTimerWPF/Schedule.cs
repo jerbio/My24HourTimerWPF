@@ -42,7 +42,7 @@ using System.Text;
 using System.Xml;
 using System.Diagnostics;
 using TilerElements;
-using Tiler;
+using TilerFront;
 using System.Windows.Forms;
 
 
@@ -61,8 +61,11 @@ namespace My24HourTimerWPF
         public TimeSpan HourTimeSpan = new TimeSpan(0, 1, 0, 0);
         ThirdPartyCalendarControl[] myCalendar;
 
+
+        bool UseTilerFront = false;
         Stopwatch myWatch = new Stopwatch();
-        UserAccount myAccount;
+        UserAccountDirect myAccount;
+        
         int LatesMainID;
 
         double PercentageOccupancy = 0;
@@ -71,6 +74,7 @@ namespace My24HourTimerWPF
         //Schedule.Now = DateTimeOffset.Now;
         DateTimeOffset ReferenceDayTIime;
         static string stageOfProgram = "";
+        int DebugCounter = 0;
 
         public class ReferenceNow
         {
@@ -124,7 +128,7 @@ namespace My24HourTimerWPF
         }
         */
 
-        public Schedule(UserAccount AccountEntry,DateTimeOffset referenceNow)
+        public Schedule(UserAccountDirect AccountEntry,DateTimeOffset referenceNow)
         {
             myAccount = AccountEntry;
             Now =new ReferenceNow( referenceNow);
@@ -178,7 +182,10 @@ namespace My24HourTimerWPF
         */
         async private void Initialize()
         {
-            myAccount.Login_NonTask();
+            if(!myAccount.Status)
+            {
+                throw new Exception("Using non logged in tiler acc, try logging account first.");
+            }
             Tuple<Dictionary<string, CalendarEvent>, DateTimeOffset, Dictionary<string, Location_Elements>> profileData =await  myAccount.ScheduleData.getProfileInfo();
             if (profileData!=null)
             {
@@ -1729,7 +1736,7 @@ namespace My24HourTimerWPF
             List<SubCalendarEvent> SubEventsholder;
             TimeLine RangeForScheduleUpdate = initializingCalendarEvent.RangeTimeLine;
             IEnumerable<SubCalendarEvent> PertinentNotDoneYet = NotDoneYet.Where(obj => obj.getCalendarEventRange.InterferringTimeLine(RangeForScheduleUpdate) != null);
-            DateTimeOffset LatestInNonComited = new DateTimeOffset(NoneCommitedCalendarEventsEvents.Max(obj => obj.End.Ticks), new TimeSpan());
+            DateTimeOffset LatestInNonComited = NoneCommitedCalendarEventsEvents.Max(obj => obj.End);
 
             LatestEndTime = PertinentNotDoneYet != null ? (PertinentNotDoneYet.Count() > 0 ? PertinentNotDoneYet.Select(obj => obj.getCalendarEventRange.End).Max() > RangeForScheduleUpdate.End ? PertinentNotDoneYet.Select(obj => obj.getCalendarEventRange.End).Max() : RangeForScheduleUpdate.End : RangeForScheduleUpdate.End) : RangeForScheduleUpdate.End;
 
@@ -2577,8 +2584,9 @@ namespace My24HourTimerWPF
                     bool testMe = Utility.PinSubEventsToEnd(COnstrainedElementsForTimeLine, refTImeLine);
                     throw new Exception("Error before call to stitchunrestricted");
                 }
-
+                
                 List<SubCalendarEvent> reassignedElements= stitchUnRestrictedSubCalendarEvent(JustFreeSpots[i], COnstrainedElementsForTimeLine, AllInterferringSubEvents_Cpy.ToList());
+                DebugCounter++;
                 reassignedElements.AsParallel().ForAll(obj => obj.Conflicts.UpdateConflictFlag(false));
                 foreach (SubCalendarEvent eachSubCalendarEvent in reassignedElements)
                 {
@@ -3005,6 +3013,8 @@ namespace My24HourTimerWPF
         }
 
         
+        
+
 
         void CreateBufferForEachEvent(List<SubCalendarEvent> AllEvents, TimeLine restrictingTimeline)
         {

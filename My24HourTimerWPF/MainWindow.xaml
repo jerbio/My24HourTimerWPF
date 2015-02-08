@@ -24,8 +24,8 @@
                     </Border>
 
                     <Grid Margin="-342,-122,478,-75" Grid.RowSpan="2">
-                        <TextBox Height="22" HorizontalAlignment="Left"  Name="UserNameTextBox" VerticalAlignment="Top" Width="126" Text="sistercousin" TextAlignment="Center" Margin="190,170,0,0" />
-                        <TextBox Height="22" HorizontalAlignment="Left"  Name="PasswordTextBox" VerticalAlignment="Top" Width="126" Text="password" TextAlignment="Center" Margin="190,220,0,0" />
+                        <TextBox Height="22" HorizontalAlignment="Left"  Name="UserNameTextBox" VerticalAlignment="Top" Width="126" Text="jerbio" TextAlignment="Center" Margin="190,170,0,0" />
+                        <TextBox Height="22" HorizontalAlignment="Left"  Name="PasswordTextBox" VerticalAlignment="Top" Width="126" Text="gbenga007" TextAlignment="Center" Margin="190,220,0,0" />
                         <Button Content="Log In" Name="LogInButton" Width="75" Margin="223,268,28,200" Click="LogInButton_Click"/>
                         <Button Content="Encrypt Password" Name="PwordEncrypt" Margin="190,350,28,118" Click="EncryptClicked_Click"/>
                         <TextBox Height="22" HorizontalAlignment="Left"  x:Name="UserNameRegisterTextBox" VerticalAlignment="Top" Width="126" Text="Username" TextAlignment="Center" Margin="10,10,0,0" />

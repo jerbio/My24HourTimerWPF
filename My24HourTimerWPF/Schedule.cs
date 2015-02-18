@@ -455,8 +455,8 @@ namespace My24HourTimerWPF
         public CustomErrors deleteCalendarEventAndReadjust(string EventID)
         {
             CalendarEvent CalendarEventTOBeRemoved = getCalendarEvent(EventID);
-            CalendarEventTOBeRemoved.Disable(true);
-            CalendarEventTOBeRemoved.DisableSubEvents(CalendarEventTOBeRemoved.ActiveSubEvents);
+            CalendarEventTOBeRemoved.Disable(false);
+            //CalendarEventTOBeRemoved.DisableSubEvents(CalendarEventTOBeRemoved.ActiveSubEvents);
             CalendarEventTOBeRemoved = new CalendarEvent(CalendarEventTOBeRemoved.Name,CalendarEventTOBeRemoved.ActiveDuration,CalendarEventTOBeRemoved.Start,CalendarEventTOBeRemoved.End,CalendarEventTOBeRemoved.Preparation,CalendarEventTOBeRemoved .PreDeadline,CalendarEventTOBeRemoved .Rigid,new Repetition(),1,CalendarEventTOBeRemoved .myLocation,false,new EventDisplay(),new MiscData(),false);
             CalendarEventTOBeRemoved.DisableSubEvents(CalendarEventTOBeRemoved.ActiveSubEvents);
 
@@ -469,10 +469,12 @@ namespace My24HourTimerWPF
             return retValue.Error;
         }
 
-        
 
-        
-        public void markAsCompleteCalendarEventAndReadjust(string EventID)
+
+
+
+
+        public CustomErrors markAsCompleteCalendarEventAndReadjust(string EventID)
         {
             CalendarEvent CalendarEventTOBeRemoved = getCalendarEvent(EventID);
             CalendarEventTOBeRemoved.SetCompletion(true);
@@ -482,13 +484,12 @@ namespace My24HourTimerWPF
 
 
             HashSet<SubCalendarEvent> NotDOneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
-            EvaluateTotalTimeLineAndAssignValidTimeSpots(CalendarEventTOBeRemoved, NotDOneYet);
+            CalendarEvent retValue= EvaluateTotalTimeLineAndAssignValidTimeSpots(CalendarEventTOBeRemoved, NotDOneYet);
 
 
             AllEventDictionary.Remove(CalendarEventTOBeRemoved.ID);//removes the false calendar event
-
-
             UpdateWithProcrastinateSchedule(AllEventDictionary);
+            return retValue.Error;
         }
 
         
@@ -534,7 +535,41 @@ namespace My24HourTimerWPF
 
         }
 
-        public void deleteSubCalendarEvent(string EventID)
+        /// <summary>
+        /// function marks a Subevent as complete. This process forces the calendarevent to check if its complete.
+        /// </summary>
+        /// <param name="EventID"></param>
+        public void markSubEventAsComplete(string EventID)
+        {
+
+            CalendarEvent referenceCalendarEventWithSubEvent = getCalendarEvent(EventID);
+            SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
+            ReferenceSubEvent.SetCompletionStatus(true, referenceCalendarEventWithSubEvent);
+            UpdateWithProcrastinateSchedule(AllEventDictionary);
+        }
+
+        /// <summary>
+        /// Function sets multiple subevents as complete. Using the IDs of each subevent
+        /// </summary>
+        /// <param name="EventIDs"></param>
+        public void markSubEventsAsComplete(IEnumerable<string> EventIDs)
+        {
+            foreach (string EventID in EventIDs)
+            {
+                CalendarEvent referenceCalendarEventWithSubEvent = getCalendarEvent(EventID);
+                SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
+                ReferenceSubEvent.SetCompletionStatus(true, referenceCalendarEventWithSubEvent);
+            }
+            UpdateWithProcrastinateSchedule(AllEventDictionary);
+        }
+
+
+        /// <summary>
+        /// function takes an EventID, deletes from the schedule and attempts a schedule optimization
+        /// </summary>
+        /// <param name="EventID"></param>
+
+        public void deleteSubCalendarEventAndReadjust(string EventID)
         {
 
 
@@ -577,6 +612,33 @@ namespace My24HourTimerWPF
 
             AllEventDictionary.Remove(ScheduleUpdated.ID);//removes the false calendar event
 
+            UpdateWithProcrastinateSchedule(AllEventDictionary);
+        }
+
+        /// <summary>
+        /// Function simply deletes a subevent from a schedule. Note this doesnt attempt to readjust the schedule. If you need to reoptimize the schedule then use deleteSubCalendarEventAndReadjust
+        /// </summary>
+        /// <param name="EventID"></param>
+        public void deleteSubCalendarEvent(string EventID)
+        {
+            CalendarEvent referenceCalendarEventWithSubEvent = getCalendarEvent(EventID);
+            SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
+            ReferenceSubEvent.Disable();
+            UpdateWithProcrastinateSchedule(AllEventDictionary);
+        }
+
+        /// <summary>
+        /// This Deletes several subevents from the user schedule without trying to adjust the schedule
+        /// </summary>
+        /// <param name="EventID"></param>
+        public void deleteSubCalendarEvents(IEnumerable<string> EventIDs)
+        {
+            foreach (string eachString in EventIDs)
+            {
+                CalendarEvent referenceCalendarEventWithSubEvent = getCalendarEvent(eachString);
+                SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(eachString);
+                ReferenceSubEvent.Disable();
+            }
             UpdateWithProcrastinateSchedule(AllEventDictionary);
         }
 
@@ -2688,7 +2750,7 @@ namespace My24HourTimerWPF
                     recurringCalevents_EarlerNow.AsParallel().ForAll(obj => obj.Disable());
                     if (recurringCalevents.Where(obj => obj.isActive).Count() > 0)
                     {
-                        eachCalendarEvent.Enable(false);
+                        //eachCalendarEvent.Enable(false);
                     }
                     else
                     {

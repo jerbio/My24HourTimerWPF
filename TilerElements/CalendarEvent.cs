@@ -23,7 +23,6 @@ namespace TilerElements
         protected Dictionary<EventID, SubCalendarEvent> SubEvents;
         protected bool SchedulStatus;
         CustomErrors CalendarError = new CustomErrors(false, string.Empty);
-        protected bool Enabled=true;
         protected EventDisplay UiParams= new EventDisplay();
         protected MiscData DataBlob=new MiscData();
         private Location_Elements LocationData;
@@ -103,7 +102,7 @@ namespace TilerElements
                 UniqueID = new EventID(MyUpdated.ID);
             }
             Enabled = MyUpdated.isEnabled;
-
+            Complete = MyUpdated.isComplete;
             SubEvents = new Dictionary<EventID, SubCalendarEvent>();
             for (int i = 0; i < MySubEvents.Length; i++)//using MySubEvents.length for the scenario of the call for repeat event. Remember the parent event does not generate subevents
             {
@@ -324,10 +323,13 @@ namespace TilerElements
 
             if (RepetitionStatus)
             {
-                IEnumerable<CalendarEvent> AllrepeatingCalEvents=EventRepetition.RecurringCalendarEvents();
-                foreach (CalendarEvent eachCalendarEvent in AllrepeatingCalEvents)
+                if (goDeep)
                 {
-                    eachCalendarEvent.SetCompletion(CompletionStatus);
+                    IEnumerable<CalendarEvent> AllrepeatingCalEvents=EventRepetition.RecurringCalendarEvents();
+                    foreach (CalendarEvent eachCalendarEvent in AllrepeatingCalEvents)
+                    {
+                        eachCalendarEvent.SetCompletion(CompletionStatus, goDeep);
+                    }
                 }
             }
             else

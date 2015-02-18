@@ -25,7 +25,10 @@ using Google.Maps.Geocoding;
 using WinForms = System.Windows.Forms;
 using TilerFront;
 using TilerElements;
-using System.Web.Mvc;
+using Microsoft.Owin.Hosting;
+using Microsoft.Owin.Host;
+using System;
+//using System.Web.Mvc;
 
 
 
@@ -49,6 +52,7 @@ namespace My24HourTimerWPF
             DateTimeOffset Start = new DateTimeOffset(2014, 2, 13, 0, 0, 0, new TimeSpan());
             DateTimeOffset Now = DateTimeOffset.Now;
             TimeSpan spent= Now - Start;
+            
         }
 
         static class ProcrastinateComboBox
@@ -907,7 +911,7 @@ namespace My24HourTimerWPF
         private void delete(object sender, RoutedEventArgs e)
         {
             string EventID = textBox9.Text;
-            MySchedule.deleteSubCalendarEvent(EventID);
+            MySchedule.deleteSubCalendarEventAndReadjust(EventID);
         }
 
         private void button8_Click(object sender, RoutedEventArgs e)
@@ -1177,12 +1181,18 @@ namespace My24HourTimerWPF
             //string LogLocation = "";
             //LogLocation = @"C:\Users\OluJerome\Documents\Visual Studio 2010\Projects\LearnCuDAVS2010\LearnCUDAConsoleApplication\WagTapCalLogs\";
             //Tiler.LogControl.UpdateLogLocation(LogLocation);
+            
+            WebApp.Start<Startup>("http://localhost:9000");
 
             TilerFront.Models.LoginViewModel myLogin = new TilerFront.Models.LoginViewModel() { Username = UserNameTextBox.Text, Password = PasswordTextBox.Text, RememberMe = true };
-            UserAccountDirect currentUser = await new TilerFront.Controllers.AccountController().LoginStatic(myLogin);
+
+            UserAccountDebug currentUser = new UserAccountDebug("18");
+            await currentUser.Login();
             DateTimeOffset refNow=DateTimeOffset.Now;
             //refNow = DateTimeOffset.Parse("10/26/2014 5:13 PM");
-            MySchedule = new Schedule(currentUser, refNow);
+            //MySchedule = new Schedule(currentUser, refNow);
+
+            //MySchedule = new Schedule(currentUser, refNow);
             
             if (MySchedule.isScheduleLoadSuccessful)
             {

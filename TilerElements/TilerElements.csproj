@@ -49,8 +49,13 @@
     <Compile Include="BlobSubCalendarEvent.cs" />
     <Compile Include="BusyTimeLine.cs" />
     <Compile Include="CalendarEvent.cs" />
+    <Compile Include="CalendarEventRestricted.cs" />
     <Compile Include="ConflictProfile.cs" />
-    <Compile Include="ConstrictProfile.cs" />
+    <Compile Include="PauseProfile.cs" />
+    <Compile Include="Procrastination.cs" />
+    <Compile Include="RestrictionProfile.cs" />
+    <Compile Include="RestrictionTimeLine.cs" />
+    <Compile Include="SubCalendarEventRestricted.cs" />
     <Compile Include="EventLearn.cs" />
     <Compile Include="TilerColor.cs" />
     <Compile Include="CustomErrors.cs" />

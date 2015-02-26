@@ -11,7 +11,7 @@ namespace TilerElements
 {
     public class CalendarEvent : TilerEvent, IDefinedRange
     {
-        static DateTime EndOfCalculation = DateTime.Now.AddMonths(3);
+        protected DateTimeOffset EndOfCalculation = DateTime.Now.AddMonths(3);
         // Fields
         static Dictionary<string, List<Double>> DistanceMatrixData;
         static List<string> DistanceMatixKeys;
@@ -23,13 +23,13 @@ namespace TilerElements
         protected Dictionary<EventID, SubCalendarEvent> SubEvents;
         protected bool SchedulStatus;
         CustomErrors CalendarError = new CustomErrors(false, string.Empty);
-        protected EventDisplay UiParams= new EventDisplay();
-        protected MiscData DataBlob=new MiscData();
-        private Location_Elements LocationData;
-        protected string otherPartyID;
         DateTime CalculationEnd;
         List<mTuple<EventID,string>> RemovedIDs;
-        protected ConstrictProfile ConstrictRange=null;
+        protected SubCalendarEventRestricted ConstrictRange=null;
+        List<Procrastination> ProcrastinationProfile = new List<Procrastination>();
+        
+        
+
         #region Constructor
         public CalendarEvent(CustomErrors Error)
         {
@@ -226,24 +226,12 @@ namespace TilerElements
         #endregion
 
         #region Functions
-        /*SubCalendarEvent[] generateSubEvent(SubCalendarEvent[] ArrayOfEvents, int NumberOfSplit, TimeSpan TotalActiveDurationSubEvents, string ParentID)
+        ///*
+        public void updateProcrastinate(Procrastination ProcrastinationTime)
         {
-            TimeSpan TimeSpanEvent = EndDateTime - StartDateTime;
-            //new TimeSpan((long)((().TotalSeconds/ ArrayOfEvents.Length)*100000000));
-            TimeSpanEvent = new TimeSpan(((long)TimeSpanEvent.TotalMilliseconds * 10000) / ArrayOfEvents.Length);
-            TimeSpan ActiveDurationPerSubEvents = new TimeSpan((long)(((TotalActiveDurationSubEvents.TotalSeconds) * 10000000) / ArrayOfEvents.Length));
-            DateTimeOffset SubStart;
-            DateTimeOffset SubEnd;
-            for (int i = 0; i < ArrayOfEvents.Length; i++)
-            {
-                SubStart = StartDateTime.AddSeconds(TimeSpanEvent.TotalSeconds * i);
-                SubEnd = StartDateTime.AddSeconds(TimeSpanEvent.TotalSeconds * (i + 1));
-                ArrayOfEvents[i] = new SubCalendarEvent(ActiveDurationPerSubEvents, SubStart, SubEnd, PrepTime, ParentID);
-            }
-
-            return ArrayOfEvents;
-        }*/
-
+            ProcrastinationProfile.Add(ProcrastinationTime);
+        }
+        //*/
 
         public CalendarEvent createCopy()
         {
@@ -267,8 +255,11 @@ namespace TilerElements
             MyCalendarEventCopy.UiParams = this.UiParams.createCopy();
             MyCalendarEventCopy.DataBlob = this.DataBlob.createCopy();
             MyCalendarEventCopy.Enabled = this.Enabled;
-
+            MyCalendarEventCopy.isRestricted = this.isRestricted;
             MyCalendarEventCopy.LocationData = LocationData;//hack you might need to make copy
+            MyCalendarEventCopy.ProcrastinationProfile = this.ProcrastinationProfile.Select(obj => obj.CreateCopy()).ToList();
+            MyCalendarEventCopy.DeadlineElapsed = this.DeadlineElapsed;
+            MyCalendarEventCopy.UserDeleted= this.UserDeleted;
 
 
 
@@ -375,7 +366,7 @@ namespace TilerElements
             }
         }
 
-        void UpdateLocationMatrix(Location_Elements newLocation)
+        protected void UpdateLocationMatrix(Location_Elements newLocation)
         { 
             
             int i = 0;

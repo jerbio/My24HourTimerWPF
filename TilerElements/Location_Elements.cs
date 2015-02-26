@@ -149,6 +149,7 @@ namespace TilerElements
             this_cpy.xValue = this.xValue;
             this_cpy.yValue = this.yValue;
             this_cpy.NullLocation = this.NullLocation;
+            this_cpy.LocationID = this.LocationID;
             return this_cpy;
         }
 

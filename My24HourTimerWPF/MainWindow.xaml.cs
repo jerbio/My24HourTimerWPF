@@ -585,6 +585,23 @@ namespace My24HourTimerWPF
 
             //CalendarEvent ScheduleUpdated = CreateSchedule(eventName, eventStartTime, eventStartDate, eventEndTime, eventEndDate, eventSplit, PreDeadlineTime, EventDuration, EventRepetitionflag, DefaultPreDeadlineFlag, RigidScheduleFlag, eventPrepTime, DefaultPreDeadlineFlag);
             CalendarEvent ScheduleUpdated = new CalendarEvent(eventName, eventStartTime, eventStartDate, eventEndTime, eventEndDate, eventSplit, PreDeadlineTime, EventDuration, MyRepetition, DefaultPreDeadlineFlag, RigidFlag, eventPrepTime, DefaultPreDeadlineFlag, var0,true,UiData,NoteData,CompletedFlag);
+            if (RestrictedCheckbox.IsChecked.Value)
+            {
+                string TimeString = eventStartDate.Date.ToShortDateString() + " " + eventStartTime+" +00:00";
+                DateTimeOffset StartDateTime= DateTimeOffset.Parse(TimeString);
+                TimeString = eventEndDate.Date.ToShortDateString() + " " + eventEndTime + " +00:00";
+                DateTimeOffset EndDateTime= DateTimeOffset.Parse(TimeString);
+                string restrictionStartString = TimeFrameStart.Text + " 1/1/1970 +00:00";
+                string restrictionEndString = TimeFrameEnd.Text + " 1/1/1970 +00:00";
+
+                DateTimeOffset RestrictionStart = DateTimeOffset.Parse(restrictionStartString);
+                DateTimeOffset RestrictionEnd = DateTimeOffset.Parse(restrictionEndString);
+                TimeSpan RestrinSpan = RestrictionEnd -RestrictionStart ;
+                RestrictionProfile myRestrictionProfile= new RestrictionProfile(RestrictionStart,RestrinSpan);
+
+                ScheduleUpdated = new CalendarEventRestricted(eventName, StartDateTime, EndDateTime, myRestrictionProfile, TimeSpan.Parse(EventDuration), MyRepetition, false, true, Convert.ToInt32(eventSplit), RigidFlag, new Location_Elements(), TimeSpan.Parse(eventPrepTime), TimeSpan.Parse(PreDeadlineTime), UiData, NoteData);
+            }
+            
             ScheduleUpdated.Repeat.PopulateRepetitionParameters(ScheduleUpdated);
             textBlock9.Text = "...Loading";
             Stopwatch snugarrayTester = new Stopwatch();
@@ -1008,7 +1025,7 @@ namespace My24HourTimerWPF
             {
                 TilerFront.Models.LoginViewModel myLogin = new TilerFront.Models.LoginViewModel() { Username = UserNameTextBox.Text, Password = PasswordTextBox.Text, RememberMe = true };
                 UserAccountDirect currentUser = await new TilerFront.Controllers.AccountController().LoginStatic(myLogin);
-                MySchedule = new Schedule(currentUser,DateTimeOffset.Now);
+                //MySchedule = new Schedule(currentUser,DateTimeOffset.Now);
                 
                 string eventName = textBox1.Text;
                 string LocationString = textBox8.Text.Trim();
@@ -1182,17 +1199,25 @@ namespace My24HourTimerWPF
             //LogLocation = @"C:\Users\OluJerome\Documents\Visual Studio 2010\Projects\LearnCuDAVS2010\LearnCUDAConsoleApplication\WagTapCalLogs\";
             //Tiler.LogControl.UpdateLogLocation(LogLocation);
             
-            WebApp.Start<Startup>("http://localhost:9000");
+            //WebApp.Start<Startup>("http://localhost:9000");
 
             TilerFront.Models.LoginViewModel myLogin = new TilerFront.Models.LoginViewModel() { Username = UserNameTextBox.Text, Password = PasswordTextBox.Text, RememberMe = true };
 
-            UserAccountDebug currentUser = new UserAccountDebug("18");
+            TilerFront.Models.AuthorizedUser AuthorizeUser = new TilerFront.Models.AuthorizedUser(){UserID="d350ba4d-fe0b-445c-bed6-b6411c2156b3",UserName="jerbio"};
+
+            UserAccount currentUser =await AuthorizeUser.getUserAccount();// new UserAccountDebug("18");
+            //currentUser.batchMigrateXML();
+            
+            
+            //UserAccountDirect currentUser =  new UserAccountDebug("18");
             await currentUser.Login();
             DateTimeOffset refNow=DateTimeOffset.Now;
             //refNow = DateTimeOffset.Parse("10/26/2014 5:13 PM");
             //MySchedule = new Schedule(currentUser, refNow);
 
-            //MySchedule = new Schedule(currentUser, refNow);
+
+
+            MySchedule = new Schedule(currentUser, refNow);
             
             if (MySchedule.isScheduleLoadSuccessful)
             {

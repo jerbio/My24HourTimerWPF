@@ -51,7 +51,7 @@ namespace My24HourTimerWPF
 {
     public class Schedule
     {
-
+        static DateTimeOffset StartOfTime = new DateTimeOffset(1970, 1, 1, 0, 0, 0,new TimeSpan());
 
         Dictionary<string, CalendarEvent> AllEventDictionary;
         TimeLine CompleteSchedule;
@@ -64,7 +64,7 @@ namespace My24HourTimerWPF
 
         bool UseTilerFront = false;
         Stopwatch myWatch = new Stopwatch();
-        UserAccountDirect myAccount;
+        UserAccount myAccount;
         
         int LatesMainID;
 
@@ -78,13 +78,16 @@ namespace My24HourTimerWPF
 
         public class ReferenceNow
         {
+            
             DateTimeOffset CalculationNow;
             DateTimeOffset ImmutableNow;
+            DateTimeOffset ImmutableDayIndex;
             public ReferenceNow(DateTimeOffset Now)
             {
                 Now = new DateTimeOffset(Now.Year, Now.Month, Now.Day, Now.Hour, Now.Minute, 0, new TimeSpan());
                 ImmutableNow = Now;
                 CalculationNow = Now;
+                ImmutableDayIndex = new DateTimeOffset(Now.Year, Now.Month, Now.Day, 0, 0, 0, new TimeSpan());
             }
 
             public DateTimeOffset UpdateNow(DateTimeOffset UpdatedNow)
@@ -128,7 +131,7 @@ namespace My24HourTimerWPF
         }
         */
 
-        public Schedule(UserAccountDirect AccountEntry,DateTimeOffset referenceNow)
+        public Schedule(UserAccount AccountEntry, DateTimeOffset referenceNow)
         {
             myAccount = AccountEntry;
             Now =new ReferenceNow( referenceNow);
@@ -881,8 +884,8 @@ namespace My24HourTimerWPF
             {
                 myCalendar[0].WriteToOutlook(MyCalEvent);
             }
-            
-            myAccount.CommitEventToLog(AllEventDictionary.Values, EventID.LatestID.ToString());
+
+            myAccount.CommitEventToLogOld(AllEventDictionary.Values, EventID.LatestID.ToString());
         }
 
 

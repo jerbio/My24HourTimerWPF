@@ -12,6 +12,8 @@ namespace TilerElements
         protected DateTimeOffset EndDateTime;
         protected bool Complete = false;
         protected bool Enabled = true;
+        protected bool DeadlineElapsed = false;
+        protected bool UserDeleted = false;
         protected bool FromRepeatEvent=false;
         protected Location_Elements LocationData;
         protected EventDisplay UiParams = new EventDisplay();
@@ -24,7 +26,11 @@ namespace TilerElements
         protected TimeSpan EventPreDeadline;
         protected TimeSpan PrepTime;
         protected EventID UniqueID;
+        protected List<string> UserIDs;
         protected int Priority;
+        protected bool isRestricted = false;
+        protected static DateTimeOffset EventNow = DateTimeOffset.Now;
+        protected static TimeSpan CalculationEndSpan = new TimeSpan(180, 0, 0, 0, 0);
 
         public bool isComplete
         {
@@ -122,6 +128,13 @@ namespace TilerElements
              }
          }
 
+         public bool isEventRestricted
+         {
+             get
+             {
+                 return isRestricted;
+             }
+         }
 
     }
 }

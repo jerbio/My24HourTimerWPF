@@ -18,7 +18,7 @@ namespace TilerElements
         TimeLine initializingRange;//stores range for repetition so if assuming event happens on thursday from 9-11pm. The range is from today till november 31. The initializingRange will be 9-11pm
         int RepetitionWeekDay=7;
         static DayOfWeek[] Weekdays=new DayOfWeek[7]{DayOfWeek.Sunday,DayOfWeek.Monday,DayOfWeek.Tuesday,DayOfWeek.Wednesday,DayOfWeek.Thursday,DayOfWeek.Friday,DayOfWeek.Saturday};
-        
+        static DateTimeOffset CalculationStop = DateTimeOffset.Now;
 
         public Repetition()
         {
@@ -109,8 +109,11 @@ namespace TilerElements
                 return null;
             }
         }
-
-        public void PopulateRepetitionParameters(CalendarEvent MyParentEvent)//this function of repetition, is responsible for populating the repetition object in the passed CalendarEvent.
+        /// <summary>
+        /// this function of repetition, is responsible for populating the repetition object in the passed CalendarEvent.
+        /// </summary>
+        /// <param name="MyParentEvent"></param>
+        public void PopulateRepetitionParameters(CalendarEvent MyParentEvent)
         {
             if (!MyParentEvent.Repeat.Enable)//Checks if Repetition object is enabled or disabled. If Disabled then just return else continue
             {
@@ -152,6 +155,52 @@ namespace TilerElements
             RepeatingEvents = DictionaryOfIDAndCalendarEvents.Values.ToArray();
         }
 
+
+        public void PopulateRepetitionParameters(CalendarEventRestricted MyParentEvent)
+        {
+            if (!MyParentEvent.Repeat.Enable)//Checks if Repetition object is enabled or disabled. If Disabled then just return else continue
+            {
+                return;
+            }
+            EnableRepeat = true;
+            RepetitionRange = MyParentEvent.Repeat.Range;
+            RepetitionFrequency = MyParentEvent.Repeat.Frequency;
+            if (DictionaryOfWeekDayToRepetition.Count > 0)
+            {
+                foreach (KeyValuePair<int, Repetition> eachKeyValuePair in DictionaryOfWeekDayToRepetition)
+                {
+                    eachKeyValuePair.Value.PopulateRepetitionParameters(MyParentEvent, eachKeyValuePair.Key);
+                }
+                return;
+            }
+
+
+
+            DateTimeOffset EachRepeatCalendarStart = initializingRange.Start;//Start DateTimeOffset Object for each recurring Calendar Event
+            DateTimeOffset EachRepeatCalendarEnd = initializingRange.End;//End DateTimeOffset Object for each recurring Calendar Event
+
+            EventID MyEventCalendarID = EventID.GenerateRepeatCalendarEvent(MyParentEvent.ID);
+            CalendarEventRestricted MyRepeatCalendarEvent = CalendarEventRestricted.InstantiateRepeatedCandidate(MyParentEvent.Name, EachRepeatCalendarStart, EachRepeatCalendarEnd,MyParentEvent.Calendar_EventID,MyParentEvent.TimeFrameRestriction, MyParentEvent.ActiveDuration,MyParentEvent.NumberOfSplit,MyParentEvent.myLocation,MyParentEvent.UIParam,MyParentEvent.Rigid,MyParentEvent.Preparation,MyParentEvent.ThirdPartyID);// MyParentEvent.Preparation, MyParentEvent.Rigid, new Repetition(), MyParentEvent.Rigid ? 1 : MyParentEvent.NumberOfSplit, MyParentEvent.myLocation, MyParentEvent.isEnabled, MyParentEvent.UIParam, MyParentEvent.Notes, MyParentEvent.isComplete);
+
+            List<CalendarEvent> MyArrayOfRepeatingCalendarEvents = new List<CalendarEvent>();
+
+            for (; MyRepeatCalendarEvent.Start < MyParentEvent.Repeat.Range.End; )
+            {
+                MyArrayOfRepeatingCalendarEvents.Add(MyRepeatCalendarEvent);
+                DictionaryOfIDAndCalendarEvents.Add(MyRepeatCalendarEvent.ID, MyRepeatCalendarEvent);
+                EachRepeatCalendarStart = IncreaseByFrequency(EachRepeatCalendarStart, Frequency); ;
+                EachRepeatCalendarEnd = IncreaseByFrequency(EachRepeatCalendarEnd, Frequency);
+                MyEventCalendarID = EventID.GenerateRepeatCalendarEvent(MyParentEvent.ID);
+                MyRepeatCalendarEvent = CalendarEventRestricted.InstantiateRepeatedCandidate(MyParentEvent.Name, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.Calendar_EventID, MyParentEvent.TimeFrameRestriction, MyParentEvent.ActiveDuration, MyParentEvent.NumberOfSplit, MyParentEvent.myLocation, MyParentEvent.UIParam, MyParentEvent.Rigid, MyParentEvent.Preparation, MyParentEvent.ThirdPartyID); //new CalendarEvent(MyEventCalendarID, MyRepeatCalendarEvent.Name, MyRepeatCalendarEvent.ActiveDuration, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyRepeatCalendarEvent.Preparation, MyRepeatCalendarEvent.PreDeadline, MyRepeatCalendarEvent.Rigid, MyRepeatCalendarEvent.Repeat, MyRepeatCalendarEvent.NumberOfSplit, MyParentEvent.myLocation, MyParentEvent.isEnabled, MyParentEvent.UIParam, MyParentEvent.Notes, MyParentEvent.isComplete);
+
+                MyRepeatCalendarEvent.myLocation = MyParentEvent.myLocation;
+            }
+            RepeatingEvents = DictionaryOfIDAndCalendarEvents.Values.ToArray();
+        }
+        
+
+
+
         private DateTimeOffset getStartTimeForAppropriateWeek(DateTimeOffset refTime, DayOfWeek SearchedDayOfweek)
         {
             while (refTime.DayOfWeek != SearchedDayOfweek)
@@ -183,6 +232,29 @@ namespace TilerElements
             EventID MyEventCalendarID = EventID.GenerateRepeatDayCalendarEvent(MyParentEvent.ID, WeekDay);
             CalendarEvent MyRepeatCalendarEvent = new CalendarEvent(MyEventCalendarID, MyParentEvent.Name, MyParentEvent.ActiveDuration, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.Preparation, MyParentEvent.PreDeadline, MyParentEvent.Rigid,repetitionData , MyParentEvent.Rigid ? 1 : MyParentEvent.NumberOfSplit, MyParentEvent.myLocation, MyParentEvent.isEnabled, MyParentEvent.UIParam, MyParentEvent.Notes, MyParentEvent.isComplete);
 
+            this.PopulateRepetitionParameters(MyRepeatCalendarEvent);
+        }
+
+        private void PopulateRepetitionParameters(CalendarEventRestricted MyParentEvent, int WeekDay)
+        {
+            RepetitionRange = MyParentEvent.Repeat.Range;
+            RepetitionFrequency = MyParentEvent.Repeat.Frequency;
+            EnableRepeat = true;
+            DateTimeOffset EachRepeatCalendarStart = RepetitionRange.Start;
+            DateTimeOffset EachRepeatCalendarEnd = RepetitionRange.End;
+            DateTimeOffset StartTimeLineForActity = getStartTimeForAppropriateWeek(initializingRange.Start, Weekdays[WeekDay]);
+            DateTimeOffset EndTimeLineForActity = StartTimeLineForActity.Add(initializingRange.RangeSpan);
+
+            TimeLine repetitionTimeline = new TimeLine(EachRepeatCalendarStart, EachRepeatCalendarEnd);
+            TimeLine ActiveTimeline = new TimeLine(StartTimeLineForActity, EndTimeLineForActity);
+
+            Repetition repetitionData = new Repetition(MyParentEvent.isEnabled, repetitionTimeline, this.Frequency, ActiveTimeline, 7);
+
+
+            this.initializingRange = ActiveTimeline;
+            this.RepetitionRange = repetitionTimeline;
+            EventID MyEventCalendarID = EventID.GenerateRepeatDayCalendarEvent(MyParentEvent.ID, WeekDay);
+            CalendarEventRestricted MyRepeatCalendarEvent = new CalendarEventRestricted(MyEventCalendarID, MyParentEvent.Name, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.TimeFrameRestriction, MyParentEvent.ActiveDuration, repetitionData, MyParentEvent.isComplete, MyParentEvent.isEnabled, MyParentEvent.Rigid ? 1 : MyParentEvent.NumberOfSplit, MyParentEvent.Rigid, MyParentEvent.myLocation, MyParentEvent.Preparation,MyParentEvent.PreDeadline, MyParentEvent.UIParam, MyParentEvent.Notes); 
             this.PopulateRepetitionParameters(MyRepeatCalendarEvent);
         }
         DateTimeOffset IncreaseByFrequency(DateTimeOffset MyTime, string Frequency)

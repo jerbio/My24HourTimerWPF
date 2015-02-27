@@ -51,6 +51,7 @@
     <Compile Include="CalendarEvent.cs" />
     <Compile Include="CalendarEventRestricted.cs" />
     <Compile Include="ConflictProfile.cs" />
+    <Compile Include="DayTimeLine.cs" />
     <Compile Include="PauseProfile.cs" />
     <Compile Include="Procrastination.cs" />
     <Compile Include="RestrictionProfile.cs" />

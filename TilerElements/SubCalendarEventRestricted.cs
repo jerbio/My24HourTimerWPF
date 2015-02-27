@@ -11,18 +11,6 @@ namespace TilerElements
         TimeLine HardCalendarEventRange;//this does not include the restriction
         RestrictionProfile ProfileOfRestriction;
         #region Constructor
-        /*public SubCalendarEventRestricted(string CalEventID, DateTimeOffset Start, DateTimeOffset End, DateTimeOffset RestrictStart, TimeSpan RestrictDuration, TimeLine HardCalEventTimeRange, bool isEnabled, bool isComplete, ConflictProfile conflictingEvents)
-        {
-            isRestricted =true;
-            StartDateTime = Start;
-            EndDateTime = End;
-            EventDuration = EndDateTime - StartDateTime;
-            UniqueID = EventID.GenerateSubCalendarEvent(CalEventID);
-            
-            HardCalendarEventRange = HardCalEventTimeRange;
-            initializeCalendarEventRange(HardCalendarEventRange);
-        }*/
-
         public SubCalendarEventRestricted(string CalEventID, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile constrictionProgile, TimeLine HardCalEventTimeRange, bool isEnabled, bool isComplete, ConflictProfile conflictingEvents)
         { 
             isRestricted =true;
@@ -80,7 +68,6 @@ namespace TilerElements
             DateTimeOffset myStart = ProfileOfRestriction.getEarliestStartTimeWithinAFrameAfterRefTime(refTimeLine.Start);
             DateTimeOffset myEnd = ProfileOfRestriction.getLatestEndTimeWithinFrameBeforeRefTime(refTimeLine.End);
             CalendarEventRange = new TimeLine(myStart, myEnd);
-
         }
 
         

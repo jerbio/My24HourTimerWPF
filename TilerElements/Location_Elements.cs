@@ -172,7 +172,7 @@ namespace TilerElements
             }
             else 
             {
-                retValue=new Location_Elements(0, 0,-1);
+                retValue= new Location_Elements(0, 0,-1);
             }
 
             return retValue;

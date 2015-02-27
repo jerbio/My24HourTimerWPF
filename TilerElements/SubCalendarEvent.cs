@@ -15,6 +15,7 @@ namespace TilerElements
         protected double EventScore;
         protected ConflictProfile ConflictingEvents;
         protected IList<EventID> InterferringEvents;
+        protected ulong preferredDayIndex;
         protected int MiscIntData;
 
         #region Classs Constructor
@@ -146,6 +147,20 @@ namespace TilerElements
         {
             return RangeTimeLine.IsDateTimeWithin(DateTimeEntry);
         }
+        /// <summary>
+        /// Function Subcalendarevent evaluates itself against the given parameters
+        /// </summary>
+        /// <param name="refLocation"></param>
+        /// <param name="DayReference"></param>
+        /// <returns></returns>
+        virtual public Tuple<TimeLine,Double> evaluateAgainstOptimizationParameters(Location_Elements refLocation, TimeLine DayTimeLine)
+        {
+            
+            double distance = Location_Elements.calculateDistance(refLocation,this.myLocation);
+            TimeLine refTimeLine = new TimeLine(DayTimeLine.Start, CalendarEventRange.End);
+            Tuple<TimeLine, double> retValue = new Tuple<TimeLine, double>(refTimeLine,distance);
+            return retValue;
+        }
 
         public static SubCalendarEvent getEmptyCalendarEvent()
         {
@@ -161,6 +176,8 @@ namespace TilerElements
             return retValue;
         }
 
+
+
         virtual public SubCalendarEvent createCopy()
         {
             SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ID, Start, End, BusyFrame.CreateCopy(), this.RigidSchedule, this.isEnabled, this.UiParams.createCopy(), this.Notes.createCopy(), this.Complete, this.LocationData, new TimeLine(CalendarEventRange.Start, CalendarEventRange.End), ConflictingEvents.CreateCopy());
@@ -168,6 +185,7 @@ namespace TilerElements
             MySubCalendarEventCopy.DeadlineElapsed = this.DeadlineElapsed;
             MySubCalendarEventCopy.UserDeleted = this.UserDeleted;
             MySubCalendarEventCopy.isRestricted = this.isRestricted;
+            MySubCalendarEventCopy.preferredDayIndex = this.preferredDayIndex;
             return MySubCalendarEventCopy;
         }
 
@@ -175,6 +193,14 @@ namespace TilerElements
         {
             EventSequence = new TimeLine(this.Start, this.End);
             EventSequence.AddBusySlots(BusyFrame);
+        }
+
+        public static void updateDayIndex(ulong DayIndex, IEnumerable<SubCalendarEvent> AllSUbevents)
+        {
+            foreach (SubCalendarEvent eachSubCalendarEvent in AllSUbevents)
+            {
+                eachSubCalendarEvent.preferredDayIndex = DayIndex;
+            }
         }
 
         public static TimeSpan TotalActiveDuration(ICollection<SubCalendarEvent> ListOfSubCalendarEvent)

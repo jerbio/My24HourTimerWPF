@@ -1206,7 +1206,7 @@ namespace My24HourTimerWPF
             TilerFront.Models.AuthorizedUser AuthorizeUser = new TilerFront.Models.AuthorizedUser(){UserID="d350ba4d-fe0b-445c-bed6-b6411c2156b3",UserName="jerbio"};
 
             UserAccount currentUser =await AuthorizeUser.getUserAccount();// new UserAccountDebug("18");
-            //currentUser.batchMigrateXML();
+            //await currentUser.batchMigrateXML();
             
             
             //UserAccountDirect currentUser =  new UserAccountDebug("18");
@@ -1234,7 +1234,7 @@ namespace My24HourTimerWPF
                 int RandomMinute = myNumber.Next(0, 60);
                 textBox4.Text = RandomHour + ":" + RandomMinute;
                 
-                textBox4.Text = 0+ ":" + "15" + ":" + "00";//total time
+                textBox4.Text = 1+ ":" + "15" + ":" + "00";//total time
                 textBox2.Text = 1.ToString();//number of splits
                 int ProcrastinateStartDay = 0;
                 int ProcrastinateEndDay = 365; 

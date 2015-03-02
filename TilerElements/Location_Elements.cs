@@ -23,6 +23,9 @@ namespace TilerElements
             route
         };
 
+        static protected double defaultXValue;
+        static protected double defaultYValue;
+
         protected double xValue;
         protected double yValue;
         protected string TaggedDescription;
@@ -79,6 +82,12 @@ namespace TilerElements
         {
             
             return null;
+        }
+
+        static public void InitializeDefaultLongLat(double xValue, double yValue)
+        {
+            defaultXValue = xValue;
+            defaultYValue = yValue;
         }
 
         static public double calculateDistance(Location_Elements Location24A, Location_Elements Location24B, double Worst=double.MaxValue)
@@ -161,7 +170,7 @@ namespace TilerElements
             return retValue;
         }
 
-        static public Location_Elements AverageGPSLocation(IEnumerable<Location_Elements> Locations)
+        static public Location_Elements AverageGPSLocation(IEnumerable<Location_Elements> Locations, bool useDefaultLocation=true)
         {
             Location_Elements retValue;
             if (Locations.Count() > 0)
@@ -172,7 +181,15 @@ namespace TilerElements
             }
             else 
             {
-                retValue= new Location_Elements(0, 0,-1);
+                if (useDefaultLocation)
+                {
+                    retValue = new Location_Elements(defaultXValue, defaultYValue, -1);
+                }
+                else
+                {
+                    retValue = new Location_Elements(0, 0, -1);
+                }
+                
             }
 
             return retValue;

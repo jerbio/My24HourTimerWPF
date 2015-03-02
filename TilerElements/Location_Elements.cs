@@ -23,6 +23,9 @@ namespace TilerElements
             route
         };
 
+        static protected double defaultXValue;
+        static protected double defaultYValue;
+
         protected double xValue;
         protected double yValue;
         protected string TaggedDescription;
@@ -71,6 +74,12 @@ namespace TilerElements
 
 
         #region Functions
+        public static void InitializeDefaultLongLat(double xLocation, double yLocation)
+        {
+            defaultXValue= xLocation;
+            defaultYValue= yLocation;
+        }
+
         string getStringWebLocation24(float xLocation24, float yLocation24)
         {
             return "Hello";

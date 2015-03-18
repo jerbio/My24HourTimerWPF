@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using Google.Maps.Geocoding;
 using WinForms = System.Windows.Forms;
 using TilerFront;
+using System.Threading.Tasks;
 using TilerElements;
 using Microsoft.Owin.Hosting;
 using Microsoft.Owin.Host;
@@ -178,7 +179,7 @@ namespace My24HourTimerWPF
             string EventID = textBox9.Text;
 
             DateTimeOffset fullDate = new DateTimeOffset(EndDate.Year, EndDate.Month, EndDate.Day, EndTime.Hour, EndTime.Minute, EndTime.Second, new TimeSpan());
-            Tuple<CustomErrors, Dictionary<string, CalendarEvent>>result= MySchedule.UpdateDeadline(EventID, fullDate);
+            Tuple<CustomErrors, Dictionary<string, CalendarEvent>>result= MySchedule.UpdateDeadLine(EventID, fullDate);
             MySchedule.UpdateWithProcrastinateSchedule(result.Item2);
 
         }
@@ -482,7 +483,7 @@ namespace My24HourTimerWPF
             File.WriteAllText(@"..\WriteLines.txt", currentTextOfFile + string.Concat(new object[] { "Log_Check|", newSystemTime.Year, " ", newSystemTime.Month, " ", newSystemTime.Day, "|", newSystemTime.Hour, " ", newSystemTime.Minute, " ", newSystemTime.Second, "\n" }));
         }
 
-        private void button5_Click_2(object sender, RoutedEventArgs e)
+        async private void button5_Click_2(object sender, RoutedEventArgs e)
         {
             
             string eventName = textBox1.Text;
@@ -553,8 +554,8 @@ namespace My24HourTimerWPF
             if (checkBox2.IsChecked.Value)
             {
                 //RepeatStart = (DateTimeOffset)calendar3.SelectedDate.Value;
-                DateTimeOffset FullStartTime = DateTimeOffset.Parse(eventStartDate + " " + eventStartTime);
-                DateTimeOffset FullEndTime = DateTimeOffset.Parse(eventEndDate + " " + eventEndTime);
+                DateTimeOffset FullStartTime = DateTimeOffset.Parse(eventStartDate.Date.ToShortDateString() + " " + eventStartTime);
+                DateTimeOffset FullEndTime = DateTimeOffset.Parse(eventEndDate.Date.ToShortDateString() + " " + eventEndTime);
 
                 List<int> selectedDaysOftheweek = getDaysOfWeek();
 
@@ -585,11 +586,66 @@ namespace My24HourTimerWPF
 
             //CalendarEvent ScheduleUpdated = CreateSchedule(eventName, eventStartTime, eventStartDate, eventEndTime, eventEndDate, eventSplit, PreDeadlineTime, EventDuration, EventRepetitionflag, DefaultPreDeadlineFlag, RigidScheduleFlag, eventPrepTime, DefaultPreDeadlineFlag);
             CalendarEvent ScheduleUpdated = new CalendarEvent(eventName, eventStartTime, eventStartDate, eventEndTime, eventEndDate, eventSplit, PreDeadlineTime, EventDuration, MyRepetition, DefaultPreDeadlineFlag, RigidFlag, eventPrepTime, DefaultPreDeadlineFlag, var0,true,UiData,NoteData,CompletedFlag);
+            if (RestrictedCheckbox.IsChecked.Value)
+            {
+                string TimeString = eventStartDate.Date.ToShortDateString() + " " + eventStartTime+" +00:00";
+                DateTimeOffset StartDateTime= DateTimeOffset.Parse(TimeString);
+                TimeString = eventEndDate.Date.ToShortDateString() + " " + eventEndTime + " +00:00";
+                DateTimeOffset EndDateTime= DateTimeOffset.Parse(TimeString);
+                string restrictionStartString = TimeFrameStart.Text + " 1/1/1970 +00:00";
+                string restrictionEndString = TimeFrameEnd.Text + " 1/1/1970 +00:00";
+
+                DateTimeOffset RestrictionStart = DateTimeOffset.Parse(restrictionStartString);
+                DateTimeOffset RestrictionEnd = DateTimeOffset.Parse(restrictionEndString);
+                TimeSpan RestrinSpan = RestrictionEnd -RestrictionStart ;
+                
+
+                List<mTuple<bool,DayOfWeek>> allElements = (new mTuple<bool,System.DayOfWeek>[7]).ToList();
+                
+                
+
+                allElements[(int)DayOfWeek.Sunday] = new mTuple<bool,System.DayOfWeek>(false,DayOfWeek.Sunday);
+                allElements[(int)DayOfWeek.Monday] = new mTuple<bool,System.DayOfWeek>(false,DayOfWeek.Monday);
+                allElements[(int)DayOfWeek.Tuesday] = new mTuple<bool,System.DayOfWeek>(false,DayOfWeek.Tuesday);
+                allElements[(int)DayOfWeek.Wednesday] = new mTuple<bool,System.DayOfWeek>(false,DayOfWeek.Wednesday);
+                allElements[(int)DayOfWeek.Thursday] = new mTuple<bool,System.DayOfWeek>(false,DayOfWeek.Thursday);
+                allElements[(int)DayOfWeek.Friday] = new mTuple<bool,System.DayOfWeek>(false,DayOfWeek.Friday);
+                allElements[(int)DayOfWeek.Saturday] = new mTuple<bool,System.DayOfWeek>(false,DayOfWeek.Saturday);
+
+                allElements[0].Item1=SunCheckbox.IsChecked.Value;
+                allElements[1].Item1=MonCheckbox.IsChecked.Value;
+                allElements[2].Item1=TueCheckbox.IsChecked.Value;
+                allElements[3].Item1=WedCheckbox.IsChecked.Value;
+                allElements[4].Item1=ThuCheckbox.IsChecked.Value;
+                allElements[5].Item1=FriCheckbox.IsChecked.Value;
+                allElements[6].Item1=SatCheckbox.IsChecked.Value;
+                RestrictionTimeLine restrictTimeLine = new RestrictionTimeLine(RestrictionStart,RestrictionEnd);
+                //RestrictionProfile myRestrictionProfile= new RestrictionProfile(RestrictionStart,RestrinSpan);
+                RestrictionProfile myRestrictionProfile = new RestrictionProfile(7,DayOfWeek.Monday, RestrictionStart, RestrictionEnd);
+                foreach(mTuple<bool,DayOfWeek> eachMTuple in allElements)
+                {
+                    
+                }
+
+                //myRestrictionProfile=new RestrictionProfile(allElements.Where(obj=>obj.Item1).Select(obj=>obj.Item2),restrictTimeLine);
+                
+                //myRestrictionProfile = new RestrictionProfile()
+
+
+
+                ScheduleUpdated = new CalendarEventRestricted(eventName, StartDateTime, EndDateTime, myRestrictionProfile, TimeSpan.Parse(EventDuration), MyRepetition, false, true, Convert.ToInt32(eventSplit), RigidFlag, new Location_Elements(), TimeSpan.Parse(eventPrepTime), TimeSpan.Parse(PreDeadlineTime), UiData, NoteData);
+            }
+            
             ScheduleUpdated.Repeat.PopulateRepetitionParameters(ScheduleUpdated);
             textBlock9.Text = "...Loading";
             Stopwatch snugarrayTester = new Stopwatch();
             snugarrayTester.Start();
-            CustomErrors ScheduleUpdateMessage = MySchedule.AddToScheduleAndCommit(ScheduleUpdated);
+            /*
+            Task<CustomErrors> addToScheduleTask = MySchedule.AddToScheduleAndCommit(ScheduleUpdated);
+            CustomErrors ScheduleUpdateMessage = await addToScheduleTask.ConfigureAwait(false);
+             //*/
+
+            CustomErrors ScheduleUpdateMessage = MySchedule.AddToSchedule(ScheduleUpdated);
             snugarrayTester.Stop();
             //MessageBox.Show("It took " + snugarrayTester.ElapsedMilliseconds.ToString() + "ms max thread count is ");
 
@@ -1008,7 +1064,7 @@ namespace My24HourTimerWPF
             {
                 TilerFront.Models.LoginViewModel myLogin = new TilerFront.Models.LoginViewModel() { Username = UserNameTextBox.Text, Password = PasswordTextBox.Text, RememberMe = true };
                 UserAccountDirect currentUser = await new TilerFront.Controllers.AccountController().LoginStatic(myLogin);
-                MySchedule = new Schedule(currentUser,DateTimeOffset.Now);
+                //MySchedule = new Schedule(currentUser,DateTimeOffset.Now);
                 
                 string eventName = textBox1.Text;
                 string LocationString = textBox8.Text.Trim();
@@ -1116,7 +1172,7 @@ namespace My24HourTimerWPF
                 
                 Stopwatch snugarrayTester = new Stopwatch();
                 snugarrayTester.Start();
-                CustomErrors ScheduleUpdateMessage = MySchedule.AddToScheduleAndCommit(ScheduleUpdated);
+                CustomErrors ScheduleUpdateMessage = await MySchedule.AddToScheduleAndCommit(ScheduleUpdated);
                 snugarrayTester.Stop();
                 AllData[NumberOfRetries] = snugarrayTester.ElapsedMilliseconds;
 
@@ -1182,17 +1238,25 @@ namespace My24HourTimerWPF
             //LogLocation = @"C:\Users\OluJerome\Documents\Visual Studio 2010\Projects\LearnCuDAVS2010\LearnCUDAConsoleApplication\WagTapCalLogs\";
             //Tiler.LogControl.UpdateLogLocation(LogLocation);
             
-            WebApp.Start<Startup>("http://localhost:9000");
+            //WebApp.Start<Startup>("http://localhost:9000");
 
             TilerFront.Models.LoginViewModel myLogin = new TilerFront.Models.LoginViewModel() { Username = UserNameTextBox.Text, Password = PasswordTextBox.Text, RememberMe = true };
 
-            UserAccountDebug currentUser = new UserAccountDebug("18");
+            TilerFront.Models.AuthorizedUser AuthorizeUser = new TilerFront.Models.AuthorizedUser(){UserID="d350ba4d-fe0b-445c-bed6-b6411c2156b3",UserName="jerbio"};
+
+            UserAccount currentUser =await AuthorizeUser.getUserAccountDebug();// new UserAccountDebug("18");
+            //await currentUser.batchMigrateXML();
+            
+            
+            //UserAccountDirect currentUser =  new UserAccountDebug("18");
             await currentUser.Login();
             DateTimeOffset refNow=DateTimeOffset.Now;
-            //refNow = DateTimeOffset.Parse("10/26/2014 5:13 PM");
+            refNow = DateTimeOffset.Parse("3/16/2015 11:52:54 PM");
             //MySchedule = new Schedule(currentUser, refNow);
 
-            //MySchedule = new Schedule(currentUser, refNow);
+
+
+            MySchedule = new Schedule(currentUser, refNow);
             
             if (MySchedule.isScheduleLoadSuccessful)
             {
@@ -1202,14 +1266,14 @@ namespace My24HourTimerWPF
                 //datePicker1.SelectedDate = DateTimeOffset.Now.AddDays(0);
                 //datePicker1.SelectedDate = new DateTimeOffset(2013, 11, 20, 0, 0, 0);
                 //datePicker2.SelectedDate = DateTimeOffset.Now.AddDays(2);
-                datePicker2.SelectedDate = new DateTime(Schedule.Now.calculationNow.AddDays(0).ToLocalTime().Ticks);//new DateTimeOffset(2014, 5, 15, 0, 0, 0);
+                datePicker2.SelectedDate = new DateTime(Schedule.Now.calculationNow.AddDays(5).ToLocalTime().Ticks);//new DateTimeOffset(2014, 5, 15, 0, 0, 0);
                 calendar4.SelectedDate = new DateTime(DateTimeOffset.Now.AddDays(0).ToLocalTime().Ticks);
                 Random myNumber = new Random();
                 int RandomHour = myNumber.Next(0, 24);
                 int RandomMinute = myNumber.Next(0, 60);
                 textBox4.Text = RandomHour + ":" + RandomMinute;
                 
-                textBox4.Text = 0+ ":" + "15" + ":" + "00";//total time
+                textBox4.Text = 2+ ":" + "00" + ":" + "00";//total time
                 textBox2.Text = 1.ToString();//number of splits
                 int ProcrastinateStartDay = 0;
                 int ProcrastinateEndDay = 365; 

@@ -147,6 +147,10 @@ namespace My24HourTimerWPF
         public void WriteToOutlook(CalendarEvent MyEvent)
         {
             int i = 0;
+            if (!MyEvent.isActive)
+            {
+                return;
+            }
             if (MyEvent.RepetitionStatus)
             {
                 LoopThroughAddRepeatEvents(MyEvent.Repeat);

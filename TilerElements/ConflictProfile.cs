@@ -29,6 +29,13 @@ namespace TilerElements
 
         }
 
+        public ConflictProfile()
+        {
+            ConflictFlag = false;
+            ConflictingEvents = new HashSet<string>();
+
+        }
+
         public ConflictProfile CreateCopy()
         {
             ConflictProfile retValue = new ConflictProfile();

@@ -158,6 +158,7 @@ namespace TilerElements
             this_cpy.xValue = this.xValue;
             this_cpy.yValue = this.yValue;
             this_cpy.NullLocation = this.NullLocation;
+            this_cpy.LocationID = this.LocationID;
             return this_cpy;
         }
 
@@ -169,7 +170,7 @@ namespace TilerElements
             return retValue;
         }
 
-        static public Location_Elements AverageGPSLocation(IEnumerable<Location_Elements> Locations)
+        static public Location_Elements AverageGPSLocation(IEnumerable<Location_Elements> Locations, bool useDefaultLocation=true)
         {
             Location_Elements retValue;
             if (Locations.Count() > 0)
@@ -180,7 +181,15 @@ namespace TilerElements
             }
             else 
             {
-                retValue=new Location_Elements(0, 0,-1);
+                if (useDefaultLocation)
+                {
+                    retValue = new Location_Elements(defaultXValue, defaultYValue, -1);
+                }
+                else
+                {
+                    retValue = new Location_Elements(0, 0, -1);
+                }
+                
             }
 
             return retValue;

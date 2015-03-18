@@ -49,8 +49,16 @@
     <Compile Include="BlobSubCalendarEvent.cs" />
     <Compile Include="BusyTimeLine.cs" />
     <Compile Include="CalendarEvent.cs" />
+    <Compile Include="CalendarEventRestricted.cs" />
     <Compile Include="ConflictProfile.cs" />
-    <Compile Include="ConstrictProfile.cs" />
+    <Compile Include="DayTimeLine.cs" />
+    <Compile Include="NowProfile.cs" />
+    <Compile Include="PauseProfile.cs" />
+    <Compile Include="Procrastination.cs" />
+    <Compile Include="ReferenceNow.cs" />
+    <Compile Include="RestrictionProfile.cs" />
+    <Compile Include="RestrictionTimeLine.cs" />
+    <Compile Include="SubCalendarEventRestricted.cs" />
     <Compile Include="EventLearn.cs" />
     <Compile Include="TilerColor.cs" />
     <Compile Include="CustomErrors.cs" />
@@ -67,6 +75,7 @@
     <Compile Include="SubCalendarEvent.cs" />
     <Compile Include="TilerEvent.cs" />
     <Compile Include="TimeLine.cs" />
+    <Compile Include="TimeLineRestricted.cs" />
     <Compile Include="TimeLineWithEdgeElements.cs" />
     <Compile Include="TimeSpanWithID.cs" />
     <Compile Include="Utility.cs" />

@@ -29,7 +29,7 @@ namespace TilerElements
             //MessageBox.Show("Error In TimeLine Arguments End Time is less than Start Time");
             if (MyEndTime <= MyStartTime)
             {
-                StartTime = MyStartTime;
+                //StartTime = MyStartTime;
                 EndTime = MyStartTime;
             }
             //Debug.Assert(MyEndTime <= MyStartTime,"Error In TimeLine Arguments End Time is less than Start Time");
@@ -40,7 +40,7 @@ namespace TilerElements
             return this.Start.ToString() + " - " + this.End.ToString() +"::"+this.TimelineSpan.ToString();
         }
 
-        public BusyTimeLine toBusyTimeLine(string ID)
+        virtual public BusyTimeLine toBusyTimeLine(string ID)
         {
             return new BusyTimeLine(ID, this.Start, this.End);
         }
@@ -48,7 +48,7 @@ namespace TilerElements
 
         #region functions
 
-        public bool IsDateTimeWithin(DateTimeOffset MyDateTime)
+        virtual public bool IsDateTimeWithin(DateTimeOffset MyDateTime)
         {
             if ((MyDateTime > StartTime) && (MyDateTime < EndTime))//you might need to review semantics
             {
@@ -58,7 +58,7 @@ namespace TilerElements
             return false;
         }
 
-        public TimeLine InterferringTimeLine(TimeLine PossibleTimeLine)
+        virtual public TimeLine InterferringTimeLine(TimeLine PossibleTimeLine)
         {
             DateTimeOffset InterferringStarTime;
             DateTimeOffset InterferringEndTime;
@@ -92,7 +92,7 @@ namespace TilerElements
             return null;
         }
 
-        public bool doesTimeLineInterfere(TimeLine TimeLine0)
+        virtual public bool doesTimeLineInterfere(TimeLine TimeLine0)
         {
 
             if (IsDateTimeWithin(TimeLine0.End) || IsDateTimeWithin(TimeLine0.Start) || ((this.Start == TimeLine0.Start) && (this.End == TimeLine0.End)))
@@ -121,7 +121,7 @@ namespace TilerElements
             return TimelineA.doesTimeLineInterfere(TimelineB) || TimelineB.doesTimeLineInterfere(TimelineA);
         }
 
-        public TimeLine CreateCopy()
+        virtual public TimeLine CreateCopy()
         {
             TimeLine CopyTimeLine = new TimeLine();
             CopyTimeLine.EndTime = EndTime; 
@@ -136,7 +136,7 @@ namespace TilerElements
             return CopyTimeLine;
         }
 
-        public bool IsTimeLineWithin(TimeLine MyTimeLine)
+        virtual public bool IsTimeLineWithin(TimeLine MyTimeLine)
         {
             if ((MyTimeLine.Start >= StartTime) && (MyTimeLine.End <= EndTime))
             {
@@ -146,25 +146,31 @@ namespace TilerElements
             return false;
         }
 
-        public void AddBusySlots(BusyTimeLine MyBusySlot)//Hack Alert further update will be to check if it interferes
+        virtual public void AddBusySlots(BusyTimeLine MyBusySlot)//Hack Alert further update will be to check if it interferes
         {
             List<BusyTimeLine> MyListOfActiveSlots = ActiveTimeSlots.ToList();//;
             MyListOfActiveSlots.Add(MyBusySlot);
             ActiveTimeSlots = MyListOfActiveSlots.ToArray();
         }
 
-        public void AddBusySlots(IEnumerable<BusyTimeLine> MyBusySlot)//Hack Alert further update will be to check if it busy slots fall within range of the timeLine
+        virtual public void AddBusySlots(IEnumerable<BusyTimeLine> MyBusySlot)//Hack Alert further update will be to check if it busy slots fall within range of the timeLine
         {
-            var MyNewArray = ActiveTimeSlots.Concat(MyBusySlot);
+            IEnumerable<BusyTimeLine> AllBusyTImeLine = MyBusySlot.Where(obj => obj.Start < this.End);
+            var MyNewArray = ActiveTimeSlots.Concat(AllBusyTImeLine);
             ActiveTimeSlots = MyNewArray.ToArray();
         }
 
-        public void MergeTimeLines(TimeLine OtherTimeLine)
+
+        /// <summary>
+        /// Adds the busy slot of "OtherTimeLine" to the current busy slot in my timeline
+        /// </summary>
+        /// <param name="OtherTimeLine"></param>
+        virtual public void MergeTimeLineBusySlots(TimeLine OtherTimeLine)
         {
             AddBusySlots(OtherTimeLine.OccupiedSlots);
         }
 
-        public List<BusyTimeLine> getBusyTimeLineWithinSlots(DateTimeOffset StartTime, DateTimeOffset EndTime)
+        virtual public List<BusyTimeLine> getBusyTimeLineWithinSlots(DateTimeOffset StartTime, DateTimeOffset EndTime)
         {
             TimeLine TempTimeLine = new TimeLine(StartTime, EndTime);
             List<BusyTimeLine> ActiveSlots = new List<BusyTimeLine>();
@@ -178,7 +184,7 @@ namespace TilerElements
             return ActiveSlots;
         }
 
-        public TimeLine[] getAllFreeSlots()
+        virtual public TimeLine[] getAllFreeSlots()
         {
             List<TimeLine> ListOfFreeSpots = new List<TimeLine>();
             if (ActiveTimeSlots.Length < 1)
@@ -212,7 +218,7 @@ namespace TilerElements
         }
 
 
-        public TimeLineWithEdgeElements[] getAllFreeSlotsWithEdges()
+        virtual public TimeLineWithEdgeElements[] getAllFreeSlotsWithEdges()
         {
             List<TimeLineWithEdgeElements> ListOfFreeSpots = new List<TimeLineWithEdgeElements>();
             if (ActiveTimeSlots.Length < 1)
@@ -242,7 +248,7 @@ namespace TilerElements
             return ListOfFreeSpots.ToArray();
         }
 
-        public List<BusyTimeLine> getBusyTimeLineWithinSlots(TimeLine MyTimeLineRange)
+        virtual public List<BusyTimeLine> getBusyTimeLineWithinSlots(TimeLine MyTimeLineRange)
         {
             List<BusyTimeLine> ActiveSlots = new List<BusyTimeLine>();
             foreach (BusyTimeLine MyBusyTimeline in ActiveTimeSlots)
@@ -275,7 +281,7 @@ namespace TilerElements
             }
         }
 
-        public TimeSpan TimelineSpan
+        virtual public TimeSpan TimelineSpan
         {
             get
             {
@@ -414,7 +420,7 @@ namespace TilerElements
 
             return LatestEndBusyTime;
         }
-
+        #region Properties
         public Dictionary<int, List<BusyTimeLine>> ClashingTimelines//yet to debug
         {
             get
@@ -525,13 +531,6 @@ namespace TilerElements
             }
         }
 
-        public TimeSpan RangeSpan
-        {
-            get
-            {
-                return this.TimelineSpan;
-            }
-        }
 
         public TimeLine RangeTimeLine
         {
@@ -541,5 +540,7 @@ namespace TilerElements
             }
         }
 
+
+        #endregion
     }
 }

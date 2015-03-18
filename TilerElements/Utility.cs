@@ -358,9 +358,16 @@ namespace TilerElements
             return retValue;
         }
 
+
+        /// <summary>
+        /// Pin Sub Events to the end of the TimeLine Each SubCalendarEvent Stays within the confines of its Calendar Event. The pinning starts from the last SubCalevent in the list
+        /// </summary>
+        /// <param name="arg1"></param>
+        /// <param name="Arg2"></param>
+        /// <returns></returns>
         static public bool PinSubEventsToEnd(IEnumerable<SubCalendarEvent> arg1, TimeLine Arg2)
         {
-            //Pin Sub Events to the end of the TimeLine Each SubCalendarEvent Stays within the confines of its Calendar Event. The pinning starts from the last SubCalevent in the list
+            
             
             return PinSubEventsToEnd_NoEdit(arg1.ToArray(), Arg2);
         }

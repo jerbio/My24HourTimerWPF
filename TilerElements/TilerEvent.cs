@@ -22,15 +22,24 @@ namespace TilerElements
         protected bool RigidSchedule;
         protected TimeSpan EventDuration;
         protected string otherPartyID;
-        protected TimeLine EventSequence;
         protected TimeSpan EventPreDeadline;
         protected TimeSpan PrepTime;
         protected EventID UniqueID;
-        protected List<string> UserIDs;
+        protected List<string> UserIDs= new List<string>();
         protected int Priority;
         protected bool isRestricted = false;
         protected static DateTimeOffset EventNow = DateTimeOffset.Now;
         protected static TimeSpan CalculationEndSpan = new TimeSpan(180, 0, 0, 0, 0);
+
+
+        public List<string> getAllUserIDs()
+        {
+            return UserIDs.ToList();
+        }
+        public void updateEventName(string NewName)
+        {
+            EventName = NewName;
+        }
 
         public bool isComplete
         {
@@ -135,6 +144,36 @@ namespace TilerElements
                  return isRestricted;
              }
          }
+        public bool isDeadlineElapsed
+         {
+             get 
+             {
+                 return DeadlineElapsed;
+             }
+         }
+        public string Name
+        {
+            get
+            {
+                return EventName;
+            }
+        }
 
+        public bool isUserDeleted
+        {
+            get
+            {
+                return UserDeleted;
+            }
+
+        }
+
+        public int EventPriority
+        {
+            get
+            {
+                return Priority;
+            }
+        }
     }
 }

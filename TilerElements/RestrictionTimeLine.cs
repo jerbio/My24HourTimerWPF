@@ -11,16 +11,21 @@ namespace TilerElements
     /// </summary>
     public class RestrictionTimeLine
     {
-        DateTimeOffset StartTimeOfDay;
-        TimeSpan RangeTimeSpan;
-        DateTimeOffset EndTimeOfDay;
+        protected DateTimeOffset StartTimeOfDay;
+        protected TimeSpan RangeTimeSpan;
+        protected DateTimeOffset EndTimeOfDay;
 
-        RestrictionTimeLine()
-        { }
+        protected RestrictionTimeLine()
+        {
+            StartTimeOfDay = new DateTimeOffset();
+            RangeTimeSpan = new TimeSpan();
+            EndTimeOfDay = new DateTimeOffset();
+        }
 
         public RestrictionTimeLine(DateTimeOffset Start, DateTimeOffset End)
         {
             StartTimeOfDay = new DateTimeOffset(1, 1, 1, Start.Hour, Start.Minute, Start.Second, new TimeSpan());
+            End = End <= Start ? End.AddDays(1) : End;
             RangeTimeSpan = End - Start;
             EndTimeOfDay = StartTimeOfDay.Add(RangeTimeSpan);
         }
@@ -71,11 +76,27 @@ namespace TilerElements
             throw new Exception("Invalid End Datetimeoffset used for restriction timeline");
         }
 
+        public DateTimeOffset getSampleTestTIme()
+        {
+            return StartTimeOfDay;
+        }
+
+
+
+        #region Properties
         public DateTimeOffset Start
         {
             get 
             {
                 return StartTimeOfDay;
+            }
+        }
+
+        public TimeSpan Span
+        {
+            get
+            {
+                return RangeTimeSpan;
             }
         }
 
@@ -86,5 +107,6 @@ namespace TilerElements
                 return EndTimeOfDay;
             }
         }
+        #endregion
     }
 }

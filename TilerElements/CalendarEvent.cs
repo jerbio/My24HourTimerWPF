@@ -19,6 +19,8 @@ namespace TilerElements
         protected Repetition EventRepetition;
         protected int Splits;
         protected TimeSpan TimePerSplit;
+        protected int CompletedCount;
+        protected int DeletedCount;
 //        protected bool FromRepetion=false;
         protected Dictionary<EventID, SubCalendarEvent> SubEvents;
         protected bool SchedulStatus;
@@ -26,7 +28,16 @@ namespace TilerElements
         DateTime CalculationEnd;
         List<mTuple<EventID,string>> RemovedIDs;
         protected SubCalendarEventRestricted ConstrictRange=null;
-        List<Procrastination> ProcrastinationProfile = new List<Procrastination>();
+        protected Procrastination ProfileOfProcrastination = new Procrastination(new DateTimeOffset(), new TimeSpan());
+        protected NowProfile ProfileOfNow = new NowProfile();
+        protected TimeLine EventSequence;
+        protected HashSet<SubCalendarEvent> CalculableSubEvents = new HashSet<SubCalendarEvent>();
+        protected HashSet<SubCalendarEvent> UnDesignables = new HashSet<SubCalendarEvent>();
+        protected bool isCalculableInitialized = false;
+        protected bool isUnDesignableInitialized = false;
+        Dictionary<ulong, DayTimeLine> CalculationLimitationWithUnUsables;
+        Dictionary<ulong, DayTimeLine> CalculationLimitation;
+        Dictionary<ulong, DayTimeLine> FreeDaysLimitation;
         
         
 
@@ -51,6 +62,8 @@ namespace TilerElements
             otherPartyID = "";
             CalendarError = Error;
             EventSequence = new TimeLine();
+            ProfileOfProcrastination = new Procrastination(new DateTimeOffset(), new TimeSpan());
+            ProfileOfNow = new NowProfile();
         }
 
 
@@ -74,6 +87,8 @@ namespace TilerElements
             otherPartyID = "";
             CalendarError = new CustomErrors(false, string.Empty);
             EventSequence = new TimeLine();
+            ProfileOfProcrastination = new Procrastination(new DateTimeOffset(), new TimeSpan());
+            ProfileOfNow = new NowProfile();
         }
 
         //CalendarEvent MyCalendarEvent = new CalendarEvent(NameEntry, Duration, StartDate, EndDate, PrepTime, PreDeadline, Rigid, Repeat, Split);
@@ -226,14 +241,51 @@ namespace TilerElements
         #endregion
 
         #region Functions
+        /// <summary>
+        /// Calendarevent Identifies the subeevents that are to be used for the calculation of a schedule. You need to initialize this for calculation of schedule
+        /// </summary>
+        public void initializeCalculables()
+        {
+            CalculableSubEvents = new HashSet<SubCalendarEvent>(SubEvents.Values.Where(obj => obj.isInCalculationMode));
+            isCalculableInitialized = true;
+        }
+
+        public void initializeUndesignables()
+        {
+            if (isCalculableInitialized)
+            {
+                UnDesignables = new HashSet<SubCalendarEvent>((CalculableSubEvents.Where(obj => !obj.isDesignated)));
+                isUnDesignableInitialized = true;
+                return;
+            }
+            throw new Exception("You haven't initialized calculables");
+        }
+
+        public void initializeCalculablesAndUndesignables()
+        {
+            initializeCalculables();
+            initializeUndesignables();
+        }
+
+        public void updateDesignablesFromCalculables()
+        { 
+            
+        }
+
+
         ///*
         public void updateProcrastinate(Procrastination ProcrastinationTime)
         {
-            ProcrastinationProfile.Add(ProcrastinationTime);
+            ProfileOfProcrastination = ProcrastinationTime;
         }
         //*/
 
-        public CalendarEvent createCopy()
+        protected Dictionary<EventID, SubCalendarEvent> getSubEvents()
+        {
+            return SubEvents;
+        }
+
+        virtual public CalendarEvent createCopy()
         {
             CalendarEvent MyCalendarEventCopy = new CalendarEvent();
             MyCalendarEventCopy.EventDuration = new TimeSpan(EventDuration.Ticks);
@@ -257,10 +309,13 @@ namespace TilerElements
             MyCalendarEventCopy.Enabled = this.Enabled;
             MyCalendarEventCopy.isRestricted = this.isRestricted;
             MyCalendarEventCopy.LocationData = LocationData;//hack you might need to make copy
-            MyCalendarEventCopy.ProcrastinationProfile = this.ProcrastinationProfile.Select(obj => obj.CreateCopy()).ToList();
+            MyCalendarEventCopy.ProfileOfProcrastination = this.ProfileOfProcrastination.CreateCopy();
             MyCalendarEventCopy.DeadlineElapsed = this.DeadlineElapsed;
             MyCalendarEventCopy.UserDeleted= this.UserDeleted;
-
+            MyCalendarEventCopy.CompletedCount = this.CompletedCount;
+            MyCalendarEventCopy.DeletedCount = this.DeletedCount;
+            MyCalendarEventCopy.ProfileOfProcrastination = this.ProfileOfProcrastination.CreateCopy();
+            MyCalendarEventCopy.ProfileOfNow = this.NowProfile.CreateCopy();
 
 
             foreach (SubCalendarEvent eachSubCalendarEvent in this.SubEvents.Values)
@@ -270,7 +325,13 @@ namespace TilerElements
 
             MyCalendarEventCopy.SchedulStatus = SchedulStatus;
             MyCalendarEventCopy.otherPartyID = otherPartyID == null ? null : otherPartyID.ToString();
+            MyCalendarEventCopy.UserIDs = this.UserIDs.ToList();
             return MyCalendarEventCopy;
+        }
+
+        public void UpdateNowProfile(NowProfile ProfileNowData)
+        {
+            ProfileOfNow = ProfileNowData;
         }
 
         public static CalendarEvent getEmptyCalendarEvent( EventID myEventID,DateTimeOffset Start=new DateTimeOffset(), DateTimeOffset End=new DateTimeOffset())
@@ -290,6 +351,46 @@ namespace TilerElements
             retValue.UpdateLocationMatrix(new Location_Elements());
             return retValue;
         }
+
+        
+
+
+        internal void decrementDeleteCount()
+        {
+            int currentCount = DeletedCount - 1;
+            if (DeletedCount < 0)
+            {
+                throw new Exception("You are deleting more event Than is available");
+            }
+            DeletedCount = currentCount;
+        }
+
+        internal void incrementDeleteCount()
+        {
+            int currentCount = DeletedCount + 1;
+            if (DeletedCount <= Splits)
+            {
+                DeletedCount = currentCount;
+            }
+            else
+            {
+                throw new Exception("You are deleting more event Than is available");
+            }
+        }
+
+        internal void decrementCompleteCount()
+        {
+            int currentCount = CompletedCount - 1;
+            if (currentCount >= 0)
+            {
+                CompletedCount = currentCount;
+            }
+            else
+            {
+                throw new Exception("You are Completing more event Than is available");
+            }
+        }
+
         virtual public void Disable(bool goDeep=true)
         { 
             this.Enabled=false;
@@ -306,6 +407,21 @@ namespace TilerElements
             {
                 EnableSubEvents(AllSubEvents);
             }
+        }
+
+
+        internal void incrementCompleteCount()
+        {
+            int CurrentCount = CompletedCount;
+            CurrentCount += 1;
+            if ((CurrentCount + DeletedCount) <= Splits)
+            {
+                CompletedCount = CurrentCount;
+                return;
+            }
+
+            throw new Exception("You are Completing more tasks Than is available");
+
         }
 
         virtual public void SetCompletion(bool CompletionStatus, bool goDeep=false)
@@ -326,11 +442,16 @@ namespace TilerElements
             else
             {
                 if(goDeep)
-                { 
-                    foreach (SubCalendarEvent eachSubCalendarEvent in AllSubEvents)
+                {
+                    if (CompletionStatus)
                     {
-                        setSubEventCompletionStatus(CompletionStatus, eachSubCalendarEvent);
+                        completeSubEvents(AllSubEvents);
                     }
+                    else
+                    {
+                        nonCompleteSubEvents(AllSubEvents);
+                    }
+                    
                 }
             }
 
@@ -338,14 +459,15 @@ namespace TilerElements
             UiParams.setCompleteUI(CompletionStatus);
         }
 
-
+        /*
         public void setSubEventCompletionStatus(bool completionStatus,SubCalendarEvent mySubEVent)
         {
             if (ActiveSubEvents.Count() < 1)
             {
                 Complete = true;//hack alert this can pose a problem if all events are not loaded into memory make a check if fully loaded into memory
             }
-        }
+
+        }*/
         public override string ToString()
         {
             return this.ID+"::"+this.Start.ToString() + " - " + this.End.ToString();
@@ -357,6 +479,83 @@ namespace TilerElements
             return RangeTimeLine.IsDateTimeWithin(DateTimeEntry);
         }
 
+        public void completeSubEvent(SubCalendarEvent mySubEvent)
+        {
+            if (!mySubEvent.isComplete)
+            {
+                mySubEvent.completeWithoutUpdatingCalEvent();
+                incrementCompleteCount();
+            }
+        }
+
+
+        public void disableSubEvent(SubCalendarEvent mySubEvent)
+        {
+            if (mySubEvent.isEnabled)
+            {
+                mySubEvent.disableWithoutUpdatingCalEvent();
+                incrementDeleteCount();
+            }
+        }
+        public void nonCompleteSubEvents(IEnumerable<SubCalendarEvent> mySubEvents)
+        {
+            int NumberToBeNonComplete = mySubEvents.Where(obj => obj.isComplete).Count();
+            int CurrentCount = CompletedCount - NumberToBeNonComplete;
+            if (CurrentCount >=0)
+            {
+                CompletedCount = CurrentCount;
+                mySubEvents.Where(obj => obj.isComplete).AsParallel().ForAll(obj => obj.nonCompleteWithoutUpdatingCalEvent());
+                return;
+            }
+            throw new Exception("You are trying to complete more events than are avalable splits, check nonCompleteSubEvents");
+        }
+
+        public void completeSubEvents(IEnumerable<SubCalendarEvent> mySubEvents)
+        {
+            int NumberToBeEComplete = mySubEvents.Where(obj => !obj.isComplete).Count();
+            int CurrentCount = CompletedCount + NumberToBeEComplete;
+
+            if (CurrentCount <= (Splits-DeletedCount))
+            {
+                CompletedCount = CurrentCount;
+                mySubEvents.Where(obj => !obj.isComplete).AsParallel().ForAll(obj => obj.completeWithoutUpdatingCalEvent());
+                return;
+            }
+
+            throw new Exception("You are trying to complete more events than are avalable splits, check nonCompleteSubEvent");
+        }
+
+        public void EnableSubEvents(IEnumerable<SubCalendarEvent> mySubEvents)
+        {
+            int NumberToBeEnabled = mySubEvents.Where(obj => !obj.isEnabled).Count();
+            int CurrentCount =DeletedCount - NumberToBeEnabled;
+
+            if (CurrentCount >=0)
+            {
+                DeletedCount = CurrentCount;
+                mySubEvents.Where(obj => !obj.isEnabled).AsParallel().ForAll(obj => obj.enableWithouUpdatingCalEvent());
+                return;
+            }
+
+            throw new Exception("You are trying to enable more events than is avalable");
+        }
+
+
+        public void DisableSubEvents(IEnumerable<SubCalendarEvent> mySubEvents)
+        {
+            int NumberToBeDeleted = mySubEvents.Where(obj => obj.isEnabled).Count();
+            int CurrentCount=DeletedCount +NumberToBeDeleted;
+            if (CurrentCount <= Splits)
+            {
+                DeletedCount = CurrentCount;
+                mySubEvents.AsParallel().ForAll(obj => obj.disableWithoutUpdatingCalEvent());
+                return;
+            }
+
+            throw new Exception("You are trying to delete more events than is available. Check disableSubEvents");
+            
+            //SubEvents[myEventID].disableWithoutUpdatingCalEvent();
+        }
 
         static public void UpdateLocationMatrixFromCassandra(Dictionary<string, CalendarEvent> AllEvents)
         {
@@ -478,13 +677,12 @@ namespace TilerElements
         {
             return CalendarEvent1.Start.CompareTo(CalendarEvent2.Start);
         }
-
+        /*
         virtual public TimeLine PinToEnd(TimeLine MyTimeLine, List<SubCalendarEvent> MySubCalendarEventList)
         {
-            /*
-             *Name: Jerome Biotidara
-             *Description: This funciton is only called when the Timeline can fit the total timeline ovcupied by the Subcalendarevent. essentially it tries to pin itself to the last available spot
-             */
+            //Name: Jerome Biotidara
+            //Description: This funciton is only called when the Timeline can fit the total timeline ovcupied by the Subcalendarevent. essentially it tries to pin itself to the last available spot
+             
             TimeSpan SubCalendarTimeSpan = new TimeSpan();
             foreach (SubCalendarEvent MySubCalendarEvent in MySubCalendarEventList)
             {
@@ -516,7 +714,7 @@ namespace TilerElements
             
             return MyTimeLine;
         }
-
+        */
         virtual public void ReassignTime(DateTimeOffset StartTime, DateTimeOffset EndTime)
         {
             StartDateTime = StartTime;
@@ -524,7 +722,13 @@ namespace TilerElements
             SubEvents = new Dictionary<EventID, SubCalendarEvent>();
         }
 
-        public CalendarEvent getRepeatedCalendarEvent(string CalendarID)
+
+        /// <summary>
+        /// Returns a repeating calendarevent. The ID has to be the string up the repeat CalEvent
+        /// </summary>
+        /// <param name="CalendarIDUpToRepeatCalEvent"></param>
+        /// <returns></returns>
+        public CalendarEvent getRepeatedCalendarEvent(string CalendarIDUpToRepeatCalEvent)
         { 
             /*foreach(CalendarEvent MyCalendarEvent in EventRepetition.RecurringCalendarEvents)
             {
@@ -535,7 +739,7 @@ namespace TilerElements
             }
             return null;*/
 
-            return EventRepetition.getCalendarEvent(CalendarID);
+            return EventRepetition.getCalendarEvent(CalendarIDUpToRepeatCalEvent);
         }
 
         virtual public void SetEventEnableStatus(bool EnableDisableFlag)
@@ -873,25 +1077,22 @@ namespace TilerElements
             return retValue;
         }
 
+        /*
         public void DisableSubEvents(IEnumerable<SubCalendarEvent> ElementsToBeRemoved)
         {
-            /*
-             * Function replaces sets the enable flag of the subevents as false
-             */
+                      
 
-            Parallel.ForEach(ElementsToBeRemoved, eachSubCalendarEvent => { SubEvents[eachSubCalendarEvent.SubEvent_ID].SetEventEnableStatus(false); });
+            Parallel.ForEach(ElementsToBeRemoved, eachSubCalendarEvent => { SubEvents[eachSubCalendarEvent.SubEvent_ID].Dis(false); });
 
-            if (ActiveSubEvents.Count() <1)
-            {
-                Enabled = false;
-            }
+            
         }
-
+        */
+        /*
         public void EnableSubEvents(IEnumerable<SubCalendarEvent> ElementsToBeRemoved)
         {
-            /*
+            
              * Function replaces sets the enable flag of the subevents as true
-             */
+             
 
             Parallel.ForEach(ElementsToBeRemoved, eachSubCalendarEvent => { SubEvents[eachSubCalendarEvent.SubEvent_ID].SetEventEnableStatus(true); });
             if (ActiveSubEvents.Count() > 0)
@@ -899,7 +1100,7 @@ namespace TilerElements
                 Enabled = true;
             }
         }
-
+            */
         /*
         public bool replaceNullSubCalevents(List<SubCalendarEvent> ElementsToBeRemoved)
         {
@@ -1022,7 +1223,7 @@ namespace TilerElements
             {
                 if (mySubCalendarEvent != null)
                 {
-                    EventSequence.MergeTimeLines(mySubCalendarEvent.RangeTimeLine);
+                    EventSequence.MergeTimeLineBusySlots(mySubCalendarEvent.RangeTimeLine);
                 }
                 
             }
@@ -1091,6 +1292,289 @@ namespace TilerElements
             return retValue;
         }
 
+        virtual public List<SubCalendarEvent> AllDesignatedSubEventsFromCalculables(bool forceDesignableRefresh = true)
+        {
+            if (forceDesignableRefresh)
+            {
+                updatedUnDesignated();
+            }
+
+            List<SubCalendarEvent> retValue = CalculableSubEvents.Except(UnDesignables).ToList();
+            return retValue;
+        }
+
+        
+
+
+        virtual public List<SubCalendarEvent> AllUnDesignatedAndActiveSubEventsFromCalculables(bool forceDesignableRefresh = true)
+        {
+            if (forceDesignableRefresh)
+            {
+                updatedUnDesignated();
+            }
+            List<SubCalendarEvent> retValue = UnDesignables.ToList();
+            return retValue;
+        }
+
+
+        virtual public long getNumberOfDesignatedAndActiveSubEventsFromCalculables(bool forceDesignableRefresh=true)
+        {
+            if (forceDesignableRefresh)
+            {
+                updatedUnDesignated();
+            }
+
+            long retValue = CalculableSubEvents.Count - UnDesignables.Count;
+            return retValue;
+        }
+
+        
+
+        virtual public void resetDesignationAllActiveEventsInCalculables()
+        {
+            CalculableSubEvents.AsParallel().ForAll(obj => obj.resetPreferredDayIndex());
+            return;
+        }
+
+        public virtual void InitialCalculationLookupDays(ReferenceNow ScheduleConstraints)
+        {
+            CalculationLimitation = ScheduleConstraints.getAllDaysLookup().Where(obj=>obj.Value.InterferringTimeLine(RangeTimeLine)!=null).ToDictionary(obj=>obj.Key,obj=>obj.Value);
+            FreeDaysLimitation=CalculationLimitation.ToDictionary(obj => obj.Key, obj => obj.Value);
+            CalculationLimitationWithUnUsables = CalculationLimitation.ToDictionary(obj => obj.Key, obj => obj.Value);
+        }
+
+        /// <summary>
+        /// function updates the free days by removing the Daytimeline using the universal dayindex days selected. Note not thread safe
+        /// </summary>
+        /// <param name="UniversalDayIndex"></param>
+        public void removeDayTimeFromFreeUpdays(ulong UniversalDayIndex)
+        {
+            if (FreeDaysLimitation != null)
+            {
+                FreeDaysLimitation.Remove(UniversalDayIndex);
+                return;
+            }
+            throw new Exception("You have not Initialized FreeDaysLimitation. Try making a call to InitialCalculationLookupDays");
+        }
+        /// <summary>
+        /// function updates the free days by removing the Daytimelines using the universal dayindexes provided. Note not thread safe
+        /// </summary>
+        /// <param name="AllUniversalDayIndexes"></param>
+        public void removeDayTimesFromFreeUpdays(IEnumerable<ulong> AllUniversalDayIndexes)
+        {
+            if (FreeDaysLimitation != null)
+            {
+                foreach(ulong eachIndex in AllUniversalDayIndexes )
+                {
+                    FreeDaysLimitation.Remove(eachIndex);
+                }
+                return;
+            }
+            throw new Exception("You have not Initialized FreeDaysLimitation. Try making a call to InitialCalculationLookupDays");
+        }
+
+
+        public void removeDayTimesFromFreeUpdays(ulong AllUniversalDayIndex)
+        {
+            if (FreeDaysLimitation != null)
+            {
+                FreeDaysLimitation.Remove(AllUniversalDayIndex);
+                return;
+            }
+            throw new Exception("You have not Initialized FreeDaysLimitation. Try making a call to InitialCalculationLookupDays");
+        }
+
+        public List<DayTimeLine> getTimeLineWithoutMySubEvents()
+        {
+            List<DayTimeLine> retValue = FreeDaysLimitation.Values.ToList();
+            return retValue;
+        }
+
+        public List<DayTimeLine> getTimeLineWithoutMySubEventsAndEnoughDuration(bool forceUpdateTimeLine=true)
+        {
+            List<DayTimeLine> AllFreeDayTIme = FreeDaysLimitation.Values.ToList();
+            if (forceUpdateTimeLine)
+            {
+                AllFreeDayTIme.AsParallel().ForAll(obj => { obj.updateOccupancyOfTimeLine(); });
+            }
+
+            List<DayTimeLine> retValue = AllFreeDayTIme.Where(obj => obj.TotalFreeSpace > TimePerSplit).ToList();
+            return retValue;
+        }
+
+        public List<DayTimeLine> getDayTimeLineWhereOccupancyIsLess(double occupancy, bool forceUpdateTimeLine = true)
+        {
+            List<DayTimeLine> AllFreeDayTIme = CalculationLimitation.Values.ToList();
+            if (forceUpdateTimeLine)
+            {
+                AllFreeDayTIme.AsParallel().ForAll(obj => { obj.updateOccupancyOfTimeLine(); });
+            }
+
+            List<DayTimeLine> retValue  = AllFreeDayTIme.Where(obj => obj.Occupancy <= occupancy).ToList();
+            return retValue;
+        }
+
+        public List<DayTimeLine> getTimeLineWithEnoughDuration(bool forceUpdateTimeLine = true)
+        {
+            List<DayTimeLine> AllFreeDayTIme = CalculationLimitation.Values.ToList();
+            if (forceUpdateTimeLine)
+            {
+                AllFreeDayTIme.AsParallel().ForAll(obj => { obj.updateOccupancyOfTimeLine(); });
+            }
+
+            List<DayTimeLine> retValue = AllFreeDayTIme.Where(obj => obj.TotalFreeSpace > TimePerSplit).ToList();
+            return retValue;
+        }
+
+
+        public static long getUsableDaysTotal(IEnumerable<CalendarEvent> AllCalendarEvents)
+        {
+            long retValue = AllCalendarEvents.Sum(obj => obj.CalculationLimitation.Count);
+            return retValue;
+        }
+
+        public static long getTotalUndesignatedEvents(IEnumerable<CalendarEvent> AllCalendarEvents)
+        {
+            List<SubCalendarEvent> UnassignedEvents = AllCalendarEvents.Where(obj => !obj.Rigid).SelectMany(obj => obj.UnDesignables).ToList();
+            long retValue = AllCalendarEvents.Where(obj=>!obj.Rigid).Sum(obj => obj.UnDesignables.Count);
+            return retValue;
+        }
+
+        public static List<CalendarEvent> removeCalEventsWitNoUndesignablesFromCalculables(IEnumerable<CalendarEvent> AllCalendarEvents, bool forceDesignableRefresh = true)
+        {
+            List<CalendarEvent> retValue;// AllCalendarEvents.Where(obj => obj.UnDesignables.Count > 0).ToList();
+            if (forceDesignableRefresh)
+            {
+                AllCalendarEvents.AsParallel().ForAll(obj=>obj.updatedUnDesignated());
+            }
+            retValue = AllCalendarEvents.Where(obj => obj.UnDesignables.Count > 0).ToList();
+            return retValue;
+        }
+
+
+        public short updateNumberOfSplits(int SplitCOunt)
+        {
+            if (NumberOfSplit == SplitCOunt)
+            {
+                return 0;
+            }
+            else 
+            {
+                SplitCOunt = Math.Abs(SplitCOunt);
+                int delta = (SplitCOunt - NumberOfSplit);
+                uint Change = (uint) delta;
+                if (delta > 0)
+                {
+
+                    if (RepetitionStatus)
+                    {
+                        EventRepetition.RecurringCalendarEvents().AsParallel().ForAll(obj => obj.IncreaseSplitCount(Change));
+                        return 2;
+                    }
+                    else
+                    {
+                        IncreaseSplitCount(Change);
+                        return 2;
+                    }
+                }
+                else
+                {
+                    if (RepetitionStatus)
+                    {
+                        EventRepetition.RecurringCalendarEvents().AsParallel().ForAll(obj => obj.ReduceSplitCount(Change));
+                        return 1;
+                    }
+                    else
+                    {
+                        ReduceSplitCount(Change);
+                        return 1;
+                    }
+                }
+            }
+        }
+
+        void ReduceSplitCount(uint delta)
+        {
+            if (delta<Splits)
+            {
+                for(int i=0; i<delta;i++)
+                {
+                    SubCalendarEvent SubEvent = SubEvents.Last().Value;
+                    SubEvents.Remove(SubEvent.SubEvent_ID);
+                }
+                Splits -= (int)delta;    
+                return;
+            }
+            throw new Exception("You are trying to reduce the number of subevents past the min count");
+        }
+
+        void IncreaseSplitCount(uint delta)
+        {
+            List<SubCalendarEvent> newSubs = new List<SubCalendarEvent>();
+            for (int i = 0; i < delta; i++)
+            {
+                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(TimePerSplit, (EndDateTime - TimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), RigidSchedule, this.isEnabled, this.UiParams, this.Notes, this.Complete, LocationData, this.RangeTimeLine);
+                SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
+            }
+            Splits += (int)delta;
+        }
+
+        public short ChangeTimePerSplit(TimeSpan newTimePerSplit)
+        {
+            short retValue = 0;
+            if (TimePerSplit == newTimePerSplit)
+            {
+                return retValue;
+            }
+            else
+            {
+                if (TimePerSplit < newTimePerSplit)
+                {
+                    retValue = 2;
+                }
+                else 
+                {
+                    retValue = 1;
+                }
+
+                TimeSpan Delta = newTimePerSplit - TimePerSplit;
+                ActiveSubEvents.AsParallel().ForAll(obj => obj.changeDurartion(Delta));
+            }
+            return retValue;
+        }
+
+        public void updateUnusableDays()
+        {
+            List<SubCalendarEvent> Undesignated = UnDesignables.ToList();
+
+            foreach (SubCalendarEvent eachSubCalendarEvent in UnDesignables)
+            {
+                ulong unWantedIndex = eachSubCalendarEvent.resetAndgetUnUsableIndex();
+                CalculationLimitation.Remove(unWantedIndex);
+                FreeDaysLimitation.Remove(unWantedIndex);
+            }
+            //Undesignated.ForEach(obj=>);
+        }
+
+        public void updatedUnDesignated()
+        {
+            if(isUnDesignableInitialized)
+            {
+                UnDesignables.RemoveWhere(obj => obj.isDesignated);
+                return;
+            }
+
+            throw new Exception("You haven't initialized undesignated");
+        }
+        
+
+        public void updateTimeLine(TimeLine newTImeLine)
+        {
+            StartDateTime = newTImeLine.Start;
+            EndDateTime = newTImeLine.End;
+            ActiveSubEvents.AsParallel().ForAll(obj => obj.changeTimeLineRange(newTImeLine));
+        }
+
         #endregion
 
         #region Properties
@@ -1129,13 +1613,7 @@ namespace TilerElements
                 return otherPartyID;
             }
         }
-        public string Name
-        {
-            get
-            {
-                return EventName;
-            }
-        }
+        
         public TimeSpan TimeLeftBeforeDeadline
         {
             get
@@ -1189,9 +1667,27 @@ namespace TilerElements
                 return EventRepetition;
             }
         }
-        
 
-        
+        public TimeSpan EachSplitTimeSpan
+        {
+            get
+            {
+                return TimePerSplit;
+            }
+
+
+        }
+
+
+        public Procrastination ProcrastinationProfile
+        {
+            get 
+            {
+                return ProfileOfProcrastination;
+            }
+        }
+
+
         
         public TimeSpan ActiveDuration
         {
@@ -1329,7 +1825,11 @@ namespace TilerElements
             }
         }
 
-        
+        public  void InitializeCounts(int Deletion, int Completion)
+        {
+            DeletedCount = Deletion;
+            CompletedCount = Completion;
+        }
 
         public void UpdateError(CustomErrors Error)
         {
@@ -1372,6 +1872,21 @@ namespace TilerElements
             }
         }
 
+        virtual public int CompletionCount
+        {
+            get 
+            {
+                return CompletedCount;
+            }
+        }
+
+        virtual public int DeletionCount
+        {
+            get
+            {
+                return DeletedCount;
+            }
+        }
 
         
 
@@ -1380,6 +1895,14 @@ namespace TilerElements
             get
             {
                 return DataBlob;
+            }
+        }
+
+        virtual public NowProfile NowProfile
+        {
+            get
+            {
+                return ProfileOfNow;
             }
         }
 

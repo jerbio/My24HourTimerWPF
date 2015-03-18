@@ -7,9 +7,10 @@ namespace TilerElements
 {
     public class CalendarEventRestricted:CalendarEvent
     {
-        RestrictionProfile ProfileOfRestriction;
+        protected RestrictionProfile ProfileOfRestriction;
+        
 
-        CalendarEventRestricted ()
+        protected CalendarEventRestricted ()
         {
         ;
         }
@@ -30,11 +31,15 @@ namespace TilerElements
             }
             Complete = isCompleted;
             Enabled = isEnabled;
+            UniqueID = EventID.GenerateCalendarEvent();
             UpdateLocationMatrix(Location);
             UiParams = UiSettings;
             DataBlob = NoteData;
-            UniqueID = EventID.GenerateCalendarEvent();
+            
+            EventDuration = Duration;
+            TimePerSplit = TimeSpan.FromTicks(EventDuration.Ticks / Splits);
             isRestricted = true;
+            ProfileOfNow = new NowProfile();
             InstantiateSubEvents();
         }
 
@@ -57,11 +62,15 @@ namespace TilerElements
             Complete = isCompleted;
             Enabled = isEnabled;
             EventPreDeadline = Event_PreDeadline;
+            UniqueID = EventIDEntry;
             UpdateLocationMatrix(Location);
             UiParams = UiSettings;
             DataBlob = NoteData;
-            UniqueID = EventIDEntry;
+            ProfileOfNow = new NowProfile();
             isRestricted = true;
+            EventDuration = Duration;
+            TimePerSplit = TimeSpan.FromTicks(EventDuration.Ticks / Splits);
+            
             InstantiateSubEvents();
         }
 
@@ -94,17 +103,66 @@ namespace TilerElements
             return retValue;
         }
 
+        public override CalendarEvent createCopy()
+        {
+            CalendarEventRestricted MyCalendarEventCopy = new CalendarEventRestricted();
+            MyCalendarEventCopy.EventDuration = new TimeSpan(EventDuration.Ticks);
+            MyCalendarEventCopy.EventName = EventName.ToString();
+            MyCalendarEventCopy.StartDateTime = StartDateTime;
+            MyCalendarEventCopy.EndDateTime = EndDateTime;
+            MyCalendarEventCopy.EventPreDeadline = new TimeSpan(EventPreDeadline.Ticks);
+            MyCalendarEventCopy.PrepTime = new TimeSpan(PrepTime.Ticks);
+            MyCalendarEventCopy.Priority = Priority;
+            MyCalendarEventCopy.RepetitionFlag = RepetitionFlag;
+            MyCalendarEventCopy.EventRepetition = EventRepetition.CreateCopy();// EventRepetition != null ? EventRepetition.CreateCopy() : EventRepetition;
+            MyCalendarEventCopy.Complete = this.Complete;
+            MyCalendarEventCopy.RigidSchedule = RigidSchedule;//hack
+            MyCalendarEventCopy.Splits = Splits;
+            MyCalendarEventCopy.TimePerSplit = new TimeSpan(TimePerSplit.Ticks);
+            MyCalendarEventCopy.UniqueID = UniqueID;//hack
+            MyCalendarEventCopy.EventSequence = EventSequence.CreateCopy();
+            MyCalendarEventCopy.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
+            MyCalendarEventCopy.UiParams = this.UiParams.createCopy();
+            MyCalendarEventCopy.DataBlob = this.DataBlob.createCopy();
+            MyCalendarEventCopy.Enabled = this.Enabled;
+            MyCalendarEventCopy.isRestricted = this.isRestricted;
+            MyCalendarEventCopy.LocationData = LocationData;//hack you might need to make copy
+            MyCalendarEventCopy.ProfileOfProcrastination = this.ProfileOfProcrastination.CreateCopy();
+            MyCalendarEventCopy.DeadlineElapsed = this.DeadlineElapsed;
+            MyCalendarEventCopy.UserDeleted = this.UserDeleted;
+            MyCalendarEventCopy.CompletedCount = this.CompletedCount;
+            MyCalendarEventCopy.DeletedCount = this.DeletedCount;
+            MyCalendarEventCopy.ProfileOfRestriction = this.ProfileOfRestriction.createCopy();
+            MyCalendarEventCopy.ProfileOfNow = this.ProfileOfNow.CreateCopy();
+            MyCalendarEventCopy.ProfileOfProcrastination = this.ProfileOfProcrastination.CreateCopy();
+
+
+            foreach (SubCalendarEventRestricted eachSubCalendarEvent in this.SubEvents.Values)
+            {
+                MyCalendarEventCopy.SubEvents.Add(eachSubCalendarEvent.SubEvent_ID, eachSubCalendarEvent.createCopy());
+            }
+
+            MyCalendarEventCopy.SchedulStatus = SchedulStatus;
+            MyCalendarEventCopy.otherPartyID = otherPartyID == null ? null : otherPartyID.ToString();
+            MyCalendarEventCopy.UserIDs = this.UserIDs.ToList();
+            return MyCalendarEventCopy;
+            
+            //return base.createCopy();
+        }
+
         void InstantiateSubEvents()
         {
             for (int i = 0; i < Splits; i++)
             {
-                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(UniqueID.ToString(), this.Start, this.End, ProfileOfRestriction, this.RangeTimeLine, true, true, new ConflictProfile());
+                DateTimeOffset SubStart = this.Start;
+                DateTimeOffset SubEnd = Start.Add(TimePerSplit);
+                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(UniqueID.ToString(), SubStart, SubEnd, ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), RigidSchedule, PrepTime, EventPreDeadline, LocationData, UiParams, DataBlob, Priority, DeadlineElapsed, ThirdPartyID);
                 SubEvents.Add(newEvent.SubEvent_ID, newEvent);
             }
             
         }
 
-        public RestrictionProfile TimeFrameRestriction
+        public RestrictionProfile RetrictionInfo
         {
             get
             {

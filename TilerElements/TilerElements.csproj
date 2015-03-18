@@ -52,8 +52,10 @@
     <Compile Include="CalendarEventRestricted.cs" />
     <Compile Include="ConflictProfile.cs" />
     <Compile Include="DayTimeLine.cs" />
+    <Compile Include="NowProfile.cs" />
     <Compile Include="PauseProfile.cs" />
     <Compile Include="Procrastination.cs" />
+    <Compile Include="ReferenceNow.cs" />
     <Compile Include="RestrictionProfile.cs" />
     <Compile Include="RestrictionTimeLine.cs" />
     <Compile Include="SubCalendarEventRestricted.cs" />
@@ -73,6 +75,7 @@
     <Compile Include="SubCalendarEvent.cs" />
     <Compile Include="TilerEvent.cs" />
     <Compile Include="TimeLine.cs" />
+    <Compile Include="TimeLineRestricted.cs" />
     <Compile Include="TimeLineWithEdgeElements.cs" />
     <Compile Include="TimeSpanWithID.cs" />
     <Compile Include="Utility.cs" />

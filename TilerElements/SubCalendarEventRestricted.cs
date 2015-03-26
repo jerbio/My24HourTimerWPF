@@ -286,13 +286,13 @@ namespace TilerElements
         /// </summary>
         /// <param name="TimeLineData"></param>
         /// <returns></returns>
-        public override TimeLine getTimeLineInterferringWithCalEvent(TimeLine TimeLineData,bool orderByStart=true)
+        public override List<TimeLine> getTimeLineInterferringWithCalEvent(TimeLine TimeLineData, bool orderByStart = true)
         {
-            TimeLine retValue= null;
+            List<TimeLine> retValue = null;
             List<TimeLine> possibleTimeLines = orderByStart ? ProfileOfRestriction.getAllTimePossibleTimeFrames(TimeLineData).OrderByDescending(obj => obj.TimelineSpan).ThenBy(obj => obj.Start).ToList() : ProfileOfRestriction.getAllTimePossibleTimeFrames(TimeLineData).OrderByDescending(obj => obj.TimelineSpan).ThenBy(obj => obj.Start).ToList();
             if (possibleTimeLines.Count > 0)
             {
-                retValue = possibleTimeLines[0];
+                retValue = possibleTimeLines;
             }
             return retValue;
         }
@@ -307,7 +307,111 @@ namespace TilerElements
             }
         }
         
+        public override bool UpdateThis(SubCalendarEvent SubEventEntryData)
+        {
+            if ((this.ID == SubEventEntryData.ID) && canExistWithinTimeLine(SubEventEntryData.getCalendarEventRange))
+            {
+                SubCalendarEventRestricted SubEventEntry = (SubCalendarEventRestricted)SubEventEntryData;
+                this.BusyFrame = SubEventEntry.ActiveSlot;
+                this.CalendarEventRange = SubEventEntry.getCalendarEventRange;
+                this.FromRepeatEvent = SubEventEntry.FromRepeat;
+                this.EventName = SubEventEntry.Name;
+                this.EventDuration = SubEventEntry.ActiveDuration;
+                this.Complete = SubEventEntry.isComplete;
+                this.ConflictingEvents = SubEventEntry.Conflicts;
+                this.DataBlob = SubEventEntry.Notes;
+                this.DeadlineElapsed = SubEventEntry.isDeadlineElapsed;
+                this.Enabled = SubEventEntry.isEnabled;
+                this.EndDateTime = SubEventEntry.End;
+                this.EventPreDeadline = SubEventEntry.PreDeadline;
+                this.EventScore = SubEventEntry.Score;
+                //this.isRestricted = true;
+                this.LocationData = SubEventEntry.myLocation;
+                this.OldPreferredIndex = SubEventEntry.OldUniversalIndex;
+                this.otherPartyID = SubEventEntry.ThirdPartyID;
+                this.preferredDayIndex = SubEventEntry.UniversalDayIndex;
+                this.PrepTime = SubEventEntry.Preparation;
+                this.Priority = SubEventEntry.EventPriority;
+                this.ProfileOfNow = SubEventEntry.ProfileOfNow;
+                this.ProfileOfProcrastination = SubEventEntry.ProfileOfProcrastination;
+                this.RepetitionFlag = SubEventEntry.FromRepeat;
+                //this.RigidSchedule = this.rig
+                this.StartDateTime = SubEventEntry.Start;
+                this.UiParams = SubEventEntry.UIParam;
+                this.UniqueID = SubEventEntry.SubEvent_ID;
+                this.UserDeleted = SubEventEntry.isUserDeleted;
+                this.UserIDs = SubEventEntry.getAllUserIDs();
+                this.Vestige = SubEventEntry.isVestige;
+                this.otherPartyID = SubEventEntry.otherPartyID;
+                this.ProfileOfRestriction = SubEventEntry.ProfileOfRestriction;
+                return true;
+            }
 
+            throw new Exception("Error Detected: Trying to update SubCalendar Event with non matching ID");
+        }
+
+        protected override SubCalendarEvent getCalulationCopy()
+        {
+            SubCalendarEventRestricted retValue = new SubCalendarEventRestricted();
+            retValue.BusyFrame = this.ActiveSlot;
+            retValue.CalendarEventRange = this.getCalendarEventRange;
+            retValue.FromRepeatEvent = this.FromRepeat;
+            retValue.EventName = this.Name;
+            retValue.EventDuration = this.ActiveDuration;
+            retValue.Complete = this.isComplete;
+            retValue.ConflictingEvents = this.Conflicts;
+            retValue.DataBlob = this.Notes;
+            retValue.DeadlineElapsed = this.isDeadlineElapsed;
+            retValue.Enabled = this.isEnabled;
+            retValue.EndDateTime = this.End;
+            retValue.EventPreDeadline = this.PreDeadline;
+            retValue.EventScore = this.Score;
+            retValue.isRestricted = this.isEventRestricted;
+            retValue.LocationData = this.myLocation;
+            retValue.OldPreferredIndex = this.OldUniversalIndex;
+            retValue.otherPartyID = this.ThirdPartyID;
+            retValue.preferredDayIndex = this.UniversalDayIndex;
+            retValue.PrepTime = this.Preparation;
+            retValue.Priority = this.EventPriority;
+            retValue.ProfileOfNow = this.ProfileOfNow;
+            retValue.ProfileOfProcrastination = this.ProfileOfProcrastination;
+            retValue.RepetitionFlag = this.FromRepeat;
+            retValue.RigidSchedule = this.Rigid;
+            retValue.StartDateTime = this.Start;
+            retValue.UiParams = this.UIParam;
+            retValue.UniqueID = this.SubEvent_ID;
+            retValue.UserDeleted = this.isUserDeleted;
+            retValue.UserIDs = this.getAllUserIDs();
+            retValue.Vestige = this.isVestige;
+            retValue.otherPartyID = this.otherPartyID;
+            retValue.ProfileOfRestriction = this.ProfileOfRestriction;
+            return retValue;
+        }
+
+
+        public override SubCalendarEvent getNowCopy(EventID CalendarEventID, NowProfile NowData)
+        {
+            SubCalendarEventRestricted retValue = (SubCalendarEventRestricted)getCalulationCopy();
+            TimeSpan SpanShift = NowData.PreferredTime - retValue.Start;
+            retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventID.ToString());
+            retValue.shiftEvent(SpanShift, true);
+            retValue.RigidSchedule = true;
+            return retValue;
+        }
+
+        public override SubCalendarEvent getProcrastinationCopy(CalendarEvent CalendarEventData, Procrastination ProcrastinationData)
+        {
+            SubCalendarEvent thisCopy = getCalulationCopy();
+            SubCalendarEventRestricted retValue = (SubCalendarEventRestricted)thisCopy;
+
+
+            retValue.HardCalendarEventRange= CalendarEventData.RangeTimeLine;
+            TimeSpan SpanShift = ProcrastinationData.PreferredStartTime - retValue.Start;
+            retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventData.ID);
+            retValue.initializeCalendarEventRange(retValue.ProfileOfRestriction, CalendarEventData.RangeTimeLine);
+            retValue.shiftEvent(SpanShift, true);
+            return retValue;
+        }
         //*/
         #endregion   
     }

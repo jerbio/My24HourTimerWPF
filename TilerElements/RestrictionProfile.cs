@@ -246,12 +246,14 @@ namespace TilerElements
                     break;
                 }
             }
-
-            for (int i = initializingIndex; i < NoNull_DaySelections.Length; i++)
+            int lengthOfNoNull_DaySelections = NoNull_DaySelections.Length;
+            for (int i = initializingIndex, j=0; j < NoNull_DaySelections.Length; i++,j++)
+            //for (int i = initializingIndex; i < NoNull_DaySelections.Length; i++)
             {
+                i = (i + lengthOfNoNull_DaySelections) % lengthOfNoNull_DaySelections;
                 Tuple<DayOfWeek, RestrictionTimeLine> eachTuple = NoNull_DaySelections[i];
                 List<TimeLine> ListOfTimeLine = TimeLinesPerDaySelection[i];
-                int DayDiff = ((eachTuple.Item1-FirstFrame.Start.DayOfWeek)) % 7;
+                int DayDiff = ((eachTuple.Item1-FirstFrame.Start.DayOfWeek)+7) % 7;
                 DateTimeOffset Start = FirstFrame.Start.AddDays(DayDiff);
                 //Start= eachTuple.Item2.getInjectedStartHourMinIntoDateTime(Start);
                 TimeLine myTimeLine = getTImeLineFromTuple(eachTuple, Start);// eachTuple.Item2.getTimeLineFromStartFrame(Start);
@@ -474,7 +476,7 @@ namespace TilerElements
                 Tuple<int,int> myTUple=AllInterFerringIndexes[i];
                 int NumberOfDays = RefTime.DayOfWeek - NoNull_DaySelections[myTUple.Item1].Item1;
                 TimeLine DayFramTImeLine = getTImeLineFromTuple(NoNull_DaySelections[myTUple.Item1],RefTime);
-                if (DayFramTImeLine.IsDateTimeWithin(RefTime) || (DayFramTImeLine.Start == RefTime) || (DayFramTImeLine.End == RefTime))
+                if (DayFramTImeLine.IsDateTimeWithin(RefTime) || (DayFramTImeLine.End == RefTime))// || (DayFramTImeLine.Start == RefTime))
                 {
                     retValue = new TimeLine(DayFramTImeLine.Start, RefTime);
                     return retValue;
@@ -513,7 +515,7 @@ namespace TilerElements
                 Tuple<int,int> myTUple=AllInterFerringIndexes[i];
                 int NumberOfDays = StartData.DayOfWeek - NoNull_DaySelections[myTUple.Item1].Item1;
                 TimeLine DayFramTImeLine = getTImeLineFromTuple(NoNull_DaySelections[myTUple.Item1],StartData);
-                if (DayFramTImeLine.IsDateTimeWithin(StartData) || (DayFramTImeLine.Start == StartData) || (DayFramTImeLine.End == StartData))
+                if (DayFramTImeLine.IsDateTimeWithin(StartData) || (DayFramTImeLine.Start == StartData))// || (DayFramTImeLine.End == StartData))
                 {
                     retValue = new TimeLine(StartData, DayFramTImeLine.End);
                     return retValue;

@@ -2432,7 +2432,7 @@ namespace My24HourTimerWPF
             }
 
 
-            List<BlobSubCalendarEvent> AllConflictingEvents = Utility.getConflictingEvents(AllRigidEvents.Concat(NoFreeSpaceToConflictingSpaces.Keys)).ToList();
+            List<BlobSubCalendarEvent> AllConflictingEvents = Utility.getConflictingEvents(AllRigidEvents.Concat(NoFreeSpaceToConflictingSpaces.Keys));
 
             List<CalendarEvent> allCalEvent = AllConflictingEvents.Select(obj => CalendarEvent.getEmptyCalendarEvent(new EventID(obj.SubEvent_ID.getCalendarEventID()), obj.Start, obj.End)).ToList();
             
@@ -3285,6 +3285,8 @@ namespace My24HourTimerWPF
             DictionaryWithBothCalendarEventIDAndListOfInterferringSubEvents = generateDictionaryWithBothCalendarEventIDAndListOfInterferringSubEvents(ArrayOfInterferringSubEvents.ToList(), NoneCommitedCalendarEventsEvents);//generates a dictionary of a Calendar Event and the interferring events in the respective Calendar event
 
 
+            List<BlobSubCalendarEvent> interFerringBlob = Utility.getConflictingEvents(RigidSubCalendarEvents);
+
             List<CalendarEvent> SortedInterFerringCalendarEvents_Deadline = DictionaryWithBothCalendarEventIDAndListOfInterferringSubEvents.Keys.ToList();
             SortedInterFerringCalendarEvents_Deadline = SortedInterFerringCalendarEvents_Deadline.OrderBy(obj => obj.End).ToList();
             DayTimeLine[] AllDays = Now.getAllDaysCount((uint)NumberOfDays).ToArray();
@@ -3303,11 +3305,10 @@ namespace My24HourTimerWPF
                     ConflictingEvents.Add(eachSubCalendarEvent);
                 }
             }
-
+            interFerringBlob.ForEach(obj => ConflictingEvents.AddRange(obj.getSubCalendarEventsInBlob()));
 
             Tuple<List<SubCalendarEvent>[], DayTimeLine[], List<SubCalendarEvent>> RetValue = new Tuple<List<SubCalendarEvent>[], DayTimeLine[], List<SubCalendarEvent>>(AssignedEvents,AllDays, ConflictingEvents);
             return RetValue;
-            
         }
         
         void ParallellizeCallsToDay(List<CalendarEvent> AllCalEvents,List<SubCalendarEvent> TotalActiveEvents, DayTimeLine[] AllDayTImeLine )
@@ -9823,18 +9824,6 @@ namespace My24HourTimerWPF
         }
 
 
-        List<SubCalendarEvent> getIntersectionList(List<SubCalendarEvent> ListToCheck, List<SubCalendarEvent> MyCurrentList)
-        {
-            List<SubCalendarEvent> MyNewList = new System.Collections.Generic.List<SubCalendarEvent>();
-            foreach (SubCalendarEvent MySubCalendarEvent in MyCurrentList)
-            {
-                if (ListToCheck.IndexOf(MySubCalendarEvent) >= 0)
-                {
-                    MyNewList.Add(MySubCalendarEvent);
-                }
-            }
-            return MyNewList;
-        }
 
 
 

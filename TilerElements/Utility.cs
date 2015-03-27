@@ -135,7 +135,7 @@ namespace TilerElements
         }
 
 
-        public static IEnumerable<BlobSubCalendarEvent> getConflictingEvents(IEnumerable<SubCalendarEvent> AllSubEvents)
+        public static List<BlobSubCalendarEvent> getConflictingEvents(IEnumerable<SubCalendarEvent> AllSubEvents)
         {
             List<BlobSubCalendarEvent> retValue = new List<BlobSubCalendarEvent>();
             IEnumerable<SubCalendarEvent> orderedByStart = AllSubEvents.OrderBy(obj => obj.Start).ToList();

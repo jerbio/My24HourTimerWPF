@@ -30,6 +30,8 @@ namespace TilerElements
         protected bool isRestricted = false;
         protected static DateTimeOffset EventNow = DateTimeOffset.Now;
         protected static TimeSpan CalculationEndSpan = new TimeSpan(180, 0, 0, 0, 0);
+        protected Procrastination ProfileOfProcrastination = new Procrastination(new DateTimeOffset(), new TimeSpan());
+        protected NowProfile ProfileOfNow = new NowProfile();
 
 
         public List<string> getAllUserIDs()
@@ -173,6 +175,22 @@ namespace TilerElements
             get
             {
                 return Priority;
+            }
+        }
+
+        public Procrastination  ProcrastinationInfo
+        {
+            get
+            {
+                return ProfileOfProcrastination;
+            }
+        }
+
+        public NowProfile NowInfo
+        {
+            get
+            {
+                return ProfileOfNow;
             }
         }
     }

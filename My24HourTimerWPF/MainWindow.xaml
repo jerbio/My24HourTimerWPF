@@ -69,7 +69,7 @@
                         <CheckBox Content="Default Pre-Deadline Time:" Height="16" HorizontalAlignment="Left" Margin="294,13,0,0" Name="checkBox4" VerticalAlignment="Top" IsChecked="True" />
                         <TextBox Height="23" HorizontalAlignment="Left" Margin="395,39,0,0" Name="textBox6" VerticalAlignment="Top" Width="58" IsEnabled="False" Text="0:00" />
                         <TextBlock Height="23" HorizontalAlignment="Left" Margin="6,45,0,0" Name="textBlock13" Text="End Time:" VerticalAlignment="Top" Width="54" />
-                        <TextBox Height="29" HorizontalAlignment="Left" Margin="91,39,0,0" Name="textBox7" VerticalAlignment="Top" Width="120" Text="11:59pm" />
+                        <TextBox Height="29" HorizontalAlignment="Left" Margin="91,39,0,0" Name="textBox7" VerticalAlignment="Top" Width="120" Text="5:59am" />
 
                         <DatePicker Height="25" HorizontalAlignment="Left" Margin="91,83,0,0" Name="datePicker2" VerticalAlignment="Top" Width="115" SelectedDate="11/24/2013" />
                         <TextBox Height="23" HorizontalAlignment="Left" Margin="755,248,-295,0" x:Name="textBox10" VerticalAlignment="Top" Width="29" Text="7" TextAlignment="Center" />
@@ -107,7 +107,7 @@
                         <TextBlock Height="23" HorizontalAlignment="Left" Margin="10,141,0,0" Name="textBlock18" Text="Pertinent ID" VerticalAlignment="Top" />
                         <TextBlock Height="23" HorizontalAlignment="Left" Margin="10,169,0,0" Name="textBlock19" Text="Start of Day" VerticalAlignment="Top" />
                         <TextBlock Margin="73,141,554,269" Name="textBlock17" Text="Procrastinate this event" />
-                        <TextBox Height="23" TextWrapping="Wrap" Name="textBox9" Margin="81,141,0,0" HorizontalAlignment="Left" Width="120" VerticalAlignment="Top" Text="107593_7_0_107596"/>
+                        <TextBox Height="23" TextWrapping="Wrap" Name="textBox9" Margin="81,141,0,0" HorizontalAlignment="Left" Width="120" VerticalAlignment="Top" Text="111056_7_0_111057"/>
                         <CheckBox Content="Tue" Name="TueCheckbox" HorizontalAlignment="Left" Margin="118,196,0,0" VerticalAlignment="Top" IsChecked="True"/>
                         <CheckBox Content="Wed" Name="WedCheckbox" HorizontalAlignment="Left" Margin="159,196,0,0" VerticalAlignment="Top" IsChecked="True"/>
                         <CheckBox Content="Thu" Name="ThuCheckbox" HorizontalAlignment="Left" Margin="205,196,0,0" VerticalAlignment="Top"/>
@@ -118,16 +118,16 @@
                         <CheckBox Content="Restricted" Name="RestrictedCheckbox" HorizontalAlignment="Left" Margin="33,216,0,0" VerticalAlignment="Top" IsChecked="True"/>
                         <TextBox Height="23" TextWrapping="Wrap" x:Name="textBox11" Margin="82,169,0,0" HorizontalAlignment="Left" Width="120" VerticalAlignment="Top" Text=""/>
                         <TextBlock Height="23" HorizontalAlignment="Left" Margin="10,236,0,0" x:Name="textBlock19_Copy" Text="Frame Start" VerticalAlignment="Top" />
-                        <TextBox Height="23" TextWrapping="Wrap" x:Name="TimeFrameStart" Margin="82,236,0,0" HorizontalAlignment="Left" Width="120" VerticalAlignment="Top" Text="9:00am"/>
+                        <TextBox Height="23" TextWrapping="Wrap" x:Name="TimeFrameStart" Margin="82,236,0,0" HorizontalAlignment="Left" Width="120" VerticalAlignment="Top" Text="10:00am"/>
                         <TextBlock Height="23" HorizontalAlignment="Left" Margin="10,266,0,0" x:Name="textBlock19_Copy2" Text="Frame End" VerticalAlignment="Top" />
-                        <TextBox Height="23" TextWrapping="Wrap" x:Name="TimeFrameEnd" Margin="82,0,0,10" VerticalAlignment="Bottom" Text="4:30pm" HorizontalAlignment="Left" Width="120"/>
+                        <TextBox Height="23" TextWrapping="Wrap" x:Name="TimeFrameEnd" Margin="82,0,0,10" VerticalAlignment="Bottom" Text="4:00pm" HorizontalAlignment="Left" Width="120"/>
                     </Grid>
 
-                    <Button Content="Update Schedule" Height="38" HorizontalAlignment="Left" Margin="604,315,0,0" Name="button5" VerticalAlignment="Top" Width="129" Click="button5_Click_2" />
-                    <Button Content="Delete All Calendar Events" Height="37" HorizontalAlignment="Left" Margin="604,377,0,0" Name="button6" VerticalAlignment="Top" Width="154" Click="button6_Click" />
+                    <Button Content="Update Schedule" Height="38" HorizontalAlignment="Left" Margin="604,302,0,0" Name="button5" VerticalAlignment="Top" Width="100" Click="button5_Click_2" />
+                    <Button Content="Delete All Calendar Events" Height="37" HorizontalAlignment="Left" Margin="604,365,0,0" Name="button6" VerticalAlignment="Top" Width="154" Click="button6_Click" />
                     <Button Content="Procrastinate" Height="37" HorizontalAlignment="Left" Margin="303,411,0,0" Name="button8" VerticalAlignment="Top" Width="154" Click="button8_Click" />
                     <Button Content="Now" Height="37" HorizontalAlignment="Left" Margin="303,517,0,0" Name="NowButton" VerticalAlignment="Top" Width="154" Click="NowButtonClick" />
-                    <Button Content="Clear Current Outlook &#xD;&#xA;&amp;&#xD;&#xA;Write to outlook" Height="60" HorizontalAlignment="Left" Margin="604,446,0,0" Name="button7" VerticalAlignment="Top" Width="154" Click="button7_Click"/>
+                    <Button Content="Clear Current Outlook &#xD;&#xA;&amp;&#xD;&#xA;Write to outlook" Height="60" HorizontalAlignment="Left" Margin="604,465,0,0" Name="button7" VerticalAlignment="Top" Width="154" Click="button7_Click"/>
                     <ComboBox HorizontalAlignment="Left" Margin="323,462,0,0" Name="comboBox4" VerticalAlignment="Top" Width="40" RenderTransformOrigin="2.25,0.409"/>
                     <ComboBox HorizontalAlignment="Left" Margin="368,462,0,0" Name="comboBox5" VerticalAlignment="Top" Width="36"/>
                     <ComboBox HorizontalAlignment="Left" Margin="409,462,0,0" Name="comboBox6" VerticalAlignment="Top" Width="35" RenderTransformOrigin="0.917,0.455"/>
@@ -135,6 +135,7 @@
                     <Button Content="Delete" Height="37" HorizontalAlignment="Left" Margin="66,517,0,0" x:Name="NowButton_Copy" VerticalAlignment="Top" Width="154" Click="delete" />
                     <Button Content="Mark As Done" Height="37" HorizontalAlignment="Left" Margin="66,469,0,0" x:Name="MarkAsDOneButton" VerticalAlignment="Top" Width="154" Click="MarkAsDoneAndReAdjust" />
                     <Button Content="Update Deadline" Height="37" HorizontalAlignment="Left" Margin="66,559,0,0" x:Name="UpdateDeadlineButton" VerticalAlignment="Top" Width="154" Click="UpdateDeadline" />
+                    <Button Content="Peek&#xD;&#xA;" Height="37" HorizontalAlignment="Left" Margin="604,411,0,0" x:Name="button6_Copy" VerticalAlignment="Top" Width="154" Click="PeekIntoFuture" />
                 </Grid>
             </TabItem>
             <TabItem Header="Current Schedule" Name="tabItem3">

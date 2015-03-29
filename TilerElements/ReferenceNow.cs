@@ -82,6 +82,12 @@ namespace TilerElements
             return AllDays;
         }
 
+        public IEnumerable<DayTimeLine> getAllDaysCount(uint NumberOfDays)
+        {
+            List<DayTimeLine> RetValue = getAllDaysForCalc().ToList().GetRange(0, (int)NumberOfDays);
+            return RetValue;
+        }
+
         public DateTimeOffset UpdateNow(DateTimeOffset UpdatedNow,bool ForceDayTimeReinitialization = true)
         {
             CalculationNow = UpdatedNow;

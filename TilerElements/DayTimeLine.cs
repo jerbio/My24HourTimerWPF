@@ -44,6 +44,18 @@ namespace TilerElements
             updateOccupancyOfTimeLine();
         }
 
+        public void AddToSubEventList(SubCalendarEvent eachSubCal)
+        {
+            //Parallel.ForEach(SubEventList, eachSubCal =>//(eachSubCal in SubEventList)
+            {
+                AllocatedSubEvents.AddOrUpdate(eachSubCal.ID, eachSubCal, (key, value) => eachSubCal);
+
+            }
+            //);
+
+            updateOccupancyOfTimeLine();
+        }
+
         public void InitializeSubEventList(List<SubCalendarEvent> SubEventList)
         {
             AllocatedSubEvents = new ConcurrentDictionary<string, SubCalendarEvent>(SubEventList.ToDictionary(obj=>obj.ID,obj=>obj));

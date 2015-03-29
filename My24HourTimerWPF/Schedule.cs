@@ -409,7 +409,7 @@ namespace My24HourTimerWPF
 
             SubCalendarEvent ChangedSubCal = new SubCalendarEvent(mySubCalEvent.ID, SubeventStart, SubeventEnd, new BusyTimeLine(mySubCalEvent.ID, SubeventStart, SubeventEnd), mySubCalEvent.Rigid, mySubCalEvent.isEnabled, mySubCalEvent.UIParam, mySubCalEvent.Notes, mySubCalEvent.isComplete, mySubCalEvent.myLocation, mySubCalEvent.getCalendarEventRange, mySubCalEvent.Conflicts);
 
-            
+            //bool InitialRigidStatus = mySubCalEvent.Rigid;
             bool timeLineChange = (mySubCalEvent.Start != SubeventStart) || (mySubCalEvent.End != SubeventEnd);
             if (timeLineChange)
             {
@@ -439,9 +439,10 @@ namespace My24HourTimerWPF
             {
                 //myCalendarEvent.ChangeTimePerSplit(TimePerSplitCount);
                 myCalendarEvent.updateNumberOfSplits(newSplitCount);
+                //myCalendarEvent.ActiveSubEvents.AsParallel().ForAll(obj => obj.PinToEnd(myCalendarEvent.RangeTimeLine));
                 myCalendarEvent.updateTimeLine(new TimeLine(newStart,newEnd));
                 HashSet<SubCalendarEvent> NoDoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
-                myCalendarEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(myCalendarEvent, NoDoneYet);
+                myCalendarEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(myCalendarEvent, NoDoneYet,null,1);
             }
 
             if (isNameChange)
@@ -2035,7 +2036,7 @@ namespace My24HourTimerWPF
 
 
         /// <summary>
-        /// Function gets the SubEvents that will be involved in the calculation in the timeLine. It returns a 3 item tuple(triple). Item1 is the list of interferring elements. Item 2 The custom error is set when there is less space than the calculation will allow. Item 3 is the list of element that collide with the current Now time
+        /// Function gets the SubEvents that will be involved in the calculation in the timeLine. initializingCalendarEvent calendar event to be added to the new schedule. NoneCommitedCalendarEventsEvents is calendarevent that have not been added to the AllEventDictionary(Used for repeting events). Flag type checks if the algorithm should preserve events interferring with Now time. Flag type of  0 means check if it interfers with now. 1 means ignore events. NotDoneYet Evets that have not being marked as done or completed. It returns a 3 item tuple(triple). Item1 is the list of interferring elements. Item 2 The custom error is set when there is less space than the calculation will allow. Item 3 is the list of element that collide with the current Now time
         /// </summary>
         /// <param name="initializingCalendarEvent"></param>
         /// <param name="NoneCommitedCalendarEventsEvents"></param>
@@ -3310,19 +3311,60 @@ namespace My24HourTimerWPF
             Tuple<List<SubCalendarEvent>[], DayTimeLine[], List<SubCalendarEvent>> RetValue = new Tuple<List<SubCalendarEvent>[], DayTimeLine[], List<SubCalendarEvent>>(AssignedEvents,AllDays, ConflictingEvents);
             return RetValue;
         }
+
+
         
-        void ParallellizeCallsToDay(List<CalendarEvent> AllCalEvents,List<SubCalendarEvent> TotalActiveEvents, DayTimeLine[] AllDayTImeLine )
+        /// <summary>
+        /// Function assigns a bunch of rigid subevents to a given day. Each Rigid designates itself to a given day. Each rigid adds itself to the busy slot of the timeLine.
+        /// </summary>
+        /// <param name="AllDays"></param>
+        /// <param name="AllRigidSubEvents"></param>
+        Dictionary<SubCalendarEvent, List<ulong>> DesignateRigidsTODays(DayTimeLine[] OrderedyAscendingAllDays, IEnumerable<SubCalendarEvent>AllRigidSubEvents)
+        {
+            ulong First = OrderedyAscendingAllDays.First().UniversalIndex;
+            //ulong Last = OrderedyAscendingAllDays.Last().UniversalIndex;
+            //ConcurrentBag<SubCalendarEvent>[] BagPerDay=OrderedyAscendingAllDays.Select(obj=>new ConcurrentBag<SubCalendarEvent>()).ToArray();
+            Dictionary<SubCalendarEvent, List<ulong>> RetValue = new Dictionary<SubCalendarEvent, List<ulong>>();
+
+            //Parallel.ForEach(AllRigidSubEvents, eachSubCalendarEvent =>
+
+            foreach (SubCalendarEvent eachSubCalendarEvent in AllRigidSubEvents)
+                {
+
+                    List<ulong> myDays = new List<ulong>();
+                    ulong SubCalFirstIndex = ReferenceNow.getDayIndexFromStartOfTime(eachSubCalendarEvent.Start);
+                    ulong SubCalLastIndex = ReferenceNow.getDayIndexFromStartOfTime(eachSubCalendarEvent.End);
+                    ulong DayDiff = SubCalLastIndex - SubCalFirstIndex;
+                    myDays.Add(SubCalFirstIndex);
+                    int BoundedIndex = (int)(SubCalFirstIndex - First);
+                    OrderedyAscendingAllDays[BoundedIndex].AddBusySlots(eachSubCalendarEvent.ActiveSlot);
+                    eachSubCalendarEvent.updateDayIndex(SubCalFirstIndex);
+                    for (ulong i = SubCalFirstIndex + 1, j = 0; j < DayDiff; j++, i++)
+                    {
+                        myDays.Add(i);
+                        BoundedIndex = (int)(i - First);
+                        OrderedyAscendingAllDays[BoundedIndex].AddBusySlots(eachSubCalendarEvent.ActiveSlot);
+                        OrderedyAscendingAllDays[BoundedIndex].AddToSubEventList(eachSubCalendarEvent);
+                    }
+                    RetValue.Add(eachSubCalendarEvent, myDays);
+                }
+            //);
+            return RetValue;
+        }
+        
+        ulong ParallellizeCallsToDay(List<CalendarEvent> AllCalEvents,List<SubCalendarEvent> TotalActiveEvents, DayTimeLine[] AllDayTImeLine )
         {
             int TotalDays = (int)Now.NumberOfDays;
             ulong DayIndex = Now.consttDayIndex;
             ConcurrentBag< SubCalendarEvent>[] BagPerDay = new ConcurrentBag< SubCalendarEvent>[TotalDays];
 
+            List<SubCalendarEvent> AllRigids = TotalActiveEvents.Where(obj => obj.Rigid).ToList();
+            DesignateRigidsTODays(AllDayTImeLine,AllRigids);
+
             
-            //Parallel.ForEach(AllCalEvents, eachCal =>
             AllCalEvents.AsParallel().ForAll(obj => { obj.resetDesignationAllActiveEventsInCalculables(); obj.InitialCalculationLookupDays(Now); });
             ILookup<ulong,SubCalendarEvent> SetForFirstDay = PrepFirstTwentyFOurHours(AllCalEvents);
 
-            //DayTimeLine[] AllDayTImeLine = Now.getAllDaysLookup().Select(obj => obj.Value).ToArray();
             int numberOfDays = AllDayTImeLine.Count();
 
             foreach (IGrouping<ulong, SubCalendarEvent> eachGrouping in SetForFirstDay)
@@ -3331,38 +3373,13 @@ namespace My24HourTimerWPF
                 AllDayTImeLine[index].AddToSubEventList(SetForFirstDay[eachGrouping.Key]);
             }
             ConcurrentBag<List<SubCalendarEvent>> unassignedEvents = new ConcurrentBag<List<SubCalendarEvent>>();
-
             Dictionary<ulong, List<CalendarEvent>> DeadlineToCalEvents = new Dictionary<ulong, List<CalendarEvent>>();
 
-            /*
-            foreach (CalendarEvent eachCal in AllCalEvents)
-            {
-                ulong dayIndex = Now.getDayIndexFromStartOfTime(eachCal.End);
-                if (DeadlineToCalEvents.ContainsKey(dayIndex))
-                {
-                    DeadlineToCalEvents[dayIndex].Add(eachCal);
-                }
-                else
-                {
-                    DeadlineToCalEvents.Add(dayIndex, new List<CalendarEvent>() { eachCal });
-                }
-            }
-            TimeSpan sumSoFar = new TimeSpan(0);
-
-            ulong StartOfComputeIndex = Now.consttDayIndex;
-            Dictionary<ulong, double> DeadlineToOccupancy = new Dictionary<ulong,double>();
-            foreach (KeyValuePair<ulong, List<CalendarEvent>> eackKeyValuePair in DeadlineToCalEvents.OrderBy(obj=>obj.Key))
-            {
-                sumSoFar= sumSoFar.Add(TimeSpan.FromTicks(eackKeyValuePair.Value.Sum(obj => SubCalendarEvent.TotalActiveDuration(obj.ActiveSubEvents).Ticks)));
-                TimeSpan TOtalDurationSofar = TimeSpan.FromTicks((long)(((eackKeyValuePair.Key - StartOfComputeIndex )+1)*((ulong)TwentyFourHourTimeSpan.Ticks)));
-                DeadlineToOccupancy.Add(eackKeyValuePair.Key, (((double)sumSoFar.Ticks) / ((double)TOtalDurationSofar.Ticks)));
-            }
             
-            
-            List<SubCalendarEvent> TotalActiveEvents = AllCalEvents.SelectMany(obj => obj.ActiveSubEvents).ToList(); ;
-            */
             TotalActiveEvents.AsParallel().ForAll(obj => obj.enableCalculationMode());
             long totalRigidCount = TotalActiveEvents.Where(obj => obj.Rigid).LongCount();
+
+
             
             AllCalEvents.AsParallel().ForAll(obj => obj.initializeCalculablesAndUndesignables());
             Dictionary<string, CalendarEvent> DictOfCalEvents = AllCalEvents.ToDictionary(obj => obj.ID, obj => obj);
@@ -3384,7 +3401,7 @@ namespace My24HourTimerWPF
 
                     foreach (CalendarEvent eachCal in AllCalEvents)
                     {
-                        eachCal.updateUnusableDays();
+                        eachCal.updateUnusableDaysAndRemoveDaysWithInsufficientFreeSpace();
                         List<DayTimeLine> DaysToUse ;
                         List<SubCalendarEvent> UndesignatedEvents = eachCal.AllUnDesignatedAndActiveSubEventsFromCalculables();
                         List<DayTimeLine> WorksWithProcrastination = eachCal.getDaysOnOrAfterProcrastination(true);
@@ -3395,6 +3412,9 @@ namespace My24HourTimerWPF
                             CurrDaysToUse = WorksWithProcrastination;
                             DaysToUse = CurrDaysToUse;
                             CurrDaysToUse = eachCal.getTimeLineWithEnoughDuration(true, CurrDaysToUse);
+
+                            List<DayTimeLine> UnWantedDays = DaysToUse.Except(CurrDaysToUse).ToList();
+                            eachCal.updateUnusableDaysAndRemoveDaysWithInsufficientFreeSpace(UnWantedDays.Select(obj => obj.UniversalIndex));
                             DaysToUse = CurrDaysToUse;
                             if (CurrDaysToUse.Count > UndesignatedEvents.Count)
                             {
@@ -3502,6 +3522,8 @@ namespace My24HourTimerWPF
                 unassignedEvents.Add(processTwentyFourHours(AllDayTImeLine[i], BagPerDay[i].ToList()));
             }
             */
+
+            return totalNumberOfEvents;
         }
 
 
@@ -3551,7 +3573,7 @@ namespace My24HourTimerWPF
 
             return retVal_Dict;
         }
-        List<SubCalendarEvent> processTwentyFourHours(DayTimeLine myDayTimeLine, List<SubCalendarEvent> AllSubEvents)
+        List<SubCalendarEvent> processTwentyFourHours(DayTimeLine myDayTimeLine, List<SubCalendarEvent> AllSubEvents)//,List<BusyTimeLine>BusySlots)
         {
             ++CountCall;
             List<SubCalendarEvent> AllreadyAssigned = myDayTimeLine.getSubEventsInDayTimeLine();
@@ -3564,8 +3586,11 @@ namespace My24HourTimerWPF
             }
             Location_Elements AvgLocation = Location_Elements.AverageGPSLocation((AllRigids.Concat(myDayTimeLine.getSubEventsInDayTimeLine())).Select(obj => obj.myLocation));
             SubCalendarEvent.resetScores(AllSubEvents);
+            /*
             TimeLine timeLineForCalc = new TimeLine(myDayTimeLine.Start, myDayTimeLine.End);
-            timeLineForCalc.AddBusySlots(AllRigids.Select(obj => obj.ActiveSlot));
+            timeLineForCalc.AddBusySlots(BusySlots);
+             //*/
+            TimeLine timeLineForCalc = myDayTimeLine;
 
             //Movables = stitchRestrictedSubCalendarEvent(timeLineForCalc.getAllFreeSlots().ToList(), Movables).SelectMany(obj => obj.Value).ToList();
 

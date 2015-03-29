@@ -172,15 +172,18 @@ namespace My24HourTimerWPF
             }
         }
 
-        private void UpdateDeadline(object sender, RoutedEventArgs e)
+        async private void UpdateDeadline(object sender, RoutedEventArgs e)
         {
             DateTimeOffset EndTime = DateTimeOffset.Parse(textBox7.Text);
-            DateTimeOffset EndDate = datePicker2.SelectedDate.Value;
+            DateTimeOffset EndDate = DateTime.Parse( datePicker2.SelectedDate.Value.ToShortDateString ()+" " +textBox7.Text) ;
             string EventID = textBox9.Text;
-
-            DateTimeOffset fullDate = new DateTimeOffset(EndDate.Year, EndDate.Month, EndDate.Day, EndTime.Hour, EndTime.Minute, EndTime.Second, new TimeSpan());
-            Tuple<CustomErrors, Dictionary<string, CalendarEvent>>result= MySchedule.UpdateDeadLine(EventID, fullDate);
-            MySchedule.UpdateWithProcrastinateSchedule(result.Item2);
+            SubCalendarEvent MySubcal= MySchedule.getSubCalendarEvent(EventID);
+            string CalId=MySubcal.SubEvent_ID.getCalendarEventID();
+            CalendarEvent MyCal = MySchedule.getCalendarEvent(CalId);
+            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> result = MySchedule.BundleChangeUpdate(EventID, MyCal.Name, MyCal.Start, MyCal.End.AddDays(1), MyCal.NumberOfSplit);
+            //DateTimeOffset fullDate = new DateTimeOffset(EndDate.Year, EndDate.Month, EndDate.Day, EndTime.Hour, EndTime.Minute, EndTime.Second, new TimeSpan());
+            //Tuple<CustomErrors, Dictionary<string, CalendarEvent>>result= MySchedule.UpdateDeadLine(EventID, fullDate);
+            await MySchedule.UpdateWithProcrastinateSchedule(result.Item2).ConfigureAwait(false);
 
         }
 
@@ -1150,7 +1153,7 @@ namespace My24HourTimerWPF
             MySchedule.deleteSubCalendarEventAndReadjust(EventID);
         }
 
-        private void button8_Click(object sender, RoutedEventArgs e)
+        async private void button8_Click(object sender, RoutedEventArgs e)
         {
             int ProcrastinateDays = Convert.ToInt16(comboBox4.Text);
             int ProcrastinateHours = Convert.ToInt16(comboBox5.Text);
@@ -1178,13 +1181,13 @@ namespace My24HourTimerWPF
                 
                 if (result == MessageBoxResult.Yes)
                 {
-                    MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2);
+                    await MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
                 }
             }
             else
             {
 
-                MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2);
+                await MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
 
                 textBlock9.Text = "Schedule updated no clash detected";
             }
@@ -1222,18 +1225,18 @@ namespace My24HourTimerWPF
                             if (result == MessageBoxResult.Yes)
                             {
                                 ScheduleUpdateMessage=MySchedule.SetEventAsNow(EventID, true); ;
-                                MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2);
+                                await MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
                             }
                         }
                         break;
                     default://hack alert we need to figure out how to fix this error
-                        MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2);
+                        await MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
                         break;
                 }
             }
             else
             {
-                MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2);
+                await MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
             }
             
         }
@@ -1435,7 +1438,7 @@ namespace My24HourTimerWPF
             //UserAccountDirect currentUser =  new UserAccountDebug("18");
             await currentUser.Login();
             DateTimeOffset refNow=DateTimeOffset.Now;
-            refNow = DateTimeOffset.Parse("3/23/2015 4:00:00 AM");
+            refNow = DateTimeOffset.Parse("3/29/2015 10:45:00 AM");
             //MySchedule = new Schedule(currentUser, refNow);
 
 
@@ -1450,15 +1453,15 @@ namespace My24HourTimerWPF
                 //datePicker1.SelectedDate = DateTimeOffset.Now.AddDays(0);
                 //datePicker1.SelectedDate = new DateTimeOffset(2013, 11, 20, 0, 0, 0);
                 //datePicker2.SelectedDate = DateTimeOffset.Now.AddDays(2);
-                datePicker2.SelectedDate = new DateTime(Schedule.Now.calculationNow.AddDays(16).ToLocalTime().Ticks);//new DateTimeOffset(2014, 5, 15, 0, 0, 0);
+                datePicker2.SelectedDate = new DateTime(Schedule.Now.calculationNow.AddDays(1).ToLocalTime().Ticks);//new DateTimeOffset(2014, 5, 15, 0, 0, 0);
                 calendar4.SelectedDate = new DateTime(DateTimeOffset.Now.AddDays(0).ToLocalTime().Ticks);
                 Random myNumber = new Random();
                 int RandomHour = myNumber.Next(0, 24);
                 int RandomMinute = myNumber.Next(0, 60);
                 textBox4.Text = RandomHour + ":" + RandomMinute;
                 
-                textBox4.Text = 8+ ":" + "00" + ":" + "00";//total time
-                textBox2.Text = 4.ToString();//number of splits
+                textBox4.Text = 0+ ":" + "20" + ":" + "00";//total time
+                textBox2.Text = 1.ToString();//number of splits
                 int ProcrastinateStartDay = 0;
                 int ProcrastinateEndDay = 365; 
                 int ProcrastinateStartHour = 0;

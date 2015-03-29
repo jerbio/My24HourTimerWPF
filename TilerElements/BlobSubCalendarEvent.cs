@@ -24,6 +24,7 @@ namespace TilerElements
             EventClumps = InterFerringEvents.ToArray();
             EventDuration = TimeSpan.FromTicks( InterFerringEvents.Sum(obj => obj.ActiveDuration.Ticks));
             ConflictingEvents = new ConflictProfile();
+            BlobEvent = true;
         }
 
         public IEnumerable<SubCalendarEvent> getSubCalendarEventsInBlob()

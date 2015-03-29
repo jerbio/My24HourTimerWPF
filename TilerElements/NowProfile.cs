@@ -35,6 +35,12 @@ namespace TilerElements
             }
         }
 
+        public void reset()
+        {
+            TimePreferredForEvent = new DateTimeOffset();
+            Initialized = false;
+        }
+
         public bool isInitialized
         {
             get

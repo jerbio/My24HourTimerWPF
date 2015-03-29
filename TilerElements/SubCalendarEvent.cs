@@ -20,6 +20,7 @@ namespace TilerElements
         protected ulong UnUsableIndex;
         protected ulong OldPreferredIndex;
         protected bool CalculationMode = false;
+        protected bool BlobEvent = false;
 
         #region Classs Constructor
         public SubCalendarEvent()
@@ -253,6 +254,11 @@ namespace TilerElements
         }
         */
 
+        public void updateDayIndex(ulong DayIndex)
+        {
+            this.preferredDayIndex = DayIndex;
+        }
+
         public static void updateDayIndex(ulong DayIndex, IEnumerable<SubCalendarEvent> AllSUbevents)
         {
             foreach (SubCalendarEvent eachSubCalendarEvent in AllSUbevents)
@@ -266,7 +272,7 @@ namespace TilerElements
             AllSUbevents.AsParallel().ForAll(obj => obj.Score = 0);
         }
 
-        public static TimeSpan TotalActiveDuration(ICollection<SubCalendarEvent> ListOfSubCalendarEvent)
+        public static TimeSpan TotalActiveDuration(IEnumerable<SubCalendarEvent> ListOfSubCalendarEvent)
         {
             TimeSpan TotalTimeSpan = new TimeSpan(0);
             
@@ -356,27 +362,109 @@ namespace TilerElements
 
 
         /// <summary>
-        /// function updates the parameters of the current sub calevent. It updates the timeline
+        /// function updates the parameters of the current sub calevent using SubEventEntry. However it doesnt change some datamemebres such as rigid, and isrestricted. You 
         /// </summary>
         /// <param name="SubEventEntry"></param>
         /// <returns></returns>
-        public bool UpdateThis(SubCalendarEvent SubEventEntry)
+        virtual public bool UpdateThis(SubCalendarEvent SubEventEntry)
         {
             if ((this.ID == SubEventEntry.ID)&&canExistWithinTimeLine(SubEventEntry.getCalendarEventRange))
             {
-                StartDateTime= SubEventEntry.Start;
-                EndDateTime= SubEventEntry.End;
-                BusyFrame.updateBusyTimeLine(SubEventEntry.BusyFrame);
-                AvailablePreceedingFreeSpace = SubEventEntry.AvailablePreceedingFreeSpace;
-                RigidSchedule = SubEventEntry.Rigid;
-                CalendarEventRange = SubEventEntry.CalendarEventRange;
-                LocationData = SubEventEntry.LocationData;
-                Enabled = SubEventEntry.Enabled;
-                ThirdPartyID = SubEventEntry.ThirdPartyID;
+                this.BusyFrame = SubEventEntry.ActiveSlot;
+                this.CalendarEventRange = SubEventEntry.getCalendarEventRange;
+                this.FromRepeatEvent = SubEventEntry.FromRepeat;
+                this.EventName = SubEventEntry.Name;
+                this.EventDuration = SubEventEntry.ActiveDuration;
+                this.Complete = SubEventEntry.isComplete;
+                this.ConflictingEvents = SubEventEntry.Conflicts;
+                this.DataBlob = SubEventEntry.Notes;
+                this.DeadlineElapsed = SubEventEntry.isDeadlineElapsed;
+                this.Enabled = SubEventEntry.isEnabled;
+                this.EndDateTime = SubEventEntry.End;
+                this.EventPreDeadline = SubEventEntry.PreDeadline;
+                this.EventScore = SubEventEntry.Score;
+                this.isRestricted = SubEventEntry.isEventRestricted;
+                this.LocationData = SubEventEntry.myLocation;
+                this.OldPreferredIndex = SubEventEntry.OldUniversalIndex;
+                this.otherPartyID = SubEventEntry.ThirdPartyID;
+                this.preferredDayIndex = SubEventEntry.UniversalDayIndex;
+                this.PrepTime = SubEventEntry.Preparation;
+                this.Priority = SubEventEntry.EventPriority;
+                this.ProfileOfNow = SubEventEntry.ProfileOfNow;
+                this.ProfileOfProcrastination = SubEventEntry.ProfileOfProcrastination;
+                this.RepetitionFlag = SubEventEntry.FromRepeat;
+                //this.RigidSchedule = SubEventEntry.Rigid;
+                this.StartDateTime = SubEventEntry.Start;
+                this.UiParams = SubEventEntry.UIParam;
+                this.UniqueID = SubEventEntry.SubEvent_ID;
+                this.UserDeleted = SubEventEntry.isUserDeleted;
+                this.UserIDs = SubEventEntry.getAllUserIDs();
+                this.Vestige = SubEventEntry.isVestige;
+                this.otherPartyID = SubEventEntry.otherPartyID;
                 return true;
             }
 
             throw new Exception("Error Detected: Trying to update SubCalendar Event with non matching ID");
+        }
+
+        virtual public SubCalendarEvent getProcrastinationCopy(CalendarEvent CalendarEventData,Procrastination ProcrastinationData )
+        {
+            SubCalendarEvent retValue = getCalulationCopy();
+            /*
+            retValue.CalendarEventRange = CalendarEventData.RangeTimeLine;
+            TimeSpan SpanShift = ProcrastinationData.PreferredStartTime - retValue.Start;
+            */
+            TimeSpan SpanShift = (retValue.CalendarEventRange.End - retValue.RangeSpan) - retValue.Start;
+            retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventData.ID);
+            retValue.shiftEvent(SpanShift,true);
+            return retValue;
+        }
+
+        virtual public SubCalendarEvent getNowCopy(EventID CalendarEventID, NowProfile NowData)
+        {
+            SubCalendarEvent retValue = getCalulationCopy();
+            retValue.RigidSchedule = true;
+            TimeSpan SpanShift = NowData.PreferredTime - retValue.Start;
+            retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventID.ToString());
+            retValue.shiftEvent(SpanShift, true);
+            return retValue;
+        }
+
+        virtual protected SubCalendarEvent getCalulationCopy()
+        {
+            SubCalendarEvent retValue = new SubCalendarEvent();
+            retValue.BusyFrame = this.ActiveSlot;
+            retValue.CalendarEventRange = this.getCalendarEventRange;
+            retValue.FromRepeatEvent = this.FromRepeat;
+            retValue.EventName = this.Name;
+            retValue.EventDuration = this.ActiveDuration;
+            retValue.Complete = this.isComplete;
+            retValue.ConflictingEvents = this.Conflicts;
+            retValue.DataBlob = this.Notes;
+            retValue.DeadlineElapsed = this.isDeadlineElapsed;
+            retValue.Enabled = this.isEnabled;
+            retValue.EndDateTime = this.End;
+            retValue.EventPreDeadline = this.PreDeadline;
+            retValue.EventScore = this.Score;
+            retValue.isRestricted = this.isEventRestricted;
+            retValue.LocationData = this.myLocation;
+            retValue.OldPreferredIndex = this.OldUniversalIndex;
+            retValue.otherPartyID = this.ThirdPartyID;
+            retValue.preferredDayIndex = this.UniversalDayIndex;
+            retValue.PrepTime = this.Preparation;
+            retValue.Priority = this.EventPriority;
+            retValue.ProfileOfNow = this.ProfileOfNow;
+            retValue.ProfileOfProcrastination = this.ProfileOfProcrastination;
+            retValue.RepetitionFlag = this.FromRepeat;
+            retValue.RigidSchedule = this.Rigid;
+            retValue.StartDateTime = this.Start;
+            retValue.UiParams = this.UIParam;
+            retValue.UniqueID = this.SubEvent_ID;
+            retValue.UserDeleted = this.isUserDeleted;
+            retValue.UserIDs = this.getAllUserIDs();
+            retValue.Vestige = this.isVestige;
+            retValue.otherPartyID = this.otherPartyID;
+            return retValue;
         }
 
         public static void updateMiscData(IList<SubCalendarEvent>AllSubCalendarEvents, IList<int> IntData)
@@ -537,17 +625,34 @@ namespace TilerElements
             EndDateTime = ReferenceTime;
         }
         */
+
+        /// <summary>
+        /// Shifts a subcalendar event by the specified "ChangeInTime". Function returns a false if the change in time will not fall within calendarevent range. It returns true if successful. The force variable makes the subcalendareventignore the check for fitting in the calendarevent range
+        /// </summary>
+        /// <param name="ChangeInTime"></param>
+        /// <param name="force"></param>
+        /// <returns></returns>
         virtual public bool shiftEvent(TimeSpan ChangeInTime, bool force=false)
         {
+            if (force)
+            {
+                StartDateTime += ChangeInTime;
+                EndDateTime += ChangeInTime;
+                ActiveSlot.shiftTimeline(ChangeInTime);
+                return true;
+            }
             TimeLine UpdatedTimeLine = new TimeLine(this.Start + ChangeInTime, this.End + ChangeInTime);
-            if (!(this.getCalendarEventRange.IsTimeLineWithin(UpdatedTimeLine))&&!force)
+            if (!(this.getCalendarEventRange.IsTimeLineWithin(UpdatedTimeLine)))
             {
                 return false;
             }
-            StartDateTime += ChangeInTime;
-            EndDateTime += ChangeInTime;
-            ActiveSlot.shiftTimeline(ChangeInTime);
-            return true;
+            else
+            {
+                StartDateTime += ChangeInTime;
+                EndDateTime += ChangeInTime;
+                ActiveSlot.shiftTimeline(ChangeInTime);
+                return true;
+            }
         }
         
 
@@ -609,9 +714,14 @@ namespace TilerElements
          /// </summary>
          /// <param name="TimeLineData"></param>
          /// <returns></returns>
-         virtual public TimeLine getTimeLineInterferringWithCalEvent(TimeLine TimeLineData, bool orderByStart = true)
+         virtual public List<TimeLine> getTimeLineInterferringWithCalEvent(TimeLine TimeLineData, bool orderByStart = true)
          {
-             TimeLine retValue= CalendarEventRange.InterferringTimeLine(TimeLineData);;
+             TimeLine retValuTimeLine= CalendarEventRange.InterferringTimeLine(TimeLineData);;
+             List<TimeLine> retValue = null;
+             if (retValuTimeLine!=null)
+             {
+                 retValue = new List<TimeLine>() { retValuTimeLine };
+             }
              return retValue;
          }
         /* 
@@ -691,6 +801,15 @@ namespace TilerElements
         #endregion
 
         #region Class Properties
+
+        public ulong OldUniversalIndex
+        {
+            get
+            {
+                return OldPreferredIndex;
+            }
+
+        }
 
         public bool isDesignated
         {
@@ -819,6 +938,13 @@ namespace TilerElements
             }
         }
 
+        virtual public bool isBlobEvent
+        {
+            get
+            {
+                return BlobEvent;
+            }
+    }
         
 
 

@@ -169,6 +169,45 @@ namespace TilerElements
                 return ProfileOfRestriction;
             }
         }
+        protected override CalendarEvent getCalculationCopy()
+        {
+            CalendarEventRestricted RetValue = new CalendarEventRestricted();
+            RetValue.EventDuration = this.ActiveDuration;
+            RetValue.EventName = this.Name;
+            RetValue.StartDateTime = this.Start;
+            RetValue.EndDateTime = this.End;
+            RetValue.EventPreDeadline = this.PreDeadline;
+            RetValue.PrepTime = this.Preparation;
+            RetValue.Priority = this.EventPriority;
+            RetValue.RepetitionFlag = this.RepetitionStatus;
+            RetValue.EventRepetition = this.Repeat;// EventRepetition != this.null ? EventRepetition.CreateCopy() : EventRepetition;
+            RetValue.Complete = this.isComplete;
+            RetValue.RigidSchedule = this.Rigid;//hack
+            RetValue.Splits = this.NumberOfSplit;
+            RetValue.TimePerSplit = this.EachSplitTimeSpan;
+            RetValue.UniqueID = EventID.GenerateCalendarEvent();
+            //RetValue.EventSequence = this.EventSequence;
+            RetValue.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
+            RetValue.UiParams = this.UIParam;
+            RetValue.DataBlob = this.Notes;
+            RetValue.Enabled = this.isEnabled;
+            RetValue.isRestricted = this.isEventRestricted;
+            RetValue.LocationData = this.myLocation;//hack you might need to make copy
+            RetValue.ProfileOfProcrastination = this.ProcrastinationInfo;
+            RetValue.DeadlineElapsed = this.isDeadlineElapsed;
+            RetValue.UserDeleted = this.isUserDeleted;
+            RetValue.CompletedCount = this.CompletionCount;
+            RetValue.DeletedCount = this.DeletionCount;
+            RetValue.ProfileOfProcrastination = this.ProfileOfProcrastination.CreateCopy();
+            RetValue.ProfileOfNow = this.ProfileOfNow.CreateCopy();
+            RetValue.otherPartyID = this.ThirdPartyID;// == this.null ? null : otherPartyID.ToString();
+            RetValue.UserIDs = this.getAllUserIDs();//.ToList();
+            RetValue.ProfileOfNow = this.ProfileOfNow;
+            RetValue.ProfileOfRestriction = this.ProfileOfRestriction;
+            RetValue.UpdateLocationMatrix(RetValue.LocationData);
+            return RetValue;
+        }
 
+        
     }
 }

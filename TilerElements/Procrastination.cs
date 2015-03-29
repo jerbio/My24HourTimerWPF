@@ -28,6 +28,12 @@ namespace TilerElements
         }
 
 
+        public void reset()
+        {
+            FromTime = new DateTimeOffset();
+            BeginTIme = new DateTimeOffset();
+        }
+
         public DateTimeOffset PreferredStartTime
         {
             get

@@ -283,6 +283,7 @@ namespace TilerElements
         public void updateProcrastinate(Procrastination ProcrastinationTime)
         {
             ProfileOfProcrastination = ProcrastinationTime;
+            ProfileOfNow.reset();
         }
         //*/
 
@@ -338,6 +339,7 @@ namespace TilerElements
         public void UpdateNowProfile(NowProfile ProfileNowData)
         {
             ProfileOfNow = ProfileNowData;
+            ProfileOfProcrastination.reset();
         }
 
         public static CalendarEvent getEmptyCalendarEvent( EventID myEventID,DateTimeOffset Start=new DateTimeOffset(), DateTimeOffset End=new DateTimeOffset())
@@ -1466,11 +1468,11 @@ namespace TilerElements
             return retValue;
         }
 
-        public List<DayTimeLine> getDaysOnOrAfterProcrastination(bool forceUpdateTimeLine = true, List<DayTimeLine> AllFreeDayTIme = null)
+        public List<DayTimeLine> getDaysOnOrAfterProcrastination(bool forceUpdateFreeTimeLine = true, List<DayTimeLine> AllFreeDayTIme = null)
         {
 
             AllFreeDayTIme = AllFreeDayTIme ?? CalculationLimitation.Values.ToList();
-            if (forceUpdateTimeLine)
+            if (forceUpdateFreeTimeLine)
             {
                 AllFreeDayTIme.AsParallel().ForAll(obj => { obj.updateOccupancyOfTimeLine(); });
             }
@@ -1479,11 +1481,11 @@ namespace TilerElements
             return retValue;
         }
 
-        public List<DayTimeLine> getTimeLineWithoutMySubEventsAndEnoughDuration(bool forceUpdateTimeLine = true, List<DayTimeLine> AllFreeDayTIme = null)
+        public List<DayTimeLine> getTimeLineWithoutMySubEventsAndEnoughDuration(bool forceUpdateFreeTimeLine = true, List<DayTimeLine> AllFreeDayTIme = null)
         {
 
             AllFreeDayTIme = AllFreeDayTIme ?? FreeDaysLimitation.Values.ToList();
-            if (forceUpdateTimeLine)
+            if (forceUpdateFreeTimeLine)
             {
                 AllFreeDayTIme.AsParallel().ForAll(obj => { obj.updateOccupancyOfTimeLine(); });
             }
@@ -1492,11 +1494,11 @@ namespace TilerElements
             return retValue;
         }
 
-        public List<DayTimeLine> getDayTimeLineWhereOccupancyIsLess(double occupancy, bool forceUpdateTimeLine = true, List<DayTimeLine> AllFreeDayTIme = null)
+        public List<DayTimeLine> getDayTimeLineWhereOccupancyIsLess(double occupancy, bool forceUpdateFreeTimeLine = true, List<DayTimeLine> AllFreeDayTIme = null)
         {
 
             AllFreeDayTIme = AllFreeDayTIme ?? CalculationLimitation.Values.ToList();
-            if (forceUpdateTimeLine)
+            if (forceUpdateFreeTimeLine)
             {
                 AllFreeDayTIme.AsParallel().ForAll(obj => { obj.updateOccupancyOfTimeLine(); });
             }
@@ -1505,11 +1507,11 @@ namespace TilerElements
             return retValue;
         }
 
-        public List<DayTimeLine> getTimeLineWithEnoughDuration(bool forceUpdateTimeLine = true, List<DayTimeLine> AllFreeDayTIme=null)
+        public List<DayTimeLine> getTimeLineWithEnoughDuration(bool forceUpdateFreeTimeLine = true, List<DayTimeLine> AllFreeDayTIme=null)
         {
 
             AllFreeDayTIme = AllFreeDayTIme ?? CalculationLimitation.Values.ToList();
-            if (forceUpdateTimeLine)
+            if (forceUpdateFreeTimeLine)
             {
                 AllFreeDayTIme.AsParallel().ForAll(obj => { obj.updateOccupancyOfTimeLine(); });
             }
@@ -1693,6 +1695,20 @@ namespace TilerElements
             return retValue;
         }
 
+        public void updateUnusableDaysAndRemoveDaysWithInsufficientFreeSpace()
+        {
+            updateUnusableDays();
+            removeDayTimeLinesWithInsufficientSpace();
+        }
+        
+
+        public void removeDayTimeLinesWithInsufficientSpace()
+        {
+            List<DayTimeLine> DaysWithInSufficientSpace=CalculationLimitation.Values.Where(obj => obj.TotalFreeSpace < TimePerSplit).ToList();
+            DaysWithInSufficientSpace.ForEach(obj => CalculationLimitation.Remove(obj.UniversalIndex));
+            DaysWithInSufficientSpace.ForEach(obj => FreeDaysLimitation.Remove(obj.UniversalIndex));
+
+        }
         public void updateUnusableDays()
         {
             List<SubCalendarEvent> Undesignated = UnDesignables.ToList();
@@ -1703,9 +1719,25 @@ namespace TilerElements
                 CalculationLimitation.Remove(unWantedIndex);
                 FreeDaysLimitation.Remove(unWantedIndex);
             }
-            //Undesignated.ForEach(obj=>);
         }
 
+        public void updateUnusableDaysAndRemoveDaysWithInsufficientFreeSpace(IEnumerable<ulong> UnUsableDays)
+        {
+            updateUnusableDays(UnUsableDays);
+            removeDayTimeLinesWithInsufficientSpace();
+        }
+
+        public void updateUnusableDays(IEnumerable<ulong> UnUsableDays)
+        {
+            List<SubCalendarEvent> Undesignated = UnDesignables.ToList();
+
+            foreach (SubCalendarEvent eachSubCalendarEvent in UnDesignables)
+            {
+                ulong unWantedIndex = eachSubCalendarEvent.resetAndgetUnUsableIndex();
+                CalculationLimitation.Remove(unWantedIndex);
+                FreeDaysLimitation.Remove(unWantedIndex);
+            }
+        }
         public void updatedUnDesignated()
         {
             if(isUnDesignableInitialized)

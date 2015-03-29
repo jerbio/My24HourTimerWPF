@@ -254,6 +254,11 @@ namespace TilerElements
         }
         */
 
+        public void updateDayIndex(ulong DayIndex)
+        {
+            this.preferredDayIndex = DayIndex;
+        }
+
         public static void updateDayIndex(ulong DayIndex, IEnumerable<SubCalendarEvent> AllSUbevents)
         {
             foreach (SubCalendarEvent eachSubCalendarEvent in AllSUbevents)
@@ -405,8 +410,11 @@ namespace TilerElements
         virtual public SubCalendarEvent getProcrastinationCopy(CalendarEvent CalendarEventData,Procrastination ProcrastinationData )
         {
             SubCalendarEvent retValue = getCalulationCopy();
+            /*
             retValue.CalendarEventRange = CalendarEventData.RangeTimeLine;
             TimeSpan SpanShift = ProcrastinationData.PreferredStartTime - retValue.Start;
+            */
+            TimeSpan SpanShift = (retValue.CalendarEventRange.End - retValue.RangeSpan) - retValue.Start;
             retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventData.ID);
             retValue.shiftEvent(SpanShift,true);
             return retValue;

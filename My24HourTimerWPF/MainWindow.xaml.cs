@@ -602,7 +602,7 @@ namespace My24HourTimerWPF
             DateTimeOffset EndData = DateTimeOffset.Parse(eventEndDate.Date.ToShortDateString() + " " + eventEndTime);
 
             //CalendarEvent ScheduleUpdated = CreateSchedule(eventName, eventStartTime, eventStartDate, eventEndTime, eventEndDate, eventSplit, PreDeadlineTime, EventDuration, EventRepetitionflag, DefaultPreDeadlineFlag, RigidScheduleFlag, eventPrepTime, DefaultPreDeadlineFlag);
-            CalendarEvent ScheduleUpdated = new CalendarEvent(eventName, StartData, EndData, eventSplit, PreDeadlineTime, EventDuration, MyRepetition, DefaultPreDeadlineFlag, RigidFlag, eventPrepTime, DefaultPreDeadlineFlag, var0, true, UiData, NoteData, CompletedFlag);
+            CalendarEvent ScheduleUpdated = new CalendarEvent(eventName, StartData, EndData,StartData, eventSplit, PreDeadlineTime, EventDuration, MyRepetition, DefaultPreDeadlineFlag, RigidFlag, eventPrepTime, DefaultPreDeadlineFlag, var0, true, UiData, NoteData, CompletedFlag);
             if (RestrictedCheckbox.IsChecked.Value)
             {
                 string TimeString = eventStartDate.Date.ToShortDateString() + " " + eventStartTime+" +00:00";
@@ -650,7 +650,7 @@ namespace My24HourTimerWPF
 
 
 
-                ScheduleUpdated = new CalendarEventRestricted(eventName, StartDateTime, EndDateTime, myRestrictionProfile, TimeSpan.Parse(EventDuration), MyRepetition, false, true, Convert.ToInt32(eventSplit), RigidFlag, new Location_Elements(), TimeSpan.Parse(eventPrepTime), TimeSpan.Parse(PreDeadlineTime), UiData, NoteData);
+                ScheduleUpdated = new CalendarEventRestricted(eventName, StartDateTime, EndDateTime,StartDateTime, myRestrictionProfile, TimeSpan.Parse(EventDuration), MyRepetition, false, true, Convert.ToInt32(eventSplit), RigidFlag, new Location_Elements(), TimeSpan.Parse(eventPrepTime), TimeSpan.Parse(PreDeadlineTime), UiData, NoteData);
             }
             
             ScheduleUpdated.Repeat.PopulateRepetitionParameters(ScheduleUpdated);
@@ -789,7 +789,7 @@ namespace My24HourTimerWPF
             DateTimeOffset EndData = DateTimeOffset.Parse(eventEndDate.Date.ToShortDateString() + " " + eventEndTime);
 
             //CalendarEvent ScheduleUpdated = CreateSchedule(eventName, eventStartTime, eventStartDate, eventEndTime, eventEndDate, eventSplit, PreDeadlineTime, EventDuration, EventRepetitionflag, DefaultPreDeadlineFlag, RigidScheduleFlag, eventPrepTime, DefaultPreDeadlineFlag);
-            CalendarEvent ScheduleUpdated = new CalendarEvent(eventName, StartData, EndData, eventSplit, PreDeadlineTime, EventDuration, MyRepetition, DefaultPreDeadlineFlag, RigidFlag, eventPrepTime, DefaultPreDeadlineFlag, var0, true, UiData, NoteData, CompletedFlag);
+            CalendarEvent ScheduleUpdated = new CalendarEvent(eventName, StartData, EndData,StartData, eventSplit, PreDeadlineTime, EventDuration, MyRepetition, DefaultPreDeadlineFlag, RigidFlag, eventPrepTime, DefaultPreDeadlineFlag, var0, true, UiData, NoteData, CompletedFlag);
             if (RestrictedCheckbox.IsChecked.Value)
             {
                 string TimeString = eventStartDate.Date.ToShortDateString() + " " + eventStartTime + " +00:00";
@@ -837,7 +837,7 @@ namespace My24HourTimerWPF
 
 
 
-                ScheduleUpdated = new CalendarEventRestricted(eventName, StartDateTime, EndDateTime, myRestrictionProfile, TimeSpan.Parse(EventDuration), MyRepetition, false, true, Convert.ToInt32(eventSplit), RigidFlag, new Location_Elements(), TimeSpan.Parse(eventPrepTime), TimeSpan.Parse(PreDeadlineTime), UiData, NoteData);
+                ScheduleUpdated = new CalendarEventRestricted(eventName, StartDateTime, EndDateTime, StartDateTime,myRestrictionProfile, TimeSpan.Parse(EventDuration), MyRepetition, false, true, Convert.ToInt32(eventSplit), RigidFlag, new Location_Elements(), TimeSpan.Parse(eventPrepTime), TimeSpan.Parse(PreDeadlineTime), UiData, NoteData);
             }
 
             ScheduleUpdated.Repeat.PopulateRepetitionParameters(ScheduleUpdated);
@@ -1367,7 +1367,7 @@ namespace My24HourTimerWPF
                 DateTimeOffset EndData = DateTimeOffset.Parse(eventEndTime + " " + eventEndDate.Date.ToShortDateString());
 
                 //CalendarEvent ScheduleUpdated = CreateSchedule(eventName, eventStartTime, eventStartDate, eventEndTime, eventEndDate, eventSplit, PreDeadlineTime, EventDuration, EventRepetitionflag, DefaultPreDeadlineFlag, RigidScheduleFlag, eventPrepTime, DefaultPreDeadlineFlag);
-                CalendarEvent ScheduleUpdated = new CalendarEvent(eventName, StartData, EndData, eventSplit, PreDeadlineTime, EventDuration, MyRepetition, DefaultPreDeadlineFlag, RigidFlag, eventPrepTime, DefaultPreDeadlineFlag, var0, true, UiData, NoteData, CompletedFlag);
+                CalendarEvent ScheduleUpdated = new CalendarEvent(eventName, StartData, EndData, StartData, eventSplit, PreDeadlineTime, EventDuration, MyRepetition, DefaultPreDeadlineFlag, RigidFlag, eventPrepTime, DefaultPreDeadlineFlag, var0, true, UiData, NoteData, CompletedFlag);
                 ScheduleUpdated.Repeat.PopulateRepetitionParameters(ScheduleUpdated);
                 
                 Stopwatch snugarrayTester = new Stopwatch();

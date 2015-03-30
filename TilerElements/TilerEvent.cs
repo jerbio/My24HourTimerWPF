@@ -45,6 +45,8 @@ namespace TilerElements
         {
             await Semantics.InitializeClassification(EventName);
         }
+        protected long RepetitionSequence = -1;
+        protected DateTimeOffset OriginalStart;
         public List<string> getAllUserIDs()
         {
             return UserIDs.ToList();
@@ -53,6 +55,8 @@ namespace TilerElements
         {
             EventName = NewName;
         }
+
+        abstract public void updateRepetitionIndex(long RepetitionIndex);
 
         public bool isComplete
         {
@@ -239,6 +243,21 @@ namespace TilerElements
             get
             {
                 return _UsedTime;
+            }
+        }
+        public long RepetitionIndex
+        {
+            get
+            {
+                return RepetitionSequence;
+            }
+        }
+
+        public DateTimeOffset OrginalStartInfo
+        {
+            get
+            {
+                return OriginalStart;
             }
         }
     }

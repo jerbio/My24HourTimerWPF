@@ -15,7 +15,7 @@ namespace TilerElements
         ;
         }
 
-        public CalendarEventRestricted(string Name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, Location_Elements Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventDisplay UiSettings = null, MiscData NoteData=null)
+        public CalendarEventRestricted(string Name, DateTimeOffset Start, DateTimeOffset End,DateTimeOffset OriginalStartData, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, Location_Elements Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventDisplay UiSettings = null, MiscData NoteData=null)
         {
             EventName = Name;
             StartDateTime = Start;
@@ -41,12 +41,13 @@ namespace TilerElements
             TimePerSplit = TimeSpan.FromTicks(EventDuration.Ticks / Splits);
             isRestricted = true;
             ProfileOfNow = new NowProfile();
+            OriginalStart = OriginalStartData;
             InstantiateSubEvents();
         }
 
 
 
-        public CalendarEventRestricted(EventID EventIDEntry, string Name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, Location_Elements Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventDisplay UiSettings = null, MiscData NoteData = null)
+        public CalendarEventRestricted(EventID EventIDEntry, string Name, DateTimeOffset Start, DateTimeOffset End, DateTimeOffset OriginalStartData, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, Location_Elements Location, TimeSpan EventPreparation, TimeSpan Event_PreDeadline, long RepetitionIndex, EventDisplay UiSettings = null, MiscData NoteData = null)
         {
             EventName = Name;
             StartDateTime = Start;
@@ -54,6 +55,7 @@ namespace TilerElements
             RigidSchedule = isRigid;
             ProfileOfRestriction = restrictionProfile;
             Splits = Divisions;
+            RepetitionSequence = RepetitionIndex;
             if (RepetitionProfile.Enable)
             {
                 Splits = Divisions;
@@ -72,7 +74,8 @@ namespace TilerElements
             EventDuration = Duration;
             TimePerSplit = TimeSpan.FromTicks(EventDuration.Ticks / Splits);
             LocationInfo = Location;
-
+            
+            OriginalStart = OriginalStartData;
             InstantiateSubEvents();
         }
 
@@ -101,6 +104,7 @@ namespace TilerElements
             
             retValue.UpdateLocationMatrix(Location);
             retValue.InstantiateSubEvents();
+            retValue.OriginalStart = Start;
             
             return retValue;
         }

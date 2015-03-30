@@ -27,18 +27,21 @@ namespace TilerElements
         public SubCalendarEvent()
         { }
 
-        public SubCalendarEvent(TimeSpan Event_Duration, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, bool Enabled, EventDisplay UiParam,MiscData Notes,bool completeFlag, Location_Elements EventLocation =null, TimeLine RangeOfSubCalEvent = null, ConflictProfile conflicts=null, string Creator="")
+        public SubCalendarEvent(TimeSpan Event_Duration, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, DateTimeOffset OriginalStartData, string myParentID, bool Rigid, bool Enabled, EventDisplay UiParam,MiscData Notes,bool completeFlag,long RepetitionIndex, Location_Elements EventLocation =null, TimeLine RangeOfSubCalEvent = null, ConflictProfile conflicts=null, string Creator = "")
         {
             CreatorIDInfo = Creator;
             if (conflicts == null)
             {
                 conflicts = new ConflictProfile();
             }
+
+            RepetitionSequence = RepetitionIndex;
             ConflictingEvents = conflicts;
             CalendarEventRange = RangeOfSubCalEvent;
             StartDateTime = EventStart;
             EndDateTime = EventDeadline;
             EventDuration = Event_Duration;
+            OriginalStart = OriginalStartData;
             PrepTime = EventPrepTime;
             if (myParentID == "16")
             {
@@ -56,7 +59,7 @@ namespace TilerElements
         }
 
 
-        public SubCalendarEvent(string MySubEventID, BusyTimeLine MyBusylot, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location_Elements EventLocation = null, TimeLine RangeOfSubCalEvent = null, ConflictProfile conflicts = null, string Creator = "")
+        public SubCalendarEvent(string MySubEventID, BusyTimeLine MyBusylot, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, DateTimeOffset OriginalStartData, string myParentID, bool Rigid, bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location_Elements EventLocation = null, TimeLine RangeOfSubCalEvent = null, ConflictProfile conflicts = null, string Creator = "")
         {
             CreatorIDInfo = Creator;
             if (conflicts == null)
@@ -64,6 +67,7 @@ namespace TilerElements
                 conflicts = new ConflictProfile();
             }
             ConflictingEvents = conflicts;
+            OriginalStart = OriginalStartData;
             CalendarEventRange = RangeOfSubCalEvent;
             //string eventName, TimeSpan EventDuration, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, TimeSpan PreDeadline, bool EventRigidFlag, bool EventRepetition, int EventSplit
             StartDateTime = EventStart;
@@ -83,13 +87,14 @@ namespace TilerElements
             RigidSchedule = Rigid;
         }
 
-        public SubCalendarEvent(string MySubEventID, DateTimeOffset EventStart, DateTimeOffset EventDeadline, BusyTimeLine SubEventBusy, bool Rigid, bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location_Elements EventLocation = null, TimeLine RangeOfSubCalEvent = null, ConflictProfile conflicts = null, string Creator = "")
+        public SubCalendarEvent(string MySubEventID, DateTimeOffset EventStart, DateTimeOffset EventDeadline, BusyTimeLine SubEventBusy, DateTimeOffset OriginalStartData, bool Rigid, bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location_Elements EventLocation = null, TimeLine RangeOfSubCalEvent = null, ConflictProfile conflicts = null, string Creator = "")
         {
             CreatorIDInfo = Creator;
             if (conflicts == null)
             {
                 conflicts = new ConflictProfile();
             }
+            OriginalStart = OriginalStartData;
             ConflictingEvents = conflicts;
             CalendarEventRange = RangeOfSubCalEvent;
             UniqueID = new EventID(MySubEventID);
@@ -121,6 +126,11 @@ namespace TilerElements
             myCalEvent.incrementDeleteCount(this.RangeSpan);
         }
 
+
+        public override void updateRepetitionIndex(long RepetitionIndex)
+        {
+            this.RepetitionSequence = RepetitionIndex;
+        }
         internal void disableWithoutUpdatingCalEvent()
         {
             this.Enabled = false;
@@ -251,7 +261,8 @@ namespace TilerElements
             {
                 Id = this.ID;
             }
-            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(Id, Start, End, BusyFrame.CreateCopy(), this.RigidSchedule, this.isEnabled, this.UiParams.createCopy(), this.Notes.createCopy(), this.Complete, this.LocationInfo, new TimeLine(CalendarEventRange.Start, CalendarEventRange.End), ConflictingEvents.CreateCopy());
+            
+            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ID, Start, End, BusyFrame.CreateCopy(),OriginalStart, this.RigidSchedule, this.isEnabled, this.UiParams.createCopy(), this.Notes.createCopy(), this.Complete, this.LocationInfo, new TimeLine(CalendarEventRange.Start, CalendarEventRange.End), ConflictingEvents.CreateCopy());
             MySubCalendarEventCopy.ThirdPartyID = this.ThirdPartyID;
             MySubCalendarEventCopy.DeadlineElapsed = this.DeadlineElapsed;
             MySubCalendarEventCopy.UserDeleted = this.UserDeleted;

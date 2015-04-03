@@ -891,7 +891,7 @@ namespace My24HourTimerWPF
 
 
             
-            ProcrastinateEvent.DisableSubEvents(AllValidSubCalEvents);
+            
             
             TimeSpan TotalActiveDuration = Utility.SumOfActiveDuration(AllValidSubCalEvents);
             //CalendarEvent(string NameEntry, string StartTime, DateTimeOffset StartDateEntry, string EndTime, DateTimeOffset EventEndDateEntry, string eventSplit, string PreDeadlineTime, string EventDuration, Repetition EventRepetitionEntry, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag,Location EventLocation)
@@ -899,6 +899,7 @@ namespace My24HourTimerWPF
             //SubCalendarEvent RigidizedEvent =ScheduleUpdated.ActiveSubEvents[0];
 
             CalendarEvent ScheduleUpdated = ProcrastinateEvent.getNowCalculationCopy(myNow);//.getNowCalculationCopy(myNow);
+            ProcrastinateEvent.DisableSubEvents(AllValidSubCalEvents);
             SubCalendarEvent RigidizedEvent = ScheduleUpdated.ActiveSubEvents[0];
 
             //RigidizedEvent.shiftEvent(Now.calculationNow - RigidizedEvent.Start, Force);//remember to fix shift force option
@@ -923,7 +924,8 @@ namespace My24HourTimerWPF
                 }
 
                 SubCalendarEvent updatedSubCal = new SubCalendarEvent(AllValidSubCalEvents[i].ID, UpdatedSubCalevents[i].Start, UpdatedSubCalevents[i].End, UpdatedSubCalevents[i].ActiveSlot, Rigid, AllValidSubCalEvents[i].isEnabled, AllValidSubCalEvents[i].UIParam, AllValidSubCalEvents[i].Notes, AllValidSubCalEvents[i].isComplete, AllValidSubCalEvents[i].myLocation, ProcrastinateEvent.RangeTimeLine);
-                ProcrastinateEvent.updateSubEvent(updatedSubCal.SubEvent_ID, updatedSubCal);
+                AllValidSubCalEvents[i].shiftEvent(updatedSubCal.Start - AllValidSubCalEvents[i].Start, true);///not using update this because of possible issues with subevent not being restricted
+                //ProcrastinateEvent.updateSubEvent(updatedSubCal.SubEvent_ID, updatedSubCal);
             }
 
             ProcrastinateEvent.EnableSubEvents(AllValidSubCalEvents);
@@ -2073,7 +2075,7 @@ namespace My24HourTimerWPF
                     Now.UpdateNow(interFerringData.Item2);
                     SubEventsForCalculation=SubEventsForCalculation.Except(interferringWithNow).ToList();
                 }
-                CalculationTImeLine=new TimeLine(Now.constNow,CalculationTImeLine.End);
+                CalculationTImeLine=new TimeLine(Now.calculationNow,CalculationTImeLine.End);
                 
             }
 
@@ -3297,7 +3299,7 @@ namespace My24HourTimerWPF
             {
                 int index = (int) (eachSubCalendarEvent.UniversalDayIndex - Now.consttDayIndex);
 
-                if(index<NumberOfDays)
+                if((index<NumberOfDays)&&(index>0))
                 {
                     AssignedEvents[index].Add(eachSubCalendarEvent);
                 }
@@ -3354,16 +3356,17 @@ namespace My24HourTimerWPF
         
         ulong ParallellizeCallsToDay(List<CalendarEvent> AllCalEvents,List<SubCalendarEvent> TotalActiveEvents, DayTimeLine[] AllDayTImeLine )
         {
-            int TotalDays = (int)Now.NumberOfDays;
+            int TotalDays = (int)AllDayTImeLine.Length;
+            Now.getAllDaysForCalc();
             ulong DayIndex = Now.consttDayIndex;
             ConcurrentBag< SubCalendarEvent>[] BagPerDay = new ConcurrentBag< SubCalendarEvent>[TotalDays];
 
-            List<SubCalendarEvent> AllRigids = TotalActiveEvents.Where(obj => obj.Rigid).ToList();
-            DesignateRigidsTODays(AllDayTImeLine,AllRigids);
 
-            
-            AllCalEvents.AsParallel().ForAll(obj => { obj.resetDesignationAllActiveEventsInCalculables(); obj.InitialCalculationLookupDays(Now); });
-            ILookup<ulong,SubCalendarEvent> SetForFirstDay = PrepFirstTwentyFOurHours(AllCalEvents);
+            AllCalEvents.AsParallel().ForAll(obj => { obj.resetDesignationAllActiveEventsInCalculables(); obj.InitialCalculationLookupDays(AllDayTImeLine); });
+            ILookup<ulong, SubCalendarEvent> SetForFirstDay = PrepFirstTwentyFOurHours(AllCalEvents, AllDayTImeLine[0].getJustTimeLine());
+
+            List<SubCalendarEvent> AllRigids = TotalActiveEvents.Where(obj => obj.Rigid).ToList();// you need to call this after PrepFirstTwentyFOurHours to prevent resetting of indexes
+            DesignateRigidsTODays(AllDayTImeLine, AllRigids);
 
             int numberOfDays = AllDayTImeLine.Count();
 
@@ -3395,6 +3398,7 @@ namespace My24HourTimerWPF
                 long DesignatedAndAssignedSubEventCount = -1;
                 do
                 {
+                    ConcurrentBag<CalendarEvent> UnUsableCalEvents = new ConcurrentBag<CalendarEvent>();
                     unassignedEvents = new ConcurrentBag<List<SubCalendarEvent>>();
                     BagPerDay = BagPerDay.Select(obj => new ConcurrentBag<SubCalendarEvent>()).ToArray();
                     OldNumberOfAssignedElements = DesignatedAndAssignedSubEventCount;
@@ -3474,9 +3478,12 @@ namespace My24HourTimerWPF
                                 BagPerDay[(int)(eachTuple.Item1 - DayIndex)].Add(eachTuple.Item2);
                             });
                         }
-
+                        else
+                        {
+                            UnUsableCalEvents.Add(eachCal);
+                        }
                     }
-
+                    AllCalEvents = AllCalEvents.Except(UnUsableCalEvents).ToList();
 
 
                     for (int i = 0; i < numberOfDays; i++)
@@ -3489,7 +3496,7 @@ namespace My24HourTimerWPF
                         unassignedEvents.Add(newSubEventAdditions);
                     }
 
-                    Now.getAllDaysForCalc().AsParallel().ForAll(obj => obj.updateOccupancyOfTimeLine());
+                    AllDayTImeLine.AsParallel().ForAll(obj => obj.updateOccupancyOfTimeLine());
                     DesignatedAndAssignedSubEventCount = AllCalEvents.Sum(obj => obj.getNumberOfDesignatedAndActiveSubEventsFromCalculables());
                     AllCalEvents = CalendarEvent.removeCalEventsWitNoUndesignablesFromCalculables(AllCalEvents);
                 }
@@ -3527,9 +3534,9 @@ namespace My24HourTimerWPF
         }
 
 
-        ILookup<ulong, SubCalendarEvent> PrepFirstTwentyFOurHours(List<CalendarEvent> AllCalEvents)
-        { 
-            TimeLine FirstTwentyFour=  new TimeLine(Now.firstDay.Start,Now.firstDay.Start.AddDays(1));
+        ILookup<ulong, SubCalendarEvent> PrepFirstTwentyFOurHours(List<CalendarEvent> AllCalEvents, TimeLine FirstTwentyFour)
+        {
+            //TimeLine FirstTwentyFour = Now.firstDay.CreateCopy();// new TimeLine(Now.firstDay.Start, Now.firstDay.Start.AddDays(1));
             Dictionary<string, CalendarEvent> IDToCalendarEvent = AllCalEvents.ToDictionary(obj => obj.ID, obj => obj);
             TimeLine FirstFortyEight = new TimeLine(Now.firstDay.Start, Now.firstDay.Start.AddDays(2));
             List<Tuple<CalendarEvent, TimeLine>> ListOfTuples = AllCalEvents.Select(obj => new Tuple<CalendarEvent, TimeLine>(obj, obj.RangeTimeLine.InterferringTimeLine(FirstFortyEight))).Where(obj => obj.Item2 != null).ToList();
@@ -11454,7 +11461,8 @@ namespace My24HourTimerWPF
             for (int i = 0; i < AllValidSubCalEvents.Count; i++)//updates the subcalevents
             {
                 SubCalendarEvent updatedSubCal = new SubCalendarEvent(AllValidSubCalEvents[i].ID, UpdatedSubCalevents[i].Start, UpdatedSubCalevents[i].End, UpdatedSubCalevents[i].ActiveSlot, UpdatedSubCalevents[i].Rigid, AllValidSubCalEvents[i].isEnabled, AllValidSubCalEvents[i].UIParam, AllValidSubCalEvents[i].Notes, AllValidSubCalEvents[i].isComplete, UpdatedSubCalevents[i].myLocation, ProcrastinateEvent.RangeTimeLine);
-                AllValidSubCalEvents[i].UpdateThis(updatedSubCal);
+                AllValidSubCalEvents[i].shiftEvent(updatedSubCal.Start - AllValidSubCalEvents[i].Start, true);///not using update this because of possible issues with subevent not being restricted
+                //AllValidSubCalEvents[i].UpdateThis(updatedSubCal);
             }
 
             ProcrastinateEvent.EnableSubEvents(AllValidSubCalEvents);

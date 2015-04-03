@@ -196,7 +196,7 @@ namespace TilerElements
                     DateTimeOffset LowestInterferingStartTime = InterferringEvents.Select(obj => obj.Start).Min();
                     DateTimeOffset LatesInterferingEndTime = InterferringEvents.Select(obj => obj.End).Max();
                     DateTimeOffset refStartTIme = refEvent.Start <= LowestInterferingStartTime ? refEvent.Start : LowestInterferingStartTime;
-                    DateTimeOffset refEndTIme = refEvent.End <= LatesInterferingEndTime ? refEvent.End : LatesInterferingEndTime;
+                    DateTimeOffset refEndTIme = refEvent.End <= LatesInterferingEndTime ? LatesInterferingEndTime : refEvent.End;
                     TimeLine refTimeLineForInterferrers = new TimeLine(refStartTIme, refEndTIme);
                     EventsWithTImeline = EventsWithTImeline.Except(InterferringEvents).ToList();
                     IEnumerable<IDefinedRange> ExtraInterferringEvents = EventsWithTImeline.Where(obj => obj.RangeTimeLine.InterferringTimeLine(refTimeLineForInterferrers) != null);
@@ -207,7 +207,7 @@ namespace TilerElements
                     }
                     else
                     {
-                        InterferringEvents = InterferringEvents.Concat(ExtraInterferringEvents);
+                        InterferringEvents = InterferringEvents.Concat(ExtraInterferringEvents).ToList();
                     }
                 }
                 if (AddrefTOretValue_ItemB)

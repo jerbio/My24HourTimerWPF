@@ -25,6 +25,7 @@ namespace TilerElements
             StartOfTime = new DateTimeOffset(1970, 1, 1, StartOfDay.Hour, StartOfDay.Minute, 0, new TimeSpan());
             Now = new DateTimeOffset(Now.Year, Now.Month, Now.Day, Now.Hour, Now.Minute, 0, new TimeSpan());
             CalculationNow = Now;
+            ImmutableNow = CalculationNow;
             this.StartOfDay = StartOfDay;
             InitializeParameters();
             
@@ -38,7 +39,7 @@ namespace TilerElements
             refDayEnd = new DateTimeOffset(refDayEnd.Year, refDayEnd.Month, refDayEnd.Day, StartOfDay.Hour, StartOfDay.Minute, 0, new TimeSpan());
             refFirstDay = new DayTimeLine(refDayStart, refDayEnd, (ulong)(refDayStart - StartOfTime).TotalDays,0);
 
-            new DateTimeOffset(1970, 1, 1, 0, 0, 0, new TimeSpan()); ImmutableNow = CalculationNow;
+            new DateTimeOffset(1970, 1, 1, 0, 0, 0, new TimeSpan()); 
             
             ImmutableDayIndex = (ulong)(refDayStart - StartOfTime).TotalDays;
             ComputationBound = new TimeLine(CalculationNow, CalculationNow.Add(ConstOfCalculation));
@@ -84,7 +85,7 @@ namespace TilerElements
 
         public IEnumerable<DayTimeLine> getAllDaysCount(uint NumberOfDays)
         {
-            List<DayTimeLine> RetValue = getAllDaysForCalc().ToList().GetRange(0, (int)NumberOfDays);
+            List<DayTimeLine> RetValue = AllDays.Take((int)NumberOfDays).ToList();
             return RetValue;
         }
 
@@ -131,6 +132,7 @@ namespace TilerElements
                 return CalculationNow;
             }
         }
+
         /// <summary>
         /// This generates the timeline for the first day. Not this does not necessarily mean a twenty four hour day. THe first day is described as the current time till the end of the day
         /// </summary>

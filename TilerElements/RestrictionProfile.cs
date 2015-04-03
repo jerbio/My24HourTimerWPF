@@ -257,7 +257,8 @@ namespace TilerElements
                 DateTimeOffset Start = FirstFrame.Start.AddDays(DayDiff);
                 //Start= eachTuple.Item2.getInjectedStartHourMinIntoDateTime(Start);
                 TimeLine myTimeLine = getTImeLineFromTuple(eachTuple, Start);// eachTuple.Item2.getTimeLineFromStartFrame(Start);
-                while (Start < LastFrame.End)
+                while (myTimeLine.Start < LastFrame.End)
+                //while (Start < LastFrame.End)
                 {
                     ListOfTimeLine.Add(myTimeLine);
                     Start=Start.AddDays(7);

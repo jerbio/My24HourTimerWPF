@@ -647,12 +647,12 @@ namespace My24HourTimerWPF
             textBlock9.Text = "...Loading";
             Stopwatch snugarrayTester = new Stopwatch();
             snugarrayTester.Start();
-            ///*
+            /*
             Task<CustomErrors> addToScheduleTask = MySchedule.AddToScheduleAndCommit(ScheduleUpdated);
             CustomErrors ScheduleUpdateMessage = await addToScheduleTask.ConfigureAwait(false);
              //*/
 
-            //CustomErrors ScheduleUpdateMessage = MySchedule.AddToSchedule(ScheduleUpdated);
+            CustomErrors ScheduleUpdateMessage = MySchedule.AddToSchedule(ScheduleUpdated);
             snugarrayTester.Stop();
             //MessageBox.Show("It took " + snugarrayTester.ElapsedMilliseconds.ToString() + "ms max thread count is ");
 
@@ -1198,20 +1198,20 @@ namespace My24HourTimerWPF
         private void MarkAsDoneAndReAdjust(object sender, RoutedEventArgs e)
         {
             string EventID = textBox9.Text.Trim();
-            MySchedule.markAsCompleteCalendarEventAndReadjust(EventID);
-            //MySchedule.markSubEventAsCompleteCalendarEventAndReadjust(EventID);
+            //MySchedule.markAsCompleteCalendarEventAndReadjust(EventID);
+            MySchedule.markSubEventAsCompleteCalendarEventAndReadjust(EventID);
         }
 
         async private void NowButtonClick(object sender, RoutedEventArgs e)
         {
             string EventID = textBox9.Text.Trim();
-            ///*
+            /*
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ScheduleUpdateMessage=MySchedule.SetCalendarEventAsNow(EventID);
 
              await MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
              return;
             //*///
-            /*
+            ///*
             
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ScheduleUpdateMessage = MySchedule.SetEventAsNow(EventID);
             //*/
@@ -1438,7 +1438,7 @@ namespace My24HourTimerWPF
             //UserAccountDirect currentUser =  new UserAccountDebug("18");
             await currentUser.Login();
             DateTimeOffset refNow=DateTimeOffset.Now;
-            refNow = DateTimeOffset.Parse("3/29/2015 10:45:00 AM");
+            refNow = DateTimeOffset.Parse("4/1/2015 12:52:00 PM");
             //MySchedule = new Schedule(currentUser, refNow);
 
 
@@ -1449,18 +1449,18 @@ namespace My24HourTimerWPF
             {
                 
                 tabItem2.IsEnabled = true;
-                datePicker1.SelectedDate = new DateTime(Schedule.Now.calculationNow.AddDays(0).ToLocalTime().Ticks);// DateTimeOffset.Now.AddDays(0);
+                datePicker1.SelectedDate = new DateTime(Schedule.Now.calculationNow.AddDays(1).ToLocalTime().Ticks);// DateTimeOffset.Now.AddDays(0);
                 //datePicker1.SelectedDate = DateTimeOffset.Now.AddDays(0);
                 //datePicker1.SelectedDate = new DateTimeOffset(2013, 11, 20, 0, 0, 0);
                 //datePicker2.SelectedDate = DateTimeOffset.Now.AddDays(2);
-                datePicker2.SelectedDate = new DateTime(Schedule.Now.calculationNow.AddDays(1).ToLocalTime().Ticks);//new DateTimeOffset(2014, 5, 15, 0, 0, 0);
+                datePicker2.SelectedDate = new DateTime(Schedule.Now.calculationNow.AddDays(8).ToLocalTime().Ticks);//new DateTimeOffset(2014, 5, 15, 0, 0, 0);
                 calendar4.SelectedDate = new DateTime(DateTimeOffset.Now.AddDays(0).ToLocalTime().Ticks);
                 Random myNumber = new Random();
                 int RandomHour = myNumber.Next(0, 24);
                 int RandomMinute = myNumber.Next(0, 60);
                 textBox4.Text = RandomHour + ":" + RandomMinute;
                 
-                textBox4.Text = 0+ ":" + "20" + ":" + "00";//total time
+                textBox4.Text = 2+ ":" + "30" + ":" + "00";//total time
                 textBox2.Text = 1.ToString();//number of splits
                 int ProcrastinateStartDay = 0;
                 int ProcrastinateEndDay = 365; 

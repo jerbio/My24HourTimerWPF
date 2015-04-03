@@ -1414,9 +1414,9 @@ namespace TilerElements
             return;
         }
 
-        public virtual void InitialCalculationLookupDays(ReferenceNow ScheduleConstraints)
+        public virtual void InitialCalculationLookupDays(IEnumerable<DayTimeLine> RelevantDays)
         {
-            CalculationLimitation = ScheduleConstraints.getAllDaysLookup().Where(obj=>obj.Value.InterferringTimeLine(RangeTimeLine)!=null).ToDictionary(obj=>obj.Key,obj=>obj.Value);
+            CalculationLimitation = RelevantDays.Where(obj => obj.InterferringTimeLine(RangeTimeLine) != null).ToDictionary(obj => obj.UniversalIndex, obj => obj);
             FreeDaysLimitation=CalculationLimitation.ToDictionary(obj => obj.Key, obj => obj.Value);
             CalculationLimitationWithUnUsables = CalculationLimitation.ToDictionary(obj => obj.Key, obj => obj.Value);
         }
@@ -1529,7 +1529,7 @@ namespace TilerElements
 
         public static long getTotalUndesignatedEvents(IEnumerable<CalendarEvent> AllCalendarEvents)
         {
-            //List<SubCalendarEvent> UnassignedEvents = AllCalendarEvents.Where(obj => !obj.Rigid).SelectMany(obj => obj.UnDesignables).ToList();
+            List<SubCalendarEvent> UnassignedEvents = AllCalendarEvents.Where(obj => !obj.Rigid).SelectMany(obj => obj.UnDesignables).ToList();
             long retValue = AllCalendarEvents.Where(obj=>!obj.Rigid).Sum(obj => obj.UnDesignables.Count);
             return retValue;
         }

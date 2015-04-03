@@ -90,8 +90,20 @@ namespace TilerElements
             return CopyTimeLine;
         }
 
+        public override string ToString()
+        {
+            return (base.ToString()+"||"+UniversalDayIndex.ToString());
+        }
         
-
+        /// <summary>
+        /// Function returns a timeLine with the begining and end. It does not populate the busyslots. It returns a new TImeline object
+        /// </summary>
+        /// <returns></returns>
+        public TimeLine getJustTimeLine()
+        {
+            TimeLine RetValue = new TimeLine(this.StartTime, this.EndTime);
+            return RetValue;
+        }
 
         #endregion
         #region Properties

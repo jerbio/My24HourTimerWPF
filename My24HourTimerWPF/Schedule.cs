@@ -3299,7 +3299,7 @@ namespace My24HourTimerWPF
             {
                 int index = (int) (eachSubCalendarEvent.UniversalDayIndex - Now.consttDayIndex);
 
-                if((index<NumberOfDays)&&(index>0))
+                if((index<NumberOfDays)&&(index>=0))
                 {
                     AssignedEvents[index].Add(eachSubCalendarEvent);
                 }

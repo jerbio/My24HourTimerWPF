@@ -107,7 +107,7 @@
                         <TextBlock Height="23" HorizontalAlignment="Left" Margin="10,141,0,0" Name="textBlock18" Text="Pertinent ID" VerticalAlignment="Top" />
                         <TextBlock Height="23" HorizontalAlignment="Left" Margin="10,169,0,0" Name="textBlock19" Text="Start of Day" VerticalAlignment="Top" />
                         <TextBlock Margin="73,141,554,269" Name="textBlock17" Text="Procrastinate this event" />
-                        <TextBox Height="23" TextWrapping="Wrap" Name="textBox9" Margin="81,141,0,0" HorizontalAlignment="Left" Width="120" VerticalAlignment="Top" Text="111034_7_0_111038"/>
+                        <TextBox Height="23" TextWrapping="Wrap" Name="textBox9" Margin="81,141,0,0" HorizontalAlignment="Left" Width="120" VerticalAlignment="Top" Text="101374_7_0_101376"/>
                         <CheckBox Content="Tue" Name="TueCheckbox" HorizontalAlignment="Left" Margin="118,196,0,0" VerticalAlignment="Top" IsChecked="True"/>
                         <CheckBox Content="Wed" Name="WedCheckbox" HorizontalAlignment="Left" Margin="159,196,0,0" VerticalAlignment="Top" IsChecked="True"/>
                         <CheckBox Content="Thu" Name="ThuCheckbox" HorizontalAlignment="Left" Margin="205,196,0,0" VerticalAlignment="Top"/>

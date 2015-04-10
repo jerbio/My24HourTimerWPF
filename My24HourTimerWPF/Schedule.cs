@@ -2457,7 +2457,7 @@ namespace My24HourTimerWPF
         }
 
 
-        CalendarEvent ReArrangeTimeLineWithinWithinCalendaEventRangeUpdated(CalendarEvent MyCalendarEvent, List<CalendarEvent> NoneCommitedCalendarEventsEvents, int InterferringWithNowFlag, HashSet<SubCalendarEvent> NotDoneYet)// this looks at the timeline of the calendar event and then tries to rearrange all subevents within the range to suit final output. Such that there will be sufficient time space for each subevent
+        CalendarEvent ReArrangeTimeLineWithinWithinCalendaEventRangeUpdated(CalendarEvent MyCalendarEvent, List<CalendarEvent> NoneCommitedCalendarEventsEvents, int InterferringWithNowFlag, HashSet<SubCalendarEvent> NotDoneYet, bool OptimizeFirstTwentyFour=true)// this looks at the timeline of the calendar event and then tries to rearrange all subevents within the range to suit final output. Such that there will be sufficient time space for each subevent
         {
             /*
                 Name{: Jerome Biotidara
@@ -3204,7 +3204,7 @@ namespace My24HourTimerWPF
         }
         */
 
-        Tuple<List<SubCalendarEvent>[],DayTimeLine[],List<SubCalendarEvent>>peekIntoDays(CalendarEvent MyCalendarEvent, List<CalendarEvent> NoneCommitedCalendarEventsEvents, int InterferringWithNowFlag, HashSet<SubCalendarEvent> NotDoneYet,uint NumberOfDays=10)
+        Tuple<List<SubCalendarEvent>[],DayTimeLine[],List<SubCalendarEvent>>peekIntoDays(CalendarEvent MyCalendarEvent, List<CalendarEvent> NoneCommitedCalendarEventsEvents, int InterferringWithNowFlag, HashSet<SubCalendarEvent> NotDoneYet,uint NumberOfDays=28)
         {
             int i = 0;
             List<SubCalendarEvent>[] AssignedEvents = new List<SubCalendarEvent>[NumberOfDays];
@@ -3293,7 +3293,7 @@ namespace My24HourTimerWPF
             List<CalendarEvent> SortedInterFerringCalendarEvents_Deadline = DictionaryWithBothCalendarEventIDAndListOfInterferringSubEvents.Keys.ToList();
             SortedInterFerringCalendarEvents_Deadline = SortedInterFerringCalendarEvents_Deadline.OrderBy(obj => obj.End).ToList();
             DayTimeLine[] AllDays = Now.getAllDaysCount((uint)NumberOfDays).ToArray();
-            ParallellizeCallsToDay(SortedInterFerringCalendarEvents_Deadline, ArrayOfInterferringSubEvents.ToList(),AllDays );
+            ParallellizeCallsToDay(SortedInterFerringCalendarEvents_Deadline, ArrayOfInterferringSubEvents.ToList(),AllDays,false );
             List<SubCalendarEvent> ConflictingEvents = new List<SubCalendarEvent>();
             foreach(SubCalendarEvent eachSubCalendarEvent in ArrayOfInterferringSubEvents)
             {
@@ -3310,7 +3310,10 @@ namespace My24HourTimerWPF
             }
             interFerringBlob.ForEach(obj => ConflictingEvents.AddRange(obj.getSubCalendarEventsInBlob()));
 
-            Tuple<List<SubCalendarEvent>[], DayTimeLine[], List<SubCalendarEvent>> RetValue = new Tuple<List<SubCalendarEvent>[], DayTimeLine[], List<SubCalendarEvent>>(AssignedEvents,AllDays, ConflictingEvents);
+            List<SubCalendarEvent>[] First7DaysEvents = AssignedEvents.Take(7).ToArray();
+            DayTimeLine[] First7Days = AllDays.Take(7).ToArray();
+
+            Tuple<List<SubCalendarEvent>[], DayTimeLine[], List<SubCalendarEvent>> RetValue = new Tuple<List<SubCalendarEvent>[], DayTimeLine[], List<SubCalendarEvent>>(First7DaysEvents, First7Days, ConflictingEvents);
             return RetValue;
         }
 
@@ -3353,8 +3356,60 @@ namespace My24HourTimerWPF
             //);
             return RetValue;
         }
+
+        void SortForSleep(IEnumerable<DayTimeLine>AllDayTimeLine)
+        {
+            Parallel.ForEach(AllDayTimeLine, EachDay=>
+            //foreach(DayTimeLine EachDay in AllDayTimeLine)
+            {
+                optimizeDay(EachDay);
+            }
+            );
+        }
+
+        void optimizeDay(DayTimeLine myDay)
+        {
+            List<SubCalendarEvent> AllSubEvents = myDay.getSubEventsInDayTimeLine().Distinct().OrderBy(obj => obj.End).ToList();
+            TimeLine myTimeLine = myDay.getJustTimeLine();
+            if(AllSubEvents.Count>0)
+            {
+                DateTimeOffset EarliestStart = myTimeLine.Start;// AllSubEvents.Max(obj => obj.Start);
+                DateTimeOffset LatestEnd = myTimeLine.End;//AllSubEvents.Max(obj=>obj.End);
+                
+                int count = 6;
+
+                DateTimeOffset LowestSubEventStart = AllSubEvents.Min(obj => obj.Start);
+                DateTimeOffset HighestSubEventStart = AllSubEvents.Max(obj => obj.End);
+
+                EarliestStart = LowestSubEventStart < EarliestStart ? LowestSubEventStart : EarliestStart;
+                LatestEnd = HighestSubEventStart > LatestEnd ? HighestSubEventStart : LatestEnd;
+                TimeLine RefTimeLine = new TimeLine(EarliestStart, LatestEnd);
+                TimeLine LastSuccessfull = RefTimeLine.CreateCopy();
+                RefTimeLine = new TimeLine(EarliestStart, LatestEnd);
+
+                do
+                {
+                    LastSuccessfull = RefTimeLine.CreateCopy();
+                    EarliestStart = EarliestStart.AddHours(1);
+                    RefTimeLine = new TimeLine(EarliestStart, LatestEnd);
+                    --count;
+                }
+                while ((Utility.PinSubEventsToStart(AllSubEvents, RefTimeLine)) && (count > 0));
+
+                bool DidYouWork = Utility.PinSubEventsToStart(AllSubEvents, LastSuccessfull);
+
+                CreateBufferForEachEvent(AllSubEvents, LastSuccessfull);
+            }
+            
+        }
         
-        ulong ParallellizeCallsToDay(List<CalendarEvent> AllCalEvents,List<SubCalendarEvent> TotalActiveEvents, DayTimeLine[] AllDayTImeLine )
+
+        void OptimizeFirstTwentyFour(IEnumerable<SubCalendarEvent> AllSubEVents,TimeLine CurrentTwentyFour,Location_Elements InitializingLocation)
+        {
+
+        }
+        
+        ulong ParallellizeCallsToDay(List<CalendarEvent> AllCalEvents,List<SubCalendarEvent> TotalActiveEvents, DayTimeLine[] AllDayTImeLine ,bool Optimize=true)
         {
             int TotalDays = (int)AllDayTImeLine.Length;
             Now.getAllDaysForCalc();
@@ -3507,31 +3562,31 @@ namespace My24HourTimerWPF
             }
             
             
-            
-            //);
-            /*
-            DayTimeLine FirstDay = Now.firstDay;
-            DateTimeOffset ComputationStart = FirstDay.Start;
-            DateTimeOffset ComputationEnd = FirstDay.End;
-            DayTimeLine[] AllDayTImeLine = new DayTimeLine[TotalDays];
-            for (int i = 0; i < AllDayTImeLine.Length; i++)
-            { 
-                ulong myIndeUniversalIndex = Now.getDayIndexFromStartOfTime(ComputationStart);
-                AllDayTImeLine[i] = new DayTimeLine(ComputationStart, ComputationEnd, myIndeUniversalIndex, i);
-                ComputationStart=ComputationEnd;
-                ComputationEnd= ComputationEnd.AddDays(1);
-            }
-
-            ConcurrentBag<List<SubCalendarEvent>> unassignedEvents = new ConcurrentBag<List<SubCalendarEvent>>();
-             
-            for(int i=0; i<TotalDays;i++)
+            if(Optimize)
             {
-                unassignedEvents.Add(processTwentyFourHours(AllDayTImeLine[i], BagPerDay[i].ToList()));
+                ulong FirstIndex = AllDayTImeLine[0].UniversalIndex;
+                try
+                {
+                    ILookup<ulong, SubCalendarEvent> DayToSubEvent = AllRigids.ToLookup(obj => obj.UniversalDayIndex, obj => obj);
+                    foreach(IGrouping<ulong,SubCalendarEvent>eachGrouping in DayToSubEvent)
+                    {
+                        int currentIndex = (int)(eachGrouping.Key - FirstIndex);
+                        AllDayTImeLine[currentIndex].AddToSubEventList(DayToSubEvent[eachGrouping.Key]);
+                    }
+                    SortForSleep(AllDayTImeLine.Take(10));
+                }
+                catch
+                {
+                    ;
+                }
+                
             }
-            */
+            
 
             return totalNumberOfEvents;
         }
+
+        
 
 
         ILookup<ulong, SubCalendarEvent> PrepFirstTwentyFOurHours(List<CalendarEvent> AllCalEvents, TimeLine FirstTwentyFour)
@@ -11426,7 +11481,7 @@ namespace My24HourTimerWPF
             DateTimeOffset ReferenceStart = Now.calculationNow > ReferenceSubEvent.Start ? Now.calculationNow : ReferenceSubEvent.Start;
             //BusyTimeLine[] allBusySlots = CompleteSchedule.OccupiedSlots;
             //IEnumerable<BusyTimeLine> AllLesssTnanRefTime = allBusySlots.Where(obj => obj.End < ReferenceStart);
-            Procrastination procrastinateData = new Procrastination(Now.constNow, RangeOfPush);
+            Procrastination procrastinateData = new Procrastination(ReferenceSubEvent.Start, RangeOfPush);
 
             ReferenceStart = Now.UpdateNow(ReferenceStart);
             DateTimeOffset StartTimeOfProcrastinate = ReferenceStart + RangeOfPush;

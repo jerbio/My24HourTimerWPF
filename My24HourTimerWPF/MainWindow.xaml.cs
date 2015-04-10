@@ -174,15 +174,25 @@ namespace My24HourTimerWPF
 
         async private void UpdateDeadline(object sender, RoutedEventArgs e)
         {
+            
+            
+            
             DateTimeOffset EndTime = DateTimeOffset.Parse(textBox7.Text);
             DateTimeOffset EndDate = DateTime.Parse( datePicker2.SelectedDate.Value.ToShortDateString ()+" " +textBox7.Text) ;
             string EventID = textBox9.Text;
             SubCalendarEvent MySubcal= MySchedule.getSubCalendarEvent(EventID);
+            CalendarEvent myCalEvent = MySchedule.getCalendarEvent(MySubcal.SubEvent_ID.getCalendarEventID());
+
+            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> result =MySchedule.BundleChangeUpdate(EventID,myCalEvent.Name,MySubcal.Start,MySubcal.End,MySubcal.getCalendarEventRange.Start,MySubcal.getCalendarEventRange.End.AddDays(1),myCalEvent.NumberOfSplit);
+
+            //"BundleChangeUpdate"
+            /*
             string CalId=MySubcal.SubEvent_ID.getCalendarEventID();
             CalendarEvent MyCal = MySchedule.getCalendarEvent(CalId);
-            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> result = MySchedule.BundleChangeUpdate(EventID, MyCal.Name, MyCal.Start, MyCal.End.AddDays(1), MyCal.NumberOfSplit);
+            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> result = MySchedule.BundleChangeUpdate(EventID, MyCal.Name, MyCal.Start, MyCal.End.AddDays(1), MyCal.NumberOfSplit);*/
             //DateTimeOffset fullDate = new DateTimeOffset(EndDate.Year, EndDate.Month, EndDate.Day, EndTime.Hour, EndTime.Minute, EndTime.Second, new TimeSpan());
             //Tuple<CustomErrors, Dictionary<string, CalendarEvent>>result= MySchedule.UpdateDeadLine(EventID, fullDate);
+            
             await MySchedule.UpdateWithProcrastinateSchedule(result.Item2).ConfigureAwait(false);
 
         }
@@ -647,12 +657,12 @@ namespace My24HourTimerWPF
             textBlock9.Text = "...Loading";
             Stopwatch snugarrayTester = new Stopwatch();
             snugarrayTester.Start();
-            /*
+            ///*
             Task<CustomErrors> addToScheduleTask = MySchedule.AddToScheduleAndCommit(ScheduleUpdated);
             CustomErrors ScheduleUpdateMessage = await addToScheduleTask.ConfigureAwait(false);
              //*/
 
-            CustomErrors ScheduleUpdateMessage = MySchedule.AddToSchedule(ScheduleUpdated);
+            //CustomErrors ScheduleUpdateMessage = MySchedule.AddToSchedule(ScheduleUpdated);
             snugarrayTester.Stop();
             //MessageBox.Show("It took " + snugarrayTester.ElapsedMilliseconds.ToString() + "ms max thread count is ");
 
@@ -1158,7 +1168,7 @@ namespace My24HourTimerWPF
             int ProcrastinateDays = Convert.ToInt16(comboBox4.Text);
             int ProcrastinateHours = Convert.ToInt16(comboBox5.Text);
             int ProcrastinateMins = Convert.ToInt16(comboBox6.Text);
-            TimeSpan DelaySpan = new TimeSpan(ProcrastinateDays, ProcrastinateHours, ProcrastinateMins, 50);
+            TimeSpan DelaySpan = new TimeSpan(ProcrastinateDays, ProcrastinateHours, ProcrastinateMins, 0);
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ScheduleUpdateMessage;
 
             string choicePath = "";
@@ -1205,13 +1215,13 @@ namespace My24HourTimerWPF
         async private void NowButtonClick(object sender, RoutedEventArgs e)
         {
             string EventID = textBox9.Text.Trim();
-            /*
+            ///*
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ScheduleUpdateMessage=MySchedule.SetCalendarEventAsNow(EventID);
 
              await MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
              return;
             //*///
-            ///*
+            /*
             
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ScheduleUpdateMessage = MySchedule.SetEventAsNow(EventID);
             //*/
@@ -1438,7 +1448,7 @@ namespace My24HourTimerWPF
             //UserAccountDirect currentUser =  new UserAccountDebug("18");
             await currentUser.Login();
             DateTimeOffset refNow=DateTimeOffset.Now;
-            refNow = DateTimeOffset.Parse("4/1/2015 12:52:00 PM");
+            refNow = DateTimeOffset.Parse("4/10/2015 11:19:00 AM");
             //MySchedule = new Schedule(currentUser, refNow);
 
 

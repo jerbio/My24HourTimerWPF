@@ -1573,7 +1573,6 @@ namespace TilerElements
             RetValue.UserDeleted = this.isUserDeleted;
             RetValue.CompletedCount = this.CompletionCount;
             RetValue.DeletedCount = this.DeletionCount;
-            RetValue.ProfileOfProcrastination = this.ProfileOfProcrastination.CreateCopy();
             RetValue.ProfileOfNow = this.ProfileOfNow.CreateCopy();
             RetValue.otherPartyID = this.ThirdPartyID;// == this.null ? null : otherPartyID.ToString();
             RetValue.UserIDs = this.getAllUserIDs();//.ToList();

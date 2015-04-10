@@ -414,6 +414,7 @@ namespace TilerElements
             retValue.CalendarEventRange = CalendarEventData.RangeTimeLine;
             TimeSpan SpanShift = ProcrastinationData.PreferredStartTime - retValue.Start;
             */
+            retValue.CalendarEventRange = new TimeLine(ProcrastinationData.PreferredStartTime, retValue.CalendarEventRange.End);
             TimeSpan SpanShift = (retValue.CalendarEventRange.End - retValue.RangeSpan) - retValue.Start;
             retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventData.ID);
             retValue.shiftEvent(SpanShift,true);
@@ -433,8 +434,8 @@ namespace TilerElements
         virtual protected SubCalendarEvent getCalulationCopy()
         {
             SubCalendarEvent retValue = new SubCalendarEvent();
-            retValue.BusyFrame = this.ActiveSlot;
-            retValue.CalendarEventRange = this.getCalendarEventRange;
+            retValue.BusyFrame = this.ActiveSlot.CreateCopy();
+            retValue.CalendarEventRange = this.getCalendarEventRange.CreateCopy();
             retValue.FromRepeatEvent = this.FromRepeat;
             retValue.EventName = this.Name;
             retValue.EventDuration = this.ActiveDuration;
@@ -447,14 +448,14 @@ namespace TilerElements
             retValue.EventPreDeadline = this.PreDeadline;
             retValue.EventScore = this.Score;
             retValue.isRestricted = this.isEventRestricted;
-            retValue.LocationData = this.myLocation;
+            retValue.LocationData = this.myLocation.CreateCopy();
             retValue.OldPreferredIndex = this.OldUniversalIndex;
             retValue.otherPartyID = this.ThirdPartyID;
             retValue.preferredDayIndex = this.UniversalDayIndex;
             retValue.PrepTime = this.Preparation;
             retValue.Priority = this.EventPriority;
             retValue.ProfileOfNow = this.ProfileOfNow;
-            retValue.ProfileOfProcrastination = this.ProfileOfProcrastination;
+            retValue.ProfileOfProcrastination = this.ProfileOfProcrastination.CreateCopy();
             retValue.RepetitionFlag = this.FromRepeat;
             retValue.RigidSchedule = this.Rigid;
             retValue.StartDateTime = this.Start;

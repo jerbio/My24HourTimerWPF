@@ -188,12 +188,12 @@ namespace TilerElements
             RetValue.UniqueID = EventID.GenerateCalendarEvent();
             //RetValue.EventSequence = this.EventSequence;
             RetValue.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
-            RetValue.UiParams = this.UIParam;
+            RetValue.UiParams = this.UIParam.createCopy();
             RetValue.DataBlob = this.Notes;
             RetValue.Enabled = this.isEnabled;
             RetValue.isRestricted = this.isEventRestricted;
             RetValue.LocationData = this.myLocation;//hack you might need to make copy
-            RetValue.ProfileOfProcrastination = this.ProcrastinationInfo;
+            RetValue.ProfileOfProcrastination = this.ProcrastinationInfo.CreateCopy();
             RetValue.DeadlineElapsed = this.isDeadlineElapsed;
             RetValue.UserDeleted = this.isUserDeleted;
             RetValue.CompletedCount = this.CompletionCount;
@@ -202,8 +202,8 @@ namespace TilerElements
             RetValue.ProfileOfNow = this.ProfileOfNow.CreateCopy();
             RetValue.otherPartyID = this.ThirdPartyID;// == this.null ? null : otherPartyID.ToString();
             RetValue.UserIDs = this.getAllUserIDs();//.ToList();
-            RetValue.ProfileOfNow = this.ProfileOfNow;
-            RetValue.ProfileOfRestriction = this.ProfileOfRestriction;
+            RetValue.ProfileOfNow = this.ProfileOfNow.CreateCopy();
+            RetValue.ProfileOfRestriction = this.ProfileOfRestriction.createCopy();
             RetValue.UpdateLocationMatrix(RetValue.LocationData);
             return RetValue;
         }

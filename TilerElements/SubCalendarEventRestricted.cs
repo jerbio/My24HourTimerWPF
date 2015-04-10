@@ -354,7 +354,7 @@ namespace TilerElements
         {
             SubCalendarEventRestricted retValue = new SubCalendarEventRestricted();
             retValue.BusyFrame = this.ActiveSlot;
-            retValue.CalendarEventRange = this.getCalendarEventRange;
+            retValue.CalendarEventRange = this.getCalendarEventRange.CreateCopy();
             retValue.FromRepeatEvent = this.FromRepeat;
             retValue.EventName = this.Name;
             retValue.EventDuration = this.ActiveDuration;
@@ -373,8 +373,8 @@ namespace TilerElements
             retValue.preferredDayIndex = this.UniversalDayIndex;
             retValue.PrepTime = this.Preparation;
             retValue.Priority = this.EventPriority;
-            retValue.ProfileOfNow = this.ProfileOfNow;
-            retValue.ProfileOfProcrastination = this.ProfileOfProcrastination;
+            retValue.ProfileOfNow = this.ProfileOfNow.CreateCopy();
+            retValue.ProfileOfProcrastination = this.ProfileOfProcrastination.CreateCopy();
             retValue.RepetitionFlag = this.FromRepeat;
             retValue.RigidSchedule = this.Rigid;
             retValue.StartDateTime = this.Start;
@@ -405,7 +405,7 @@ namespace TilerElements
             SubCalendarEventRestricted retValue = (SubCalendarEventRestricted)thisCopy;
 
 
-            retValue.HardCalendarEventRange= CalendarEventData.RangeTimeLine;
+            retValue.HardCalendarEventRange= new TimeLineRestricted(ProcrastinationData.PreferredStartTime, CalendarEventData.RangeTimeLine.End,retValue.ProfileOfRestriction);
             TimeSpan SpanShift = ProcrastinationData.PreferredStartTime - retValue.Start;
             retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventData.ID);
             retValue.initializeCalendarEventRange(retValue.ProfileOfRestriction, CalendarEventData.RangeTimeLine);

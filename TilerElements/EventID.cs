@@ -140,17 +140,23 @@ namespace TilerElements
 
 
 
-        private void AddNewComponentID(int index)
-        { 
-            string id= EventIDGenerator.generate().ToString();
+        private void AddNewComponentID(int index, long Sequence)
+        {
+            AddNewComponentID(index, Sequence.ToString());
+        }
+
+        private void AddNewComponentID(int index, string Sequence)
+        {
+            string id = EventIDGenerator.generate().ToString();
             LayerID[index] = id;
+            LayerID[3] = Sequence;
             s_FullID = string.Join(delimiter, LayerID);
         }
 
-        public static EventID GenerateCalendarEvent()
+        public static EventID GenerateCalendarEvent(long Sequence)
         {
             EventID retValue = new EventID("0_7_0_0");
-            retValue.AddNewComponentID(0);
+            retValue.AddNewComponentID(0, Sequence);
             return retValue;
         }
 
@@ -192,41 +198,43 @@ namespace TilerElements
         }
 
 
-        public static EventID GenerateRepeatCalendarEvent(string ParentID)//,int weekDay=7)
+
+
+        public static EventID GenerateRepeatCalendarEvent(string ParentID, long Sequence)//,int weekDay=7)
         {
             EventID retValue = new EventID(ParentID);
             {
-                retValue.AddNewComponentID(2);
+                retValue.AddNewComponentID(2, Sequence);
                 return retValue;
             }
         }
 
-        public static EventID GenerateRepeatDayCalendarEvent(string ParentID,int weekDay)
+        public static EventID GenerateRepeatDayCalendarEvent(string ParentID,int weekDay,long sequence)
         {
             EventID retValue = new EventID(ParentID);
             {
                 retValue.LayerID[1]=weekDay.ToString();
-                retValue.AddNewComponentID(2);
+                retValue.AddNewComponentID(2,sequence);
                 return retValue;
             }
         }
 
-        public static EventID GenerateSubCalendarEvent(string ParentID)
+        public static EventID GenerateSubCalendarEvent(string ParentID, long sequence)
         {
             EventID retValue = new EventID(ParentID);
             //if (retValue.LayerID.Count == 3)
             {
-                retValue.AddNewComponentID(3);
+                retValue.AddNewComponentID(3, sequence);
                 return retValue;
             }
         }
 
-        public static EventID GenerateSubCalendarEvent(EventID ParentID)
+        public static EventID GenerateSubCalendarEvent(EventID ParentID, long sequence)
         {
             EventID retValue = new EventID(ParentID.ToString());
             //if (retValue.LayerID.Count == 3)
             {
-                retValue.AddNewComponentID(3);
+                retValue.AddNewComponentID(3, sequence);
                 return retValue;
             }
         }

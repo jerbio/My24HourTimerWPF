@@ -13,7 +13,7 @@ namespace TilerElements
         {
             StartDateTime= InterFerringEvents.OrderBy(obj => obj.Start).First().Start;
             EndDateTime = InterFerringEvents.OrderByDescending(obj => obj.End).First().End;
-            UniqueID=EventID.GenerateSubCalendarEvent(EventID.GenerateCalendarEvent().ToString());
+            UniqueID = EventID.GenerateSubCalendarEvent(EventID.GenerateCalendarEvent(0).ToString(),0);
             BusyFrame = new BusyTimeLine(UniqueID.ToString(), StartDateTime, EndDateTime);
             CalendarEventRange = new TimeLine(StartDateTime,EndDateTime);
             CalendarEvent nullEvent = CalendarEvent.getEmptyCalendarEvent(UniqueID, StartDateTime, EndDateTime);

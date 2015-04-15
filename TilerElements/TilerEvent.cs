@@ -20,7 +20,7 @@ namespace TilerElements
         protected Location_Elements LocationInfo;
         protected EventDisplay UiParams = new EventDisplay();
         protected MiscData DataBlob = new MiscData();
-        protected bool RepetitionFlag;
+        //protected bool RepetitionFlag;
         protected bool RigidSchedule;
         protected TimeSpan EventDuration;
         protected string otherPartyID;
@@ -54,6 +54,16 @@ namespace TilerElements
         public void updateEventName(string NewName)
         {
             EventName = NewName;
+        }
+
+        internal void setAsUserDeleted()
+        {
+            UserDeleted = true;
+        }
+
+        internal void disableAsUserDeleted()
+        {
+            UserDeleted = false;
         }
 
         abstract public void updateRepetitionIndex(long RepetitionIndex);

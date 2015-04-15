@@ -10,14 +10,14 @@ namespace TilerElements
         protected TimeLine HardCalendarEventRange;//this does not include the restriction
         protected RestrictionProfile ProfileOfRestriction;
         #region Constructor
-        public SubCalendarEventRestricted(string CalEventID, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile constrictionProgile, TimeLine HardCalEventTimeRange, bool isEnabled, bool isComplete, ConflictProfile conflictingEvents, bool RigidFlag,TimeSpan PrepTimeData ,TimeSpan PreDeadline, Location_Elements Locationdata, EventDisplay UiData, MiscData Notes, int Priority = 0, bool isDeadlineElapsed = false, string thirdPartyID = "", ConflictProfile conflicts = null)
+        public SubCalendarEventRestricted(string CalEventID,long Sequence, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile constrictionProgile, TimeLine HardCalEventTimeRange, bool isEnabled, bool isComplete, ConflictProfile conflictingEvents, bool RigidFlag,TimeSpan PrepTimeData ,TimeSpan PreDeadline, Location_Elements Locationdata, EventDisplay UiData, MiscData Notes, int Priority = 0, bool isDeadlineElapsed = false, string thirdPartyID = "", ConflictProfile conflicts = null)
         { 
             isRestricted =true;
             StartDateTime = Start;
             EndDateTime = End;
             EventDuration = EndDateTime - StartDateTime;
-            
-            UniqueID = EventID.GenerateSubCalendarEvent(CalEventID);
+            RepetitionSequence = Sequence;
+            UniqueID = EventID.GenerateSubCalendarEvent(CalEventID, Sequence);
             ProfileOfRestriction = constrictionProgile;
             HardCalendarEventRange = HardCalEventTimeRange;
             initializeCalendarEventRange(ProfileOfRestriction,HardCalendarEventRange);
@@ -202,7 +202,7 @@ namespace TilerElements
             copy.PrepTime = this.PrepTime;
             copy.Priority = this.Priority;
             copy.ProfileOfRestriction = this.ProfileOfRestriction.createCopy();
-            copy.RepetitionFlag = this.RepetitionFlag;
+            //copy.RepetitionFlag = this.RepetitionFlag;
             copy.RigidSchedule = this.RigidSchedule;
             copy.StartDateTime = this.StartDateTime;
             copy.UiParams = this.UiParams.createCopy();
@@ -315,49 +315,92 @@ namespace TilerElements
                 return ProfileOfRestriction;
             }
         }
-        
-        public override bool UpdateThis(SubCalendarEvent SubEventEntryData)
+
+        public override bool UpdateThis(SubCalendarEvent SubEventEntryData, bool force = false)
         {
-            if ((this.ID == SubEventEntryData.ID) && canExistWithinTimeLine(SubEventEntryData.getCalendarEventRange))
+            if ((this.ID == SubEventEntryData.ID))
             {
-                SubCalendarEventRestricted SubEventEntry = (SubCalendarEventRestricted)SubEventEntryData;
-                this.BusyFrame = SubEventEntry.ActiveSlot;
-                this.CalendarEventRange = SubEventEntry.getCalendarEventRange;
-                this.FromRepeatEvent = SubEventEntry.FromRepeat;
-                this.EventName = SubEventEntry.Name;
-                this.EventDuration = SubEventEntry.ActiveDuration;
-                this.Complete = SubEventEntry.isComplete;
-                this.ConflictingEvents = SubEventEntry.Conflicts;
-                this.DataBlob = SubEventEntry.Notes;
-                this.DeadlineElapsed = SubEventEntry.isDeadlineElapsed;
-                this.Enabled = SubEventEntry.isEnabled;
-                this.EndDateTime = SubEventEntry.End;
-                this.EventPreDeadline = SubEventEntry.PreDeadline;
-                this.EventScore = SubEventEntry.Score;
-                //this.isRestricted = true;
-                this.LocationInfo = SubEventEntry.myLocation;
-                this.OldPreferredIndex = SubEventEntry.OldUniversalIndex;
-                this.otherPartyID = SubEventEntry.ThirdPartyID;
-                this.preferredDayIndex = SubEventEntry.UniversalDayIndex;
-                this.PrepTime = SubEventEntry.Preparation;
-                this.Priority = SubEventEntry.EventPriority;
-                this.ProfileOfNow = SubEventEntry.ProfileOfNow;
-                this.ProfileOfProcrastination = SubEventEntry.ProfileOfProcrastination;
-                this.RepetitionFlag = SubEventEntry.FromRepeat;
-                //this.RigidSchedule = this.rig
-                this.StartDateTime = SubEventEntry.Start;
-                this.UiParams = SubEventEntry.UIParam;
-                this.UniqueID = SubEventEntry.SubEvent_ID;
-                this.UserDeleted = SubEventEntry.isUserDeleted;
-                this.UserIDs = SubEventEntry.getAllUserIDs();
-                this.Vestige = SubEventEntry.isVestige;
-                this.otherPartyID = SubEventEntry.otherPartyID;
-                this.ProfileOfRestriction = SubEventEntry.ProfileOfRestriction;
-                this.CreatorIDInfo = SubEventEntry.CreatorIDInfo;
-                this.Semantics = SubEventEntry.Semantics;
-                this._UsedTime = SubEventEntry._UsedTime;
-                return true;
+                if(force)
+                {
+                    SubCalendarEventRestricted SubEventEntry = (SubCalendarEventRestricted)SubEventEntryData;
+                    this.BusyFrame = SubEventEntry.ActiveSlot;
+                    this.CalendarEventRange = SubEventEntry.getCalendarEventRange;
+                    this.FromRepeatEvent = SubEventEntry.FromRepeat;
+                    this.EventName = SubEventEntry.Name;
+                    this.EventDuration = SubEventEntry.ActiveDuration;
+                    this.Complete = SubEventEntry.isComplete;
+                    this.ConflictingEvents = SubEventEntry.Conflicts;
+                    this.DataBlob = SubEventEntry.Notes;
+                    this.DeadlineElapsed = SubEventEntry.isDeadlineElapsed;
+                    this.Enabled = SubEventEntry.isEnabled;
+                    this.EndDateTime = SubEventEntry.End;
+                    this.EventPreDeadline = SubEventEntry.PreDeadline;
+                    this.EventScore = SubEventEntry.Score;
+                    //this.isRestricted = true;
+                    this.LocationInfo = SubEventEntry.myLocation;
+                    this.OldPreferredIndex = SubEventEntry.OldUniversalIndex;
+                    this.otherPartyID = SubEventEntry.ThirdPartyID;
+                    this.preferredDayIndex = SubEventEntry.UniversalDayIndex;
+                    this.PrepTime = SubEventEntry.Preparation;
+                    this.Priority = SubEventEntry.EventPriority;
+                    this.ProfileOfNow = SubEventEntry.ProfileOfNow;
+                    this.ProfileOfProcrastination = SubEventEntry.ProfileOfProcrastination;
+                    //this.RepetitionFlag = SubEventEntry.FromRepeat;
+                    this.RigidSchedule = SubEventEntry.Rigid;
+                    this.StartDateTime = SubEventEntry.Start;
+                    this.UiParams = SubEventEntry.UIParam;
+                    this.UniqueID = SubEventEntry.SubEvent_ID;
+                    this.UserDeleted = SubEventEntry.isUserDeleted;
+                    this.UserIDs = SubEventEntry.getAllUserIDs();
+                    this.Vestige = SubEventEntry.isVestige;
+                    this.otherPartyID = SubEventEntry.otherPartyID;
+                    this.ProfileOfRestriction = SubEventEntry.ProfileOfRestriction;
+                    return true;
+                }
+                else
+                {
+                    if (canExistWithinTimeLine(SubEventEntryData.getCalendarEventRange))
+                    {
+                        SubCalendarEventRestricted SubEventEntry = (SubCalendarEventRestricted)SubEventEntryData;
+                        this.BusyFrame = SubEventEntry.ActiveSlot;
+                        this.CalendarEventRange = SubEventEntry.getCalendarEventRange;
+                        this.FromRepeatEvent = SubEventEntry.FromRepeat;
+                        this.EventName = SubEventEntry.Name;
+                        this.EventDuration = SubEventEntry.ActiveDuration;
+                        this.Complete = SubEventEntry.isComplete;
+                        this.ConflictingEvents = SubEventEntry.Conflicts;
+                        this.DataBlob = SubEventEntry.Notes;
+                        this.DeadlineElapsed = SubEventEntry.isDeadlineElapsed;
+                        this.Enabled = SubEventEntry.isEnabled;
+                        this.EndDateTime = SubEventEntry.End;
+                        this.EventPreDeadline = SubEventEntry.PreDeadline;
+                        this.EventScore = SubEventEntry.Score;
+                        //this.isRestricted = true;
+                        this.LocationInfo = SubEventEntry.myLocation;
+                        this.OldPreferredIndex = SubEventEntry.OldUniversalIndex;
+                        this.otherPartyID = SubEventEntry.ThirdPartyID;
+                        this.preferredDayIndex = SubEventEntry.UniversalDayIndex;
+                        this.PrepTime = SubEventEntry.Preparation;
+                        this.Priority = SubEventEntry.EventPriority;
+                        this.ProfileOfNow = SubEventEntry.ProfileOfNow;
+                        this.ProfileOfProcrastination = SubEventEntry.ProfileOfProcrastination;
+                        //this.RepetitionFlag = SubEventEntry.FromRepeat;
+                        this.RigidSchedule = SubEventEntry.Rigid;
+                        this.StartDateTime = SubEventEntry.Start;
+                        this.UiParams = SubEventEntry.UIParam;
+                        this.UniqueID = SubEventEntry.SubEvent_ID;
+                        this.UserDeleted = SubEventEntry.isUserDeleted;
+                        this.UserIDs = SubEventEntry.getAllUserIDs();
+                        this.Vestige = SubEventEntry.isVestige;
+                        this.otherPartyID = SubEventEntry.otherPartyID;
+                        this.ProfileOfRestriction = SubEventEntry.ProfileOfRestriction;
+                        return true;
+                    }
+                    throw new Exception("Error Detected: Trying to update SubCalendarEventRestricted that cant fit in Calendar event range");
+                }
             }
+
+            
 
             throw new Exception("Error Detected: Trying to update SubCalendar Event with non matching ID");
         }
@@ -387,7 +430,7 @@ namespace TilerElements
             retValue.Priority = this.EventPriority;
             retValue.ProfileOfNow = this.ProfileOfNow.CreateCopy();
             retValue.ProfileOfProcrastination = this.ProfileOfProcrastination.CreateCopy();
-            retValue.RepetitionFlag = this.FromRepeat;
+            //retValue.RepetitionFlag = this.FromRepeat;
             retValue.RigidSchedule = this.Rigid;
             retValue.StartDateTime = this.Start;
             retValue.UiParams = this.UIParam;
@@ -405,7 +448,7 @@ namespace TilerElements
         {
             SubCalendarEventRestricted retValue = (SubCalendarEventRestricted)getCalulationCopy();
             TimeSpan SpanShift = NowData.PreferredTime - retValue.Start;
-            retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventID.ToString());
+            retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventID.ToString(),RepetitionSequence);
             retValue.shiftEvent(SpanShift, true);
             retValue.RigidSchedule = true;
             return retValue;
@@ -419,7 +462,7 @@ namespace TilerElements
 
             retValue.HardCalendarEventRange= new TimeLineRestricted(ProcrastinationData.PreferredStartTime, CalendarEventData.RangeTimeLine.End,retValue.ProfileOfRestriction);
             TimeSpan SpanShift = ProcrastinationData.PreferredStartTime - retValue.Start;
-            retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventData.ID);
+            retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventData.ID, RepetitionSequence);
             retValue.initializeCalendarEventRange(retValue.ProfileOfRestriction, CalendarEventData.RangeTimeLine);
             retValue.shiftEvent(SpanShift, true);
             return retValue;

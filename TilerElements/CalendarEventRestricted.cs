@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace TilerElements
 {
@@ -31,7 +34,7 @@ namespace TilerElements
             }
             Complete = isCompleted;
             Enabled = isEnabled;
-            UniqueID = EventID.GenerateCalendarEvent();
+            UniqueID = EventID.GenerateCalendarEvent(RepetitionSequence);
             UpdateLocationMatrix(Location);
             UiParams = UiSettings;
             DataBlob = NoteData;
@@ -79,10 +82,10 @@ namespace TilerElements
             InstantiateSubEvents();
         }
 
-        static public CalendarEventRestricted InstantiateRepeatedCandidate(string Name, DateTimeOffset Start, DateTimeOffset End, EventID CalendarEventID, RestrictionProfile restrictionProfile, TimeSpan Duration, int division, Location_Elements Location,EventDisplay UiSettings,bool RigidFlag,TimeSpan preparation, string thirdPartyID)
+        static public CalendarEventRestricted InstantiateRepeatedCandidate(string Name, DateTimeOffset Start, DateTimeOffset End, EventID CalendarEventID, RestrictionProfile restrictionProfile, TimeSpan Duration, DateTimeOffset OriginalStartData,int division, Location_Elements Location, EventDisplay UiSettings, bool RigidFlag, TimeSpan preparation, string thirdPartyID, long NextSequence, ConcurrentDictionary<DateTimeOffset, CalendarEvent> OrginalStartToCalendarEvent)
         { 
             CalendarEventRestricted retValue = new CalendarEventRestricted();
-            retValue .UniqueID = EventID.GenerateRepeatCalendarEvent(CalendarEventID.ToString());
+            retValue.UniqueID = EventID.GenerateRepeatCalendarEvent(CalendarEventID.ToString(), NextSequence);
             retValue .EventName =Name;
             retValue.EventDuration = Duration;
             retValue.StartDateTime = Start;
@@ -104,7 +107,12 @@ namespace TilerElements
             
             retValue.UpdateLocationMatrix(Location);
             retValue.InstantiateSubEvents();
-            retValue.OriginalStart = Start;
+            retValue.OriginalStart = OriginalStartData;
+
+            while (!OrginalStartToCalendarEvent.TryAdd(OriginalStartData, retValue))
+            {
+                Thread.Sleep(10);
+            }
             
             return retValue;
         }
@@ -119,7 +127,7 @@ namespace TilerElements
             MyCalendarEventCopy.EventPreDeadline = new TimeSpan(EventPreDeadline.Ticks);
             MyCalendarEventCopy.PrepTime = new TimeSpan(PrepTime.Ticks);
             MyCalendarEventCopy.Priority = Priority;
-            MyCalendarEventCopy.RepetitionFlag = RepetitionFlag;
+            //MyCalendarEventCopy.RepetitionFlag = RepetitionFlag;
             MyCalendarEventCopy.EventRepetition = EventRepetition.CreateCopy();// EventRepetition != null ? EventRepetition.CreateCopy() : EventRepetition;
             MyCalendarEventCopy.Complete = this.Complete;
             MyCalendarEventCopy.RigidSchedule = RigidSchedule;//hack
@@ -150,10 +158,10 @@ namespace TilerElements
             {
                 MyCalendarEventCopy.UniqueID = UniqueID;//hack
             }
-
+            int counter = 0;
             foreach (SubCalendarEventRestricted eachSubCalendarEvent in this.SubEvents.Values)
             {
-                MyCalendarEventCopy.SubEvents.Add(eachSubCalendarEvent.SubEvent_ID, eachSubCalendarEvent.createCopy(EventID.GenerateSubCalendarEvent(MyCalendarEventCopy.UniqueID) ));
+                MyCalendarEventCopy.SubEvents.Add(eachSubCalendarEvent.SubEvent_ID, eachSubCalendarEvent.createCopy(EventID.GenerateSubCalendarEvent(MyCalendarEventCopy.UniqueID, ++counter) ));
             }
 
             MyCalendarEventCopy.SchedulStatus = SchedulStatus;
@@ -170,7 +178,7 @@ namespace TilerElements
             {
                 DateTimeOffset SubStart = this.Start;
                 DateTimeOffset SubEnd = Start.Add(TimePerSplit);
-                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(UniqueID.ToString(), SubStart, SubEnd, ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), RigidSchedule, PrepTime, EventPreDeadline, LocationInfo, UiParams, DataBlob, Priority, DeadlineElapsed, ThirdPartyID);
+                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(UniqueID.ToString(),i+1, SubStart, SubEnd, ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), RigidSchedule, PrepTime, EventPreDeadline, LocationInfo, UiParams, DataBlob, Priority, DeadlineElapsed, ThirdPartyID);
                 SubEvents.Add(newEvent.SubEvent_ID, newEvent);
             }
             
@@ -193,13 +201,13 @@ namespace TilerElements
             RetValue.EventPreDeadline = this.PreDeadline;
             RetValue.PrepTime = this.Preparation;
             RetValue.Priority = this.EventPriority;
-            RetValue.RepetitionFlag = this.RepetitionStatus;
+            //RetValue.RepetitionFlag = this.RepetitionStatus;
             RetValue.EventRepetition = this.Repeat;// EventRepetition != this.null ? EventRepetition.CreateCopy() : EventRepetition;
             RetValue.Complete = this.isComplete;
             RetValue.RigidSchedule = this.Rigid;//hack
             RetValue.Splits = this.NumberOfSplit;
             RetValue.TimePerSplit = this.EachSplitTimeSpan;
-            RetValue.UniqueID = EventID.GenerateCalendarEvent();
+            RetValue.UniqueID = EventID.GenerateCalendarEvent(0);
             //RetValue.EventSequence = this.EventSequence;
             RetValue.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
             RetValue.UiParams = this.UIParam.createCopy();

@@ -3376,7 +3376,7 @@ namespace My24HourTimerWPF
                 DateTimeOffset EarliestStart = myTimeLine.Start;// AllSubEvents.Max(obj => obj.Start);
                 DateTimeOffset LatestEnd = myTimeLine.End;//AllSubEvents.Max(obj=>obj.End);
                 
-                int count = 6;
+                int count = 10;
 
                 DateTimeOffset LowestSubEventStart = AllSubEvents.Min(obj => obj.Start);
                 DateTimeOffset HighestSubEventStart = AllSubEvents.Max(obj => obj.End);
@@ -3635,6 +3635,8 @@ namespace My24HourTimerWPF
 
             return retVal_Dict;
         }
+
+
         List<SubCalendarEvent> processTwentyFourHours(DayTimeLine myDayTimeLine, List<SubCalendarEvent> AllSubEvents)//,List<BusyTimeLine>BusySlots)
         {
             ++CountCall;

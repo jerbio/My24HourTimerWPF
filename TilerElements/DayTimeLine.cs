@@ -63,7 +63,7 @@ namespace TilerElements
         }
         public void updateOccupancyOfTimeLine()
         {
-            OccupancyOfTImeLine = ((double)SubCalendarEvent.TotalActiveDuration(AllocatedSubEvents.Values).Ticks / (double)TimelineSpan.Ticks);
+            OccupancyOfTImeLine = ((double)(SubCalendarEvent.TotalActiveDuration(AllocatedSubEvents.Values).Ticks+ ActiveTimeSlots.Sum(obj=>obj.BusyTimeSpan.Ticks)) / (double)TimelineSpan.Ticks);
             freeSpace = TimelineSpan - SubCalendarEvent.TotalActiveDuration(AllocatedSubEvents.Values);
         }
 

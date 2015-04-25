@@ -1599,6 +1599,8 @@ namespace TilerElements
             retValue.StartDateTime = NowProfileData.PreferredTime;
             retValue.EventSequence = new TimeLine(retValue.StartDateTime, retValue.EndDateTime);
             SubCalendarEvent ProcrastinatonCopy = this.ActiveSubEvents[0].getNowCopy(retValue.UniqueID, NowProfileData);
+            retValue.EndDateTime = ProcrastinatonCopy.End;
+            retValue.RigidSchedule = true;
             retValue.SubEvents.Add(ProcrastinatonCopy.SubEvent_ID, ProcrastinatonCopy);
             return retValue;
         }

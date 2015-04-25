@@ -55,7 +55,7 @@ namespace TilerElements
             RigidSchedule = false;
             Splits = 1;
             LocationInfo = new Location_Elements();
-            UniqueID = EventID.GenerateCalendarEvent(RepetitionIndex);
+            UniqueID = EventID.GenerateCalendarEvent();
             SubEvents = new Dictionary<EventID, SubCalendarEvent>();
             SchedulStatus = false;
             otherPartyID = "";
@@ -80,7 +80,7 @@ namespace TilerElements
             RigidSchedule = false;
             Splits = 1;
             LocationInfo = new Location_Elements();
-            UniqueID = EventID.GenerateCalendarEvent(RepetitionIndex);
+            UniqueID = EventID.GenerateCalendarEvent();
             SubEvents = new Dictionary<EventID, SubCalendarEvent>();
             SchedulStatus = false;
             otherPartyID = "";
@@ -154,7 +154,7 @@ namespace TilerElements
             StartDateTime = MyUpdated.StartDateTime;
             EndDateTime = MyUpdated.End;
             EventSequence = new TimeLine(StartDateTime, EndDateTime);
-            EventDuration = MyUpdated.ActiveDuration;
+            EventDuration = MyUpdated.Duration;
             Splits = MyUpdated.Splits;
             PrepTime = MyUpdated.PrepTime;
             EventPreDeadline = MyUpdated.PreDeadline;
@@ -216,25 +216,19 @@ namespace TilerElements
             Complete = CompletionFlag;
             RepetitionSequence = RepeatIndex;
             OriginalStart = OriginalStartData;
+            TimePerSplit = TimeSpan.FromTicks(((EventDuration.Ticks / Splits)));
+            Splits = EventSplit;
 
-            if (EventRepetition.Enable)
-            {
-                Splits = EventSplit;
-                TimePerSplit = new TimeSpan();
-            }
-            else
-            {
-                Splits = EventSplit;
-                TimePerSplit = TimeSpan.FromTicks(((EventDuration.Ticks / Splits)));
-            }
             SubEvents = new Dictionary<EventID, SubCalendarEvent>();
-            for (int i = 0; i < Splits; i++)
+            if (!EventRepetition.Enable)
             {
-                //(TimeSpan Event_Duration, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, Location EventLocation =null, TimeLine RangeOfSubCalEvent = null)
-                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(TimePerSplit, (EndDateTime - TimePerSplit), this.End, new TimeSpan(), OriginalStartData, UniqueID.ToString(),RigidSchedule, this.isEnabled, this.UiParams, this.Notes, this.Complete, i+1, EventLocation, this.RangeTimeLine);
-                SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
+                for (int i = 0; i < Splits; i++)
+                {
+                    //(TimeSpan Event_Duration, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, Location EventLocation =null, TimeLine RangeOfSubCalEvent = null)
+                    SubCalendarEvent newSubCalEvent = new SubCalendarEvent(TimePerSplit, (EndDateTime - TimePerSplit), this.End, new TimeSpan(), OriginalStartData, UniqueID.ToString(),RigidSchedule, this.isEnabled, this.UiParams, this.Notes, this.Complete, i+1, EventLocation, this.RangeTimeLine);
+                    SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
+                }
             }
-
             EventSequence = new TimeLine(StartDateTime, EndDateTime);
             UpdateLocationMatrix(EventLocation);
         }
@@ -264,33 +258,26 @@ namespace TilerElements
             LocationInfo = EventLocation;
             EventRepetition = EventRepetitionEntry;
             RepetitionSequence = RepetitionIndexData;
-            UniqueID = EventID.GenerateCalendarEvent(RepetitionSequence);
+            UniqueID = EventID.GenerateCalendarEvent();
             EventRepetition = EventRepetitionEntry;
             UiParams = UiData;
             DataBlob = NoteData;
             Complete = CompletionFlag;
             OriginalStart = OriginalStartData;
+            Splits = EventSplit;
+            TimePerSplit = TimeSpan.FromTicks(((EventDuration.Ticks / Splits)));
             
-
-            if (EventRepetition.Enable)
-            {
-                Splits = EventSplit;
-                TimePerSplit = new TimeSpan();
-            }
-            else
-            {
-                Splits = EventSplit;
-                TimePerSplit = TimeSpan.FromTicks(((EventDuration.Ticks / Splits)));
-            }
             //IAppDomainSetup n
 
             SubEvents = new Dictionary<EventID, SubCalendarEvent>();
-            for (int i = 0; i < Splits; i++)
+            if (!EventRepetition.Enable)
             {
-                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(TimePerSplit, (EndDateTime - TimePerSplit), this.End, new TimeSpan(), OriginalStart, UniqueID.ToString(), RigidSchedule, this.Enabled, this.UiParams, this.Notes, this.Complete, i+1, EventLocation, this.RangeTimeLine); //new SubCalendarEvent(CalendarEventID);
-                SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
+                    for (int i = 0; i < Splits; i++)
+                {
+                    SubCalendarEvent newSubCalEvent = new SubCalendarEvent(TimePerSplit, (EndDateTime - TimePerSplit), this.End, new TimeSpan(), OriginalStart, UniqueID.ToString(), RigidSchedule, this.Enabled, this.UiParams, this.Notes, this.Complete, i+1, EventLocation, this.RangeTimeLine); //new SubCalendarEvent(CalendarEventID);
+                    SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
+                }
             }
-
             
             
             EventSequence = new TimeLine(StartDateTime, EndDateTime);
@@ -341,7 +328,10 @@ namespace TilerElements
             RetValue.Complete = CompletionFlag;
             RetValue.RepetitionSequence = RepeatIndex;
             RetValue.OriginalStart = OriginalStartData;
-
+            RetValue.Splits = EventSplit;
+            RetValue.TimePerSplit = TimeSpan.FromTicks(((RetValue.EventDuration.Ticks / RetValue.Splits)));
+            
+            /*
             if (RetValue.EventRepetition.Enable)
             {
                 RetValue.Splits = EventSplit;
@@ -350,16 +340,19 @@ namespace TilerElements
             else
             {
                 RetValue.Splits = EventSplit;
-                RetValue.TimePerSplit = TimeSpan.FromTicks(((RetValue.EventDuration.Ticks / RetValue.Splits)));
             }
+            */
             RetValue.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
-            for (int i = 0; i < RetValue.Splits; i++)
-            {
-                //(TimeSpan Event_Duration, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, Location EventLocation =null, TimeLine RangeOfSubCalEvent = null)
-                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(RetValue.TimePerSplit, (RetValue.EndDateTime - RetValue.TimePerSplit), RetValue.End, new TimeSpan(), OriginalStartData, RetValue.UniqueID.ToString(), RetValue.RigidSchedule, RetValue.isEnabled, RetValue.UiParams, RetValue.Notes, RetValue.Complete, i+1, EventLocation, RetValue.RangeTimeLine);
-                RetValue.SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
-            }
 
+            if (!RetValue.EventRepetition.Enable)
+            { 
+                for (int i = 0; i < RetValue.Splits; i++)
+                {
+                    //(TimeSpan Event_Duration, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, Location EventLocation =null, TimeLine RangeOfSubCalEvent = null)
+                    SubCalendarEvent newSubCalEvent = new SubCalendarEvent(RetValue.TimePerSplit, (RetValue.EndDateTime - RetValue.TimePerSplit), RetValue.End, new TimeSpan(), OriginalStartData, RetValue.UniqueID.ToString(), RetValue.RigidSchedule, RetValue.isEnabled, RetValue.UiParams, RetValue.Notes, RetValue.Complete, i+1, EventLocation, RetValue.RangeTimeLine);
+                    RetValue.SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
+                }
+            }
             RetValue.EventSequence = new TimeLine(RetValue.StartDateTime, RetValue.EndDateTime);
 
             RetValue.UpdateLocationMatrix(RetValue.LocationInfo);
@@ -924,7 +917,7 @@ namespace TilerElements
         /// </summary>
         /// <param name="CalendarIDUpToRepeatCalEvent"></param>
         /// <returns></returns>
-        public CalendarEvent getRepeatedCalendarEvent(string CalendarIDUpToRepeatCalEvent)
+        public CalendarEvent getRepeatedCalendarEvent(string RepeatCalendarEventID)
         { 
             /*foreach(CalendarEvent MyCalendarEvent in EventRepetition.RecurringCalendarEvents)
             {
@@ -936,13 +929,12 @@ namespace TilerElements
             return null;*/
             if (EventRepetition.Enable)
             {
-                return EventRepetition.getCalendarEvent(CalendarIDUpToRepeatCalEvent);
+                return EventRepetition.getCalendarEvent(RepeatCalendarEventID);
             }
             else
             {
                 return this;
             }
-            
         }
 
         virtual public void SetEventEnableStatus(bool EnableDisableFlag)
@@ -1507,7 +1499,7 @@ namespace TilerElements
         {
             if ((this.ID == CalendarEventEntry.ID))
             {
-                EventDuration=CalendarEventEntry.ActiveDuration;
+                EventDuration=CalendarEventEntry.Duration;
                 EventName=CalendarEventEntry.Name;
                 StartDateTime=CalendarEventEntry.StartDateTime;
                 EndDateTime=CalendarEventEntry.EndDateTime;
@@ -1743,7 +1735,7 @@ namespace TilerElements
         virtual protected CalendarEvent getCalculationCopy()
         {
             CalendarEvent RetValue = new CalendarEvent();
-            RetValue.EventDuration = this.ActiveDuration;
+            RetValue.EventDuration = this.Duration;
             RetValue.EventName = this.Name;
             RetValue.StartDateTime = this.Start;
             RetValue.EndDateTime = this.End;
@@ -1756,7 +1748,7 @@ namespace TilerElements
             RetValue.RigidSchedule = this.Rigid;//hack
             RetValue.Splits = this.NumberOfSplit;
             RetValue.TimePerSplit = this.EachSplitTimeSpan;
-            RetValue.UniqueID = EventID.GenerateCalendarEvent(0);
+            RetValue.UniqueID = EventID.GenerateCalendarEvent();
             RetValue.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
             RetValue.UiParams = this.UIParam;
             RetValue.DataBlob = this.Notes;
@@ -2073,11 +2065,12 @@ namespace TilerElements
 
         */
         
-        public TimeSpan ActiveDuration
+        public TimeSpan Duration
         {
             get
             {
-                return EventDuration;
+
+                return TimeSpan.FromTicks( Splits * TimePerSplit.Ticks);
             }
         }
         public SubCalendarEvent[] ActiveSubEvents//needs to update to get only active events

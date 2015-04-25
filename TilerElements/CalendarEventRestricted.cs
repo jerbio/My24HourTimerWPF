@@ -34,7 +34,7 @@ namespace TilerElements
             }
             Complete = isCompleted;
             Enabled = isEnabled;
-            UniqueID = EventID.GenerateCalendarEvent(RepetitionSequence);
+            UniqueID = EventID.GenerateCalendarEvent();
             UpdateLocationMatrix(Location);
             UiParams = UiSettings;
             DataBlob = NoteData;
@@ -194,7 +194,7 @@ namespace TilerElements
         protected override CalendarEvent getCalculationCopy()
         {
             CalendarEventRestricted RetValue = new CalendarEventRestricted();
-            RetValue.EventDuration = this.ActiveDuration;
+            RetValue.EventDuration = this.Duration;
             RetValue.EventName = this.Name;
             RetValue.StartDateTime = this.Start;
             RetValue.EndDateTime = this.End;
@@ -207,7 +207,7 @@ namespace TilerElements
             RetValue.RigidSchedule = this.Rigid;//hack
             RetValue.Splits = this.NumberOfSplit;
             RetValue.TimePerSplit = this.EachSplitTimeSpan;
-            RetValue.UniqueID = EventID.GenerateCalendarEvent(0);
+            RetValue.UniqueID = EventID.GenerateCalendarEvent();
             //RetValue.EventSequence = this.EventSequence;
             RetValue.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
             RetValue.UiParams = this.UIParam.createCopy();

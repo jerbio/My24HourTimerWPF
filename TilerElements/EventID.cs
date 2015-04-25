@@ -148,15 +148,15 @@ namespace TilerElements
         private void AddNewComponentID(int index, string Sequence)
         {
             string id = EventIDGenerator.generate().ToString();
-            LayerID[index] = id;
-            LayerID[3] = Sequence;
+            //LayerID[index] = id;
+            LayerID[index] = Sequence;
             s_FullID = string.Join(delimiter, LayerID);
         }
 
-        public static EventID GenerateCalendarEvent(long Sequence)
+        public static EventID GenerateCalendarEvent()
         {
             EventID retValue = new EventID("0_7_0_0");
-            retValue.AddNewComponentID(0, Sequence);
+            retValue.AddNewComponentID(0, EventIDGenerator.generate().ToString());
             return retValue;
         }
 

@@ -655,7 +655,7 @@ namespace My24HourTimerWPF
             textBlock9.Text = "...Loading";
             Stopwatch snugarrayTester = new Stopwatch();
             snugarrayTester.Start();
-            ///*
+            //*
             Task<CustomErrors> addToScheduleTask = MySchedule.AddToScheduleAndCommit(ScheduleUpdated);
             CustomErrors ScheduleUpdateMessage = await addToScheduleTask.ConfigureAwait(false);
              //*/

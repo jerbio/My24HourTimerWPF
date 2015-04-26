@@ -1148,17 +1148,17 @@ namespace My24HourTimerWPF
 
         }
 
-        private void button7_Click(object sender, RoutedEventArgs e)
+        async private void button7_Click(object sender, RoutedEventArgs e)
         {
             MySchedule.removeAllFromOutlook();
-            MySchedule.WriteFullScheduleToLogAndOutlook();
+            await MySchedule.WriteFullScheduleToLogAndOutlook().ConfigureAwait(false);
         }
 
 
-        private void delete(object sender, RoutedEventArgs e)
+        async private void delete(object sender, RoutedEventArgs e)
         {
             string EventID = textBox9.Text;
-            MySchedule.deleteSubCalendarEventAndReadjust(EventID);
+            await MySchedule.deleteSubCalendarEventAndReadjust(EventID).ConfigureAwait(false);
         }
 
         async private void button8_Click(object sender, RoutedEventArgs e)
@@ -1203,11 +1203,11 @@ namespace My24HourTimerWPF
         }
 
 
-        private void MarkAsDoneAndReAdjust(object sender, RoutedEventArgs e)
+        async private void MarkAsDoneAndReAdjust(object sender, RoutedEventArgs e)
         {
             string EventID = textBox9.Text.Trim();
             //MySchedule.markAsCompleteCalendarEventAndReadjust(EventID);
-            MySchedule.markSubEventAsCompleteCalendarEventAndReadjust(EventID);
+            await MySchedule.markSubEventAsCompleteCalendarEventAndReadjust(EventID).ConfigureAwait(false);
         }
 
         async private void NowButtonClick(object sender, RoutedEventArgs e)

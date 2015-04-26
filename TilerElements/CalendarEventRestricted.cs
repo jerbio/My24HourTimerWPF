@@ -66,7 +66,7 @@ namespace TilerElements
                 TimePerSplit = new TimeSpan();
             }
             Complete = isCompleted;
-            Enabled = isEnabled;
+            Enabled = isEnabled;    
             EventPreDeadline = Event_PreDeadline;
             UniqueID = EventIDEntry;
             UpdateLocationMatrix(Location);
@@ -82,7 +82,7 @@ namespace TilerElements
             InstantiateSubEvents();
         }
 
-        static public CalendarEventRestricted InstantiateRepeatedCandidate(string Name, DateTimeOffset Start, DateTimeOffset End, EventID CalendarEventID, RestrictionProfile restrictionProfile, TimeSpan Duration, DateTimeOffset OriginalStartData,int division, Location_Elements Location, EventDisplay UiSettings, bool RigidFlag, TimeSpan preparation, string thirdPartyID, long NextSequence, ConcurrentDictionary<DateTimeOffset, CalendarEvent> OrginalStartToCalendarEvent)
+        static public CalendarEventRestricted InstantiateRepeatedCandidate(string Name, DateTimeOffset Start, DateTimeOffset End, EventID CalendarEventID, RestrictionProfile restrictionProfile, TimeSpan Duration, DateTimeOffset OriginalStartData,int division, Location_Elements Location, EventDisplay UiSettings, bool RigidFlag, TimeSpan preparation, string thirdPartyID, long NextSequence, ConcurrentDictionary<DateTimeOffset, CalendarEvent> OrginalStartToCalendarEvent,CalendarEvent RepeatRootData)
         { 
             CalendarEventRestricted retValue = new CalendarEventRestricted();
             retValue.UniqueID = EventID.GenerateRepeatCalendarEvent(CalendarEventID.ToString(), NextSequence);
@@ -108,6 +108,7 @@ namespace TilerElements
             retValue.UpdateLocationMatrix(Location);
             retValue.InstantiateSubEvents();
             retValue.OriginalStart = OriginalStartData;
+            retValue.RepeatRoot = RepeatRootData;
 
             while (!OrginalStartToCalendarEvent.TryAdd(OriginalStartData, retValue))
             {

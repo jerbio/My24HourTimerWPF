@@ -22,7 +22,6 @@ namespace TilerElements
         protected bool CalculationMode = false;
         protected DateTimeOffset _PauseTime = InitialPauseTime;
         protected bool BlobEvent = false;
-        protected bool Deviates = false;
 
         #region Classs Constructor
         public SubCalendarEvent()
@@ -124,6 +123,10 @@ namespace TilerElements
 
         public void disable(CalendarEvent myCalEvent)
         {
+
+            {
+                setAsDeviated(myCalEvent);
+            }
             this.Enabled = false;
             myCalEvent.incrementDeleteCount(this.RangeSpan);
         }
@@ -140,23 +143,19 @@ namespace TilerElements
 
         public void complete(CalendarEvent myCalEvent)
         {
-            this.Complete= true;
-            if(Rigid)
+            //if(Rigid)
             {
-                setAsDeviated();
+                setAsDeviated(myCalEvent);
             }
             myCalEvent.incrementCompleteCount(this.RangeSpan);
+            this.Complete = true;
         }
 
-        public void setAsDeviated()
+        public void setAsDeviated(CalendarEvent ParentCalendarEvent)
         {
-            Deviates = true;
+            ParentCalendarEvent.updateDeviationList(this);
         }
 
-        public void setAsUnDeviated()
-        {
-            Deviates = false;
-        }
 
         public void nonComplete(CalendarEvent myCalEvent)
         {
@@ -178,6 +177,7 @@ namespace TilerElements
         {
             this.Enabled = true;
             myCalEvent.decrementDeleteCount(this.RangeSpan);
+
         }
 
         internal void enableWithouUpdatingCalEvent()
@@ -269,10 +269,6 @@ namespace TilerElements
         /// </summary>
         virtual public void delete(CalendarEvent CalendarEventData )
         {
-            if(Rigid)
-            {
-                setAsDeviated();
-            }
             setAsUserDeleted();
             disable(CalendarEventData);
         }
@@ -941,15 +937,7 @@ namespace TilerElements
         #endregion
 
         #region Class Properties
-
-        public bool isDeviated
-        {
-            get
-            {
-                return Deviates;
-            }
-        }
-        
+      
 
         public ulong OldUniversalIndex
         {

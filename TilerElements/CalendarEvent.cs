@@ -34,9 +34,13 @@ namespace TilerElements
         protected HashSet<SubCalendarEvent> UnDesignables = new HashSet<SubCalendarEvent>();
         protected bool isCalculableInitialized = false;
         protected bool isUnDesignableInitialized = false;
+        protected CalendarEvent RepeatRoot;
         Dictionary<ulong, DayTimeLine> CalculationLimitationWithUnUsables;
         Dictionary<ulong, DayTimeLine> CalculationLimitation;
         Dictionary<ulong, DayTimeLine> FreeDaysLimitation;
+        protected Dictionary<string, SubCalendarEvent> DeviatingSubEvents = new Dictionary<string, SubCalendarEvent>();
+
+
         
         
 
@@ -309,7 +313,7 @@ namespace TilerElements
         /// <param name="RepeatIndex"></param>
         /// <returns></returns>
 
-        static public CalendarEvent InstantiateRepeatedCandidate(EventID EventIDEntry, string EventName, TimeSpan Event_Duration, DateTimeOffset EventStart, DateTimeOffset EventDeadline, DateTimeOffset OriginalStartData, TimeSpan EventPrepTime, TimeSpan Event_PreDeadline, bool EventRigidFlag, Repetition EventRepetitionEntry, int EventSplit, Location_Elements EventLocation, bool enabledFlag, EventDisplay UiData, MiscData NoteData, bool CompletionFlag, long RepeatIndex, ConcurrentDictionary<DateTimeOffset, CalendarEvent> OrginalStartToCalendarEvent)
+        static public CalendarEvent InstantiateRepeatedCandidate(EventID EventIDEntry, string EventName, TimeSpan Event_Duration, DateTimeOffset EventStart, DateTimeOffset EventDeadline, DateTimeOffset OriginalStartData, TimeSpan EventPrepTime, TimeSpan Event_PreDeadline, bool EventRigidFlag, Repetition EventRepetitionEntry, int EventSplit, Location_Elements EventLocation, bool enabledFlag, EventDisplay UiData, MiscData NoteData, bool CompletionFlag, long RepeatIndex, ConcurrentDictionary<DateTimeOffset, CalendarEvent> OrginalStartToCalendarEvent, CalendarEvent RepeatRootData)
         {
             CalendarEvent RetValue= new CalendarEvent();
             RetValue.EventName = EventName;
@@ -354,8 +358,9 @@ namespace TilerElements
                 }
             }
             RetValue.EventSequence = new TimeLine(RetValue.StartDateTime, RetValue.EndDateTime);
-
+            RetValue.RepeatRoot = RepeatRootData;
             RetValue.UpdateLocationMatrix(RetValue.LocationInfo);
+            
 
             while(! OrginalStartToCalendarEvent.TryAdd(OriginalStartData,RetValue))
             {
@@ -363,6 +368,9 @@ namespace TilerElements
             }
             return RetValue;
         }
+
+
+
 
         
         
@@ -381,7 +389,8 @@ namespace TilerElements
         /// <returns></returns>
         public IEnumerable<SubCalendarEvent>getAllDeviatingSubEVents()
         {
-            List<SubCalendarEvent> RetValue = SubEvents.Values.Where(obj => obj.isDeviated).ToList();
+            //List<SubCalendarEvent> RetValue = SubEvents.Values.Where(obj => obj.isDeviated).ToList();
+            List<SubCalendarEvent> RetValue = DeviatingSubEvents.Values.ToList();
             return RetValue;
         }
         public void initializeUndesignables()
@@ -498,7 +507,14 @@ namespace TilerElements
             return retValue;
         }
 
-        
+        protected internal void updateDeviationList(SubCalendarEvent mySubcalendarEvent)
+        {
+            DeviatingSubEvents.Add(mySubcalendarEvent.ID, mySubcalendarEvent);
+            if (RepeatRoot!=null)
+            {
+                RepeatRoot.updateDeviationList(mySubcalendarEvent);
+            }
+        }
 
 
         internal void decrementDeleteCount(TimeSpan span)
@@ -741,7 +757,7 @@ namespace TilerElements
             DisableSubEvents(mySubEvents);
             foreach (SubCalendarEvent eachSubCalendarEvent in mySubEvents)
             {
-                eachSubCalendarEvent.setAsUserDeleted();
+                eachSubCalendarEvent.delete(this);
             }
             
         }

@@ -125,7 +125,7 @@ namespace TilerElements
         {
 
             {
-                setAsDeviated(myCalEvent);
+                setAsDeviated(0,myCalEvent);
             }
             this.Enabled = false;
             myCalEvent.incrementDeleteCount(this.RangeSpan);
@@ -145,15 +145,15 @@ namespace TilerElements
         {
             //if(Rigid)
             {
-                setAsDeviated(myCalEvent);
+                setAsDeviated(1,myCalEvent);
             }
             myCalEvent.incrementCompleteCount(this.RangeSpan);
             this.Complete = true;
         }
 
-        public void setAsDeviated(CalendarEvent ParentCalendarEvent)
+        public void setAsDeviated(int type,CalendarEvent ParentCalendarEvent)
         {
-            ParentCalendarEvent.updateDeviationList(this);
+            ParentCalendarEvent.updateDeviationList(type,this);
         }
 
 
@@ -536,6 +536,7 @@ namespace TilerElements
             TimeSpan SpanShift = NowData.PreferredTime - retValue.Start;
             retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventID.ToString(), RepetitionSequence);
             retValue.shiftEvent(SpanShift, true);
+            this.ProfileOfNow = NowData;
             return retValue;
         }
 

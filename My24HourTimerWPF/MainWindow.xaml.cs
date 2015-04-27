@@ -1213,13 +1213,13 @@ namespace My24HourTimerWPF
         async private void NowButtonClick(object sender, RoutedEventArgs e)
         {
             string EventID = textBox9.Text.Trim();
-            ///*
+            /*
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ScheduleUpdateMessage=MySchedule.SetCalendarEventAsNow(EventID);
 
              await MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
              return;
             //*///
-            /*
+            ///*
             
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ScheduleUpdateMessage = MySchedule.SetEventAsNow(EventID);
             //*/

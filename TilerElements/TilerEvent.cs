@@ -68,6 +68,12 @@ namespace TilerElements
 
         abstract public void updateRepetitionIndex(long RepetitionIndex);
 
+        virtual public void resetNowProfile()
+        {
+            NowInfo.reset();
+        }
+        
+
         public bool isComplete
         {
             get
@@ -83,6 +89,9 @@ namespace TilerElements
                 return UiParams;
             }
         }
+
+
+
 
         public bool isActive
         {
@@ -226,6 +235,8 @@ namespace TilerElements
                 return ProfileOfProcrastination;
             }
         }
+
+
 
         public NowProfile NowInfo
         {

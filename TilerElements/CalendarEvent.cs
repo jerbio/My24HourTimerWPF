@@ -38,10 +38,47 @@ namespace TilerElements
         Dictionary<ulong, DayTimeLine> CalculationLimitationWithUnUsables;
         Dictionary<ulong, DayTimeLine> CalculationLimitation;
         Dictionary<ulong, DayTimeLine> FreeDaysLimitation;
-        protected Dictionary<string, SubCalendarEvent> DeviatingSubEvents = new Dictionary<string, SubCalendarEvent>();
+        Deviation DeviatingInfo = new Deviation();
 
 
-        
+
+
+        class Deviation
+        { 
+            Dictionary<string, SubCalendarEvent>[] DeviatingInfo = new Dictionary<string,SubCalendarEvent>[] {new Dictionary<string,SubCalendarEvent>(),new Dictionary<string,SubCalendarEvent>(),new Dictionary<string,SubCalendarEvent>() };
+            public Deviation()
+            {
+
+            }
+
+
+            /// <summary>
+            /// UPdates the deviating data set. 0 type = deleted, 1 type = completed, 2 = Now Profile
+            /// </summary>
+            /// <param name="type"></param>
+            /// <param name="SubCalendarEventData"></param>
+            public void updateDeviatingData(int type, SubCalendarEvent SubCalendarEventData)
+            {
+                DeviatingInfo[type].Add(SubCalendarEventData.ID, SubCalendarEventData);
+            }
+
+            public void removeFromDeviatingData(int type,string EventID)
+            {
+                DeviatingInfo[type].Remove(EventID);
+            }
+
+            public List<Tuple<int,SubCalendarEvent>> getAllSubEvents()
+            {
+                List<List<Tuple<int, SubCalendarEvent>>> RetValueCombined = DeviatingInfo.Select((obj, i) => obj.Values.Select(obj1 => new Tuple<int, SubCalendarEvent>(i, obj1)).ToList()).ToList();
+                List<Tuple<int, SubCalendarEvent>> RetValue = RetValueCombined.SelectMany(obj=>obj).ToList();
+               return RetValue;
+            }
+
+            public IEnumerable<SubCalendarEvent> getDeviationDataByType(int Type)
+            {
+                return DeviatingInfo[Type].Values;
+            }
+        }
         
 
         #region Constructor
@@ -183,7 +220,7 @@ namespace TilerElements
                     SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
                 }   
             }
-
+            OriginalStart = MyUpdated.OriginalStart;
             SchedulStatus = false;
             EventRepetition = MyUpdated.Repeat;
             ProfileOfProcrastination = MyUpdated.ProfileOfProcrastination;
@@ -220,8 +257,8 @@ namespace TilerElements
             Complete = CompletionFlag;
             RepetitionSequence = RepeatIndex;
             OriginalStart = OriginalStartData;
-            TimePerSplit = TimeSpan.FromTicks(((EventDuration.Ticks / Splits)));
             Splits = EventSplit;
+            TimePerSplit = TimeSpan.FromTicks(((EventDuration.Ticks / Splits)));
 
             SubEvents = new Dictionary<EventID, SubCalendarEvent>();
             if (!EventRepetition.Enable)
@@ -387,10 +424,10 @@ namespace TilerElements
         /// Function scans the current subevents and checks for the subevents that have the deviated flag set
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<SubCalendarEvent>getAllDeviatingSubEVents()
+        public IEnumerable<Tuple<int, SubCalendarEvent>>getAllDeviatingSubEVents()
         {
             //List<SubCalendarEvent> RetValue = SubEvents.Values.Where(obj => obj.isDeviated).ToList();
-            List<SubCalendarEvent> RetValue = DeviatingSubEvents.Values.ToList();
+            List<Tuple<int, SubCalendarEvent>> RetValue = DeviatingInfo.getAllSubEvents();
             return RetValue;
         }
         public void initializeUndesignables()
@@ -420,8 +457,22 @@ namespace TilerElements
         public void updateProcrastinate(Procrastination ProcrastinationTime)
         {
             ProfileOfProcrastination = ProcrastinationTime;
+            AllSubEvents.AsParallel().ForAll(obj => obj.NowInfo.reset());
+        }
+
+
+        public override void resetNowProfile()
+        {
+            IEnumerable<SubCalendarEvent> AllSubCalEvents = DeviatingInfo.getDeviationDataByType(2);
+            foreach(SubCalendarEvent eachSubcal in AllSubCalEvents )
+            {
+                eachSubcal.resetNowProfile();
+                DeviatingInfo.removeFromDeviatingData(2, eachSubcal.ID);
+            }
             ProfileOfNow.reset();
         }
+
+
         //*/
 
         protected Dictionary<EventID, SubCalendarEvent> getSubEvents()
@@ -506,13 +557,19 @@ namespace TilerElements
             retValue.UpdateLocationMatrix(new Location_Elements());
             return retValue;
         }
-
-        protected internal void updateDeviationList(SubCalendarEvent mySubcalendarEvent)
+        /// <summary>
+        /// UPdates the deviating data set. 0 type = deleted, 1 type = completed, 2 = Now Profile
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="mySubcalendarEvent"></param>
+        protected internal void updateDeviationList(int type, SubCalendarEvent mySubcalendarEvent)
         {
-            DeviatingSubEvents.Add(mySubcalendarEvent.ID, mySubcalendarEvent);
+            DeviatingInfo.updateDeviatingData(type, mySubcalendarEvent);
+            
+            //DeviatingSubEvents.Add(mySubcalendarEvent.ID, mySubcalendarEvent);
             if (RepeatRoot!=null)
             {
-                RepeatRoot.updateDeviationList(mySubcalendarEvent);
+                RepeatRoot.updateDeviationList(type,mySubcalendarEvent);
             }
         }
 
@@ -1814,13 +1871,14 @@ namespace TilerElements
             return retValue;
         }
 
-        virtual public CalendarEvent getNowCalculationCopy(NowProfile NowProfileData )
+        virtual public CalendarEvent getNowCalculationCopy(NowProfile NowProfileData,SubCalendarEvent RefSubCalEvent )
         {
             CalendarEvent retValue = getCalculationCopy();
             retValue.ProfileOfNow = NowProfileData;
             retValue.StartDateTime = NowProfileData.PreferredTime;
             retValue.EventSequence = new TimeLine(retValue.StartDateTime, retValue.EndDateTime);
-            SubCalendarEvent ProcrastinatonCopy = this.ActiveSubEvents[0].getNowCopy(retValue.UniqueID, NowProfileData);
+            SubCalendarEvent ProcrastinatonCopy = RefSubCalEvent.getNowCopy(retValue.UniqueID, NowProfileData);
+            updateDeviationList(2, RefSubCalEvent);
             retValue.EndDateTime = ProcrastinatonCopy.End;
             retValue.RigidSchedule = true;
             retValue.SubEvents.Add(ProcrastinatonCopy.SubEvent_ID, ProcrastinatonCopy);

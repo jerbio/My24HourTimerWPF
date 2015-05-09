@@ -157,7 +157,8 @@ namespace TilerElements
 
         virtual public void AddBusySlots(IEnumerable<BusyTimeLine> MyBusySlot)//Hack Alert further update will be to check if it busy slots fall within range of the timeLine
         {
-            IEnumerable<BusyTimeLine> AllBusyTImeLine = MyBusySlot.Where(obj => obj.Start < this.End);
+            IEnumerable<BusyTimeLine> AllBusyTImeLine = MyBusySlot.Where(obj => obj.Start <= this.End);
+            AllBusyTImeLine = AllBusyTImeLine.Where(obj => obj.End >= this.Start);
             //var MyNewArray = ActiveTimeSlots.Concat(AllBusyTImeLine);
             //ActiveTimeSlots = MyNewArray.ToArray();
             AllBusyTImeLine.AsParallel().ForAll(obj => ActiveTimeSlots.Add(obj));

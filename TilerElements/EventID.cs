@@ -142,8 +142,43 @@ namespace TilerElements
             return retValue;
         }
 
-        
-        
+
+        public static EventID generateGoogleAuthenticationID(uint CurrentIndex)
+        {
+            EventID retValue = new EventID((int)ThirdPartyControl.CalendarTool.Google + "_" + CurrentIndex + "_0_0");
+            return retValue;
+        }
+
+        public static EventID generateGoogleCalendarEventID(uint CurrentIndex)
+        {
+            EventID retValue = new EventID((int)ThirdPartyControl.CalendarTool.Google + "_0_" + CurrentIndex + "_0");
+            return retValue;
+        }
+
+        public static EventID generateGoogleSubCalendarEventID(EventID CalendarEventID)
+        {
+            EventID retValue = new EventID(CalendarEventID.getIDUpToRepeatCalendarEvent() + "_1");
+            return retValue;
+        }
+
+        public static EventID generateRepeatGoogleSubCalendarEventID(EventID CalendarEventID, uint currentIndex)
+        {
+            EventID retValue = new EventID( CalendarEventID.getIDUpToRepeatCalendarEvent() + "_" + currentIndex);
+            return retValue;
+        }
+
+        public static EventID generateFacebookCalendarEventID()
+        {
+            EventID retValue = new EventID((int)ThirdPartyControl.CalendarTool.Facebook + "_7_0_0");
+            return retValue;
+        }
+
+        public static EventID generateOutlookCalendarEventID()
+        {
+            EventID retValue = new EventID((int)ThirdPartyControl.CalendarTool.Facebook + "_7_0_0");
+            return retValue;
+        }
+
 
         public static EventID GenerateRepeatCalendarEvent(string ParentID)//,int weekDay=7)
         {

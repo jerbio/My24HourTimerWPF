@@ -58,8 +58,9 @@ namespace My24HourTimerWPF
         public TimeSpan TwentyFourHourTimeSpan = new TimeSpan(1,0,0,0);
         public TimeSpan OnewWeekTimeSpan = new TimeSpan(7, 0, 0, 0);
         public TimeSpan HourTimeSpan = new TimeSpan(0, 1, 0, 0);
-        ThirdPartyCalendarControl[] myCalendar;
+        List<TilerElements.ThirdPartyCalendarControl> myCalendar = new List<ThirdPartyCalendarControl>();
         DateTimeOffset StartofDay;
+        bool retrievedThirdParty = false;
 
         bool UseTilerFront = false;
         Stopwatch myWatch = new Stopwatch();
@@ -75,158 +76,6 @@ namespace My24HourTimerWPF
         static string stageOfProgram = "";
         int DebugCounter = 0;
 
-
-        /*
-        public class ReferenceNow
-        {
-            DateTimeOffset StartOfTime;
-            DateTimeOffset CalculationNow;
-            DateTimeOffset ImmutableNow;
-            UInt64 ImmutableDayIndex;//'Cause tiler will exist 18,446,744,073,709,551,615 from 1970 
-            const int NumberOfDays =90;
-            TimeSpan ConstOfCalculation = new TimeSpan(NumberOfDays,0,0,0,0);
-            DateTimeOffset tempNow= new DateTimeOffset(DateTimeOffset.Now.Year, DateTimeOffset.Now.Month, DateTimeOffset.Now.Day, 0, 0, 0, new TimeSpan());
-            TimeLine ComputationBound;// = new TimeLine(new DateTimeOffset(DateTimeOffset.Now.Year, DateTimeOffset.Now.Month, DateTimeOffset.Now.Day, 0, 0, 0, new TimeSpan()), new DateTimeOffset(DateTimeOffset.Now.Year, DateTimeOffset.Now.Month, DateTimeOffset.Now.Day, 0, 0, 0, new TimeSpan()).AddDays(90));
-            DayTimeLine refFirstDay;
-            DayTimeLine[] AllDays = new DayTimeLine[NumberOfDays];
-            ILookup<ulong, DayTimeLine> DayLookUp;
-
-            public ReferenceNow(DateTimeOffset Now,DateTimeOffset StartOfDay)
-            {
-                StartOfTime = new DateTimeOffset(1970, 1, 1, StartOfDay.Hour, StartOfDay.Minute, 0, new TimeSpan());
-                Now = new DateTimeOffset(Now.Year, Now.Month, Now.Day, Now.Hour, Now.Minute, 0, new TimeSpan());
-
-                DateTimeOffset IndifferentStartOfDay = new DateTimeOffset(Now.Year, Now.Month, Now.Day, StartOfDay.Hour, StartOfDay.Minute, 0, new TimeSpan());
-                DateTimeOffset refDayStart = Now > IndifferentStartOfDay ? Now : IndifferentStartOfDay;
-                DateTimeOffset refDayEnd = refDayStart.AddDays(1);
-                refDayEnd = new DateTimeOffset(refDayEnd.Year, refDayEnd.Month, refDayEnd.Day, StartOfDay.Hour, StartOfDay.Minute, 0, new TimeSpan());
-                refFirstDay = new DayTimeLine(refDayStart, refDayEnd, (ulong)(refDayStart - StartOfTime).TotalDays);
-
-                new DateTimeOffset(1970, 1, 1, 0, 0, 0, new TimeSpan()); ImmutableNow = Now;
-                CalculationNow = Now;
-                ImmutableDayIndex = (ulong)(new DateTimeOffset(Now.Year, Now.Month, Now.Day, StartOfDay.Hour, StartOfDay.Minute,0, new TimeSpan()) - StartOfTime).TotalDays;
-                ComputationBound = new TimeLine(Now, Now.Add(ConstOfCalculation));
-                InitializeAllDays();
-            }
-
-
-            void InitializeAllDays()
-            {
-                DayTimeLine[] AllDayTImeLine = AllDays;
-                DayTimeLine FirstDay = refFirstDay.CreateCopy();
-                AllDayTImeLine[0] = FirstDay;
-                DateTimeOffset ComputationStart = refFirstDay.Start;
-                DateTimeOffset ComputationEnd = refFirstDay.End;
-                for (int i = 1; i < AllDays.Length; i++)
-                {
-                    ulong myIndeUniversalIndex = getDayIndexFromStartOfTime(ComputationStart);
-                    AllDayTImeLine[i] = new DayTimeLine(ComputationStart, ComputationEnd, myIndeUniversalIndex, i);
-                    ComputationStart = ComputationEnd;
-                    ComputationEnd = ComputationEnd.AddDays(1);
-                }
-
-                DayLookUp = AllDayTImeLine.ToLookup(obj => obj.UniversalIndex, obj => obj);
-            }
-
-            public ILookup<ulong, DayTimeLine> getAllDaysLookup()
-            {
-                return DayLookUp;
-            }
-
-            public IEnumerable<DayTimeLine> getAllDaysForCalc()
-            {
-                return AllDays;
-            }
-
-            public DateTimeOffset UpdateNow(DateTimeOffset UpdatedNow)
-            {
-                CalculationNow = UpdatedNow;
-                return CalculationNow;
-            }
-
-            public int getDayIndexComputationBound(DateTimeOffset myDay)
-            {
-                int retValue = (int)(myDay - ComputationBound.Start).TotalDays;
-                return retValue;
-            }
-
-            public Tuple<int,int> indexRange(TimeLine Range)
-            {
-                Tuple<int, int> retValue = new Tuple<int, int>((int)(Range.Start - ComputationBound.Start).TotalDays, (int)(Range.End - ComputationBound.Start).TotalDays);
-                return retValue;
-            }
-
-            public ulong getDayIndexFromStartOfTime(DateTimeOffset myDay)
-            {
-                ulong retValue = (ulong)((myDay - StartOfTime).TotalDays);
-                return retValue;
-            }
-
-            public DateTimeOffset constNow
-            {
-                get
-                {
-                    return ImmutableNow;
-                }
-            }
-
-            public DateTimeOffset calculationNow
-            {
-                get
-                {
-                    return CalculationNow;
-                }
-            }
-            /// <summary>
-            /// This generates the timeline for the first day. Not this does not necessarily mean a twenty four hour day. THe first day is described as the current time till the end of the day
-            /// </summary>
-            public DayTimeLine firstDay
-            {
-                get
-                {
-                    return refFirstDay.CreateCopy();
-                }
-            }
-
-            
-
-            public ulong consttDayIndex
-            {
-                get 
-                {
-                    return ImmutableDayIndex;
-                }
-            }
-
-            public TimeLine ComputationRange
-            {
-                get 
-                {
-                    return ComputationBound;
-                }
-            }
-
-
-        }
-
-        */
-
-
-        /*
-        public Schedule(string UserName, string Password, string LogDirectory = "")
-        {
-            myAccount = new UserAccount(UserName, Password, LogDirectory);
-            Initialize();
-        }
-
-
-        public Schedule(string UserName, int UserID, string LogDirectory="")
-        {
-            myAccount = new UserAccount(UserName, UserID, LogDirectory);
-            Initialize();
-        }
-        */
-
         public Schedule(UserAccount AccountEntry, DateTimeOffset referenceNow)
         {
             myAccount = AccountEntry;
@@ -234,50 +83,67 @@ namespace My24HourTimerWPF
             
             initializing.Wait();
         }
-        /*
-        void setAsComplete()
+
+        async Task triggerNewlyAddedThirdparty()
         {
-            DateTimeOffset TempNow = ReferenceDayTIime;
-            //ReferenceDayTIime = Now;
-            //ReferenceDayTIime = new DateTimeOffset(ReferenceDayTIime.Year, ReferenceDayTIime.Month, ReferenceDayTIime.Day, 16, 0, 0);
-            foreach (KeyValuePair<string, CalendarEvent> eachKeyValuePair in AllEventDictionary)
+            if(retrievedThirdParty)
             {
-                if (eachKeyValuePair.Value.RepetitionStatus)
-                {
-                    foreach (CalendarEvent eachCalendarEvent in eachKeyValuePair.Value.Repeat.RecurringCalendarEvents)
-                    {
-                        if (eachCalendarEvent.End <= TempNow)
-                        {
-                            eachKeyValuePair.Value.SetCompletion(true);
-                        }
-                    }
-
-                    foreach (SubCalendarEvent eachSubCalendarEvent in eachKeyValuePair.Value.AllSubEvents)
-                    {
-                        if (eachSubCalendarEvent.End <= TempNow)
-                        {
-                            eachSubCalendarEvent.SetCompletionStatus(true);
-                        }
-                    }
-                }
-                else
-                {
-                    if (eachKeyValuePair.Value.End <= TempNow)
-                    {
-                        eachKeyValuePair.Value.SetCompletion(true);
-                    }
-
-                    foreach (SubCalendarEvent eachSubCalendarEvent in eachKeyValuePair.Value.AllSubEvents)
-                    {
-                        if (eachSubCalendarEvent.End <= TempNow)
-                        {
-                            eachSubCalendarEvent.SetCompletionStatus(true, eachKeyValuePair.Value);
-                        }
-                    }
-                }
+                TimeLine newSubeEvent = new TimeLine(Now.constNow, Now.constNow.AddMinutes(5));
+                TimeSpan fiveMinSpan= new TimeSpan(1);
+                CalendarEvent TempEvent = new CalendarEvent("TempEvent", fiveMinSpan, newSubeEvent.Start, newSubeEvent.End, new TimeSpan(), new TimeSpan(), true, new Repetition(), 1, new Location_Elements(), false, new EventDisplay(), new MiscData(), true);
+                AddToSchedule(TempEvent);
+                AllEventDictionary.Remove(TempEvent.Calendar_EventID.getCalendarEventComponent());
+                AllEventDictionary.Remove(TempEvent.Calendar_EventID.ToString());
+                return;
             }
+
+            throw new Exception("Hey you are yet to retrieve the latest third party schedule");
         }
-        */
+
+        public async Task UpdateScheduleDueToExternalChanges()
+        {
+            TimeLine newSubeEvent = new TimeLine(Now.constNow, Now.constNow.AddMinutes(5));
+            TimeSpan fiveMinSpan = new TimeSpan(1);
+            CalendarEvent TempEvent = new CalendarEvent("TempEvent", fiveMinSpan, newSubeEvent.Start, newSubeEvent.End, new TimeSpan(), new TimeSpan(), true, new Repetition(), 1, new Location_Elements(), false, new EventDisplay(), new MiscData(), true);
+            AddToSchedule(TempEvent);
+            AllEventDictionary.Remove(TempEvent.Calendar_EventID.getCalendarEventComponent());
+            AllEventDictionary.Remove(TempEvent.Calendar_EventID.ToString());
+            await WriteFullScheduleToLogAndOutlook().ConfigureAwait(false);
+            return;
+
+        }
+
+        
+
+        public void updateDataSetWithThirdPartyData(ThirdPartyCalendarControl ThirdPartyData)
+        {
+            if (ThirdPartyData!=null)
+            { 
+                myCalendar.Add(ThirdPartyData);
+                CalendarEvent ThirdPartyCalData = ThirdPartyData.getThirdpartyCalendarEvent();
+                AllEventDictionary.Add(ThirdPartyCalData.Calendar_EventID.getCalendarEventComponent(), ThirdPartyCalData);
+            }
+
+            retrievedThirdParty = true;
+        }
+
+        async public Task updateDataSetWithThirdPartyDataAndTriggerNewAddition(ThirdPartyCalendarControl ThirdPartyData)
+        {
+
+            if (ThirdPartyData!=null)
+         
+            {
+                updateDataSetWithThirdPartyData(ThirdPartyData);
+                await triggerNewlyAddedThirdparty().ConfigureAwait(false);
+                CalendarEvent ThirdPartyCalData = ThirdPartyData.getThirdpartyCalendarEvent();
+                AllEventDictionary.Remove(ThirdPartyCalData.Calendar_EventID.getCalendarEventComponent());
+            }
+            retrievedThirdParty = true;
+            await WriteFullScheduleToLogAndOutlook().ConfigureAwait(false);
+        }
+
+
+
         async private Task Initialize(DateTimeOffset referenceNow)
         {
             if(!myAccount.Status)
@@ -296,8 +162,7 @@ namespace My24HourTimerWPF
                 if (AllEventDictionary != null)
                 {
                     //setAsComplete();
-                    myCalendar = new ThirdPartyCalendarControl[1];
-                    myCalendar[0] = new ThirdPartyCalendarControl(ThirdPartyCalendarControl.CalendarTool.Outlook);
+                    myCalendar = new List<ThirdPartyCalendarControl>() { new OutlookThirdPartyControl()};
                     CompleteSchedule = getTimeLine();
                     EventID.Initialize((uint)(myAccount.LastEventTopNodeID));
                     //EventIDGenerator.Initialize((uint)(this.LastScheduleIDNumber));
@@ -532,7 +397,7 @@ namespace My24HourTimerWPF
 
         public void removeAllFromOutlook()
         {
-            myCalendar[0].removeAllEventsFromOutLook(AllEventDictionary.Values);
+            ((OutlookThirdPartyControl)myCalendar[0]).removeAllEventsFromOutLook(AllEventDictionary.Values);
         }
 
         public void EmptyMemory()
@@ -1075,7 +940,7 @@ namespace My24HourTimerWPF
         {
             foreach (CalendarEvent MyCalEvent in AllEventDictionary.Values)
             {
-                myCalendar[0].WriteToOutlook(MyCalEvent);
+                ((OutlookThirdPartyControl)myCalendar[0]).WriteToOutlook(MyCalEvent);
             }
         }
 
@@ -1083,10 +948,20 @@ namespace My24HourTimerWPF
         {
             CleanUpForUI();
             myAccount.UpdateReferenceDayTime(ReferenceDayTIime);
+
+            foreach(ThirdPartyCalendarControl eachThirdPartyCalendarControl in myCalendar)
+            {
+                CalendarEvent THirpartyCalendarEvents = eachThirdPartyCalendarControl.getThirdpartyCalendarEvent();
+                AllEventDictionary.Remove(THirpartyCalendarEvents.Calendar_EventID.getCalendarEventComponent());
+            }
+            
+
             foreach (CalendarEvent MyCalEvent in AllEventDictionary.Values)
             {
-                myCalendar[0].WriteToOutlook(MyCalEvent);
+                ((OutlookThirdPartyControl)myCalendar[0]).WriteToOutlook(MyCalEvent);
             }
+
+            
 
             await myAccount.CommitEventToLogOld(AllEventDictionary.Values, EventID.LatestID.ToString());
         }
@@ -3573,7 +3448,8 @@ namespace My24HourTimerWPF
                         int currentIndex = (int)(eachGrouping.Key - FirstIndex);
                         AllDayTImeLine[currentIndex].AddToSubEventList(DayToSubEvent[eachGrouping.Key]);
                     }
-                    SortForSleep(AllDayTImeLine.Take(10));
+                    List<DayTimeLine> OptimizedDays = AllDayTImeLine.Take(10).ToList();
+                    SortForSleep(OptimizedDays);
                 }
                 catch
                 {
@@ -4050,11 +3926,31 @@ namespace My24HourTimerWPF
         /// <returns></returns>
         List<SubCalendarEvent> PreserveFirstTwentyFourHours(List<SubCalendarEvent> CurrentConstituents, List<SubCalendarEvent>OrderedPreviousTwentyFOurHours, TimeLine refTImeLine)
         {
+            List<SubCalendarEvent> iniParam_CurrentConstituents = CurrentConstituents.ToList();
+            List<SubCalendarEvent> iniParam_OrderedPreviousTwentyFOurHours = OrderedPreviousTwentyFOurHours.ToList();
+            TimeLine iniParam_refTImeLine = refTImeLine.CreateCopy();
+
+            int i=0;
+
+             Dictionary<string, Tuple<SubCalendarEvent,int>> Dict_IDToTuple =  OrderedPreviousTwentyFOurHours.ToDictionary(obj => obj.ID, obj => new Tuple<SubCalendarEvent,int>( obj,i++));
+
+            
+            
+
+
+            CurrentConstituents = iniParam_CurrentConstituents.ToList();
+            OrderedPreviousTwentyFOurHours = iniParam_OrderedPreviousTwentyFOurHours.ToList();
+            refTImeLine = iniParam_refTImeLine.CreateCopy();
+
+
+
+
+            
             TimeLine refTImeLine_Ini = refTImeLine.CreateCopy();
 
             CurrentConstituents = CurrentConstituents.OrderBy(obj => obj.Start).ToList();
 
-            HashSet<SubCalendarEvent> AllEvents = new HashSet<SubCalendarEvent>(CurrentConstituents.Concat(OrderedPreviousTwentyFOurHours));
+            HashSet<SubCalendarEvent> AllEvents = new HashSet<SubCalendarEvent>(CurrentConstituents);
             ///*
              while (true)//loop tries to check if there are any elements clashing with the reftimeLine start time. If it does you want the start time to get readjusted to the endtime of the clashing event
             {
@@ -4064,7 +3960,7 @@ namespace My24HourTimerWPF
                     AllEvents = new HashSet<SubCalendarEvent>(AllEvents.Except(interferringWithStartTime));
                     CurrentConstituents = CurrentConstituents.Except(interferringWithStartTime).ToList();
                     OrderedPreviousTwentyFOurHours = OrderedPreviousTwentyFOurHours.Except(interferringWithStartTime).ToList();
-                    refTImeLine_Ini = new TimeLine(AllEvents.Select(obj => obj.Start).Min(), refTImeLine_Ini.End);
+                    refTImeLine_Ini = new TimeLine(interferringWithStartTime.Select(obj => obj.End).Max(), refTImeLine_Ini.End);
                 }
                 else
                 {
@@ -4072,11 +3968,14 @@ namespace My24HourTimerWPF
                 }
 
             }
+             AllEvents = new HashSet<SubCalendarEvent>(CurrentConstituents.Concat(OrderedPreviousTwentyFOurHours));
             if ((AllEvents.Count < 1) || (refTImeLine_Ini.TimelineSpan.Ticks<1))
             {
                 return new List<SubCalendarEvent>();
             }
             //*/
+
+            
             List<SubCalendarEvent> CurrentConstituents_ini = CurrentConstituents.ToList();
             IEnumerable<SubCalendarEvent> ordered_CurrentConstituents = CurrentConstituents.OrderBy(obj => obj.End);
             List<SubCalendarEvent> OrderedPreviousTwentyFOurHours_ini = OrderedPreviousTwentyFOurHours.ToList();
@@ -4221,9 +4120,54 @@ namespace My24HourTimerWPF
                 retValue = restrictedElements_Updated.OrderBy(obj => obj.End).ToList();
                 //CountCall++;
             }
-            return restrictedElements_Updated.OrderBy(obj=>obj.End).ToList();
+            retValue = restrictedElements_Updated.OrderBy(obj=>obj.End).ToList();
+            retValue = OrderSubEventsBasedOnOrder(retValue,Dict_IDToTuple,refTImeLine_Ini);
+            return retValue;
         }
 
+
+        List<SubCalendarEvent> OrderSubEventsBasedOnOrder(IEnumerable<SubCalendarEvent> SomeOrderedEvents, Dictionary<string, Tuple<SubCalendarEvent,int>>SubEventToOrder,TimeLine RestrictingTimeLine)
+        {
+            List<SubCalendarEvent> InitalOrder = SomeOrderedEvents.ToList();
+            List<SubCalendarEvent> RetValue = new List<SubCalendarEvent>();
+            List<Tuple<SubCalendarEvent,int>> OrderedSubEVents =  SomeOrderedEvents.Where(obj=>SubEventToOrder.ContainsKey(obj.ID)).Select(obj=>SubEventToOrder[obj.ID]).OrderBy(obj=>obj.Item2).ToList();
+            List<SubCalendarEvent> NotInOrder = SomeOrderedEvents.Where(obj=>!SubEventToOrder.ContainsKey(obj.ID)).ToList();
+
+
+            List<SubCalendarEvent> CurrentList =InitalOrder.ToList();
+            int i=0;
+            int preferredIndex = i;//Index to try insertion of next sub event
+            for(; i<OrderedSubEVents.Count;i++)
+            {
+                SubCalendarEvent MySub= OrderedSubEVents[i].Item1;
+                List<SubCalendarEvent> NextSeries = CurrentList.ToList();
+                NextSeries.Remove(MySub);
+                if(i<OrderedSubEVents.Count-1)
+                {
+                    int j = preferredIndex;
+                    for (; j < NextSeries.Count - 1; j++)
+                    {
+                        NextSeries.Insert(j,MySub);
+                        if(Utility.PinSubEventsToStart(NextSeries,RestrictingTimeLine))
+                        {
+                            CurrentList=NextSeries;
+                            preferredIndex = j+1;
+                            break;
+                        }
+                        preferredIndex = j + 1;
+                        NextSeries.Remove(MySub);
+                    }
+                }
+            }
+
+            if (!Utility.PinSubEventsToStart(CurrentList, RestrictingTimeLine))
+            {
+                throw new Exception("THeres a problem with OrderSubEventsBasedOnOrder. Some how the reordered elements wont fit in RestrictingTimeLine");
+            }
+
+            RetValue = CurrentList;
+            return RetValue;
+        }
 
         List<SubCalendarEvent> OptimizeTwentyFourHours(TimeLine myDay,List<SubCalendarEvent> currentConstituents , List<SubCalendarEvent> CanExistWInthinTImeLine_DoesNotIncludeCurrentConstituents, double averageOccupancy = 1)
         {

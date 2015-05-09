@@ -7,7 +7,7 @@ namespace TilerElements
 {
     public abstract class TilerEvent
     {
-        protected string EventName;
+        protected string EventName="";
         protected DateTimeOffset StartDateTime;
         protected DateTimeOffset EndDateTime;
         protected bool Complete = false;
@@ -32,6 +32,10 @@ namespace TilerElements
         protected static TimeSpan CalculationEndSpan = new TimeSpan(180, 0, 0, 0, 0);
         protected Procrastination ProfileOfProcrastination = new Procrastination(new DateTimeOffset(), new TimeSpan());
         protected NowProfile ProfileOfNow = new NowProfile();
+        protected bool ThirdPartyFlag = false;
+        protected string ThirdPartyUserIDInfo;
+        protected ThirdPartyControl.CalendarTool ThirdPartyTypeInfo = ThirdPartyControl.CalendarTool.Tiler;
+        protected string CreatorIDInfo;
 
 
         public List<string> getAllUserIDs()
@@ -91,6 +95,14 @@ namespace TilerElements
             }
         }
 
+        public ThirdPartyControl.CalendarTool ThirdpartyType
+        {
+            get 
+            {
+                return ThirdPartyTypeInfo;
+            }
+        }
+
 
         public  string ThirdPartyID
         {
@@ -101,6 +113,14 @@ namespace TilerElements
             set
             {
                 otherPartyID = value;
+            }
+        }
+
+        public string ThirdPartyUserID
+        {
+            get
+            {
+                return ThirdPartyUserIDInfo;
             }
         }
 
@@ -191,6 +211,14 @@ namespace TilerElements
             get
             {
                 return ProfileOfNow;
+            }
+        }
+
+        public string CreatorID
+        {
+            get
+            {
+                return CreatorIDInfo;
             }
         }
     }

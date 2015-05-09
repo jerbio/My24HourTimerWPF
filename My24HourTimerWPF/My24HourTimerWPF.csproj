@@ -166,7 +166,6 @@
     <Compile Include="SnugArray.cs" />
     <Compile Include="SpreadOutList.cs" />
     <Compile Include="SubCalendarEventListCounter.cs" />
-    <Compile Include="ThirdPartyCalendarControl.cs" />
     <Compile Include="TupleDict.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -4,25 +4,39 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TilerElements;
-
 
 #if EnableOutlook
 using Outlook = Microsoft.Office.Interop.Outlook;
 #endif
 
-namespace My24HourTimerWPF
+namespace TilerElements
 {
-    class ThirdPartyCalendarControl
+    public class OutlookThirdPartyControl : ThirdPartyCalendarControl
     {
-        public enum CalendarTool { Outlook, Google, Facebook };
-
-        public ThirdPartyCalendarControl(CalendarTool myCalendar)
-        { 
-            
+        
+        public OutlookThirdPartyControl()
+        {
+            SelectedCalendarTool = ThirdPartyControl.CalendarTool.Outlook;
         }
 
-        public void DeleteAppointment(SubCalendarEvent ActiveSection, string NameOfParentCalendarEvent, string entryID)
+
+        public OutlookThirdPartyControl( Dictionary<string, CalendarEvent> CalendarData)
+        {
+            IDToCalendarEvent = CalendarData;
+
+        }
+        public void removeAllEventsFromOutLook(ICollection<CalendarEvent> ArrayOfCalendarEvents)
+        {
+            int i = 0;
+            CalendarEvent[] ArrayOfCalendarevents = ArrayOfCalendarEvents.ToArray();
+            for (; i < ArrayOfCalendarevents.Length; i++)//this loops through the ArrayOfValues and ArrayOfIndex. Since each index loop corresponds to the same dictionary entry.
+            {
+                RemoveFromOutlook(ArrayOfCalendarevents[i]); //this removes the value from outlook
+                // AllEventDictionary.Remove(ArrayOfKeys[i]);//this removes the entry from The dictionary
+            }
+        }
+
+        override public void DeleteAppointment(SubCalendarEvent ActiveSection, string NameOfParentCalendarEvent = "", string entryID = "")
         {
 #if EnableOutlook
             if (entryID == "")
@@ -57,9 +71,9 @@ namespace My24HourTimerWPF
                 itemDelete.Delete();
             }*/
 #endif
-        }
 
-        private string AddAppointment(SubCalendarEvent ActiveSection, string NameOfParentCalendarEvent)
+        }
+        override public string AddAppointment(SubCalendarEvent ActiveSection, string NameOfParentCalendarEvent = "")
         {
             if (!ActiveSection.isEnabled)
             {
@@ -83,7 +97,7 @@ namespace My24HourTimerWPF
                     //SubJectString = ActiveSection.ID + "*\u221A*" + NameOfParentCalendarEvent;
                 }
                 newAppointment.Subject = SubJectString;// ActiveSection.ID + "**" + NameOfParentCalendarEvent;
-                
+
                 /*newAppointment.Recipients.Add("Roger Harui");
                 Outlook.Recipients sentTo = newAppointment.Recipients;
                 Outlook.Recipient sentInvite = null;
@@ -112,17 +126,9 @@ namespace My24HourTimerWPF
 
         }
 
-        public void removeAllEventsFromOutLook(ICollection<CalendarEvent> ArrayOfCalendarEvents)
-        {
-            int i = 0;
-            CalendarEvent[] ArrayOfCalendarevents = ArrayOfCalendarEvents.ToArray();
-            for (; i < ArrayOfCalendarevents.Length; i++)//this loops through the ArrayOfValues and ArrayOfIndex. Since each index loop corresponds to the same dictionary entry.
-            {
-                RemoveFromOutlook(ArrayOfCalendarevents[i]); //this removes the value from outlook
-                // AllEventDictionary.Remove(ArrayOfKeys[i]);//this removes the entry from The dictionary
-            }
-        }
-        
+
+
+
         public void RemoveFromOutlook(CalendarEvent MyEvent)
         {
 
@@ -139,13 +145,11 @@ namespace My24HourTimerWPF
                     DeleteAppointment(pertinentSubCalEvent, MyEvent.Name, pertinentSubCalEvent.ThirdPartyID);
                 }
             }
-
-
-
         }
 
         public void WriteToOutlook(CalendarEvent MyEvent)
         {
+#if (EnableOutlook)
             int i = 0;
             if (!MyEvent.isActive)
             {
@@ -157,23 +161,23 @@ namespace My24HourTimerWPF
             }
             else
             {
-                SubCalendarEvent []enableSubCalEVents=MyEvent.ActiveSubEvents;
+                SubCalendarEvent[] enableSubCalEVents = MyEvent.ActiveSubEvents;
                 for (; i < enableSubCalEVents.Length; i++)
                 {
-#if (EnableOutlook)
+
                     SubCalendarEvent pertinentSubCalEvent = enableSubCalEVents[i];
                     pertinentSubCalEvent.ThirdPartyID = AddAppointment(pertinentSubCalEvent, MyEvent.Name);/////////////
-#endif                    
+
                 }
             }
-
+#endif
 
         }
 
         public void LoopThroughAddRepeatEvents(Repetition MyRepetition)
         {
             int i = 0;
-            CalendarEvent[] recurringEvents=MyRepetition.RecurringCalendarEvents();
+            CalendarEvent[] recurringEvents = MyRepetition.RecurringCalendarEvents();
             for (; i < recurringEvents.Length; i++)
             {
                 WriteToOutlook(recurringEvents[i]);
@@ -191,6 +195,7 @@ namespace My24HourTimerWPF
                 RemoveFromOutlook(recurringEvents[i]);
             }
         }
+
 
     }
 }

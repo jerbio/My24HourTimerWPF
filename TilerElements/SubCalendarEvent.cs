@@ -26,8 +26,9 @@ namespace TilerElements
         public SubCalendarEvent()
         { }
 
-        public SubCalendarEvent(TimeSpan Event_Duration, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, bool Enabled, EventDisplay UiParam,MiscData Notes,bool completeFlag, Location_Elements EventLocation =null, TimeLine RangeOfSubCalEvent = null, ConflictProfile conflicts=null)
+        public SubCalendarEvent(TimeSpan Event_Duration, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, bool Enabled, EventDisplay UiParam,MiscData Notes,bool completeFlag, Location_Elements EventLocation =null, TimeLine RangeOfSubCalEvent = null, ConflictProfile conflicts=null, string Creator="")
         {
+            CreatorIDInfo = Creator;
             if (conflicts == null)
             {
                 conflicts = new ConflictProfile();
@@ -54,8 +55,9 @@ namespace TilerElements
         }
 
 
-        public SubCalendarEvent(string MySubEventID, BusyTimeLine MyBusylot, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location_Elements EventLocation = null, TimeLine RangeOfSubCalEvent = null, ConflictProfile conflicts = null)
+        public SubCalendarEvent(string MySubEventID, BusyTimeLine MyBusylot, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location_Elements EventLocation = null, TimeLine RangeOfSubCalEvent = null, ConflictProfile conflicts = null, string Creator = "")
         {
+            CreatorIDInfo = Creator;
             if (conflicts == null)
             {
                 conflicts = new ConflictProfile();
@@ -80,8 +82,9 @@ namespace TilerElements
             RigidSchedule = Rigid;
         }
 
-        public SubCalendarEvent(string MySubEventID, DateTimeOffset EventStart, DateTimeOffset EventDeadline, BusyTimeLine SubEventBusy, bool Rigid, bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location_Elements EventLocation = null, TimeLine RangeOfSubCalEvent = null, ConflictProfile conflicts = null)
+        public SubCalendarEvent(string MySubEventID, DateTimeOffset EventStart, DateTimeOffset EventDeadline, BusyTimeLine SubEventBusy, bool Rigid, bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location_Elements EventLocation = null, TimeLine RangeOfSubCalEvent = null, ConflictProfile conflicts = null, string Creator = "")
         {
+            CreatorIDInfo = Creator;
             if (conflicts == null)
             {
                 conflicts = new ConflictProfile();
@@ -105,10 +108,11 @@ namespace TilerElements
 
         #region Class functions
 
-        public  string ToString()
+        public virtual string ToString()
         {
             return this.Start.ToString() + " - " + this.End.ToString() + "::" + this.ID + "\t\t::" + this.ActiveDuration.ToString();
         }
+
 
         public void disable(CalendarEvent myCalEvent)
         {
@@ -243,6 +247,7 @@ namespace TilerElements
             MySubCalendarEventCopy.UserDeleted = this.UserDeleted;
             MySubCalendarEventCopy.isRestricted = this.isRestricted;
             MySubCalendarEventCopy.preferredDayIndex = this.preferredDayIndex;
+            MySubCalendarEventCopy.CreatorIDInfo = this.CreatorIDInfo;
             return MySubCalendarEventCopy;
         }
 

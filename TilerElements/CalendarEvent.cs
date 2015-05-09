@@ -2003,7 +2003,8 @@ namespace TilerElements
         {
             get
             {
-                updateEventSequence();
+                //updateEventSequence();
+                EventSequence = new TimeLine(this.Start, this.End);
                 return EventSequence;
             }
         }

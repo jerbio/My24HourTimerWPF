@@ -89,7 +89,7 @@ namespace TilerElements
             retValue.Splits = division;
             retValue.TimePerSplit = TimeSpan.FromTicks( retValue.EventDuration.Ticks / division);
             retValue.isRestricted = true;
-            retValue.LocationData = Location;
+            retValue.LocationInfo = Location;
             retValue.EndOfCalculation = End < TilerEvent.EventNow.Add(CalculationEndSpan) ? End : TilerEvent.EventNow.Add(CalculationEndSpan);
             retValue.RigidSchedule = RigidFlag;
             retValue.Priority = 0;
@@ -126,7 +126,7 @@ namespace TilerElements
             MyCalendarEventCopy.DataBlob = this.DataBlob.createCopy();
             MyCalendarEventCopy.Enabled = this.Enabled;
             MyCalendarEventCopy.isRestricted = this.isRestricted;
-            MyCalendarEventCopy.LocationData = LocationData;//hack you might need to make copy
+            MyCalendarEventCopy.LocationInfo = LocationInfo;//hack you might need to make copy
             MyCalendarEventCopy.ProfileOfProcrastination = this.ProfileOfProcrastination.CreateCopy();
             MyCalendarEventCopy.DeadlineElapsed = this.DeadlineElapsed;
             MyCalendarEventCopy.UserDeleted = this.UserDeleted;
@@ -156,7 +156,7 @@ namespace TilerElements
             {
                 DateTimeOffset SubStart = this.Start;
                 DateTimeOffset SubEnd = Start.Add(TimePerSplit);
-                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(UniqueID.ToString(), SubStart, SubEnd, ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), RigidSchedule, PrepTime, EventPreDeadline, LocationData, UiParams, DataBlob, Priority, DeadlineElapsed, ThirdPartyID);
+                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(UniqueID.ToString(), SubStart, SubEnd, ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), RigidSchedule, PrepTime, EventPreDeadline, LocationInfo, UiParams, DataBlob, Priority, DeadlineElapsed, ThirdPartyID);
                 SubEvents.Add(newEvent.SubEvent_ID, newEvent);
             }
             
@@ -192,7 +192,7 @@ namespace TilerElements
             RetValue.DataBlob = this.Notes;
             RetValue.Enabled = this.isEnabled;
             RetValue.isRestricted = this.isEventRestricted;
-            RetValue.LocationData = this.myLocation;//hack you might need to make copy
+            RetValue.LocationInfo = this.myLocation;//hack you might need to make copy
             RetValue.ProfileOfProcrastination = this.ProcrastinationInfo.CreateCopy();
             RetValue.DeadlineElapsed = this.isDeadlineElapsed;
             RetValue.UserDeleted = this.isUserDeleted;
@@ -204,7 +204,7 @@ namespace TilerElements
             RetValue.UserIDs = this.getAllUserIDs();//.ToList();
             RetValue.ProfileOfNow = this.ProfileOfNow.CreateCopy();
             RetValue.ProfileOfRestriction = this.ProfileOfRestriction.createCopy();
-            RetValue.UpdateLocationMatrix(RetValue.LocationData);
+            RetValue.UpdateLocationMatrix(RetValue.LocationInfo);
             return RetValue;
         }
 

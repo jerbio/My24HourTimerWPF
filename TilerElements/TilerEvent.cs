@@ -15,7 +15,7 @@ namespace TilerElements
         protected bool DeadlineElapsed = false;
         protected bool UserDeleted = false;
         protected bool FromRepeatEvent=false;
-        protected Location_Elements LocationData;
+        protected Location_Elements LocationInfo;
         protected EventDisplay UiParams = new EventDisplay();
         protected MiscData DataBlob = new MiscData();
         protected bool RepetitionFlag;
@@ -128,11 +128,11 @@ namespace TilerElements
         {
             set
             {
-                LocationData = value;
+                LocationInfo = value;
             }
             get
             {
-                return LocationData;
+                return LocationInfo;
             }
         }
 

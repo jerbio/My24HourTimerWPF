@@ -30,7 +30,7 @@ namespace TilerElements
             Enabled = isEnabled;
             EventPreDeadline = PreDeadline;
             this.Priority = Priority;
-            this.LocationData = Locationdata;
+            this.LocationInfo = Locationdata;
             otherPartyID = thirdPartyID;
             UserIDs = this.UserIDs.ToList();
             this.UiParams = UiData;
@@ -195,7 +195,7 @@ namespace TilerElements
             copy.HumaneTimeLine = this.HumaneTimeLine.CreateCopy();
             copy.isRestricted = this.isRestricted;
             copy.Vestige = this.Vestige;
-            copy.LocationData = this.LocationData.CreateCopy();
+            copy.LocationInfo = this.LocationInfo.CreateCopy();
             copy.MiscIntData = this.MiscIntData;
             copy.NonHumaneTimeLine = this.NonHumaneTimeLine.CreateCopy();
             copy.otherPartyID = this.otherPartyID;
@@ -326,7 +326,7 @@ namespace TilerElements
                 this.EventPreDeadline = SubEventEntry.PreDeadline;
                 this.EventScore = SubEventEntry.Score;
                 //this.isRestricted = true;
-                this.LocationData = SubEventEntry.myLocation;
+                this.LocationInfo = SubEventEntry.myLocation;
                 this.OldPreferredIndex = SubEventEntry.OldUniversalIndex;
                 this.otherPartyID = SubEventEntry.ThirdPartyID;
                 this.preferredDayIndex = SubEventEntry.UniversalDayIndex;
@@ -367,7 +367,7 @@ namespace TilerElements
             retValue.EventPreDeadline = this.PreDeadline;
             retValue.EventScore = this.Score;
             retValue.isRestricted = this.isEventRestricted;
-            retValue.LocationData = this.myLocation;
+            retValue.LocationInfo = this.myLocation;
             retValue.OldPreferredIndex = this.OldUniversalIndex;
             retValue.otherPartyID = this.ThirdPartyID;
             retValue.preferredDayIndex = this.UniversalDayIndex;

@@ -332,7 +332,9 @@ namespace TilerElements
                 return RepetitionWeekDay;
             }
         }
-
+        /// <summary>
+        /// Range for repetition so if assuming event happens on thursday from 9-11pm. The range is from today till november 31. The RepetitionRange will be today till November 31
+        /// </summary>
         public TimeLine Range
         {
             get

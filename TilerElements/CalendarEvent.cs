@@ -53,7 +53,7 @@ namespace TilerElements
             EventRepetition = new Repetition();
             RigidSchedule = false;
             Splits = 1;
-            LocationData = new Location_Elements();
+            LocationInfo = new Location_Elements();
             UniqueID = new EventID("");
             SubEvents = new Dictionary<EventID, SubCalendarEvent>();
             SchedulStatus = false;
@@ -78,7 +78,7 @@ namespace TilerElements
             EventRepetition = new Repetition();
             RigidSchedule = false;
             Splits = 1;
-            LocationData = new Location_Elements();
+            LocationInfo = new Location_Elements();
             UniqueID = new EventID("");
             SubEvents = new Dictionary<EventID, SubCalendarEvent>();
             SchedulStatus = false;
@@ -140,8 +140,8 @@ namespace TilerElements
             EventRepetition = MyUpdated.Repeat;
             ProfileOfProcrastination = MyUpdated.ProfileOfProcrastination;
             ProfileOfNow = MyUpdated.NowInfo;
-            LocationData = MyUpdated.LocationData;
-            UpdateLocationMatrix(LocationData);
+            LocationInfo = MyUpdated.LocationInfo;
+            UpdateLocationMatrix(LocationInfo);
             EventSequence = new TimeLine(StartDateTime, EndDateTime);
         }
         private CalendarEvent(ConstructorModified UpdatedConstructor, EventID MyEventID, Location_Elements EventLocation=null)
@@ -163,7 +163,7 @@ namespace TilerElements
             PrepTime = EventPrepTime;
             EventPreDeadline = Event_PreDeadline;
             RigidSchedule = EventRigidFlag;
-            LocationData = EventLocation;
+            LocationInfo = EventLocation;
             UniqueID = EventIDEntry;
             UiParams = UiData;
             DataBlob = NoteData;
@@ -212,7 +212,7 @@ namespace TilerElements
             PrepTime = EventPrepTime;
             EventPreDeadline = Event_PreDeadline;
             RigidSchedule = EventRigidFlag;
-            LocationData = EventLocation;
+            LocationInfo = EventLocation;
             UniqueID = EventID.GenerateCalendarEvent();
             EventRepetition = EventRepetitionEntry;
 
@@ -242,7 +242,7 @@ namespace TilerElements
             
             
             EventSequence = new TimeLine(StartDateTime, EndDateTime);
-            UpdateLocationMatrix(LocationData);
+            UpdateLocationMatrix(LocationInfo);
         }
         #endregion
 
@@ -315,7 +315,7 @@ namespace TilerElements
             MyCalendarEventCopy.DataBlob = this.DataBlob.createCopy();
             MyCalendarEventCopy.Enabled = this.Enabled;
             MyCalendarEventCopy.isRestricted = this.isRestricted;
-            MyCalendarEventCopy.LocationData = LocationData;//hack you might need to make copy
+            MyCalendarEventCopy.LocationInfo = LocationInfo;//hack you might need to make copy
             MyCalendarEventCopy.ProfileOfProcrastination = this.ProfileOfProcrastination.CreateCopy();
             MyCalendarEventCopy.DeadlineElapsed = this.DeadlineElapsed;
             MyCalendarEventCopy.UserDeleted= this.UserDeleted;
@@ -1333,7 +1333,7 @@ namespace TilerElements
                 Enabled=CalendarEventEntry.Enabled;
                 UiParams=CalendarEventEntry.UiParams;
                 DataBlob=CalendarEventEntry.DataBlob;
-                LocationData =CalendarEventEntry.LocationData;
+                LocationInfo =CalendarEventEntry.LocationInfo;
                 otherPartyID = CalendarEventEntry.otherPartyID;
                 return;
             }
@@ -1567,7 +1567,7 @@ namespace TilerElements
             RetValue.DataBlob = this.Notes;
             RetValue.Enabled = this.isEnabled;
             RetValue.isRestricted = this.isEventRestricted;
-            RetValue.LocationData = this.myLocation;//hack you might need to make copy
+            RetValue.LocationInfo = this.myLocation;//hack you might need to make copy
             RetValue.ProfileOfProcrastination = this.ProcrastinationInfo.CreateCopy();
             RetValue.DeadlineElapsed = this.isDeadlineElapsed;
             RetValue.UserDeleted = this.isUserDeleted;
@@ -1576,7 +1576,7 @@ namespace TilerElements
             RetValue.ProfileOfNow = this.ProfileOfNow.CreateCopy();
             RetValue.otherPartyID = this.ThirdPartyID;// == this.null ? null : otherPartyID.ToString();
             RetValue.UserIDs = this.getAllUserIDs();//.ToList();
-            RetValue.UpdateLocationMatrix(RetValue.LocationData);
+            RetValue.UpdateLocationMatrix(RetValue.LocationInfo);
             return RetValue;
         }
 
@@ -1666,7 +1666,7 @@ namespace TilerElements
             List<SubCalendarEvent> newSubs = new List<SubCalendarEvent>();
             for (int i = 0; i < delta; i++)
             {
-                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(TimePerSplit, (EndDateTime - TimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), RigidSchedule, this.isEnabled, this.UiParams, this.Notes, this.Complete, LocationData, this.RangeTimeLine);
+                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(TimePerSplit, (EndDateTime - TimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), RigidSchedule, this.isEnabled, this.UiParams, this.Notes, this.Complete, LocationInfo, this.RangeTimeLine);
                 SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
             }
             Splits += (int)delta;
@@ -1929,11 +1929,11 @@ namespace TilerElements
         {
             set
             {
-                LocationData=value;
+                LocationInfo=value;
             }
             get
             {
-                return LocationData;
+                return LocationInfo;
             }
         }
 

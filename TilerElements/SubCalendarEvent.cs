@@ -48,7 +48,7 @@ namespace TilerElements
             Complete=completeFlag;
             UniqueID = EventID.GenerateSubCalendarEvent(myParentID);
             BusyFrame = new BusyTimeLine(this.ID, StartDateTime, EndDateTime);//this is because in current implementation busy frame is the same as CalEvent frame
-            this.LocationData = EventLocation;
+            this.LocationInfo = EventLocation;
 //            EventSequence = new EventTimeLine(UniqueID.ToString(), StartDateTime, EndDateTime);
             RigidSchedule = Rigid;
             this.Enabled = Enabled;
@@ -71,7 +71,7 @@ namespace TilerElements
             BusyFrame = MyBusylot;
             PrepTime = EventPrepTime;
             UniqueID = new EventID(MySubEventID);
-            this.LocationData = EventLocation;
+            this.LocationInfo = EventLocation;
             
             UiParams=UiParam;
             DataBlob= Notes;
@@ -98,7 +98,7 @@ namespace TilerElements
             BusyFrame = SubEventBusy;
             RigidSchedule = Rigid;
             this.Enabled = Enabled;
-            this.LocationData = EventLocation;
+            this.LocationInfo = EventLocation;
             UiParams = UiParam;
             DataBlob = Notes;
             Complete = completeFlag;
@@ -241,7 +241,7 @@ namespace TilerElements
 
         virtual public SubCalendarEvent createCopy()
         {
-            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ID, Start, End, BusyFrame.CreateCopy(), this.RigidSchedule, this.isEnabled, this.UiParams.createCopy(), this.Notes.createCopy(), this.Complete, this.LocationData, new TimeLine(CalendarEventRange.Start, CalendarEventRange.End), ConflictingEvents.CreateCopy());
+            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ID, Start, End, BusyFrame.CreateCopy(), this.RigidSchedule, this.isEnabled, this.UiParams.createCopy(), this.Notes.createCopy(), this.Complete, this.LocationInfo, new TimeLine(CalendarEventRange.Start, CalendarEventRange.End), ConflictingEvents.CreateCopy());
             MySubCalendarEventCopy.ThirdPartyID = this.ThirdPartyID;
             MySubCalendarEventCopy.DeadlineElapsed = this.DeadlineElapsed;
             MySubCalendarEventCopy.UserDeleted = this.UserDeleted;
@@ -389,7 +389,7 @@ namespace TilerElements
                 this.EventPreDeadline = SubEventEntry.PreDeadline;
                 this.EventScore = SubEventEntry.Score;
                 this.isRestricted = SubEventEntry.isEventRestricted;
-                this.LocationData = SubEventEntry.myLocation;
+                this.LocationInfo = SubEventEntry.myLocation;
                 this.OldPreferredIndex = SubEventEntry.OldUniversalIndex;
                 this.otherPartyID = SubEventEntry.ThirdPartyID;
                 this.preferredDayIndex = SubEventEntry.UniversalDayIndex;
@@ -453,7 +453,7 @@ namespace TilerElements
             retValue.EventPreDeadline = this.PreDeadline;
             retValue.EventScore = this.Score;
             retValue.isRestricted = this.isEventRestricted;
-            retValue.LocationData = this.myLocation.CreateCopy();
+            retValue.LocationInfo = this.myLocation.CreateCopy();
             retValue.OldPreferredIndex = this.OldUniversalIndex;
             retValue.otherPartyID = this.ThirdPartyID;
             retValue.preferredDayIndex = this.UniversalDayIndex;

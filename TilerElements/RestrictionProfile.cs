@@ -393,15 +393,26 @@ namespace TilerElements
 
             TimeLine preceedingCycleFrame = new TimeLine(RefTime, RefTime);
             Tuple<DayOfWeek, RestrictionTimeLine> selectedDay;
-            for (int i = 7; i > 0; i--, StartIndexOfDayOfweek--)
+            for (int i = 7 ; i > 0; i--, StartIndexOfDayOfweek--)
             {
                 int OffSetStartIndex = (StartIndexOfDayOfweek + 14) % 7;
                 selectedDay = DaySelection[OffSetStartIndex];
                 if (selectedDay != null)
                 {
-                    DayDiff = (((int)selectedDay.Item1 - IniStartIndexOfDayIndex)) % 7;//gets the delta to be added to the new 
-                    DateTimeOffset newTime = End.AddDays(DayDiff);
-                    TimeLine currentFrame = getTImeLineFromTuple(selectedDay, RefTime);
+
+
+                    DayDiff = (((int)selectedDay.Item1) - (IniStartIndexOfDayIndex + 7)) % 7;//gets the delta to be added to the new 
+                    DateTimeOffset newTime = RefTime.AddDays(DayDiff);
+                    TimeLine currentFrame ;
+
+                    if((int)selectedDay.Item1<=(int)RefTime.DayOfWeek)
+                    {
+                        currentFrame = getTImeLineFromTuple(selectedDay, RefTime);
+                    }
+                    else
+                    {
+                        currentFrame = getTImeLineFromTuple(selectedDay, RefTime.AddDays(-7));
+                    }
 
                     newTime = currentFrame.End;
                     if (newTime <= RefTime)
@@ -533,6 +544,15 @@ namespace TilerElements
             
         }
         
+
+        /// <summary>
+        /// Function generates a timeline based on myTuple and Start. The timeline represents the full frame for the provided "myTuple". The "Start" provides the time component. Note: the function creates the time frame for the week of "Start",a week starts in Sunday. The next two example explain the result.
+        /// Example A: "Mytuple" => Thursday, (9:00am - 3:00pm, 6hours) and Start => 05/10/2015(This is a sunday). The function will return the time frame 05/14/2015 9:00am - 05/14/2014  3:00pm. THis is because it is within the week of 05/10/2015. Based on "myTuple" it has to be a span of 6 hours hence the span from 9:00am - 3:00pm on the same day of 05/14/2015
+        /// Example B: "Mytuple" => Tuesday, (9:00am - 10:00am, 25hours) and Start => 05/15/2015(This is a friday). The function will return the time frame 05/12/2015 9:00am - 05/13/2014  10:00am. THis is because it is within the week of 05/10/2015. Based on "myTuple" it has to be a span of 25 hours hence the timeline crossing over two different days. 05/12/2015 & 05/13/2015
+        /// </summary>
+        /// <param name="myTuple"></param>
+        /// <param name="Start"></param>
+        /// <returns></returns>
         TimeLine getTImeLineFromTuple(Tuple<DayOfWeek, RestrictionTimeLine> myTuple, DateTimeOffset Start)
         {
             int DayDifference = myTuple.Item1- Start.DayOfWeek;

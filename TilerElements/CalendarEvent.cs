@@ -323,6 +323,7 @@ namespace TilerElements
             MyCalendarEventCopy.DeletedCount = this.DeletedCount;
             MyCalendarEventCopy.ProfileOfProcrastination = this.ProfileOfProcrastination.CreateCopy();
             MyCalendarEventCopy.ProfileOfNow = this.NowInfo.CreateCopy();
+            MyCalendarEventCopy.Semantics = this.Semantics.createCopy();
 
 
             foreach (SubCalendarEvent eachSubCalendarEvent in this.SubEvents.Values)

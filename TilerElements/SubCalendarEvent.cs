@@ -248,6 +248,7 @@ namespace TilerElements
             MySubCalendarEventCopy.isRestricted = this.isRestricted;
             MySubCalendarEventCopy.preferredDayIndex = this.preferredDayIndex;
             MySubCalendarEventCopy.CreatorIDInfo = this.CreatorIDInfo;
+            MySubCalendarEventCopy.Semantics = this.Semantics.createCopy();
             return MySubCalendarEventCopy;
         }
 

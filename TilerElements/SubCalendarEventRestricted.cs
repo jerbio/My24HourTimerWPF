@@ -211,6 +211,7 @@ namespace TilerElements
             copy.UnUsableIndex = this.UnUsableIndex;
             copy.UserDeleted = this.UserDeleted;
             copy.UserIDs = this.UserIDs.ToList();
+            copy.Semantics = this.Semantics.createCopy();
             return copy;
         }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace TilerElements
 {
@@ -36,8 +37,12 @@ namespace TilerElements
         protected string ThirdPartyUserIDInfo;
         protected ThirdPartyControl.CalendarTool ThirdPartyTypeInfo = ThirdPartyControl.CalendarTool.Tiler;
         protected string CreatorIDInfo;
+        protected Classification Semantics= new Classification();
 
-
+        async public Task InitializeClassification()
+        {
+            await Semantics.InitializeClassification(EventName);
+        }
         public List<string> getAllUserIDs()
         {
             return UserIDs.ToList();

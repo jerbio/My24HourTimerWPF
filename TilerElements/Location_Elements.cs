@@ -262,14 +262,22 @@ namespace TilerElements
             return retValue;
         }
 
-        static public Location_Elements AverageGPSLocation(IEnumerable<Location_Elements> Locations, bool useDefaultLocation = true)
+        /// <summary>
+        /// function returns the average location of several gps locations. Essentially, it'lll try to find the center of the various GPS locations. If there is a null or unfounded location, it is not included in the average calculation.
+        /// </summary>
+        /// <param name="Locations"></param>
+        /// <param name="useDefaultLocation"></param>
+        /// <returns></returns>
+        static public Location_Elements AverageGPSLocation(IEnumerable<Location_Elements> Locations, bool useDefaultLocation=true)
         {
             Locations = Locations.Where(obj => !obj.isNull).ToList();
             Location_Elements retValue;
             if (Locations.Count() > 0)
             {
-                double xCoord = Locations.Average(obj => obj.xValue);
-                double yCoord = Locations.Average(obj => obj.yValue);
+                List<Location_Elements> NonDefaultLocations = Locations.Where(obj => !obj.NullLocation).ToList();
+
+                double xCoord = NonDefaultLocations.Average(obj => obj.xValue);
+                double yCoord = NonDefaultLocations.Average(obj => obj.yValue);
                 retValue = new Location_Elements(xCoord, yCoord);
             }
             else
@@ -293,6 +301,26 @@ namespace TilerElements
         {
             return Address + "||" + yValue + "\",\"" + xValue;
         }
+
+
+
+        public static Location_Elements getClosestLocation(IEnumerable<Location_Elements> AllLocations, Location_Elements RefLocation)
+        {
+            Location_Elements RetValue = null;
+            double shortestDistance = double.MaxValue;
+            foreach (Location_Elements eachLocation in AllLocations)
+            {
+                double DistanceSoFar = Location_Elements.calculateDistance(eachLocation, RefLocation);
+                if (DistanceSoFar < shortestDistance)
+                {
+                    RetValue = eachLocation;
+                    shortestDistance = DistanceSoFar;
+                }
+            }
+
+            return RetValue;
+        }
+
         #endregion 
 
 

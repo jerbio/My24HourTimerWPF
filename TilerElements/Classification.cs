@@ -44,7 +44,8 @@ namespace TilerElements
         {
             AlchemyAPI.AlchemyAPI AlchemyObj = new AlchemyAPI.AlchemyAPI();
             AlchemyObj.SetAPIKey("c73e93af01a6cb7728a6b90887c266a8881b7665");
-            Deduction= new ClassificationInterpreter()
+            var strings = new string [] { "", "" };
+            Deduction = new ClassificationInterpreter(strings);
             string xml = "";
             try
             {

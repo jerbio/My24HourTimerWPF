@@ -60,7 +60,7 @@
     <Compile Include="CalendarEventRestricted.cs" />
     <Compile Include="ConflictProfile.cs" />
     <Compile Include="DayTimeLine.cs" />
-    <Compile Include="EventType.cs" />
+    <Compile Include="Classification.cs" />
     <Compile Include="GoogleThirdPartyControl.cs" />
     <Compile Include="NowProfile.cs" />
     <Compile Include="OutlookThirdPartyControl.cs" />

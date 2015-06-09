@@ -220,6 +220,7 @@ namespace TilerElements
             copy.UserIDs = this.UserIDs.ToList();
             copy.Semantics = this.Semantics.createCopy();
             copy._UsedTime = this._UsedTime;
+            copy.OptimizationFlag = this.OptimizationFlag;
             return copy;
         }
 

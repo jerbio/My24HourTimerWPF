@@ -65,6 +65,8 @@
     <Compile Include="ConflictProfile.cs" />
     <Compile Include="DayTimeLine.cs" />
     <Compile Include="EventType.cs" />
+    <Compile Include="GoogleThirdPartyControl.cs" />
+    <Compile Include="MultidimensionalCalculation.cs" />
     <Compile Include="NowProfile.cs" />
     <Compile Include="PauseProfile.cs" />
     <Compile Include="Procrastination.cs" />
@@ -91,6 +93,7 @@
     <Compile Include="TimeLine.cs" />
     <Compile Include="TimeLineRestricted.cs" />
     <Compile Include="TimeLineWithEdgeElements.cs" />
+    <Compile Include="TimeOfDayPreferrence.cs" />
     <Compile Include="TimeSpanWithID.cs" />
     <Compile Include="UserActivity.cs" />
     <Compile Include="Utility.cs" />

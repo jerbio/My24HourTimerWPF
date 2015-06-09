@@ -22,6 +22,7 @@ namespace TilerElements
         protected bool CalculationMode = false;
         protected DateTimeOffset _PauseTime = InitialPauseTime;
         protected bool BlobEvent = false;
+        protected bool OptimizationFlag = false;
 
         #region Classs Constructor
         public SubCalendarEvent()
@@ -238,6 +239,15 @@ namespace TilerElements
             return retValue;
         }
 
+        virtual public void setAsOptimized()
+        {
+            OptimizationFlag = true;
+        }
+
+        virtual public void setAsUnOptimized()
+        {
+            OptimizationFlag = false;
+        }
 
 
         virtual public SubCalendarEvent createCopy(EventID eventId)
@@ -260,6 +270,7 @@ namespace TilerElements
             MySubCalendarEventCopy.CreatorIDInfo = this.CreatorIDInfo;
             MySubCalendarEventCopy.Semantics = this.Semantics.createCopy();
             MySubCalendarEventCopy._UsedTime = this._UsedTime;
+            MySubCalendarEventCopy.OptimizationFlag = this.OptimizationFlag;
             return MySubCalendarEventCopy;
         }
 
@@ -859,6 +870,14 @@ namespace TilerElements
         #endregion
 
         #region Class Properties
+
+        public bool isOptimized
+        {
+            get
+            {
+                return OptimizationFlag;
+            }
+        }
 
         public ulong OldUniversalIndex
         {

@@ -40,6 +40,7 @@ namespace TilerElements
         protected string CreatorIDInfo;
         protected TimeSpan _UsedTime = new TimeSpan();
         protected Classification Semantics= new Classification();
+        protected TimeOfDayPreferrence DaySectionPreference = new TimeOfDayPreferrence();
 
         async public Task InitializeClassification()
         {
@@ -221,6 +222,15 @@ namespace TilerElements
             }
         }
 
+        public void InitializeDayPreference()
+        { 
+            DaySectionPreference.InitializeGrouping(this);// InitializeGrouping
+        }
+
+        public TimeOfDayPreferrence getDaySection()
+        {
+            return DaySectionPreference;
+        }
         public string CreatorID
         {
             get

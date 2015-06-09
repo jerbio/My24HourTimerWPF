@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TilerElements;
+using System.Threading.Tasks;
 
 namespace TilerElements
 {
@@ -258,6 +259,215 @@ namespace TilerElements
             }
             return InListElements;
         }*/
+
+        private static long Factorial(int N)
+        {
+            long num = 1;
+            for (int i = 1; i <= N; i++)
+            {
+                num *= i;
+            }
+            return num;
+        }
+
+        static int[] generatePermutation(int[] OriginalPermutation, long CurrentIndex, long CurrentCycle, long NumberOfPermutation, int SizeOfArray, int boundSelect)
+        {
+            long num = NumberOfPermutation / (SizeOfArray - CurrentCycle);
+            if (boundSelect == 1)
+            {
+                CurrentCycle = boundSelect;
+            }
+            if (boundSelect == 2)
+            {
+                SizeOfArray--;
+            }
+            if (boundSelect == 3)
+            {
+                CurrentCycle = 1;
+                SizeOfArray--;
+            }
+            while (CurrentCycle < SizeOfArray)
+            {
+                num = NumberOfPermutation / (SizeOfArray - CurrentCycle);
+                long num2 = 0;
+                while ((num2 * num) <= CurrentIndex)
+                {
+                    num2++;
+                }
+                num2--;
+                long index = num2 + CurrentCycle;
+                int num4 = OriginalPermutation[index];
+                long num5 = CurrentCycle;
+                OriginalPermutation[index] = OriginalPermutation[num5];
+                OriginalPermutation[num5] = num4;
+                CurrentIndex -= num2 * num;
+                NumberOfPermutation /= SizeOfArray - CurrentCycle;
+                CurrentCycle++;
+            }
+            return OriginalPermutation;
+        }
+
+        public static SubCalendarEvent[] getBestPermutation(List<SubCalendarEvent> AllEvents, double worstDistance, Tuple<Location_Elements,Location_Elements>BorderElements =null)
+        {
+            long numberOfpermutations = Factorial(AllEvents.Count);
+            int[] init_Array = new int[AllEvents.Count];
+            double[] allFactorial = new double[Factorial(11)];
+            double minValue = worstDistance;
+            long minIndex = -1;
+
+            Parallel.For(0, allFactorial.Length, i =>
+            {
+                allFactorial[i] = worstDistance;
+            });
+
+            for (int i = 0; i < init_Array.Length; i++)
+            {
+                init_Array[i] = i;
+            }
+            long lengthOfLoop = allFactorial.LongLength;
+            long LoopCounter = numberOfpermutations / lengthOfLoop;
+            for (long j = 0; j < LoopCounter + 1; j++)
+            {
+                Parallel.For(j * lengthOfLoop, numberOfpermutations, i =>
+                {
+                    int[] myArray = generatePermutation(init_Array.ToArray(), i, 0, numberOfpermutations, init_Array.Length, 0);
+                    double totalDistance = worstDistance;
+                    List<SubCalendarEvent> myList = new List<SubCalendarEvent>();
+                    foreach (int eachInt in myArray)
+                    {
+                        myList.Add(AllEvents[eachInt]);
+                    }
+                    //if (Utility.PinSubEventsToEnd(myList, restrictingTimeLine))
+                    {
+
+                        totalDistance = SubCalendarEvent.CalculateDistance(myList, worstDistance);
+                        if(BorderElements !=null)
+                        {
+                            totalDistance += Location_Elements.calculateDistance(BorderElements.Item1, myList.First().myLocation);
+                            totalDistance += Location_Elements.calculateDistance(BorderElements.Item2, myList.Last().myLocation);
+                        }
+                        //Location_Elements.calculateDistance(myList.Select(obj => obj.myLocation).ToList());
+                    }
+                    allFactorial[i % lengthOfLoop] = totalDistance;
+
+                }
+            );
+
+                double currValue = allFactorial.Min();
+                if (currValue < minValue)
+                {
+                    minValue = currValue;
+                    minIndex = (j * lengthOfLoop) + allFactorial.MinIndex();
+                }
+            }
+
+            int[] goodOrder = generatePermutation(init_Array.ToArray(), minIndex, 0, numberOfpermutations, init_Array.Length, 0);
+
+            SubCalendarEvent[] ret_GoodOrder = new SubCalendarEvent[AllEvents.Count];
+            for (int j = 0; j < AllEvents.Count; j++)
+            {
+                ret_GoodOrder[j] = AllEvents[goodOrder[j]];
+            }
+
+
+            return ret_GoodOrder;
+        }
+
+        public static Location_Elements[] getBestPermutation(List<Location_Elements> AllEvents, double worstDistance)
+        {
+            long numberOfpermutations = Factorial(AllEvents.Count);
+            int[] init_Array = new int[AllEvents.Count];
+            double[] allFactorial = new double[Factorial(11)];
+            double minValue = worstDistance;
+            long minIndex = -1;
+
+            Parallel.For(0, allFactorial.Length, i =>
+            {
+                allFactorial[i] = worstDistance;
+            });
+
+            for (int i = 0; i < init_Array.Length; i++)
+            {
+                init_Array[i] = i;
+            }
+            long lengthOfLoop = allFactorial.LongLength;
+            long LoopCounter = numberOfpermutations / lengthOfLoop;
+            for (long j = 0; j < LoopCounter + 1; j++)
+            {
+                Parallel.For(j * lengthOfLoop, numberOfpermutations, i =>
+                    {
+                        int[] myArray = generatePermutation(init_Array.ToArray(), i, 0, numberOfpermutations, init_Array.Length, 0);
+                        double totalDistance = worstDistance;
+                        List<Location_Elements> myList = new List<Location_Elements>();
+                        foreach (int eachInt in myArray)
+                        {
+                            myList.Add(AllEvents[eachInt]);
+                        }
+                        //if (Utility.PinSubEventsToEnd(myList, restrictingTimeLine))
+                        {
+                            //totalDistance = SubCalendarEvent.CalculateDistance(myList, worstDistance);
+
+                            totalDistance = Location_Elements.calculateDistance(myList);
+                        }
+                        allFactorial[i % lengthOfLoop] = totalDistance;
+
+                    }
+                );
+
+                double currValue = allFactorial.Min();
+                if (currValue < minValue)
+                {
+                    minValue = currValue;
+                    minIndex = (j * lengthOfLoop) + allFactorial.MinIndex();
+                }
+            }
+
+            int[] goodOrder = generatePermutation(init_Array.ToArray(), minIndex, 0, numberOfpermutations, init_Array.Length, 0);
+
+            Location_Elements[] ret_GoodOrder = new Location_Elements[AllEvents.Count];
+            for (int j = 0; j < AllEvents.Count; j++)
+            {
+                ret_GoodOrder[j] = AllEvents[goodOrder[j]];
+            }
+
+
+            return ret_GoodOrder;
+        }
+
+        public static int MinIndex<T>(this IEnumerable<T> sequence) where T : IComparable<T>
+        {
+            int num = -1;
+            T other = default(T);
+            int num2 = 0;
+            foreach (T local2 in sequence)
+            {
+                if ((local2.CompareTo(other) < 0) || (num == -1))
+                {
+                    num = num2;
+                    other = local2;
+                }
+                num2++;
+            }
+            return num;
+        }
+
+
+        public static SubCalendarEvent getClosestSubCalendarEvent(IEnumerable<SubCalendarEvent> AllSubCalEvents, Location_Elements ReferenceSubEvent)
+        {
+            SubCalendarEvent RetValue = null;
+            double shortestDistance = double.MaxValue;
+            foreach (SubCalendarEvent eachSubCalendarEvent in AllSubCalEvents)
+            {
+                double DistanceSoFar = Location_Elements.calculateDistance(eachSubCalendarEvent.myLocation, ReferenceSubEvent);
+                if (DistanceSoFar < shortestDistance)
+                {
+                    RetValue = eachSubCalendarEvent;
+                    shortestDistance = DistanceSoFar;
+                }
+            }
+
+            return RetValue;
+        }
 
         public static List<T> InListAButNotInB<T>(List<T> ListA, List<T> ListB)
         {
@@ -591,6 +801,7 @@ namespace TilerElements
 
             return EncasingTimeLine;
         }
+
 
         static public IEnumerable<T> serialLizeMtuple_MTupleToVarT<T>(IEnumerable<mTuple<int, T>> EnunerableData)
         {

@@ -11,7 +11,6 @@ namespace TilerElements
     public static class Utility
     {
         public static DateTimeOffset StartOfTime = new DateTimeOffset();
-
         const uint fibonnaciLimit = 150;
         static uint[] fibonacciValues = new uint[fibonnaciLimit];
         public static DateTimeOffset JSStartTime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, new TimeSpan());
@@ -133,8 +132,8 @@ namespace TilerElements
         {
             IList<double> firstDataSet = collection.First();
             int lengthOfEachDataset = firstDataSet.Count;
-            List<double> summingArray = (new double [lengthOfEachDataset]).Select(obj=> 0.0).ToList();
-            foreach(IList<double> eachDataSet in collection) 
+            List<double> summingArray = (new double[lengthOfEachDataset]).Select(obj => 0.0).ToList();
+            foreach (IList<double> eachDataSet in collection)
             {
                 for (int i = 0; i < lengthOfEachDataset; i++)
                 {
@@ -146,15 +145,13 @@ namespace TilerElements
             return retValue;
         }
 
-
         public static double CalcuateResultant(params double[] points)
         {
             double retValue = Math.Sqrt(points.AsParallel().Sum(point => point * point));
             return retValue;
         }
 
-
-        static public List<double> multiDimensionCalculation(IList<IList<double >> collection, List<double> origin = null)
+        static public List<double> multiDimensionCalculation(IList<IList<double>> collection, List<double> origin = null)
         {
             int counter = collection.Count;
             List<double> retValue = (new double[counter]).ToList();
@@ -200,7 +197,6 @@ namespace TilerElements
                     origin.Add(0);
                 }
             }
-
             //double[] maxIndexes;
             if (normalizedFields == null)
             {
@@ -408,7 +404,6 @@ namespace TilerElements
                 {
                     return ConflctingDefinedRanges;
                 }
-                
             }
 
             public IEnumerable<IDefinedRange> NonConflictingTimeRange
@@ -616,9 +611,9 @@ namespace TilerElements
             }
             double worstDistance = double.MaxValue;
             double minValue = worstDistance;
-            double[] allFactorial = new double[permutationMax];
+            long minIndex = -1;
 
-            
+            double[] allFactorial = new double[permutationMax];
 
             //Parallel.For(0, numberOfpermutations, i =>
 

@@ -4,12 +4,14 @@ using System.Linq;
 using System.Text;
 using TilerElements;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace TilerElements
 {
     public static class Utility
     {
-        const uint fibonnaciLimit = 100;
+        public static DateTimeOffset StartOfTime = new DateTimeOffset();
+        const uint fibonnaciLimit = 150;
         static uint[] fibonacciValues = new uint[fibonnaciLimit];
         static Utility()
         {
@@ -20,8 +22,10 @@ namespace TilerElements
         {
             uint a = 0;
             uint b = 1;
+            fibonacciValues[0] = a;
+            fibonacciValues[1] = b;
             // In N steps compute Fibonacci sequence iteratively.
-            for (uint i = 0; i < fibonnaciLimit; i++)
+            for (uint i = 2; i < fibonnaciLimit; i++)
             {
                 uint temp = a;
                 a = b;
@@ -34,16 +38,23 @@ namespace TilerElements
         {
             if (index >= fibonnaciLimit)
             {
-                return fibonacciValues[100];
+                return fibonacciValues[fibonnaciLimit];
             }
             else
             {
                 return fibonacciValues[index];
             }
         }
+
+        static public double getFibonacciSumToIndex(uint index)
+        {
+            IEnumerable<uint> values = fibonacciValues.Take((int)index);
+            double retValue = values.Sum(value => value);
+            return retValue;
+        }
         public static List<SubCalendarEvent> sortSubCalEventByDeadline(List<SubCalendarEvent> SubCalEventRestricted, bool SecondSortByStartDate)
         {
-            
+
             SubCalEventRestricted = SubCalEventRestricted.OrderBy(obj => obj.End).ToList();
             Dictionary<long, List<SubCalendarEvent>> Dict_DeadlineAndClashingDeadlineSubCalEvents = new Dictionary<long, List<SubCalendarEvent>>();
             foreach (SubCalendarEvent MySubCalEvent in SubCalEventRestricted)
@@ -71,7 +82,7 @@ namespace TilerElements
             }
 
 
-            
+
             return SubCalEventRestricted;
         }
 
@@ -84,7 +95,7 @@ namespace TilerElements
                 {
                     retValue.Add(eachTimespan, new mTuple<int, TimeSpanWithStringID>(ListToCheck[eachTimespan].Item1, ListToCheck[eachTimespan].Item2));
                 }
-                return retValue;                
+                return retValue;
             }
 
             foreach (TimeSpan eachTimeSpan in ListToCheck.Keys)
@@ -93,22 +104,35 @@ namespace TilerElements
                 {
                     retValue.Add(eachTimeSpan, new mTuple<int, TimeSpanWithStringID>(ListToCheck[eachTimeSpan].Item1 - MyCurrentList[eachTimeSpan].Item1, ListToCheck[eachTimeSpan].Item2));
                 }
-                else 
+                else
                 {
                     retValue.Add(eachTimeSpan, new mTuple<int, TimeSpanWithStringID>(ListToCheck[eachTimeSpan].Item1, ListToCheck[eachTimeSpan].Item2));
                 }
             }
 
-            
+
             return retValue;
+        }
+
+        public static TimeLine CentralizeYourSelfWithinRange(TimeLine Range, TimeSpan Centralized)
+        {
+            TimeSpan Difference = Range.TimelineSpan - Centralized;
+            TimeLine CentralizedTimeline = new TimeLine();
+            if (Difference.TotalMilliseconds < 0)
+            {
+                throw (new System.Exception("Cannot generate CentralizeYourSelfWithinRange TimeLine Because Difference is less than zero.\nWill Not Fit!!!"));
+            }
+            DateTimeOffset MyStart = Range.Start.AddSeconds(Difference.TotalSeconds / 2);
+            CentralizedTimeline = new TimeLine(MyStart, MyStart.Add(Centralized));
+            return CentralizedTimeline;
         }
 
         static public List<double> getOriginFromDimensions(IList<IList<double>> collection)
         {
             IList<double> firstDataSet = collection.First();
             int lengthOfEachDataset = firstDataSet.Count;
-            List<double> summingArray = (new double [lengthOfEachDataset]).Select(obj=> 0.0).ToList();
-            foreach(IList<double> eachDataSet in collection) 
+            List<double> summingArray = (new double[lengthOfEachDataset]).Select(obj => 0.0).ToList();
+            foreach (IList<double> eachDataSet in collection)
             {
                 for (int i = 0; i < lengthOfEachDataset; i++)
                 {
@@ -120,7 +144,13 @@ namespace TilerElements
             return retValue;
         }
 
-        static public List<double> multiDimensionCalculation(IList<IList<double >> collection, List<double> origin = null)
+        public static double CalcuateResultant(params double[] points)
+        {
+            double retValue = Math.Sqrt(points.AsParallel().Sum(point => point * point));
+            return retValue;
+        }
+
+        static public List<double> multiDimensionCalculation(IList<IList<double>> collection, List<double> origin = null)
         {
             int counter = collection.Count;
             List<double> retValue = (new double[counter]).ToList();
@@ -133,9 +163,64 @@ namespace TilerElements
                     origin.Add(0);
                 }
             }
-            for (int i = 0; i<counter ;i++ ) 
+
+            for (int i = 0; i < counter; i++)
             {
-                IList< double> calculationSet = collection[i];
+                IList<double> calculationSet = collection[i];
+                double sum = 0;
+                if ((length != calculationSet.Count()) || (origin.Count != length))
+                {
+                    throw new Exception("Oops seems like you are trying to run pythagoras on sets of different sizes");
+                }
+                for (int j = 0; j < calculationSet.Count; j++)
+                {
+                    double delta = (calculationSet[j] - origin[j]);
+                    sum += (delta * delta);
+                }
+                retValue[i] = Math.Sqrt(sum);
+            }
+            return retValue;
+        }
+
+        static public List<double> multiDimensionCalculationNormalize(IList<IList<double>> collection, List<double> origin = null, IList<double> normalizedFields = null)
+        {
+            int counter = collection.Count;
+            List<double> retValue = (new double[counter]).ToList();
+            int length = collection.First().Count();
+            if (origin == null)
+            {
+                origin = new List<double>();
+                for (int i = 0; i < length; i++)
+                {
+                    origin.Add(0);
+                }
+            }
+
+            //double[] maxIndexes;
+            if (normalizedFields == null)
+            {
+                normalizedFields = new double[length];
+                //maxIndexes = normalizedFields.ToArray();
+                for (int i = 0; i < normalizedFields.Count; i++)
+                {
+                    normalizedFields[i] = collection.Select(obj => obj[i]).Max();
+                    normalizedFields[i] = normalizedFields[i] == 0 ? 1 : normalizedFields[i];
+                }
+            }
+
+            //maxIndexes = normalizedFields.ToArray();
+            for (int j = 0; j < collection.Count; j++)
+            {
+                IList<double> row = collection[j];
+                for (int i = 0; i < normalizedFields.Count; i++)
+                {
+                    row[i] = row[i] / normalizedFields[i];
+                }
+            }
+
+            for (int i = 0; i < counter; i++)
+            {
+                IList<double> calculationSet = collection[i];
                 double sum = 0;
                 if ((length != calculationSet.Count()) || (origin.Count != length))
                 {
@@ -164,7 +249,7 @@ namespace TilerElements
         public static List<T> NotInList_NoEffect<T>(List<T> ListToCheck, List<T> MyCurrentList)
         {
             List<T> ListToCheck_Cpy = ListToCheck.ToList();
-            
+
             foreach (T MySubCalendarEvent in MyCurrentList)
             {
                 ListToCheck_Cpy.Remove(MySubCalendarEvent);
@@ -178,15 +263,15 @@ namespace TilerElements
 
             foreach (TimeSpan eachTimeSpan in DictToCheck.Keys)
             {
-                if(MyCurrentDict.ContainsKey(eachTimeSpan))
+                if (MyCurrentDict.ContainsKey(eachTimeSpan))
                 {
-                    mTuple<int, TimeSpanWithStringID> MyCurrentDictTimeSpanWithStringID =new mTuple<int,TimeSpanWithStringID> (MyCurrentDict[eachTimeSpan].Item1,MyCurrentDict[eachTimeSpan].Item2) ;
+                    mTuple<int, TimeSpanWithStringID> MyCurrentDictTimeSpanWithStringID = new mTuple<int, TimeSpanWithStringID>(MyCurrentDict[eachTimeSpan].Item1, MyCurrentDict[eachTimeSpan].Item2);
                     mTuple<int, TimeSpanWithStringID> DictToCheckTimeSpanWithStringID = new mTuple<int, TimeSpanWithStringID>(DictToCheck[eachTimeSpan].Item1, DictToCheck[eachTimeSpan].Item2);
                     InListElements.Add(eachTimeSpan, (MyCurrentDictTimeSpanWithStringID.Item1 < DictToCheckTimeSpanWithStringID.Item1 ? MyCurrentDictTimeSpanWithStringID : DictToCheckTimeSpanWithStringID));
                 }
             }
 
-            
+
 
             return InListElements;
         }
@@ -200,7 +285,7 @@ namespace TilerElements
             {
                 foreach (SubCalendarEvent MySubCalendarEvent1 in MyCurrentList)
                 {
-                    if (MySubCalendarEvent1.Id == MySubCalendarEvent0.Id)
+                    if (MySubCalendarEvent1.ID == MySubCalendarEvent0.ID)
                     {
                         InListElements.Add(MySubCalendarEvent1);
                     }
@@ -216,11 +301,11 @@ namespace TilerElements
             IEnumerable<SubCalendarEvent> orderedByStart = AllSubEvents.OrderBy(obj => obj.Start).ToList();
             List<SubCalendarEvent> AllSubEvents_List = orderedByStart.ToList();
 
-            
+
             Dictionary<SubCalendarEvent, List<SubCalendarEvent>> subEventToConflicting = new Dictionary<SubCalendarEvent, List<SubCalendarEvent>>();
 
 
-            for (int i = 0; i < AllSubEvents_List.Count&&i>=0; i++)
+            for (int i = 0; i < AllSubEvents_List.Count && i >= 0; i++)
             {
                 SubCalendarEvent refSubCalendarEvent = AllSubEvents_List[i];
                 List<SubCalendarEvent> possibleInterferring = AllSubEvents_List.Where(obj => obj != refSubCalendarEvent).ToList();
@@ -234,9 +319,9 @@ namespace TilerElements
                         DateTimeOffset LatestEndTime = InterferringEvents.Max(obj => obj.End);
                         TimeLine possibleInterferringTimeLine = new TimeLine(refSubCalendarEvent.Start, LatestEndTime);
                         ExtraInterferringEVents = AllSubEvents_List.AsParallel().Where(obj => obj.RangeTimeLine.InterferringTimeLine(possibleInterferringTimeLine) != null).ToList();
-                        InterferringEvents=InterferringEvents.Concat(ExtraInterferringEVents).ToList();
+                        InterferringEvents = InterferringEvents.Concat(ExtraInterferringEVents).ToList();
                     }
-                    while (ExtraInterferringEVents.Count>0);
+                    while (ExtraInterferringEVents.Count > 0);
                     --i;
                 }
                 if (InterferringEvents.Count > 0)
@@ -250,20 +335,20 @@ namespace TilerElements
         }
 
 
-        public static Tuple<IEnumerable<IDefinedRange>,IEnumerable<IDefinedRange>> getConflictingRangeElements(IEnumerable<IDefinedRange> AllSubEvents)
+        public static Tuple<IEnumerable<IDefinedRange>, IEnumerable<IDefinedRange>> getConflictingRangeElements(IEnumerable<IDefinedRange> AllSubEvents)
         {
             AllSubEvents = AllSubEvents.OrderBy(obj => obj.Start);
             List<IDefinedRange> EventsWithTImeline = AllSubEvents.ToList();
-            List<TimeLine> retValue_ItemA=new List<TimeLine>();
-            
+            List<TimeLine> retValue_ItemA = new List<TimeLine>();
+
             List<IDefinedRange> retValue_ItemB = AllSubEvents.ToList();
             retValue_ItemB.Clear();//trying to make retValue_ItemB an empty collection with the same data type of AllSubEvents
-            
-            for(int i=0; i<EventsWithTImeline.Count;)
+
+            for (int i = 0; i < EventsWithTImeline.Count;)
             {
                 IDefinedRange refEvent = EventsWithTImeline[i];
                 EventsWithTImeline.Remove(refEvent);
-                IEnumerable<IDefinedRange>InterferringEvents= EventsWithTImeline.Where(obj => obj.RangeTimeLine.InterferringTimeLine(refEvent.RangeTimeLine) != null);
+                IEnumerable<IDefinedRange> InterferringEvents = EventsWithTImeline.Where(obj => obj.RangeTimeLine.InterferringTimeLine(refEvent.RangeTimeLine) != null);
                 bool AddrefTOretValue_ItemB = true;//flag will be set if refEvent is conflicitng
                 while (true && InterferringEvents.LongCount() > 0)
                 {
@@ -288,7 +373,7 @@ namespace TilerElements
                 if (AddrefTOretValue_ItemB)
                 {
                     retValue_ItemB.Add(refEvent);
-                }   
+                }
             }
 
 
@@ -329,43 +414,45 @@ namespace TilerElements
             {
                 return OriginalPermutation;
             }
-	        long SizePerLevel = NumberOfPermutation / (SizeOfArray - CurrentCycle);
-	        if (boundSelect == 1)
-	        {
-		        CurrentCycle = boundSelect;
-	        }
 
-	        if (boundSelect == 2)
-	        {
-		        --SizeOfArray;
-	        }
+            long SizePerLevel = NumberOfPermutation / (SizeOfArray - CurrentCycle);
+            if (boundSelect == 1)
+            {
+                CurrentCycle = boundSelect;
+            }
 
-	        if (boundSelect == 3)
-	        {
-		        CurrentCycle = 1;
-		        --SizeOfArray;
-	        }
+            if (boundSelect == 2)
+            {
+                --SizeOfArray;
+            }
 
-	        for (; CurrentCycle < SizeOfArray; CurrentCycle++)
-	        {
-		        SizePerLevel = NumberOfPermutation / (SizeOfArray - CurrentCycle);
-		        int i = 0;
-		        for (; i* SizePerLevel <= CurrentIndex; i++)
-		        {
-			        ;
-		        }
+            if (boundSelect == 3)
+            {
+                CurrentCycle = 1;
+                --SizeOfArray;
+            }
 
-		        --i;
+            for (; CurrentCycle < SizeOfArray; CurrentCycle++)
+            {
+                SizePerLevel = NumberOfPermutation / (SizeOfArray - CurrentCycle);
+                int i = 0;
+                for (; i * SizePerLevel <= CurrentIndex; i++)
+                {
+                    ;
+                }
 
-		        int myIndex = i + CurrentCycle;
-		        int tmp = OriginalPermutation[myIndex];
-		        int refIndex = CurrentCycle;// SizeOfArray - (CurrentCycle + 1);
-		        OriginalPermutation[myIndex] = OriginalPermutation[refIndex];
-		        OriginalPermutation[refIndex] = tmp;
+                --i;
 
-		        CurrentIndex = CurrentIndex - i* SizePerLevel;
-		        NumberOfPermutation = NumberOfPermutation / (SizeOfArray - CurrentCycle);
-	        }
+                int myIndex = i + CurrentCycle;
+                int tmp = OriginalPermutation[myIndex];
+                int refIndex = CurrentCycle;// SizeOfArray - (CurrentCycle + 1);
+                OriginalPermutation[myIndex] = OriginalPermutation[refIndex];
+                OriginalPermutation[refIndex] = tmp;
+
+                CurrentIndex = CurrentIndex - i * SizePerLevel;
+                NumberOfPermutation = NumberOfPermutation / (SizeOfArray - CurrentCycle);
+            }
+
 
             return OriginalPermutation;
         }
@@ -409,7 +496,125 @@ namespace TilerElements
             return OriginalPermutation;
         }*/
 
-        public static SubCalendarEvent[] getBestPermutation(List<SubCalendarEvent> AllEvents, double worstDistance, Tuple<Location_Elements,Location_Elements>BorderElements =null)
+        public static SubCalendarEvent[] getBestPermutation(
+            List<SubCalendarEvent> AllEvents,
+            //double worstDistance,
+            Tuple<Location_Elements, Location_Elements> BorderElements = null,
+            double worstDistance = double.MinValue
+            )
+        {
+            SubCalendarEvent[] retValue;
+
+            long numberOfpermutations = Factorial(AllEvents.Count);
+            int permutationLimit = Int32.MaxValue / 16;
+
+            System.Diagnostics.Stopwatch myWatch = new System.Diagnostics.Stopwatch();
+            if (numberOfpermutations > permutationLimit)
+            {
+                if (worstDistance == double.MinValue)
+                {
+                    worstDistance = permutationLimit;
+                }
+                uint maxInterations = (uint)(numberOfpermutations / (permutationLimit));
+                double[] distances = new double[maxInterations];
+
+                SubCalendarEvent[][] retValues = new int[maxInterations].Select(obj => new SubCalendarEvent[0]).ToArray();
+
+                Parallel.For(0, maxInterations, (i =>
+
+                //for (int i = 0; i < maxInterations; i++ )
+                {
+
+                    SubCalendarEvent[] possibleOptimization = getBestPermutation(AllEvents, worstDistance, BorderElements);
+                    MessageBox.Show("One set done");
+                    double currentDistance = SubCalendarEvent.CalculateDistance(possibleOptimization);
+                    retValues[i] = possibleOptimization;
+                }
+                ));
+
+                for (int i = 0; i < maxInterations; i++)
+                {
+                    distances[i] = SubCalendarEvent.CalculateDistance(retValues[i]);
+                }
+                retValue = retValues[distances.MinIndex()];
+            }
+
+            else
+            {
+                if (worstDistance == double.MinValue)
+                {
+                    worstDistance = numberOfpermutations;
+                }
+                myWatch.Start();
+                retValue = getBestPermutation(AllEvents, worstDistance, BorderElements);
+            }
+            myWatch.Stop();
+            //MessageBox.Show("Ran for " + myWatch.ElapsedMilliseconds + "ms with " + numberOfpermutations + " permutations");
+
+            return retValue;
+
+        }
+        public static SubCalendarEvent[] getBestPermutation(
+            List<SubCalendarEvent> AllEvents,
+            //double worstDistance,
+            int permutationIndex,
+            long permutationMax,
+            Tuple<Location_Elements, Location_Elements> BorderElements = null
+            )
+        {
+            int startingIndex = permutationIndex;
+            int[] init_Array = new int[AllEvents.Count];
+
+            for (int i = 0; i < init_Array.Length; i++)
+            {
+                init_Array[i] = i;
+            }
+            double worstDistance = double.MaxValue;
+            double minValue = worstDistance;
+            long minIndex = -1;
+
+            double[] allFactorial = new double[permutationMax];
+
+            //Parallel.For(0, numberOfpermutations, i =>
+
+            for (; permutationIndex < permutationMax; permutationIndex++)
+            {
+                int[] myArray = generatePermutation(init_Array.ToArray(), permutationIndex, 0, permutationMax, init_Array.Length, 0);
+                double totalDistance = worstDistance;
+                List<SubCalendarEvent> myList = new List<SubCalendarEvent>();
+                foreach (int eachInt in myArray)
+                {
+                    myList.Add(AllEvents[eachInt]);
+                }
+                //if (Utility.PinSubEventsToEnd(myList, restrictingTimeLine))
+                {
+
+                    totalDistance = SubCalendarEvent.CalculateDistance(myList, worstDistance);
+                    if (BorderElements != null)
+                    {
+                        totalDistance += Location_Elements.calculateDistance(BorderElements.Item1, myList.First().myLocation);
+                        totalDistance += Location_Elements.calculateDistance(BorderElements.Item2, myList.Last().myLocation);
+                    }
+                    //Location_Elements.calculateDistance(myList.Select(obj => obj.myLocation).ToList());
+                }
+                allFactorial[permutationIndex - startingIndex] = totalDistance;
+            }
+            //);
+
+            int lowestIndex = allFactorial.MinIndex() + startingIndex;
+            int[] allIndex = generatePermutation(init_Array.ToArray(), lowestIndex, 0, permutationMax, init_Array.Length, 0);
+            double lowestDist = worstDistance;
+            List<SubCalendarEvent> bestOrder = new List<SubCalendarEvent>();
+            foreach (int eachInt in allIndex)
+            {
+                bestOrder.Add(AllEvents[eachInt]);
+            }
+
+            return bestOrder.ToArray();
+
+        }
+
+        public static SubCalendarEvent[] getBestPermutation(List<SubCalendarEvent> AllEvents, double worstDistance, Tuple<Location_Elements, Location_Elements> BorderElements = null)
         {
             if (AllEvents.Count <= 1)
             {
@@ -419,7 +624,6 @@ namespace TilerElements
             int factorialLimiter = AllEvents.Count < maxFactorialCount ? AllEvents.Count : maxFactorialCount;
             long numberOfpermutations = Factorial(AllEvents.Count);
             int[] init_Array = new int[AllEvents.Count];
-
             double[] allFactorial = new double[Factorial(factorialLimiter)];
             double iniMinValue = double.MaxValue, minValue = double.MaxValue;
 
@@ -439,7 +643,7 @@ namespace TilerElements
             for (long j = 0; j < LoopCounter + 1; j++)
             {
                 //Parallel.For(j * lengthOfLoop, numberOfpermutations, i =>
-                for (long i = j * lengthOfLoop; i < numberOfpermutations; i++ )
+                for (long i = j * lengthOfLoop; i < numberOfpermutations; i++)
                 {
                     int[] myArray = generatePermutation(init_Array.ToArray(), i, 0, numberOfpermutations, init_Array.Length, 0);
                     double totalDistance = worstDistance;
@@ -511,23 +715,23 @@ namespace TilerElements
             for (long j = 0; j < LoopCounter + 1; j++)
             {
                 Parallel.For(j * lengthOfLoop, numberOfpermutations, i =>
+                {
+                    int[] myArray = generatePermutation(init_Array.ToArray(), i, 0, numberOfpermutations, init_Array.Length, 0);
+                    double totalDistance = worstDistance;
+                    List<Location_Elements> myList = new List<Location_Elements>();
+                    foreach (int eachInt in myArray)
                     {
-                        int[] myArray = generatePermutation(init_Array.ToArray(), i, 0, numberOfpermutations, init_Array.Length, 0);
-                        double totalDistance = worstDistance;
-                        List<Location_Elements> myList = new List<Location_Elements>();
-                        foreach (int eachInt in myArray)
-                        {
-                            myList.Add(AllEvents[eachInt]);
-                        }
-                        //if (Utility.PinSubEventsToEnd(myList, restrictingTimeLine))
-                        {
-                            //totalDistance = SubCalendarEvent.CalculateDistance(myList, worstDistance);
-
-                            totalDistance = Location_Elements.calculateDistance(myList);
-                        }
-                        allFactorial[i % lengthOfLoop] = totalDistance;
-
+                        myList.Add(AllEvents[eachInt]);
                     }
+                    //if (Utility.PinSubEventsToEnd(myList, restrictingTimeLine))
+                    {
+                        //totalDistance = SubCalendarEvent.CalculateDistance(myList, worstDistance);
+
+                        totalDistance = Location_Elements.calculateDistance(myList);
+                    }
+                    allFactorial[i % lengthOfLoop] = totalDistance;
+
+                }
                 );
 
                 double currValue = allFactorial.Min();
@@ -589,7 +793,7 @@ namespace TilerElements
         {
             List<T> retValue = new List<T>();
 
-            foreach(T eachT in ListA)
+            foreach (T eachT in ListA)
             {
                 if (!(ListB.Contains(eachT)))
                 {
@@ -603,7 +807,7 @@ namespace TilerElements
         public static Tuple<int, List<List<Dictionary<T, mTuple<int, U>>>>> getHighestCountList<T, U>(List<List<Dictionary<T, mTuple<int, U>>>> PossibleMatches, List<Dictionary<T, mTuple<int, U>>> ConstrainedList)
         {
             int HighstSum = 0;
-            List<List<Dictionary<T, mTuple<int, U>>>> retValue= new List<List<Dictionary<T,mTuple<int,U>>>>();
+            List<List<Dictionary<T, mTuple<int, U>>>> retValue = new List<List<Dictionary<T, mTuple<int, U>>>>();
             //List<TimeLine> AllTimeLines = ConstrainedList.Keys.ToList();
             List<Dictionary<T, mTuple<int, U>>> ListOfDict = ConstrainedList;
 
@@ -649,7 +853,7 @@ namespace TilerElements
                 j++;
             }
 
-            return new Tuple<int,List<List<Dictionary<T,mTuple<int,U>>>>>(HighstSum,retValue);
+            return new Tuple<int, List<List<Dictionary<T, mTuple<int, U>>>>>(HighstSum, retValue);
         }
 
         static public bool PinSubEventsToStart(IEnumerable<SubCalendarEvent> arg1, TimeLine Arg2)
@@ -657,11 +861,11 @@ namespace TilerElements
             return PinSubEventsToStart_NoEdit(arg1.ToArray(), Arg2);
         }
 
-        static private bool PinSubEventsToStart_NoEdit(SubCalendarEvent []arg1, TimeLine Arg2)
+        static private bool PinSubEventsToStart_NoEdit(SubCalendarEvent[] arg1, TimeLine Arg2)
         {
             bool retValue = true;
-            long length=arg1.LongLength;
-            TimeLine refTimeline=Arg2.CreateCopy();
+            long length = arg1.LongLength;
+            TimeLine refTimeline = Arg2.CreateCopy();
             for (int i = 0; i < length; i++)
             {
                 if (arg1[i].PinToStart(refTimeline))
@@ -714,26 +918,26 @@ namespace TilerElements
         /// <returns></returns>
         static public bool PinSubEventsToEnd(IEnumerable<SubCalendarEvent> arg1, TimeLine Arg2)
         {
-            
-            
+
+
             return PinSubEventsToEnd_NoEdit(arg1.ToArray(), Arg2);
         }
 
 
-        static private bool PinSubEventsToEnd_NoEdit(SubCalendarEvent[]arg1, TimeLine Arg2)
+        static private bool PinSubEventsToEnd_NoEdit(SubCalendarEvent[] arg1, TimeLine Arg2)
         {
             bool retValue = true;
             long length = arg1.LongLength;
             TimeLine refTimeline = Arg2.CreateCopy();
             SubCalendarEvent refEvent;
-            for (long i = length-1; i >= 0;i-- )
+            for (long i = length - 1; i >= 0; i--)
             {//hack notice you need to ensure that each subcalevent can fit within the timeline. YOu need a way to resolve this if not possible
-                refEvent=arg1[i];
+                refEvent = arg1[i];
                 if (refEvent.PinToEnd(refTimeline))
                 {
 
                 }
-                else 
+                else
                 {
                     retValue = false;
                     break;
@@ -746,7 +950,7 @@ namespace TilerElements
 
         static private bool PinSubEventsToEnd_NoEdit(List<SubCalendarEvent> arg1, TimeLine Arg2)
         {
-            bool retValue=true;
+            bool retValue = true;
             if (arg1.Count > 0)
             {//hack notice you need to ensure that each subcalevent can fit within the timeline. YOu need a way to resolve this if not possible
                 retValue = arg1[arg1.Count - 1].PinToEnd(Arg2);
@@ -831,7 +1035,7 @@ namespace TilerElements
             return retValue;
         }
 
-        static public double calculateDistance(List<SubCalendarEvent>  allSubCalEvents,Dictionary<string, List<Double>> DistanceMatrix)
+        static public double calculateDistance(List<SubCalendarEvent> allSubCalEvents, Dictionary<string, List<Double>> DistanceMatrix)
         {
             List<string> AllIds = allSubCalEvents.Select(obj => obj.SubEvent_ID.getCalendarEventComponent()).ToList();
             List<string> Allkeys = DistanceMatrix.Keys.ToList();
@@ -863,7 +1067,7 @@ namespace TilerElements
             Dictionary<string, mTuple<int, TimeSpanWithStringID>> recompiledListToMatch_GuardList = new Dictionary<string, mTuple<int, TimeSpanWithStringID>>();
 
             mTuple<bool, List<TimeSpanWithStringID>> retValue = new mTuple<bool, List<TimeSpanWithStringID>>(false, new List<TimeSpanWithStringID>());
-            foreach(Dictionary<string, mTuple<int, TimeSpanWithStringID>> eachDictionary in PotentialError_list)
+            foreach (Dictionary<string, mTuple<int, TimeSpanWithStringID>> eachDictionary in PotentialError_list)
             {
                 foreach (KeyValuePair<string, mTuple<int, TimeSpanWithStringID>> eachKeyValuePair in eachDictionary)
                 {
@@ -871,7 +1075,7 @@ namespace TilerElements
                     {
                         recompiledListToMatch_GuardList[eachKeyValuePair.Key].Item1 += eachKeyValuePair.Value.Item1;
                     }
-                    else 
+                    else
                     {
                         recompiledListToMatch_GuardList.Add(eachKeyValuePair.Key, new mTuple<int, TimeSpanWithStringID>(eachKeyValuePair.Value.Item1, eachKeyValuePair.Value.Item2));
                     }
@@ -888,7 +1092,7 @@ namespace TilerElements
                         retValue.Item2.Add(eachKeyValuePair.Value.Item2);
                     }
                 }
-                else 
+                else
                 {
                     retValue.Item1 = true;
                     retValue.Item2.Add(eachKeyValuePair.Value.Item2);
@@ -902,7 +1106,7 @@ namespace TilerElements
 
         static public TimeLine AddSubCaleventsToTimeLine(TimeLine EncasingTimeLine, IEnumerable<SubCalendarEvent> SubCalendarEvents)
         {
-            EncasingTimeLine=EncasingTimeLine.CreateCopy();
+            EncasingTimeLine = EncasingTimeLine.CreateCopy();
             foreach (SubCalendarEvent eachSubCalendarEvent in SubCalendarEvents)
             {
                 if (eachSubCalendarEvent.canExistWithinTimeLine(EncasingTimeLine))
@@ -952,11 +1156,11 @@ namespace TilerElements
             //EntryList=EntryList.ToList();
             List<T> retValue = EntryList.ToList();
             Random myRand = new Random(1);
-            for (int i = 0; i < EntryList.Count;i++ )
+            for (int i = 0; i < EntryList.Count; i++)
             {
                 int MyNumb = myRand.Next(0, EntryList.Count);
                 T Temp = retValue[i];
-                retValue[i]=retValue[MyNumb];
+                retValue[i] = retValue[MyNumb];
                 retValue[MyNumb] = Temp;
             }
 
@@ -985,6 +1189,21 @@ namespace TilerElements
 
             return retValue;
         }
-        
+
+        public static List<object> dedupeAndPreserveListOrder(IEnumerable<object> entryList)
+        {
+            List<object> retValue = new List<object>();
+            HashSet<object> dedupData = new HashSet<object>();
+            foreach (object data in entryList)
+            {
+                if (!dedupData.Contains(data))
+                {
+                    retValue.Add(data);
+                    dedupData.Add(data);
+                }
+            }
+            return retValue;
+        }
+
     }
 }

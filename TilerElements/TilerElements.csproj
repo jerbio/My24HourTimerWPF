@@ -66,6 +66,7 @@
     <Compile Include="DayTimeLine.cs" />
     <Compile Include="EventType.cs" />
     <Compile Include="IWhy.cs" />
+    <Compile Include="GoogleThirdPartyControl.cs" />
     <Compile Include="MultidimensionalCalculation.cs" />
     <Compile Include="NowProfile.cs" />
     <Compile Include="PauseProfile.cs" />

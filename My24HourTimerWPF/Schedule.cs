@@ -113,28 +113,27 @@ namespace My24HourTimerWPF
 
         }
 
-        
 
-        public void updateDataSetWithThirdPartyData(Tuple<ThirdPartyControl.CalendarTool,IEnumerable<CalendarEvent>> ThirdPartyData)
+
+        public void updateDataSetWithThirdPartyData(Tuple<ThirdPartyControl.CalendarTool, IEnumerable<CalendarEvent>> ThirdPartyData)
         {
-            if (ThirdPartyData!=null)
+            if (ThirdPartyData != null)
             {
                 myCalendar.Add(ThirdPartyData.Item1, ThirdPartyData.Item2.ToList());
 
-                foreach(CalendarEvent ThirdPartyCalData in ThirdPartyData.Item2)
+                foreach (CalendarEvent ThirdPartyCalData in ThirdPartyData.Item2)
                 {
                     AllEventDictionary.Add(ThirdPartyCalData.Calendar_EventID.getCalendarEventComponent(), ThirdPartyCalData);
                 }
             }
-
             retrievedThirdParty = true;
         }
 
-        async public Task updateDataSetWithThirdPartyDataAndTriggerNewAddition(Tuple<ThirdPartyControl.CalendarTool,IEnumerable<CalendarEvent>> ThirdPartyData)
+
+        async public Task updateDataSetWithThirdPartyDataAndTriggerNewAddition(Tuple<ThirdPartyControl.CalendarTool, IEnumerable<CalendarEvent>> ThirdPartyData)
         {
 
             if (ThirdPartyData!=null)
-         
             {
                 updateDataSetWithThirdPartyData(ThirdPartyData);
                 await triggerNewlyAddedThirdparty().ConfigureAwait(false);
@@ -143,6 +142,7 @@ namespace My24HourTimerWPF
                     AllEventDictionary.Remove(ThirdPartyCalData.Calendar_EventID.getCalendarEventComponent());
                 }
             }
+
             retrievedThirdParty = true;
             await WriteFullScheduleToLogAndOutlook().ConfigureAwait(false);
         }
@@ -167,7 +167,7 @@ namespace My24HourTimerWPF
                 if (AllEventDictionary != null)
                 {
                     //setAsComplete();
-                    myCalendar.Add(ThirdPartyControl.CalendarTool.Outlook, new List<CalendarEvent>() {new CalendarEvent() });
+                    myCalendar.Add(ThirdPartyControl.CalendarTool.Outlook, new List<CalendarEvent>() { new CalendarEvent() });
                     CompleteSchedule = getTimeLine();
                     EventID.Initialize((uint)(myAccount.LastEventTopNodeID));
                     //EventIDGenerator.Initialize((uint)(this.LastScheduleIDNumber));
@@ -402,10 +402,10 @@ namespace My24HourTimerWPF
 
         public void removeAllFromOutlook()
         {
-            
             TilerFront.OutLookConnector myOutlook = new OutLookConnector();
             myOutlook.removeAllEventsFromOutLook(AllEventDictionary.Values);
         }
+
 
         public void EmptyMemory()
         {
@@ -1081,15 +1081,17 @@ namespace My24HourTimerWPF
             }
         }
 
+
         async public Task WriteFullScheduleToLogAndOutlook()
         {
             CleanUpForUI();
             myAccount.UpdateReferenceDayTime(ReferenceDayTIime);
             
 
+
             foreach (List<CalendarEvent> eachTuple in myCalendar.Values)
             {
-                foreach(CalendarEvent THirpartyCalendarEvents in eachTuple)
+                foreach (CalendarEvent THirpartyCalendarEvents in eachTuple)
                 {//= eachThirdPartyCalendarControl.getThirdpartyCalendarEvent();
                     AllEventDictionary.Remove(THirpartyCalendarEvents.Calendar_EventID.getCalendarEventComponent());
                 }
@@ -1101,7 +1103,6 @@ namespace My24HourTimerWPF
                 (myOutlook).WriteToOutlook(MyCalEvent);
             }
 
-            
 
             await myAccount.CommitEventToLogOld(AllEventDictionary.Values, EventID.LatestID.ToString());
         }

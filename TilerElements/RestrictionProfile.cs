@@ -85,6 +85,39 @@ namespace TilerElements
             InitializeOverLappingDictionary();
         }
 
+        public RestrictionProfile(IEnumerable<DayOfWeek> DaysOfWeekSelection, IEnumerable<RestrictionTimeLine> constrictionProgiles)
+        {
+            if ((constrictionProgiles.Count() == DaysOfWeekSelection.Count()) && (DaysOfWeekSelection.Count() > 0))
+            {
+                DaysOfWeekSelection = DaysOfWeekSelection.OrderBy(obj => obj).ToArray();
+                startDayOfWeek = ((DayOfWeek[])DaysOfWeekSelection)[0];
+                List<DayOfWeek> AllDay = DaysOfWeekSelection.ToList();
+                List<RestrictionTimeLine> RestrictingTimeLines = constrictionProgiles.ToList();
+
+                for(int i=0;i< AllDay.Count;i++)
+                {
+
+                    DayOfWeek eachDayOfWeek = AllDay[i];
+                    RestrictionTimeLine RestrictingFrame = RestrictingTimeLines[i];
+                    int DayOfWeekInt = (int)eachDayOfWeek;
+                    DaySelection[DayOfWeekInt] = new Tuple<DayOfWeek, RestrictionTimeLine>(eachDayOfWeek, RestrictingFrame);
+                }
+
+                NoNull_DaySelections = DaySelection.Where(obj => obj != null).ToArray();
+                InitializeOverLappingDictionary();
+            }
+            else
+            {
+                if (DaysOfWeekSelection.Count()<1)
+                {
+                    throw new Exception("There are zero contriction frames");
+                }
+                throw new Exception("Number of days not equal to number of RestrictionTimeLine ");
+            }
+
+            
+        }
+
 
         protected void InitializeOverLappingDictionary()
         {

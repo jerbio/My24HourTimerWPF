@@ -507,28 +507,43 @@ namespace TilerElements
         /// </summary>
         /// <param name="RefTime"></param>
         /// <returns></returns>
-        public TimeLine getLatestEndTimeWithinFrameBeforeRefTime(DateTimeOffset RefTime)
+        public TimeLine getLatestEndTimeWithinFrameBeforeRefTime(DateTimeOffset time)
         {
+            DateTimeOffset RefTime = time;
             int DayOfWeekInt = (int)RefTime.DayOfWeek;
             TimeLine retValue;
             DateTimeOffset refSTart = new DateTimeOffset(1, 1, 1, RefTime.Hour, RefTime.Minute, RefTime.Second, new TimeSpan());
 
             List<Tuple<int,int>> AllInterFerringIndexes = DayOfWeekToOverlappingIndexes[DayOfWeekInt];
             int RightIndex = -1;
-
+            List<TimeLine> allPossibleTimeLines = new List<TimeLine>();
+            DateTimeOffset pivotTime = time;
             for (int i = 0; i < AllInterFerringIndexes.Count; i++)
             {
                 Tuple<int,int> myTUple=AllInterFerringIndexes[i];
-                int NumberOfDays = RefTime.DayOfWeek - NoNull_DaySelections[myTUple.Item1].Item1;
-                TimeLine DayFramTImeLine = getTImeLineFromTuple(NoNull_DaySelections[myTUple.Item1],RefTime);
-                if (DayFramTImeLine.IsDateTimeWithin(RefTime) || (DayFramTImeLine.End == RefTime))// || (DayFramTImeLine.Start == RefTime))
+                int NumberOfDays = NoNull_DaySelections[myTUple.Item1].Item1- pivotTime.DayOfWeek;
+                //checks if the day difference is morethan the supposed span of coverage. If it is, simply subtract the supposed number of days. 
+                //This will ensuree that the right week gets selected. thik Pivotday been a sunday and myTUple.item2 being a saturday. They are both on different weeks.
+                //This ensures that later call to getTImeLineFromTuple. operates on the date in right week
+                if (NumberOfDays >= myTUple.Item2)
                 {
-                    retValue = new TimeLine(DayFramTImeLine.Start, RefTime);
+                    pivotTime = pivotTime.AddDays(-myTUple.Item2);
+                }
+
+                TimeLine dayFrameTImeLine = getTImeLineFromTuple(NoNull_DaySelections[myTUple.Item1], pivotTime);
+                if (dayFrameTImeLine.IsDateTimeWithin(RefTime) || (dayFrameTImeLine.End == RefTime))// || (DayFramTImeLine.Start == RefTime))
+                {
+                    retValue = new TimeLine(dayFrameTImeLine.Start, pivotTime);
                     return retValue;
                 }
-                else
+                allPossibleTimeLines.Add(dayFrameTImeLine);
+            }
+            if (allPossibleTimeLines.Count > 0)//OPTIMIZATION figure out awayy to make the call not check through all the timelines
+            {
+                List<TimeLine> timelines = allPossibleTimeLines.Where(obj => obj.End <= RefTime).ToList();//gets timelines where they occur before current timeline
+                if(timelines.Count>0)
                 {
-                    retValue = getLatestEndTimeFrameBorder(RefTime);
+                    retValue = timelines.OrderByDescending(obj => obj.End).First();
                     return retValue;
                 }
             }
@@ -565,11 +580,6 @@ namespace TilerElements
                     retValue = new TimeLine(StartData, DayFramTImeLine.End);
                     return retValue;
                 }
-                else
-                {
-                    retValue = getEarliestStartTimeFrameBorder(StartData);
-                    return retValue;
-                }
             }
 
             retValue = getEarliestStartTimeFrameBorder(StartData);
@@ -586,10 +596,10 @@ namespace TilerElements
         /// <param name="myTuple"></param>
         /// <param name="Start"></param>
         /// <returns></returns>
-        TimeLine getTImeLineFromTuple(Tuple<DayOfWeek, RestrictionTimeLine> myTuple, DateTimeOffset Start)
+        TimeLine getTImeLineFromTuple(Tuple<DayOfWeek, RestrictionTimeLine> myTuple, DateTimeOffset refDate)
         {
-            int DayDifference = myTuple.Item1- Start.DayOfWeek;
-            DateTimeOffset refStart = Start.AddDays(DayDifference);
+            int DayDifference = myTuple.Item1- refDate.DayOfWeek;
+            DateTimeOffset refStart = refDate.AddDays(DayDifference);
             TimeLine retValue =  myTuple.Item2.getTimeLineFromStartFrame(refStart);
             return retValue;
         }

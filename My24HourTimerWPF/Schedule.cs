@@ -2430,7 +2430,7 @@ namespace My24HourTimerWPF
 
 
             DayTimeLine[] AllDayTImeLine = Now.getAllDaysLookup().Select(obj => obj.Value).ToArray();
-            ParallellizeCallsToDay(SortedInterFerringCalendarEvents_Deadline, ArrayOfInterferringSubEvents, AllDayTImeLine);
+            ParallelizeCallsToDay(SortedInterFerringCalendarEvents_Deadline, ArrayOfInterferringSubEvents, AllDayTImeLine);
 
             foreach (BlobSubCalendarEvent eachSubCalEvent in preppedDataForNExtStage.Item2)
             {
@@ -3179,7 +3179,7 @@ namespace My24HourTimerWPF
             List<CalendarEvent> SortedInterFerringCalendarEvents_Deadline = DictionaryWithBothCalendarEventIDAndListOfInterferringSubEvents.Keys.ToList();
             SortedInterFerringCalendarEvents_Deadline = SortedInterFerringCalendarEvents_Deadline.OrderBy(obj => obj.End).ToList();
             DayTimeLine[] AllDays = Now.getAllDaysCount((uint)NumberOfDays).ToArray();
-            ParallellizeCallsToDay(SortedInterFerringCalendarEvents_Deadline, ArrayOfInterferringSubEvents.ToList(),AllDays,false );
+            ParallelizeCallsToDay(SortedInterFerringCalendarEvents_Deadline, ArrayOfInterferringSubEvents.ToList(),AllDays,false );
             List<SubCalendarEvent> ConflictingEvents = new List<SubCalendarEvent>();
             foreach(SubCalendarEvent eachSubCalendarEvent in ArrayOfInterferringSubEvents)
             {
@@ -3290,12 +3290,8 @@ namespace My24HourTimerWPF
         }
         
 
-        void OptimizeFirstTwentyFour(IEnumerable<SubCalendarEvent> AllSubEVents,TimeLine CurrentTwentyFour,Location_Elements InitializingLocation)
-        {
-
-        }
         
-        ulong ParallellizeCallsToDay(List<CalendarEvent> AllCalEvents,List<SubCalendarEvent> TotalActiveEvents, DayTimeLine[] AllDayTImeLine ,bool Optimize=true)
+        ulong ParallelizeCallsToDay(List<CalendarEvent> AllCalEvents,List<SubCalendarEvent> TotalActiveEvents, DayTimeLine[] AllDayTImeLine ,bool Optimize=true)
         {
             int TotalDays = (int)AllDayTImeLine.Length;
             Now.getAllDaysForCalc();
@@ -3590,16 +3586,7 @@ namespace My24HourTimerWPF
                     BestTimeLine = eachKeyValuePair;
                 }
             }
-
-            //evaluates the score for each event against the base Timeline range base case
-            foreach (KeyValuePair<SubCalendarEvent, TimeLine> eachKeyValuePair in SUbEventTOInterferringTimeLine)
-            {
-                
-                double score = ((double)eachKeyValuePair.Value.TimelineSpan.Ticks / BestTimeLine.Value.TimelineSpan.Ticks) * MaxPerParameter;
-                eachKeyValuePair.Key.Score += score;
-            }
-
-
+            
 
             KeyValuePair<SubCalendarEvent, double> LongestDistance = Distances.First();
             foreach (KeyValuePair<SubCalendarEvent, double> eachKeyValuePair in Distances)
@@ -3613,14 +3600,30 @@ namespace My24HourTimerWPF
                     LongestDistance = eachKeyValuePair;
                 }
             }
+            Dictionary<SubCalendarEvent,List<double>> subEventToMultiDimenstionVars = AllSubEvents.ToDictionary(obj=>obj, obj=>new List<double>());
+            //evaluates the score for each event against the base Timeline range base case
+            foreach (KeyValuePair<SubCalendarEvent, TimeLine> eachKeyValuePair in SUbEventTOInterferringTimeLine)
+            {
+                double score = ((double)eachKeyValuePair.Value.TimelineSpan.Ticks / BestTimeLine.Value.TimelineSpan.Ticks) * MaxPerParameter;
+                subEventToMultiDimenstionVars[eachKeyValuePair.Key].Add(score);
+            }
 
             if (LongestDistance.Value > 0)
             {
                 //evaluates the score for each event against the base Distance range base case
                 foreach (KeyValuePair<SubCalendarEvent, double> eachKeyValuePair in Distances)
                 {
-                    eachKeyValuePair.Key.Score += (double)(eachKeyValuePair.Value / LongestDistance.Value) * MaxPerParameter;
+                    double score = (double)(eachKeyValuePair.Value / LongestDistance.Value) * MaxPerParameter;
+                    subEventToMultiDimenstionVars[eachKeyValuePair.Key].Add(score);
                 }
+            }
+
+            List<double> resultants = Utility.multiDimensionCalculation(subEventToMultiDimenstionVars.Select(obj => (IEnumerable<double>)obj.Value).ToList());
+            int i = 0;
+            foreach(SubCalendarEvent subcalendarEvent in subEventToMultiDimenstionVars.Keys) 
+            {
+                subcalendarEvent.incrementScore( resultants[i]);
+                i++;
             }
             Tuple<TimeLine, Double> retValue = new Tuple<TimeLine, double>(BestTimeLine.Value, LongestDistance.Value);
             return retValue;
@@ -3817,7 +3820,6 @@ namespace My24HourTimerWPF
            
             }
 
-            //triggerTimer();
 
 
             AllInterferringSubEvents_Cpy_Hash.AsParallel().ForAll(obj => obj.Conflicts.UpdateConflictFlag(true));
@@ -3835,8 +3837,7 @@ namespace My24HourTimerWPF
             }
             
 
-            //List<List<List<SubCalendarEvent>>> retValueContainer = new List<List<List<SubCalendarEvent>>>();
-            //retValueContainer.Add(retValue);
+            //triggerTimer();
             return retValue;
             
                 /*Name: Jerome Biotidara
@@ -4477,7 +4478,7 @@ namespace My24HourTimerWPF
 
         void ScoreEvents(IEnumerable<SubCalendarEvent> EventsToBeScored, IEnumerable<SubCalendarEvent> referenceScoringEvents)
         {
-            EventsToBeScored.AsParallel().ForAll(obj => obj.Score = EvaluateScore(referenceScoringEvents,obj,Now.calculationNow));
+            EventsToBeScored.AsParallel().ForAll(obj => obj.setScore(EvaluateScore(referenceScoringEvents, obj, Now.calculationNow)));
         }
 
         double EvaluateScore(IEnumerable<SubCalendarEvent> CurrentEvents, SubCalendarEvent refEvents, DateTimeOffset refTIme)

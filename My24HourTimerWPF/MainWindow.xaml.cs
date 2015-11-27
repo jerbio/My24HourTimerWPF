@@ -53,7 +53,7 @@ namespace My24HourTimerWPF
             DateTimeOffset Start = new DateTimeOffset(2014, 2, 13, 0, 0, 0, new TimeSpan());
             DateTimeOffset Now = DateTimeOffset.Now;
             TimeSpan spent= Now - Start;
-            
+            LogInToWagtap();
         }
 
         static class ProcrastinateComboBox
@@ -1259,7 +1259,10 @@ namespace My24HourTimerWPF
             while(--NumberOfRetries>=0)
             {
                 TilerFront.Models.LoginViewModel myLogin = new TilerFront.Models.LoginViewModel() { Username = UserNameTextBox.Text, Password = PasswordTextBox.Text, RememberMe = true };
-                UserAccountDirect currentUser = await new TilerFront.Controllers.AccountController().LoginStatic(myLogin);
+
+                TilerFront.Models.AuthorizedUser AuthorizeUser = new TilerFront.Models.AuthorizedUser() { UserID = "d350ba4d-fe0b-445c-bed6-b6411c2156b3", UserName = "jerbio" };
+
+                UserAccount currentUser = await AuthorizeUser.getUserAccountDebug();
                 //MySchedule = new Schedule(currentUser,DateTimeOffset.Now);
                 
                 string eventName = textBox1.Text;
@@ -1369,7 +1372,8 @@ namespace My24HourTimerWPF
                 
                 Stopwatch snugarrayTester = new Stopwatch();
                 snugarrayTester.Start();
-                CustomErrors ScheduleUpdateMessage = await MySchedule.AddToScheduleAndCommit(ScheduleUpdated);
+                //CustomErrors ScheduleUpdateMessage = await MySchedule.AddToScheduleAndCommit(ScheduleUpdated);
+                CustomErrors ScheduleUpdateMessage = MySchedule.AddToSchedule(ScheduleUpdated);
                 snugarrayTester.Stop();
                 AllData[NumberOfRetries] = snugarrayTester.ElapsedMilliseconds;
 
@@ -1448,7 +1452,7 @@ namespace My24HourTimerWPF
             //UserAccountDirect currentUser =  new UserAccountDebug("18");
             await currentUser.Login();
             DateTimeOffset refNow=DateTimeOffset.Now;
-            refNow = DateTimeOffset.Parse("5/28/2015 7:58:00 AM");
+            //refNow = DateTimeOffset.Parse("5:08 AM Tuesday, June 2, 2015");
             //MySchedule = new Schedule(currentUser, refNow);
 
 
@@ -1463,15 +1467,15 @@ namespace My24HourTimerWPF
                 //datePicker1.SelectedDate = DateTimeOffset.Now.AddDays(0);
                 //datePicker1.SelectedDate = new DateTimeOffset(2013, 11, 20, 0, 0, 0);
                 //datePicker2.SelectedDate = DateTimeOffset.Now.AddDays(2);
-                datePicker2.SelectedDate = new DateTime(Schedule.Now.calculationNow.AddDays(0).ToLocalTime().Ticks);//new DateTimeOffset(2014, 5, 15, 0, 0, 0);
+                datePicker2.SelectedDate = new DateTime(Schedule.Now.calculationNow.AddDays(25).ToLocalTime().Ticks);//new DateTimeOffset(2014, 5, 15, 0, 0, 0);
                 calendar4.SelectedDate = new DateTime(DateTimeOffset.Now.AddDays(0).ToLocalTime().Ticks);
                 Random myNumber = new Random();
                 int RandomHour = myNumber.Next(0, 24);
                 int RandomMinute = myNumber.Next(0, 60);
                 textBox4.Text = RandomHour + ":" + RandomMinute;
                 
-                textBox4.Text = 2+ ":" + "30" + ":" + "00";//total time
-                textBox2.Text = 1.ToString();//number of splits
+                textBox4.Text = 19+ ":" + "30" + ":" + "00";//total time
+                textBox2.Text = 13.ToString();//number of splits
                 int ProcrastinateStartDay = 0;
                 int ProcrastinateEndDay = 365; 
                 int ProcrastinateStartHour = 0;

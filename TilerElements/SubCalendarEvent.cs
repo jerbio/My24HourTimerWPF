@@ -273,9 +273,19 @@ namespace TilerElements
             }
         }
 
+        public void setScore(double score)
+        {
+            EventScore = score;
+        }
+
+        public void incrementScore(double score)
+        {
+            EventScore += score;
+        }
+
         public static void resetScores(IEnumerable<SubCalendarEvent> AllSUbevents)
         {
-            AllSUbevents.AsParallel().ForAll(obj => obj.Score = 0);
+            AllSUbevents.AsParallel().ForAll(obj => obj.EventScore = 0);
         }
 
         public static TimeSpan TotalActiveDuration(IEnumerable<SubCalendarEvent> ListOfSubCalendarEvent)
@@ -847,11 +857,11 @@ namespace TilerElements
             get 
             {
                 return EventScore;
-            }
+            }/*
             set
             {
                 EventScore = value;
-            }
+            }*/
         }
 
         public int IntData

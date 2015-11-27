@@ -75,6 +75,27 @@ namespace TilerElements
             return retValue;
         }
 
+        static public List<double> multiDimensionCalculation(List<IEnumerable<double >> collection)
+        {
+            int counter = collection.Count;
+            List<double> retValue = (new double[counter]).ToList();
+            int length = collection.First().Count();
+            for (int i = 0; i<counter ;i++ ) 
+            {
+                IEnumerable< double> calculationSet = collection[i];
+                double sum = 0;
+                if (length != calculationSet.Count())
+                {
+                    throw new Exception("Oops seems like you are trying to run pythagoras on sets of different sizes");
+                }
+                foreach(double variable in calculationSet)
+                {
+                    sum += (variable * variable);
+                }
+                retValue[i] = Math.Sqrt(sum);
+            }
+            return retValue;
+        }
 
         public static List<T> NotInList<T>(List<T> ListToCheck, List<T> MyCurrentList)
         {

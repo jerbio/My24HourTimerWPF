@@ -3210,6 +3210,7 @@ namespace My24HourTimerWPF
         /// </summary>
         /// <param name="AllDays"></param>
         /// <param name="AllRigidSubEvents"></param>
+        /// returns the dictionary of the designated subcalendar events and their days. Note if subevent was exceeds the bounds then it wont be in return value
         Dictionary<SubCalendarEvent, List<ulong>> DesignateRigidsTODays(DayTimeLine[] OrderedyAscendingAllDays, IEnumerable<SubCalendarEvent>AllRigidSubEvents)
         {
             ulong First = OrderedyAscendingAllDays.First().UniversalIndex;
@@ -3220,25 +3221,34 @@ namespace My24HourTimerWPF
             //Parallel.ForEach(AllRigidSubEvents, eachSubCalendarEvent =>
 
             foreach (SubCalendarEvent eachSubCalendarEvent in AllRigidSubEvents)
-                {
+            {
 
-                    List<ulong> myDays = new List<ulong>();
-                    ulong SubCalFirstIndex = ReferenceNow.getDayIndexFromStartOfTime(eachSubCalendarEvent.Start);
-                    ulong SubCalLastIndex = ReferenceNow.getDayIndexFromStartOfTime(eachSubCalendarEvent.End);
-                    ulong DayDiff = SubCalLastIndex - SubCalFirstIndex;
-                    myDays.Add(SubCalFirstIndex);
-                    int BoundedIndex = (int)(SubCalFirstIndex - First);
-                    OrderedyAscendingAllDays[BoundedIndex].AddBusySlots(eachSubCalendarEvent.ActiveSlot);
-                    eachSubCalendarEvent.updateDayIndex(SubCalFirstIndex);
-                    for (ulong i = SubCalFirstIndex + 1, j = 0; j < DayDiff; j++, i++)
+                List<ulong> myDays = new List<ulong>();
+                ulong SubCalFirstIndex = ReferenceNow.getDayIndexFromStartOfTime(eachSubCalendarEvent.Start);
+                ulong SubCalLastIndex = ReferenceNow.getDayIndexFromStartOfTime(eachSubCalendarEvent.End);
+                ulong DayDiff = SubCalLastIndex - SubCalFirstIndex;
+
+                int BoundedIndex = (int)(SubCalFirstIndex - First);
+                if ((BoundedIndex < 0)||(BoundedIndex >= OrderedyAscendingAllDays.Length))
+                {
+                    continue;
+                }
+                myDays.Add(SubCalFirstIndex);
+                OrderedyAscendingAllDays[BoundedIndex].AddBusySlots(eachSubCalendarEvent.ActiveSlot);
+                eachSubCalendarEvent.updateDayIndex(SubCalFirstIndex);
+                for (ulong i = SubCalFirstIndex + 1, j = 0; j < DayDiff; j++, i++)
+                {
+                    BoundedIndex = (int)(i - First);
+                    if (BoundedIndex < OrderedyAscendingAllDays.Length)// in case the rigid sub event day index is higher than OrderedyAscendingAllDays max index
                     {
-                        myDays.Add(i);
-                        BoundedIndex = (int)(i - First);
                         OrderedyAscendingAllDays[BoundedIndex].AddBusySlots(eachSubCalendarEvent.ActiveSlot);
                         OrderedyAscendingAllDays[BoundedIndex].AddToSubEventList(eachSubCalendarEvent);
+                        myDays.Add(i);
                     }
-                    RetValue.Add(eachSubCalendarEvent, myDays);
+
                 }
+                RetValue.Add(eachSubCalendarEvent, myDays);
+            }
             //);
             return RetValue;
         }
@@ -9886,7 +9896,7 @@ namespace My24HourTimerWPF
             }
             return MyPertinentCalendarList.ToArray();
         }
-
+        /*
         TimeLine CreateTimeLineWithSubCalendarEventsStackedNextToEachOtherWithinRestrictiveCalendarEvent(Dictionary<CalendarEvent, List<SubCalendarEvent>> DictionaryCalendarEventAndJustInterferringSubCalendar)
         {
             /*
@@ -9895,12 +9905,12 @@ namespace My24HourTimerWPF
              * e.g CalendarEvent1 with Time Line (12:00Am 1/1/2013 and 12:00AM 1/3/2013) and a busy time slot of 7 hours and 2 subcalendar events. 
              * The expected final result will be SubEvent[0]=>5:00pm 1/2/2013 SubEvent[0]=>8:30pm 1/2/2013
              * Note this is only called with a dicitionary this is because thois is supposed to be called in a case wehere we have to optimize the assignation of the subevents
-             */
+             
             TimeLine MyTimeLine = new TimeLine();
-            List<CalendarEvent> MyDeadlineSortedListOfCalendarEvents = QuickSortCalendarEventFunctionFromEnd(DictionaryCalendarEventAndJustInterferringSubCalendar.Keys.ToList(), 0, (DictionaryCalendarEventAndJustInterferringSubCalendar.Keys.Count - 1), (DictionaryCalendarEventAndJustInterferringSubCalendar.Keys.Count / 2));
+            List<CalendarEvent> MyDeadlineSortedListOfCalendarEvents = DictionaryCalendarEventAndJustInterferringSubCalendar.Keys.OrderBy(obj => obj.End).ToList();// QuickSortCalendarEventFunctionFromEnd(DictionaryCalendarEventAndJustInterferringSubCalendar.Keys.ToList(), 0, (DictionaryCalendarEventAndJustInterferringSubCalendar.Keys.Count - 1), (DictionaryCalendarEventAndJustInterferringSubCalendar.Keys.Count / 2));
 
             return new TimeLine();
-        }
+        }*/
 
 
 
@@ -10627,7 +10637,7 @@ namespace My24HourTimerWPF
         /*QUICK SORT SECTION START*/
 
 
-
+        /*
         static public List<BusyTimeLine> QuickSortFunctionFromStart(List<BusyTimeLine> MyArray, int LeftIndexPassed, int RightIndexPassed, int PivotPassed)
         {
             //Console.WriteLine("\n EntryLeft is " + LeftIndexPassed.ToString() + " EntryRight is " + RightIndexPassed.ToString() + " EntryPivot is " + PivotPassed.ToString() + "\n");
@@ -10704,7 +10714,7 @@ namespace My24HourTimerWPF
             }
             return MyArray;
         }
-
+        */
         static public int GetLeftThatsGreaterFromStart(List<BusyTimeLine> MyArray, int MyPivot, int LeftStartinPosition)
         {
             for (int i = LeftStartinPosition; i <= MyPivot; i++)
@@ -10728,7 +10738,7 @@ namespace My24HourTimerWPF
             }
             return MyPivot;
         }
-
+        /*
         static public List<BusyTimeLine> QuickSortFunctionFromEnd(List<BusyTimeLine> MyArray, int LeftIndexPassed, int RightIndexPassed, int PivotPassed)
         {
             //Console.WriteLine("\n EntryLeft is " + LeftIndexPassed.ToString() + " EntryRight is " + RightIndexPassed.ToString() + " EntryPivot is " + PivotPassed.ToString() + "\n");
@@ -10805,7 +10815,7 @@ namespace My24HourTimerWPF
             }
             return MyArray;
         }
-
+        */
         static public int GetLeftThatsGreaterFromEnd(List<BusyTimeLine> MyArray, int MyPivot, int LeftStartinPosition)
         {
             for (int i = LeftStartinPosition; i <= MyPivot; i++)
@@ -10829,7 +10839,7 @@ namespace My24HourTimerWPF
             }
             return MyPivot;
         }
-
+        /*
         static public List<CalendarEvent> QuickSortCalendarEventFunctionFromEnd(List<CalendarEvent> MyArray, int LeftIndexPassed, int RightIndexPassed, int PivotPassed)
         {
             //Console.WriteLine("\n EntryLeft is " + LeftIndexPassed.ToString() + " EntryRight is " + RightIndexPassed.ToString() + " EntryPivot is " + PivotPassed.ToString() + "\n");
@@ -10906,7 +10916,7 @@ namespace My24HourTimerWPF
             }
             return MyArray;
         }
-
+        */
         static public int GetLeftCalendarEventThatsGreaterFromEnd(List<CalendarEvent> MyArray, int MyPivot, int LeftStartinPosition)
         {
             for (int i = LeftStartinPosition; i <= MyPivot; i++)
@@ -10930,7 +10940,7 @@ namespace My24HourTimerWPF
             }
             return MyPivot;
         }
-
+        /*
         static public List<CalendarEvent> QuickSortCalendarEventFunctionFromStart(List<CalendarEvent> MyArray, int LeftIndexPassed, int RightIndexPassed, int PivotPassed)
         {
             //Console.WriteLine("\n EntryLeft is " + LeftIndexPassed.ToString() + " EntryRight is " + RightIndexPassed.ToString() + " EntryPivot is " + PivotPassed.ToString() + "\n");
@@ -11007,7 +11017,7 @@ namespace My24HourTimerWPF
             }
             return MyArray;
         }
-
+        */
         static public int GetLeftCalendarEventThatsGreaterFromStart(List<CalendarEvent> MyArray, int MyPivot, int LeftStartinPosition)
         {
             for (int i = LeftStartinPosition; i <= MyPivot; i++)
@@ -11031,7 +11041,7 @@ namespace My24HourTimerWPF
             }
             return MyPivot;
         }
-
+        /*
         static public List<SubCalendarEvent> QuickSortSubCalendarEventFunctionFromEnd(List<SubCalendarEvent> MyArray, int LeftIndexPassed, int RightIndexPassed, int PivotPassed)
         {
             //Console.WriteLine("\n EntryLeft is " + LeftIndexPassed.ToString() + " EntryRight is " + RightIndexPassed.ToString() + " EntryPivot is " + PivotPassed.ToString() + "\n");
@@ -11111,7 +11121,7 @@ namespace My24HourTimerWPF
             }
             return MyArray;
         }
-
+        */
         static public int GetLeftSubCalendarEventThatsGreaterFromEnd(List<SubCalendarEvent> MyArray, int MyPivot, int LeftStartinPosition)
         {
             for (int i = LeftStartinPosition; i <= MyPivot; i++)
@@ -11135,7 +11145,7 @@ namespace My24HourTimerWPF
             }
             return MyPivot;
         }
-
+        /*
         static public List<SubCalendarEvent> QuickSortSubCalendarEventFunctionFromStart(List<SubCalendarEvent> MyArray, int LeftIndexPassed, int RightIndexPassed, int PivotPassed)
         {
             //Console.WriteLine("\n EntryLeft is " + LeftIndexPassed.ToString() + " EntryRight is " + RightIndexPassed.ToString() + " EntryPivot is " + PivotPassed.ToString() + "\n");
@@ -11214,7 +11224,7 @@ namespace My24HourTimerWPF
             }
             return MyArray;
         }
-
+        */
         static public int GetLeftSubCalendarEventThatsGreaterFromStart(List<SubCalendarEvent> MyArray, int MyPivot, int LeftStartinPosition)
         {
             for (int i = LeftStartinPosition; i <= MyPivot; i++)
@@ -11260,7 +11270,7 @@ namespace My24HourTimerWPF
             return InvadingEvents.ToArray();
         }
 
-
+        /*
         static public List<CalendarEvent> SortEvents(List<CalendarEvent> MyUnSortedEvent, bool StartOrEnd)
         {
             int MiddleRoundedDown = ((MyUnSortedEvent.Count - 1) / 2);
@@ -11286,15 +11296,20 @@ namespace My24HourTimerWPF
             { return QuickSortCalendarEventFunctionFromStart(MyUnSortedEvent, 0, MyUnSortedEvent.Count - 1, MiddleRoundedDown); }
             else
             { return QuickSortCalendarEventFunctionFromEnd(MyUnSortedEvent, 0, MyUnSortedEvent.Count - 1, MiddleRoundedDown); }
-        }
-
+        }*/
         static public List<BusyTimeLine> SortBusyTimeline(List<BusyTimeLine> MyUnsortedEvents, bool StartOrEnd)//True is from start. False is from end
         {
-            int MiddleRoundedDown = ((MyUnsortedEvents.Count - 1) / 2);
-            if (StartOrEnd)
-            { return QuickSortFunctionFromStart(MyUnsortedEvents, 0, MyUnsortedEvents.Count - 1, MiddleRoundedDown); }
-            else
-            { return QuickSortFunctionFromEnd(MyUnsortedEvents, 0, MyUnsortedEvents.Count - 1, MiddleRoundedDown); }
+            List<BusyTimeLine> retValue;
+            if(StartOrEnd)
+            {
+                retValue = MyUnsortedEvents.OrderBy(obj=>obj.Start).ToList();
+            }
+            else 
+            {
+                retValue = MyUnsortedEvents.OrderBy(obj => obj.End).ToList();
+            }
+
+            return retValue;
         }
 
         static public TimeLine[] getAllFreeSpots_NoCompleteSchedule(TimeLine MyTimeLine)//Gets an array of all the freespots between busy spots in given time line, note attribute completeschedule is not used in finding freespots

@@ -11381,6 +11381,8 @@ namespace My24HourTimerWPF
         static TimeLine ScheduleTimeline = new TimeLine();
 
 
+        //public XmlElement CreateEventScheduleNode(CalendarEvent MyEvent, XmlDocument xmldoc)
+
         public void LogStatus(CalendarEvent triggerEvent, string Trigger)//writes to an XML Log file. Takes calendar event as an argument
         {
 #if EnableClashLog

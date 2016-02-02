@@ -3178,6 +3178,10 @@ namespace My24HourTimerWPF
                 OptimizedPath DayPath = new OptimizedPath(EachDay, home);
                 DayPath.OptimizePath();
                 List<SubCalendarEvent> optimizedForDay = EachDay.getSubEventsInDayTimeLine().OrderBy(obj => obj.Start).ToList();
+                foreach(SubCalendarEvent subEvent in optimizedForDay)
+                {
+                    Console.WriteLine(subEvent.myLocation.justLongLatString());
+                }
             }
             //);
         }
@@ -11383,7 +11387,6 @@ namespace My24HourTimerWPF
         static TimeLine ScheduleTimeline = new TimeLine();
 
 
-        //public XmlElement CreateEventScheduleNode(CalendarEvent MyEvent, XmlDocument xmldoc)
 
         public void LogStatus(CalendarEvent triggerEvent, string Trigger)//writes to an XML Log file. Takes calendar event as an argument
         {

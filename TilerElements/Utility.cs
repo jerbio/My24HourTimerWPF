@@ -146,13 +146,31 @@ namespace TilerElements
             return retValue;
         }
 
+
         public static double CalcuateResultant(params double[] points)
         {
             double retValue = Math.Sqrt(points.AsParallel().Sum(point => point * point));
             return retValue;
         }
 
-        static public List<double> multiDimensionCalculation(IList<IList<double>> collection, List<double> origin = null)
+        static public List<double> getOriginFromDimensions(IList<IList<double>> collection)
+        {
+            IList<double> firstDataSet = collection.First();
+            int lengthOfEachDataset = firstDataSet.Count;
+            List<double> summingArray = (new double [lengthOfEachDataset]).Select(obj=> 0.0).ToList();
+            foreach(IList<double> eachDataSet in collection) 
+            {
+                for (int i = 0; i < lengthOfEachDataset; i++)
+                {
+                    summingArray[i] += eachDataSet[i];
+                }
+            }
+            List<double> retValue = summingArray.Select(obj => obj / collection.Count).ToList();
+
+            return retValue;
+        }
+
+        static public List<double> multiDimensionCalculation(IList<IList<double >> collection, List<double> origin = null)
         {
             int counter = collection.Count;
             List<double> retValue = (new double[counter]).ToList();
@@ -492,7 +510,6 @@ namespace TilerElements
                 NumberOfPermutation = NumberOfPermutation / (SizeOfArray - CurrentCycle);
             }
 
-
             return OriginalPermutation;
         }
 
@@ -542,8 +559,13 @@ namespace TilerElements
             double worstDistance = double.MinValue
             )
         {
+
             SubCalendarEvent[] retValue;
 
+            if (AllEvents.Count <= 1)
+            {
+                return AllEvents.ToArray();
+            }
             long numberOfpermutations = Factorial(AllEvents.Count);
             int permutationLimit = Int32.MaxValue / 16;
 
@@ -610,9 +632,9 @@ namespace TilerElements
             }
             double worstDistance = double.MaxValue;
             double minValue = worstDistance;
-            long minIndex = -1;
-
             double[] allFactorial = new double[permutationMax];
+
+            
 
             //Parallel.For(0, numberOfpermutations, i =>
 

@@ -3313,6 +3313,14 @@ namespace My24HourTimerWPF
             foreach(DayTimeLine EachDay in AllDayTimeLine)
             {
                 optimizeDay(EachDay);
+
+                OptimizedPath DayPath = new OptimizedPath(EachDay, home);
+                DayPath.OptimizePath();
+                List<SubCalendarEvent> optimizedForDay = EachDay.getSubEventsInDayTimeLine().OrderBy(obj => obj.Start).ToList();
+                foreach(SubCalendarEvent subEvent in optimizedForDay)
+                {
+                    Console.WriteLine(subEvent.myLocation.justLongLatString());
+                }
             }
             //);
         }
@@ -3686,7 +3694,7 @@ namespace My24HourTimerWPF
                 }
             }
 
-            List<double> resultants = Utility.multiDimensionCalculation(subEventToMultiDimenstionVars.Select(obj => (IEnumerable<double>)obj.Value).ToList());
+            List<double> resultants = Utility.multiDimensionCalculation(subEventToMultiDimenstionVars.Select(obj => ((IList<double>)obj.Value)).ToList());
             int i = 0;
             foreach(SubCalendarEvent subcalendarEvent in subEventToMultiDimenstionVars.Keys) 
             {
@@ -11328,33 +11336,6 @@ namespace My24HourTimerWPF
             return InvadingEvents.ToArray();
         }
 
-        /*
-        static public List<CalendarEvent> SortEvents(List<CalendarEvent> MyUnSortedEvent, bool StartOrEnd)
-        {
-            int MiddleRoundedDown = ((MyUnSortedEvent.Count - 1) / 2);
-            if (StartOrEnd)
-            { return QuickSortCalendarEventFunctionFromStart(MyUnSortedEvent, 0, MyUnSortedEvent.Count - 1, MiddleRoundedDown); }
-            else
-            { return QuickSortCalendarEventFunctionFromEnd(MyUnSortedEvent, 0, MyUnSortedEvent.Count - 1, MiddleRoundedDown); }
-        }
-
-        static public List<SubCalendarEvent> SortSubCalendarEvents(List<SubCalendarEvent> MyUnSortedEvent, bool StartOrEnd)
-        {
-            int MiddleRoundedDown = ((MyUnSortedEvent.Count - 1) / 2);
-            if (StartOrEnd)
-            { return QuickSortSubCalendarEventFunctionFromStart(MyUnSortedEvent, 0, MyUnSortedEvent.Count - 1, MiddleRoundedDown); }
-            else
-            { return QuickSortSubCalendarEventFunctionFromEnd(MyUnSortedEvent, 0, MyUnSortedEvent.Count - 1, MiddleRoundedDown); }
-        }
-
-        static public List<CalendarEvent> SortCalendarEvent(List<CalendarEvent> MyUnSortedEvent, bool StartOrEnd)
-        {
-            int MiddleRoundedDown = ((MyUnSortedEvent.Count - 1) / 2);
-            if (StartOrEnd)
-            { return QuickSortCalendarEventFunctionFromStart(MyUnSortedEvent, 0, MyUnSortedEvent.Count - 1, MiddleRoundedDown); }
-            else
-            { return QuickSortCalendarEventFunctionFromEnd(MyUnSortedEvent, 0, MyUnSortedEvent.Count - 1, MiddleRoundedDown); }
-        }*/
         static public List<BusyTimeLine> SortBusyTimeline(List<BusyTimeLine> MyUnsortedEvents, bool StartOrEnd)//True is from start. False is from end
         {
             List<BusyTimeLine> retValue;
@@ -11388,8 +11369,6 @@ namespace My24HourTimerWPF
                     AllFreeSlots = new TimeLine[2];
                     AllFreeSlots[0] = new TimeLine(MyTimeLine.Start, AllBusySlots[0].Start.AddMilliseconds(0));
                     AllFreeSlots[1] = new TimeLine(AllBusySlots[0].End.AddMilliseconds(0), MyTimeLine.End);
-                    /*AllFreeSlots[0] = new TimeLine(DateTimeOffset.Now, AllBusySlots[0].Start.AddMilliseconds(-1));
-                    AllFreeSlots[1] = new TimeLine(AllBusySlots[0].End.AddMilliseconds(1), AllBusySlots[0].End.AddYears(10));*/
                 }
                 else
                 {
@@ -11399,10 +11378,6 @@ namespace My24HourTimerWPF
                 return AllFreeSlots;
             }
             DateTimeOffset ReferenceTime = MyTimeLine.Start;
-            /*if (MyTimeLine.Start < MyTimeLine.Start)
-            {
-                ReferenceTime = MyTimeLine.Start;
-            }*/
 
             for (int i = 0; i < (AllBusySlots.Length); i++)//Free Spots Are only between two busy Slots. So Index Counter starts from 1 get start of second busy
             {
@@ -11450,8 +11425,6 @@ namespace My24HourTimerWPF
                     AllFreeSlots = new TimeLine[2];
                     AllFreeSlots[0] = new TimeLine(MyTimeLine.Start, AllBusySlots[0].Start.AddMilliseconds(0));
                     AllFreeSlots[1] = new TimeLine(AllBusySlots[0].End.AddMilliseconds(0), MyTimeLine.End);
-                    /*AllFreeSlots[0] = new TimeLine(DateTimeOffset.Now, AllBusySlots[0].Start.AddMilliseconds(-1));
-                    AllFreeSlots[1] = new TimeLine(AllBusySlots[0].End.AddMilliseconds(1), AllBusySlots[0].End.AddYears(10));*/
                 }
                 else
                 {
@@ -11461,10 +11434,6 @@ namespace My24HourTimerWPF
                 return AllFreeSlots;
             }
             DateTimeOffset ReferenceTime = CompleteSchedule.Start;
-            /*if (MyTimeLine.Start < CompleteSchedule.Start)
-            {
-                ReferenceTime = MyTimeLine.Start;
-            }*/
 
             for (int i = 0; i < (AllBusySlots.Length); i++)//Free Spots Are only between two busy Slots. So Index Counter starts from 1 get start of second busy
             {
@@ -11564,15 +11533,7 @@ namespace My24HourTimerWPF
             return retValue;
         }
 
-
-
-
-
-
-        //public XmlElement CreateEventScheduleNode(CalendarEvent MyEvent, XmlDocument xmldoc)
-
-
-
+        static TimeLine ScheduleTimeline = new TimeLine();
 
 
 

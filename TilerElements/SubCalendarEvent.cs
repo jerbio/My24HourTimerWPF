@@ -110,7 +110,7 @@ namespace TilerElements
 
         #region Class functions
 
-        public virtual string ToString()
+        public override string ToString()
         {
             return this.Start.ToString() + " - " + this.End.ToString() + "::" + this.Id + "\t\t::" + this.ActiveDuration.ToString();
         }
@@ -963,14 +963,23 @@ namespace TilerElements
             }
         }
 
-        public TimeSpan ActiveDuration
+        override public TimeSpan ActiveDuration
         {
             get
             {
                 return EventDuration;
             }
         }
-       
+
+        override public string ID
+        {
+            get
+            {
+                return UniqueID.ToString();
+            }
+        }
+
+        
 
         public EventID SubEvent_ID
         {
@@ -1030,7 +1039,7 @@ namespace TilerElements
             }
         }
 
-         public MiscData Notes
+        virtual public MiscData Notes
         { 
             get
             {
@@ -1038,7 +1047,7 @@ namespace TilerElements
             }
         }
 
-         public bool isVestige
+         virtual public bool isVestige
          {
              get 
              {
@@ -1061,6 +1070,15 @@ namespace TilerElements
                 return getPauseTime() != InitialPauseTime;
             }
         }
+
+        public override DateTimeOffset Deadline
+        {
+	        get 
+	        {
+                return CalendarEventRange.End;
+	        }
+        }
+        
 
         #endregion
 

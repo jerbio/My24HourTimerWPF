@@ -9,12 +9,39 @@ namespace TilerElements
 {
     public static class Utility
     {
-        static Utility()
-        { 
-        
-        }
+        const uint fibonnaciLimit = 100;
+        static uint[] fibonacciValues = new uint[fibonnaciLimit];
         public static DateTimeOffset JSStartTime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, new TimeSpan());
         public static DateTimeOffset BeginningOfTime = new DateTimeOffset();
+        static Utility()
+        {
+            initializeFibonacci();
+        }       
+        static void initializeFibonacci()
+        {
+            uint a = 0;
+            uint b = 1;
+            // In N steps compute Fibonacci sequence iteratively.
+            for (uint i = 0; i < fibonnaciLimit; i++)
+            {
+                uint temp = a;
+                a = b;
+                b = temp + b;
+                fibonacciValues[i] = a;
+            }
+        }
+
+        public static uint getFibonnacciNumber(uint index)
+        {
+            if (index >= fibonnaciLimit)
+            {
+                return fibonacciValues[100];
+            }
+            else
+            {
+                return fibonacciValues[index];
+            }
+        }
         public static List<SubCalendarEvent> sortSubCalEventByDeadline(List<SubCalendarEvent> SubCalEventRestricted, bool SecondSortByStartDate)
         {
             
@@ -77,22 +104,48 @@ namespace TilerElements
             return retValue;
         }
 
-        static public List<double> multiDimensionCalculation(List<IEnumerable<double >> collection)
+        static public List<double> getOriginFromDimensions(IList<IList<double>> collection)
+        {
+            IList<double> firstDataSet = collection.First();
+            int lengthOfEachDataset = firstDataSet.Count;
+            List<double> summingArray = (new double [lengthOfEachDataset]).Select(obj=> 0.0).ToList();
+            foreach(IList<double> eachDataSet in collection) 
+            {
+                for (int i = 0; i < lengthOfEachDataset; i++)
+                {
+                    summingArray[i] += eachDataSet[i];
+                }
+            }
+            List<double> retValue = summingArray.Select(obj => obj / collection.Count).ToList();
+
+            return retValue;
+        }
+
+        static public List<double> multiDimensionCalculation(IList<IList<double >> collection, List<double> origin = null)
         {
             int counter = collection.Count;
             List<double> retValue = (new double[counter]).ToList();
             int length = collection.First().Count();
+            if (origin == null)
+            {
+                origin = new List<double>();
+                for (int i = 0; i < length; i++)
+                {
+                    origin.Add(0);
+                }
+            }
             for (int i = 0; i<counter ;i++ ) 
             {
-                IEnumerable< double> calculationSet = collection[i];
+                IList< double> calculationSet = collection[i];
                 double sum = 0;
-                if (length != calculationSet.Count())
+                if ((length != calculationSet.Count()) || (origin.Count != length))
                 {
                     throw new Exception("Oops seems like you are trying to run pythagoras on sets of different sizes");
                 }
-                foreach(double variable in calculationSet)
+                for (int j = 0; j < calculationSet.Count; j++)
                 {
-                    sum += (variable * variable);
+                    double delta = (calculationSet[j] - origin[j]);
+                    sum += (delta * delta);
                 }
                 retValue[i] = Math.Sqrt(sum);
             }
@@ -307,7 +360,56 @@ namespace TilerElements
             return num;
         }
 
-        static int[] generatePermutation(int[] OriginalPermutation, long CurrentIndex, long CurrentCycle, long NumberOfPermutation, int SizeOfArray, int boundSelect)
+        public static int[] generatePermutation(int[] OriginalPermutation, long CurrentIndex, int CurrentCycle, long NumberOfPermutation, int SizeOfArray, int boundSelect)
+        {
+            if (NumberOfPermutation == 1)
+            {
+                return OriginalPermutation;
+            }
+	        long SizePerLevel = NumberOfPermutation / (SizeOfArray - CurrentCycle);
+	        if (boundSelect == 1)
+	        {
+		        CurrentCycle = boundSelect;
+	        }
+
+	        if (boundSelect == 2)
+	        {
+		        --SizeOfArray;
+	        }
+
+	        if (boundSelect == 3)
+	        {
+		        CurrentCycle = 1;
+		        --SizeOfArray;
+	        }
+
+	        for (; CurrentCycle < SizeOfArray; CurrentCycle++)
+	        {
+		        SizePerLevel = NumberOfPermutation / (SizeOfArray - CurrentCycle);
+		        int i = 0;
+		        for (; i* SizePerLevel <= CurrentIndex; i++)
+		        {
+			        ;
+		        }
+
+		        --i;
+
+		        int myIndex = i + CurrentCycle;
+		        int tmp = OriginalPermutation[myIndex];
+		        int refIndex = CurrentCycle;// SizeOfArray - (CurrentCycle + 1);
+		        OriginalPermutation[myIndex] = OriginalPermutation[refIndex];
+		        OriginalPermutation[refIndex] = tmp;
+
+		        CurrentIndex = CurrentIndex - i* SizePerLevel;
+		        NumberOfPermutation = NumberOfPermutation / (SizeOfArray - CurrentCycle);
+	        }
+
+            return OriginalPermutation;
+        }
+
+
+        /*
+        public static int[] generatePermutation(int[] OriginalPermutation, long CurrentIndex, long CurrentCycle, long NumberOfPermutation, int SizeOfArray, int boundSelect)
         {
             long num = NumberOfPermutation / (SizeOfArray - CurrentCycle);
             if (boundSelect == 1)
@@ -346,10 +448,18 @@ namespace TilerElements
 
         public static SubCalendarEvent[] getBestPermutation(List<SubCalendarEvent> AllEvents, double worstDistance, Tuple<Location_Elements,Location_Elements>BorderElements =null)
         {
+            if (AllEvents.Count <= 1)
+            {
+                return AllEvents.ToArray();
+            }
+            const int maxFactorialCount = 11;
+            int factorialLimiter = AllEvents.Count < maxFactorialCount ? AllEvents.Count : maxFactorialCount;
             long numberOfpermutations = Factorial(AllEvents.Count);
             int[] init_Array = new int[AllEvents.Count];
-            double[] allFactorial = new double[Factorial(11)];
-            double minValue = worstDistance;
+
+            double[] allFactorial = new double[Factorial(factorialLimiter)];
+            double iniMinValue = double.MaxValue, minValue = double.MaxValue;
+
             long minIndex = -1;
 
             Parallel.For(0, allFactorial.Length, i =>
@@ -365,7 +475,8 @@ namespace TilerElements
             long LoopCounter = numberOfpermutations / lengthOfLoop;
             for (long j = 0; j < LoopCounter + 1; j++)
             {
-                Parallel.For(j * lengthOfLoop, numberOfpermutations, i =>
+                //Parallel.For(j * lengthOfLoop, numberOfpermutations, i =>
+                for (long i = j * lengthOfLoop; i < numberOfpermutations; i++ )
                 {
                     int[] myArray = generatePermutation(init_Array.ToArray(), i, 0, numberOfpermutations, init_Array.Length, 0);
                     double totalDistance = worstDistance;
@@ -378,23 +489,28 @@ namespace TilerElements
                     {
 
                         totalDistance = SubCalendarEvent.CalculateDistance(myList, worstDistance);
-                        if(BorderElements !=null)
+                        if (BorderElements != null)
                         {
                             totalDistance += Location_Elements.calculateDistance(BorderElements.Item1, myList.First().myLocation);
                             totalDistance += Location_Elements.calculateDistance(BorderElements.Item2, myList.Last().myLocation);
                         }
                         //Location_Elements.calculateDistance(myList.Select(obj => obj.myLocation).ToList());
                     }
-                    allFactorial[i % lengthOfLoop] = totalDistance;
+                    long index = i % lengthOfLoop;
+                    allFactorial[index] = totalDistance;
 
                 }
-            );
+                //);
 
                 double currValue = allFactorial.Min();
                 if (currValue < minValue)
                 {
                     minValue = currValue;
                     minIndex = (j * lengthOfLoop) + allFactorial.MinIndex();
+                }
+                if (minValue == iniMinValue)
+                {
+                    minIndex = 0;
                 }
             }
 

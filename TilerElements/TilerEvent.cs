@@ -87,7 +87,7 @@ namespace TilerElements
             }
         }
 
-        public  DateTimeOffset End
+        virtual public  DateTimeOffset End
         {
             get
             {
@@ -95,7 +95,7 @@ namespace TilerElements
             }
         }
 
-        public  DateTimeOffset Start
+        virtual public  DateTimeOffset Start
         {
             get
             {
@@ -124,7 +124,7 @@ namespace TilerElements
             }
         }
 
-        public string ThirdPartyUserID
+        virtual public string ThirdPartyUserID
         {
             get
             {
@@ -132,7 +132,7 @@ namespace TilerElements
             }
         }
 
-         public Location_Elements myLocation
+        virtual public Location_Elements myLocation
         {
             set
             {
@@ -144,7 +144,7 @@ namespace TilerElements
             }
         }
 
-        public virtual bool FromRepeat
+        virtual public bool FromRepeat
         {
             get
             {
@@ -152,7 +152,7 @@ namespace TilerElements
             }
         }
 
-         public TimeSpan Preparation
+         virtual public TimeSpan Preparation
          {
              get
              {
@@ -258,6 +258,40 @@ namespace TilerElements
             {
                 return UniqueID.ToString();
             }
+        }
+        virtual public DateTimeOffset Deadline
+        {
+            get {
+                return End;
+            }
+        }
+
+        virtual public TimeSpan ActiveDuration
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        virtual public string ID
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        virtual public EventID TilerID
+        {
+            get
+            {
+                return UniqueID;
+            }
+        }
+        public virtual string ToString()
+        {
+            return this.Start.ToString() + " - " + this.End.ToString() + "::" + this.ID + "\t\t::" + this.ActiveDuration.ToString();
         }
     }
 }

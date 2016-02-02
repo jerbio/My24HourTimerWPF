@@ -238,7 +238,6 @@ namespace TilerElements
                 return CreatorIDInfo;
             }
         }
-
         virtual public TimeSpan UsedTime
         {
             set

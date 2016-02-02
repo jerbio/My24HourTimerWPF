@@ -1102,7 +1102,6 @@ namespace TilerElements
                 return CalendarEventRange.End;
 	        }
         }
-
         public virtual Dictionary<TimeSpan, List<Reason>>  ReasonsForPosiition
         {
             get {

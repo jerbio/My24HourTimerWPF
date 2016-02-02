@@ -845,3 +845,4 @@ namespace My24HourTimerWPF
 
     }
 }
+    

@@ -272,6 +272,7 @@ namespace TilerElements
         {
             Locations = Locations.Where(obj => !obj.isNull).ToList();
             Location_Elements retValue;
+            Locations = Locations.Where(location => !location.isDefault && !location.isNull).ToList();
             if (Locations.Count() > 0)
             {
                 if (Locations.Count() == 1)
@@ -331,7 +332,6 @@ namespace TilerElements
         {
             return  xValue + "," + yValue+"\n";
         }
-
 
         public static Location_Elements getClosestLocation(IEnumerable<Location_Elements> AllLocations, Location_Elements RefLocation)
         {

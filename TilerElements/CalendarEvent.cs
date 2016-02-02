@@ -1817,6 +1817,16 @@ namespace TilerElements
 
         #region Properties
 
+
+
+        override public string ID
+        {
+            get
+            {
+                return UniqueID.ToString();
+            }
+        }
+
         public EventID Calendar_EventID
         {
             get
@@ -1912,7 +1922,7 @@ namespace TilerElements
 
         */
         
-        public TimeSpan ActiveDuration
+        override public TimeSpan ActiveDuration
         {
             get
             {

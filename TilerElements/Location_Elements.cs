@@ -274,11 +274,36 @@ namespace TilerElements
             Location_Elements retValue;
             if (Locations.Count() > 0)
             {
-                List<Location_Elements> NonDefaultLocations = Locations.Where(obj => !obj.NullLocation).ToList();
+                if (Locations.Count() == 1)
+                {
+                    return Locations.Single();
+                }
 
-                double xCoord = NonDefaultLocations.Average(obj => obj.xValue);
-                double yCoord = NonDefaultLocations.Average(obj => obj.yValue);
-                retValue = new Location_Elements(xCoord, yCoord);
+                double x = 0;
+                double y = 0;
+                double z = 0;
+
+                foreach (var geoCoordinate in Locations)
+                {
+                    var latitude = geoCoordinate.XCoordinate * Math.PI / 180;
+                    var longitude = geoCoordinate.YCoordinate * Math.PI / 180;
+
+                    x += Math.Cos(latitude) * Math.Cos(longitude);
+                    y += Math.Cos(latitude) * Math.Sin(longitude);
+                    z += Math.Sin(latitude);
+                }
+
+                var total = Locations.Count();
+
+                x = x / total;
+                y = y / total;
+                z = z / total;
+
+                var centralLongitude = Math.Atan2(y, x);
+                var centralSquareRoot = Math.Sqrt(x * x + y * y);
+                var centralLatitude = Math.Atan2(z, centralSquareRoot);
+
+                return new Location_Elements(centralLatitude * 180 / Math.PI, centralLongitude * 180 / Math.PI);
             }
             else
             {
@@ -299,10 +324,13 @@ namespace TilerElements
 
         public override string ToString()
         {
-            return Address + "||" + yValue + "\",\"" + xValue;
+            return Address + "||" + xValue + "," + yValue;
         }
 
-
+        public string justLongLatString()
+        {
+            return  xValue + "," + yValue+"\n";
+        }
 
         public static Location_Elements getClosestLocation(IEnumerable<Location_Elements> AllLocations, Location_Elements RefLocation)
         {

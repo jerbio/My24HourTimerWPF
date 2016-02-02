@@ -58,11 +58,115 @@ namespace My24HourTimerWPF
 
         void OptimizeGrouping(OptimizedGrouping Grouping, IEnumerable<SubCalendarEvent>AllEvents )
         {
-            Grouping.clearUnStitchedEvents();
+            Dictionary<TilerEvent, List<double>> dimensionsPerEvent = new Dictionary<TilerEvent, List<double>>();
+            Dictionary<string, uint> fibboIndexes = new Dictionary<string, uint>();
+            Location_Elements avgLocation = Location_Elements.AverageGPSLocation(events.Select(obj => obj.myLocation));
+
+            foreach (TilerEvent Event in events){
+                double distance = Location_Elements.calculateDistance(Event.myLocation, avgLocation, 100);
+                List<double> parameters = new List<double>();
+
+                uint multiplier = 1;
+                uint fiboindex = 1;
+                SubCalendarEvent mdskmk;
+                string calendarID = Event.TilerID.getCalendarEventComponent();
+
+                if(fibboIndexes.ContainsKey(calendarID))
+                {
+                    fiboindex = fibboIndexes[calendarID];
+                    fibboIndexes[calendarID] = fiboindex + 1;
+                    multiplier = Utility.getFibonnacciNumber(fiboindex);
+                }
+                else
+                {
+                    fibboIndexes.Add(calendarID, 1);
+                }
+                distance *= multiplier;
+                parameters.Add(distance);
+                dimensionsPerEvent.Add(Event, parameters);
+            }
+            fibboIndexes = new Dictionary<string, uint>();
+            long AverageTicks = (long)events.Average(obj => obj.Deadline.Ticks);
+            DateTimeOffset latestDeadline = new DateTimeOffset(AverageTicks, new TimeSpan());
+            foreach (TilerEvent Event in events)
+            {
+                double deadlineRatio = (double)Event.Deadline.Ticks / AverageTicks;
+                List<double> parameters = dimensionsPerEvent[Event];
+
+                uint multiplier = 1;
+                uint fiboindex = 1;
+                string calendarID = Event.TilerID.getCalendarEventComponent();
+
+                if (fibboIndexes.ContainsKey(calendarID))
+                {
+                    fiboindex = fibboIndexes[calendarID];
+                    fibboIndexes[calendarID] = fiboindex + 1;
+                    multiplier = Utility.getFibonnacciNumber(fiboindex);
+                }
+                else
+                {
+                    fibboIndexes.Add(calendarID, 1);
+                }
+                deadlineRatio *= multiplier;
+                parameters.Add(deadlineRatio);
+            }
+            fibboIndexes = new Dictionary<string, uint>();
+            long AverageDurationTicks = (long)events.Average(obj => obj.ActiveDuration.Ticks);
+            foreach (TilerEvent Event in events)
+            {
+                double durationRatio = (double)AverageDurationTicks / Event.ActiveDuration.Ticks;
+                List<double> parameters = dimensionsPerEvent[Event];
+
+                uint multiplier = 1;
+                uint fiboindex = 1;
+                string calendarID = Event.TilerID.getCalendarEventComponent();
+
+                if (fibboIndexes.ContainsKey(calendarID))
+                {
+                    fiboindex = fibboIndexes[calendarID];
+                    fibboIndexes[calendarID] = fiboindex + 1;
+                    multiplier = Utility.getFibonnacciNumber(fiboindex);
+                }
+                else
+                {
+                    fibboIndexes.Add(calendarID, 1);
+                }
+                durationRatio *= multiplier;
+                parameters.Add(durationRatio);
+            }
+
+            List<double> origin = new List<double>(){0, 0, 0};
+
+            
+            Dictionary<TilerEvent, double> retValue = new Dictionary<TilerEvent,double>();
+            List<TilerEvent> subeEVents = dimensionsPerEvent.OrderBy(obj => obj.Key.TilerID.getCalendarEventComponent()).Select(obj => obj.Key).ToList();
+            List<List<double>> allCalcs = subeEVents.Select(obj => dimensionsPerEvent[obj]).ToList();
+            IList<IList<double>> multidimensionalListOfValues = dimensionsPerEvent.Values.Select(obj=>((IList<double>)obj)).ToList();
+            List<double> evalaution = Utility.multiDimensionCalculation(multidimensionalListOfValues, origin);
+            int counter = 0;
+            foreach(TilerEvent eachEvent in events) 
+            {
+                if (counter > events.Count()) {
+                    throw new Exception("moreEvents than multidimensional calculation");
+                }
+                retValue.Add(eachEvent, evalaution[counter]);
+                counter++;
+            }
+            return retValue;
+        }
+
+        void OptimizeGrouping(OptimizedGrouping Grouping, IEnumerable<SubCalendarEvent>AllEvents )
+        {
+            Grouping.clearPathStitchedEvents();
             List<SubCalendarEvent> Subevents = new List<SubCalendarEvent>();
             List<SubCalendarEvent> Acknowledged_Revised = Grouping.getAcknowledgedSubevents();
             int i = 0;
-            foreach(SubCalendarEvent eachSubCalendarEvent in AllEvents.OrderBy(obj=>obj.ActiveDuration))
+             Dictionary<TilerEvent, double>  evaluatedEvents = evalulateParameter(AllEvents);
+             List<KeyValuePair<TilerEvent, double>> subEventsEvaluated = evaluatedEvents.OrderBy(obj => obj.Value).ToList();
+
+             IEnumerable<SubCalendarEvent> subEvents = (IEnumerable<SubCalendarEvent>)evaluatedEvents.OrderBy(obj => obj.Value).Select(obj =>(SubCalendarEvent) obj.Key);
+             List<String> locations = subEvents.Select(obj => "" + obj.myLocation.XCoordinate + "," + obj.myLocation.YCoordinate).ToList();
+            foreach (SubCalendarEvent eachSubCalendarEvent in subEvents)
             {
                 if(i<5)
                 {
@@ -74,7 +178,15 @@ namespace My24HourTimerWPF
                 }
                 i++;
             }
-            Subevents= Utility.getBestPermutation(Subevents, double.MaxValue, new Tuple<Location_Elements, Location_Elements>(Grouping.LeftBorder, Grouping.RightBorder)).ToList();
+
+            //Subevents= Utility.getBestPermutation(Subevents.ToList(), double.MaxValue, new Tuple<Location_Elements, Location_Elements>(Grouping.LeftBorder, Grouping.RightBorder)).ToList();
+            Tuple<Location_Elements, Location_Elements> borderElements = null;
+            if (!Grouping.LeftBorder.isNull && !Grouping.LeftBorder.isNull)
+            {
+                borderElements = new Tuple<Location_Elements, Location_Elements>(Grouping.LeftBorder, Grouping.RightBorder);
+            }
+
+            Subevents = Utility.getBestPermutation(Subevents.ToList(), borderElements, 0).ToList();
             for(i=0;i<Subevents.Count;i++)
             {
                 SubCalendarEvent mySubEvent = Subevents[i];

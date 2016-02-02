@@ -3157,7 +3157,12 @@ namespace My24HourTimerWPF
         void SortForSleep(IEnumerable<DayTimeLine>AllDayTimeLine)
         {
             //Parallel.ForEach(AllDayTimeLine, EachDay=>
-            foreach(DayTimeLine EachDay in AllDayTimeLine)
+            Location_Elements home = null;
+            if (Locations.ContainsKey("home"))
+            {
+                home = Locations["home"];
+            }
+            foreach (DayTimeLine EachDay in AllDayTimeLine)
             {
                 optimizeDay(EachDay);
 
@@ -11366,7 +11371,6 @@ namespace My24HourTimerWPF
         }
 
         static TimeLine ScheduleTimeline = new TimeLine();
-
 
 
         public void LogStatus(CalendarEvent triggerEvent, string Trigger)//writes to an XML Log file. Takes calendar event as an argument

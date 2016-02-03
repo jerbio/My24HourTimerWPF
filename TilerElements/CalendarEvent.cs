@@ -39,7 +39,7 @@ namespace TilerElements
         Dictionary<ulong, DayTimeLine> CalculationLimitation;
         Dictionary<ulong, DayTimeLine> FreeDaysLimitation;
         Deviation DeviatingInfo = new Deviation();
-
+        protected NowProfile ProfileOfNow = new NowProfile();
 
 
 
@@ -457,16 +457,16 @@ namespace TilerElements
         public void updateProcrastinate(Procrastination ProcrastinationTime)
         {
             ProfileOfProcrastination = ProcrastinationTime;
-            AllSubEvents.AsParallel().ForAll(obj => obj.NowInfo.reset());
+            //AllSubEvents.AsParallel().ForAll(obj => obj.NowInfo.reset());
         }
 
 
-        public override void resetNowProfile()
+        public virtual void resetNowProfile()
         {
             IEnumerable<SubCalendarEvent> AllSubCalEvents = DeviatingInfo.getDeviationDataByType(2);
             foreach(SubCalendarEvent eachSubcal in AllSubCalEvents )
             {
-                eachSubcal.resetNowProfile();
+                //eachSubcal.resetNowProfile();
                 DeviatingInfo.removeFromDeviatingData(2, eachSubcal.ID);
             }
             ProfileOfNow.reset();
@@ -2350,15 +2350,13 @@ namespace TilerElements
             }
         }
 
-        /*
-        virtual public NowProfile NowProfile
+        public NowProfile NowInfo
         {
             get
             {
                 return ProfileOfNow;
             }
         }
-        */
 
         #endregion
 

@@ -68,12 +68,6 @@ namespace TilerElements
 
         abstract public void updateRepetitionIndex(long RepetitionIndex);
 
-        virtual public void resetNowProfile()
-        {
-            NowInfo.reset();
-        }
-        
-
         public bool isComplete
         {
             get
@@ -246,6 +240,7 @@ namespace TilerElements
             }
         }
 
+        
         public string CreatorID
         {
             get

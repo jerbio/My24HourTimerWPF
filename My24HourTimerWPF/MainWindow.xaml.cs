@@ -53,7 +53,16 @@ namespace My24HourTimerWPF
             DateTimeOffset Start = new DateTimeOffset(2014, 2, 13, 0, 0, 0, new TimeSpan());
             DateTimeOffset Now = DateTimeOffset.Now;
             TimeSpan spent= Now - Start;
-            LogInToWagtap();
+            Task initializeLogin = LogInToWagtap();
+            try
+            {
+                initializeLogin.Wait();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            
         }
 
         static class ProcrastinateComboBox
@@ -1433,7 +1442,7 @@ namespace My24HourTimerWPF
             return retValue;
         }
 
-        private async void LogInToWagtap()
+        private async Task LogInToWagtap()
         {
             //string LogLocation = "";
             //LogLocation = @"C:\Users\OluJerome\Documents\Visual Studio 2010\Projects\LearnCuDAVS2010\LearnCUDAConsoleApplication\WagTapCalLogs\";
@@ -1447,8 +1456,17 @@ namespace My24HourTimerWPF
 
             UserAccount currentUser =await AuthorizeUser.getUserAccountDebug();// new UserAccountDebug("18");
             //await currentUser.batchMigrateXML();
-            
-            
+
+            string message = "Halt JEROME !!!!!. This was a commit knowing this error will happen" +
+                " You did this because you want to figure out your next steps.\n"
+                + " You deleted all refereneces to the NowProfile in SubCalendarEVents and TilerEVents because they were inherited from TIler Events.\n"
+                + "You did this because you think it was not needed and could easily be stored in the calendar event object. Since the calendar object can explicitly store a deviating subcalendar event and update the calculated rigid event with the deviation.\n"
+                + "Beware Jerome of the case where a repeating rigid event gets created and then now is pressed. Tiler needs to know which rigid event was pressed to accomplish this now activity\n"
+                + " You deleted the now profile because it was making the xml file too big and was hampering read performnace\n"
+                + " You realized that non-rigid subevents still get persisted and are not calculated on the fly which is unlike their rigid counterparts(I havent tested the latter part because, but this branch is called newrigidimplementation aka on the fly rigid calculations).\n"
+                + " You might want to resdesign the calls for the creation of non-rigid subevents to be calculated on the fly";
+
+            throw new Exception(message);
             //UserAccountDirect currentUser =  new UserAccountDebug("18");
             await currentUser.Login();
             DateTimeOffset refNow=DateTimeOffset.Now;
@@ -1512,7 +1530,15 @@ namespace My24HourTimerWPF
 
         private void LogInButton_Click(object sender, RoutedEventArgs e)
         {
-            LogInToWagtap();
+            Task initializeLogin = LogInToWagtap();
+            try
+            {
+                initializeLogin.Wait();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         private void EncryptClicked_Click(object sender, RoutedEventArgs e)

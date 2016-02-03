@@ -1456,11 +1456,14 @@ namespace My24HourTimerWPF
             //MySchedule = new Schedule(currentUser, refNow);
 
 
-
+            Stopwatch timer = new Stopwatch();
+            timer.Start();
             MySchedule = new Schedule(currentUser, refNow);
             
             if (MySchedule.isScheduleLoadSuccessful)
             {
+                timer.Stop();
+                MessageBox.Show("Ellapsed is " + timer.ElapsedMilliseconds + "ms");
                 
                 tabItem2.IsEnabled = true;
                 datePicker1.SelectedDate = new DateTime(Schedule.Now.calculationNow.AddDays(0).ToLocalTime().Ticks);// DateTimeOffset.Now.AddDays(0);

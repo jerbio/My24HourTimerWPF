@@ -1450,19 +1450,18 @@ namespace My24HourTimerWPF
             //UserAccountDirect currentUser =  new UserAccountDebug("18");
             await currentUser.Login();
             DateTimeOffset refNow=DateTimeOffset.Now;
-            refNow = DateTimeOffset.Parse("4/14/2015 6:19:00 AM");
-            //MySchedule = new Schedule(currentUser, refNow);
 
 
-            Stopwatch timer = new Stopwatch();
-            timer.Start();
+            refNow = DateTimeOffset.Parse("2/1/2016 6:19:00 AM");
+            Stopwatch loadSchedule = new Stopwatch();
+            loadSchedule.Start();
+
             MySchedule = new Schedule(currentUser, refNow);
             
             if (MySchedule.isScheduleLoadSuccessful)
             {
-                timer.Stop();
-                MessageBox.Show("Ellapsed is " + timer.ElapsedMilliseconds + "ms");
-                
+                loadSchedule.Stop();
+                MessageBox.Show("Loadtime was " + loadSchedule.ElapsedMilliseconds + "ms");
                 tabItem2.IsEnabled = true;
                 datePicker1.SelectedDate = new DateTime(Schedule.Now.calculationNow.AddDays(0).ToLocalTime().Ticks);// DateTimeOffset.Now.AddDays(0);
                 //datePicker1.SelectedDate = DateTimeOffset.Now.AddDays(0);

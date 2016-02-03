@@ -343,7 +343,7 @@ namespace TilerElements
                     this.preferredDayIndex = SubEventEntry.UniversalDayIndex;
                     this.PrepTime = SubEventEntry.Preparation;
                     this.Priority = SubEventEntry.EventPriority;
-                    this.ProfileOfNow = SubEventEntry.ProfileOfNow;
+                    //this.ProfileOfNow = SubEventEntry.ProfileOfNow;
                     this.ProfileOfProcrastination = SubEventEntry.ProfileOfProcrastination;
                     //this.RepetitionFlag = SubEventEntry.FromRepeat;
                     this.RigidSchedule = SubEventEntry.Rigid;
@@ -382,7 +382,7 @@ namespace TilerElements
                         this.preferredDayIndex = SubEventEntry.UniversalDayIndex;
                         this.PrepTime = SubEventEntry.Preparation;
                         this.Priority = SubEventEntry.EventPriority;
-                        this.ProfileOfNow = SubEventEntry.ProfileOfNow;
+                        //this.ProfileOfNow = SubEventEntry.ProfileOfNow;
                         this.ProfileOfProcrastination = SubEventEntry.ProfileOfProcrastination;
                         //this.RepetitionFlag = SubEventEntry.FromRepeat;
                         this.RigidSchedule = SubEventEntry.Rigid;
@@ -428,7 +428,7 @@ namespace TilerElements
             retValue.preferredDayIndex = this.UniversalDayIndex;
             retValue.PrepTime = this.Preparation;
             retValue.Priority = this.EventPriority;
-            retValue.ProfileOfNow = this.ProfileOfNow.CreateCopy();
+            //retValue.ProfileOfNow = this.ProfileOfNow.CreateCopy();
             retValue.ProfileOfProcrastination = this.ProfileOfProcrastination.CreateCopy();
             //retValue.RepetitionFlag = this.FromRepeat;
             retValue.RigidSchedule = this.Rigid;

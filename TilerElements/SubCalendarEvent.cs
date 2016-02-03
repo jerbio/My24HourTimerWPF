@@ -457,7 +457,7 @@ namespace TilerElements
                     this.preferredDayIndex = SubEventEntry.UniversalDayIndex;
                     this.PrepTime = SubEventEntry.Preparation;
                     this.Priority = SubEventEntry.EventPriority;
-                    this.ProfileOfNow = SubEventEntry.ProfileOfNow;
+                    //this.ProfileOfNow = SubEventEntry.ProfileOfNow;
                     this.ProfileOfProcrastination = SubEventEntry.ProfileOfProcrastination;
                     //this.RepetitionFlag = SubEventEntry.FromRepeat;
                     this.RigidSchedule = SubEventEntry.Rigid;
@@ -494,7 +494,7 @@ namespace TilerElements
                         this.preferredDayIndex = SubEventEntry.UniversalDayIndex;
                         this.PrepTime = SubEventEntry.Preparation;
                         this.Priority = SubEventEntry.EventPriority;
-                        this.ProfileOfNow = SubEventEntry.ProfileOfNow;
+                        //this.ProfileOfNow = SubEventEntry.ProfileOfNow;
                         this.ProfileOfProcrastination = SubEventEntry.ProfileOfProcrastination;
                         //this.RepetitionFlag = SubEventEntry.FromRepeat;
                         this.RigidSchedule = SubEventEntry.Rigid;
@@ -536,7 +536,7 @@ namespace TilerElements
             TimeSpan SpanShift = NowData.PreferredTime - retValue.Start;
             retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventID.ToString(), RepetitionSequence);
             retValue.shiftEvent(SpanShift, true);
-            this.ProfileOfNow = NowData;
+            //this.ProfileOfNow = NowData;
             return retValue;
         }
 
@@ -563,7 +563,7 @@ namespace TilerElements
             retValue.preferredDayIndex = this.UniversalDayIndex;
             retValue.PrepTime = this.Preparation;
             retValue.Priority = this.EventPriority;
-            retValue.ProfileOfNow = this.ProfileOfNow;
+            //retValue.ProfileOfNow = this.ProfileOfNow;
             retValue.ProfileOfProcrastination = this.ProfileOfProcrastination.CreateCopy();
             //retValue.RepetitionFlag = this.FromRepeat;
             retValue.RigidSchedule = this.Rigid;

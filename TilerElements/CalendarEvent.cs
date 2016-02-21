@@ -43,6 +43,9 @@ namespace TilerElements
 
 
 
+        /// <summary>
+        /// Class defines the subevents that deviate from the norm of the calendar event subevent. Thsi could be subebvents that have a completed, deleted, or set as now.
+        /// </summary>
         class Deviation
         { 
             Dictionary<string, SubCalendarEvent>[] DeviatingInfo = new Dictionary<string,SubCalendarEvent>[] {new Dictionary<string,SubCalendarEvent>(),new Dictionary<string,SubCalendarEvent>(),new Dictionary<string,SubCalendarEvent>() };
@@ -1858,11 +1861,11 @@ namespace TilerElements
             retValue.ProfileOfNow = NowProfileData;
             retValue.StartDateTime = NowProfileData.PreferredTime;
             retValue.EventSequence = new TimeLine(retValue.StartDateTime, retValue.EndDateTime);
-            SubCalendarEvent ProcrastinatonCopy = RefSubCalEvent.getNowCopy(retValue.UniqueID, NowProfileData);
+            SubCalendarEvent subEventToBeNowCopy = RefSubCalEvent.getNowCopy(retValue.UniqueID, NowProfileData);
             updateDeviationList(2, RefSubCalEvent);
-            retValue.EndDateTime = ProcrastinatonCopy.End;
+            retValue.EndDateTime = subEventToBeNowCopy.End;
             retValue.RigidSchedule = true;
-            retValue.SubEvents.Add(ProcrastinatonCopy.SubEvent_ID, ProcrastinatonCopy);
+            retValue.SubEvents.Add(subEventToBeNowCopy.SubEvent_ID, subEventToBeNowCopy);
             return retValue;
         }
 

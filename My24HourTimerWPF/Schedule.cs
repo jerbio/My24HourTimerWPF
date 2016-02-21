@@ -851,7 +851,7 @@ namespace My24HourTimerWPF
 
         public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> SetEventAsNow(string EventID,bool Force=false)
         {
-            CalendarEvent ProcrastinateEvent = getCalendarEvent(EventID);
+            CalendarEvent calEventToBeNow = getCalendarEvent(EventID);
             SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
 
             NowProfile myNow = new NowProfile(Now.constNow, true);
@@ -867,52 +867,52 @@ namespace My24HourTimerWPF
             }
 
 
-            if (ProcrastinateEvent.RepetitionStatus)
+            if (calEventToBeNow.RepetitionStatus)
             {
-                ProcrastinateEvent = ProcrastinateEvent.getRepeatedCalendarEvent(SubEventID.getRepeatCalendarEventID());
+                calEventToBeNow = calEventToBeNow.getRepeatedCalendarEvent(SubEventID.getRepeatCalendarEventID());
             }
 
             Dictionary<string, CalendarEvent> AllEventDictionary_Cpy = new Dictionary<string, CalendarEvent>();
             AllEventDictionary_Cpy = AllEventDictionary.ToDictionary(obj => obj.Key, obj => obj.Value.createCopy());
 
-            List<SubCalendarEvent> AllValidSubCalEvents = new List<SubCalendarEvent>() { ReferenceSubEvent };// ProcrastinateEvent.AllActiveSubEvents.Where(obj => obj.End > ReferenceSubEvent.Start).ToList();
+            List<SubCalendarEvent> subEventsToBeSetAsNow = new List<SubCalendarEvent>() { ReferenceSubEvent };// subevent to be tweaked in calculation
 
             
 
             
             
             
-            TimeSpan TotalActiveDuration = Utility.SumOfActiveDuration(AllValidSubCalEvents);
+            TimeSpan TotalActiveDuration = Utility.SumOfActiveDuration(subEventsToBeSetAsNow);
 
-            CalendarEvent ScheduleUpdated = ProcrastinateEvent.getNowCalculationCopy(myNow, ReferenceSubEvent);//.getNowCalculationCopy(myNow);
-            ProcrastinateEvent.DisableSubEvents(AllValidSubCalEvents);
+            CalendarEvent ScheduleUpdated = calEventToBeNow.getNowCalculationCopy(myNow, ReferenceSubEvent);//.getNowCalculationCopy(myNow);
+            calEventToBeNow.DisableSubEvents(subEventsToBeSetAsNow);//AllValidSubCalEvents should only contain the list of subevents to be set as now
             SubCalendarEvent RigidizedEvent = ScheduleUpdated.ActiveSubEvents[0];
 
             string IDOfRigidized = RigidizedEvent.ID;
-            HashSet<SubCalendarEvent> NotDOneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
+            HashSet<SubCalendarEvent> NotDoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
 
 
-            ScheduleUpdated = EvaluateTotalTimeLineAndAssignValidTimeSpots(ScheduleUpdated,NotDOneYet ,null,1);
+            ScheduleUpdated = EvaluateTotalTimeLineAndAssignValidTimeSpots(ScheduleUpdated,NotDoneYet ,null,1);
 
             SubCalendarEvent[] UpdatedSubCalevents = ScheduleUpdated.ActiveSubEvents;
 
-            for (int i = 0; i < AllValidSubCalEvents.Count; i++)//updates the subcalevents
+            for (int i = 0; i < subEventsToBeSetAsNow.Count; i++)//updates the subcalevents
             {
-                bool Rigid = AllValidSubCalEvents[i].Rigid;
-                if (IDOfRigidized == AllValidSubCalEvents[i].ID)
+                bool Rigid = subEventsToBeSetAsNow[i].Rigid;
+                if (IDOfRigidized == subEventsToBeSetAsNow[i].ID)
                 { 
                     Rigid=InitialRigid;
                 }
 
 
-                SubCalendarEvent updatedSubCal = new SubCalendarEvent(AllValidSubCalEvents[i].ID, UpdatedSubCalevents[i].Start, UpdatedSubCalevents[i].End, UpdatedSubCalevents[i].ActiveSlot, UpdatedSubCalevents[i].OrginalStartInfo, Rigid, AllValidSubCalEvents[i].isEnabled, AllValidSubCalEvents[i].UIParam, AllValidSubCalEvents[i].Notes, AllValidSubCalEvents[i].isComplete,i, AllValidSubCalEvents[i].myLocation, ProcrastinateEvent.RangeTimeLine);
 
-                AllValidSubCalEvents[i].shiftEvent(updatedSubCal.Start - AllValidSubCalEvents[i].Start, true);///not using update this because of possible issues with subevent not being restricted
+                SubCalendarEvent updatedSubCal = new SubCalendarEvent(subEventsToBeSetAsNow[i].ID, UpdatedSubCalevents[i].Start, UpdatedSubCalevents[i].End, UpdatedSubCalevents[i].ActiveSlot,UpdatedSubCalevents[i].OrginalStartInfo, Rigid, subEventsToBeSetAsNow[i].isEnabled, subEventsToBeSetAsNow[i].UIParam, subEventsToBeSetAsNow[i].Notes, subEventsToBeSetAsNow[i].isComplete,i, subEventsToBeSetAsNow[i].myLocation, calEventToBeNow.RangeTimeLine);
+                subEventsToBeSetAsNow[i].shiftEvent(updatedSubCal.Start - subEventsToBeSetAsNow[i].Start, true);///not using update this because of possible issues with subevent not being restricted
                 //ProcrastinateEvent.updateSubEvent(updatedSubCal.SubEvent_ID, updatedSubCal);
             }
 
-            ProcrastinateEvent.EnableSubEvents(AllValidSubCalEvents);
-            ProcrastinateEvent.UpdateNowProfile(myNow);
+            calEventToBeNow.EnableSubEvents(subEventsToBeSetAsNow);
+            calEventToBeNow.UpdateNowProfile(myNow);
 
             if (ScheduleUpdated.ErrorStatus)
             {
@@ -1654,6 +1654,7 @@ namespace My24HourTimerWPF
                 EvaluateTotalTimeLineAndAssignValidTimeSpots(tempCalendarEvent, UnDoneEvents, MyEvent.Repeat.RecurringCalendarEvents().ToList(), InterringWithNowEvent, optimizeFirstTwentyFourHours, preserveFirstTwentyFourHours);
                 return MyEvent;
             }
+
             CalendarEvent MyCalendarEventUpdated = ReArrangeTimeLineWithinWithinCalendaEventRangeUpdated(MyEvent, NoneCOmmitedCalendarEvent.ToList(), InterringWithNowEvent, UnDoneEvents, optimizeFirstTwentyFourHours, preserveFirstTwentyFourHours);
             return MyCalendarEventUpdated;
         }

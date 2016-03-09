@@ -1466,12 +1466,10 @@ namespace My24HourTimerWPF
                 + " You realized that non-rigid subevents still get persisted and are not calculated on the fly which is unlike their rigid counterparts(I havent tested the latter part because, but this branch is called newrigidimplementation aka on the fly rigid calculations).\n"
                 + " You might want to resdesign the calls for the creation of non-rigid subevents to be calculated on the fly";
 
-            throw new Exception(message);
+            //throw new Exception(message);
             //UserAccountDirect currentUser =  new UserAccountDebug("18");
             await currentUser.Login();
             DateTimeOffset refNow=DateTimeOffset.Now;
-
-
             refNow = DateTimeOffset.Parse("2/1/2016 6:19:00 AM");
             Stopwatch loadSchedule = new Stopwatch();
             loadSchedule.Start();
@@ -1481,7 +1479,9 @@ namespace My24HourTimerWPF
             if (MySchedule.isScheduleLoadSuccessful)
             {
                 loadSchedule.Stop();
+                
                 MessageBox.Show("Loadtime was " + loadSchedule.ElapsedMilliseconds + "ms");
+                //MessageBox.Show("Loadtime was " +currentUser.ScheduleData.totalReadMS+ "ms");
                 tabItem2.IsEnabled = true;
                 datePicker1.SelectedDate = new DateTime(Schedule.Now.calculationNow.AddDays(0).ToLocalTime().Ticks);// DateTimeOffset.Now.AddDays(0);
                 //datePicker1.SelectedDate = DateTimeOffset.Now.AddDays(0);
@@ -1494,8 +1494,10 @@ namespace My24HourTimerWPF
                 int RandomMinute = myNumber.Next(0, 60);
                 textBox4.Text = RandomHour + ":" + RandomMinute;
                 
+
                 textBox4.Text = 0+ ":" + "1" + ":" + "00";//total time
                 textBox2.Text = 1.ToString();//number of splits
+
                 int ProcrastinateStartDay = 0;
                 int ProcrastinateEndDay = 365; 
                 int ProcrastinateStartHour = 0;

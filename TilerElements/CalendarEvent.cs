@@ -39,6 +39,7 @@ namespace TilerElements
         Dictionary<ulong, DayTimeLine> CalculationLimitation;
         Dictionary<ulong, DayTimeLine> FreeDaysLimitation;
         Deviation DeviatingInfo = new Deviation();
+        public enum DeviationType {deleted, completed, NowProfile};
         protected NowProfile ProfileOfNow = new NowProfile();
 
 
@@ -60,14 +61,14 @@ namespace TilerElements
             /// </summary>
             /// <param name="type"></param>
             /// <param name="SubCalendarEventData"></param>
-            public void updateDeviatingData(int type, SubCalendarEvent SubCalendarEventData)
+            public void updateDeviatingData(DeviationType type, SubCalendarEvent SubCalendarEventData)
             {
-                DeviatingInfo[type].Add(SubCalendarEventData.ID, SubCalendarEventData);
+                DeviatingInfo[(int)type].Add(SubCalendarEventData.ID, SubCalendarEventData);
             }
 
-            public void removeFromDeviatingData(int type,string EventID)
+            public void removeFromDeviatingData(DeviationType type,string EventID)
             {
-                DeviatingInfo[type].Remove(EventID);
+                DeviatingInfo[(int)type].Remove(EventID);
             }
 
             public List<Tuple<int,SubCalendarEvent>> getAllSubEvents()
@@ -470,7 +471,7 @@ namespace TilerElements
             foreach(SubCalendarEvent eachSubcal in AllSubCalEvents )
             {
                 //eachSubcal.resetNowProfile();
-                DeviatingInfo.removeFromDeviatingData(2, eachSubcal.ID);
+                DeviatingInfo.removeFromDeviatingData(DeviationType.NowProfile, eachSubcal.ID);
             }
             ProfileOfNow.reset();
         }
@@ -565,7 +566,7 @@ namespace TilerElements
         /// </summary>
         /// <param name="type"></param>
         /// <param name="mySubcalendarEvent"></param>
-        protected internal void updateDeviationList(int type, SubCalendarEvent mySubcalendarEvent)
+        protected internal void updateDeviationList(DeviationType type, SubCalendarEvent mySubcalendarEvent)
         {
             DeviatingInfo.updateDeviatingData(type, mySubcalendarEvent);
             
@@ -1862,7 +1863,7 @@ namespace TilerElements
             retValue.StartDateTime = NowProfileData.PreferredTime;
             retValue.EventSequence = new TimeLine(retValue.StartDateTime, retValue.EndDateTime);
             SubCalendarEvent subEventToBeNowCopy = RefSubCalEvent.getNowCopy(retValue.UniqueID, NowProfileData);
-            updateDeviationList(2, RefSubCalEvent);
+            updateDeviationList(DeviationType.NowProfile, RefSubCalEvent);
             retValue.EndDateTime = subEventToBeNowCopy.End;
             retValue.RigidSchedule = true;
             retValue.SubEvents.Add(subEventToBeNowCopy.SubEvent_ID, subEventToBeNowCopy);
@@ -2318,10 +2319,6 @@ namespace TilerElements
             get
             {
                 Event_Struct retValue = new Event_Struct();
-                //retValue.StartTicks = StartDateTime.Ticks;
-                //retValue.EndTicks = EndDateTime.Ticks;
-                //retValue.DurationTicks = EventDuration.Ticks;
-                //retValue.EventID = ID;
                 retValue.EventLocation = myLocation.toStruct();
                 return retValue;
             }

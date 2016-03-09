@@ -145,13 +145,13 @@ namespace TilerElements
         {
             //if(Rigid)
             {
-                setAsDeviated(1,myCalEvent);
+                setAsDeviated(CalendarEvent.DeviationType.completed, myCalEvent);
             }
             myCalEvent.incrementCompleteCount(this.RangeSpan);
             this.Complete = true;
         }
 
-        public void setAsDeviated(int type,CalendarEvent ParentCalendarEvent)
+        public void setAsDeviated(CalendarEvent.DeviationType type,CalendarEvent ParentCalendarEvent)
         {
             ParentCalendarEvent.updateDeviationList(type,this);
         }

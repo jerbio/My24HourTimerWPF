@@ -1452,7 +1452,7 @@ namespace My24HourTimerWPF
             //UserAccountDirect currentUser =  new UserAccountDebug("18");
             await currentUser.Login();
             DateTimeOffset refNow=DateTimeOffset.Now;
-            refNow = DateTimeOffset.Parse("5:25 AM , Jan 5, 2015");
+            //refNow = DateTimeOffset.Parse("5:25 AM , Jan 5, 2015");
             //MySchedule = new Schedule(currentUser, refNow);
 
 
@@ -1477,8 +1477,8 @@ namespace My24HourTimerWPF
                 int RandomMinute = myNumber.Next(0, 60);
                 textBox4.Text = RandomHour + ":" + RandomMinute;
                 
-                textBox4.Text = 19+ ":" + "30" + ":" + "00";//total time
-                textBox2.Text = 13.ToString();//number of splits
+                textBox4.Text = 1+ ":" + "30" + ":" + "00";//total time
+                textBox2.Text = 1.ToString();//number of splits
                 int ProcrastinateStartDay = 0;
                 int ProcrastinateEndDay = 365; 
                 int ProcrastinateStartHour = 0;

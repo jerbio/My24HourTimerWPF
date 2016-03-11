@@ -88,6 +88,7 @@
     <Compile Include="TimeLineRestricted.cs" />
     <Compile Include="TimeLineWithEdgeElements.cs" />
     <Compile Include="TimeSpanWithID.cs" />
+    <Compile Include="UserActivity.cs" />
     <Compile Include="Utility.cs" />
   </ItemGroup>
   <ItemGroup>

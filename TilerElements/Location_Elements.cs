@@ -31,6 +31,7 @@ namespace TilerElements
 
         protected double xValue;
         protected double yValue;
+
         protected string TaggedDescription = "";
         protected string TaggedAddress = "";
         /// <summary>
@@ -337,6 +338,7 @@ namespace TilerElements
             }
         }
 
+
         public bool isDefault
         {
             get
@@ -349,7 +351,12 @@ namespace TilerElements
         {
             get
             {
-                return LocationID;
+                return LocationID.ToString();
+            }
+
+            protected set
+            {
+                LocationID = Guid.Parse( value).ToString();
             }
         }
         #endregion

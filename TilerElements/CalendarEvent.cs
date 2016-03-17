@@ -827,7 +827,7 @@ namespace TilerElements
         {
             foreach (CalendarEvent eachCalendarEvent in AllEvents.Select(obj => obj.Value))
             {
-                eachCalendarEvent.UpdateLocationMatrix(eachCalendarEvent.myLocation);
+                eachCalendarEvent.UpdateLocationMatrix(eachCalendarEvent.Location);
             }
         }
 
@@ -1064,7 +1064,8 @@ namespace TilerElements
             {
                 DateTimeOffset MyStartTime = ReferenceStartTime;
                 DateTimeOffset EndTIme = MyStartTime + MySubCalendarEvent.ActiveDuration;
-                MySubCalendarEvent.ActiveSlot = new BusyTimeLine(MySubCalendarEvent.ID, (MyStartTime), EndTIme);
+                MySubCalendarEvent.shiftEvent((MyStartTime - MySubCalendarEvent.Start));
+                //MySubCalendarEvent.ActiveSlot = new BusyTimeLine(MySubCalendarEvent.ID, (MyStartTime), EndTIme);
                 ReferenceStartTime = EndTIme;
                 MyActiveSlot.Add(MySubCalendarEvent.ActiveSlot);
             }
@@ -1831,7 +1832,7 @@ namespace TilerElements
             RetValue.DataBlob = this.Notes;
             RetValue.Enabled = this.isEnabled;
             RetValue.isRestricted = this.isEventRestricted;
-            RetValue.LocationInfo = this.myLocation;//hack you might need to make copy
+            RetValue.LocationInfo = this.Location;//hack you might need to make copy
             RetValue.ProfileOfProcrastination = this.ProcrastinationInfo.CreateCopy();
             RetValue.DeadlineElapsed = this.isDeadlineElapsed;
             RetValue.UserDeleted = this.isUserDeleted;
@@ -2197,17 +2198,6 @@ namespace TilerElements
             }
         }
 
-        virtual public Location_Elements myLocation
-        {
-            set
-            {
-                LocationInfo=value;
-            }
-            get
-            {
-                return LocationInfo;
-            }
-        }
 
         public bool ErrorStatus
         {
@@ -2319,7 +2309,7 @@ namespace TilerElements
             get
             {
                 Event_Struct retValue = new Event_Struct();
-                retValue.EventLocation = myLocation.toStruct();
+                retValue.EventLocation = Location.toStruct();
                 return retValue;
             }
         }

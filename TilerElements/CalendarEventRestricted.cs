@@ -215,7 +215,7 @@ namespace TilerElements
             RetValue.DataBlob = this.Notes;
             RetValue.Enabled = this.isEnabled;
             RetValue.isRestricted = this.isEventRestricted;
-            RetValue.LocationInfo = this.myLocation;//hack you might need to make copy
+            RetValue.LocationInfo = this.Location;//hack you might need to make copy
             RetValue.ProfileOfProcrastination = this.ProcrastinationInfo.CreateCopy();
             RetValue.DeadlineElapsed = this.isDeadlineElapsed;
             RetValue.UserDeleted = this.isUserDeleted;

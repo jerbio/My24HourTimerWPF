@@ -337,7 +337,7 @@ namespace TilerElements
                     this.EventPreDeadline = SubEventEntry.PreDeadline;
                     this.EventScore = SubEventEntry.Score;
                     //this.isRestricted = true;
-                    this.LocationInfo = SubEventEntry.myLocation;
+                    this.LocationInfo = SubEventEntry.Location;
                     this.OldPreferredIndex = SubEventEntry.OldUniversalIndex;
                     this.otherPartyID = SubEventEntry.ThirdPartyID;
                     this.preferredDayIndex = SubEventEntry.UniversalDayIndex;
@@ -376,7 +376,7 @@ namespace TilerElements
                         this.EventPreDeadline = SubEventEntry.PreDeadline;
                         this.EventScore = SubEventEntry.Score;
                         //this.isRestricted = true;
-                        this.LocationInfo = SubEventEntry.myLocation;
+                        this.LocationInfo = SubEventEntry.Location;
                         this.OldPreferredIndex = SubEventEntry.OldUniversalIndex;
                         this.otherPartyID = SubEventEntry.ThirdPartyID;
                         this.preferredDayIndex = SubEventEntry.UniversalDayIndex;
@@ -422,7 +422,7 @@ namespace TilerElements
             retValue.EventPreDeadline = this.PreDeadline;
             retValue.EventScore = this.Score;
             retValue.isRestricted = this.isEventRestricted;
-            retValue.LocationInfo = this.myLocation;
+            retValue.LocationInfo = this.Location;
             retValue.OldPreferredIndex = this.OldUniversalIndex;
             retValue.otherPartyID = this.ThirdPartyID;
             retValue.preferredDayIndex = this.UniversalDayIndex;

@@ -148,7 +148,7 @@ namespace TilerElements
             }
         }
 
-         public Location_Elements myLocation
+         public Location_Elements Location
         {
             set
             {
@@ -274,6 +274,18 @@ namespace TilerElements
             get
             {
                 return OriginalStart;
+            }
+        }
+
+        public string Id
+        {
+            get
+            {
+                return UniqueID.ToString();
+            }
+            protected set
+            {
+                UniqueID = new EventID(value);
             }
         }
     }

@@ -19,12 +19,12 @@ namespace TilerElements
             CalendarEvent nullEvent = CalendarEvent.getEmptyCalendarEvent(UniqueID, StartDateTime, EndDateTime);
             RigidSchedule = true;
             double halfDouble=Double.MaxValue/2;
-            LocationInfo = Location_Elements.AverageGPSLocation(InterFerringEvents.Where(Obj => Obj.myLocation.XCoordinate < halfDouble).Select(obj => obj.myLocation));
+            LocationInfo = Location_Elements.AverageGPSLocation(InterFerringEvents.Where(Obj => Obj.Location.XCoordinate < halfDouble).Select(obj => obj.Location));
             EventScore = 0;
             EventClumps = InterFerringEvents.ToArray();
             EventDuration = TimeSpan.FromTicks( InterFerringEvents.Sum(obj => obj.ActiveDuration.Ticks));
             ConflictingEvents = new ConflictProfile();
-            BlobEvent = true;
+            MuddledEvent = true;
         }
 
         public IEnumerable<SubCalendarEvent> getSubCalendarEventsInBlob()

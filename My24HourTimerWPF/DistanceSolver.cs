@@ -664,7 +664,7 @@ namespace My24HourTimerWPF
                     //rizontal = DistanceMatrix.Keys.ToList();
                     foreach (SubCalendarEvent eachSubCalendarEvent0 in MyLocations)
                     {
-                        double MyDistance = Location_Elements.calculateDistance(eachSubCalendarEvent.myLocation, eachSubCalendarEvent0.myLocation);
+                        double MyDistance = Location_Elements.calculateDistance(eachSubCalendarEvent.Location, eachSubCalendarEvent0.Location);
                         if (eachSubCalendarEvent0.SubEvent_ID.getCalendarEventComponent() == eachSubCalendarEvent.SubEvent_ID.getCalendarEventComponent())
                         {
                             MyDistance = double.MaxValue / MyLocations.Count;
@@ -729,7 +729,7 @@ namespace My24HourTimerWPF
                 }
                 else
                 {
-                    retValue = Location_Elements.calculateDistance(this.Event.myLocation, p.Event.myLocation);
+                    retValue = Location_Elements.calculateDistance(this.Event.Location, p.Event.Location);
                 }
                 return retValue;
             }

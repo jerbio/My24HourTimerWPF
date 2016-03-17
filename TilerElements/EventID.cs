@@ -368,45 +368,24 @@ namespace TilerElements
             return s_FullID.GetHashCode();
         }
 
-        public static uint LatestID
-        {
-            get
-            {
-                uint retValue=EventIDGenerator.LatestID;
-                return retValue;
-            }
-        }
-
-        public static void Initialize(uint LastID)
-        {
-            EventIDGenerator.Initialize(LastID);
-        }
 
         
 
         private static class EventIDGenerator
         {
-            static uint idcounter = 0;
 
             static bool AlreadyInitialized = false;
             public static void Initialize(uint LastID)
             {
-                idcounter = LastID;
+                //idcounter = LastID;
             }
 
-            public static uint generate()
+            public static Guid generate()
             {
                 //update xml file with last counter
-                return ++idcounter;
+                return Guid.NewGuid();
             }
 
-            public static uint LatestID
-            {
-                get
-                {
-                    return idcounter;
-                }
-            }
         }
     }
 

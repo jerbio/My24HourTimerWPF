@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.ComponentModel.DataAnnotations.Schema;
 namespace TilerElements
 {
     public class SubCalendarEvent : TilerEvent,IDefinedRange
     {
         public static DateTimeOffset InitialPauseTime  = new DateTimeOffset();
-        protected BusyTimeLine BusyFrame;
+        protected BusyTimeLine BusyFrame = new BusyTimeLine();
         protected BusyTimeLine NonHumaneTimeLine= new BusyTimeLine();
         protected BusyTimeLine HumaneTimeLine = new BusyTimeLine();
-        TimeSpan AvailablePreceedingFreeSpace;
         protected TimeLine CalendarEventRange;
         protected double EventScore;
         protected ConflictProfile ConflictingEvents = new ConflictProfile();
@@ -21,8 +21,9 @@ namespace TilerElements
         protected ulong OldPreferredIndex;
         protected bool CalculationMode = false;
         protected DateTimeOffset _PauseTime = InitialPauseTime;
-        protected bool BlobEvent = false;
-
+        
+        protected bool MuddledEvent = false;
+        protected CalendarEvent CalendarEvent = null;
         #region Classs Constructor
         public SubCalendarEvent()
         { }
@@ -245,7 +246,7 @@ namespace TilerElements
         virtual public Tuple<TimeLine,Double> evaluateAgainstOptimizationParameters(Location_Elements refLocation, TimeLine DayTimeLine)
         {
             
-            double distance = Location_Elements.calculateDistance(refLocation,this.myLocation);
+            double distance = Location_Elements.calculateDistance(refLocation,this.Location);
             TimeLine refTimeLine = new TimeLine(DayTimeLine.Start, CalendarEventRange.End);
             Tuple<TimeLine, double> retValue = new Tuple<TimeLine, double>(refTimeLine,distance);
             return retValue;
@@ -451,7 +452,7 @@ namespace TilerElements
                     this.EventPreDeadline = SubEventEntry.PreDeadline;
                     this.EventScore = SubEventEntry.Score;
                     //this.isRestricted = SubEventEntry.isEventRestricted;
-                    this.LocationInfo = SubEventEntry.myLocation;
+                    this.LocationInfo = SubEventEntry.Location;
                     this.OldPreferredIndex = SubEventEntry.OldUniversalIndex;
                     this.otherPartyID = SubEventEntry.ThirdPartyID;
                     this.preferredDayIndex = SubEventEntry.UniversalDayIndex;
@@ -488,7 +489,7 @@ namespace TilerElements
                         this.EventPreDeadline = SubEventEntry.PreDeadline;
                         this.EventScore = SubEventEntry.Score;
                         //this.isRestricted = SubEventEntry.isEventRestricted;
-                        this.LocationInfo = SubEventEntry.myLocation;
+                        this.LocationInfo = SubEventEntry.Location;
                         this.OldPreferredIndex = SubEventEntry.OldUniversalIndex;
                         this.otherPartyID = SubEventEntry.ThirdPartyID;
                         this.preferredDayIndex = SubEventEntry.UniversalDayIndex;
@@ -557,7 +558,7 @@ namespace TilerElements
             retValue.EventPreDeadline = this.PreDeadline;
             retValue.EventScore = this.Score;
             retValue.isRestricted = this.isEventRestricted;
-            retValue.LocationInfo = this.myLocation.CreateCopy();
+            retValue.LocationInfo = this.Location.CreateCopy();
             retValue.OldPreferredIndex = this.OldUniversalIndex;
             retValue.otherPartyID = this.ThirdPartyID;
             retValue.preferredDayIndex = this.UniversalDayIndex;
@@ -774,7 +775,7 @@ namespace TilerElements
             }
             else
             {
-                return Location_Elements.calculateDistance(Arg1.myLocation, Arg2.myLocation, worstDistance);
+                return Location_Elements.calculateDistance(Arg1.Location, Arg2.Location, worstDistance);
             }
         }
 
@@ -1005,19 +1006,6 @@ namespace TilerElements
 
         public BusyTimeLine ActiveSlot
         {
-            set
-            {
-                if (BusyFrame.TimelineSpan != value.TimelineSpan)
-                {
-                    throw new Exception("New lhs Activeslot isnt the same duration as old active slot. Check for inconsistency in code");
-                }
-                else 
-                {
-                    TimeSpan ChangeInTimeSpan = value.Start - BusyFrame.Start;
-                    shiftEvent(ChangeInTimeSpan);
-                }
-                
-            }
             get
             {
                 return BusyFrame;
@@ -1080,7 +1068,7 @@ namespace TilerElements
         {
             get
             {
-                return BlobEvent;
+                return MuddledEvent;
             }
     }
         
@@ -1095,7 +1083,7 @@ namespace TilerElements
                 //retValue.EndTicks = End.Ticks;
                 //retValue.DurationTicks = ActiveDuration.Ticks;
                 //retValue.EventID = ID;
-                retValue.EventLocation = myLocation.toStruct();
+                retValue.EventLocation = Location.toStruct();
                 return retValue;
             }
         }

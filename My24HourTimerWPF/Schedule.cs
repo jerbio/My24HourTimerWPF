@@ -155,21 +155,19 @@ namespace My24HourTimerWPF
             {
                 throw new Exception("Using non verified tiler Account, try logging into account first.");
             }
-            DateTimeOffset StartOfDay = await myAccount.ScheduleData.getDayReferenceTime().ConfigureAwait(false);
+            DateTimeOffset StartOfDay = await myAccount.ScheduleData.getDayReferenceTime();
             Now = new ReferenceNow(referenceNow, StartOfDay);
             Tuple<Dictionary<string, CalendarEvent>, DateTimeOffset, Dictionary<string, Location_Elements>> profileData =await  myAccount.ScheduleData.getProfileInfo().ConfigureAwait(false);
-            if (profileData!=null)
             {
                 
                 DateTimeOffset referenceDayTimeNow = new DateTimeOffset(Now.calculationNow.Year, Now.calculationNow.Month, Now.calculationNow.Day, profileData.Item2.Hour, profileData.Item2.Minute, profileData.Item2.Second, new TimeSpan());// profileData.Item2;
                 ReferenceDayTIime = Now.calculationNow < referenceDayTimeNow ? referenceDayTimeNow.AddDays(-1) : referenceDayTimeNow;
-                AllEventDictionary = profileData.Item1;
+                AllEventDictionary = (await ((myAccount.ScheduleData.getProfileInfo()).ConfigureAwait(false))).Item1;//..getAllCalendarElements(new TimeLine(ReferenceDayTIime, ReferenceDayTIime.AddDays(90)));//.ScheduleData .cal.getCalendarEvents();// profileData.Item1;
                 if (AllEventDictionary != null)
                 {
                     //setAsComplete();
                     myCalendar.Add(ThirdPartyControl.CalendarTool.Outlook, new List<CalendarEvent>() { new CalendarEvent() });
                     CompleteSchedule = getTimeLine();
-                    EventID.Initialize((uint)(myAccount.LastEventTopNodeID));
                     //EventIDGenerator.Initialize((uint)(this.LastScheduleIDNumber));
                 }
             }
@@ -212,41 +210,11 @@ namespace My24HourTimerWPF
 
         public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> UpdateCalEventTimeLine(CalendarEvent myCalendarEvent, TimeLine NewTimeLine)
         {
-            /*
-            IEnumerable<SubCalendarEvent> AllSubEVents = myCalendarEvent.AllSubEvents.Select(obj=>obj.createCopy());
-            
-            IEnumerable<SubCalendarEvent> referenceSubEVents = AllSubEVents.Where(obj => obj.isActive);
-            //bool InitEnableStatus=myCalendarEvent.isEnabled;
-            //myCalendarEvent.Disable(false);
-
-            //(string EventName, TimeSpan Event_Duration, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, TimeSpan Event_PreDeadline, bool EventRigidFlag, Repetition EventRepetitionEntry, int EventSplit, Location EventLocation, bool EnableFlag, EventDisplay UiData, MiscData NoteData, bool CompletionFlag)
-            
-            CalendarEvent ReadjustedCalendarEvent = new CalendarEvent(myCalendarEvent.Name, Utility.SumOfActiveDuration(referenceSubEVents), NewTimeLine.Start, NewTimeLine.End, ZeroTimeSpan, ZeroTimeSpan, myCalendarEvent.Rigid, new Repetition(), referenceSubEVents.Count(), myCalendarEvent.myLocation, true, myCalendarEvent.UIParam, myCalendarEvent.Notes, myCalendarEvent.isComplete);
-            IEnumerable<SubCalendarEvent>  referenceSubEVents_Changed = referenceSubEVents.Select(obj => new SubCalendarEvent(obj.ActiveDuration, obj.Start, obj.End, obj.Preparation, ReadjustedCalendarEvent.ID, obj.Rigid, true, obj.UIParam, obj.Notes, obj.isComplete, obj.myLocation, ReadjustedCalendarEvent.RangeTimeLine));
-            ReadjustedCalendarEvent = new CalendarEvent(ReadjustedCalendarEvent, referenceSubEVents_Changed.ToArray());
-            */
-
             myCalendarEvent.updateTimeLine(NewTimeLine);
             HashSet<SubCalendarEvent> NoDoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
             
             Dictionary<string, CalendarEvent> AllEventDictionary_Cpy = new Dictionary<string, CalendarEvent>();
             AllEventDictionary_Cpy = AllEventDictionary.ToDictionary(obj => obj.Key, obj => obj.Value.createCopy());
-
-
-            myCalendarEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(myCalendarEvent, NoDoneYet);
-
-            
-            
-            /*
-            foreach (SubCalendarEvent eachSubCalendarEvent in referenceSubEVents)
-            {
-                myCalendarEvent.updateSubEvent(eachSubCalendarEvent.SubEvent_ID, UpdatedSubEvents[i++]);
-            }
-
-            ReadjustedCalendarEvent = new CalendarEvent(ReadjustedCalendarEvent, myCalendarEvent.AllSubEvents.ToArray());
-
-            myCalendarEvent.UpdateThis(ReadjustedCalendarEvent);
-            */
 
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(myCalendarEvent.Error, AllEventDictionary);
             //myCalendarEvent.SetEventEnableStatus(InitEnableStatus);
@@ -277,7 +245,7 @@ namespace My24HourTimerWPF
 
             SubCalendarEvent mySubCalEvent = getSubCalendarEvent(SubEventID);
 
-            SubCalendarEvent ChangedSubCal = new SubCalendarEvent(mySubCalEvent.ID, SubeventStart, SubeventEnd, new BusyTimeLine(mySubCalEvent.ID, SubeventStart, SubeventEnd),mySubCalEvent.OrginalStartInfo, mySubCalEvent.Rigid, mySubCalEvent.isEnabled, mySubCalEvent.UIParam, mySubCalEvent.Notes, mySubCalEvent.isComplete,mySubCalEvent.RepetitionIndex, mySubCalEvent.myLocation, mySubCalEvent.getCalendarEventRange, mySubCalEvent.Conflicts);
+            SubCalendarEvent ChangedSubCal = new SubCalendarEvent(mySubCalEvent.ID, SubeventStart, SubeventEnd, new BusyTimeLine(mySubCalEvent.ID, SubeventStart, SubeventEnd),mySubCalEvent.OrginalStartInfo, mySubCalEvent.Rigid, mySubCalEvent.isEnabled, mySubCalEvent.UIParam, mySubCalEvent.Notes, mySubCalEvent.isComplete,mySubCalEvent.RepetitionIndex, mySubCalEvent.Location, mySubCalEvent.getCalendarEventRange, mySubCalEvent.Conflicts);
 
             //bool InitialRigidStatus = mySubCalEvent.Rigid;
             bool timeLineChange = (mySubCalEvent.Start != SubeventStart) || (mySubCalEvent.End != SubeventEnd);
@@ -622,7 +590,7 @@ namespace My24HourTimerWPF
             CalendarEvent CalendarEventTOBeRemoved = getCalendarEvent(EventID);
             CalendarEventTOBeRemoved.Disable(false);
             //CalendarEventTOBeRemoved.DisableSubEvents(CalendarEventTOBeRemoved.ActiveSubEvents);
-            CalendarEventTOBeRemoved = new CalendarEvent(CalendarEventTOBeRemoved.Name, CalendarEventTOBeRemoved.Duration, CalendarEventTOBeRemoved.Start, CalendarEventTOBeRemoved.End, CalendarEventTOBeRemoved.OrginalStartInfo,CalendarEventTOBeRemoved.Preparation, CalendarEventTOBeRemoved.PreDeadline, CalendarEventTOBeRemoved.Rigid, new Repetition(), 1, CalendarEventTOBeRemoved.myLocation, false, new EventDisplay(), new MiscData(), false, -1);
+            CalendarEventTOBeRemoved = new CalendarEvent(CalendarEventTOBeRemoved.Name, CalendarEventTOBeRemoved.Duration, CalendarEventTOBeRemoved.Start, CalendarEventTOBeRemoved.End, CalendarEventTOBeRemoved.OrginalStartInfo,CalendarEventTOBeRemoved.Preparation, CalendarEventTOBeRemoved.PreDeadline, CalendarEventTOBeRemoved.Rigid, new Repetition(), 1, CalendarEventTOBeRemoved.Location, false, new EventDisplay(), new MiscData(), false, -1);
             CalendarEventTOBeRemoved.DisableSubEvents(CalendarEventTOBeRemoved.ActiveSubEvents);
 
             HashSet<SubCalendarEvent> NotDOneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
@@ -644,7 +612,7 @@ namespace My24HourTimerWPF
             CalendarEvent CalendarEventTOBeRemoved = getCalendarEvent(EventID);
             CalendarEventTOBeRemoved.SetCompletion(true);
 
-            CalendarEventTOBeRemoved = new CalendarEvent(CalendarEventTOBeRemoved.Name, CalendarEventTOBeRemoved.Duration, CalendarEventTOBeRemoved.Start, CalendarEventTOBeRemoved.End,CalendarEventTOBeRemoved.OrginalStartInfo, CalendarEventTOBeRemoved.Preparation, CalendarEventTOBeRemoved.PreDeadline, CalendarEventTOBeRemoved.Rigid, new Repetition(), 1, CalendarEventTOBeRemoved.myLocation, false, new EventDisplay(), new MiscData(), false, -1);
+            CalendarEventTOBeRemoved = new CalendarEvent(CalendarEventTOBeRemoved.Name, CalendarEventTOBeRemoved.Duration, CalendarEventTOBeRemoved.Start, CalendarEventTOBeRemoved.End,CalendarEventTOBeRemoved.OrginalStartInfo, CalendarEventTOBeRemoved.Preparation, CalendarEventTOBeRemoved.PreDeadline, CalendarEventTOBeRemoved.Rigid, new Repetition(), 1, CalendarEventTOBeRemoved.Location, false, new EventDisplay(), new MiscData(), false, -1);
             CalendarEventTOBeRemoved.DisableSubEvents(CalendarEventTOBeRemoved.ActiveSubEvents);
 
 
@@ -690,7 +658,7 @@ namespace My24HourTimerWPF
             DateTimeOffset EndData = DateTimeOffset.Parse(referenceCalendarEventWithSubEvent.End.ToString("hh:mm tt") + " " + referenceCalendarEventWithSubEvent.End.Date.ToShortDateString());
 
             //CalendarEvent(string NameEntry, string StartTime, DateTimeOffset StartDateEntry, string EndTime, DateTimeOffset EventEndDateEntry, string eventSplit, string PreDeadlineTime, string EventDuration, Repetition EventRepetitionEntry, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag,Location EventLocation)
-            CalendarEvent ScheduleUpdated = new CalendarEvent(referenceCalendarEventWithSubEvent.Name, StartData, EndData, referenceCalendarEventWithSubEvent.OrginalStartInfo, 1.ToString(), referenceCalendarEventWithSubEvent.PreDeadline.ToString(), ReferenceSubEvent.ActiveDuration.ToString(), new Repetition(), true, ReferenceSubEvent.Rigid, referenceCalendarEventWithSubEvent.Preparation.ToString(), true, ReferenceSubEvent.myLocation, false, new EventDisplay(), new MiscData(), false);
+            CalendarEvent ScheduleUpdated = new CalendarEvent(referenceCalendarEventWithSubEvent.Name, StartData, EndData, referenceCalendarEventWithSubEvent.OrginalStartInfo, 1.ToString(), referenceCalendarEventWithSubEvent.PreDeadline.ToString(), ReferenceSubEvent.ActiveDuration.ToString(), new Repetition(), true, ReferenceSubEvent.Rigid, referenceCalendarEventWithSubEvent.Preparation.ToString(), true, ReferenceSubEvent.Location, false, new EventDisplay(), new MiscData(), false);
             ScheduleUpdated.DisableSubEvents(ScheduleUpdated.AllSubEvents);//hackalert
 
 
@@ -775,7 +743,7 @@ namespace My24HourTimerWPF
             DateTimeOffset StartData = DateTimeOffset.Parse(referenceCalendarEventWithSubEvent.Start.ToString("hh:mm tt")+" "+ referenceCalendarEventWithSubEvent.Start.Date.ToShortDateString());
             DateTimeOffset EndData = DateTimeOffset.Parse(referenceCalendarEventWithSubEvent.End.ToString("hh:mm tt") + " " + referenceCalendarEventWithSubEvent.End.Date.ToShortDateString());
 
-            CalendarEvent ScheduleUpdated = new CalendarEvent(referenceCalendarEventWithSubEvent.Name, StartData, EndData,referenceCalendarEventWithSubEvent.OrginalStartInfo, 1.ToString(), referenceCalendarEventWithSubEvent.PreDeadline.ToString(), ReferenceSubEvent.ActiveDuration.ToString(), new Repetition(), true, ReferenceSubEvent.Rigid, referenceCalendarEventWithSubEvent.Preparation.ToString(), true, ReferenceSubEvent.myLocation, false, new EventDisplay(), new MiscData(), false);
+            CalendarEvent ScheduleUpdated = new CalendarEvent(referenceCalendarEventWithSubEvent.Name, StartData, EndData,referenceCalendarEventWithSubEvent.OrginalStartInfo, 1.ToString(), referenceCalendarEventWithSubEvent.PreDeadline.ToString(), ReferenceSubEvent.ActiveDuration.ToString(), new Repetition(), true, ReferenceSubEvent.Rigid, referenceCalendarEventWithSubEvent.Preparation.ToString(), true, ReferenceSubEvent.Location, false, new EventDisplay(), new MiscData(), false);
             ScheduleUpdated.DisableSubEvents(ScheduleUpdated.AllSubEvents);
 
 
@@ -905,8 +873,8 @@ namespace My24HourTimerWPF
                 }
 
 
+                SubCalendarEvent updatedSubCal = new SubCalendarEvent(subEventsToBeSetAsNow[i].ID, UpdatedSubCalevents[i].Start, UpdatedSubCalevents[i].End, UpdatedSubCalevents[i].ActiveSlot,UpdatedSubCalevents[i].OrginalStartInfo, Rigid, subEventsToBeSetAsNow[i].isEnabled, subEventsToBeSetAsNow[i].UIParam, subEventsToBeSetAsNow[i].Notes, subEventsToBeSetAsNow[i].isComplete,i, subEventsToBeSetAsNow[i].Location, calEventToBeNow.RangeTimeLine);
 
-                SubCalendarEvent updatedSubCal = new SubCalendarEvent(subEventsToBeSetAsNow[i].ID, UpdatedSubCalevents[i].Start, UpdatedSubCalevents[i].End, UpdatedSubCalevents[i].ActiveSlot,UpdatedSubCalevents[i].OrginalStartInfo, Rigid, subEventsToBeSetAsNow[i].isEnabled, subEventsToBeSetAsNow[i].UIParam, subEventsToBeSetAsNow[i].Notes, subEventsToBeSetAsNow[i].isComplete,i, subEventsToBeSetAsNow[i].myLocation, calEventToBeNow.RangeTimeLine);
                 subEventsToBeSetAsNow[i].shiftEvent(updatedSubCal.Start - subEventsToBeSetAsNow[i].Start, true);///not using update this because of possible issues with subevent not being restricted
                 //ProcrastinateEvent.updateSubEvent(updatedSubCal.SubEvent_ID, updatedSubCal);
             }
@@ -1104,7 +1072,7 @@ namespace My24HourTimerWPF
             }
 
 
-            await myAccount.CommitEventToLogOld(AllEventDictionary.Values, EventID.LatestID.ToString());
+            await myAccount.CommitEventToLogOld(AllEventDictionary.Values,"");
         }
 
 
@@ -1179,7 +1147,7 @@ namespace My24HourTimerWPF
                     }
 
 
-                    List<mTuple<double, SubCalendarEvent>> MovableForDict = MovableElements.Select(obj => new mTuple<double, SubCalendarEvent>(DistanceSolver.AverageToAllNodes(obj.myLocation, MovableElements.Where(obj1 => obj1 != obj).ToList().Select(obj2 => obj2.myLocation).ToList()), obj)).ToList();
+                    List<mTuple<double, SubCalendarEvent>> MovableForDict = MovableElements.Select(obj => new mTuple<double, SubCalendarEvent>(DistanceSolver.AverageToAllNodes(obj.Location, MovableElements.Where(obj1 => obj1 != obj).ToList().Select(obj2 => obj2.Location).ToList()), obj)).ToList();
                     MovableForDict.Sort(delegate(mTuple<double, SubCalendarEvent> A, mTuple<double, SubCalendarEvent> B)
                     {
                         return A.Item1.CompareTo(B.Item1);
@@ -1294,7 +1262,7 @@ namespace My24HourTimerWPF
                 if (ExcessSpace.Ticks > 0)//tries to trim the UpdatedListForTimeLine. This is done by removing an element in the updated list until its detected that the origin timeline is below or equal to its average
                 {
                     IEnumerable<SubCalendarEvent> NewlyAddedElements = (UpdatedListForTimeLine.Where(obj => !AlreadyAlignedEvents[j].Contains(obj.Item2))).Select(obj => obj.Item2);//retrieves the newly added elements
-                    List<mTuple<double, SubCalendarEvent>> NewlyAddedElementsWithCost = NewlyAddedElements.Select(obj => new mTuple<double, SubCalendarEvent>(DistanceSolver.AverageToAllNodes(obj.myLocation, UpdatedListForTimeLine.Select(obj3 => obj3.Item2).Where(obj1 => obj1 != obj).ToList().Select(obj2 => obj2.myLocation).ToList()), obj)).ToList();//creates mtuple of cost and subcal events
+                    List<mTuple<double, SubCalendarEvent>> NewlyAddedElementsWithCost = NewlyAddedElements.Select(obj => new mTuple<double, SubCalendarEvent>(DistanceSolver.AverageToAllNodes(obj.Location, UpdatedListForTimeLine.Select(obj3 => obj3.Item2).Where(obj1 => obj1 != obj).ToList().Select(obj2 => obj2.Location).ToList()), obj)).ToList();//creates mtuple of cost and subcal events
                     Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> CompatibilityListFOrTIghtestForExtraAverga = new Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>();
                     Dictionary<TimeSpan, List<mTuple<double, SubCalendarEvent>>> CompatibilityListForNewlyAddedElements = new Dictionary<TimeSpan, List<mTuple<double, SubCalendarEvent>>>();
                     foreach (mTuple<double, SubCalendarEvent> eachmTUple in NewlyAddedElementsWithCost)
@@ -1457,7 +1425,7 @@ namespace My24HourTimerWPF
             if (MyCalendarEvent.RepetitionStatus)
             {
 
-                SubCalendarEvent MySubEvent = new SubCalendarEvent(MyCalendarEvent.Duration, MyCalendarEvent.Repeat.Range.Start, MyCalendarEvent.Repeat.Range.End, MyCalendarEvent.Preparation, MyCalendarEvent.OrginalStartInfo, MyCalendarEvent.ID, MyCalendarEvent.Rigid, MyCalendarEvent.isEnabled, MyCalendarEvent.UIParam, MyCalendarEvent.Notes, MyCalendarEvent.isComplete, i, MyCalendarEvent.myLocation, MyCalendarEvent.RangeTimeLine);
+                SubCalendarEvent MySubEvent = new SubCalendarEvent(MyCalendarEvent.Duration, MyCalendarEvent.Repeat.Range.Start, MyCalendarEvent.Repeat.Range.End, MyCalendarEvent.Preparation, MyCalendarEvent.OrginalStartInfo, MyCalendarEvent.ID, MyCalendarEvent.Rigid, MyCalendarEvent.isEnabled, MyCalendarEvent.UIParam, MyCalendarEvent.Notes, MyCalendarEvent.isComplete, i, MyCalendarEvent.Location, MyCalendarEvent.RangeTimeLine);
 
 
                 //new SubCalendarEvent(MyCalendarEvent.End, MyCalendarEvent.Repeat.Range.Start, MyCalendarEvent.Repeat.Range.End, MyCalendarEvent.Preparation, MyCalendarEvent.ID);
@@ -1469,27 +1437,27 @@ namespace My24HourTimerWPF
                     {
                         case "DAILY":
                             {
-                                MySubEvent = new SubCalendarEvent(MyCalendarEvent.Duration, MyCalendarEvent.Repeat.Range.Start.AddDays(1), MyCalendarEvent.Repeat.Range.End.AddDays(1), MyCalendarEvent.Preparation, MyCalendarEvent.OrginalStartInfo, MyCalendarEvent.ID, MyCalendarEvent.Rigid, MyCalendarEvent.isEnabled, MyCalendarEvent.UIParam, MyCalendarEvent.Notes, MyCalendarEvent.isComplete, i, MyCalendarEvent.myLocation, MyCalendarEvent.RangeTimeLine);
+                                MySubEvent = new SubCalendarEvent(MyCalendarEvent.Duration, MyCalendarEvent.Repeat.Range.Start.AddDays(1), MyCalendarEvent.Repeat.Range.End.AddDays(1), MyCalendarEvent.Preparation, MyCalendarEvent.OrginalStartInfo, MyCalendarEvent.ID, MyCalendarEvent.Rigid, MyCalendarEvent.isEnabled, MyCalendarEvent.UIParam, MyCalendarEvent.Notes, MyCalendarEvent.isComplete, i, MyCalendarEvent.Location, MyCalendarEvent.RangeTimeLine);
                                 break;
                             }
                         case "WEEKLY":
                             {
-                                MySubEvent = new SubCalendarEvent(MyCalendarEvent.Duration, MyCalendarEvent.Repeat.Range.Start.AddDays(7), MyCalendarEvent.Repeat.Range.End.AddDays(7), MyCalendarEvent.Preparation, MyCalendarEvent.OrginalStartInfo, MyCalendarEvent.ID, MyCalendarEvent.Rigid, MyCalendarEvent.isEnabled, MyCalendarEvent.UIParam, MyCalendarEvent.Notes, MyCalendarEvent.isComplete, i, MyCalendarEvent.myLocation, MyCalendarEvent.RangeTimeLine);
+                                MySubEvent = new SubCalendarEvent(MyCalendarEvent.Duration, MyCalendarEvent.Repeat.Range.Start.AddDays(7), MyCalendarEvent.Repeat.Range.End.AddDays(7), MyCalendarEvent.Preparation, MyCalendarEvent.OrginalStartInfo, MyCalendarEvent.ID, MyCalendarEvent.Rigid, MyCalendarEvent.isEnabled, MyCalendarEvent.UIParam, MyCalendarEvent.Notes, MyCalendarEvent.isComplete, i, MyCalendarEvent.Location, MyCalendarEvent.RangeTimeLine);
                                 break;
                             }
                         case "BI-WEEKLY":
                             {
-                                MySubEvent = new SubCalendarEvent(MyCalendarEvent.Duration, MyCalendarEvent.Repeat.Range.Start.AddDays(14), MyCalendarEvent.Repeat.Range.End.AddDays(14), MyCalendarEvent.Preparation, MyCalendarEvent.OrginalStartInfo, MyCalendarEvent.ID, MyCalendarEvent.Rigid, MyCalendarEvent.isEnabled, MyCalendarEvent.UIParam, MyCalendarEvent.Notes, MyCalendarEvent.isComplete, i, MyCalendarEvent.myLocation, MyCalendarEvent.RangeTimeLine);
+                                MySubEvent = new SubCalendarEvent(MyCalendarEvent.Duration, MyCalendarEvent.Repeat.Range.Start.AddDays(14), MyCalendarEvent.Repeat.Range.End.AddDays(14), MyCalendarEvent.Preparation, MyCalendarEvent.OrginalStartInfo, MyCalendarEvent.ID, MyCalendarEvent.Rigid, MyCalendarEvent.isEnabled, MyCalendarEvent.UIParam, MyCalendarEvent.Notes, MyCalendarEvent.isComplete, i, MyCalendarEvent.Location, MyCalendarEvent.RangeTimeLine);
                                 break;
                             }
                         case "MONTHLY":
                             {
-                                MySubEvent = new SubCalendarEvent(MyCalendarEvent.Duration, MyCalendarEvent.Repeat.Range.Start.AddMonths(1), MyCalendarEvent.Repeat.Range.End.AddMonths(1), MyCalendarEvent.Preparation, MyCalendarEvent.OrginalStartInfo, MyCalendarEvent.ID, MyCalendarEvent.Rigid, MyCalendarEvent.isEnabled, MyCalendarEvent.UIParam, MyCalendarEvent.Notes, MyCalendarEvent.isComplete, i, MyCalendarEvent.myLocation, MyCalendarEvent.RangeTimeLine);
+                                MySubEvent = new SubCalendarEvent(MyCalendarEvent.Duration, MyCalendarEvent.Repeat.Range.Start.AddMonths(1), MyCalendarEvent.Repeat.Range.End.AddMonths(1), MyCalendarEvent.Preparation, MyCalendarEvent.OrginalStartInfo, MyCalendarEvent.ID, MyCalendarEvent.Rigid, MyCalendarEvent.isEnabled, MyCalendarEvent.UIParam, MyCalendarEvent.Notes, MyCalendarEvent.isComplete, i, MyCalendarEvent.Location, MyCalendarEvent.RangeTimeLine);
                                 break;
                             }
                         case "YEARLY":
                             {
-                                MySubEvent = new SubCalendarEvent(MyCalendarEvent.Duration, MyCalendarEvent.Repeat.Range.Start.AddYears(1), MyCalendarEvent.Repeat.Range.End.AddYears(1), MyCalendarEvent.Preparation, MyCalendarEvent.OrginalStartInfo, MyCalendarEvent.ID, MyCalendarEvent.Rigid, MyCalendarEvent.isEnabled, MyCalendarEvent.UIParam, MyCalendarEvent.Notes, MyCalendarEvent.isComplete, i, MyCalendarEvent.myLocation, MyCalendarEvent.RangeTimeLine);
+                                MySubEvent = new SubCalendarEvent(MyCalendarEvent.Duration, MyCalendarEvent.Repeat.Range.Start.AddYears(1), MyCalendarEvent.Repeat.Range.End.AddYears(1), MyCalendarEvent.Preparation, MyCalendarEvent.OrginalStartInfo, MyCalendarEvent.ID, MyCalendarEvent.Rigid, MyCalendarEvent.isEnabled, MyCalendarEvent.UIParam, MyCalendarEvent.Notes, MyCalendarEvent.isComplete, i, MyCalendarEvent.Location, MyCalendarEvent.RangeTimeLine);
                                 break;
                             }
                     }
@@ -2949,7 +2917,7 @@ namespace My24HourTimerWPF
                 }
                 if (!(CurrentDictionary.ContainsKey(generatedIndexMatch)))
                 {
-                    double Distance = Location_Elements.calculateDistance(MyPrecedingCalendarEvent.myLocation, MyNextCalendarEvent.myLocation);
+                    double Distance = Location_Elements.calculateDistance(MyPrecedingCalendarEvent.Location, MyNextCalendarEvent.Location);
                     CurrentDictionary.Add(generatedIndexMatch, Distance);
                 }
             }
@@ -3584,7 +3552,7 @@ namespace My24HourTimerWPF
             {
                 return AllRigids;
             }
-            Location_Elements AvgLocation = Location_Elements.AverageGPSLocation((AllRigids.Concat(myDayTimeLine.getSubEventsInDayTimeLine())).Select(obj => obj.myLocation));
+            Location_Elements AvgLocation = Location_Elements.AverageGPSLocation((AllRigids.Concat(myDayTimeLine.getSubEventsInDayTimeLine())).Select(obj => obj.Location));
             SubCalendarEvent.resetScores(AllSubEvents);
             /*
             TimeLine timeLineForCalc = new TimeLine(myDayTimeLine.Start, myDayTimeLine.End);
@@ -3623,7 +3591,7 @@ namespace My24HourTimerWPF
         Tuple<TimeLine, Double> getAllReferenceCalculation(IEnumerable<SubCalendarEvent> AllSubEvents, TimeLine DayTimeLine, Location_Elements rigidLocation)
         {
             Dictionary<SubCalendarEvent, TimeLine> SUbEventTOInterferringTimeLine = AllSubEvents.ToDictionary(obj => obj, obj => new TimeLine(DayTimeLine.Start > obj.ProcrastinationInfo.PreferredStartTime ? DayTimeLine.Start : obj.ProcrastinationInfo.PreferredStartTime, obj.getCalendarEventRange.End));//selects the relevenat timeline per subeevent. Tries to use the prcrastination info to provide better preferenceing
-            Dictionary<SubCalendarEvent, double> Distances = AllSubEvents.ToDictionary(obj => obj, obj => Location_Elements.calculateDistance(rigidLocation,obj.myLocation));
+            Dictionary<SubCalendarEvent, double> Distances = AllSubEvents.ToDictionary(obj => obj, obj => Location_Elements.calculateDistance(rigidLocation,obj.Location));
             int ParameterCount = 2;
             double MaxPerParameter = (double)100 / ParameterCount;
 
@@ -5336,13 +5304,13 @@ namespace My24HourTimerWPF
                 }
                 else
                 {
-                    CalEventDictionaryMapping.Add(calLevelID, new Tuple<Location_Elements, List<SubCalendarEvent>>(eachmTuple.myLocation, new List<SubCalendarEvent>() { eachmTuple }));
+                    CalEventDictionaryMapping.Add(calLevelID, new Tuple<Location_Elements, List<SubCalendarEvent>>(eachmTuple.Location, new List<SubCalendarEvent>() { eachmTuple }));
                 }
             }
 
             
 
-            Location_Elements AverageCurrentOccupiersGPSLocation= Location_Elements.AverageGPSLocation(currentOccupiers.Select(obj=>obj.myLocation));
+            Location_Elements AverageCurrentOccupiersGPSLocation= Location_Elements.AverageGPSLocation(currentOccupiers.Select(obj=>obj.Location));
 
             List<KeyValuePair<string, Tuple<Location_Elements, List<SubCalendarEvent>>>> SortedCalendarInfo = CalEventDictionaryMapping.OrderBy(obj => Location_Elements.calculateDistance(obj.Value.Item1, AverageCurrentOccupiersGPSLocation)).ToList();//sorted calendar events based on distance from average location
 
@@ -7525,7 +7493,7 @@ namespace My24HourTimerWPF
                     foreach (SubCalendarEvent eachSubCalendarEvent in MyList)
                     {
                         if (eachSubCalendarEvent != null)
-                        { AllLocations.Add(eachSubCalendarEvent.myLocation); }
+                        { AllLocations.Add(eachSubCalendarEvent.Location); }
                     }
                     OptimizedArrangement = new Tuple<System.Collections.Generic.ICollection<SubCalendarEvent>, double>(eachList, Location_Elements.calculateDistance(AllLocations));
                 }
@@ -10660,6 +10628,7 @@ namespace My24HourTimerWPF
             return CentralizedTimeline;
         }
 
+        /*
         private SubCalendarEvent AssignSubEventTimeSlot(SubCalendarEvent MySubEvent)
         {
             BusyTimeLine[] ArrayOfInvadingEvents = CheckIfMyRangeAlreadyHasSchedule(CompleteSchedule.OccupiedSlots, MySubEvent);
@@ -10675,7 +10644,7 @@ namespace My24HourTimerWPF
                 }
             }
             return MySubEvent;
-        }
+        }*/
 
         /*QUICK SORT SECTION START*/
 
@@ -11533,7 +11502,8 @@ namespace My24HourTimerWPF
             {
 
 
-                SubCalendarEvent updatedSubCal = new SubCalendarEvent(AllValidSubCalEvents[i].ID, UpdatedSubCalevents[i].Start, UpdatedSubCalevents[i].End, UpdatedSubCalevents[i].ActiveSlot, UpdatedSubCalevents[i].OrginalStartInfo, UpdatedSubCalevents[i].Rigid, AllValidSubCalEvents[i].isEnabled, AllValidSubCalEvents[i].UIParam, AllValidSubCalEvents[i].Notes, AllValidSubCalEvents[i].isComplete,i, UpdatedSubCalevents[i].myLocation, ProcrastinateEvent.RangeTimeLine);
+                SubCalendarEvent updatedSubCal = new SubCalendarEvent(AllValidSubCalEvents[i].ID, UpdatedSubCalevents[i].Start, UpdatedSubCalevents[i].End, UpdatedSubCalevents[i].ActiveSlot,UpdatedSubCalevents[i].OrginalStartInfo, UpdatedSubCalevents[i].Rigid, AllValidSubCalEvents[i].isEnabled, AllValidSubCalEvents[i].UIParam, AllValidSubCalEvents[i].Notes, AllValidSubCalEvents[i].isComplete,i, UpdatedSubCalevents[i].Location, ProcrastinateEvent.RangeTimeLine);
+
                 AllValidSubCalEvents[i].shiftEvent(updatedSubCal.Start - AllValidSubCalEvents[i].Start, true);///not using update this because of possible issues with subevent not being restricted
                 //AllValidSubCalEvents[i].UpdateThis(updatedSubCal);
             }
@@ -11615,13 +11585,7 @@ namespace My24HourTimerWPF
 
         //Properties
 
-        public uint LastScheduleIDNumber
-        {
-            get
-            {
-                return (EventID.LatestID);
-            }
-        }
+
 
         public bool isScheduleLoadSuccessful
         {

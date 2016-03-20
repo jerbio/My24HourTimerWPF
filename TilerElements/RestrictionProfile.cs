@@ -13,10 +13,10 @@ namespace TilerElements
     {
         static DateTimeOffset SundayDate = new DateTimeOffset(2015, 3, 15, 0, 0, 0, new TimeSpan());
         public static readonly DayOfWeek[] AllDaysOfWeek = new DayOfWeek[7] { DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday };
-        protected Tuple<DayOfWeek, RestrictionTimeLine>[] DaySelection = new Tuple<DayOfWeek, RestrictionTimeLine>[7];
+        protected Tuple<DayOfWeek, RestrictionTimeLine>[] DaySelection { get; set; } = new Tuple<DayOfWeek, RestrictionTimeLine>[7];
         protected Tuple<DayOfWeek, RestrictionTimeLine>[] NoNull_DaySelections;
         protected List<Tuple<int,int>>[] DayOfWeekToOverlappingIndexes = new List<Tuple<int,int>>[7];
-
+        string ID = Guid.NewGuid().ToString();
 
         bool[] ActiveDays = new bool[7];
         DayOfWeek startDayOfWeek = DayOfWeek.Monday;
@@ -604,52 +604,7 @@ namespace TilerElements
             return retValue;
         }
         
-        /*
-        public TimeLine getEarliestStartTimeWithinAFrameAfterRefTime(DateTimeOffset RefStart)
-        {    
-            DateTimeOffset Start = RefStart;
-            int StartIndexOfDayOfweek = (int)Start.DayOfWeek;
-            int IniStartIndexOfDayIndex = StartIndexOfDayOfweek;
-            int DayDiff = 0;
-            Tuple<DayOfWeek, RestrictionTimeLine> selectedDay;
-            for (int i = 0; i < 7; i++, StartIndexOfDayOfweek++)
-            {
-                int OffSetStartIndex  = StartIndexOfDayOfweek % 7;
-                selectedDay = DaySelection[OffSetStartIndex];
-                if (selectedDay != null)
-                {
-                    DayDiff = (((int)selectedDay.Item1 - IniStartIndexOfDayIndex) + 7) % 7;
-                    DateTimeOffset newTime = Start.AddDays(DayDiff);//shifts start to the day of a reference frame;
-                    DateTimeOffset newStartTime = selectedDay.Item2.getInjectedStartHourMinIntoDateTime(newTime);
-                    DateTimeOffset newEndTime = selectedDay.Item2.getInjectedEndHourMinIntoDateTime(newTime);
 
-                    TimeLine currentFrame = new TimeLine(newStartTime, newEndTime);
-                    if (currentFrame.IsDateTimeWithin(newTime) || (newTime == newStartTime) || (newTime == newEndTime))
-                    {
-                        return new TimeLine(newTime, newEndTime);
-                    }
-                    if ((newTime < newStartTime))//checks if the new Time occurs before the supposed timeframe. Since it is not within the current timeframe and  it occurs before the timeframe , then the next possible timeframe is this time frame. i.e if time frame is 9:00am - 9:00pm 11/13/2014 and new time is 7:00am on 11/13/2014. The next earliest time frame will be 9:00am-9:00pm 11/13/2014
-                    {
-                        return new TimeLine(newStartTime, newEndTime);
-                    }
-
-                    if ((newTime > RefStart))//checks if it has progressed to the next time frame. That is the only time when newTime>RefStart and still not be within a frame
-                    {
-                        return new TimeLine(newStartTime, newEndTime);
-                    }
-                }
-                else
-                {
-                    return getEarliestStartTimeFrameBorder(RefStart);
-                }
-            }
-            DateTimeOffset retValue = RefStart.AddDays(7);
-            
-            retValue= new DateTimeOffset(retValue.Year,retValue .Month,retValue .Day,NoNull_DaySelections[0].Item2.Start.Hour,NoNull_DaySelections[0].Item2.Start.Minute,NoNull_DaySelections[0].Item2.Start.Second, new TimeSpan());
-            TimeLine retValueTimeLine = NoNull_DaySelections[0].Item2.getTimeLineFromStartFrame(retValue);
-            return retValueTimeLine;
-        }
-        */
 
 
         bool isHourTimeOfBLaterThanOrEqualToA(DateTimeOffset DateTimeOffsetA, DateTimeOffset DateTimeOffsetB)
@@ -665,6 +620,27 @@ namespace TilerElements
             return NoNull_DaySelections.ToList();
         }
         
+        virtual public string Id
+        {
+            get
+            {
+                return ID;
+
+            }
+            set
+            {
+                Guid testValue;
+                if (Guid.TryParse(value, out testValue))
+                {
+                    Id = value;
+                }
+                else
+                {
+                    throw new Exception("Invalid id for event display");
+                }
+
+            }
+        }
 
     }
 }

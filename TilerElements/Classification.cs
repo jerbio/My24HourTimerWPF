@@ -9,10 +9,11 @@ namespace TilerElements
 {
     public class Classification
     {
-        Vicinity Placement = Vicinity.None;
-        EnergyDifferential Succubus = EnergyDifferential.None;
-        Leisure LeisureType = Leisure.None;
+        virtual public Vicinity Placement { get; set; }  = Vicinity.None;
+        virtual public EnergyDifferential Succubus { get; set; } = EnergyDifferential.None;
+        virtual public Leisure LeisureType { get; set; } = Leisure.None;
         bool Initialized = true;
+        string ID = Guid.NewGuid().ToString();
         public Classification(Vicinity LocationPlacement, EnergyDifferential StrengthDelta, Leisure RelaxationData, bool InitializedData)
         {
             LeisureType = RelaxationData;
@@ -57,6 +58,28 @@ namespace TilerElements
 
             }
             //Console.WriteLine(xml);
+        }
+
+        virtual public string Id
+        {
+            get
+            {
+                return ID;
+
+            }
+            set
+            {
+                Guid testValue;
+                if (Guid.TryParse(value, out testValue))
+                {
+                    Id = value;
+                }
+                else
+                {
+                    throw new Exception("Invalid id for event calsification");
+                }
+
+            }
         }
     }
 

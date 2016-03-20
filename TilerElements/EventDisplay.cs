@@ -12,6 +12,8 @@ namespace TilerElements
         TilerColor eventColor;
         int Default = 0;//0->Default Calendar Colors,1->Set As Complete,2->subCalendar Event Specific colors,3->Calendar Event Specific colors
         bool CompleteUI;
+        protected string ID { get; set; } = Guid.NewGuid().ToString();
+
         public EventDisplay()
         {
             Visible = true;
@@ -44,11 +46,15 @@ namespace TilerElements
 
 
         #region Properties
-        public bool isVisible
+        virtual public bool isVisible
         {
             get
             {
                 return Visible;
+            }
+            set
+            {
+                Visible = value;
             }
         }
 
@@ -58,24 +64,58 @@ namespace TilerElements
             {
                 return eventColor;
             }
+            set
+            {
+                eventColor = value;
+            }
         }
 
 
-        public int isDefault
+        virtual public int isDefault
         {
             get 
             {
                 return Default;
             }
+            set
+            {
+                Default = value;
+            }
         }
 
-        public bool isCompleteUI
+        virtual public bool isCompleteUI
         {
             get
             {
                 return CompleteUI;
             }
+            set
+            {
+                CompleteUI = value;
+            }
         }
+
+        virtual public string Id
+        {
+            get {
+                return ID;
+
+            }
+            set
+            {
+                Guid testValue;
+                if(Guid.TryParse(value,out testValue))
+                {
+                    Id = value;
+                }
+                else
+                {
+                    throw new Exception("Invalid id for event display");
+                }
+                
+            }
+        }
+        
 
         
 

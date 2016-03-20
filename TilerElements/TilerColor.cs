@@ -5,13 +5,14 @@ using System.Text;
 
 namespace TilerElements
 {
-    public struct TilerColor
+    public class TilerColor
     {
-        int Red;
-        int Blue;
-        int Green;
-        double Opacity;
-        int ColorSelection;
+        protected int Red;
+        protected int Blue;
+        protected int Green;
+        protected double Opacity;
+        protected int ColorSelection;
+        protected string ID;
         
         public TilerColor(int RedColor = 255, int BlueColor = 255, int GreenColor = 255, double Opacity=1, int Selection=-1)
         {
@@ -38,7 +39,7 @@ namespace TilerElements
 
 
         #region Properties
-        public int R
+        virtual public int R
         {
             set
             {
@@ -56,7 +57,7 @@ namespace TilerElements
                 return Red;
             }
         }
-        public int G 
+        virtual public int G 
         { 
             set
             {
@@ -75,7 +76,7 @@ namespace TilerElements
             }
                 
         }
-        public int B
+        virtual public int B
         {
             set
             {
@@ -93,7 +94,7 @@ namespace TilerElements
                 return Blue;
             }
         }
-        public double O 
+        virtual public double O 
         {
             set
             {
@@ -112,7 +113,8 @@ namespace TilerElements
             }
         }
 
-        public int User
+
+        virtual public int User
         {
             set
             {
@@ -123,6 +125,30 @@ namespace TilerElements
                 return ColorSelection;
             }
         }
+
+        virtual public string Id
+        {
+            get
+            {
+                return ID;
+
+            }
+            set
+            {
+                Guid testValue;
+                if (Guid.TryParse(value, out testValue))
+                {
+                    Id = value;
+                }
+                else
+                {
+                    throw new Exception("Invalid id for event display");
+                }
+
+            }
+        }
+
+
         #endregion
     }
 }

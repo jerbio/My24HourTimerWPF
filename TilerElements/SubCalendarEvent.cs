@@ -14,7 +14,7 @@ namespace TilerElements
         protected TimeLine CalendarEventRange;
         protected double EventScore;
         protected ConflictProfile ConflictingEvents = new ConflictProfile();
-        protected ulong preferredDayIndex=0;
+        protected ulong PreferredDayIndex=0;
         protected int MiscIntData;
         protected bool Vestige = false;
         protected ulong UnUsableIndex;
@@ -188,13 +188,13 @@ namespace TilerElements
 
         public void resetPreferredDayIndex()
         {
-            preferredDayIndex = 0;
+            PreferredDayIndex = 0;
         }
 
         public void updateDayIndex(CalendarEvent myCalEvent)
         {
-            preferredDayIndex = ReferenceNow.getDayIndexFromStartOfTime(StartDateTime);
-            myCalEvent.removeDayTimeFromFreeUpdays(preferredDayIndex);
+            PreferredDayIndex = ReferenceNow.getDayIndexFromStartOfTime(StartDateTime);
+            myCalEvent.removeDayTimeFromFreeUpdays(PreferredDayIndex);
         }
 
         public void SetCompletionStatus(bool CompletionStatus,CalendarEvent myCalendarEvent)
@@ -294,8 +294,7 @@ namespace TilerElements
             MySubCalendarEventCopy.ThirdPartyID = this.ThirdPartyID;
             MySubCalendarEventCopy.DeadlineElapsed = this.DeadlineElapsed;
             MySubCalendarEventCopy.UserDeleted = this.UserDeleted;
-            MySubCalendarEventCopy.isRestricted = this.isRestricted;
-            MySubCalendarEventCopy.preferredDayIndex = this.preferredDayIndex;
+            MySubCalendarEventCopy.PreferredDayIndex = this.PreferredDayIndex;
             MySubCalendarEventCopy.CreatorIDInfo = this.CreatorIDInfo;
             MySubCalendarEventCopy.Semantics = this.Semantics.createCopy();
             MySubCalendarEventCopy._UsedTime = this._UsedTime;
@@ -312,14 +311,14 @@ namespace TilerElements
 
         public void updateDayIndex(ulong DayIndex)
         {
-            this.preferredDayIndex = DayIndex;
+            this.PreferredDayIndex = DayIndex;
         }
 
         public static void updateDayIndex(ulong DayIndex, IEnumerable<SubCalendarEvent> AllSUbevents)
         {
             foreach (SubCalendarEvent eachSubCalendarEvent in AllSUbevents)
             {
-                eachSubCalendarEvent.preferredDayIndex = DayIndex;
+                eachSubCalendarEvent.PreferredDayIndex = DayIndex;
             }
         }
 
@@ -441,7 +440,7 @@ namespace TilerElements
                     this.BusyFrame = SubEventEntry.ActiveSlot;
                     this.CalendarEventRange = SubEventEntry.getCalendarEventRange;
                     this.FromRepeatEvent = SubEventEntry.FromRepeat;
-                    this.EventName = SubEventEntry.Name;
+                    
                     this.EventDuration = SubEventEntry.ActiveDuration;
                     this.Complete = SubEventEntry.isComplete;
                     this.ConflictingEvents = SubEventEntry.Conflicts;
@@ -455,7 +454,7 @@ namespace TilerElements
                     this.LocationInfo = SubEventEntry.Location;
                     this.OldPreferredIndex = SubEventEntry.OldUniversalIndex;
                     this.otherPartyID = SubEventEntry.ThirdPartyID;
-                    this.preferredDayIndex = SubEventEntry.UniversalDayIndex;
+                    this.PreferredDayIndex = SubEventEntry.UniversalDayIndex;
                     this.PrepTime = SubEventEntry.Preparation;
                     this.Priority = SubEventEntry.EventPriority;
                     //this.ProfileOfNow = SubEventEntry.ProfileOfNow;
@@ -465,6 +464,7 @@ namespace TilerElements
                     this.StartDateTime = SubEventEntry.Start;
                     this.UiParams = SubEventEntry.UIParam;
                     this.UniqueID = SubEventEntry.SubEvent_ID;
+                    this.EventName = new EventName(UniqueID, Name);
                     this.UserDeleted = SubEventEntry.isUserDeleted;
                     this.UserIDs = SubEventEntry.getAllUserIDs();
                     this.Vestige = SubEventEntry.isVestige;
@@ -478,7 +478,6 @@ namespace TilerElements
                         this.BusyFrame = SubEventEntry.ActiveSlot;
                         this.CalendarEventRange = SubEventEntry.getCalendarEventRange;
                         this.FromRepeatEvent = SubEventEntry.FromRepeat;
-                        this.EventName = SubEventEntry.Name;
                         this.EventDuration = SubEventEntry.ActiveDuration;
                         this.Complete = SubEventEntry.isComplete;
                         this.ConflictingEvents = SubEventEntry.Conflicts;
@@ -492,7 +491,7 @@ namespace TilerElements
                         this.LocationInfo = SubEventEntry.Location;
                         this.OldPreferredIndex = SubEventEntry.OldUniversalIndex;
                         this.otherPartyID = SubEventEntry.ThirdPartyID;
-                        this.preferredDayIndex = SubEventEntry.UniversalDayIndex;
+                        this.PreferredDayIndex = SubEventEntry.UniversalDayIndex;
                         this.PrepTime = SubEventEntry.Preparation;
                         this.Priority = SubEventEntry.EventPriority;
                         //this.ProfileOfNow = SubEventEntry.ProfileOfNow;
@@ -502,6 +501,7 @@ namespace TilerElements
                         this.StartDateTime = SubEventEntry.Start;
                         this.UiParams = SubEventEntry.UIParam;
                         this.UniqueID = SubEventEntry.SubEvent_ID;
+                        this.EventName = new EventName(UniqueID, SubEventEntry.Name);
                         this.UserDeleted = SubEventEntry.isUserDeleted;
                         this.UserIDs = SubEventEntry.getAllUserIDs();
                         this.Vestige = SubEventEntry.isVestige;
@@ -547,7 +547,6 @@ namespace TilerElements
             retValue.BusyFrame = this.ActiveSlot.CreateCopy();
             retValue.CalendarEventRange = this.getCalendarEventRange.CreateCopy();
             retValue.FromRepeatEvent = this.FromRepeat;
-            retValue.EventName = this.Name;
             retValue.EventDuration = this.ActiveDuration;
             retValue.Complete = this.isComplete;
             retValue.ConflictingEvents = this.Conflicts;
@@ -557,11 +556,10 @@ namespace TilerElements
             retValue.EndDateTime = this.End;
             retValue.EventPreDeadline = this.PreDeadline;
             retValue.EventScore = this.Score;
-            retValue.isRestricted = this.isEventRestricted;
             retValue.LocationInfo = this.Location.CreateCopy();
             retValue.OldPreferredIndex = this.OldUniversalIndex;
             retValue.otherPartyID = this.ThirdPartyID;
-            retValue.preferredDayIndex = this.UniversalDayIndex;
+            retValue.PreferredDayIndex = this.UniversalDayIndex;
             retValue.PrepTime = this.Preparation;
             retValue.Priority = this.EventPriority;
             //retValue.ProfileOfNow = this.ProfileOfNow;
@@ -571,6 +569,7 @@ namespace TilerElements
             retValue.StartDateTime = this.Start;
             retValue.UiParams = this.UIParam;
             retValue.UniqueID = this.SubEvent_ID;
+            retValue.EventName = new EventName(retValue.UniqueID, this.Name);
             retValue.UserDeleted = this.isUserDeleted;
             retValue.UserIDs = this.getAllUserIDs();
             retValue.Vestige = this.isVestige;
@@ -882,7 +881,7 @@ namespace TilerElements
          {
              get
              {
-                 return preferredDayIndex;
+                 return PreferredDayIndex;
              }
          }
 
@@ -950,11 +949,37 @@ namespace TilerElements
 
         }
 
+        public override DateTimeOffset Start
+        {
+            get
+            {
+                return BusyFrame.Start;
+            }
+            set
+            {
+                this.StartDateTime = value;
+                BusyFrame = new BusyTimeLine(Id, value, BusyFrame.End);
+            }
+        }
+
+        public override DateTimeOffset End
+        {
+            get
+            {
+                return BusyFrame.End;
+            }
+            set
+            {
+                this.EndDateTime = value;
+                BusyFrame = new BusyTimeLine(Id, BusyFrame.Start, value);
+            }
+        }
+
         public bool isDesignated
         {
             get
             {
-                bool retValue = preferredDayIndex != 0;
+                bool retValue = PreferredDayIndex != 0;
                 return retValue;
             }
         }

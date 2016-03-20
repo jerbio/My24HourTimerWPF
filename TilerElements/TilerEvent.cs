@@ -9,7 +9,7 @@ namespace TilerElements
     public abstract class TilerEvent
     {
         public static TimeSpan ZeroTimeSpan = new TimeSpan(0);
-        protected string EventName="";
+        protected EventName EventName;
         protected DateTimeOffset StartDateTime;
         protected DateTimeOffset EndDateTime;
         protected bool Complete = false;
@@ -29,31 +29,33 @@ namespace TilerElements
         protected EventID UniqueID;
         protected List<string> UserIDs= new List<string>();
         protected int Priority;
-        protected bool isRestricted = false;
         protected static DateTimeOffset EventNow = DateTimeOffset.Now;
         protected static TimeSpan CalculationEndSpan = new TimeSpan(180, 0, 0, 0, 0);
         protected Procrastination ProfileOfProcrastination = new Procrastination(new DateTimeOffset(), new TimeSpan());
         protected NowProfile ProfileOfNow = new NowProfile();
+        protected long RepetitionSequence = 0;
+        protected DateTimeOffset OriginalStart;
+        public enum Conflictability { Averse, Normal, Tolerant};
+        protected Conflictability ConflictSetting = Conflictability.Normal;
         protected bool ThirdPartyFlag = false;
         protected string ThirdPartyUserIDInfo;
         protected ThirdPartyControl.CalendarTool ThirdPartyTypeInfo = ThirdPartyControl.CalendarTool.Tiler;
         protected string CreatorIDInfo;
+
         protected TimeSpan _UsedTime = new TimeSpan();
         protected Classification Semantics= new Classification();
 
         async public Task InitializeClassification()
         {
-            await Semantics.InitializeClassification(EventName);
+            await Semantics.InitializeClassification(EventName.Name);
         }
-        protected long RepetitionSequence = -1;
-        protected DateTimeOffset OriginalStart;
         public List<string> getAllUserIDs()
         {
             return UserIDs.ToList();
         }
         public void updateEventName(string NewName)
         {
-            EventName = NewName;
+            EventName = new EventName( NewName,Id);
         }
 
         internal void setAsUserDeleted()
@@ -103,21 +105,30 @@ namespace TilerElements
             }
         }
 
-        public  DateTimeOffset End
+        virtual public DateTimeOffset End
         {
             get
             {
                 return EndDateTime;
             }
+            set
+            {
+                throw new NotImplementedException();
+            }
         }
 
-        public  DateTimeOffset Start
+        virtual public DateTimeOffset Start
         {
             get
             {
                 return StartDateTime;
             }
+            set
+            {
+                throw new NotImplementedException();
+            }
         }
+
 
         public ThirdPartyControl.CalendarTool ThirdpartyType
         {
@@ -183,11 +194,12 @@ namespace TilerElements
              }
          }
 
-         public bool isEventRestricted
+
+        virtual public bool isRestricted
          {
              get
              {
-                 return isRestricted;
+                throw new NotImplementedException();
              }
          }
         public bool isDeadlineElapsed
@@ -201,7 +213,7 @@ namespace TilerElements
         {
             get
             {
-                return EventName;
+                return EventName.Name;
             }
         }
 
@@ -283,9 +295,21 @@ namespace TilerElements
             {
                 return UniqueID.ToString();
             }
-            protected set
+            set
             {
-                UniqueID = new EventID(value);
+                throw new NotFiniteNumberException();
+            }
+        }
+
+        virtual public Classification Classification
+        {
+            get
+            {
+                return Semantics;
+            }
+            set
+            {
+                Semantics = value;
             }
         }
     }

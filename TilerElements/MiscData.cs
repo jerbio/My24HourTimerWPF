@@ -7,8 +7,9 @@ namespace TilerElements
 {
     public class MiscData
     {
-        string UserTypedData;
-        int Type;//Entry Source. 0-> No Entry from Calendar Event. 1->From CalendarEvent. 2-> from SubCalendarEvent
+        protected string UserTypedData;
+        protected int Type;//Entry Source. 0-> No Entry from Calendar Event. 1->From CalendarEvent. 2-> from SubCalendarEvent
+        protected string ID = Guid.NewGuid().ToString();
 
         #region constructor
 
@@ -60,6 +61,27 @@ namespace TilerElements
             }
         }
 
+        virtual public string Id
+        {
+            get
+            {
+                return ID;
+
+            }
+            set
+            {
+                Guid testValue;
+                if (Guid.TryParse(value, out testValue))
+                {
+                    Id = value;
+                }
+                else
+                {
+                    throw new Exception("Invalid id for notes");
+                }
+
+            }
+        }
         #endregion
 
     }

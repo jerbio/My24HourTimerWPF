@@ -7,15 +7,15 @@ namespace TilerElements
 {
     public class ConflictProfile
     {
-        private bool ConflictFlag;
-        HashSet<string> ConflictingEvents;
-        int ConflictType;
-
+        protected bool ConflictFlag;
+        protected HashSet<string> ConflictingEvents;
+        protected int TypeOfConflict;
+        protected string ID = Guid.NewGuid().ToString();
         public ConflictProfile(int conflictType=0,bool conflictFlag=false)
         {
             ConflictFlag = conflictFlag;
             ConflictingEvents = new HashSet<string>();
-            this.ConflictType = conflictType;
+            this.TypeOfConflict = conflictType;
         }
 
         public ConflictProfile(string allIds)
@@ -41,7 +41,7 @@ namespace TilerElements
             ConflictProfile retValue = new ConflictProfile();
             retValue.ConflictFlag = this.ConflictFlag;
             retValue.ConflictingEvents = new HashSet<string>(ConflictingEvents);
-            retValue.ConflictType = ConflictType;
+            retValue.TypeOfConflict = TypeOfConflict;
             return retValue;
         }
 
@@ -58,7 +58,9 @@ namespace TilerElements
         public bool AddConflictingEvents(string eventID)
         {
             ConflictFlag = true;
-            return ConflictingEvents.Add(eventID);
+            bool RetValue = ConflictingEvents.Add(eventID);
+            ConflictCount = ConflictingEvents.Count;
+            return RetValue;
         }
 
         public bool RemoveConflictingEvents(string eventID)
@@ -68,6 +70,7 @@ namespace TilerElements
             {
                 ConflictFlag = false;
             }
+            ConflictCount = ConflictingEvents.Count;
             return retValue;
         }
 
@@ -83,20 +86,66 @@ namespace TilerElements
             }
         }
 
-        public int conflictType
-        {
-            get
-            {
-                return ConflictType;
-            }
-        }
+
 
         public IEnumerable<string> getConflictingEventIDs()
         {
             return ConflictingEvents;
         }
 
-        
+
+        #region properties
+        virtual public int ConflictType
+        {
+            get
+            {
+                return TypeOfConflict;
+            }
+            set
+            {
+                TypeOfConflict = value;
+            }
+        }
+
+        virtual public int ConflictCount { get; set; } = 0;
+
+        virtual public bool Flag
+        {
+            get
+            {
+                return ConflictFlag;
+            }
+            set
+            {
+                ConflictFlag = value;
+            }
+        }
+
+        virtual public string Id
+        {
+            get
+            {
+                return ID;
+
+            }
+            set
+            {
+                Guid testValue;
+                if (Guid.TryParse(value, out testValue))
+                {
+                    Id = value;
+                }
+                else
+                {
+                    throw new Exception("Invalid id for Conflict");
+                }
+
+            }
+        }
+
+
+        #endregion
+
 
     }
 }

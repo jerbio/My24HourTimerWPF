@@ -20,7 +20,7 @@ namespace TilerElements
 
         public CalendarEventRestricted(string Name, DateTimeOffset Start, DateTimeOffset End,DateTimeOffset OriginalStartData, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, Location_Elements Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventDisplay UiSettings = null, MiscData NoteData=null)
         {
-            EventName = Name;
+            
             StartDateTime = Start;
             EndDateTime = End;
             RigidSchedule = isRigid;
@@ -39,10 +39,12 @@ namespace TilerElements
             UiParams = UiSettings;
             DataBlob = NoteData;
             LocationInfo = Location;
-            
+       
+
+            EventName = new EventName( UniqueID, Name);
+
             EventDuration = Duration;
             TimePerSplit = TimeSpan.FromTicks(EventDuration.Ticks / Splits);
-            isRestricted = true;
             ProfileOfNow = new NowProfile();
             OriginalStart = OriginalStartData;
             InstantiateSubEvents();
@@ -52,7 +54,6 @@ namespace TilerElements
 
         public CalendarEventRestricted(EventID EventIDEntry, string Name, DateTimeOffset Start, DateTimeOffset End, DateTimeOffset OriginalStartData, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, Location_Elements Location, TimeSpan EventPreparation, TimeSpan Event_PreDeadline, long RepetitionIndex, EventDisplay UiSettings = null, MiscData NoteData = null)
         {
-            EventName = Name;
             StartDateTime = Start;
             EndDateTime = End;
             RigidSchedule = isRigid;
@@ -73,12 +74,12 @@ namespace TilerElements
             UiParams = UiSettings;
             DataBlob = NoteData;
             ProfileOfNow = new NowProfile();
-            isRestricted = true;
             EventDuration = Duration;
             TimePerSplit = TimeSpan.FromTicks(EventDuration.Ticks / Splits);
             LocationInfo = Location;
             
             OriginalStart = OriginalStartData;
+            EventName = new EventName(UniqueID, Name);
             InstantiateSubEvents();
         }
 
@@ -86,7 +87,7 @@ namespace TilerElements
         { 
             CalendarEventRestricted retValue = new CalendarEventRestricted();
             retValue.UniqueID = EventID.GenerateRepeatCalendarEvent(CalendarEventID.ToString(), NextSequence);
-            retValue .EventName =Name;
+            
             retValue.EventDuration = Duration;
             retValue.StartDateTime = Start;
             retValue.EndDateTime = End;
@@ -96,7 +97,6 @@ namespace TilerElements
             retValue.DeadlineElapsed = End > TilerEvent.EventNow;
             retValue.Splits = division;
             retValue.TimePerSplit = TimeSpan.FromTicks( retValue.EventDuration.Ticks / division);
-            retValue.isRestricted = true;
             retValue.LocationInfo = Location;
             retValue.EndOfCalculation = End < TilerEvent.EventNow.Add(CalculationEndSpan) ? End : TilerEvent.EventNow.Add(CalculationEndSpan);
             retValue.RigidSchedule = RigidFlag;
@@ -109,6 +109,7 @@ namespace TilerElements
             retValue.InstantiateSubEvents();
             retValue.OriginalStart = OriginalStartData;
             retValue.RepeatRoot = RepeatRootData;
+            retValue.EventName =new EventName( retValue.Id, Name);
 
             while (!OrginalStartToCalendarEvent.TryAdd(OriginalStartData, retValue))
             {
@@ -122,7 +123,7 @@ namespace TilerElements
         {
             CalendarEventRestricted MyCalendarEventCopy = new CalendarEventRestricted();
             MyCalendarEventCopy.EventDuration = new TimeSpan(EventDuration.Ticks);
-            MyCalendarEventCopy.EventName = EventName.ToString();
+            MyCalendarEventCopy.EventName = EventName.CreateCopy();
             MyCalendarEventCopy.StartDateTime = StartDateTime;
             MyCalendarEventCopy.EndDateTime = EndDateTime;
             MyCalendarEventCopy.EventPreDeadline = new TimeSpan(EventPreDeadline.Ticks);
@@ -139,7 +140,6 @@ namespace TilerElements
             MyCalendarEventCopy.UiParams = this.UiParams.createCopy();
             MyCalendarEventCopy.DataBlob = this.DataBlob.createCopy();
             MyCalendarEventCopy.Enabled = this.Enabled;
-            MyCalendarEventCopy.isRestricted = this.isRestricted;
             MyCalendarEventCopy.LocationInfo = LocationInfo;//hack you might need to make copy
             MyCalendarEventCopy.ProfileOfProcrastination = this.ProfileOfProcrastination.CreateCopy();
             MyCalendarEventCopy.DeadlineElapsed = this.DeadlineElapsed;
@@ -196,7 +196,7 @@ namespace TilerElements
         {
             CalendarEventRestricted RetValue = new CalendarEventRestricted();
             RetValue.EventDuration = this.Duration;
-            RetValue.EventName = this.Name;
+            RetValue.EventName = this.EventName.CreateCopy();
             RetValue.StartDateTime = this.Start;
             RetValue.EndDateTime = this.End;
             RetValue.EventPreDeadline = this.PreDeadline;
@@ -214,8 +214,7 @@ namespace TilerElements
             RetValue.UiParams = this.UIParam.createCopy();
             RetValue.DataBlob = this.Notes;
             RetValue.Enabled = this.isEnabled;
-            RetValue.isRestricted = this.isEventRestricted;
-            RetValue.LocationInfo = this.Location;//hack you might need to make copy
+            RetValue.LocationInfo = this.Location.CreateCopy();//hack you might need to make copy
             RetValue.ProfileOfProcrastination = this.ProcrastinationInfo.CreateCopy();
             RetValue.DeadlineElapsed = this.isDeadlineElapsed;
             RetValue.UserDeleted = this.isUserDeleted;

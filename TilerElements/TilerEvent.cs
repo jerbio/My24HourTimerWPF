@@ -9,7 +9,7 @@ namespace TilerElements
     public abstract class TilerEvent
     {
         public static TimeSpan ZeroTimeSpan = new TimeSpan(0);
-        protected EventName EventName;
+        protected EventName NameOfEvent;// ="";
         protected DateTimeOffset StartDateTime;
         protected DateTimeOffset EndDateTime;
         protected bool Complete = false;
@@ -37,6 +37,14 @@ namespace TilerElements
         protected DateTimeOffset OriginalStart;
         public enum Conflictability { Averse, Normal, Tolerant};
         protected Conflictability ConflictSetting = Conflictability.Normal;
+        protected bool EventIsModified;
+        /// <summary>
+        /// Holds the Id to the initializing the Event Id. This should be the Id to the calendarevent
+        /// </summary>
+        protected EventID OriginalEventID;
+
+
+
         protected bool ThirdPartyFlag = false;
         protected string ThirdPartyUserIDInfo;
         protected ThirdPartyControl.CalendarTool ThirdPartyTypeInfo = ThirdPartyControl.CalendarTool.Tiler;
@@ -47,7 +55,7 @@ namespace TilerElements
 
         async public Task InitializeClassification()
         {
-            await Semantics.InitializeClassification(EventName.Name);
+            await Semantics.InitializeClassification(NameOfEvent.Name);
         }
         public List<string> getAllUserIDs()
         {
@@ -55,7 +63,7 @@ namespace TilerElements
         }
         public void updateEventName(string NewName)
         {
-            EventName = new EventName( NewName,Id);
+            NameOfEvent = new EventName( NewName,Id);
         }
 
         internal void setAsUserDeleted()
@@ -139,7 +147,7 @@ namespace TilerElements
         }
 
 
-        public  string ThirdPartyID
+        virtual public  string ThirdPartyID
         {
             get
             {
@@ -213,7 +221,7 @@ namespace TilerElements
         {
             get
             {
-                return EventName.Name;
+                return NameOfEvent.Name;
             }
         }
 
@@ -289,7 +297,7 @@ namespace TilerElements
             }
         }
 
-        public string Id
+        virtual public string Id
         {
             get
             {
@@ -310,6 +318,14 @@ namespace TilerElements
             set
             {
                 Semantics = value;
+            }
+        }
+
+        virtual public EventID OriginalEventId
+        {
+            get
+            {
+                return OriginalEventID;
             }
         }
     }

@@ -183,7 +183,7 @@ namespace TilerElements
             copy.Enabled = this.Enabled;
             copy.EndDateTime = this.EndDateTime;
             copy.EventDuration = this.EventDuration;
-            copy.EventName = this.EventName;
+            copy.NameOfEvent = this.NameOfEvent;
             copy.EventPreDeadline = this.EventPreDeadline;
             copy.EventScore = this.EventScore;
             //copy.EventSequence = this.EventSequence.CreateCopy();
@@ -347,7 +347,7 @@ namespace TilerElements
                     this.StartDateTime = SubEventEntry.Start;
                     this.UiParams = SubEventEntry.UIParam;
                     this.UniqueID = SubEventEntry.SubEvent_ID;
-                    this.EventName = new EventName(this.UniqueID, SubEventEntry.Name);
+                    this.NameOfEvent = new EventName(this.UniqueID, SubEventEntry.Name);
                     this.UserDeleted = SubEventEntry.isUserDeleted;
                     this.UserIDs = SubEventEntry.getAllUserIDs();
                     this.Vestige = SubEventEntry.isVestige;
@@ -386,7 +386,7 @@ namespace TilerElements
                         this.StartDateTime = SubEventEntry.Start;
                         this.UiParams = SubEventEntry.UIParam;
                         this.UniqueID = SubEventEntry.SubEvent_ID;
-                        this.EventName = new EventName(this.UniqueID, SubEventEntry.Name);
+                        this.NameOfEvent = new EventName(this.UniqueID, SubEventEntry.Name);
                         this.UserDeleted = SubEventEntry.isUserDeleted;
                         this.UserIDs = SubEventEntry.getAllUserIDs();
                         this.Vestige = SubEventEntry.isVestige;
@@ -431,7 +431,7 @@ namespace TilerElements
             retValue.StartDateTime = this.Start;
             retValue.UiParams = this.UIParam;
             retValue.UniqueID = this.SubEvent_ID;
-            retValue.EventName = new EventName(retValue.UniqueID, this.Name);
+            retValue.NameOfEvent = new EventName(retValue.UniqueID, this.Name);
             retValue.UserDeleted = this.isUserDeleted;
             retValue.UserIDs = this.getAllUserIDs();
             retValue.Vestige = this.isVestige;

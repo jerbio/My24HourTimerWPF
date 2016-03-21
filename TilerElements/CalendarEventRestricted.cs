@@ -39,10 +39,8 @@ namespace TilerElements
             UiParams = UiSettings;
             DataBlob = NoteData;
             LocationInfo = Location;
-       
-
-            EventName = new EventName( UniqueID, Name);
-
+      
+            NameOfEvent = new EventName( UniqueID, Name);
             EventDuration = Duration;
             TimePerSplit = TimeSpan.FromTicks(EventDuration.Ticks / Splits);
             ProfileOfNow = new NowProfile();
@@ -79,7 +77,7 @@ namespace TilerElements
             LocationInfo = Location;
             
             OriginalStart = OriginalStartData;
-            EventName = new EventName(UniqueID, Name);
+            NameOfEvent = new EventName(UniqueID, Name);
             InstantiateSubEvents();
         }
 
@@ -109,7 +107,7 @@ namespace TilerElements
             retValue.InstantiateSubEvents();
             retValue.OriginalStart = OriginalStartData;
             retValue.RepeatRoot = RepeatRootData;
-            retValue.EventName =new EventName( retValue.Id, Name);
+            retValue.NameOfEvent =new EventName( retValue.Id, Name);
 
             while (!OrginalStartToCalendarEvent.TryAdd(OriginalStartData, retValue))
             {
@@ -123,7 +121,7 @@ namespace TilerElements
         {
             CalendarEventRestricted MyCalendarEventCopy = new CalendarEventRestricted();
             MyCalendarEventCopy.EventDuration = new TimeSpan(EventDuration.Ticks);
-            MyCalendarEventCopy.EventName = EventName.CreateCopy();
+            MyCalendarEventCopy.NameOfEvent = NameOfEvent.CreateCopy();
             MyCalendarEventCopy.StartDateTime = StartDateTime;
             MyCalendarEventCopy.EndDateTime = EndDateTime;
             MyCalendarEventCopy.EventPreDeadline = new TimeSpan(EventPreDeadline.Ticks);
@@ -196,7 +194,7 @@ namespace TilerElements
         {
             CalendarEventRestricted RetValue = new CalendarEventRestricted();
             RetValue.EventDuration = this.Duration;
-            RetValue.EventName = this.EventName.CreateCopy();
+            RetValue.NameOfEvent = this.NameOfEvent.CreateCopy();
             RetValue.StartDateTime = this.Start;
             RetValue.EndDateTime = this.End;
             RetValue.EventPreDeadline = this.PreDeadline;

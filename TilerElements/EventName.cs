@@ -9,7 +9,7 @@ namespace TilerElements
     public class EventName
     {
         /// <summary>
-        /// Id to event
+        /// Id to event name
         /// </summary>
         protected string ID { set; get; } = Guid.NewGuid().ToString();
         protected string ActualName { set; get; } = "";
@@ -40,7 +40,7 @@ namespace TilerElements
             ActualName = "";
             EventID = EventId.ToString() ;
         }
-    public override string ToString()
+        public override string ToString()
         {
             return Name.ToString();
         }
@@ -69,6 +69,28 @@ namespace TilerElements
             }
         }
 
+
+        virtual public string Id
+        {
+            get
+            {
+                return ID;
+
+            }
+            set
+            {
+                Guid testValue;
+                if (Guid.TryParse(value, out testValue))
+                {
+                    ID = value;
+                }
+                else
+                {
+                    throw new Exception("Invalid id for event event Name");
+                }
+
+            }
+        }
 
     }
 }

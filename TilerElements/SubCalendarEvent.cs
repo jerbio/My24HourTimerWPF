@@ -464,7 +464,7 @@ namespace TilerElements
                     this.StartDateTime = SubEventEntry.Start;
                     this.UiParams = SubEventEntry.UIParam;
                     this.UniqueID = SubEventEntry.SubEvent_ID;
-                    this.EventName = new EventName(UniqueID, Name);
+                    this.NameOfEvent = new EventName(UniqueID, Name);
                     this.UserDeleted = SubEventEntry.isUserDeleted;
                     this.UserIDs = SubEventEntry.getAllUserIDs();
                     this.Vestige = SubEventEntry.isVestige;
@@ -501,7 +501,7 @@ namespace TilerElements
                         this.StartDateTime = SubEventEntry.Start;
                         this.UiParams = SubEventEntry.UIParam;
                         this.UniqueID = SubEventEntry.SubEvent_ID;
-                        this.EventName = new EventName(UniqueID, SubEventEntry.Name);
+                        this.NameOfEvent = new EventName(UniqueID, SubEventEntry.Name);
                         this.UserDeleted = SubEventEntry.isUserDeleted;
                         this.UserIDs = SubEventEntry.getAllUserIDs();
                         this.Vestige = SubEventEntry.isVestige;
@@ -569,7 +569,7 @@ namespace TilerElements
             retValue.StartDateTime = this.Start;
             retValue.UiParams = this.UIParam;
             retValue.UniqueID = this.SubEvent_ID;
-            retValue.EventName = new EventName(retValue.UniqueID, this.Name);
+            retValue.NameOfEvent = new EventName(retValue.UniqueID, this.Name);
             retValue.UserDeleted = this.isUserDeleted;
             retValue.UserIDs = this.getAllUserIDs();
             retValue.Vestige = this.isVestige;

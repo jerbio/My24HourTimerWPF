@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 namespace TilerElements
 {
-    public class SubCalendarEvent : TilerEvent,IDefinedRange
+    public class SubCalendarEvent : TilerEvent,IDefinedRange, IWhy
     {
         public static DateTimeOffset InitialPauseTime  = new DateTimeOffset();
         protected BusyTimeLine BusyFrame;

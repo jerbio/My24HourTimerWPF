@@ -14,6 +14,7 @@ namespace TilerElements
         protected DateTimeOffset StartTimeOfDay;
         protected TimeSpan RangeTimeSpan;
         protected DateTimeOffset EndTimeOfDay;
+        string ID = Guid.NewGuid().ToString();
 
         protected RestrictionTimeLine()
         {
@@ -105,6 +106,28 @@ namespace TilerElements
             get
             {
                 return EndTimeOfDay;
+            }
+        }
+
+        virtual public string Id
+        {
+            get
+            {
+                return ID;
+
+            }
+            set
+            {
+                Guid testValue;
+                if (Guid.TryParse(value, out testValue))
+                {
+                    ID = value;
+                }
+                else
+                {
+                    throw new Exception("Invalid id for event Restriction Timeline");
+                }
+
             }
         }
         #endregion

@@ -23,7 +23,7 @@ namespace TilerElements
         protected DateTimeOffset _PauseTime = InitialPauseTime;
         
         protected bool MuddledEvent = false;
-        protected CalendarEvent CalendarEvent = null;
+        
         #region Classs Constructor
         public SubCalendarEvent()
         { }

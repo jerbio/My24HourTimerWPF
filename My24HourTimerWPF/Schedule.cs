@@ -41,8 +41,10 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Diagnostics;
-using TilerElements;
-using TilerFront;
+using TilerElements.DB;
+using TilerElements.ThirdPartyConnector;
+using TilerElements.Wpf;
+//using TilerFront;
 using System.Windows.Forms;
 
 
@@ -155,14 +157,15 @@ namespace My24HourTimerWPF
             {
                 throw new Exception("Using non verified tiler Account, try logging into account first.");
             }
-            DateTimeOffset StartOfDay = await myAccount.ScheduleData.getDayReferenceTime();
+            DateTimeOffset StartOfDay = myAccount.endOfdayTime;//.ScheduleData.getDayReferenceTime();
             Now = new ReferenceNow(referenceNow, StartOfDay);
-            Tuple<Dictionary<string, CalendarEvent>, DateTimeOffset, Dictionary<string, Location_Elements>> profileData =await  myAccount.ScheduleData.getProfileInfo().ConfigureAwait(false);
+            //Tuple<Dictionary<string, CalendarEvent>, DateTimeOffset, Dictionary<string, Location_Elements>> profileData =await  myAccount.ScheduleData.getProfileInfo().ConfigureAwait(false);
             {
                 
-                DateTimeOffset referenceDayTimeNow = new DateTimeOffset(Now.calculationNow.Year, Now.calculationNow.Month, Now.calculationNow.Day, profileData.Item2.Hour, profileData.Item2.Minute, profileData.Item2.Second, new TimeSpan());// profileData.Item2;
+                DateTimeOffset referenceDayTimeNow = new DateTimeOffset(Now.calculationNow.Year, Now.calculationNow.Month, Now.calculationNow.Day, StartOfDay.Hour, StartOfDay.Minute, StartOfDay.Second, new TimeSpan());// profileData.Item2;
                 ReferenceDayTIime = Now.calculationNow < referenceDayTimeNow ? referenceDayTimeNow.AddDays(-1) : referenceDayTimeNow;
-                AllEventDictionary = (await ((myAccount.ScheduleData.getProfileInfo()).ConfigureAwait(false))).Item1;//..getAllCalendarElements(new TimeLine(ReferenceDayTIime, ReferenceDayTIime.AddDays(90)));//.ScheduleData .cal.getCalendarEvents();// profileData.Item1;
+
+                AllEventDictionary = await myAccount.ScheduleData.getCalendarEvents();// profileData.Item1;
                 if (AllEventDictionary != null)
                 {
                     //setAsComplete();
@@ -370,7 +373,7 @@ namespace My24HourTimerWPF
 
         public void removeAllFromOutlook()
         {
-            TilerFront.OutLookConnector myOutlook = new OutLookConnector();
+            OutLookConnector myOutlook = new OutLookConnector();
             myOutlook.removeAllEventsFromOutLook(AllEventDictionary.Values);
         }
 
@@ -1042,7 +1045,7 @@ namespace My24HourTimerWPF
         }
         public void WriteFullScheduleToOutlook()
         {
-            TilerFront.OutLookConnector myOutlook = new OutLookConnector();
+            OutLookConnector myOutlook = new OutLookConnector();
             foreach (CalendarEvent MyCalEvent in AllEventDictionary.Values)
             {
                 myOutlook.WriteToOutlook(MyCalEvent);
@@ -1065,14 +1068,15 @@ namespace My24HourTimerWPF
                 }
             }
 
-            TilerFront.OutLookConnector myOutlook = new OutLookConnector();
+
+            OutLookConnector myOutlook = new OutLookConnector();
             foreach (CalendarEvent MyCalEvent in AllEventDictionary.Values)
             {
                 (myOutlook).WriteToOutlook(MyCalEvent);
             }
 
 
-            await myAccount.CommitEventToLogOld(AllEventDictionary.Values,"");
+            await myAccount.CommitEventToLogOld(AllEventDictionary.Values);
         }
 
 
@@ -4423,7 +4427,7 @@ namespace My24HourTimerWPF
 
             DateTimeOffset refStartOfDayTimeLine = Now.calculationNow;
             DateTimeOffset refEndOfDayTimeLine = ReferenceDayTIime.AddDays(1);
-            TilerElements.TimeLine refTImeLine = new TilerElements.TimeLine(refStartOfDayTimeLine, refEndOfDayTimeLine);//initializing refTImeLine Now of calculation to beginning of next day of reference day. hense the use of  "ReferenceDayTIime"
+            TimeLine refTImeLine = new TimeLine(refStartOfDayTimeLine, refEndOfDayTimeLine);//initializing refTImeLine Now of calculation to beginning of next day of reference day. hense the use of  "ReferenceDayTIime"
             Dictionary<SubCalendarEvent, int> justADict = new Dictionary<SubCalendarEvent, int>();
             Dictionary<TimeLine, List<SubCalendarEvent>> TimeLine_ToNewAssignment = new Dictionary<TimeLine, List<SubCalendarEvent>>();
             //Dictionary<TimeLine, SubCalendarEvent[]> DictionaryTimeLineToMatchingSubEvents_TIler = new Dictionary<TimeLine, SubCalendarEvent[]>();

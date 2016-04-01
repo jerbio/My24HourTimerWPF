@@ -11,10 +11,10 @@ using System.Web.Script.Serialization;
 //using System.Windows.Forms;
 using Google.Maps.Geocoding; 
 using System.Drawing;
-using TilerElements;
+using TilerElements.Wpf;
 
 
-namespace TilerElements
+namespace TilerElements.Wpf
 {
     public class Location : Location_Elements
     {

@@ -35,6 +35,21 @@
   <ItemGroup>
     <Reference Include="Google.Maps, Version=0.13.21.37392, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\gmaps-api-net.0.13.21\lib\net\Google.Maps.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\..\WagTapWeb\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\..\WagTapWeb\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\WagTapWeb\packages\Microsoft.AspNet.Identity.Core.2.2.1\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Identity.EntityFramework, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\WagTapWeb\packages\Microsoft.AspNet.Identity.EntityFramework.2.2.1\lib\net45\Microsoft.AspNet.Identity.EntityFramework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Office.Interop.Outlook, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
@@ -57,48 +72,90 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="TilerSearch">
+      <HintPath>..\..\Searcher\TilerSearch\bin\Debug\TilerSearch.exe</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BlobSubCalendarEvent.cs" />
-    <Compile Include="BusyTimeLine.cs" />
-    <Compile Include="CalendarEvent.cs" />
-    <Compile Include="CalendarEventRestricted.cs" />
-    <Compile Include="ConflictProfile.cs" />
-    <Compile Include="DayTimeLine.cs" />
-    <Compile Include="Classification.cs" />
-    <Compile Include="EventName.cs" />
-    <Compile Include="NowProfile.cs" />
-    <Compile Include="PauseProfile.cs" />
-    <Compile Include="Procrastination.cs" />
-    <Compile Include="ReferenceNow.cs" />
-    <Compile Include="RestrictionProfile.cs" />
-    <Compile Include="RestrictionTimeLine.cs" />
-    <Compile Include="SubCalendarEventRestricted.cs" />
-    <Compile Include="EventLearn.cs" />
-    <Compile Include="ThirdPartyControl.cs" />
-    <Compile Include="TilerColor.cs" />
-    <Compile Include="CustomErrors.cs" />
-    <Compile Include="EventDisplay.cs" />
-    <Compile Include="EventID.cs" />
-    <Compile Include="EventIDGenerator.cs" />
-    <Compile Include="EventTimeLine.cs" />
-    <Compile Include="IDefinedRange.cs" />
-    <Compile Include="Location_Elements.cs" />
-    <Compile Include="MiscData.cs" />
-    <Compile Include="mTuple.cs" />
+    <Compile Include="DB\DBControl.cs" />
+    <Compile Include="DB\DBControlDirect.cs" />
+    <Compile Include="DB\DB_CalendarEvent.cs" />
+    <Compile Include="DB\DB_CalendarEventFly.cs" />
+    <Compile Include="DB\DB_CalendarEventRestricted.cs" />
+    <Compile Include="DB\DB_Classification.cs" />
+    <Compile Include="DB\DB_EventDisplay.cs" />
+    <Compile Include="DB\TestCalEvent.cs" />
+    <Compile Include="ThirdPartyConnector\OutLookConnector.cs" />
+    <Compile Include="ThirdPartyConnector\OutlookThirdPartyControl.cs" />
+    <Compile Include="ThirdPartyConnector\ThirdPartyCalendarControl.cs" />
+    <Compile Include="TilerUser.cs" />
+    <Compile Include="DB\DB_LocationElements.cs" />
+    <Compile Include="DB\DB_MiscData.cs" />
+    <Compile Include="DB\DB_NowProfile.cs" />
+    <Compile Include="DB\DB_Procrastination.cs" />
+    <Compile Include="DB\DB_Repetition.cs" />
+    <Compile Include="DB\DB_RestrictionProfile.cs" />
+    <Compile Include="DB\DB_RestrictionTimeLine.cs" />
+    <Compile Include="DB\DB_SubCalendarEvent.cs" />
+    <Compile Include="DB\DB_SubCalendarEventFly.cs" />
+    <Compile Include="DB\DB_SubCalendarEventRestricted.cs" />
+    <Compile Include="DB\DB_TilerColor.cs" />
+    <Compile Include="DB\DB_TilerEventName.cs" />
+    <Compile Include="DB\IDB_CalendarEvent.cs" />
+    <Compile Include="DB\IDB_ModifiedCalendarEvent.cs" />
+    <Compile Include="DB\IDB_ModifiedSubCalendarEvent.cs" />
+    <Compile Include="DB\IDB_SubCalendarEvent.cs" />
+    <Compile Include="DB\IDB_SubCalendarEventRestricted.cs" />
+    <Compile Include="DB\IModifieds.cs" />
+    <Compile Include="DB\IRestrictedEvent.cs" />
+    <Compile Include="DB\ITilerEvent.cs" />
+    <None Include="App.config" />
+    <Compile Include="DB\LocationControl.cs" />
+    <Compile Include="DB\ScheduleControl.cs" />
+    <Compile Include="DB\UserAccount.cs" />
+    <Compile Include="DB\UserAccountDebug.cs" />
+    <Compile Include="DB\UserAccountDirect.cs" />
+    <Compile Include="Wpf\BlobSubCalendarEvent.cs" />
+    <Compile Include="Wpf\BusyTimeLine.cs" />
+    <Compile Include="Wpf\CalendarEvent.cs" />
+    <Compile Include="Wpf\CalendarEventRestricted.cs" />
+    <Compile Include="Wpf\ConflictProfile.cs" />
+    <Compile Include="Wpf\DayTimeLine.cs" />
+    <Compile Include="Wpf\Classification.cs" />
+    <Compile Include="Wpf\EventName.cs" />
+    <Compile Include="Wpf\NowProfile.cs" />
+    <Compile Include="Wpf\PauseProfile.cs" />
+    <Compile Include="Wpf\Procrastination.cs" />
+    <Compile Include="Wpf\ReferenceNow.cs" />
+    <Compile Include="Wpf\RestrictionProfile.cs" />
+    <Compile Include="Wpf\RestrictionTimeLine.cs" />
+    <Compile Include="Wpf\SubCalendarEventRestricted.cs" />
+    <Compile Include="Wpf\EventLearn.cs" />
+    <Compile Include="Wpf\ThirdPartyControl.cs" />
+    <Compile Include="Wpf\TilerColor.cs" />
+    <Compile Include="Wpf\CustomErrors.cs" />
+    <Compile Include="Wpf\EventDisplay.cs" />
+    <Compile Include="Wpf\EventID.cs" />
+    <Compile Include="Wpf\EventIDGenerator.cs" />
+    <Compile Include="Wpf\EventTimeLine.cs" />
+    <Compile Include="Wpf\IDefinedRange.cs" />
+    <Compile Include="Wpf\Location_Elements.cs" />
+    <Compile Include="Wpf\MiscData.cs" />
+    <Compile Include="Wpf\mTuple.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Repetition.cs" />
-    <Compile Include="SubCalendarEvent.cs" />
-    <Compile Include="TilerEvent.cs" />
-    <Compile Include="TimeLine.cs" />
-    <Compile Include="TimeLineRestricted.cs" />
-    <Compile Include="TimeLineWithEdgeElements.cs" />
-    <Compile Include="TimeSpanWithID.cs" />
     <Compile Include="UserActivity.cs" />
-    <Compile Include="Utility.cs" />
+    <Compile Include="Wpf\Repetition.cs" />
+    <Compile Include="Wpf\SubCalendarEvent.cs" />
+    <Compile Include="Wpf\TilerEvent.cs" />
+    <Compile Include="Wpf\TimeLine.cs" />
+    <Compile Include="Wpf\TimeLineRestricted.cs" />
+    <Compile Include="Wpf\TimeLineWithEdgeElements.cs" />
+    <Compile Include="Wpf\TimeSpanWithID.cs" />
+    <Compile Include="Wpf\Utility.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Wpf\packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

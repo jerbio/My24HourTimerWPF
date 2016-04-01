@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TilerElements;
+using TilerElements.Wpf;
 //using Microsoft.SolverFoundation.Common;
 //using Microsoft.SolverFoundation.Services;
 //using Microsoft.SolverFoundation.Solvers;

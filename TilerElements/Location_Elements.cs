@@ -23,8 +23,8 @@ namespace TilerElements
             route
         };
 
-        static protected double defaultXValue;
-        static protected double defaultYValue;
+        static protected double defaultXValue = 105.2705;
+        static protected double defaultYValue = 40.0150;
 
         protected double xValue;
         protected double yValue;
@@ -36,9 +36,10 @@ namespace TilerElements
 
         public Location_Elements()
         {
-            xValue = double.MaxValue;
-            yValue = double.MaxValue;
+            xValue = defaultXValue;
+            yValue = defaultYValue;
             LocationID = ID;
+            NullLocation = true;
         }
 
         public Location_Elements(int ID)

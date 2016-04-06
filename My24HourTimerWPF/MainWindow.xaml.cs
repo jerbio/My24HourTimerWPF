@@ -1452,7 +1452,7 @@ namespace My24HourTimerWPF
             //UserAccountDirect currentUser =  new UserAccountDebug("18");
             await currentUser.Login();
             DateTimeOffset refNow=DateTimeOffset.Now;
-            //refNow = DateTimeOffset.Parse("5:25 AM , Jan 5, 2015");
+            refNow = DateTimeOffset.Parse("8:20 AM , April 6, 2016");
             //MySchedule = new Schedule(currentUser, refNow);
 
 
@@ -1470,14 +1470,14 @@ namespace My24HourTimerWPF
                 //datePicker1.SelectedDate = DateTimeOffset.Now.AddDays(0);
                 //datePicker1.SelectedDate = new DateTimeOffset(2013, 11, 20, 0, 0, 0);
                 //datePicker2.SelectedDate = DateTimeOffset.Now.AddDays(2);
-                datePicker2.SelectedDate = new DateTime(Schedule.Now.calculationNow.AddDays(25).ToLocalTime().Ticks);//new DateTimeOffset(2014, 5, 15, 0, 0, 0);
+                datePicker2.SelectedDate = new DateTime(Schedule.Now.calculationNow.AddDays(0).ToLocalTime().Ticks);//new DateTimeOffset(2014, 5, 15, 0, 0, 0);
                 calendar4.SelectedDate = new DateTime(DateTimeOffset.Now.AddDays(0).ToLocalTime().Ticks);
                 Random myNumber = new Random();
                 int RandomHour = myNumber.Next(0, 24);
                 int RandomMinute = myNumber.Next(0, 60);
                 textBox4.Text = RandomHour + ":" + RandomMinute;
                 
-                textBox4.Text = 1+ ":" + "30" + ":" + "00";//total time
+                textBox4.Text = 0+ ":" + "1" + ":" + "00";//total time
                 textBox2.Text = 1.ToString();//number of splits
                 int ProcrastinateStartDay = 0;
                 int ProcrastinateEndDay = 365; 
@@ -1565,165 +1565,12 @@ namespace My24HourTimerWPF
             return;
         }
 
-        
-
-
-
-    }
-
-    
-    
-
-    public class QuickSort
-    {
-        private static List<int> ArrayOfElements;
-        Dictionary<int, List<DateTimeOffset>> DictionaryOfIntAndDateTime;
-        
-        public QuickSort()
+        private void button_Click_1(object sender, RoutedEventArgs e)
         {
-            DictionaryOfIntAndDateTime = new Dictionary<int, List<DateTimeOffset>>();
-            ArrayOfElements = new List<int>();
-        }
-
-        public QuickSort(List<DateTimeOffset> MyListOfElements)
-        {
-            foreach (DateTimeOffset MyDateTime in MyListOfElements)
-            {
-                int MyTicks = (int)(MyDateTime.Ticks);
-                try
-                {
-
-                    DictionaryOfIntAndDateTime.Add(MyTicks, new List<DateTimeOffset>());
-                    DictionaryOfIntAndDateTime[MyTicks].Add(MyDateTime);
-                }
-                catch (Exception e)
-                {
-                    DictionaryOfIntAndDateTime[MyTicks].Add(MyDateTime);
-                }
-            }
-            ArrayOfElements = DictionaryOfIntAndDateTime.Keys.ToList();
-        }
-
-        public DateTimeOffset[] QuickSortFunction()
-        {
-            int[] MyArrayofTicks= QuickSortFunction(ArrayOfElements.ToArray(), 0, (ArrayOfElements.Count - 1), (ArrayOfElements.Count / 2));
-            List<DateTimeOffset> ListOfSortedDateTime = new List<DateTimeOffset>();
-            
-            foreach (int MyInt in MyArrayofTicks)
-            {
-                var JustConcatenate = ListOfSortedDateTime.Concat(DictionaryOfIntAndDateTime[MyInt]);
-                ListOfSortedDateTime = JustConcatenate.ToList();
-            }
-
-            return ListOfSortedDateTime.ToArray();
-        }
-        public int[] QuickSortFunction(int[] MyArray,int LeftIndexPassed,int RightIndexPassed,int PivotPassed)
-        {
-            //Console.WriteLine("\n EntryLeft is " + LeftIndexPassed.ToString() + " EntryRight is " + RightIndexPassed.ToString() + " EntryPivot is " + PivotPassed.ToString() + "\n");
-            int PivotValue, PivotIndex;
-            if ((LeftIndexPassed == RightIndexPassed)||(MyArray.Length<2))
-            {
-                return MyArray;
-            }
-            /*foreach (int myint in MyArray)
-            {
-                Console.Write(myint.ToString() + ",");
-            }*/
-            //Console.WriteLine("\n Music in me "+MyArray[PivotPassed].ToString()+"\n");
-            int LeftValue, LeftIndex=LeftIndexPassed, RightValue, RightIndex=RightIndexPassed, Holder;
-            bool Detected = true;
-            PivotIndex = PivotPassed;
-            RightIndex = GetRightThatsLess(MyArray, PivotIndex, RightIndexPassed);
-            LeftIndex = GetLeftThatsGreater(MyArray, PivotIndex, LeftIndexPassed);
-            //Console.WriteLine("\n ##Left is " + LeftIndex.ToString() + " Right is " + RightIndex.ToString() + "\n");
-            PivotValue = MyArray[PivotIndex];
-            Holder = MyArray[LeftIndex];
-            MyArray[LeftIndex] = MyArray[RightIndex];
-            MyArray[RightIndex] = Holder;
-            int middleDifference;
-            int NextPivot;
-            if (RightIndex == LeftIndex)
-            {
-                if ((PivotIndex + 1) < (RightIndexPassed + 1))
-                {
-                    //Console.Write("maybe RIGHT TOP\t");
-                    middleDifference=RightIndexPassed - (PivotIndex + 1);
-                    NextPivot = (PivotIndex + 1)+(middleDifference / 2);
-                    if (middleDifference<=1)
-                    {
-                        NextPivot = PivotIndex + 1;
-                        if (MyArray[RightIndexPassed] < MyArray[NextPivot])
-                        {
-                            Holder = MyArray[NextPivot];
-                            MyArray[NextPivot] = MyArray[RightIndexPassed];
-                            MyArray[RightIndexPassed] = Holder;
-                            return MyArray;
-                        }
-                    }
-                    MyArray = QuickSortFunction(MyArray, (PivotIndex + 1), RightIndexPassed, NextPivot); //right Partition sort
-                }
-                else
-                {
-                    //Console.Write("maybe RIGHT \t");
-                    MyArray = QuickSortFunction(MyArray, (PivotIndex), RightIndexPassed, (PivotIndex + ((RightIndexPassed - PivotIndex) / 2))); //right Partition sort
-                }
-                if ((PivotIndex - 1) > (LeftIndexPassed)-1)
-                {
-                    //Console.Write("maybe LEFT TOP\t");
-                    middleDifference = (PivotIndex - 1) - LeftIndexPassed;
-                    NextPivot = LeftIndexPassed + (middleDifference / 2);
-                    if (middleDifference <= 1)
-                    {
-                        NextPivot = PivotIndex - 1;
-                        if (MyArray[LeftIndexPassed] > MyArray[NextPivot])
-                        {
-                            Holder = MyArray[LeftIndexPassed];
-                            MyArray[LeftIndexPassed] = MyArray[NextPivot];
-                            MyArray[NextPivot] = Holder;
-                            return MyArray;
-                        }
-                    }
-                    MyArray = QuickSortFunction(MyArray, LeftIndexPassed, (PivotIndex - 1), NextPivot);//left Partition sort 
-                }
-                else 
-                {
-                    //Console.Write("maybe LEFT \t");
-                    MyArray = QuickSortFunction(MyArray, LeftIndexPassed, (PivotIndex), (LeftIndexPassed + ((PivotIndex) - LeftIndexPassed) / 2));//left Partition sort 
-                }
-            }
-            else 
-            {
-                MyArray = QuickSortFunction(MyArray, LeftIndexPassed, RightIndexPassed, PivotPassed);
-            }
-            return MyArray;
-        }
-
-        static int GetLeftThatsGreater(int[] MyArray, int MyPivot,int LeftStartinPosition)
-        {
-            for (int i = LeftStartinPosition; i <= MyPivot; i++)
-            {
-                if (MyArray[i] > MyArray[MyPivot])
-                {
-                    return i;
-                }
-            }
-            return MyPivot;
-        }
-
-        static int  GetRightThatsLess(int[] MyArray, int MyPivot, int RightStartinPosition)
-        {
-            for (int i = RightStartinPosition; i >= MyPivot; i--)
-            {
-                if (MyArray[i] < MyArray[MyPivot])
-                {
-                    return i;
-                }
-            }
-            return MyPivot;
+            Location_Elements locationdata = new Location_Elements();
+            MySchedule.FindMeSomethingToDo(locationdata);
         }
     }
-
-    
 
     
     

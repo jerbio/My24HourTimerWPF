@@ -81,6 +81,12 @@ namespace TilerElements
             defaultYValue= yLocation;
         }
 
+        public static Location_Elements getDefaultLocation()
+        {
+            Location_Elements RetValue = new Location_Elements(defaultXValue,defaultYValue);
+            return RetValue;
+        }
+
         string getStringWebLocation24(float xLocation24, float yLocation24)
         {
             return "Hello";

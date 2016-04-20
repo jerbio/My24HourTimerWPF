@@ -590,7 +590,7 @@ namespace My24HourTimerWPF
                 //
             }
             //C6RXEZ             
-            Location var0 = new Location(textBox8.Text);
+            Location_Elements var0 = new Location_Elements(textBox8.Text);
 
             EventDisplay UiData = new EventDisplay();
             MiscData NoteData = new MiscData();
@@ -777,7 +777,7 @@ namespace My24HourTimerWPF
                 //
             }
             //C6RXEZ             
-            Location var0 = new Location(textBox8.Text);
+            Location_Elements var0 = new Location_Elements(textBox8.Text);
 
             EventDisplay UiData = new EventDisplay();
             MiscData NoteData = new MiscData();

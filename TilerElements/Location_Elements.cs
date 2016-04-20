@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Google.Maps.Geocoding;
 
 
 namespace TilerElements
@@ -73,6 +74,52 @@ namespace TilerElements
             LocationID = ID;
         }
 
+        /// <summary>
+        /// function tries to verify that the address provide exists in external service
+        /// </summary>
+        /// <returns></returns>
+        public bool Validate()
+        {
+            TaggedAddress = TaggedAddress.Trim();
+            try
+            {
+                var request = new GeocodingRequest();
+                request.Address = TaggedAddress;
+                request.Sensor = false;
+                var response = new GeocodingService().GetResponse(request);
+                var result = response.Results.First();
+                if (string.IsNullOrEmpty(TaggedDescription))
+                {
+                    TaggedDescription = TaggedAddress;
+                }
+
+                TaggedAddress = result.FormattedAddress.ToLower();
+                xValue = Convert.ToDouble(result.Geometry.Location.Latitude);
+                yValue = Convert.ToDouble(result.Geometry.Location.Longitude);
+                NullLocation = false;
+                //MessageBox.Show("Found Location At: " + result.FormattedAddress + " Latitude: " + xValue + " Longitude: " + yValue); 
+            }
+            catch
+            {
+                xValue = double.MaxValue;
+                yValue = double.MaxValue;
+                if (string.IsNullOrEmpty(TaggedDescription)&& !string.IsNullOrEmpty(TaggedAddress))
+                {
+                    TaggedDescription = TaggedAddress.ToLower();
+                }
+
+                else
+                {   
+                    if(string.IsNullOrEmpty(TaggedAddress) && !string.IsNullOrEmpty(TaggedDescription))
+                    {
+                        TaggedAddress = TaggedDescription.ToLower();
+                    }
+                }
+                NullLocation = true;
+            }
+
+            return NullLocation;
+        }
 
         #region Functions
         public static void InitializeDefaultLongLat(double xLocation, double yLocation)

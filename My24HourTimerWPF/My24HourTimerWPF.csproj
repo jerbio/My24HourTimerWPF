@@ -152,15 +152,12 @@
     <Compile Include="ClumpSubCalendarEvent.cs" />
     <Compile Include="Comparator.cs" />
     <None Include="packages.config" />
-    <None Include="Schedule_Before_Simplest_IsEasiet.cs.old" />
     <Compile Include="ErrorManager.cs" />
     <Compile Include="DistanceSolver.cs" />
     <Compile Include="EfficientTimeLine.cs" />
     <Compile Include="Geocode.cs" />
     <Compile Include="Geometry.cs" />
     <Compile Include="InListOutOfList.cs" />
-    <None Include="LogControl.cs.old" />
-    <Compile Include="Location.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

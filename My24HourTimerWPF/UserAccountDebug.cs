@@ -2,10 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using TilerElements.Wpf;
+using TilerElements.DB;
+using TilerElements;
+using Microsoft.AspNet.Identity;
 
-namespace TilerElements.DB
+namespace My24HourTimerWPF
 {
-    public class UserAccountDebug:UserAccountDirect
+    public class UserAccountDebug: UserAccount
     {
         
         public UserAccountDebug(TilerUser user, bool Passive = false)
@@ -17,8 +21,7 @@ namespace TilerElements.DB
         }
         protected override async System.Threading.Tasks.Task<DateTimeOffset> getDayReferenceTime(string desiredDirectory = "")
         {
-
-            return await base.getDayReferenceTimeFromXml(desiredDirectory);
+            throw new NotImplementedException("You are trying to get the reference day from uderdebug without it being implemented");
         }
 
         /*

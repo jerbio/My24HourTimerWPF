@@ -42,10 +42,6 @@ namespace TilerElements.DB
 #endif
         Tuple<bool, string, DateTimeOffset, long> ScheduleMetadata;
         
-#if ForceReadFromXml
-#else
-        public static bool useCassandra=true;
-#endif
 
         protected ScheduleControl()
         { 

@@ -53,6 +53,7 @@ namespace My24HourTimerWPF
     {
         
         Dictionary<string, CalendarEvent> AllEventDictionary;
+        Dictionary<string, Location_Elements> Locations;
         TimeLine CompleteSchedule;
         public TimeSpan ZeroTimeSpan = new TimeSpan(0);
         public TimeSpan TwentyFourHourTimeSpan = new TimeSpan(1,0,0,0);
@@ -172,6 +173,7 @@ namespace My24HourTimerWPF
                     EventID.Initialize((uint)(myAccount.LastEventTopNodeID));
                     //EventIDGenerator.Initialize((uint)(this.LastScheduleIDNumber));
                 }
+                Locations = profileData.Item3;
             }
         }
 
@@ -3418,6 +3420,7 @@ namespace My24HourTimerWPF
             ForCalculation = ForCalculation.Except(AllRigids).ToList();
             
             ForCalculation.ForEach(obj => obj.addReason(new PreservedOrder()));
+
 
             HashSet<SubCalendarEvent> OrderedPreviousTwentyfourNorigids = new HashSet<SubCalendarEvent>( ForCalculation.OrderBy(obj=>obj.Start));
             FirstTwentyFour.AddBusySlots(AllRigids.Select(obj => obj.ActiveSlot));

@@ -3443,8 +3443,7 @@ namespace My24HourTimerWPF
             List<SubCalendarEvent> CurrentConstituents = possibleSubCals.Where(obj => obj.RangeTimeLine.InterferringTimeLine(FirstTwentyFour)!=null).ToList();
             
             List<SubCalendarEvent> AllRigids =  ForCalculation.Where(obj => obj.Rigid).ToList();
-            ForCalculation = ForCalculation.Except(AllRigids).ToList();
-            
+            ForCalculation = ForCalculation.Except(AllRigids).ToList();            
             ForCalculation.ForEach(obj => obj.addReason(new PreservedOrder()));
 
             HashSet<SubCalendarEvent> OrderedPreviousTwentyfourNorigids = new HashSet<SubCalendarEvent>( ForCalculation.OrderBy(obj=>obj.Start));
@@ -3455,6 +3454,7 @@ namespace My24HourTimerWPF
             {
                 BestFitReason bestFit = new BestFitReason(FirstTwentyFour.TotalActiveSpan, FirstTwentyFour.TotalFreeSpotAvailable, subcalendaEvent.ActiveDuration);
                 subcalendaEvent.addReason(bestFit);
+                subcalendaEvent.addReason(Reason.Options.CloseToCluster);
             }
 
             List<SubCalendarEvent> retValue =new List<SubCalendarEvent>();
@@ -3517,6 +3517,7 @@ namespace My24HourTimerWPF
             {
                 BestFitReason bestFit = new BestFitReason(timeLineForCalc.TotalActiveSpan, timeLineForCalc.TotalFreeSpotAvailable, subcalendaEvent.ActiveDuration);
                 subcalendaEvent.addReason(bestFit);
+                subcalendaEvent.addReason(Reason.Options.CloseToCluster);
             }
 
             SubCalendarEvent.updateUnUsable(Calculables.Except(Reassigned), myDayTimeLine.UniversalIndex);//updates the un unsable days

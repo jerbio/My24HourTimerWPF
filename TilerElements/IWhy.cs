@@ -11,5 +11,6 @@ namespace TilerElements
         IWhy Because();
         IWhy OtherWise();
         IWhy WhatIf(params Reason[] reasons);
+        IWhy WhatIf(DateTimeOffset AssumedTime);
     }
 }

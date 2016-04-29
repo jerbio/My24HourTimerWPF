@@ -201,17 +201,23 @@ namespace TilerElements
             RigidSchedule = false;
         }
 
+
         virtual public void addReason(Reason eventReason)
         {
             TimeSpan TimeDelta = this.Start - _LastReasonStartTimeChanged;
             if (!ReasonsForCurrentPosition.ContainsKey(TimeDelta))
             {
-                ReasonsForCurrentPosition.Add(TimeDelta,new List<Reason>());
+                ReasonsForCurrentPosition.Add(TimeDelta, new List<Reason>());
             }
 
             ReasonsForCurrentPosition[TimeDelta].Add(eventReason);
             TimePositionReasons.Add(eventReason);
             _LastReasonStartTimeChanged = this.Start;
+        }
+        virtual public void addReason(Reason.Options option)
+        {
+            Reason Reason = new Reason(option);
+            addReason(Reason);
         }
 
         public IWhy Because()
@@ -222,6 +228,21 @@ namespace TilerElements
         public IWhy OtherWise()
         {
             throw new NotImplementedException("Yet to implement a OtherWise functionality for subcalendar event");
+        }
+
+        public IWhy WhatIf(DateTimeOffset AssumedTime)
+        {
+            throw new NotImplementedException("Yet to implement a WhatIf functionality for subcalendar event");
+        }
+
+        public IWhy WhatIfDeadline(DateTimeOffset AssumedTime)
+        {
+            throw new NotImplementedException("Yet to implement a WhatIf functionality for subcalendar event");
+        }
+
+        public IWhy WhatIfStartTime(DateTimeOffset AssumedTime)
+        {
+            throw new NotImplementedException("Yet to implement a WhatIf functionality for subcalendar event");
         }
 
         public IWhy WhatIf(params Reason[] reasons)

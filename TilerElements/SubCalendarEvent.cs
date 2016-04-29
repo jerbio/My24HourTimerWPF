@@ -23,6 +23,7 @@ namespace TilerElements
         protected DateTimeOffset _PauseTime = InitialPauseTime;
         protected bool BlobEvent = false;
         protected bool OptimizationFlag = false;
+        protected List<Reason> TimePositionReasons = new List<Reason>();
 
         #region Classs Constructor
         public SubCalendarEvent()
@@ -106,7 +107,6 @@ namespace TilerElements
             Complete = completeFlag;
         }
         #endregion
-
 
         #region Class functions
 
@@ -196,16 +196,42 @@ namespace TilerElements
             RigidSchedule = false;
         }
 
-        /*
-        virtual public void DisableIfDeadlineHasPassed(DateTimeOffset CurrNow)
+        public void addReason(Reason.Options option)
         {
-            if (CalendarEventRange.End < CurrNow)
-            {
-                Disable();
-                DeadlineElapsed = true;
-            }
+            Reason Reason = new Reason(option);
+            TimePositionReasons.Add(Reason);
         }
-        */
+
+        public IWhy Because()
+        {
+            throw new NotImplementedException("Yet to implement a because functionality for subcalendar event");
+        }
+
+        public IWhy OtherWise()
+        {
+            throw new NotImplementedException("Yet to implement a OtherWise functionality for subcalendar event");
+        }
+
+        public IWhy WhatIf(DateTimeOffset AssumedTime)
+        {
+            throw new NotImplementedException("Yet to implement a WhatIf functionality for subcalendar event");
+        }
+
+        public IWhy WhatIfDeadline(DateTimeOffset AssumedTime)
+        {
+            throw new NotImplementedException("Yet to implement a WhatIf functionality for subcalendar event");
+        }
+
+        public IWhy WhatIfStartTime(DateTimeOffset AssumedTime)
+        {
+            throw new NotImplementedException("Yet to implement a WhatIf functionality for subcalendar event");
+        }
+
+        public IWhy WhatIf(TimeSpan NewDuration)
+        {
+            throw new NotImplementedException("Yet to implement a WhatIf functionality for subcalendar event");
+        }
+
         virtual public bool IsDateTimeWithin(DateTimeOffset DateTimeEntry)
         {
             return RangeTimeLine.IsDateTimeWithin(DateTimeEntry);

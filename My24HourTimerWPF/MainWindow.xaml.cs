@@ -28,6 +28,7 @@ using TilerElements.DB;
 using Microsoft.Owin.Hosting;
 using Microsoft.Owin.Host;
 using System;
+using TilerElements;
 //using System.Web.Mvc;
 
 
@@ -1445,19 +1446,16 @@ namespace My24HourTimerWPF
 
         private async Task LogInToWagtap()
         {
-            //string LogLocation = "";
-            //LogLocation = @"C:\Users\OluJerome\Documents\Visual Studio 2010\Projects\LearnCuDAVS2010\LearnCUDAConsoleApplication\WagTapCalLogs\";
-            //Tiler.LogControl.UpdateLogLocation(LogLocation);
-
             //WebApp.Start<Startup>("http://localhost:9000");
-            throw new NotImplementedException("you need to resolve the next commented out three lines below");
-            /*
+            //throw new NotImplementedException("you need to resolve the next commented out three lines below");
+
             TilerFront.Models.LoginViewModel myLogin = new TilerFront.Models.LoginViewModel() { Username = UserNameTextBox.Text, Password = PasswordTextBox.Text, RememberMe = true };
 
             TilerFront.Models.AuthorizedUser AuthorizeUser = new TilerFront.Models.AuthorizedUser(){UserID="d350ba4d-fe0b-445c-bed6-b6411c2156b3",UserName="jerbio"};
-            await AuthorizeUser.getUserAccountDebug();
-            */
-            UserAccount currentUser = new UserAccount();// new UserAccountDebug("18");
+            TilerUser User = new TilerUser() { UserName = AuthorizeUser.UserName, Id = AuthorizeUser. UserID, FullName = "" };
+            
+
+            UserAccount currentUser = new UserAccountDebug(User,true);// new UserAccountDebug("18");
             //await currentUser.batchMigrateXML();
 
             string message = "Halt JEROME !!!!!. This was a commit knowing this error will happen" +

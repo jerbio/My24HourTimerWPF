@@ -50,7 +50,8 @@ namespace TilerElements.DB
 
         virtual public async Task<bool> Login()
         {
-            throw new NotImplementedException();
+            return await UserLog.VerifyUser(ID);
+            //throw new NotImplementedException();
         }
 
 

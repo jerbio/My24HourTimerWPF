@@ -10,11 +10,10 @@ using TilerElements.Wpf;
 using System.Threading.Tasks;
 //using DBTilerElement;
 using System.Diagnostics;
-#if ForceReadFromXml
-#else
+using System.Data.Entity;
+
 //using CassandraUserLog;
 using TilerSearch;
-#endif
 
 
 
@@ -25,7 +24,7 @@ namespace TilerElements.DB
         protected string ID;
         protected string UserName;
         string NameOfUser;
-        protected DBControl LogDBDataAccess;
+        protected LocalDbContext DataBase;
         protected int LastLocationID;
         protected string CurrentLog;
         protected bool LogStatus;
@@ -60,9 +59,9 @@ namespace TilerElements.DB
         }
 
 
-        public ScheduleControl(DBControl DBAccess)
+        public ScheduleControl(LocalDbContext Db)
         {
-            LogDBDataAccess = DBAccess;
+            DataBase = Db;
             LogStatus = false;
             CachedLocation = new Dictionary<string, Location_Elements>();
         }
@@ -140,16 +139,13 @@ namespace TilerElements.DB
             throw new NotImplementedException();
         }
 
-        #endregion
-
-
-        #region Cassandra Functions
-
-        void TransferXmlFileToCassandra()
-        { 
-        
+        virtual public async Task<bool> VerifyUser(string userId)
+        {
+            TilerUser User = DataBase.Users.Find(userId);
+            bool RetValue = User != null;
+            return RetValue;
         }
-        
+
         #endregion
 
 

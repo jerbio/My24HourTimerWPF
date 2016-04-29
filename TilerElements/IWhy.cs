@@ -10,6 +10,6 @@ namespace TilerElements
     {
         IWhy Because();
         IWhy OtherWise();
-        IWhy WhatIf();
+        IWhy WhatIf(DateTimeOffset AssumedTime);
     }
 }

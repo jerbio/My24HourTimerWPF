@@ -492,6 +492,29 @@ namespace My24HourTimerWPF
 
         string LogInfo = "";
 
+        
+        /// <summary>
+        /// function returns the subevents that interfere with the current now time
+        /// </summary>
+        /// <returns></returns>
+        List<SubCalendarEvent> getCurrentSubEvent()
+        {
+            List<SubCalendarEvent> RetValue = getAllCalendarEvents().SelectMany(obj => obj.ActiveSubEvents).Where(obj => obj.IsDateTimeWithin(Now.constNow)).ToList();
+            return RetValue;
+        }
+        public CustomErrors PauseEvent()
+        {
+            SubCalendarEvent SubEvents = getSubCalendarEvent(EventId.ToString());
+        }
+        public CustomErrors PauseEvent(EventID EventId)
+        {
+            SubCalendarEvent SubEvent = getSubCalendarEvent(EventId.ToString());
+        }
+
+        public CustomErrors ContinueEvent(EventID EventId)
+        {
+
+        }
 
 
 
@@ -11408,7 +11431,6 @@ namespace My24HourTimerWPF
 
 
 
-        static TimeLine ScheduleTimeline = new TimeLine();
 
 
         public void LogStatus(CalendarEvent triggerEvent, string Trigger)//writes to an XML Log file. Takes calendar event as an argument

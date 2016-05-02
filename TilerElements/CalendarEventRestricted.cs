@@ -136,6 +136,7 @@ namespace TilerElements
             MyCalendarEventCopy.ProfileOfNow = this.ProfileOfNow.CreateCopy();
             MyCalendarEventCopy.ProfileOfProcrastination = this.ProfileOfProcrastination.CreateCopy();
             MyCalendarEventCopy.Semantics = this.Semantics.createCopy();
+            MyCalendarEventCopy._UsedTime = this._UsedTime;
 
             foreach (SubCalendarEventRestricted eachSubCalendarEvent in this.SubEvents.Values)
             {

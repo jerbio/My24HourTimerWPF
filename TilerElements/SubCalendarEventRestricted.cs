@@ -7,7 +7,6 @@ namespace TilerElements
 {
     public class SubCalendarEventRestricted : SubCalendarEvent
     {
-        static TimeSpan ZeroTimeSpan = new TimeSpan(0);
         protected TimeLine HardCalendarEventRange;//this does not include the restriction
         protected RestrictionProfile ProfileOfRestriction;
         #region Constructor
@@ -212,6 +211,7 @@ namespace TilerElements
             copy.UserDeleted = this.UserDeleted;
             copy.UserIDs = this.UserIDs.ToList();
             copy.Semantics = this.Semantics.createCopy();
+            copy._UsedTime = this._UsedTime;
             return copy;
         }
 

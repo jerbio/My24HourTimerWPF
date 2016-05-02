@@ -117,7 +117,7 @@ namespace TilerElements
         public void disable(CalendarEvent myCalEvent)
         {
             this.Enabled = false;
-            myCalEvent.incrementDeleteCount();
+            myCalEvent.incrementDeleteCount(this.RangeSpan);
         }
 
         internal void disableWithoutUpdatingCalEvent()
@@ -128,13 +128,13 @@ namespace TilerElements
         public void complete(CalendarEvent myCalEvent)
         {
             this.Complete= true;
-            myCalEvent.incrementCompleteCount();
+            myCalEvent.incrementCompleteCount(this.RangeSpan);
         }
 
         public void nonComplete(CalendarEvent myCalEvent)
         {
             this.Complete = false;
-            myCalEvent.decrementCompleteCount();
+            myCalEvent.decrementCompleteCount(this.RangeSpan);
         }
 
         internal void completeWithoutUpdatingCalEvent()
@@ -150,7 +150,7 @@ namespace TilerElements
         public void Enable(CalendarEvent myCalEvent)
         {
             this.Enabled = true;
-            myCalEvent.decrementDeleteCount();
+            myCalEvent.decrementDeleteCount(this.RangeSpan);
         }
 
         internal void enableWithouUpdatingCalEvent()
@@ -249,6 +249,7 @@ namespace TilerElements
             MySubCalendarEventCopy.preferredDayIndex = this.preferredDayIndex;
             MySubCalendarEventCopy.CreatorIDInfo = this.CreatorIDInfo;
             MySubCalendarEventCopy.Semantics = this.Semantics.createCopy();
+            MySubCalendarEventCopy._UsedTime = this._UsedTime;
             return MySubCalendarEventCopy;
         }
 

@@ -324,7 +324,7 @@ namespace TilerElements
             MyCalendarEventCopy.ProfileOfProcrastination = this.ProfileOfProcrastination.CreateCopy();
             MyCalendarEventCopy.ProfileOfNow = this.NowInfo.CreateCopy();
             MyCalendarEventCopy.Semantics = this.Semantics.createCopy();
-
+            MyCalendarEventCopy._UsedTime = this._UsedTime;
 
             foreach (SubCalendarEvent eachSubCalendarEvent in this.SubEvents.Values)
             {
@@ -364,35 +364,41 @@ namespace TilerElements
         
 
 
-        internal void decrementDeleteCount()
+        internal void decrementDeleteCount(TimeSpan span)
         {
             int currentCount = DeletedCount - 1;
             if (DeletedCount < 0)
             {
                 throw new Exception("You are deleting more event Than is available");
             }
+
+            _UsedTime += span;
+
+
             DeletedCount = currentCount;
         }
 
-        internal void incrementDeleteCount()
+        internal void incrementDeleteCount(TimeSpan span)
         {
             int currentCount = DeletedCount + 1;
             if (DeletedCount <= Splits)
             {
                 DeletedCount = currentCount;
+                _UsedTime += span;
             }
             else
             {
-                throw new Exception("You are deleting more event Than is available");
+                throw new Exception("You are Increasing more event Than is available");
             }
         }
 
-        internal void decrementCompleteCount()
+        internal void decrementCompleteCount(TimeSpan span)
         {
             int currentCount = CompletedCount - 1;
             if (currentCount >= 0)
             {
                 CompletedCount = currentCount;
+                _UsedTime += span;
             }
             else
             {
@@ -419,13 +425,14 @@ namespace TilerElements
         }
 
 
-        internal void incrementCompleteCount()
+        internal void incrementCompleteCount(TimeSpan span)
         {
             int CurrentCount = CompletedCount;
             CurrentCount += 1;
             if ((CurrentCount + DeletedCount) <= Splits)
             {
                 CompletedCount = CurrentCount;
+                _UsedTime += span;
                 return;
             }
 
@@ -493,7 +500,7 @@ namespace TilerElements
             if (!mySubEvent.isComplete)
             {
                 mySubEvent.completeWithoutUpdatingCalEvent();
-                incrementCompleteCount();
+                incrementCompleteCount(mySubEvent.RangeSpan);
             }
         }
 
@@ -503,7 +510,7 @@ namespace TilerElements
             if (mySubEvent.isEnabled)
             {
                 mySubEvent.disableWithoutUpdatingCalEvent();
-                incrementDeleteCount();
+                incrementDeleteCount(mySubEvent.RangeSpan);
             }
         }
         public void nonCompleteSubEvents(IEnumerable<SubCalendarEvent> mySubEvents)

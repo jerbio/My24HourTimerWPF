@@ -8,6 +8,7 @@ namespace TilerElements
 {
     public abstract class TilerEvent
     {
+        public static TimeSpan ZeroTimeSpan = new TimeSpan(0);
         protected string EventName="";
         protected DateTimeOffset StartDateTime;
         protected DateTimeOffset EndDateTime;
@@ -37,6 +38,7 @@ namespace TilerElements
         protected string ThirdPartyUserIDInfo;
         protected ThirdPartyControl.CalendarTool ThirdPartyTypeInfo = ThirdPartyControl.CalendarTool.Tiler;
         protected string CreatorIDInfo;
+        protected TimeSpan _UsedTime = new TimeSpan();
         protected Classification Semantics= new Classification();
 
         async public Task InitializeClassification()
@@ -224,6 +226,19 @@ namespace TilerElements
             get
             {
                 return CreatorIDInfo;
+            }
+        }
+
+        virtual public TimeSpan UsedTime
+        {
+            set
+            {
+                throw new NotImplementedException("You are trying to set the used up time in a tiler events. Invalid action.");
+            }
+
+            get
+            {
+                return _UsedTime;
             }
         }
     }

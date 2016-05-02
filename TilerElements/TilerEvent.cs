@@ -37,7 +37,20 @@ namespace TilerElements
         protected string ThirdPartyUserIDInfo;
         protected ThirdPartyControl.CalendarTool ThirdPartyTypeInfo = ThirdPartyControl.CalendarTool.Tiler;
         protected string CreatorIDInfo;
+        protected TimeZoneInfo CreationTimeZone = TimeZoneInfo. FindSystemTimeZoneById("UTC");
         protected Classification Semantics= new Classification();
+
+
+
+        public void UpdateTimezone(TimeZoneInfo Timezonedata)
+        {
+            CreationTimeZone = Timezonedata;
+        }
+
+        public TimeZoneInfo GetTimezone()
+        {
+            return CreationTimeZone;
+        }
 
         async public Task InitializeClassification()
         {

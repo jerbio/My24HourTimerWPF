@@ -14,7 +14,7 @@ namespace TilerElements
 {
     public class Location_Elements
     {
-        string _token = string.Empty;
+        public static int LastLocationId = 1;
         enum requestType
         {
             authenticate,
@@ -33,17 +33,16 @@ namespace TilerElements
         protected string TaggedAddress;
         protected bool NullLocation;
         protected int CheckDefault;
-        protected int LocationID = 0;
+        protected string LocationID = Guid.NewGuid().ToString();
 
         public Location_Elements()
         {
             xValue = defaultXValue;
             yValue = defaultYValue;
-            LocationID = ID;
             NullLocation = true;
         }
 
-        public Location_Elements(int ID)
+        public Location_Elements(string ID)
         {
             LocationID = ID;
         }
@@ -54,24 +53,38 @@ namespace TilerElements
             yValue = MyyValue;
         }
 
-        public Location_Elements(double MyxValue, double MyyValue, string AddressEntry, string AddressDescription, bool isNull, int CheckDefault, int ID=0)
+        public Location_Elements(double MyxValue, double MyyValue, string AddressEntry, string AddressDescription, bool isNull, int CheckDefault, string ID = "")
         {
             xValue = MyxValue;
             yValue = MyyValue;
             TaggedAddress = AddressEntry;
             TaggedDescription = AddressDescription;
             NullLocation = isNull;
-            LocationID = ID;
+            if (string.IsNullOrEmpty(ID))
+            {
+                LocationID = Guid.NewGuid().ToString();
+            }
+            else
+            {
+                LocationID = ID;
+            }
             this.CheckDefault = CheckDefault;
         }
 
-        public Location_Elements(string Address, string tag = "", int ID = 0)
+        public Location_Elements(string Address, string tag = "", string ID = "")
         {
-            Address=Address.Trim();
+            Address = Address.Trim();
             NullLocation = true;
             TaggedAddress = Address;
             TaggedDescription = tag;
-            LocationID = ID;
+            if (string.IsNullOrEmpty(ID))
+            {
+                LocationID = Guid.NewGuid().ToString();
+            }
+            else
+            {
+                LocationID = ID;
+            }
         }
 
         /// <summary>
@@ -103,14 +116,14 @@ namespace TilerElements
             {
                 xValue = double.MaxValue;
                 yValue = double.MaxValue;
-                if (string.IsNullOrEmpty(TaggedDescription)&& !string.IsNullOrEmpty(TaggedAddress))
+                if (string.IsNullOrEmpty(TaggedDescription) && !string.IsNullOrEmpty(TaggedAddress))
                 {
                     TaggedDescription = TaggedAddress.ToLower();
                 }
 
                 else
-                {   
-                    if(string.IsNullOrEmpty(TaggedAddress) && !string.IsNullOrEmpty(TaggedDescription))
+                {
+                    if (string.IsNullOrEmpty(TaggedAddress) && !string.IsNullOrEmpty(TaggedDescription))
                     {
                         TaggedAddress = TaggedDescription.ToLower();
                     }
@@ -124,13 +137,13 @@ namespace TilerElements
         #region Functions
         public static void InitializeDefaultLongLat(double xLocation, double yLocation)
         {
-            defaultXValue= xLocation;
-            defaultYValue= yLocation;
+            defaultXValue = xLocation;
+            defaultYValue = yLocation;
         }
 
         public static Location_Elements getDefaultLocation()
         {
-            Location_Elements RetValue = new Location_Elements(defaultXValue,defaultYValue);
+            Location_Elements RetValue = new Location_Elements(defaultXValue, defaultYValue);
             return RetValue;
         }
 
@@ -140,15 +153,15 @@ namespace TilerElements
         }
         float[,] getGPSWebLocation24(string Address)
         {
-            
+
             return null;
         }
 
-        static public double calculateDistance(Location_Elements Location24A, Location_Elements Location24B, double Worst=double.MaxValue)
+        static public double calculateDistance(Location_Elements Location24A, Location_Elements Location24B, double Worst = double.MaxValue)
         {
             //note .... this function does not take into consideration the calendar event. So if there are two locations of the same calendarevent they will get scheduled right next to each other
-            double maxDividedByTwo=double.MaxValue/2;
-            if ((Location24A.xValue >= maxDividedByTwo)||(Location24B.xValue >maxDividedByTwo))
+            double maxDividedByTwo = double.MaxValue / 2;
+            if ((Location24A.xValue >= maxDividedByTwo) || (Location24B.xValue > maxDividedByTwo))
             {
                 return Worst;
             }
@@ -201,12 +214,11 @@ namespace TilerElements
             return JSON;
         }
 
-        
+
 
         public Location_Elements CreateCopy()
         {
             Location_Elements this_cpy = new Location_Elements();
-            this_cpy._token = this._token;
             this_cpy.TaggedAddress = this.TaggedAddress;
             this_cpy.TaggedDescription = this.TaggedDescription;
             this_cpy.xValue = this.xValue;
@@ -217,14 +229,14 @@ namespace TilerElements
         }
 
         public Location_struct toStruct()
-        { 
-            Location_struct retValue=new Location_struct();
-            retValue.xValue=(float)xValue;
+        {
+            Location_struct retValue = new Location_struct();
+            retValue.xValue = (float)xValue;
             retValue.yValue = (float)yValue;
             return retValue;
         }
 
-        static public Location_Elements AverageGPSLocation(IEnumerable<Location_Elements> Locations, bool useDefaultLocation=true)
+        static public Location_Elements AverageGPSLocation(IEnumerable<Location_Elements> Locations, bool useDefaultLocation = true)
         {
             Location_Elements retValue;
             if (Locations.Count() > 0)
@@ -233,7 +245,7 @@ namespace TilerElements
                 double yCoord = Locations.Average(obj => obj.yValue);
                 retValue = new Location_Elements(xCoord, yCoord, -1);
             }
-            else 
+            else
             {
                 if (useDefaultLocation)
                 {
@@ -243,7 +255,7 @@ namespace TilerElements
                 {
                     retValue = new Location_Elements(0, 0, -1);
                 }
-                
+
             }
 
             return retValue;
@@ -260,7 +272,7 @@ namespace TilerElements
 
         public string Description
         {
-            get 
+            get
             {
                 return TaggedDescription;
             }
@@ -278,7 +290,7 @@ namespace TilerElements
         {
             get
             { return xValue; }
-            
+
         }
 
 
@@ -306,7 +318,7 @@ namespace TilerElements
             }
         }
 
-        public int ID
+        public string ID
         {
             get
             {

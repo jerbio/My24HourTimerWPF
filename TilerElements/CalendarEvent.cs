@@ -475,15 +475,25 @@ namespace TilerElements
             UiParams.setCompleteUI(CompletionStatus);
         }
 
-        /*
-        public void setSubEventCompletionStatus(bool completionStatus,SubCalendarEvent mySubEVent)
+        /// <summary>
+        /// Pauses a sub event in the calendar event
+        /// </summary>
+        /// <param name="SubEventId"></param>
+        /// <param name="CurrentTime"></param>
+        virtual public void PauseSubEvent(EventID SubEventId, DateTimeOffset CurrentTime)
         {
-            if (ActiveSubEvents.Count() < 1)
-            {
-                Complete = true;//hack alert this can pose a problem if all events are not loaded into memory make a check if fully loaded into memory
-            }
+            SubCalendarEvent SubEvent =  getSubEvent(SubEventId);
+            TimeSpan TimeDelta= SubEvent.Pause(CurrentTime);
+            _UsedTime += TimeDelta;
+        }
 
-        }*/
+        virtual public bool ContinueSubEvent(EventID SubEventId, DateTimeOffset CurrentTime)
+        {
+            SubCalendarEvent SubEvent = getSubEvent(SubEventId);
+            return SubEvent.Continue(CurrentTime);
+        }
+
+
         public override string ToString()
         {
             return this.ID+"::"+this.Start.ToString() + " - " + this.End.ToString();
@@ -1865,8 +1875,6 @@ namespace TilerElements
             {
                 return TimePerSplit;
             }
-
-
         }
 
         /*

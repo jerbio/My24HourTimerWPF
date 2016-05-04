@@ -6,7 +6,7 @@ namespace TilerElements
 {
     public class SubCalendarEvent : TilerEvent,IDefinedRange
     {
-        
+        public static DateTimeOffset InitialPauseTime  = new DateTimeOffset();
         protected BusyTimeLine BusyFrame;
         protected BusyTimeLine NonHumaneTimeLine= new BusyTimeLine();
         protected BusyTimeLine HumaneTimeLine = new BusyTimeLine();
@@ -20,6 +20,7 @@ namespace TilerElements
         protected ulong UnUsableIndex;
         protected ulong OldPreferredIndex;
         protected bool CalculationMode = false;
+        protected DateTimeOffset _PauseTime = InitialPauseTime;
         protected bool BlobEvent = false;
 
         #region Classs Constructor
@@ -742,13 +743,30 @@ namespace TilerElements
              }
              return retValue;
          }
-        /* 
-        public void SetEventEnableStatus(bool EnableDisableFlag)
-         {
-             this.Enabled = EnableDisableFlag;
-         }
-        */
-         public void UpdateInHumaneTimeLine()
+
+        virtual public DateTimeOffset getPauseTime()
+        {
+            return _PauseTime;
+        }
+        virtual internal TimeSpan Pause(DateTimeOffset currentTime)
+        {
+            _PauseTime = currentTime;
+            DateTimeOffset Start = this.Start;
+            DateTimeOffset End = this.End;
+            TimeSpan NewUsedTime = _PauseTime - Start;
+
+            _UsedTime = NewUsedTime;
+            return NewUsedTime;
+        }
+
+        virtual internal bool Continue(DateTimeOffset currentTime)
+        {
+            _PauseTime = new DateTimeOffset();
+            TimeSpan timeDiff = (currentTime- UsedTime) - (Start);
+            bool RetValue = shiftEvent(timeDiff);
+            return RetValue;
+        }
+        public void UpdateInHumaneTimeLine()
          {
              NonHumaneTimeLine = ActiveSlot.CreateCopy();
          }
@@ -1003,7 +1021,15 @@ namespace TilerElements
                 return CalculationMode;
             }
         }
-        
+
+        public bool isPaused
+        {
+            get
+            {
+                return getPauseTime() != InitialPauseTime;
+            }
+        }
+
         #endregion
 
     }

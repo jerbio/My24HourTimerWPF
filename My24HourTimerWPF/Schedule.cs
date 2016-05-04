@@ -502,18 +502,66 @@ namespace My24HourTimerWPF
             List<SubCalendarEvent> RetValue = getAllCalendarEvents().SelectMany(obj => obj.ActiveSubEvents).Where(obj => obj.IsDateTimeWithin(Now.constNow)).ToList();
             return RetValue;
         }
-        public CustomErrors PauseEvent()
+        async public Task<CustomErrors> PauseEvent()
         {
-            SubCalendarEvent SubEvents = getSubCalendarEvent(EventId.ToString());
-        }
-        public CustomErrors PauseEvent(EventID EventId)
-        {
-            SubCalendarEvent SubEvent = getSubCalendarEvent(EventId.ToString());
+            List<SubCalendarEvent> SubEvents = getCurrentSubEvent();
+            SubEvents = SubEvents.OrderByDescending(obj => obj.ActiveDuration).ToList();
+            SubCalendarEvent relevantSubEvent = SubEvents.FirstOrDefault();
+            CustomErrors RetValue;
+            if (relevantSubEvent != null)
+            {
+                RetValue = await PauseEvent(relevantSubEvent.SubEvent_ID);
+            }
+            else
+            {
+                RetValue = new CustomErrors(true, "");
+            }
+            return RetValue;
         }
 
-        public CustomErrors ContinueEvent(EventID EventId)
+        public async Task<CustomErrors> PauseEvent(string Event)
         {
+            EventID id = new EventID(Event);
+            return await PauseEvent(id);
+        }
 
+        public async Task<CustomErrors> PauseEvent(EventID EventId)
+        {
+            CalendarEvent CalEvent = getCalendarEvent(EventId.ToString());
+            CalEvent.PauseSubEvent(EventId, Now.constNow);
+            await UpdateWithProcrastinateSchedule(AllEventDictionary);
+            CustomErrors RetValue = new CustomErrors(true, "");
+            return RetValue;
+        }
+
+        public async Task<CustomErrors> ContinueEvent(string Event)
+        {
+            EventID id = new EventID(Event);
+            return await ContinueEvent(id);
+        }
+
+        public async Task<CustomErrors> ContinueEvent(EventID EventId)
+        {
+            CalendarEvent CalEvent = getCalendarEvent(EventId.ToString());
+            bool errorState = CalEvent.ContinueSubEvent(EventId, Now.constNow);
+            SubCalendarEvent SubEvent = CalEvent.getSubEvent(EventId);
+            CustomErrors RetValue;
+            if (errorState)
+            {
+                Now.UpdateNow(SubEvent.Start);
+
+                Tuple<CustomErrors, Dictionary<string, CalendarEvent>> continuedStatus = SetEventAsNow(SubEvent.ID);
+                await UpdateWithProcrastinateSchedule(continuedStatus.Item2).ConfigureAwait(false);
+                RetValue = continuedStatus.Item1;
+            }
+
+            else
+            {
+                RetValue = new CustomErrors(false, "could not continue sub event because it is out of calendar event range error", 40000001);
+            }
+
+
+            return RetValue;
         }
 
 

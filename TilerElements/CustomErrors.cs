@@ -15,6 +15,7 @@ namespace TilerElements
          * 10001000<=code => LoginCredential issue
          * 20000000<=Code => Log control issue
          * 30000000<=Code => Database control issue
+         * 40000000<=Code => Schedule Maniputlation Error issue
          */
 
         public CustomErrors(bool StatusEntry, string MessagEntry, int ErrorCode = 0)

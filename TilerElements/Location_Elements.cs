@@ -15,6 +15,8 @@ namespace TilerElements
     public class Location_Elements
     {
         public static int LastLocationId = 1;
+        public static double MaxLongitude = 181;
+        public static double MaxLatitude = 91;
         enum requestType
         {
             authenticate,
@@ -29,10 +31,16 @@ namespace TilerElements
 
         protected double xValue;
         protected double yValue;
-        protected string TaggedDescription;
-        protected string TaggedAddress;
-        protected bool NullLocation;
-        protected int CheckDefault;
+        protected string TaggedDescription = "";
+        protected string TaggedAddress = "";
+        /// <summary>
+        /// was tiler able to pull location from google maps. If tiler fails to pull location from google maps then this location is null.
+        /// </summary>
+        protected bool NullLocation = true;
+        /// <summary>
+        /// is the current object the default location, which will initially boulder co, before recalculation based on user locations
+        /// </summary>
+        protected bool DefaultFlag = false;
         protected string LocationID = Guid.NewGuid().ToString();
 
         public Location_Elements()
@@ -42,18 +50,25 @@ namespace TilerElements
             NullLocation = true;
         }
 
-        public Location_Elements(string ID)
-        {
-            LocationID = ID;
-        }
+        
 
-        public Location_Elements(double MyxValue, double MyyValue, int ID = 0)
+        public Location_Elements(double MyxValue, double MyyValue, string Id = "")
         {
             xValue = MyxValue;
             yValue = MyyValue;
+            NullLocation = false;
+            if (!string.IsNullOrEmpty(Id))
+            {
+                Guid validId;
+                bool IdParseSuccess = Guid.TryParse(Id, out validId);
+                if (IdParseSuccess)
+                {
+                    LocationID = Id;
+                }
+            }
         }
 
-        public Location_Elements(double MyxValue, double MyyValue, string AddressEntry, string AddressDescription, bool isNull, int CheckDefault, string ID = "")
+        public Location_Elements(double MyxValue, double MyyValue, string AddressEntry, string AddressDescription, bool isNull,bool iaDefaultFlag, string ID = "")
         {
             xValue = MyxValue;
             yValue = MyyValue;
@@ -68,7 +83,7 @@ namespace TilerElements
             {
                 LocationID = ID;
             }
-            this.CheckDefault = CheckDefault;
+            DefaultFlag = isDefault;
         }
 
         public Location_Elements(string Address, string tag = "", string ID = "")
@@ -114,8 +129,8 @@ namespace TilerElements
             }
             catch
             {
-                xValue = double.MaxValue;
-                yValue = double.MaxValue;
+                xValue = MaxLatitude;
+                yValue = MaxLongitude;
                 if (string.IsNullOrEmpty(TaggedDescription) && !string.IsNullOrEmpty(TaggedAddress))
                 {
                     TaggedDescription = TaggedAddress.ToLower();
@@ -144,28 +159,28 @@ namespace TilerElements
         public static Location_Elements getDefaultLocation()
         {
             Location_Elements RetValue = new Location_Elements(defaultXValue, defaultYValue);
+            RetValue.DefaultFlag = true;
+            RetValue.NullLocation = false;
             return RetValue;
         }
 
-        string getStringWebLocation24(float xLocation24, float yLocation24)
-        {
-            return "Hello";
-        }
-        float[,] getGPSWebLocation24(string Address)
-        {
-
-            return null;
-        }
-
+        
+        /// <summary>
+        /// calculates distance of two locations. Result is in KM
+        /// </summary>
+        /// <param name="Location24A"></param>
+        /// <param name="Location24B"></param>
+        /// <param name="Worst"></param>
+        /// <returns></returns>
         static public double calculateDistance(Location_Elements Location24A, Location_Elements Location24B, double Worst = double.MaxValue)
         {
             //note .... this function does not take into consideration the calendar event. So if there are two locations of the same calendarevent they will get scheduled right next to each other
-            double maxDividedByTwo = double.MaxValue / 2;
-            if ((Location24A.xValue >= maxDividedByTwo) || (Location24B.xValue > maxDividedByTwo))
+            double maxDividedByTwo = MaxLongitude;
+            if ((Location24A.xValue >= maxDividedByTwo) || (Location24B.xValue > maxDividedByTwo) || (Location24A.isNull) || (Location24B.isNull))
             {
                 return Worst;
             }
-            double R = 3958.7558657440545; // Radius of earth in Miles 
+            double R = 6371; // Radius of earth in KM
             double dLat = toRad(Location24A.xValue - Location24B.xValue);
             double dLon = toRad(Location24A.yValue - Location24B.yValue);
             double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
@@ -243,17 +258,18 @@ namespace TilerElements
             {
                 double xCoord = Locations.Average(obj => obj.xValue);
                 double yCoord = Locations.Average(obj => obj.yValue);
-                retValue = new Location_Elements(xCoord, yCoord, -1);
+                retValue = new Location_Elements(xCoord, yCoord);
             }
             else
             {
                 if (useDefaultLocation)
                 {
-                    retValue = new Location_Elements(defaultXValue, defaultYValue, -1);
+                    retValue = getDefaultLocation();
+                    retValue.DefaultFlag = true;
                 }
                 else
                 {
-                    retValue = new Location_Elements(0, 0, -1);
+                    retValue = new Location_Elements(0, 0);
                 }
 
             }
@@ -310,11 +326,11 @@ namespace TilerElements
             }
         }
 
-        public int DefaultCheck
+        public bool isDefault
         {
             get
             {
-                return CheckDefault;
+                return DefaultFlag;
             }
         }
 

@@ -50,7 +50,6 @@ namespace TilerElements
             NullLocation = true;
         }
 
-        
 
         public Location_Elements(double MyxValue, double MyyValue, string Id = "")
         {

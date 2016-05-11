@@ -1,21 +1,3 @@
-C:\Users\OluJerome\Documents\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\TilerElements.dll
-C:\Users\OluJerome\Documents\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\TilerElements.pdb
-C:\Users\OluJerome\Documents\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\Newtonsoft.Json.dll
-C:\Users\OluJerome\Documents\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\sdk.dll
-C:\Users\OluJerome\Documents\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\Newtonsoft.Json.xml
-C:\Users\OluJerome\Documents\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\sdk.pdb
-C:\Users\OluJerome\Documents\WagTap\My24HourTimerWPF\TilerElements\obj\Debug\TilerElements.csprojResolveAssemblyReference.cache
-C:\Users\OluJerome\Documents\WagTap\My24HourTimerWPF\TilerElements\obj\Debug\TilerElements.dll
-C:\Users\OluJerome\Documents\WagTap\My24HourTimerWPF\TilerElements\obj\Debug\TilerElements.pdb
-C:\Users\jerom\Documents\Visual Studio 2013\Projects\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\TilerElements.dll
-C:\Users\jerom\Documents\Visual Studio 2013\Projects\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\TilerElements.pdb
-C:\Users\jerom\Documents\Visual Studio 2013\Projects\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\Newtonsoft.Json.dll
-C:\Users\jerom\Documents\Visual Studio 2013\Projects\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\sdk.dll
-C:\Users\jerom\Documents\Visual Studio 2013\Projects\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\Newtonsoft.Json.xml
-C:\Users\jerom\Documents\Visual Studio 2013\Projects\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\sdk.pdb
-C:\Users\jerom\Documents\Visual Studio 2013\Projects\WagTap\My24HourTimerWPF\TilerElements\obj\Debug\TilerElements.csprojResolveAssemblyReference.cache
-C:\Users\jerom\Documents\Visual Studio 2013\Projects\WagTap\My24HourTimerWPF\TilerElements\obj\Debug\TilerElements.dll
-C:\Users\jerom\Documents\Visual Studio 2013\Projects\WagTap\My24HourTimerWPF\TilerElements\obj\Debug\TilerElements.pdb
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\TilerElements.dll
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\TilerElements.pdb
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\Google.Maps.dll
@@ -26,4 +8,3 @@ C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\Til
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\sdk.pdb
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerElements\obj\Debug\TilerElements.dll
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerElements\obj\Debug\TilerElements.pdb
-C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerElements\obj\Debug\TilerElements.csprojResolveAssemblyReference.cache

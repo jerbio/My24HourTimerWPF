@@ -407,7 +407,7 @@ namespace TilerElements
                 CurrentCycle++;
             }
             return OriginalPermutation;
-        }
+        }*/
 
         public static SubCalendarEvent[] getBestPermutation(List<SubCalendarEvent> AllEvents, double worstDistance, Tuple<Location_Elements,Location_Elements>BorderElements =null)
         {

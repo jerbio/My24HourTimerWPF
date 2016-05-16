@@ -3411,7 +3411,8 @@ namespace My24HourTimerWPF
             
             List<SubCalendarEvent> AllRigids =  ForCalculation.Where(obj => obj.Rigid).ToList();
             ForCalculation = ForCalculation.Except(AllRigids).ToList();
-            ForCalculation.ForEach(obj => obj.addReason(Reason.Options.PreservedOrder));
+            
+            ForCalculation.ForEach(obj => obj.addReason(new PreservedOrder()));
 
             HashSet<SubCalendarEvent> OrderedPreviousTwentyfourNorigids = new HashSet<SubCalendarEvent>( ForCalculation.OrderBy(obj=>obj.Start));
             FirstTwentyFour.AddBusySlots(AllRigids.Select(obj => obj.ActiveSlot));
@@ -3419,8 +3420,8 @@ namespace My24HourTimerWPF
             //loop updates reason for current assignment
             foreach (SubCalendarEvent subcalendaEvent in PopulatedSubcals.Except(ForCalculation))
             {
-                subcalendaEvent.addReason(Reason.Options.BestFit);
-                subcalendaEvent.addReason(Reason.Options.CloseToCluster);
+                BestFitReason bestFit = new BestFitReason(FirstTwentyFour.TotalActiveSpan, FirstTwentyFour.TotalFreeSpotAvailable, subcalendaEvent.ActiveDuration);
+                subcalendaEvent.addReason(bestFit);
             }
 
             List<SubCalendarEvent> retValue =new List<SubCalendarEvent>();
@@ -3481,8 +3482,8 @@ namespace My24HourTimerWPF
             List<SubCalendarEvent> Reassigned = BuildAllPossibleSnugLists(Calculables, timeLineForCalc, 1, AllreadyAssigned.Except(AllRigids).ToList());
             foreach (SubCalendarEvent subcalendaEvent in Reassigned.Except(AllreadyAssigned))
             {
-                subcalendaEvent.addReason(Reason.Options.BestFit);
-                subcalendaEvent.addReason(Reason.Options.CloseToCluster);
+                BestFitReason bestFit = new BestFitReason(timeLineForCalc.TotalActiveSpan, timeLineForCalc.TotalFreeSpotAvailable, subcalendaEvent.ActiveDuration);
+                subcalendaEvent.addReason(bestFit);
             }
 
             SubCalendarEvent.updateUnUsable(Calculables.Except(Reassigned), myDayTimeLine.UniversalIndex);//updates the un unsable days
@@ -7455,12 +7456,12 @@ namespace My24HourTimerWPF
             Dictionary<TimeSpan, Dictionary<string, mTuple<bool, SubCalendarEvent>>> retValue = new Dictionary<TimeSpan, Dictionary<string, mTuple<bool, SubCalendarEvent>>>();
             foreach (KeyValuePair<TimeSpan, mTuple<int, TimeSpanWithStringID>> eachKeyValuePair in CompatibleWithList)
             {
-                IEnumerable<KeyValuePair<string, mTuple<bool, SubCalendarEvent>>> PossibleEntries_IEnu = PossibleEntries[eachKeyValuePair.Key];
-                PossibleEntries_IEnu = PossibleEntries_IEnu.OrderBy(obj => obj.Value.Item2.getCalendarEventRange.End);
+                IEnumerable<KeyValuePair<string, mTuple<bool, SubCalendarEvent>>> possibleEntries_IEnu = PossibleEntries[eachKeyValuePair.Key];
+                possibleEntries_IEnu = possibleEntries_IEnu.OrderBy(obj => obj.Value.Item2.getCalendarEventRange.End);
                 //                //IEnumerable<int> AllIndexesWithValidEndtime = 
 
-                PossibleEntries_IEnu = PossibleEntries_IEnu.Where((obj, index) => index < eachKeyValuePair.Value.Item1); //keeps looping as long as index is less than eachKeyValuePair.value.item1
-                retValue.Add(eachKeyValuePair.Key, PossibleEntries_IEnu.ToDictionary(obj => obj.Key, obj => obj.Value));
+                possibleEntries_IEnu = possibleEntries_IEnu.Where((obj, index) => index < eachKeyValuePair.Value.Item1); //keeps looping as long as index is less than eachKeyValuePair.value.item1
+                retValue.Add(eachKeyValuePair.Key, possibleEntries_IEnu.ToDictionary(obj => obj.Key, obj => obj.Value));
             }
 
             return retValue;

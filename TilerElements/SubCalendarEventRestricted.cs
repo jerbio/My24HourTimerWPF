@@ -39,6 +39,7 @@ namespace TilerElements
             ConflictingEvents = new ConflictProfile();
             HumaneTimeLine = BusyFrame.CreateCopy();
             NonHumaneTimeLine = BusyFrame.CreateCopy();
+            _LastReasonStartTimeChanged = this.Start;
         }
 
         public SubCalendarEventRestricted()
@@ -50,6 +51,7 @@ namespace TilerElements
             UniqueID = null;
             ProfileOfRestriction = null;
             HardCalendarEventRange = new TimeLine();
+            _LastReasonStartTimeChanged = this.Start;
         }
         #endregion
 

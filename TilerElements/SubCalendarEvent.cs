@@ -24,6 +24,8 @@ namespace TilerElements
         protected bool BlobEvent = false;
         protected bool OptimizationFlag = false;
         protected List<Reason> TimePositionReasons = new List<Reason>();
+        protected DateTimeOffset _LastReasonStartTimeChanged;
+        protected Dictionary<TimeSpan, List<Reason>> ReasonsForCurrentPosition = new Dictionary<TimeSpan, List<Reason>>();
 
         #region Classs Constructor
         public SubCalendarEvent()
@@ -55,6 +57,7 @@ namespace TilerElements
 //            EventSequence = new EventTimeLine(UniqueID.ToString(), StartDateTime, EndDateTime);
             RigidSchedule = Rigid;
             this.Enabled = Enabled;
+            _LastReasonStartTimeChanged = this.Start;
         }
 
 
@@ -83,6 +86,7 @@ namespace TilerElements
             this.Enabled = Enabled;
             //EventSequence = new EventTimeLine(UniqueID.ToString(), StartDateTime, EndDateTime);
             RigidSchedule = Rigid;
+            _LastReasonStartTimeChanged = this.Start;
         }
 
         public SubCalendarEvent(string MySubEventID, DateTimeOffset EventStart, DateTimeOffset EventDeadline, BusyTimeLine SubEventBusy, bool Rigid, bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location_Elements EventLocation = null, TimeLine RangeOfSubCalEvent = null, ConflictProfile conflicts = null, string Creator = "")
@@ -105,6 +109,7 @@ namespace TilerElements
             UiParams = UiParam;
             DataBlob = Notes;
             Complete = completeFlag;
+            _LastReasonStartTimeChanged = this.Start;
         }
         #endregion
 
@@ -196,10 +201,17 @@ namespace TilerElements
             RigidSchedule = false;
         }
 
-        public void addReason(Reason.Options option)
+        virtual public void addReason(Reason eventReason)
         {
-            Reason Reason = new Reason(option);
-            TimePositionReasons.Add(Reason);
+            TimeSpan TimeDelta = this.Start - _LastReasonStartTimeChanged;
+            if (!ReasonsForCurrentPosition.ContainsKey(TimeDelta))
+            {
+                ReasonsForCurrentPosition.Add(TimeDelta,new List<Reason>());
+            }
+
+            ReasonsForCurrentPosition[TimeDelta].Add(eventReason);
+            TimePositionReasons.Add(eventReason);
+            _LastReasonStartTimeChanged = this.Start;
         }
 
         public IWhy Because()
@@ -212,22 +224,7 @@ namespace TilerElements
             throw new NotImplementedException("Yet to implement a OtherWise functionality for subcalendar event");
         }
 
-        public IWhy WhatIf(DateTimeOffset AssumedTime)
-        {
-            throw new NotImplementedException("Yet to implement a WhatIf functionality for subcalendar event");
-        }
-
-        public IWhy WhatIfDeadline(DateTimeOffset AssumedTime)
-        {
-            throw new NotImplementedException("Yet to implement a WhatIf functionality for subcalendar event");
-        }
-
-        public IWhy WhatIfStartTime(DateTimeOffset AssumedTime)
-        {
-            throw new NotImplementedException("Yet to implement a WhatIf functionality for subcalendar event");
-        }
-
-        public IWhy WhatIf(TimeSpan NewDuration)
+        public IWhy WhatIf(params Reason[] reasons)
         {
             throw new NotImplementedException("Yet to implement a WhatIf functionality for subcalendar event");
         }
@@ -297,6 +294,7 @@ namespace TilerElements
             MySubCalendarEventCopy.Semantics = this.Semantics.createCopy();
             MySubCalendarEventCopy._UsedTime = this._UsedTime;
             MySubCalendarEventCopy.OptimizationFlag = this.OptimizationFlag;
+            MySubCalendarEventCopy._LastReasonStartTimeChanged = this._LastReasonStartTimeChanged;
             return MySubCalendarEventCopy;
         }
 
@@ -1104,6 +1102,14 @@ namespace TilerElements
                 return CalendarEventRange.End;
 	        }
         }
+
+        public virtual Dictionary<TimeSpan, List<Reason>>  ReasonsForPosiition
+        {
+            get {
+                return ReasonsForCurrentPosition;
+            }
+        }
+
         
 
         #endregion

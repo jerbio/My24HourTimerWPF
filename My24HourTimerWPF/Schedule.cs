@@ -3454,7 +3454,6 @@ namespace My24HourTimerWPF
             {
                 BestFitReason bestFit = new BestFitReason(FirstTwentyFour.TotalActiveSpan, FirstTwentyFour.TotalFreeSpotAvailable, subcalendaEvent.ActiveDuration);
                 subcalendaEvent.addReason(bestFit);
-                subcalendaEvent.addReason(Reason.Options.CloseToCluster);
             }
 
             List<SubCalendarEvent> retValue =new List<SubCalendarEvent>();
@@ -3517,7 +3516,6 @@ namespace My24HourTimerWPF
             {
                 BestFitReason bestFit = new BestFitReason(timeLineForCalc.TotalActiveSpan, timeLineForCalc.TotalFreeSpotAvailable, subcalendaEvent.ActiveDuration);
                 subcalendaEvent.addReason(bestFit);
-                subcalendaEvent.addReason(Reason.Options.CloseToCluster);
             }
 
             SubCalendarEvent.updateUnUsable(Calculables.Except(Reassigned), myDayTimeLine.UniversalIndex);//updates the un unsable days

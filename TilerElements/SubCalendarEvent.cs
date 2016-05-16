@@ -214,11 +214,6 @@ namespace TilerElements
             TimePositionReasons.Add(eventReason);
             _LastReasonStartTimeChanged = this.Start;
         }
-        virtual public void addReason(Reason.Options option)
-        {
-            Reason Reason = new Reason(option);
-            addReason(Reason);
-        }
 
         public IWhy Because()
         {
@@ -1206,6 +1201,7 @@ namespace TilerElements
                 return CalendarEventRange.End;
 	        }
         }
+
         public virtual Dictionary<TimeSpan, List<Reason>>  ReasonsForPosiition
         {
             get {

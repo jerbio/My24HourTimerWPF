@@ -3427,7 +3427,6 @@ namespace My24HourTimerWPF
             
             ForCalculation.ForEach(obj => obj.addReason(new PreservedOrder()));
 
-
             HashSet<SubCalendarEvent> OrderedPreviousTwentyfourNorigids = new HashSet<SubCalendarEvent>( ForCalculation.OrderBy(obj=>obj.Start));
             FirstTwentyFour.AddBusySlots(AllRigids.Select(obj => obj.ActiveSlot));
             List<SubCalendarEvent> PopulatedSubcals = BuildAllPossibleSnugLists(ForCalculation, FirstTwentyFour, 1, new List<SubCalendarEvent>());

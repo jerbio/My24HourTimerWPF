@@ -13,8 +13,6 @@ namespace TilerElements
     [XmlInclude(typeof(DeadlineApproaching))]
     [XmlInclude(typeof(PreservedOrder))]
     [XmlInclude(typeof(LocationReason))]
-    [XmlInclude(typeof(DeadlineApproaching))]
-    [XmlInclude(typeof(PreservedOrder))]
     [XmlInclude(typeof(DurationReason))]
     [XmlInclude(typeof(RestrictedEventReason))]
     [XmlInclude(typeof(NoReason))]
@@ -238,7 +236,20 @@ namespace TilerElements
                 _LocationCluster = value;
             }
         }
+        //[XmlAttribute(DataType = "Option")]
+        virtual public Options Option {
+            get
+            {
+                return _Option;
+            }
+            set
+            {
+                _Option = value;
+            }
+        }
+
     }
+
 
     [Serializable]
     public class NoReason : Reason
@@ -263,6 +274,4 @@ namespace TilerElements
         }
 
     }
-
-
 }

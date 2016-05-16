@@ -1825,16 +1825,6 @@ namespace TilerElements
             }
         }
 
-
-
-        override public string ID
-        {
-            get
-            {
-                return UniqueID.ToString();
-            }
-        }
-
         public EventID Calendar_EventID
         {
             get

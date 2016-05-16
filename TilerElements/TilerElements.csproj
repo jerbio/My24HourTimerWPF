@@ -69,7 +69,6 @@
     <Compile Include="Health.cs" />
     <Compile Include="IWhy.cs" />
     <Compile Include="GoogleThirdPartyControl.cs" />
-    <Compile Include="IWhy.cs" />
     <Compile Include="MultidimensionalCalculation.cs" />
     <Compile Include="NowProfile.cs" />
     <Compile Include="PauseProfile.cs" />

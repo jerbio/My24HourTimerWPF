@@ -153,22 +153,6 @@ namespace TilerElements
             return retValue;
         }
 
-        static public List<double> getOriginFromDimensions(IList<IList<double>> collection)
-        {
-            IList<double> firstDataSet = collection.First();
-            int lengthOfEachDataset = firstDataSet.Count;
-            List<double> summingArray = (new double [lengthOfEachDataset]).Select(obj=> 0.0).ToList();
-            foreach(IList<double> eachDataSet in collection) 
-            {
-                for (int i = 0; i < lengthOfEachDataset; i++)
-                {
-                    summingArray[i] += eachDataSet[i];
-                }
-            }
-            List<double> retValue = summingArray.Select(obj => obj / collection.Count).ToList();
-
-            return retValue;
-        }
 
         static public List<double> multiDimensionCalculation(IList<IList<double >> collection, List<double> origin = null)
         {

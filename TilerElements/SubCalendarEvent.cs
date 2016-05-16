@@ -27,7 +27,6 @@ namespace TilerElements
         protected DateTimeOffset _LastReasonStartTimeChanged;
         protected Dictionary<TimeSpan, List<Reason>> ReasonsForCurrentPosition = new Dictionary<TimeSpan, List<Reason>>();
 
-
         #region Classs Constructor
         public SubCalendarEvent()
         { }

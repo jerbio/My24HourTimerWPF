@@ -35,6 +35,7 @@ namespace TilerElements
             UpdateLocationMatrix(Location);
             UiParams = UiSettings;
             DataBlob = NoteData;
+            LocationInfo = Location;
             
             EventDuration = Duration;
             TimePerSplit = TimeSpan.FromTicks(EventDuration.Ticks / Splits);
@@ -70,7 +71,8 @@ namespace TilerElements
             isRestricted = true;
             EventDuration = Duration;
             TimePerSplit = TimeSpan.FromTicks(EventDuration.Ticks / Splits);
-            
+            LocationInfo = Location;
+
             InstantiateSubEvents();
         }
 

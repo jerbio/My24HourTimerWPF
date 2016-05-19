@@ -87,6 +87,18 @@ namespace TilerElements
 
         public Location_Elements(string Address, string tag = "", string ID = "")
         {
+            if (string.IsNullOrEmpty(Address))
+            {
+                Address = "";
+            }
+
+            if (string.IsNullOrEmpty(tag))
+            {
+                tag = "";
+            }
+
+
+
             Address = Address.Trim();
             NullLocation = true;
             TaggedAddress = Address;

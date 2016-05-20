@@ -208,14 +208,18 @@ namespace TilerElements
         }
 
 
-        static public double calculateDistance(List<Location_Elements> ListOfLocations)
+        static public double calculateDistance(List<Location_Elements> ListOfLocations, double worstDistance = -1)
         {
+            if(worstDistance == -1)
+            {
+                worstDistance = double.MaxValue / (ListOfLocations.Count + 1);
+            }
             int i = 0;
             int j = i + 1;
             double retValue = 0;
             while (j < ListOfLocations.Count)
             {
-                retValue += calculateDistance(ListOfLocations[i], ListOfLocations[j]);
+                retValue += calculateDistance(ListOfLocations[i], ListOfLocations[j], worstDistance);
                 i++; j++;
             }
             return retValue;

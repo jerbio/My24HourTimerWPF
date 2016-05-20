@@ -589,7 +589,7 @@ namespace My24HourTimerWPF
             }
             //C6RXEZ             
             Location_Elements var0 = new Location_Elements(textBox8.Text);
-
+            var0.Validate();
             EventDisplay UiData = new EventDisplay();
             MiscData NoteData = new MiscData();
             bool CompletedFlag = false;
@@ -1450,7 +1450,7 @@ namespace My24HourTimerWPF
             //UserAccountDirect currentUser =  new UserAccountDebug("18");
             await currentUser.Login();
             DateTimeOffset refNow=DateTimeOffset.Now;
-            refNow = DateTimeOffset.Parse("8:26 am 4/27/2016");
+            refNow = DateTimeOffset.Parse("8:26 am 5/20/2016");
             //MySchedule = new Schedule(currentUser, refNow);
 
 

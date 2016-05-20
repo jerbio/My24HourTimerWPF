@@ -3159,6 +3159,7 @@ namespace My24HourTimerWPF
         void SortForSleep(IEnumerable<DayTimeLine>AllDayTimeLine)
         {
             //Parallel.ForEach(AllDayTimeLine, EachDay=>
+            //return;
             Location_Elements home = null;
             if (Locations.ContainsKey("home"))
             {
@@ -3394,7 +3395,9 @@ namespace My24HourTimerWPF
                 }
                 
             }
-            
+
+            double distanceCovered = Location_Elements.calculateDistance(TotalActiveEvents.OrderBy(SubEvent=> SubEvent.Start).Select(SubEvent => SubEvent.myLocation).ToList());
+            Console.WriteLine("Distance covered is {0}", distanceCovered);
 
             return totalNumberOfEvents;
         }

@@ -54,7 +54,7 @@ namespace TilerElements
             RigidSchedule = false;
             Splits = 1;
             LocationInfo = new Location_Elements();
-            UniqueID = new EventID("");
+            UniqueID = EventID.GenerateCalendarEvent();
             SubEvents = new Dictionary<EventID, SubCalendarEvent>();
             SchedulStatus = false;
             otherPartyID = "";
@@ -79,7 +79,7 @@ namespace TilerElements
             RigidSchedule = false;
             Splits = 1;
             LocationInfo = new Location_Elements();
-            UniqueID = new EventID("");
+            UniqueID = EventID.GenerateCalendarEvent();
             SubEvents = new Dictionary<EventID, SubCalendarEvent>();
             SchedulStatus = false;
             otherPartyID = "";
@@ -292,7 +292,7 @@ namespace TilerElements
             return SubEvents;
         }
 
-        virtual public CalendarEvent createCopy()
+        virtual public CalendarEvent createCopy(EventID Id=null)
         {
             CalendarEvent MyCalendarEventCopy = new CalendarEvent();
             MyCalendarEventCopy.EventDuration = new TimeSpan(EventDuration.Ticks);
@@ -308,7 +308,15 @@ namespace TilerElements
             MyCalendarEventCopy.RigidSchedule = RigidSchedule;//hack
             MyCalendarEventCopy.Splits = Splits;
             MyCalendarEventCopy.TimePerSplit = new TimeSpan(TimePerSplit.Ticks);
-            MyCalendarEventCopy.UniqueID = UniqueID;//hack
+            
+            if (Id != null)
+            {
+                MyCalendarEventCopy.UniqueID = Id;
+            }
+            else
+            {
+                MyCalendarEventCopy.UniqueID = UniqueID;//hack
+            }
             MyCalendarEventCopy.EventSequence = EventSequence.CreateCopy();
             MyCalendarEventCopy.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
             MyCalendarEventCopy.UiParams = this.UiParams.createCopy();
@@ -328,7 +336,7 @@ namespace TilerElements
 
             foreach (SubCalendarEvent eachSubCalendarEvent in this.SubEvents.Values)
             {
-                MyCalendarEventCopy.SubEvents.Add(eachSubCalendarEvent.SubEvent_ID, eachSubCalendarEvent.createCopy());
+                MyCalendarEventCopy.SubEvents.Add(eachSubCalendarEvent.SubEvent_ID, eachSubCalendarEvent.createCopy(EventID.GenerateSubCalendarEvent(MyCalendarEventCopy.UniqueID)));
             }
 
             MyCalendarEventCopy.SchedulStatus = SchedulStatus;
@@ -350,7 +358,7 @@ namespace TilerElements
             retValue.StartDateTime = Start;
             retValue.EndDateTime = End;
             retValue.EventDuration = new TimeSpan(0);
-            SubCalendarEvent emptySubEvent = SubCalendarEvent.getEmptyCalendarEvent();
+            SubCalendarEvent emptySubEvent = SubCalendarEvent.getEmptySubCalendarEvent(retValue.UniqueID);
             retValue.SubEvents.Add(emptySubEvent.SubEvent_ID, emptySubEvent);
             retValue.Splits = 1;
             retValue.Rigid = true;
@@ -474,17 +482,20 @@ namespace TilerElements
 
             UiParams.setCompleteUI(CompletionStatus);
         }
-
+        
         /// <summary>
         /// Pauses a sub event in the calendar event
         /// </summary>
         /// <param name="SubEventId"></param>
         /// <param name="CurrentTime"></param>
-        virtual public void PauseSubEvent(EventID SubEventId, DateTimeOffset CurrentTime)
+        virtual public void PauseSubEvent(EventID SubEventId, DateTimeOffset CurrentTime, EventID CurrentPausedEventId = null)
         {
             SubCalendarEvent SubEvent =  getSubEvent(SubEventId);
-            TimeSpan TimeDelta= SubEvent.Pause(CurrentTime);
-            _UsedTime += TimeDelta;
+            if (!SubEvent.Rigid)
+            {
+                TimeSpan TimeDelta = SubEvent.Pause(CurrentTime);
+                _UsedTime += TimeDelta;
+            }
         }
 
         virtual public bool ContinueSubEvent(EventID SubEventId, DateTimeOffset CurrentTime)
@@ -764,8 +775,15 @@ namespace TilerElements
                 }
             }
             return null;*/
-
-            return EventRepetition.getCalendarEvent(CalendarIDUpToRepeatCalEvent);
+            if (EventRepetition.Enable)
+            {
+                return EventRepetition.getCalendarEvent(CalendarIDUpToRepeatCalEvent);
+            }
+            else
+            {
+                return this;
+            }
+            
         }
 
         virtual public void SetEventEnableStatus(bool EnableDisableFlag)

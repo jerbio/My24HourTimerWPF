@@ -13,9 +13,16 @@ namespace TilerElements
         int FullID;
         static string delimiter = "_";
         static char delimiter_char ='_';
-        public EventID(string myLayerID)
-            : this(myLayerID.Split('_'))
+        public EventID(string stringId)
         {
+            if (!string.IsNullOrEmpty(stringId))
+            {
+                Initializer(stringId.Split('_'));
+            }
+            else
+            {
+                throw new ArgumentNullException("stringId", "Invalid attempt to create an EventId object from a null string object ");
+            }
 
         }
 
@@ -24,40 +31,8 @@ namespace TilerElements
         }
         private EventID(string[] myLayerID)
         {
-            
-            switch (myLayerID.Length)
-            {
-                case 0:
-                {
-                    LayerID = new string[4] { "0", "7", "0", "0" };
-                }
-                break;
-                
-                case 1:
-                {
-                    LayerID = new string[4] { myLayerID[0], "7", "0", "0" };
-                }
-                break;
-                case 2:
-                {
-                    LayerID = new string[4] { myLayerID[0], "7", myLayerID[1],"0" };
-                }
-                break;
-                case 3:
-                {
-                    LayerID = new string[4] { myLayerID[0], "7", myLayerID[1], myLayerID[2] };
-                }
-                break;
-                case 4:
-                {
-                    LayerID = myLayerID.ToArray();
-                }
-                break;
-                default:
-                throw new Exception("Tried To initialize with invalid ID");
-            }
 
-            s_FullID = string.Join(delimiter,LayerID);
+            Initializer(myLayerID);
 
             /*//string currConcat=sb.ToString();
             string currConcat = myId;
@@ -70,6 +45,43 @@ namespace TilerElements
                 FullID = Convert.ToInt32(currConcat);
             }*/
 
+        }
+
+        void Initializer(string[] myLayerID)
+        {
+            switch (myLayerID.Length)
+            {
+                case 0:
+                    {
+                        LayerID = new string[4] { "0", "7", "0", "0" };
+                    }
+                    break;
+
+                case 1:
+                    {
+                        LayerID = new string[4] { myLayerID[0], "7", "0", "0" };
+                    }
+                    break;
+                case 2:
+                    {
+                        LayerID = new string[4] { myLayerID[0], "7", myLayerID[1], "0" };
+                    }
+                    break;
+                case 3:
+                    {
+                        LayerID = new string[4] { myLayerID[0], "7", myLayerID[1], myLayerID[2] };
+                    }
+                    break;
+                case 4:
+                    {
+                        LayerID = myLayerID.ToArray();
+                    }
+                    break;
+                default:
+                    throw new Exception("Tried To initialize with invalid ID");
+            }
+
+            s_FullID = string.Join(delimiter, LayerID);
         }
 
         public static EventID convertToSubcalendarEventID(string stringID)
@@ -202,6 +214,16 @@ namespace TilerElements
         public static EventID GenerateSubCalendarEvent(string ParentID)
         {
             EventID retValue = new EventID(ParentID);
+            //if (retValue.LayerID.Count == 3)
+            {
+                retValue.AddNewComponentID(3);
+                return retValue;
+            }
+        }
+
+        public static EventID GenerateSubCalendarEvent(EventID ParentID)
+        {
+            EventID retValue = new EventID(ParentID.ToString());
             //if (retValue.LayerID.Count == 3)
             {
                 retValue.AddNewComponentID(3);

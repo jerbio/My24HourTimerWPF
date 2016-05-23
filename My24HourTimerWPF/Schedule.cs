@@ -519,16 +519,29 @@ namespace My24HourTimerWPF
             return RetValue;
         }
 
-        public async Task<CustomErrors> PauseEvent(string Event)
+        public async Task<CustomErrors> PauseEvent(string Event, string CurrentPausedEventId = null)
         {
             EventID id = new EventID(Event);
-            return await PauseEvent(id);
+            EventID currentPausedId = null;
+            if (!string.IsNullOrEmpty(CurrentPausedEventId))
+            {
+                currentPausedId = new EventID(CurrentPausedEventId);
+            }
+            return await PauseEvent(id, currentPausedId);
         }
 
-        public async Task<CustomErrors> PauseEvent(EventID EventId)
+        public async Task<CustomErrors> PauseEvent(EventID EventId, EventID CurrentPausedEventId = null)
         {
             CalendarEvent CalEvent = getCalendarEvent(EventId.ToString());
-            CalEvent.PauseSubEvent(EventId, Now.constNow);
+
+            if (CurrentPausedEventId != null)
+            {
+                CalendarEvent PreviousPausedCalEvent = getCalendarEvent(CurrentPausedEventId.ToString());
+                SubCalendarEvent currentPausedEvent = PreviousPausedCalEvent. getSubEvent(CurrentPausedEventId);
+                currentPausedEvent.UnPause(Now.constNow);
+            }
+
+            CalEvent.PauseSubEvent(EventId, Now.constNow, CurrentPausedEventId);
             await UpdateWithProcrastinateSchedule(AllEventDictionary);
             CustomErrors RetValue = new CustomErrors(true, "");
             return RetValue;
@@ -537,28 +550,64 @@ namespace My24HourTimerWPF
         public async Task<CustomErrors> ContinueEvent(string Event)
         {
             EventID id = new EventID(Event);
-            return await ContinueEvent(id);
+            return await ResumeEvent(id);
         }
 
-        public async Task<CustomErrors> ContinueEvent(EventID EventId)
+        public async Task<CustomErrors> ResumeEvent(EventID EventId)
         {
             CalendarEvent CalEvent = getCalendarEvent(EventId.ToString());
+            if (CalEvent.RepetitionStatus)
+            {
+                CalEvent = CalEvent.getRepeatedCalendarEvent(EventId.getIDUpToRepeatCalendarEvent());
+            }
+            
             bool errorState = CalEvent.ContinueSubEvent(EventId, Now.constNow);
             SubCalendarEvent SubEvent = CalEvent.getSubEvent(EventId);
             CustomErrors RetValue;
-            if (errorState)
             {
-                Now.UpdateNow(SubEvent.Start);
+                if (errorState)
+                {
+                    
+                    Now.UpdateNow(SubEvent.Start);
+                    CalendarEvent CalEventCopy = CalEvent.createCopy(EventID.GenerateCalendarEvent());
+                    SubEvent.disable(CalEvent);
+                    SubCalendarEvent unDisabled = CalEventCopy.AllSubEvents.First();
+                    foreach (SubCalendarEvent SubCalendarEvent in CalEventCopy.AllSubEvents.Except( new List<SubCalendarEvent>(){ unDisabled}))
+                    {
+                        SubCalendarEvent.disable(CalEventCopy);
+                    }
+                    bool isRigidInitial = false;
+                    if (!SubEvent.Rigid)
+                    {
+                        unDisabled.SetAsRigid();
+                    }
+                    else
+                    {
+                        isRigidInitial = true;
+                    }
 
-                Tuple<CustomErrors, Dictionary<string, CalendarEvent>> continuedStatus = SetEventAsNow(SubEvent.ID);
-                await UpdateWithProcrastinateSchedule(continuedStatus.Item2).ConfigureAwait(false);
-                RetValue = continuedStatus.Item1;
-            }
+                    HashSet<SubCalendarEvent> NotDoneYets = getNoneDoneYetBetweenNowAndReerenceStartTIme();
+                    NotDoneYets.RemoveWhere(obj => obj.RangeTimeLine.doesTimeLineInterfere(unDisabled.RangeTimeLine));
+                    CalEventCopy = EvaluateTotalTimeLineAndAssignValidTimeSpots(CalEventCopy, NotDoneYets,InterringWithNowEvent:2);
+                    if (!isRigidInitial)
+                    {
+                        unDisabled.SetAsNonRigid();
+                    }
 
-            else
-            {
-                RetValue = new CustomErrors(false, "could not continue sub event because it is out of calendar event range error", 40000001);
+                    SubEvent.Enable(CalEvent);
+                    TimeSpan timeDiff = (unDisabled.Start - SubEvent.Start);
+                    SubEvent.shiftEvent(timeDiff);
+                    await UpdateWithProcrastinateSchedule(AllEventDictionary);
+                    RetValue = new CustomErrors(true,"");
+                }
+
+                else
+                {
+                    RetValue = new CustomErrors(false, "could not continue sub event because it is out of calendar event range error", 40000001);
+                }
             }
+            
+            
 
 
             return RetValue;
@@ -1587,6 +1636,10 @@ namespace My24HourTimerWPF
         /// NoneCOmmitedCalendarEvent is the list of calendar events that are under a repeating calendarevent that are yet to be persisted to storage
         /// optimizeFirstTwentyFourHours should the scheduler try to optimize the first twenty four hours for shortest path recognition
         /// preserveFirstTwentyFourHours should the scheduler try to ensure that the events for the next twenty four hours stay within a certain order
+        /// InterringWithNowEvent deals with how the interferrence with the now should be resolved.
+        /// InterringWithNowEvent == 0. Ignore events interfeering with now
+        /// InterringWithNowEvent == 1. Ignore all events interferring with now
+        /// InterringWithNowEvent == 2. Ignore only the current added calendar event
         /// </summary>
         /// <param name="MyEvent"></param>
         /// <param name="UnDoneEvents"></param>
@@ -1883,15 +1936,20 @@ namespace My24HourTimerWPF
 
 
         /// <summary>
-        /// Function gets the SubEvents that will be involved in the calculation in the timeLine. initializingCalendarEvent calendar event to be added to the new schedule. NoneCommitedCalendarEventsEvents is calendarevent that have not been added to the AllEventDictionary(Used for repeting events). Flag type checks if the algorithm should preserve events interferring with Now time. Flag type of  0 means check if it interfers with now. 1 means ignore events. NotDoneYet Evets that have not being marked as done or completed. It returns a 3 item tuple(triple). Item1 is the list of interferring elements. Item 2 The custom error is set when there is less space than the calculation will allow. Item 3 is the list of element that collide with the current Now time
+        /// Function gets the SubEvents that will be involved in the calculation in the timeLine. initializingCalendarEvent calendar event to be added to the new schedule. NoneCommitedCalendarEventsEvents is calendarevent that have not been added to the AllEventDictionary(Used for repeting events). Flag type checks if the algorithm should preserve events interferring with Now time. Flag type of  0 means check if it interfers with now. 1 means ignore events. ExemptFromCalculation Evets that have not being marked as done or completed. It returns a 3 item tuple(triple). Item1 is the list of interferring elements. Item 2 The custom error is set when there is less space than the calculation will allow. Item 3 is the list of element that collide with the current Now time
+        /// The ExemptFromCalculation are exempted and removed from the list
+        /// FlagType deals with how the interferrence with the now should be resolved.
+        /// FlagType == 0. Ignore events interfeering with now
+        /// FlagType == 1. Ignore all events interferring with now
+        /// FlagType == 2. Ignore only the current added calendar event
         /// </summary>
         /// <param name="initializingCalendarEvent"></param>
         /// <param name="NoneCommitedCalendarEventsEvents"></param>
         /// <param name="FlagType"></param>
-        /// <param name="NotDoneYet"></param>
+        /// <param name="ExemptFromCalculation"></param>
         /// <param name="iniTimeLine"></param>
         /// <returns></returns>
-        Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> getAllInterferringEventsAndTimeLineInCurrentEvaluation(CalendarEvent initializingCalendarEvent, List<CalendarEvent> NoneCommitedCalendarEventsEvents, int FlagType, HashSet<SubCalendarEvent> NotDoneYet, TimeLine iniTimeLine)
+        Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> getAllInterferringEventsAndTimeLineInCurrentEvaluation(CalendarEvent initializingCalendarEvent, List<CalendarEvent> NoneCommitedCalendarEventsEvents, int FlagType, HashSet<SubCalendarEvent> ExemptFromCalculation, TimeLine iniTimeLine)
         {
             TimeLine RangeOfCalculation = iniTimeLine != null ? iniTimeLine : initializingCalendarEvent.RangeTimeLine;
             HashSet<CalendarEvent> NonCommitedCalEvents= new HashSet<CalendarEvent>(NoneCommitedCalendarEventsEvents);
@@ -1907,22 +1965,41 @@ namespace My24HourTimerWPF
             {
                 retCustomErrors = new CustomErrors(false, "Total duration of events is greater than TImeLine length");
             }
-            
-            
-            
-            if(FlagType==0)
+
+            SubEventsForCalculation = SubEventsForCalculation.Except(ExemptFromCalculation).ToList();
+
+            switch (FlagType)
             {
-                DateTimeOffset currentNowTime= Now.constNow;
-                mTuple< List<SubCalendarEvent>,DateTimeOffset> interFerringData= getElementsThatInterferWithNow(SubEventsForCalculation, Now.constNow);
-                interferringWithNow=interFerringData.Item1;
-                if (currentNowTime != interFerringData.Item2)
-                {
-                    Now.UpdateNow(interFerringData.Item2);
-                    SubEventsForCalculation=SubEventsForCalculation.Except(interferringWithNow).ToList();
-                }
-                CalculationTImeLine=new TimeLine(Now.calculationNow,CalculationTImeLine.End);
-                
+                case 0:
+                    {
+                        DateTimeOffset currentNowTime = Now.constNow;
+                        mTuple<List<SubCalendarEvent>, DateTimeOffset> interFerringData = getElementsThatInterferWithNow(SubEventsForCalculation, Now.constNow);
+                        interferringWithNow = interFerringData.Item1;
+                        if (currentNowTime != interFerringData.Item2)
+                        {
+                            Now.UpdateNow(interFerringData.Item2);
+                            SubEventsForCalculation = SubEventsForCalculation.Except(interferringWithNow).ToList();
+                        }
+                        CalculationTImeLine = new TimeLine(Now.calculationNow, CalculationTImeLine.End);
+
+                    }
+                    break;
+                case 2:
+                    {
+                        DateTimeOffset currentNowTime = initializingCalendarEvent.ActiveSubEvents.Max(obj => obj.End);
+                        Now.UpdateNow(currentNowTime);
+                        SubEventsForCalculation = SubEventsForCalculation.Except(initializingCalendarEvent.ActiveSubEvents).ToList();
+                        CalculationTImeLine = new TimeLine(Now.calculationNow, CalculationTImeLine.End);
+                    }
+                    break;
+                case 1:
+                default:
+                    {
+                        ;
+                    }
+                    break;
             }
+            
 
             Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> retValue = new Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>>(CalculationTImeLine, SubEventsForCalculation, retCustomErrors, interferringWithNow);
             return retValue;
@@ -1931,8 +2008,6 @@ namespace My24HourTimerWPF
 
         /// <summary>
         /// Gets all events that "interferr" with the Now calculation.
-        /// Implementation Details:
-        /// This is a recurrsive call. It starts by checking for events that interfer with Now time. If it 
         /// </summary>
         /// <param name="AllSubevents"></param>
         /// <param name="nowTime"></param>
@@ -1941,14 +2016,14 @@ namespace My24HourTimerWPF
         {
             List<SubCalendarEvent>InterFerringEvents= AllSubevents.Where(obj => obj.Start < nowTime).Where(obj => obj.IsDateTimeWithin(nowTime)).ToList();
             mTuple<List<SubCalendarEvent>, DateTimeOffset> retValue = new mTuple<List<SubCalendarEvent>, DateTimeOffset>(InterFerringEvents, nowTime);
-            if (InterFerringEvents.Count > 0)
-            { 
-                 nowTime =InterFerringEvents.Max(obj => obj.End);
-                 AllSubevents = AllSubevents.Except(InterFerringEvents).ToList();
-                 mTuple<List<SubCalendarEvent>, DateTimeOffset> retValueUpdated = getElementsThatInterferWithNow(AllSubevents, nowTime);
-                 retValue.Item1.AddRange(retValueUpdated.Item1);
-                 retValue.Item2 = retValueUpdated.Item2;
-            }
+            //if (InterFerringEvents.Count > 0)
+            //{ 
+            //     nowTime =InterFerringEvents.Max(obj => obj.End);
+            //     AllSubevents = AllSubevents.Except(InterFerringEvents).ToList();
+            //     mTuple<List<SubCalendarEvent>, DateTimeOffset> retValueUpdated = getElementsThatInterferWithNow(AllSubevents, nowTime);
+            //     retValue.Item1.AddRange(retValueUpdated.Item1);
+            //     retValue.Item2 = retValueUpdated.Item2;
+            //}
             return retValue;
         }
 
@@ -2301,7 +2376,19 @@ namespace My24HourTimerWPF
 
         }
 
-
+        /// <summary>
+        /// InterringWithNowEvent deals with how the interferrence with the now should be resolved.
+        /// InterringWithNowEvent == 0. Ignore events interfeering with now
+        /// InterringWithNowEvent == 1. Ignore all events interferring with now
+        /// InterringWithNowEvent == 2. Ignore only the current added calendar event
+        /// </summary>
+        /// <param name="MyCalendarEvent"></param>
+        /// <param name="NoneCommitedCalendarEventsEvents"></param>
+        /// <param name="InterferringWithNowFlag"></param>
+        /// <param name="NotDoneYet"></param>
+        /// <param name="OptimizeFirstTwentyFour"></param>
+        /// <param name="preserveFirstTwentyFourHours"></param>
+        /// <returns></returns>
         CalendarEvent ReArrangeTimeLineWithinWithinCalendaEventRangeUpdated(CalendarEvent MyCalendarEvent, List<CalendarEvent> NoneCommitedCalendarEventsEvents, int InterferringWithNowFlag, HashSet<SubCalendarEvent> NotDoneYet, bool OptimizeFirstTwentyFour = true, bool preserveFirstTwentyFourHours = true)// this looks at the timeline of the calendar event and then tries to rearrange all subevents within the range to suit final output. Such that there will be sufficient time space for each subevent
         {
             /*
@@ -2318,7 +2405,7 @@ namespace My24HourTimerWPF
             NoneCommitedCalendarEventsEvents.Add(MyCalendarEvent);
             DateTimeOffset testDateTime = new DateTimeOffset(2014, 8, 11, 0, 0, 0, new TimeSpan());
             Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluation(MyCalendarEvent, NoneCommitedCalendarEventsEvents, InterferringWithNowFlag, NotDoneYet, new TimeLine(Now.constNow.AddDays(-90), Now.ComputationRange.End));
-            //Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluationOldDesign(MyCalendarEvent, NoneCommitedCalendarEventsEvents, InterferringWithNowFlag, NotDoneYet, new TimeLine(Now.constNow.AddDays(-90), Now.ComputationRange.End));
+            //Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluationOldDesign(MyCalendarEvent, NoneCommitedCalendarEventsEvents, InterferringWithNowFlag, ExemptFromCalculation, new TimeLine(Now.constNow.AddDays(-90), Now.ComputationRange.End));
             List<SubCalendarEvent> collectionOfInterferringSubCalEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToList();
             List<SubCalendarEvent> ArrayOfInterferringSubEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToList();
             TimeLine RangeForScheduleUpdate = allInterferringSubCalEventsAndTimeLine.Item1;
@@ -3068,7 +3155,7 @@ namespace My24HourTimerWPF
             DateTimeOffset testDateTime = new DateTimeOffset(2014, 8, 11, 0, 0, 0, new TimeSpan());
             
             Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluation(MyCalendarEvent, NoneCommitedCalendarEventsEvents, InterferringWithNowFlag, NotDoneYet, new TimeLine(Now.constNow.AddDays(-90), Now.getAllDaysCount((uint)NumberOfDays).Last().End));
-            //Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluationOldDesign(MyCalendarEvent, NoneCommitedCalendarEventsEvents, InterferringWithNowFlag, NotDoneYet, new TimeLine(Now.constNow.AddDays(-90), Now.ComputationRange.End));
+            //Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluationOldDesign(MyCalendarEvent, NoneCommitedCalendarEventsEvents, InterferringWithNowFlag, ExemptFromCalculation, new TimeLine(Now.constNow.AddDays(-90), Now.ComputationRange.End));
             List<SubCalendarEvent> collectionOfInterferringSubCalEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToList();
             List<SubCalendarEvent> ArrayOfInterferringSubEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToList();
             TimeLine RangeForScheduleUpdate = allInterferringSubCalEventsAndTimeLine.Item1;
@@ -3214,12 +3301,12 @@ namespace My24HourTimerWPF
 
         void SortForSleep(IEnumerable<DayTimeLine>AllDayTimeLine)
         {
-            Parallel.ForEach(AllDayTimeLine, EachDay=>
-            //foreach(DayTimeLine EachDay in AllDayTimeLine)
+            //Parallel.ForEach(AllDayTimeLine, EachDay=>
+            foreach(DayTimeLine EachDay in AllDayTimeLine)
             {
                 optimizeDay(EachDay);
             }
-            );
+            //);
         }
 
         void optimizeDay(DayTimeLine myDay)
@@ -3431,9 +3518,9 @@ namespace My24HourTimerWPF
                     List<DayTimeLine> OptimizedDays = AllDayTImeLine.Take(10).ToList();
                     SortForSleep(OptimizedDays);
                 }
-                catch
+                catch(Exception E)
                 {
-                    ;
+                    throw E;
                 }
                 
             }

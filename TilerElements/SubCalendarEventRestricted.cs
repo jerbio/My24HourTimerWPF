@@ -173,7 +173,7 @@ namespace TilerElements
             return base.canExistWithinTimeLine(PossibleTimeLine);
         }
 
-        public override SubCalendarEvent createCopy()
+        public override SubCalendarEvent createCopy(EventID eventId )
         {
             SubCalendarEventRestricted copy = new SubCalendarEventRestricted();
             copy.BusyFrame = this.BusyFrame.CreateCopy();
@@ -206,7 +206,15 @@ namespace TilerElements
             copy.RigidSchedule = this.RigidSchedule;
             copy.StartDateTime = this.StartDateTime;
             copy.UiParams = this.UiParams.createCopy();
-            copy.UniqueID = this.UniqueID;
+
+            if (eventId != null)
+            {
+                copy.UniqueID = eventId;
+            }
+            else
+            {
+                copy.UniqueID = UniqueID;//hack
+            }
             copy.UnUsableIndex = this.UnUsableIndex;
             copy.UserDeleted = this.UserDeleted;
             copy.UserIDs = this.UserIDs.ToList();

@@ -105,7 +105,7 @@ namespace TilerElements
             return retValue;
         }
 
-        public override CalendarEvent createCopy()
+        public override CalendarEvent createCopy(EventID eventId = null)
         {
             CalendarEventRestricted MyCalendarEventCopy = new CalendarEventRestricted();
             MyCalendarEventCopy.EventDuration = new TimeSpan(EventDuration.Ticks);
@@ -121,7 +121,6 @@ namespace TilerElements
             MyCalendarEventCopy.RigidSchedule = RigidSchedule;//hack
             MyCalendarEventCopy.Splits = Splits;
             MyCalendarEventCopy.TimePerSplit = new TimeSpan(TimePerSplit.Ticks);
-            MyCalendarEventCopy.UniqueID = UniqueID;//hack
             MyCalendarEventCopy.EventSequence = EventSequence.CreateCopy();
             MyCalendarEventCopy.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
             MyCalendarEventCopy.UiParams = this.UiParams.createCopy();
@@ -139,10 +138,18 @@ namespace TilerElements
             MyCalendarEventCopy.ProfileOfProcrastination = this.ProfileOfProcrastination.CreateCopy();
             MyCalendarEventCopy.Semantics = this.Semantics.createCopy();
             MyCalendarEventCopy._UsedTime = this._UsedTime;
+            if (eventId != null)
+            {
+                MyCalendarEventCopy.UniqueID = eventId;
+            }
+            else
+            {
+                MyCalendarEventCopy.UniqueID = UniqueID;//hack
+            }
 
             foreach (SubCalendarEventRestricted eachSubCalendarEvent in this.SubEvents.Values)
             {
-                MyCalendarEventCopy.SubEvents.Add(eachSubCalendarEvent.SubEvent_ID, eachSubCalendarEvent.createCopy());
+                MyCalendarEventCopy.SubEvents.Add(eachSubCalendarEvent.SubEvent_ID, eachSubCalendarEvent.createCopy(EventID.GenerateSubCalendarEvent(MyCalendarEventCopy.UniqueID) ));
             }
 
             MyCalendarEventCopy.SchedulStatus = SchedulStatus;

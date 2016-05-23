@@ -224,10 +224,10 @@ namespace TilerElements
             return retValue;
         }
 
-        public static SubCalendarEvent getEmptyCalendarEvent()
+        public static SubCalendarEvent getEmptySubCalendarEvent(EventID CalendarEventId)
         {
             SubCalendarEvent retValue = new SubCalendarEvent();
-            retValue.UniqueID = new EventID("");
+            retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventId.ToString());
             retValue.StartDateTime = DateTimeOffset.Now;
             retValue.EndDateTime = DateTimeOffset.Now;
             retValue.EventDuration = new TimeSpan(0);
@@ -240,9 +240,18 @@ namespace TilerElements
 
 
 
-        virtual public SubCalendarEvent createCopy()
+        virtual public SubCalendarEvent createCopy(EventID eventId)
         {
-            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ID, Start, End, BusyFrame.CreateCopy(), this.RigidSchedule, this.isEnabled, this.UiParams.createCopy(), this.Notes.createCopy(), this.Complete, this.LocationInfo, new TimeLine(CalendarEventRange.Start, CalendarEventRange.End), ConflictingEvents.CreateCopy());
+            string Id;
+            if (eventId != null)
+            {
+                Id = eventId.ToString();
+            }
+            else
+            {
+                Id = this.ID;
+            }
+            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(Id, Start, End, BusyFrame.CreateCopy(), this.RigidSchedule, this.isEnabled, this.UiParams.createCopy(), this.Notes.createCopy(), this.Complete, this.LocationInfo, new TimeLine(CalendarEventRange.Start, CalendarEventRange.End), ConflictingEvents.CreateCopy());
             MySubCalendarEventCopy.ThirdPartyID = this.ThirdPartyID;
             MySubCalendarEventCopy.DeadlineElapsed = this.DeadlineElapsed;
             MySubCalendarEventCopy.UserDeleted = this.UserDeleted;
@@ -702,7 +711,7 @@ namespace TilerElements
 
          virtual public bool canExistWithinTimeLine(TimeLine PossibleTimeLine)
          {
-             SubCalendarEvent thisCopy = this.createCopy();
+             SubCalendarEvent thisCopy = this.createCopy(this.UniqueID);
              bool retValue= (thisCopy.PinToStart(PossibleTimeLine) && thisCopy.PinToEnd(PossibleTimeLine));
              return retValue;
          }
@@ -766,6 +775,16 @@ namespace TilerElements
             bool RetValue = shiftEvent(timeDiff);
             return RetValue;
         }
+
+        virtual public bool UnPause(DateTimeOffset currentTime)
+        {
+            _PauseTime = new DateTimeOffset();
+            _UsedTime = new TimeSpan();
+            TimeSpan timeDiff = new TimeSpan();
+            bool RetValue = shiftEvent(timeDiff);
+            return RetValue;
+        }
+
         public void UpdateInHumaneTimeLine()
          {
              NonHumaneTimeLine = ActiveSlot.CreateCopy();

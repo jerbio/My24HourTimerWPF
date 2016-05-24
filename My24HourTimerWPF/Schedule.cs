@@ -577,6 +577,8 @@ namespace My24HourTimerWPF
                         SubCalendarEvent.disable(CalEventCopy);
                     }
                     bool isRigidInitial = false;
+                    TimeSpan timeDiffBeforePause = (SubEvent.Start- unDisabled.Start);
+                    unDisabled.shiftEvent(timeDiffBeforePause);
                     if (!SubEvent.Rigid)
                     {
                         unDisabled.SetAsRigid();

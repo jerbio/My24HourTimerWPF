@@ -3166,7 +3166,6 @@ namespace My24HourTimerWPF
         void SortForSleep(IEnumerable<DayTimeLine>AllDayTimeLine)
         {
             //Parallel.ForEach(AllDayTimeLine, EachDay=>
-            //return;
             Location_Elements home = null;
             if (Locations.ContainsKey("home"))
             {
@@ -3385,7 +3384,6 @@ namespace My24HourTimerWPF
             List<SubCalendarEvent> orderedByStart = TotalActiveEvents.OrderBy(obj => obj.Start).ToList(); ;
             List<BlobSubCalendarEvent> conflictingEvetns = Utility.getConflictingEvents(orderedByStart);
 
-            //Optimize = false;
 #if optimizeDailyCalculations
             if (Optimize)
 
@@ -3416,10 +3414,8 @@ namespace My24HourTimerWPF
                 Console.WriteLine(element.myLocation.justLongLatString());
             }
             double distanceCovered = Location_Elements.calculateDistance(TotalActiveEvents.OrderBy(SubEvent=> SubEvent.Start).Select(SubEvent => SubEvent.myLocation).ToList());
-            Health scheduleHealth = new Health(TotalActiveEvents, Now.calculationNow);     
-
+            Health scheduleHealth = new Health(TotalActiveEvents, Now.calculationNow);
             Console.WriteLine("Distance covered is {0}, Optimize is set to {1}\n Health Score is {2}", distanceCovered, Optimize, scheduleHealth.getScore());
-            
             return totalNumberOfEvents;
         }
 

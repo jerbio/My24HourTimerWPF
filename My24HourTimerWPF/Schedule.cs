@@ -3159,7 +3159,6 @@ namespace My24HourTimerWPF
         void SortForSleep(IEnumerable<DayTimeLine>AllDayTimeLine)
         {
             //Parallel.ForEach(AllDayTimeLine, EachDay=>
-            //return;
             Location_Elements home = null;
             if (Locations.ContainsKey("home"))
             {
@@ -3373,9 +3372,13 @@ namespace My24HourTimerWPF
                 totalDaysAvailable = (ulong)CalendarEvent.getUsableDaysTotal(AllCalEvents);
                 totalNumberOfEvents = (ulong)CalendarEvent.getTotalUndesignatedEvents(AllCalEvents);
             }
-            
-            
-            if(Optimize)
+
+            List<SubCalendarEvent> orderedByStart = TotalActiveEvents.OrderBy(obj => obj.Start).ToList(); ;
+            List<BlobSubCalendarEvent> conflictingEvetns = Utility.getConflictingEvents(orderedByStart);
+
+#if optimizeDailyCalculations
+            if (Optimize)
+
             {
                 ulong FirstIndex = AllDayTImeLine[0].UniversalIndex;
                 try
@@ -3395,10 +3398,15 @@ namespace My24HourTimerWPF
                 }
                 
             }
+#endif
 
             double distanceCovered = Location_Elements.calculateDistance(TotalActiveEvents.OrderBy(SubEvent=> SubEvent.Start).Select(SubEvent => SubEvent.myLocation).ToList());
-            Console.WriteLine("Distance covered is {0}", distanceCovered);
 
+
+            Health scheduleHealth = new Health(TotalActiveEvents, Now.calculationNow);
+            
+
+            Console.WriteLine("Distance covered is {0}, Optimize is set to {1}\n Health Score is {2}", distanceCovered, Optimize, scheduleHealth.getScore());
             return totalNumberOfEvents;
         }
 
@@ -7340,7 +7348,7 @@ namespace My24HourTimerWPF
                     if (currDistance < lowestSofar)
                     { 
                         lowestSofar=currDistance;
-#if createCopyOfImplementation    
+#if createCopyOfImplementation
                         retValue = eachList.SelectMany(obj => retValue.Where(obj0 => obj0.ID == obj.ID)).ToList(); ;
 #else
                         retValue =eachList;

@@ -10,7 +10,7 @@ using TilerElements.Wpf;
 using Outlook = Microsoft.Office.Interop.Outlook;
 #endif
 
-namespace TilerElements.ThirdPartyConnector
+namespace TilerElements.Connectors
 {
     public class OutlookThirdPartyControl : ThirdPartyCalendarControl
     {

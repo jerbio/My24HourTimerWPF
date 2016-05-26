@@ -33,6 +33,8 @@ namespace TilerElements.DB
         protected int newImplementation = 0;
         Stopwatch debugStopWatch = new Stopwatch();
         public long totalReadMS = 0;
+        protected DB_UserActivity activity;
+        protected Location_Elements NewLocation;
 #if ForceReadFromXml
 #else
         //protected CassandraUserLog.CassandraLog myCassandraAccess;
@@ -67,7 +69,29 @@ namespace TilerElements.DB
         }
         #region Functions
 
+        public void updateUserActivty(UserActivity activity)
+        {
+            this.activity = new DB_UserActivity(activity);
+        }
 
+        /// <summary>
+        /// function undoes the last activity to tile
+        /// </summary>
+        /// <param name="RangeOfLookup"></param>
+        /// <returns></returns>
+        public async Task<CustomErrors> Undo()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// updates the logcontrol with a possible new location
+        /// </summary>
+        /// <param name="NewLocation"></param>
+        public void updateNewLocation(Location_Elements NewLocation)
+        {
+            this.NewLocation = NewLocation;
+        }
 
         #region Write Data
         /// <summary>

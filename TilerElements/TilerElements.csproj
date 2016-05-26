@@ -84,11 +84,12 @@
     <Compile Include="DB\DB_CalendarEventRestricted.cs" />
     <Compile Include="DB\DB_Classification.cs" />
     <Compile Include="DB\DB_EventDisplay.cs" />
+    <Compile Include="DB\DB_UserActivity.cs" />
     <Compile Include="DB\TestCalEvent.cs" />
     <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="ThirdPartyConnector\OutLookConnector.cs" />
-    <Compile Include="ThirdPartyConnector\OutlookThirdPartyControl.cs" />
-    <Compile Include="ThirdPartyConnector\ThirdPartyCalendarControl.cs" />
+    <Compile Include="Connectors\OutLookConnector.cs" />
+    <Compile Include="Connectors\OutlookThirdPartyControl.cs" />
+    <Compile Include="Connectors\ThirdPartyCalendarControl.cs" />
     <Compile Include="TilerUser.cs" />
     <Compile Include="DB\DB_LocationElements.cs" />
     <Compile Include="DB\DB_MiscData.cs" />
@@ -131,7 +132,7 @@
     <Compile Include="Wpf\RestrictionTimeLine.cs" />
     <Compile Include="Wpf\SubCalendarEventRestricted.cs" />
     <Compile Include="Wpf\EventLearn.cs" />
-    <Compile Include="Wpf\ThirdPartyControl.cs" />
+    <Compile Include="Connectors\ThirdPartyControl.cs" />
     <Compile Include="Wpf\TilerColor.cs" />
     <Compile Include="Wpf\CustomErrors.cs" />
     <Compile Include="Wpf\EventDisplay.cs" />

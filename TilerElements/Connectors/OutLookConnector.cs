@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using TilerElements.Wpf;
 
-namespace TilerElements.ThirdPartyConnector
+namespace TilerElements.Connectors
 {
     public class OutLookConnector : OutlookThirdPartyControl
     {

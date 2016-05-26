@@ -42,7 +42,7 @@ using System.Text;
 using System.Xml;
 using System.Diagnostics;
 using TilerElements.DB;
-using TilerElements.ThirdPartyConnector;
+using TilerElements.Connectors;
 using TilerElements.Wpf;
 //using TilerFront;
 using System.Windows.Forms;

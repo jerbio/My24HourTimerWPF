@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using TilerElements.DB;
 
 
-namespace TilerElements.ThirdPartyConnector
+namespace TilerElements.Connectors
 {
     [Table("ThirdPartyCalendar")]
     public abstract class ThirdPartyCalendarControl

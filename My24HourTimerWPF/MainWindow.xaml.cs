@@ -20,7 +20,6 @@ using System.Windows.Markup;
 using System.Xml;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using System.Collections.Generic;
 using Google.Maps.Geocoding;
 using WinForms = System.Windows.Forms;
 using TilerFront;
@@ -548,9 +547,6 @@ namespace My24HourTimerWPF
                 string EventEndDateTime = CurrentTimeOfExecution.ToString();
                 string[] TempString = EventEndDateTime.Split(' ');
                 eventEndTime = TempString[1] + TempString[2];
-                //eventEndDate
-                //MessageBox.Show("Please Type EndTime in The Format: HH:MM A/PM");
-                //return;
             }
             TimeSpan TestTimeSpan = new TimeSpan();
             bool RigidFlag = false;
@@ -1452,7 +1448,7 @@ namespace My24HourTimerWPF
             //UserAccountDirect currentUser =  new UserAccountDebug("18");
             await currentUser.Login();
             DateTimeOffset refNow=DateTimeOffset.Now;
-            refNow = DateTimeOffset.Parse("8:20 AM , April 6, 2016");
+            refNow = DateTimeOffset.Parse("3:05 AM , May 30, 2016");
             //MySchedule = new Schedule(currentUser, refNow);
 
 
@@ -1570,13 +1566,19 @@ namespace My24HourTimerWPF
             Location_Elements locationdata = new Location_Elements();
             MySchedule.FindMeSomethingToDo(locationdata);
         }
+
+        private void Pause_Click(object sender, RoutedEventArgs e)
+        {
+            string eventId = textBox9.Text;
+            MySchedule.PauseEvent(eventId).Wait();
+        }
     }
 
-    
-    
-    
 
-    
+
+
+
+
     public  class SystemTimeUpdate
     {
         /// <summary>

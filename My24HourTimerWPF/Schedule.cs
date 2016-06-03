@@ -571,7 +571,7 @@ namespace My24HourTimerWPF
                     Now.UpdateNow(SubEvent.Start);
                     CalendarEvent CalEventCopy = CalEvent.createCopy(EventID.GenerateCalendarEvent());
                     SubEvent.disable(CalEvent);
-                    SubCalendarEvent unDisabled = CalEventCopy.AllSubEvents.First();
+                    SubCalendarEvent unDisabled = CalEventCopy.ActiveSubEvents.First();
                     foreach (SubCalendarEvent SubCalendarEvent in CalEventCopy.AllSubEvents.Except( new List<SubCalendarEvent>(){ unDisabled}))
                     {
                         SubCalendarEvent.disable(CalEventCopy);

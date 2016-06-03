@@ -1568,7 +1568,7 @@ namespace My24HourTimerWPF
         private void button_Click_1(object sender, RoutedEventArgs e)
         {
             Location_Elements locationdata = new Location_Elements();
-            MySchedule.FindMeSomethingToDo(locationdata);
+            MySchedule.FindMeSomethingToDo(locationdata).Wait();
         }
     }
 

@@ -150,6 +150,7 @@ namespace TilerElements
             return retValue;
         }
 
+
         static public List<double> multiDimensionCalculation(IList<IList<double>> collection, List<double> origin = null)
         {
             int counter = collection.Count;

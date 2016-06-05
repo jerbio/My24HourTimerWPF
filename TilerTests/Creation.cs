@@ -3,7 +3,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TilerElements;
 using My24HourTimerWPF;
 using TilerFront;
+<<<<<<< HEAD
 using System.Threading.Tasks;
+=======
+>>>>>>> Added initial components to start testing out tiler
 
 namespace TilerTests
 {
@@ -80,6 +83,5 @@ namespace TilerTests
             CalendarEvent newlyaddedevent = schedule.getCalendarEvent(testEvent.Calendar_EventID);
             Assert.AreEqual(testEvent.ID, newlyaddedevent.ID);
         }
-
     }
 }

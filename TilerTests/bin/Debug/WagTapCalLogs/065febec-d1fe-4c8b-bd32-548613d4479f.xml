@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ScheduleLog>
   <LastIDCounter>1040</LastIDCounter>
@@ -694,3 +695,6 @@
     <Locations />
   </LocationCache>
 </ScheduleLog>
+=======
+<?xml version="1.0" encoding="utf-8"?><ScheduleLog><LastIDCounter>1024</LastIDCounter><referenceDay>8:00 AM</referenceDay><EventSchedules></EventSchedules></ScheduleLog>
+>>>>>>> Added initial components to start testing out tiler

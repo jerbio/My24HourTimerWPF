@@ -115,6 +115,7 @@
     <Compile Include="DB\LocationControl.cs" />
     <Compile Include="DB\ScheduleControl.cs" />
     <Compile Include="DB\UserAccount.cs" />
+    <Compile Include="TilerUserLogin.cs" />
     <Compile Include="Wpf\BlobSubCalendarEvent.cs" />
     <Compile Include="Wpf\BusyTimeLine.cs" />
     <Compile Include="Wpf\CalendarEvent.cs" />

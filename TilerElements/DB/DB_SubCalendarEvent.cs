@@ -38,5 +38,17 @@ namespace TilerElements.DB
         public abstract new EventName Name { get; set; }
         abstract public new MiscData Notes { get; set; }
         public abstract new double Score { get; set; }
+        public override TimeSpan UsedTime
+        {
+            get
+            {
+                return _UsedTime;
+            }
+
+            set
+            {
+                _UsedTime = value;
+            }
+        }
     }
 }

@@ -51,6 +51,7 @@ namespace TilerElements.DB
         /// </summary>
         double Score { get; set; }
         ConflictProfile conflict { get; set; }
+        TimeSpan UsedTime { set; get; }
         #endregion
     }
 }

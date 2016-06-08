@@ -415,5 +415,18 @@ namespace TilerElements.DB
                 this.DeviationFlag = value;
             }
         }
+
+        public override TimeSpan UsedTime
+        {
+            get
+            {
+                return _UsedTime;
+            }
+
+            set
+            {
+                _UsedTime = value;
+            }
+        }
     }
 }

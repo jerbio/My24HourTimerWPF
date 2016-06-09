@@ -3,10 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TilerElements;
 using My24HourTimerWPF;
 using TilerFront;
-<<<<<<< HEAD
 using System.Threading.Tasks;
-=======
->>>>>>> Added initial components to start testing out tiler
 
 namespace TilerTests
 {
@@ -45,6 +42,7 @@ namespace TilerTests
         [TestMethod]
         public void TestCreationOfNonRigid()
         {
+
 
             UserAccount currentUser = getTestUser();
             currentUser.Login().Wait();

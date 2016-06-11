@@ -90,7 +90,6 @@
     <Compile Include="Connectors\OutLookConnector.cs" />
     <Compile Include="Connectors\OutlookThirdPartyControl.cs" />
     <Compile Include="Connectors\ThirdPartyCalendarControl.cs" />
-    <Compile Include="TilerUser.cs" />
     <Compile Include="DB\DB_LocationElements.cs" />
     <Compile Include="DB\DB_MiscData.cs" />
     <Compile Include="DB\DB_NowProfile.cs" />
@@ -115,7 +114,7 @@
     <Compile Include="DB\LocationControl.cs" />
     <Compile Include="DB\ScheduleControl.cs" />
     <Compile Include="DB\UserAccount.cs" />
-    <Compile Include="TilerUserLogin.cs" />
+    <Compile Include="TilerUser.cs" />
     <Compile Include="Wpf\BlobSubCalendarEvent.cs" />
     <Compile Include="Wpf\BusyTimeLine.cs" />
     <Compile Include="Wpf\CalendarEvent.cs" />

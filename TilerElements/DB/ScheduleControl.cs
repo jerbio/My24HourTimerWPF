@@ -21,7 +21,7 @@ namespace TilerElements.DB
 {
     public class ScheduleControl
     {
-        protected string ID;
+        protected string UserID;
         protected string UserName;
         string NameOfUser;
         protected LocalDbContext DataBase;
@@ -46,7 +46,7 @@ namespace TilerElements.DB
 
         protected ScheduleControl()
         { 
-            ID="";
+            UserID="";
             UserName="";
             NameOfUser="";
             LastLocationID= 0;
@@ -160,13 +160,23 @@ namespace TilerElements.DB
         /// <returns></returns>
         public async Task<Dictionary<string, CalendarEvent>> getCalendarEvents(TimeLine RangeOfLookup = null)
         {
-            throw new NotImplementedException();
+            if(RangeOfLookup == null)
+            {
+                DateTimeOffset start = DateTimeOffset.UtcNow.AddDays(-14);
+                DateTimeOffset end = DateTimeOffset.UtcNow.AddDays(14);
+                RangeOfLookup = new TimeLine(start, end);
+            }
+            IQueryable<CalendarEvent> calendarEvents  =  DataBase.CalendarEvents.Where(calEvent => (calEvent.CreatorID == UserID) && (calEvent.End > RangeOfLookup.Start && calEvent.Start < RangeOfLookup.End));
+            calendarEvents.Include(calendarEvent => calendarEvent.AllSubEvents).Include(obj=>obj.Repeat);
+            Task<Dictionary<string, CalendarEvent>> RetValue = calendarEvents.ToDictionaryAsync(CalendarEvent => CalendarEvent.ID, CalendarEvent => CalendarEvent);
+            return await RetValue;
         }
 
         virtual public async Task<bool> VerifyUser(string userId)
         {
             TilerUser User = DataBase.Users.Find(userId);
-            bool RetValue = User != null;
+            LogStatus = User != null;
+            bool RetValue = LogStatus;
             return RetValue;
         }
 
@@ -190,7 +200,7 @@ namespace TilerElements.DB
         {
             get
             {
-                return ID;
+                return UserID;
             }
         }
 

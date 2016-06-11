@@ -8,7 +8,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TilerElements.DB
 {
-    [Table("TilerColors")]
     public class DB_TilerColor:TilerColor
     {
     }

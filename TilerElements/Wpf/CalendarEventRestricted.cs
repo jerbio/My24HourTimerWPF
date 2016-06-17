@@ -8,14 +8,14 @@ using System.Collections.Concurrent;
 
 namespace TilerElements.Wpf
 {
-    public class CalendarEventRestricted:CalendarEvent
+    public class CalendarEventRestricted:CalendarEventPersist
     {
         protected RestrictionProfile ProfileOfRestriction;
         
 
         protected CalendarEventRestricted ()
         {
-        ;
+            
         }
 
         public CalendarEventRestricted(string Name, DateTimeOffset Start, DateTimeOffset End,DateTimeOffset OriginalStartData, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, Location_Elements Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventDisplay UiSettings = null, MiscData NoteData=null)
@@ -37,7 +37,7 @@ namespace TilerElements.Wpf
             UniqueID = EventID.GenerateCalendarEvent();
             UpdateLocationMatrix(Location);
             UiParams = UiSettings;
-            DataBlob = NoteData;
+            _DataBlob = NoteData;
             LocationInfo = Location;
       
             NameOfEvent = new EventName( UniqueID, Name);
@@ -70,7 +70,7 @@ namespace TilerElements.Wpf
             UniqueID = EventIDEntry;
             UpdateLocationMatrix(Location);
             UiParams = UiSettings;
-            DataBlob = NoteData;
+            _DataBlob = NoteData;
             ProfileOfNow = new NowProfile();
             EventDuration = Duration;
             TimePerSplit = TimeSpan.FromTicks(EventDuration.Ticks / Splits);
@@ -136,7 +136,7 @@ namespace TilerElements.Wpf
             MyCalendarEventCopy.EventSequence = EventSequence.CreateCopy();
             MyCalendarEventCopy.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
             MyCalendarEventCopy.UiParams = this.UiParams.createCopy();
-            MyCalendarEventCopy.DataBlob = this.DataBlob.createCopy();
+            MyCalendarEventCopy._DataBlob = this._DataBlob.createCopy();
             MyCalendarEventCopy.Enabled = this.Enabled;
             MyCalendarEventCopy.LocationInfo = LocationInfo;//hack you might need to make copy
             MyCalendarEventCopy.ProfileOfProcrastination = this.ProfileOfProcrastination.CreateCopy();
@@ -166,6 +166,7 @@ namespace TilerElements.Wpf
             //MyCalendarEventCopy.SchedulStatus = SchedulStatus;
             MyCalendarEventCopy.otherPartyID = otherPartyID == null ? null : otherPartyID.ToString();
             MyCalendarEventCopy.UserIDs = this.UserIDs.ToList();
+            MyCalendarEventCopy._Creator = this._Creator;
             return MyCalendarEventCopy;
             
             //return base.createCopy();
@@ -177,7 +178,7 @@ namespace TilerElements.Wpf
             {
                 DateTimeOffset SubStart = this.Start;
                 DateTimeOffset SubEnd = Start.Add(TimePerSplit);
-                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(UniqueID.ToString(),i+1, SubStart, SubEnd, ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), RigidSchedule, PrepTime, EventPreDeadline, LocationInfo, UiParams, DataBlob, Priority, DeadlineElapsed, ThirdPartyID);
+                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(UniqueID.ToString(),i+1, SubStart, SubEnd, ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), RigidSchedule, PrepTime, EventPreDeadline, LocationInfo, UiParams, _DataBlob, Priority, DeadlineElapsed, ThirdPartyID);
                 SubEvents.Add(newEvent.SubEvent_ID, newEvent);
             }
             
@@ -210,7 +211,7 @@ namespace TilerElements.Wpf
             //RetValue.EventSequence = this.EventSequence;
             RetValue.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
             RetValue.UiParams = this.UIParam.createCopy();
-            RetValue.DataBlob = this.Notes;
+            RetValue._DataBlob = this.DataBlob;
             RetValue.Enabled = this.isEnabled;
             RetValue.LocationInfo = this.Location.CreateCopy();//hack you might need to make copy
             RetValue.ProfileOfProcrastination = this.ProcrastinationInfo.CreateCopy();
@@ -221,13 +222,56 @@ namespace TilerElements.Wpf
             RetValue.ProfileOfProcrastination = this.ProfileOfProcrastination.CreateCopy();
             RetValue.ProfileOfNow = this.ProfileOfNow.CreateCopy();
             RetValue.otherPartyID = this.ThirdPartyID;// == this.null ? null : otherPartyID.ToString();
-            RetValue.UserIDs = this.getAllUserIDs();//.ToList();
+            RetValue.UserIDs = this.getAllUsers();//.ToList();
             RetValue.ProfileOfNow = this.ProfileOfNow.CreateCopy();
             RetValue.ProfileOfRestriction = this.ProfileOfRestriction.createCopy();
             RetValue.UpdateLocationMatrix(RetValue.LocationInfo);
             return RetValue;
         }
 
-        
+
+        public override CalendarEventPersist ConvertToPersistable()
+        {
+            DB.DB_CalendarEventRestricted RetValue = new DB.DB_CalendarEventRestricted()
+            {
+                DeviationFlag = this.getDeviationFlag(),
+                CalculationEnd = this.getCalculationEnd(),
+                Complete = this.isComplete,
+                DeletedCount = this.DeletionCount,
+                ConflictSetting = this.getConflictSetting(),
+                DeadlineElapsed = this.isDeadlineElapsed,
+                Enabled = this.isEnabled,
+                EndDateTime = this.End,
+                EventDuration = this.Duration,
+                EventPreDeadline = this.PreDeadline,
+                EventRepetition = this.Repeat,
+                CompletedCount = this.CompletionCount,
+                FromRepeatEvent = this.FromRepeat,
+                InitializingTimeSpanPerSplit = this.getInitializingTimeSpanPerSplit(),
+                InitializingStart = this.getInitializingStart(),
+                isDeleted = this.isEnabled,
+                isDeletedByUser = this.isUserDeleted,
+                RigidSchedule = this.Rigid,
+                LastNowProfile = this.NowInfo,
+                ProfileOfProcrastination = this.ProcrastinationInfo,
+                SplitCount = this.NumberOfSplit,
+                SubEvents = this.getConvertToPersistedSubEvents(),
+                TimePerSplit = this.EachSplitTimeSpan,
+                UIData = this.UIParam,
+                Urgency = this.EventPriority,
+                Users = this.getAllUsers(),
+                Name = this.getName(),
+                Notes = this.DataBlob,
+                RepeatRoot = this.Repeat.getRootCalendarEvent(),
+                StartTime = this.Start,
+                EndTime = this.End,
+                isCalculableInitialized = this.isCalculableInitialized,
+                isUnDesignableInitialized = this.isUnDesignableInitialized,
+                ProfileOfRestriction = this.ProfileOfRestriction,
+                IsEventModified = this.IsEventModified
+            };
+            return RetValue;
+        }
+
     }
 }

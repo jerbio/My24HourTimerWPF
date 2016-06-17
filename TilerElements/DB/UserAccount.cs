@@ -22,7 +22,6 @@ namespace TilerElements.DB
         protected string Name;
         protected string Username;
         string Password;
-        protected DBControl UserAccountDBAccess;
         protected TilerUser sessionUser;
         /// <summary>
         /// controls access to location elements for a given user account(s)
@@ -50,13 +49,14 @@ namespace TilerElements.DB
 
         virtual public async Task<bool> Login()
         {
-            return await UserLog.VerifyUser(ID);
-            //throw new NotImplementedException();
+            bool retValue =  await UserLog.VerifyUser(ID);
+            sessionUser = UserLog.VerifiedUser;
+            return retValue;
         }
 
 
 
-
+        
 
 
         virtual async protected Task<Dictionary<string, CalendarEvent>>  getAllCalendarElements(TimeLine RangeOfLookup, string desiredDirectory="")
@@ -94,27 +94,31 @@ namespace TilerElements.DB
             return await UserLog.DeleteLog();
         }
 
+        /// <summary>
+        /// gets the verified user attached to schedule
+        /// </summary>
+        /// <returns></returns>
+        async public Task<TilerUser> getVerifiedUser()
+        {
+            return UserLog.VerifiedUser;
+        }
+
 
         /// <summary>
         /// updates the end of day with referenceTime
         /// </summary>
         /// <param name="referenceTime"></param>
-        async virtual public void UpdateReferenceDayTime(DateTimeOffset referenceTime)
+        async virtual public Task UpdateReferenceDayTime(DateTimeOffset referenceTime)
         {
-            throw new NotImplementedException();
+            await UserLog.updateDayReference(referenceTime).ConfigureAwait(false);
             /*sessionUser.ReferenceDay = referenceTime;
             Task SaveChangesToDB = new Controllers.UserController().SaveUser(sessionUser);
             await SaveChangesToDB;*/
         }
-        /*
-        public void CommitEventToLog(CalendarEvent MyCalEvent)
+        
+        virtual async public Task  CommitEvents(Dictionary<string, CalendarEvent> allEvents, CalendarEvent newEvent=null)
         {
-            UserLog.WriteToLog(MyCalEvent);
-        }
-        */
-        virtual async public Task  CommitEventToLogOld(IEnumerable<CalendarEvent> AllEvents)
-        {
-            await UserLog.PersistCalendarEvents(AllEvents);//, LatestID, LogFile).ConfigureAwait(false);
+            await UserLog.PersistCalendarEvents(allEvents, newEvent).ConfigureAwait(false);//, LatestID, LogFile).ConfigureAwait(false);
         }
 
 

@@ -14,17 +14,16 @@ using System.Data.Entity;
 
 //using CassandraUserLog;
 using TilerSearch;
-
-
+using System.Data.Entity.Validation;
 
 namespace TilerElements.DB
 {
     public class ScheduleControl
     {
-        protected string UserID;
+        protected TilerUser User;
         protected string UserName;
         string NameOfUser;
-        protected LocalDbContext DataBase;
+        protected TilerDbContext DataBase;
         protected int LastLocationID;
         protected string CurrentLog;
         protected bool LogStatus;
@@ -45,8 +44,8 @@ namespace TilerElements.DB
         
 
         protected ScheduleControl()
-        { 
-            UserID="";
+        {
+            User = null;
             UserName="";
             NameOfUser="";
             LastLocationID= 0;
@@ -61,7 +60,7 @@ namespace TilerElements.DB
         }
 
 
-        public ScheduleControl(LocalDbContext Db)
+        public ScheduleControl(TilerDbContext Db)
         {
             DataBase = Db;
             LogStatus = false;
@@ -117,15 +116,89 @@ namespace TilerElements.DB
             throw new NotImplementedException();
         }
 
+        public async Task updateDayReference(DateTimeOffset referenceTime)
+        {
+            User.ReferenceDay = referenceTime;
+            DataBase.Entry(User).State = EntityState.Modified;
+            
+            try
+            {
+                await DataBase.SaveChangesAsync().ConfigureAwait(false);
+            }
+            catch (DbEntityValidationException e)
+            {
+                foreach (var eve in e.EntityValidationErrors)
+                {
+                    Console.WriteLine("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:",
+                        eve.Entry.Entity.GetType().Name, eve.Entry.State);
+                    foreach (var ve in eve.ValidationErrors)
+                    {
+                        Console.WriteLine("- Property: \"{0}\", Error: \"{1}\"",
+                            ve.PropertyName, ve.ErrorMessage);
+                    }
+                }
+                throw e;
+            }
+        }
+
+        /// <summary>
+        /// function persists the provided calendar events to the DB. newly added events are the events that need to be added with the changes
+        /// </summary>
+        /// <param name="allEvents"></param>
+        /// <param name="newlyAddedEvents"></param>
+        /// <returns></returns>
+        public Task PersistCalendarEvents(Dictionary<string, CalendarEvent> allEvents, CalendarEvent newlyAddedEvents=null)
+        {
+            if (newlyAddedEvents != null)
+            {
+                allEvents.Remove(newlyAddedEvents.Id);
+            }
+            
+            foreach (CalendarEvent calEvent in allEvents.Values.Where(obj=>obj.isModified))
+            {
+                DataBase.Entry(calEvent).State = EntityState.Modified;
+            }
+            CalendarEventPersist converted = newlyAddedEvents.ConvertToPersistable();
+            ICollection<SubCalendarEvent> subevents=  converted.AllSubEvents;
+            if (newlyAddedEvents != null)
+            {
+                DataBase.CalendarEvents.Add(converted);
+            }
+
+
+            try { 
+            return DataBase.SaveChangesAsync();
+            }
+            catch (DbEntityValidationException e)
+            {
+                foreach (var eve in e.EntityValidationErrors)
+                {
+                    Console.WriteLine("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:",
+                        eve.Entry.Entity.GetType().Name, eve.Entry.State);
+                    foreach (var ve in eve.ValidationErrors)
+                    {
+                        Console.WriteLine("- Property: \"{0}\", Error: \"{1}\"",
+                            ve.PropertyName, ve.ErrorMessage);
+                    }
+                }
+                throw e;
+            }
+        }
+
+
         /// <summary>
         /// function persists the provided calendar events to the DB
         /// </summary>
-        /// <param name="AllEvents"></param>
+        /// <param name="allEvents"></param>
         /// <returns></returns>
-        public Task PersistCalendarEvents(IEnumerable<CalendarEvent> AllEvents)
-        {
-            throw new NotImplementedException();
-        }
+        //public Task PersistCalendarEvents(Dictionary<string, CalendarEvent> allEvents)
+        //{
+        //    foreach (CalendarEvent calEvent in allEvents.Values.Where(obj => obj.isModified))
+        //    {
+        //        DataBase.Entry(calEvent).State = EntityState.Modified;
+        //    }
+        //    return DataBase.SaveChangesAsync();
+        //}
 
         public DateTimeOffset Truncate(DateTimeOffset dateTime, TimeSpan timeSpan)
         {
@@ -166,10 +239,13 @@ namespace TilerElements.DB
                 DateTimeOffset end = DateTimeOffset.UtcNow.AddDays(14);
                 RangeOfLookup = new TimeLine(start, end);
             }
-            IQueryable<CalendarEvent> calendarEvents  =  DataBase.CalendarEvents.Where(calEvent => (calEvent.CreatorID == UserID) && (calEvent.End > RangeOfLookup.Start && calEvent.Start < RangeOfLookup.End));
+            IQueryable<CalendarEvent> calendarEvents  =  DataBase.CalendarEventsQuery .Where(calEvent => (calEvent.CreatorId == User.Id) && (calEvent.EndTime > RangeOfLookup.Start && calEvent.StartTime < RangeOfLookup.End));
             calendarEvents.Include(calendarEvent => calendarEvent.AllSubEvents).Include(obj=>obj.Repeat);
-            Task<Dictionary<string, CalendarEvent>> RetValue = calendarEvents.ToDictionaryAsync(CalendarEvent => CalendarEvent.ID, CalendarEvent => CalendarEvent);
-            return await RetValue;
+            Task<Dictionary<string, CalendarEvent>> RetValue = calendarEvents.ToDictionaryAsync(CalendarEvent => CalendarEvent.Id, CalendarEvent => (CalendarEvent)CalendarEvent);
+            return await RetValue.ConfigureAwait(false);
+
+            //Dictionary<string, CalendarEvent> RetValue = calendarEvents.ToDictionary(CalendarEvent => CalendarEvent.ID, CalendarEvent => (CalendarEvent)CalendarEvent);
+            //return RetValue;
         }
 
         virtual public async Task<bool> VerifyUser(string userId)
@@ -177,8 +253,13 @@ namespace TilerElements.DB
             TilerUser User = DataBase.Users.Find(userId);
             LogStatus = User != null;
             bool RetValue = LogStatus;
+            if (LogStatus)
+            {
+                this.User = User;
+            }
             return RetValue;
         }
+
 
         #endregion
 
@@ -196,11 +277,19 @@ namespace TilerElements.DB
             }
         }
 
+        public TilerUser VerifiedUser
+        {
+            get
+            {
+                return User;
+            }
+        }
+
         public string LoggedUserID
         {
             get
             {
-                return UserID;
+                return User.Id;
             }
         }
 

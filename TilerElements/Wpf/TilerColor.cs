@@ -12,8 +12,8 @@ namespace TilerElements.Wpf
         protected int Green;
         protected double Opacity;
         protected int ColorSelection;
-        protected string ID;
-        
+        protected string ID = Guid.NewGuid().ToString();
+
         public TilerColor(int RedColor = 255, int BlueColor = 255, int GreenColor = 255, double Opacity=1, int Selection=-1)
         {
             Red = RedColor;

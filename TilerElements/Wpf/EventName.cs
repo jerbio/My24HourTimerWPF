@@ -12,7 +12,7 @@ namespace TilerElements.Wpf
         /// Id to event name
         /// </summary>
         protected string ID { set; get; } = Guid.NewGuid().ToString();
-        protected string ActualName { set; get; } = "";
+        protected string ActualName  { set; get; } = "";
         /// <summary>
         /// Id with which this event is associated 
         /// </summary>
@@ -57,7 +57,7 @@ namespace TilerElements.Wpf
         {
             get
             {
-                return Name;
+                return ActualName;
             }
         }
 
@@ -65,7 +65,7 @@ namespace TilerElements.Wpf
         {
             get
             {
-                return EventId;
+                return EventID;
             }
         }
 

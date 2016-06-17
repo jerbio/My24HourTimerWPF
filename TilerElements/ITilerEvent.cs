@@ -5,14 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using TilerElements.Wpf;
 
-namespace TilerElements.DB
+namespace TilerElements
 {
     public interface ITilerEvent
     {
         string Id { get; set; }
         DateTimeOffset InitializingStart { get; set; }
-        DateTimeOffset Start { get; set; }
-        DateTimeOffset End { get; set; }
+        DateTimeOffset StartTime { get; set; }
+        DateTimeOffset EndTime { get; set; }
         /// <summary>
         /// Function gets and sets the priority of the current task.
         /// </summary>
@@ -32,7 +32,7 @@ namespace TilerElements.DB
         /// <summary>
         /// Is the event completed
         /// </summary>
-        bool isComplete { get; set; }
+        bool CompleteFlag { get; set; }
         /// <summary>
         /// IS this event a recurring event
         /// </summary>
@@ -77,5 +77,7 @@ namespace TilerElements.DB
         /// is the current deviated from the normal tilerevent list
         /// </summary>
         bool isDeviated { set; get; }
+
+        TilerUser Creator { get; set; }
     }
 }

@@ -14,10 +14,11 @@ namespace My24HourTimerWPF
         
         public UserAccountDebug(TilerUser user, bool Passive = false)
         {
-            LocalDbContext db = new LocalDbContext();
+            //LocalContext db = new LocalContext();
+            LocalContext db = new TilerDbContext();
             //throw new NotImplementedException();
             sessionUser = user;
-            UserLog = new ScheduleControl(db);
+            UserLog = new ScheduleControl(db as TilerDbContext);
             ID = sessionUser.Id;
         }
         protected override async System.Threading.Tasks.Task<DateTimeOffset> getDayReferenceTime(string desiredDirectory = "")

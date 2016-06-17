@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
 using TilerElements.Wpf;
@@ -24,7 +26,7 @@ namespace TilerElements.DB
             //this.CalendarEventRange = CalendarEventRange.CreateCopy();
             this.Complete = mySubCalEvent.isComplete;
             this.ConflictingEvents = mySubCalEvent.Conflicts;
-            this.DataBlob = mySubCalEvent.Notes;
+            this._DataBlob = mySubCalEvent.DataBlob;
             this.DeadlineElapsed = mySubCalEvent.isDeadlineElapsed;
             this.Enabled = mySubCalEvent.isEnabled;
             
@@ -46,10 +48,10 @@ namespace TilerElements.DB
 
             this.UiParams = mySubCalEvent.UIParam;
             this.UniqueID = mySubCalEvent.SubEvent_ID;
-            this.NameOfEvent = new EventName(this.UniqueID , mySubCalEvent.Name);
+            this.NameOfEvent = new EventName(this.UniqueID , mySubCalEvent.NameString);
             this.UnUsableIndex = 0;
             this.UserDeleted = mySubCalEvent.isUserDeleted;
-            this.UserIDs = mySubCalEvent.getAllUserIDs();
+            this.UserIDs = mySubCalEvent.getAllUsers();
             initializeCalendarEventRange(restrictionData, this.HardCalendarEventRange);
         }
 
@@ -60,7 +62,7 @@ namespace TilerElements.DB
             HumaneTimeLine = new BusyTimeLine();
         }
 
-        virtual public DateTimeOffset CalendarEnd
+        override public DateTimeOffset CalendarEnd
         {
             get
             {
@@ -80,7 +82,7 @@ namespace TilerElements.DB
             }
         }
 
-        virtual public DateTimeOffset CalendarStart
+        override public DateTimeOffset CalendarStart
         {
             get
             {
@@ -99,7 +101,7 @@ namespace TilerElements.DB
             }
         }
 
-        virtual public ConflictProfile conflict
+        override public ConflictProfile conflict
         {
             get
             {
@@ -111,7 +113,7 @@ namespace TilerElements.DB
             }
         }
 
-        virtual public Conflictability ConflictLevel
+        override public Conflictability ConflictLevel
         {
             get
             {
@@ -123,19 +125,20 @@ namespace TilerElements.DB
             }
         }
 
-        virtual public string CreatorId
+        [ForeignKey("CreatorId")]
+        public override TilerUser Creator
         {
-            get
-            {
-                return CreatorIDInfo;
-            }
             set
             {
-                CreatorIDInfo = value;
+                _Creator = value;
+            }
+            get
+            {
+                return _Creator;
             }
         }
 
-        virtual public ulong DesiredDayIndex
+        override public ulong DesiredDayIndex
         {
             get
             {
@@ -147,7 +150,7 @@ namespace TilerElements.DB
             }
         }
 
-        virtual public DateTimeOffset HumaneEnd
+        override public DateTimeOffset HumaneEnd
         {
             get
             {
@@ -159,7 +162,7 @@ namespace TilerElements.DB
             }
         }
 
-        virtual public DateTimeOffset HumaneStart
+        override public DateTimeOffset HumaneStart
         {
             get
             {
@@ -171,7 +174,7 @@ namespace TilerElements.DB
             }
         }
 
-        virtual public DateTimeOffset InitializingStart
+        override public DateTimeOffset InitializingStart
         {
             get
             {
@@ -183,7 +186,7 @@ namespace TilerElements.DB
             }
         }
 
-        virtual public ulong InvalidDayIndex
+        override public ulong InvalidDayIndex
         {
             get
             {
@@ -195,7 +198,7 @@ namespace TilerElements.DB
             }
         }
 
-        virtual public bool isDeleted
+        override public bool isDeleted
         {
             get
             {
@@ -208,7 +211,7 @@ namespace TilerElements.DB
             }
         }
 
-        virtual public bool isDeletedByUser
+        override public bool isDeletedByUser
         {
             get
             {
@@ -228,7 +231,7 @@ namespace TilerElements.DB
             }
         }
 
-        virtual public bool isRepeat
+        override public bool isRepeat
         {
             get
             {
@@ -241,7 +244,7 @@ namespace TilerElements.DB
             }
         }
 
-        virtual public bool isRigid
+        override public bool isRigid
         {
             get
             {
@@ -254,7 +257,7 @@ namespace TilerElements.DB
             }
         }
 
-        virtual public DateTimeOffset NonHumaneEnd
+        override public DateTimeOffset NonHumaneEnd
         {
             get
             {
@@ -266,7 +269,7 @@ namespace TilerElements.DB
             }
         }
 
-        virtual public DateTimeOffset NonHumaneStart
+        override public DateTimeOffset NonHumaneStart
         {
             get
             {
@@ -278,7 +281,7 @@ namespace TilerElements.DB
             }
         }
 
-        virtual public ulong OldDayIndex
+        override public ulong OldDayIndex
         {
             get
             {
@@ -290,7 +293,7 @@ namespace TilerElements.DB
             }
         }
 
-        virtual public Procrastination ProcrastinationProfile
+        override public Procrastination ProcrastinationProfile
         {
             get
             {
@@ -315,7 +318,7 @@ namespace TilerElements.DB
             }
         }
 
-        virtual public EventDisplay UIData
+        override public EventDisplay UIData
         {
             get
             {
@@ -328,7 +331,7 @@ namespace TilerElements.DB
             }
         }
 
-        virtual public int Urgency
+        override public int Urgency
         {
             get
             {
@@ -340,7 +343,7 @@ namespace TilerElements.DB
             }
         }
 
-        virtual public ICollection<TilerUser> Users
+        override public ICollection<TilerUser> Users
         {
             get
             {
@@ -353,7 +356,7 @@ namespace TilerElements.DB
             }
         }
 
-        public new bool isComplete
+        public new bool CompleteFlag
         {
             get
             {
@@ -382,12 +385,12 @@ namespace TilerElements.DB
         {
             get
             {
-                return DataBlob;
+                return _DataBlob;
             }
 
             set
             {
-                DataBlob = value;
+                _DataBlob = value;
             }
         }
 
@@ -403,7 +406,7 @@ namespace TilerElements.DB
             }
         }
 
-        public bool isDeviated
+        override public bool isDeviated
         {
             get
             {
@@ -426,6 +429,30 @@ namespace TilerElements.DB
             set
             {
                 _UsedTime = value;
+            }
+        }
+
+        public override DateTimeOffset StartTime
+        {
+            get
+            {
+                return StartDateTime;
+            }
+            set
+            {
+                this.StartDateTime = value;
+            }
+        }
+        public override DateTimeOffset EndTime
+        {
+            get
+            {
+                return this.End;
+            }
+
+            set
+            {
+                this.EndDateTime = value;
             }
         }
     }

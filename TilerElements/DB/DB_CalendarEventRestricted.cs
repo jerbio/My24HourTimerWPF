@@ -8,7 +8,7 @@ namespace TilerElements.DB
 {
     public class DB_CalendarEventRestricted : CalendarEventRestricted//, IRestrictedEvent, IDB_CalendarEvent
     {
-        DB_CalendarEventRestricted()
+        public DB_CalendarEventRestricted()
         {
             
         }
@@ -32,7 +32,7 @@ namespace TilerElements.DB
             //this.EventSequence = CalendarEventData.EventSequence;
             this.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
             this.UiParams = CalendarEventData.UIParam;
-            this.DataBlob = CalendarEventData.Notes;
+            this._DataBlob = CalendarEventData.DataBlob;
             this.Enabled = CalendarEventData.isEnabled;
             //this.isRestricted = CalendarEventData.isEventRestricted;
             this.LocationInfo= CalendarEventData.Location;//hack you might need to make copy
@@ -43,7 +43,7 @@ namespace TilerElements.DB
             this.DeletedCount = CalendarEventData.DeletionCount;
             this.ProfileOfRestriction = restrictionData;
             //this.SubEvents = ((DB_CalendarEventRestricted)CalendarEventData).getSubEvents();
-            this.NameOfEvent = new EventName(this.UniqueID, CalendarEventData.Name);
+            this.NameOfEvent = new EventName(this.UniqueID, CalendarEventData.NameString);
             if (!this.EventRepetition.Enable)
             {
                 foreach (SubCalendarEventRestricted eachSubCalendarEvent in CalendarEventData.AllSubEvents)
@@ -52,8 +52,13 @@ namespace TilerElements.DB
                 }
             }
             this.otherPartyID = CalendarEventData.ThirdPartyID;// == CalendarEventData.null ? null : otherPartyID.ToString();
-            this.UserIDs = CalendarEventData.getAllUserIDs();//.ToList();
+            this.UserIDs = CalendarEventData.getAllUsers();//.ToList();
             //return MyCalendarEventCopy;
+        }
+
+        public override CalendarEventPersist ConvertToPersistable()
+        {
+            return this;
         }
 
         //public RestrictionProfile Restriction

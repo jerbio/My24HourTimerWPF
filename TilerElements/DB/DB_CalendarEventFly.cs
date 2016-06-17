@@ -19,7 +19,12 @@ namespace TilerElements.DB
         int DeletedSofar =0;
         int CompletedSofar = 0;
 
-        protected List<SubCalendarEvent> AllSubEVents;
+        protected List<SubCalendarEvent> ListBackedSubEVents;
+
+        public DB_CalendarEventFly():base()
+        {
+
+        }
 
         public DB_CalendarEventFly(string EventIDData, EventName Name, DateTimeOffset StartData, DateTimeOffset EndData, int PriorityData, DB_Repetition RepetitionData, Location_Elements LocationData, TimeSpan TImePerSplitData, DateTimeOffset OriginalStartData, TimeSpan EventPrepTimeData, TimeSpan Event_PreDeadlineData, bool EventRigidFlagData, int SplitData, EventDisplay UiData, MiscData NoteData, bool CompletionFlagData, long RepeatIndexData, Procrastination ProcrastinationData, NowProfile NowProfileData, int CompleteCountData, int DeletionCountData,ICollection<TilerUser> AllUserIDs)
         {
@@ -35,7 +40,7 @@ namespace TilerElements.DB
             
             StartDateTime = StartData;
             EndDateTime = EndData;
-            EventRepetition = RepetitionData;
+            EventRepeat = RepetitionData;
             LocationInfo = LocationData;
             TimePerSplit = TImePerSplitData;
             OriginalStart = OriginalStartData;
@@ -54,9 +59,9 @@ namespace TilerElements.DB
             UniqueID = new EventID(EventIDData);
             UserIDs = AllUserIDs.ToList();
             
-            if (EventRepetition.Enable)
+            if (EventRepeat.Enable)
             {
-                EventRepetition.PopulateRepetitionParameters(this);
+                EventRepeat.PopulateRepetitionParameters(this);
             }
             else
             {
@@ -68,7 +73,7 @@ namespace TilerElements.DB
                 for (int j=0; j < SubEventCount; i++,j++)
                 {
                     EventID SubEventID= EventID.GenerateSubCalendarEvent(UniqueID.ToString(),i+1);
-                    SubCalendarEvent newSubCalEvent = new DB_SubCalendarEventFly(SubEventID, Name, SubEventStartData, SubEventEndData, PriorityData, LocationInfo.CreateCopy(), OriginalStart, EventPrepTimeData, Event_PreDeadlineData, EventRigidFlagData, UiData.createCopy(), NoteData.createCopy(), Complete, ProcrastinationData, this.RangeTimeLine, EventRepetition.Enable, false, true, AllUserIDs.ToList(),i);
+                    SubCalendarEvent newSubCalEvent = new DB_SubCalendarEventFly(SubEventID, Name, SubEventStartData, SubEventEndData, PriorityData, LocationInfo.CreateCopy(), OriginalStart, EventPrepTimeData, Event_PreDeadlineData, EventRigidFlagData, UiData.createCopy(), NoteData.createCopy(), Complete, ProcrastinationData, this.RangeTimeLine, EventRepeat.Enable, false, true, AllUserIDs.ToList(),i);
                     SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
                 }
             }
@@ -85,14 +90,14 @@ namespace TilerElements.DB
             RetValue.EndDateTime = EventDeadline;
             RetValue.EventDuration = Event_Duration;
             RetValue.Enabled = enabledFlag;
-            RetValue.EventRepetition = EventRepetitionEntry;
+            RetValue.EventRepeat = EventRepetitionEntry;
             RetValue.PrepTime = EventPrepTime;
             RetValue.EventPreDeadline = Event_PreDeadline;
             RetValue.RigidSchedule = EventRigidFlag;
             RetValue.LocationInfo = EventLocation;
             RetValue.UniqueID = EventIDEntry;
             RetValue.UiParams = UiData;
-            RetValue.DataBlob = NoteData;
+            RetValue._DataBlob = NoteData;
             RetValue.Complete = CompletionFlag;
             RetValue.RepetitionSequence = RepeatIndex;
             RetValue.OriginalStart = OriginalStartData;
@@ -113,7 +118,7 @@ namespace TilerElements.DB
             */
             RetValue.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
 
-            if (!RetValue.EventRepetition.Enable)
+            if (!RetValue.EventRepeat.Enable)
             { 
                 for (int i = 0; i < RetValue.Splits; i++)
                 {
@@ -197,9 +202,9 @@ namespace TilerElements.DB
         CalendarEvent getCalEventByOrginalStart(DateTimeOffset OrginalStartData)
         {
             CalendarEvent RetValue = this;
-            if(EventRepetition.Enable)
+            if(EventRepeat.Enable)
             {
-                RetValue= EventRepetition.getCalendarEventByOriginalStart(OrginalStartData);
+                RetValue= EventRepeat.getCalendarEventByOriginalStart(OrginalStartData);
             }
             return RetValue;
         }
@@ -233,18 +238,6 @@ namespace TilerElements.DB
             }
         }
 
-        public override string CreatorId
-        {
-            get
-            {
-                return this.CreatorIDInfo;
-            }
-
-            set
-            {
-                this.CreatorIDInfo = value;
-            }
-        }
 
         public override int DeleteCount
         {
@@ -393,21 +386,26 @@ namespace TilerElements.DB
         {
             get
             {
-                if(!transferSubCalendarEventsToDictionaries)
+                if(UseDictionarySubCalendarRepresentation)
                 {
-                    return AllSubEVents;
-                    
+                    return SubEvents.Values; 
                 }
                 else
                 {
-                    return SubEvents.Values;
-                    // this.SubEvents.Values;
+                    return ListBackedSubEVents;
                 }
                 
             }
             set
             {
-                AllSubEVents = value.ToList();
+                if (UseDictionarySubCalendarRepresentation)
+                {
+                    SubEvents = value.ToDictionary(obj => obj.SubEvent_ID, obj => obj);
+                }
+                else
+                {
+                    ListBackedSubEVents = value.ToList();
+                }
             }
         }
 
@@ -441,12 +439,12 @@ namespace TilerElements.DB
         {
             get
             {
-                return this.Urgency;
+                return this.Priority;
             }
 
             set
             {
-                this.Urgency = value;
+                this.Priority = value;
             }
         }
 
@@ -463,11 +461,11 @@ namespace TilerElements.DB
             }
         }
 
-        public override DateTimeOffset End
+        public override DateTimeOffset EndTime
         {
             get
             {
-                return this.End;
+                return this.EndDateTime;
             }
 
             set
@@ -477,16 +475,29 @@ namespace TilerElements.DB
             }
         }
 
-        public override Repetition EventRepetition
+        public override Repetition EventRepeat
         {
             get
             {
-                return Repeat;
+                if (Repeat.Enable)
+                {
+                    return Repeat;
+                }
+                else
+                {
+                    return null;
+                }
             }
 
             set
             {
-                this.EventRepetition = value;
+                if (value == null)
+                {
+                    this.EventRepeat = new Repetition();
+                }
+                else {
+                    this.EventRepeat = value;
+                }
             }
         }
 
@@ -503,7 +514,7 @@ namespace TilerElements.DB
         //    }
         //}
 
-        public override bool isComplete
+        public override bool CompleteFlag
         {
             get
             {
@@ -532,12 +543,12 @@ namespace TilerElements.DB
         {
             get
             {
-                return this.DataBlob;
+                return this._DataBlob;
             }
 
             set
             {
-                this.DataBlob = value;
+                this._DataBlob = value;
             }
         }
 
@@ -554,13 +565,12 @@ namespace TilerElements.DB
             }
         }
 
-        public override DateTimeOffset Start
+        public override DateTimeOffset StartTime
         {
             get
             {
                 return StartDateTime;
             }
-
             set
             {
                 this.StartDateTime = value;
@@ -568,9 +578,9 @@ namespace TilerElements.DB
             }
         }
 
-        protected DB_CalendarEventFly()
+        public override CalendarEventPersist ConvertToPersistable()
         {
-
+            return this;
         }
         #endregion
     }

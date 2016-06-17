@@ -13,25 +13,40 @@ namespace TilerElements.Wpf
     /// <summary>
     /// THis class serve a way to access data locally through wpf. This should hvae limited mixing with DBTilerElement.ScheduleContext. This could be easily used to import data from xml or some other datasource
     /// </summary>
-    public class LocalDbContext: IdentityDbContext<TilerUser>
+    public class LocalContext: IdentityDbContext<TilerUser>
     {
-        public virtual DbSet<CalendarEvent> CalendarEvents { get; set; }
-        public virtual DbSet<SubCalendarEvent> SubCalendarevents { get; set; }
+        public virtual DbSet<CalendarEventPersist> CalendarEvents {get; set;}
+        public virtual DbSet<SubCalendarEventPersist> SubCalendarevents { get; set; }
+
+        public virtual IQueryable<CalendarEventPersist> CalendarEventsQuery
+        {
+            get
+            {
+                return CalendarEvents;
+            }
+        }
+        public virtual IQueryable<SubCalendarEventPersist> SubCalendareventsQuery
+        {
+            get
+            {
+                return SubCalendarevents;
+            }
+        }
         public virtual DbSet<Repetition> Repetitions { get; set; }
 
-        public LocalDbContext(): base("DefaultConnection", throwIfV1Schema: false)
+        public LocalContext(): base("DefaultConnection", throwIfV1Schema: false)
         {
 
         }
 
-        public LocalDbContext(string Connection = "DefaultConnection", bool throwIfV1Schema = false)
+        public LocalContext(string Connection = "DefaultConnection", bool throwIfV1Schema = false)
             : base(Connection, throwIfV1Schema: false)
         {
         }
 
-        public static LocalDbContext Create()
+        public static LocalContext Create()
         {
-            return new LocalDbContext();
+            return new LocalContext();
         }
     }
 }

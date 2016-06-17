@@ -45,7 +45,14 @@ namespace My24HourTimerWPF
     public partial class MainWindow : Window
     {
         Schedule MySchedule;
+        UserAccount User;
         static public uint LastID;
+        DateTimeOffset FinalDate = new DateTimeOffset();
+        private TimeSpan TimeLeft = new TimeSpan();
+        private TimeSpan TimeTo24HourLeft = new TimeSpan();
+        string SleepWakeString = "Sleep_Time_N";
+        public string PreceedingSplitString = 0.ToString();
+        public string PreceedingDurationString = 0.ToString();
         public MainWindow()
         {
             InitializeComponent();
@@ -96,10 +103,7 @@ namespace My24HourTimerWPF
             }
         }
 
-        DateTimeOffset FinalDate=new DateTimeOffset();
-        private TimeSpan TimeLeft = new TimeSpan();
-        private TimeSpan TimeTo24HourLeft = new TimeSpan();
-        string SleepWakeString = "Sleep_Time_N";
+
         private void button5_Click(object sender, RoutedEventArgs e)
         {
 
@@ -107,8 +111,7 @@ namespace My24HourTimerWPF
 
 
 
-        public string PreceedingSplitString = 0.ToString();
-        public string PreceedingDurationString= 0.ToString();
+        
 
         private void button5_Click_1(object sender, RoutedEventArgs e)
         {
@@ -192,7 +195,7 @@ namespace My24HourTimerWPF
             SubCalendarEvent MySubcal= MySchedule.getSubCalendarEvent(EventID);
             CalendarEvent myCalEvent = MySchedule.getCalendarEvent(MySubcal.SubEvent_ID.getCalendarEventID());
 
-            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> result =MySchedule.BundleChangeUpdate(EventID,myCalEvent.Name,MySubcal.Start,MySubcal.End,MySubcal.getCalendarEventRange.Start,MySubcal.getCalendarEventRange.End.AddDays(1),myCalEvent.NumberOfSplit);
+            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> result =MySchedule.BundleChangeUpdate(EventID,myCalEvent.NameString,MySubcal.Start,MySubcal.End,MySubcal.getCalendarEventRange.Start,MySubcal.getCalendarEventRange.End.AddDays(1),myCalEvent.NumberOfSplit);
 
             //"BundleChangeUpdate"
             /*
@@ -456,7 +459,7 @@ namespace My24HourTimerWPF
             DateTimeOffset now = DateTimeOffset.Now;
             if (NextActivity != null)
             {
-                textBlock2.Text = "Next Activity is : " + MySchedule.getCalendarEvent(NextActivity.TimeLineID).Name;
+                textBlock2.Text = "Next Activity is : " + MySchedule.getCalendarEvent(NextActivity.TimeLineID).NameString;
                 FinalDate = NextActivity.Start;
                 now = new DateTimeOffset(now.Ticks - (now.Ticks % 0x989680L), new TimeSpan());
                 FinalDate = new DateTimeOffset(FinalDate.Ticks - (FinalDate.Ticks % 0x989680L), new TimeSpan());
@@ -516,7 +519,7 @@ namespace My24HourTimerWPF
             }*/
 
 
-
+            CalendarEvent.UseDictionarySubCalendarRepresentation = true;
 
             DateTimeOffset CurrentTimeOfExecution = Schedule.Now.calculationNow;
             string eventStartTime = textBox5.Text;
@@ -667,6 +670,7 @@ namespace My24HourTimerWPF
             Stopwatch snugarrayTester = new Stopwatch();
             snugarrayTester.Start();
             //*
+            ScheduleUpdated.updateCreator(await User.getVerifiedUser());
             Task<CustomErrors> addToScheduleTask = MySchedule.AddToScheduleAndCommit(ScheduleUpdated);
             CustomErrors ScheduleUpdateMessage = await addToScheduleTask.ConfigureAwait(false);
              //*/
@@ -677,7 +681,7 @@ namespace My24HourTimerWPF
 
             if (!ScheduleUpdateMessage.Status)
             {
-                textBlock9.Text = "Schedule Updated with " + ScheduleUpdated.Name;
+                textBlock9.Text = "Schedule Updated with " + ScheduleUpdated.NameString;
                 if (ScheduleUpdateMessage.Status)
                 {
                     textBlock9.Text = ScheduleUpdateMessage.Message;
@@ -686,7 +690,7 @@ namespace My24HourTimerWPF
 
             else
             {
-                textBlock9.Text = "Failed to update Schedule" + ScheduleUpdated.Name;
+                textBlock9.Text = "Failed to update Schedule" + ScheduleUpdated.NameString;
                 //MessageBox.Show(ScheduleUpdateMessage.Message);
             }
                 
@@ -863,7 +867,7 @@ namespace My24HourTimerWPF
             
             //else
             {
-                textBlock9.Text = "Peeking is complete" + ScheduleUpdated.Name;
+                textBlock9.Text = "Peeking is complete" + ScheduleUpdated.NameString;
                 //MessageBox.Show(ScheduleUpdateMessage.Message);
             }
 
@@ -1451,9 +1455,11 @@ namespace My24HourTimerWPF
 
             TilerFront.Models.LoginViewModel myLogin = new TilerFront.Models.LoginViewModel() { Username = UserNameTextBox.Text, Password = PasswordTextBox.Text, RememberMe = true };
 
-            TilerFront.Models.AuthorizedUser AuthorizeUser = new TilerFront.Models.AuthorizedUser(){UserID="d350ba4d-fe0b-445c-bed6-b6411c2156b3",UserName="jerbio"};
-            TilerUser User = new TilerUser() { UserName = AuthorizeUser.UserName, Id = AuthorizeUser. UserID, FullName = "" };
-            
+            TilerFront.Models.AuthorizedUser AuthorizeUser = new TilerFront.Models.AuthorizedUser() { UserID = "d350ba4d-fe0b-445c-bed6-b6411c2156b3", UserName = "jerbio" };
+            TilerUser User = new TilerUser() { UserName = AuthorizeUser.UserName, Id = AuthorizeUser.UserID, FullName = "" };
+
+
+            //TilerUser User = new TilerUser() { UserName = "", Id = "", FullName = "" };
 
             UserAccount currentUser = new UserAccountDebug(User,true);// new UserAccountDebug("18");
             //await currentUser.batchMigrateXML();
@@ -1471,10 +1477,10 @@ namespace My24HourTimerWPF
             //UserAccountDirect currentUser =  new UserAccountDebug("18");
             await currentUser.Login();
             DateTimeOffset refNow=DateTimeOffset.Now;
-            refNow = DateTimeOffset.Parse("2/1/2016 6:19:00 AM");
+            refNow = DateTimeOffset.Parse("6/16/2016 6:19:00 AM");
             Stopwatch loadSchedule = new Stopwatch();
             loadSchedule.Start();
-
+            this.User = currentUser;
             MySchedule = new Schedule(currentUser, refNow);
             
             if (MySchedule.isScheduleLoadSuccessful)

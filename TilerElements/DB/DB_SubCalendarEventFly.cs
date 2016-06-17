@@ -10,7 +10,7 @@ namespace TilerElements.DB
     //[Table("SubCalendarEvents")]
     public class DB_SubCalendarEventFly : DB_SubCalendarEvent
     {
-        protected DB_SubCalendarEventFly()
+        public DB_SubCalendarEventFly()
         {
             CalendarEventRange = new TimeLine();
             BusyFrame = new BusyTimeLine();
@@ -35,7 +35,7 @@ namespace TilerElements.DB
             this.EventDuration = BusyFrame.BusyTimeSpan;
             this.Complete = CompletionFlagData;
             this.ConflictingEvents = new ConflictProfile();
-            this.DataBlob = NoteData;
+            this._DataBlob = NoteData;
             this.DeadlineElapsed = ElapsedFlagData;
             this.Enabled = EnabledFlagData;
             this.StartDateTime = StartData;
@@ -266,7 +266,7 @@ namespace TilerElements.DB
         }
 
 
-        override public bool isComplete
+        override public bool CompleteFlag
         {
             get
             {
@@ -275,18 +275,6 @@ namespace TilerElements.DB
             set
             {
                 Complete = value;
-            }
-        }
-
-        override public string CreatorId
-        {
-            get
-            {
-                return CreatorIDInfo;
-            }
-            set
-            {
-                CreatorIDInfo = value;
             }
         }
 
@@ -433,12 +421,12 @@ namespace TilerElements.DB
         {
             get
             {
-                return DataBlob;
+                return _DataBlob;
             }
 
             set
             {
-                DataBlob = value;
+                _DataBlob = value;
             }
         }
 

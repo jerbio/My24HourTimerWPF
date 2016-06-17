@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TilerElements.DB
 {
-    public interface IDB_ModifiedSubCalendarEvent: IDB_SubCalendarEvent, IModifieds
+    public interface IDB_ModifiedSubCalendarEvent: ISubCalendarEvent, IModifieds
     {
         
     }

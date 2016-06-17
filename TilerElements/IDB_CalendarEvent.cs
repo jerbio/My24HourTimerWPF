@@ -5,7 +5,7 @@ using System.Web;
 using TilerElements.Wpf;
 using TilerElements.DB;
 
-namespace TilerElements.DB
+namespace TilerElements
 {
     public interface IDB_CalendarEvent:ITilerEvent
     {
@@ -13,12 +13,13 @@ namespace TilerElements.DB
         int DeleteCount { get; set; }
         //TimeLine EventSequence { get; set; }
         DateTimeOffset CalculationEnd { get; set; }
-        Repetition EventRepetition { get; set; }
+        Repetition EventRepeat { get; set; }
         NowProfile LastNowProfile { get; set; }
         int SplitCount { get; set; }
         CalendarEvent RepeatRoot { get; set; }
         TimeSpan TimeSpanPerSplit { get; set; }
         TimeSpan OriginalTimeSpanPerSplit { get; set; }
-        ICollection<SubCalendarEvent> SubCalendarEvents { get; set; }       
+        ICollection<SubCalendarEvent> SubCalendarEvents { get; set; }     
+          
     }
 }

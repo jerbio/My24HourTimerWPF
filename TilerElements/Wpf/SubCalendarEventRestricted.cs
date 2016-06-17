@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TilerElements.Wpf
 {
-    public class SubCalendarEventRestricted : SubCalendarEvent
+    public class SubCalendarEventRestricted : SubCalendarEventPersist
     {
         protected TimeLine HardCalendarEventRange;//this does not include the restriction
         protected RestrictionProfile ProfileOfRestriction;
@@ -33,7 +33,7 @@ namespace TilerElements.Wpf
             UserIDs = this.UserIDs.ToList();
             this.UiParams = UiData;
             this.ConflictingEvents = conflicts;
-            DataBlob = Notes;
+            _DataBlob = Notes;
             PrepTime = PrepTimeData;
             ConflictingEvents = new ConflictProfile();
             HumaneTimeLine = BusyFrame.CreateCopy();
@@ -178,7 +178,7 @@ namespace TilerElements.Wpf
             copy.CalendarEventRange = CalendarEventRange.CreateCopy();
             copy.Complete = Complete;
             copy.ConflictingEvents = this.ConflictingEvents.CreateCopy();
-            copy.DataBlob = this.DataBlob.createCopy();
+            copy._DataBlob = this._DataBlob.createCopy();
             copy.DeadlineElapsed = this.DeadlineElapsed;
             copy.Enabled = this.Enabled;
             copy.EndDateTime = this.EndDateTime;
@@ -217,6 +217,7 @@ namespace TilerElements.Wpf
             copy.UserIDs = this.UserIDs.ToList();
             copy.Semantics = this.Semantics.createCopy();
             copy._UsedTime = this._UsedTime;
+            copy._Creator = this._Creator;
             return copy;
         }
 
@@ -327,12 +328,12 @@ namespace TilerElements.Wpf
                     this.EventDuration = SubEventEntry.ActiveDuration;
                     this.Complete = SubEventEntry.isComplete;
                     this.ConflictingEvents = SubEventEntry.Conflicts;
-                    this.DataBlob = SubEventEntry.Notes;
+                    this._DataBlob = SubEventEntry.DataBlob;
                     this.DeadlineElapsed = SubEventEntry.isDeadlineElapsed;
                     this.Enabled = SubEventEntry.isEnabled;
                     this.EndDateTime = SubEventEntry.End;
                     this.EventPreDeadline = SubEventEntry.PreDeadline;
-                    this.EventScore = SubEventEntry.Score;
+                    this.EventScore = SubEventEntry.EvaluatedScore;
                     //this.isRestricted = true;
                     this.LocationInfo = SubEventEntry.Location;
                     this.OldPreferredIndex = SubEventEntry.OldUniversalIndex;
@@ -347,9 +348,9 @@ namespace TilerElements.Wpf
                     this.StartDateTime = SubEventEntry.Start;
                     this.UiParams = SubEventEntry.UIParam;
                     this.UniqueID = SubEventEntry.SubEvent_ID;
-                    this.NameOfEvent = new EventName(this.UniqueID, SubEventEntry.Name);
+                    this.NameOfEvent = new EventName(this.UniqueID, SubEventEntry.NameString);
                     this.UserDeleted = SubEventEntry.isUserDeleted;
-                    this.UserIDs = SubEventEntry.getAllUserIDs();
+                    this.UserIDs = SubEventEntry.getAllUsers();
                     this.Vestige = SubEventEntry.isVestige;
                     this.otherPartyID = SubEventEntry.otherPartyID;
                     this.ProfileOfRestriction = SubEventEntry.ProfileOfRestriction;
@@ -366,12 +367,12 @@ namespace TilerElements.Wpf
                         this.EventDuration = SubEventEntry.ActiveDuration;
                         this.Complete = SubEventEntry.isComplete;
                         this.ConflictingEvents = SubEventEntry.Conflicts;
-                        this.DataBlob = SubEventEntry.Notes;
+                        this._DataBlob = SubEventEntry.DataBlob;
                         this.DeadlineElapsed = SubEventEntry.isDeadlineElapsed;
                         this.Enabled = SubEventEntry.isEnabled;
                         this.EndDateTime = SubEventEntry.End;
                         this.EventPreDeadline = SubEventEntry.PreDeadline;
-                        this.EventScore = SubEventEntry.Score;
+                        this.EventScore = SubEventEntry.EvaluatedScore;
                         //this.isRestricted = true;
                         this.LocationInfo = SubEventEntry.Location;
                         this.OldPreferredIndex = SubEventEntry.OldUniversalIndex;
@@ -386,9 +387,9 @@ namespace TilerElements.Wpf
                         this.StartDateTime = SubEventEntry.Start;
                         this.UiParams = SubEventEntry.UIParam;
                         this.UniqueID = SubEventEntry.SubEvent_ID;
-                        this.NameOfEvent = new EventName(this.UniqueID, SubEventEntry.Name);
+                        this.NameOfEvent = new EventName(this.UniqueID, SubEventEntry.NameString);
                         this.UserDeleted = SubEventEntry.isUserDeleted;
-                        this.UserIDs = SubEventEntry.getAllUserIDs();
+                        this.UserIDs = SubEventEntry.getAllUsers();
                         this.Vestige = SubEventEntry.isVestige;
                         this.otherPartyID = SubEventEntry.otherPartyID;
                         this.ProfileOfRestriction = SubEventEntry.ProfileOfRestriction;
@@ -412,12 +413,12 @@ namespace TilerElements.Wpf
             retValue.EventDuration = this.ActiveDuration;
             retValue.Complete = this.isComplete;
             retValue.ConflictingEvents = this.Conflicts;
-            retValue.DataBlob = this.Notes;
+            retValue._DataBlob = this.DataBlob;
             retValue.DeadlineElapsed = this.isDeadlineElapsed;
             retValue.Enabled = this.isEnabled;
             retValue.EndDateTime = this.End;
             retValue.EventPreDeadline = this.PreDeadline;
-            retValue.EventScore = this.Score;
+            retValue.EventScore = this.EvaluatedScore;
             retValue.LocationInfo = this.Location;
             retValue.OldPreferredIndex = this.OldUniversalIndex;
             retValue.otherPartyID = this.ThirdPartyID;
@@ -431,9 +432,9 @@ namespace TilerElements.Wpf
             retValue.StartDateTime = this.Start;
             retValue.UiParams = this.UIParam;
             retValue.UniqueID = this.SubEvent_ID;
-            retValue.NameOfEvent = new EventName(retValue.UniqueID, this.Name);
+            retValue.NameOfEvent = new EventName(retValue.UniqueID, this.NameString);
             retValue.UserDeleted = this.isUserDeleted;
-            retValue.UserIDs = this.getAllUserIDs();
+            retValue.UserIDs = this.getAllUsers();
             retValue.Vestige = this.isVestige;
             retValue.otherPartyID = this.otherPartyID;
             retValue.ProfileOfRestriction = this.ProfileOfRestriction;
@@ -459,7 +460,7 @@ namespace TilerElements.Wpf
 
             retValue.HardCalendarEventRange= new TimeLineRestricted(ProcrastinationData.PreferredStartTime, CalendarEventData.RangeTimeLine.End,retValue.ProfileOfRestriction);
             TimeSpan SpanShift = ProcrastinationData.PreferredStartTime - retValue.Start;
-            retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventData.ID, RepetitionSequence);
+            retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventData.Id, RepetitionSequence);
             retValue.initializeCalendarEventRange(retValue.ProfileOfRestriction, CalendarEventData.RangeTimeLine);
             retValue.shiftEvent(SpanShift, true);
             return retValue;

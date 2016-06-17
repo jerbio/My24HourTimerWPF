@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TilerElements.DB
 {
-    interface IDB_SubCalendarEventRestricted: IDB_SubCalendarEvent, IRestrictedEvent
+    interface IDB_SubCalendarEventRestricted: ISubCalendarEvent, IRestrictedEvent
     {
     }
 }

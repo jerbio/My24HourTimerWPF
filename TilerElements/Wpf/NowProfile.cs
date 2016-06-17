@@ -7,7 +7,7 @@ namespace TilerElements.Wpf
 {
     public class NowProfile
     {
-        protected string ID;
+        protected string ID = Guid.NewGuid().ToString();
         protected DateTimeOffset TimePreferredForEvent;
         protected bool Initialized = false;
 

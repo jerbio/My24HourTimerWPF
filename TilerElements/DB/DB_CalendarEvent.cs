@@ -5,38 +5,64 @@ using System.Text;
 using System.Threading.Tasks;
 using TilerElements.Wpf;
 using TilerElements;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 
 namespace TilerElements.DB
 {
-    public abstract class DB_CalendarEvent : CalendarEvent, IDB_CalendarEvent
+    public class DB_CalendarEvent : CalendarEventPersist
     {
-        public abstract DateTimeOffset CalculationEnd { get; set; }
-        public abstract int CompleteCount { get; set; }
-        public abstract string CreatorId { get; set; }
-        public abstract int DeleteCount { get; set; }
-        public abstract DateTimeOffset InitializingStart { get; set; }
-        public abstract bool isDeleted { get; set; }
-        public abstract bool isDeletedByUser { get; set; }
-        public abstract bool isDeviated { get; set; }
-        public abstract bool isRepeat { get; set; }
-        public abstract bool isRigid { get; set; }
-        public abstract NowProfile LastNowProfile { get; set; }
-        public abstract TimeSpan OriginalTimeSpanPerSplit { get; set; }
-        public abstract Procrastination ProcrastinationProfile { get; set; }
-        public abstract int SplitCount { get; set; }
-        public abstract ICollection<SubCalendarEvent> SubCalendarEvents { get; set; }
-        public abstract TimeSpan TimeSpanPerSplit { get; set; }
-        public abstract EventDisplay UIData { get; set; }
-        public abstract int Urgency { get; set; }
-        public abstract ICollection<TilerUser> Users { get; set; }
-        public abstract DateTimeOffset End { get; set; }
-        public abstract Repetition EventRepetition { get; set; }
-        //public abstract TimeLine EventSequence { get; set; }
-        public abstract bool isComplete { get; set; }
-        public abstract EventName Name { get; set; }
-        public abstract MiscData Notes { get; set; }
-        public abstract CalendarEvent RepeatRoot { get; set; }
-        public abstract DateTimeOffset Start { get; set; }
+        public override DateTimeOffset CalculationEnd { get; set; }
+        public override int CompleteCount { get; set; }
+        [Required]
+        public override string CreatorId
+        {
+            get
+            {
+                return base.CreatorId;
+            }
+
+            set
+            {
+                base.CreatorId = value;
+            }
+        }
+        [ForeignKey("CreatorId")]
+        public override TilerUser Creator
+        {
+            set
+            {
+                _Creator = value;
+            }
+            get
+            {
+                return _Creator;
+            }
+        }
+        public override int DeleteCount { get; set; }
+        public override DateTimeOffset InitializingStart { get; set; }
+        public override bool isDeleted { get; set; }
+        public override bool isDeletedByUser { get; set; }
+        public override bool isDeviated { get; set; }
+        public override bool isRepeat { get; set; }
+        public override bool isRigid { get; set; }
+        public override NowProfile LastNowProfile { get; set; }
+        public override TimeSpan OriginalTimeSpanPerSplit { get; set; }
+        public override Procrastination ProcrastinationProfile { get; set; }
+        public override int SplitCount { get; set; }
+        public override ICollection<SubCalendarEvent> SubCalendarEvents { get; set; }
+        public override TimeSpan TimeSpanPerSplit { get; set; }
+        public override EventDisplay UIData { get; set; }
+        public override int Urgency { get; set; }
+        public override ICollection<TilerUser> Users { get; set; }
+        public override Repetition EventRepeat { get; set; }
+        //public override TimeLine EventSequence { get; set; }
+        public override bool CompleteFlag { get; set; }
+        public override EventName Name { get; set; }
+        public override MiscData Notes { get; set; }
+        public override CalendarEvent RepeatRoot { get; set; }
+        public override DateTimeOffset StartTime { get; set; }
+        public override DateTimeOffset EndTime { get; set; }
     }
 
 

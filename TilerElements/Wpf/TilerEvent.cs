@@ -20,7 +20,7 @@ namespace TilerElements.Wpf
         protected bool FromRepeatEvent=false;
         protected Location_Elements LocationInfo;
         protected EventDisplay UiParams = new EventDisplay();
-        protected MiscData DataBlob = new MiscData();
+        protected MiscData _DataBlob = new MiscData();
         //protected bool RepetitionFlag;
         protected bool RigidSchedule;
         protected TimeSpan EventDuration;
@@ -38,20 +38,19 @@ namespace TilerElements.Wpf
         protected DateTimeOffset OriginalStart;
         public enum Conflictability { Averse, Normal, Tolerant};
         protected Conflictability ConflictSetting = Conflictability.Normal;
-        protected bool EventIsModified;
         /// <summary>
         /// Holds the Id to the initializing the Event Id. This should be the Id to the calendarevent
         /// </summary>
         protected EventID OriginalEventID;
         protected Boolean DeviationFlag = false;
-
+        protected bool IsEventModified = true;
 
 
         protected bool ThirdPartyFlag = false;
         protected string ThirdPartyUserIDInfo;
         protected ThirdPartyControl.CalendarTool ThirdPartyTypeInfo = ThirdPartyControl.CalendarTool.Tiler;
-        protected string CreatorIDInfo;
-
+        protected string  _CreatorId;
+        protected TilerUser _Creator;
         protected TimeSpan _UsedTime = new TimeSpan();
         protected Classification Semantics= new Classification();
 
@@ -59,7 +58,7 @@ namespace TilerElements.Wpf
         {
             await Semantics.InitializeClassification(NameOfEvent.Name);
         }
-        public List<TilerUser> getAllUserIDs()
+        public List<TilerUser> getAllUsers()
         {
             return UserIDs.ToList();
         }
@@ -83,9 +82,35 @@ namespace TilerElements.Wpf
             DeviationFlag = false;
         }
 
+        internal bool getDeviationFlag()
+        {
+            return DeviationFlag;
+        }
+
+        internal Conflictability getConflictSetting()
+        {
+            return this.ConflictSetting;
+        }
+
         internal void disableAsUserDeleted()
         {
             UserDeleted = false;
+        }
+
+        virtual public void updateCreator(TilerUser user)
+        {
+            _Creator = user;
+        }
+
+
+        virtual public void setAsModified()
+        {
+            IsEventModified = true;
+        }
+
+        public virtual EventName getName()
+        {
+            return NameOfEvent;
         }
 
         abstract public void updateRepetitionIndex(long RepetitionIndex);
@@ -107,7 +132,7 @@ namespace TilerElements.Wpf
         }
 
 
-
+        
 
         public bool isActive
         {
@@ -222,14 +247,14 @@ namespace TilerElements.Wpf
                 throw new NotImplementedException();
              }
          }
-        public bool isDeadlineElapsed
+        public virtual bool isDeadlineElapsed
          {
              get 
              {
                  return DeadlineElapsed;
              }
          }
-        public string Name
+        public virtual string NameString
         {
             get
             {
@@ -237,7 +262,7 @@ namespace TilerElements.Wpf
             }
         }
 
-        public bool isUserDeleted
+        public virtual bool isUserDeleted
         {
             get
             {
@@ -246,7 +271,7 @@ namespace TilerElements.Wpf
 
         }
 
-        public int EventPriority
+        public virtual int EventPriority
         {
             get
             {
@@ -254,7 +279,7 @@ namespace TilerElements.Wpf
             }
         }
 
-        public Procrastination  ProcrastinationInfo
+        public virtual Procrastination  ProcrastinationInfo
         {
             get
             {
@@ -264,20 +289,11 @@ namespace TilerElements.Wpf
 
 
 
-        public NowProfile NowInfo
+        public virtual NowProfile NowInfo
         {
             get
             {
                 return ProfileOfNow;
-            }
-        }
-
-        
-        public string CreatorID
-        {
-            get
-            {
-                return CreatorIDInfo;
             }
         }
 
@@ -293,7 +309,7 @@ namespace TilerElements.Wpf
                 return _UsedTime;
             }
         }
-        public long RepetitionIndex
+        public virtual long RepetitionIndex
         {
             get
             {
@@ -301,7 +317,7 @@ namespace TilerElements.Wpf
             }
         }
 
-        public DateTimeOffset OrginalStartInfo
+        public virtual DateTimeOffset OrginalStartInfo
         {
             get
             {
@@ -309,7 +325,7 @@ namespace TilerElements.Wpf
             }
         }
 
-        virtual public string Id
+        virtual  public string Id
         {
             get
             {
@@ -338,6 +354,40 @@ namespace TilerElements.Wpf
             get
             {
                 return OriginalEventID;
+            }
+        }
+
+        virtual public MiscData DataBlob
+        {
+            get
+            {
+                return _DataBlob;
+            }
+        }
+        virtual public string CreatorId
+        {
+            get
+            {
+                return _CreatorId;
+            }
+            set
+            {
+                throw new NotImplementedException("You are trying to set creatorId from non storage access");
+            }
+        }
+        public virtual TilerUser EventCreator
+        {
+            get
+            {
+                return _Creator;
+            }
+        }
+
+        public bool isModified
+        {
+            get
+            {
+                return IsEventModified;
             }
         }
     }

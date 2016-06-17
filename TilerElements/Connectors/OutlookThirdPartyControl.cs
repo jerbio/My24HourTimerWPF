@@ -143,7 +143,7 @@ namespace TilerElements.Connectors
                 for (i = 0; i < MyEvent.AllSubEvents.Length; i++)
                 {
                     SubCalendarEvent pertinentSubCalEvent = MyEvent.AllSubEvents[i];
-                    DeleteAppointment(pertinentSubCalEvent, MyEvent.Name, pertinentSubCalEvent.ThirdPartyID);
+                    DeleteAppointment(pertinentSubCalEvent, MyEvent.NameString, pertinentSubCalEvent.ThirdPartyID);
                 }
             }
         }
@@ -167,7 +167,7 @@ namespace TilerElements.Connectors
                 {
 
                     SubCalendarEvent pertinentSubCalEvent = enableSubCalEVents[i];
-                    pertinentSubCalEvent.ThirdPartyID = AddAppointment(pertinentSubCalEvent, MyEvent.Name);/////////////
+                    pertinentSubCalEvent.ThirdPartyID = AddAppointment(pertinentSubCalEvent, MyEvent.NameString);/////////////
 
                 }
             }

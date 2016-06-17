@@ -4,9 +4,9 @@ using System.Linq;
 using System.Web;
 using TilerElements.Wpf;
 
-namespace TilerElements.DB
+namespace TilerElements
 {
-    public interface IDB_SubCalendarEvent: ITilerEvent
+    public interface ISubCalendarEvent: ITilerEvent
     {
         #region properties
 

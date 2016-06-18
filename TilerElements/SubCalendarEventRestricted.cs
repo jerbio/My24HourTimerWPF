@@ -353,6 +353,9 @@ namespace TilerElements
                 this.Vestige = SubEventEntry.isVestige;
                 this.otherPartyID = SubEventEntry.otherPartyID;
                 this.ProfileOfRestriction = SubEventEntry.ProfileOfRestriction;
+                this.CreatorIDInfo = SubEventEntry.CreatorIDInfo;
+                this.Semantics = SubEventEntry.Semantics;
+                this._UsedTime = SubEventEntry._UsedTime;
                 return true;
             }
 

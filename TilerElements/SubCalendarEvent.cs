@@ -428,6 +428,9 @@ namespace TilerElements
                 this.UserIDs = SubEventEntry.getAllUserIDs();
                 this.Vestige = SubEventEntry.isVestige;
                 this.otherPartyID = SubEventEntry.otherPartyID;
+                this.CreatorIDInfo = SubEventEntry.CreatorIDInfo;
+                this.Semantics = SubEventEntry.Semantics;
+                this._UsedTime = SubEventEntry._UsedTime;
                 return true;
             }
 

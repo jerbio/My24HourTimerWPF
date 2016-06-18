@@ -218,6 +218,22 @@ namespace TilerElements
             return RetValue;
         }
 
-        
+        public override void UpdateThis(CalendarEvent CalendarEventEntry)
+        {
+            if ((this.ID == CalendarEventEntry.ID))
+            {
+                base.UpdateThis(CalendarEventEntry);
+                CalendarEventRestricted castedEvent = CalendarEventEntry as CalendarEventRestricted;
+                if (castedEvent != null)
+                {
+                    this.ProfileOfRestriction = castedEvent.ProfileOfRestriction;
+                }
+                return;
+            }
+
+            throw new Exception("Invalid Calendar ID used in Update Calendar Event");
+        }
+
+
     }
 }

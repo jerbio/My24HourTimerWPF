@@ -1371,6 +1371,25 @@ namespace TilerElements
                 DataBlob=CalendarEventEntry.DataBlob;
                 LocationInfo =CalendarEventEntry.LocationInfo;
                 otherPartyID = CalendarEventEntry.otherPartyID;
+                this.CreatorIDInfo = CalendarEventEntry.CreatorIDInfo;
+                this.CalculableSubEvents = CalendarEventEntry.CalculableSubEvents;
+                this.CompletedCount = CalendarEventEntry.CompletedCount;
+                this.ConstrictRange = CalendarEventEntry.ConstrictRange;
+                this.DeletedCount = CalendarEventEntry.DeletedCount;
+                this.EndOfCalculation = CalendarEventEntry.EndOfCalculation;
+                this.isCalculableInitialized = CalendarEventEntry.isCalculableInitialized;
+                this.isUnDesignableInitialized = CalendarEventEntry.isUnDesignableInitialized;
+                this.Splits = CalendarEventEntry.Splits;
+                this.UnDesignables = CalendarEventEntry.UnDesignables;
+                this.ProfileOfNow= CalendarEventEntry.ProfileOfNow;
+                this.ProfileOfProcrastination = CalendarEventEntry.ProfileOfProcrastination;
+                this.Semantics=CalendarEventEntry.Semantics;
+                this.ThirdPartyFlag=CalendarEventEntry.ThirdPartyFlag;
+                this.ThirdPartyTypeInfo=CalendarEventEntry.ThirdPartyTypeInfo;
+                this.ThirdPartyUserIDInfo= CalendarEventEntry.ThirdPartyUserIDInfo;
+                this.UserDeleted=CalendarEventEntry.UserDeleted;
+                this.UserIDs= CalendarEventEntry.UserIDs;
+                this._UsedTime= CalendarEventEntry._UsedTime;
                 return;
             }
         

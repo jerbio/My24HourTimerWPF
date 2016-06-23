@@ -42,8 +42,6 @@ namespace TilerTests
         [TestMethod]
         public void TestCreationOfNonRigid()
         {
-
-
             UserAccount currentUser = getTestUser();
             currentUser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.Now;
@@ -81,5 +79,6 @@ namespace TilerTests
             CalendarEvent newlyaddedevent = schedule.getCalendarEvent(testEvent.Calendar_EventID);
             Assert.AreEqual(testEvent.ID, newlyaddedevent.ID);
         }
+
     }
 }

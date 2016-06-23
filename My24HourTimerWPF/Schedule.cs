@@ -1014,6 +1014,15 @@ namespace My24HourTimerWPF
                 LogStatus(NewEvent, "Adding New Event");
             }
 
+            try
+            {
+                AllEventDictionary.Add(NewEvent.Calendar_EventID.getCalendarEventComponent(), NewEvent);
+            }
+            catch
+            {
+                AllEventDictionary[NewEvent.ID] = NewEvent;
+            }
+
             return new CustomErrors(NewEvent.ErrorStatus, NewEvent.ErrorMessage);
         }
 
@@ -1055,7 +1064,7 @@ namespace My24HourTimerWPF
             //RemoveAllCalendarEventFromLogAndCalendar();
             try
             {
-                AllEventDictionary.Add(NewEvent.Id, NewEvent);
+                AllEventDictionary.Add(NewEvent.Calendar_EventID.getCalendarEventComponent(), NewEvent);
             }
             catch
             {

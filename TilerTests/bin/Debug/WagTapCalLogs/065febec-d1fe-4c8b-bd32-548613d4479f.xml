@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> created and Ran successful intial tests for the creation and persisting of
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ScheduleLog>
   <LastIDCounter>1040</LastIDCounter>
@@ -694,7 +697,11 @@
   <LocationCache>
     <Locations />
   </LocationCache>
+<<<<<<< HEAD
 </ScheduleLog>
 =======
 <?xml version="1.0" encoding="utf-8"?><ScheduleLog><LastIDCounter>1024</LastIDCounter><referenceDay>8:00 AM</referenceDay><EventSchedules></EventSchedules></ScheduleLog>
 >>>>>>> Added initial components to start testing out tiler
+=======
+</ScheduleLog>
+>>>>>>> created and Ran successful intial tests for the creation and persisting of

@@ -720,7 +720,23 @@ namespace TilerElements
                 return true;
             }
         }
-        
+
+        public static double CalculateDistanceOfSubEventsWithSameCalendarEvent(IList<SubCalendarEvent> Allevents, double distanceMultiplier)
+        {
+            double retValue = 0;
+            HashSet<string> allIds = new HashSet<string>(Allevents.Select(obj => obj.UniqueID.getCalendarEventComponent()));
+            if (allIds.Count != 1)
+            {
+                throw new Exception("Calculation of distance with subeevnts with different calendart event ids");
+            }
+            if (Allevents.Count > 0)
+            {
+                retValue = Utility.getFibonacciSumToIndex((uint)Allevents.Count - 2);
+                retValue*= distanceMultiplier;
+            }
+            return retValue;
+        }
+
 
         public static double CalculateDistance(SubCalendarEvent Arg1,SubCalendarEvent Arg2, double worstDistance=double.MaxValue)
         {
@@ -734,18 +750,87 @@ namespace TilerElements
             }
         }
 
-
-         public static double CalculateDistance(IList<SubCalendarEvent> Allevents, double worstDistance=double.MaxValue)
+        /// <summary>
+        /// Function calculates the total distance  by multiple sub calendar events. When SubEvents withtin the same Calendar event are ordered consecutively the distance between them is assigned the worst value. Note calculation uses double.minvalue to determine if this is a defaultentry;
+        /// </summary>
+        /// <param name="Allevents"></param>
+        /// <param name="worstDistance"></param>
+        /// <returns></returns>
+         public static double CalculateDistance(IList<SubCalendarEvent> Allevents, double worstDistance=double.MinValue, bool useFibonnacci = true)
          {
-             int j=0;
-             double retValue = 0;
-             for (int i = 0; i < Allevents.Count - 1; i++)
-             { 
-                 j=i+1;
-                 retValue+=CalculateDistance(Allevents[i], Allevents[j], worstDistance);
-             }
-             return retValue;
+            double retValue = 0;
+            double distance = 0;
+            double distanceMultiplier = 0;
+            double multiplierCounter = 0;
+            if (Allevents.Count >= 2)
+            {
+                if (worstDistance == double.MinValue)
+                {
+                    worstDistance = double.MaxValue / (Allevents.Count - 1);
+                }
+                if (useFibonnacci)
+                {
+                    bool reInitempList = false;
+                    List<List<SubCalendarEvent>> subEventGroups = new List<List<SubCalendarEvent>>();
+                    List<SubCalendarEvent> tempList = new List<SubCalendarEvent>();
+                    SubCalendarEvent previousSubEvent = Allevents.First();
+                    for (int i = 1; i < Allevents.Count - 1; i++)
+                    {
+                        SubCalendarEvent currentSubEvent = Allevents[i];
+                        if (previousSubEvent.UniqueID.getCalendarEventComponent() == currentSubEvent.UniqueID.getCalendarEventComponent())
+                        {
+                            tempList.Add(previousSubEvent);
+                            tempList.Add(currentSubEvent);
+                            reInitempList = true;
+                        }
+                        else
+                        {
+                            if (reInitempList)
+                            {
+                                subEventGroups.Add(tempList);
+                                tempList = new List<SubCalendarEvent>();
+                                reInitempList = false;
+                            }
+                            //else
+                            {
+                                ++multiplierCounter;
+                                distance = CalculateDistance(currentSubEvent, previousSubEvent, worstDistance);
+                                if(distance == worstDistance)
+                                {
+                                    distanceMultiplier += 1;
+                                }
+                                else
+                                {
+                                    distanceMultiplier += distance;
+                                }
+                                retValue += distance;
+                            }
+                        }
+                        previousSubEvent = currentSubEvent;
+                    }
+
+                    distanceMultiplier /= multiplierCounter;
+                    subEventGroups.ForEach(listOfSubEvents => {
+                        double fibboDIstance = CalculateDistanceOfSubEventsWithSameCalendarEvent(listOfSubEvents, distanceMultiplier);
+                        retValue += fibboDIstance;
+                    });
+                    
+                }
+                else
+                {
+                    int j = 0;
+                    for (int i = 0; i < Allevents.Count - 1; i++)
+                    {
+                        j = i + 1;
+                        retValue += CalculateDistance(Allevents[i], Allevents[j], worstDistance);
+                    }
+                }
+                return retValue;
+            }
+            return retValue;
          }
+
+        
 
          virtual public bool canExistWithinTimeLine(TimeLine PossibleTimeLine)
          {
@@ -1047,21 +1132,6 @@ namespace TilerElements
             }
     }
         
-
-
-        public Event_Struct toEvent_Struct
-        {
-            get
-            {
-                Event_Struct retValue = new Event_Struct();
-                //retValue.StartTicks = Start.Ticks;
-                //retValue.EndTicks = End.Ticks;
-                //retValue.DurationTicks = ActiveDuration.Ticks;
-                //retValue.EventID = ID;
-                retValue.EventLocation = myLocation.toStruct();
-                return retValue;
-            }
-        }
 
         virtual public MiscData Notes
         { 

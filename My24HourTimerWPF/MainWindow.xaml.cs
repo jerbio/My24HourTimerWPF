@@ -1450,7 +1450,7 @@ namespace My24HourTimerWPF
             //UserAccountDirect currentUser =  new UserAccountDebug("18");
             await currentUser.Login();
             DateTimeOffset refNow=DateTimeOffset.Now;
-            refNow = DateTimeOffset.Parse("8:26 am 5/24/2016");
+            refNow = DateTimeOffset.Parse("8:26 am 6/25/2016");
             //MySchedule = new Schedule(currentUser, refNow);
 
 
@@ -1461,7 +1461,7 @@ namespace My24HourTimerWPF
             if (MySchedule.isScheduleLoadSuccessful)
             {
                 timer.Stop();
-                MessageBox.Show("Ellapsed is " + timer.ElapsedMilliseconds + "ms");
+                //MessageBox.Show("Ellapsed is " + timer.ElapsedMilliseconds + "ms");
                 
                 tabItem2.IsEnabled = true;
                 datePicker1.SelectedDate = new DateTime(Schedule.Now.calculationNow.AddDays(0).ToLocalTime().Ticks);// DateTimeOffset.Now.AddDays(0);
@@ -1474,8 +1474,8 @@ namespace My24HourTimerWPF
                 int RandomHour = myNumber.Next(0, 24);
                 int RandomMinute = myNumber.Next(0, 60);
                 textBox4.Text = RandomHour + ":" + RandomMinute;
-                
-                textBox4.Text = 0+ ":" + "1" + ":" + "00";//total time
+
+                textBox4.Text = 1+ ":" + "45" + ":" + "00";//total time
                 textBox2.Text = 1.ToString();//number of splits
                 int ProcrastinateStartDay = 0;
                 int ProcrastinateEndDay = 365; 

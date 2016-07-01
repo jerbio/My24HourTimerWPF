@@ -182,6 +182,7 @@ namespace TilerElements
             return retValue;
         }
 
+
         static public List<double> multiDimensionCalculationNormalize(IList<IList<double>> collection, List<double> origin = null, IList<double> normalizedFields = null)
         {
             int counter = collection.Count;

@@ -3178,10 +3178,6 @@ namespace My24HourTimerWPF
                 OptimizedPath DayPath = new OptimizedPath(EachDay, home);
                 DayPath.OptimizePath();
                 List<SubCalendarEvent> optimizedForDay = EachDay.getSubEventsInDayTimeLine().OrderBy(obj => obj.Start).ToList();
-                foreach(SubCalendarEvent subEvent in optimizedForDay)
-                {
-                    Console.WriteLine(subEvent.myLocation.justLongLatString());
-                }
             }
             //);
         }
@@ -3384,6 +3380,7 @@ namespace My24HourTimerWPF
             List<SubCalendarEvent> orderedByStart = TotalActiveEvents.OrderBy(obj => obj.Start).ToList(); ;
             List<BlobSubCalendarEvent> conflictingEvetns = Utility.getConflictingEvents(orderedByStart);
 
+            //Optimize = false;
 #if optimizeDailyCalculations
             if (Optimize)
 
@@ -3408,7 +3405,6 @@ namespace My24HourTimerWPF
             }
 #endif
 
-
             foreach (SubCalendarEvent element in TotalActiveEvents.OrderBy(SubEvent => SubEvent.Start))
             {
                 Console.WriteLine(element.myLocation.justLongLatString());
@@ -3416,6 +3412,7 @@ namespace My24HourTimerWPF
             double distanceCovered = Location_Elements.calculateDistance(TotalActiveEvents.OrderBy(SubEvent=> SubEvent.Start).Select(SubEvent => SubEvent.myLocation).ToList());
             Health scheduleHealth = new Health(TotalActiveEvents, Now.calculationNow);
             Console.WriteLine("Distance covered is {0}, Optimize is set to {1}\n Health Score is {2}", distanceCovered, Optimize, scheduleHealth.getScore());
+            
             return totalNumberOfEvents;
         }
 

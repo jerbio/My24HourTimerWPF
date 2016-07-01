@@ -9,7 +9,13 @@ namespace TilerElements
     public class TimeOfDayPreferrence
     {
         public enum DaySection {Sleep,Morning,Afternoon,Evening, None,Disabled}
-        Stack<Tuple<int, DaySection, bool>> PreferenceOrder = new Stack<Tuple<int, DaySection, bool>>(new[] { new Tuple<int, DaySection, bool>(4, DaySection.Morning, false), new Tuple<int, DaySection, bool>(3, DaySection.Evening, false), new Tuple<int, DaySection, bool>(2, DaySection.Afternoon, false), new Tuple<int, DaySection, bool>(1, DaySection.Evening, false), new Tuple<int, DaySection, bool>(0, DaySection.None, false) });
+        List<Tuple<int, DaySection, bool>> PreferenceOrder = new List<Tuple<int, DaySection, bool>>(new[] {
+            new Tuple<int, DaySection, bool>(0, DaySection.None, false),
+            new Tuple<int, DaySection, bool>(1, DaySection.Morning, false),
+            new Tuple<int, DaySection, bool>(2, DaySection.Afternoon, false),
+            new Tuple<int, DaySection, bool>(3, DaySection.Evening, false),
+            new Tuple<int, DaySection, bool>(4, DaySection.Sleep , false)
+        });
         //TilerEvent ControlEvent;
         public TimeOfDayPreferrence()
         {
@@ -23,7 +29,7 @@ namespace TilerElements
         {
             if(PreferenceOrder.Count>0)
             {
-                return PreferenceOrder.Peek().Item2;
+                return PreferenceOrder.First().Item2;
             }
             else
             {
@@ -31,11 +37,18 @@ namespace TilerElements
             }
         }
 
+        public void setCurrentdayPreference(DaySection preferredSection)
+        {
+            Tuple <int, DaySection, bool> preferredOption = PreferenceOrder.SingleOrDefault(preferenee => preferenee.Item2 == preferredSection);
+            PreferenceOrder.Remove(preferredOption);
+            PreferenceOrder.Insert(0, preferredOption);
+        }
+
         public void rejectCurrentPreference()
         {
             if(PreferenceOrder.Count>0)
             {
-                PreferenceOrder.Pop();
+                PreferenceOrder.RemoveAt(0);
             }
         }
     }

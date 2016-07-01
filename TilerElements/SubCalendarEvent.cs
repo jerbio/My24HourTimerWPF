@@ -1147,21 +1147,6 @@ namespace TilerElements
     }
         
 
-
-        public Event_Struct toEvent_Struct
-        {
-            get
-            {
-                Event_Struct retValue = new Event_Struct();
-                //retValue.StartTicks = Start.Ticks;
-                //retValue.EndTicks = End.Ticks;
-                //retValue.DurationTicks = ActiveDuration.Ticks;
-                //retValue.EventID = ID;
-                retValue.EventLocation = myLocation.toStruct();
-                return retValue;
-            }
-        }
-
         virtual public MiscData Notes
         { 
             get

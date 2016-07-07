@@ -12,7 +12,7 @@ namespace TilerElements.Wpf
         /// Id to event name
         /// </summary>
         protected string ID { set; get; } = Guid.NewGuid().ToString();
-        protected string ActualName  { set; get; } = "";
+        protected string _Name = "";
         /// <summary>
         /// Id with which this event is associated 
         /// </summary>
@@ -25,39 +25,39 @@ namespace TilerElements.Wpf
         
         public EventName(string EventId, string Name= "")
         {
-            ActualName = Name;
+            _Name = Name;
             EventID = EventId;
         }
 
         public EventName(EventID EventId, string Name)
         {
-            ActualName = Name;
+            _Name = Name;
             EventID = EventId.ToString() ;
         }
 
         public EventName( EventID EventId)
         {
-            ActualName = "";
+            _Name = "";
             EventID = EventId.ToString() ;
         }
         public override string ToString()
         {
-            return Name.ToString();
+            return NameString.ToString();
         }
 
         public EventName CreateCopy()
         {
             EventName RetValue = new EventName { ID = this.ID,
-                ActualName = this.Name, EventID = this.EventID };
+                _Name = this.NameString, EventID = this.EventID };
 
             return RetValue;
         }
 
-        public string Name
+        public string NameString
         {
             get
             {
-                return ActualName;
+                return _Name;
             }
         }
 

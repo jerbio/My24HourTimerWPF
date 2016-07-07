@@ -11,21 +11,21 @@ namespace TilerElements.DB
         
         public DB_RestrictionProfile(List<Tuple<DayOfWeek, RestrictionTimeLine>> RestrictionTimeLineData)
         {
-            this.daySelection = new Tuple<DayOfWeek, RestrictionTimeLine>[RestrictionTimeLineData.Count];
+            this._daySelection = new Tuple<DayOfWeek, RestrictionTimeLine>[RestrictionTimeLineData.Count];
             foreach (Tuple<DayOfWeek, RestrictionTimeLine> eachTuple in RestrictionTimeLineData)
             {
-                daySelection[(int)eachTuple.Item1] = eachTuple;
+                _daySelection[(int)eachTuple.Item1] = eachTuple;
             }
 
-            this.noNull_DaySelections = RestrictionTimeLineData.OrderBy(obj => obj.Item1).ToArray();
+            this._noNull_DaySelections = RestrictionTimeLineData.OrderBy(obj => obj.Item1).ToArray();
             InitializeOverLappingDictionary();
         }
 
         public DB_RestrictionProfile(RestrictionProfile RestrictionData)
         {
-            this.dayOfWeekToOverlappingIndexes = RestrictionData.DayOfWeekToOverlappingIndexes;
-            this.noNull_DaySelections = RestrictionData.NoNull_DaySelections;
-            this.daySelection = RestrictionData.DaySelection;
+            this._dayOfWeekToOverlappingIndexes = RestrictionData.DayOfWeekToOverlappingIndexes;
+            this._noNull_DaySelections = RestrictionData.NoNull_DaySelections;
+            this._daySelection = RestrictionData.DaySelection;
             this.Id = RestrictionData.Id;
         }
 
@@ -58,28 +58,45 @@ namespace TilerElements.DB
         {
             get
             {
-                List<DB_RestrictionTimeLine> RetValue = ConvertTuplesToDB_RestrictionTimeLine(this.daySelection);
+                List<DB_RestrictionTimeLine> RetValue = ConvertTuplesToDB_RestrictionTimeLine(this._daySelection);
                 return RetValue;
             }
             set {
-                this.daySelection = ConvertDB_RestrictionTimeLineToTuples(value);
+                this._daySelection = ConvertDB_RestrictionTimeLineToTuples(value);
             }
         }
 
-
-        /*public int NoNullDaySelectionss
+        public Tuple<DayOfWeek, RestrictionTimeLine>[] daySelection
         {
             get
             {
-                return noNull_DaySelections;
+                return daySelection;
             }
             set
             {
-                this.noNull_DaySelections = value;
+                daySelection = value;
             }
         }
-
-        public DateTimeOffset Restriction*/
+        public Tuple<DayOfWeek, RestrictionTimeLine>[] noNull_DaySelections {
+            get
+            {
+                return _noNull_DaySelections;
+            }
+            set
+            {
+                _noNull_DaySelections = value;
+            }
+        }
+        public List<Tuple<int, int>>[] dayOfWeekToOverlappingIndexes {
+            get
+            {
+                return _dayOfWeekToOverlappingIndexes;
+            }
+            set
+            {
+                _dayOfWeekToOverlappingIndexes = value;
+            }
+        }
 
 
         #endregion region

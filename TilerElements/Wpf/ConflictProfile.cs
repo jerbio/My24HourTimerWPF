@@ -11,6 +11,7 @@ namespace TilerElements.Wpf
         protected HashSet<string> ConflictingEvents;
         protected int TypeOfConflict;
         protected string ID = Guid.NewGuid().ToString();
+        protected int _Count = 0;
         public ConflictProfile(int conflictType=0,bool conflictFlag=false)
         {
             ConflictFlag = conflictFlag;
@@ -45,10 +46,6 @@ namespace TilerElements.Wpf
             return retValue;
         }
 
-        public bool isConflicting()
-        {
-            return ConflictFlag;
-        }
         
         public void UpdateConflictFlag(bool conflictStatus)
         {
@@ -59,7 +56,7 @@ namespace TilerElements.Wpf
         {
             ConflictFlag = true;
             bool RetValue = ConflictingEvents.Add(eventID);
-            ConflictCount = ConflictingEvents.Count;
+            _Count = ConflictingEvents.Count;
             return RetValue;
         }
 
@@ -70,7 +67,7 @@ namespace TilerElements.Wpf
             {
                 ConflictFlag = false;
             }
-            ConflictCount = ConflictingEvents.Count;
+            _Count = ConflictingEvents.Count;
             return retValue;
         }
 
@@ -95,29 +92,27 @@ namespace TilerElements.Wpf
 
 
         #region properties
-        virtual public int ConflictType
+        public int ConflictType
         {
             get
             {
                 return TypeOfConflict;
             }
-            set
+        }
+
+        public int ConflictCount
+        {
+            get
             {
-                TypeOfConflict = value;
+                return _Count;
             }
         }
 
-        virtual public int ConflictCount { get; set; } = 0;
-
-        virtual public bool Flag
+        virtual public bool isConflicting
         {
             get
             {
                 return ConflictFlag;
-            }
-            set
-            {
-                ConflictFlag = value;
             }
         }
 
@@ -142,8 +137,6 @@ namespace TilerElements.Wpf
 
             }
         }
-
-
         #endregion
 
 

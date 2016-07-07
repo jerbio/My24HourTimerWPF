@@ -4261,7 +4261,7 @@ namespace My24HourTimerWPF
             
             foreach (KeyValuePair<TimeLine, List<SubCalendarEvent>> eachKeyValuePair0 in freeTimeline_TO_CurrentEvents)
             {
-                List<SubCalendarEvent> ConflictingEvents = eachKeyValuePair0.Value.Where(obj => obj.Conflicts.isConflicting()).ToList();
+                List<SubCalendarEvent> ConflictingEvents = eachKeyValuePair0.Value.Where(obj => obj.Conflicts.isConflicting).ToList();
                 List<SubCalendarEvent> listWithoutConflictingEvents = eachKeyValuePair0.Value.Where(obj => !ConflictingEvents.Contains(obj)).OrderBy(obj=>obj.Start).ToList();
                 
                 
@@ -4305,7 +4305,7 @@ namespace My24HourTimerWPF
             }
             
 
-            AllEvents = AllEvents.Where(obj => !obj.Conflicts.isConflicting()).ToList();//removes conflicting events from buffering options
+            AllEvents = AllEvents.Where(obj => !obj.Conflicts.isConflicting).ToList();//removes conflicting events from buffering options
             if (AllEvents.Count < 1)
             {
                 return;
@@ -4444,7 +4444,7 @@ namespace My24HourTimerWPF
 
                 foreach (SubCalendarEvent eachSubCalendarEvent in pertinentSubCalEvents)
                 {
-                    if ((eachSubCalendarEvent.Conflicts.isConflicting() && justADict.ContainsKey(eachSubCalendarEvent)))
+                    if ((eachSubCalendarEvent.Conflicts.isConflicting && justADict.ContainsKey(eachSubCalendarEvent)))
                     {
                         continue; 
                     }
@@ -4455,9 +4455,9 @@ namespace My24HourTimerWPF
 
 
                 DateTimeOffset newEndTime = refTImeLine.End;
-                if (pertinentSubCalEvents.Where(obj => !obj.Conflicts.isConflicting()).Count() > 0)
+                if (pertinentSubCalEvents.Where(obj => !obj.Conflicts.isConflicting).Count() > 0)
                 {
-                    SubCalendarEvent LastEvent = pertinentSubCalEvents.Where(obj=>!obj.Conflicts.isConflicting()).Last();
+                    SubCalendarEvent LastEvent = pertinentSubCalEvents.Where(obj=>!obj.Conflicts.isConflicting).Last();
                     if (newEndTime < LastEvent.End)
                     {
                         newEndTime = LastEvent.End;

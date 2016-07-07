@@ -15,7 +15,7 @@ namespace TilerElements.DB
             SectionOfDay = DisLikedSection;
         }
 
-        public string Id
+        override public string Id
         {
             get
             {
@@ -31,7 +31,7 @@ namespace TilerElements.DB
                 }
                 else
                 {
-                    throw new Exception("Invalid id for procrastination ID");
+                    throw new Exception("Invalid id for DB procrastination");
                 }
 
             }

@@ -77,6 +77,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DB\DB_ConflictProfile.cs" />
+    <Compile Include="DB\DB_EventName.cs" />
     <Compile Include="DB\TilerDbContext.cs" />
     <Compile Include="DB\DBControl.cs" />
     <Compile Include="DB\DBControlDirect.cs" />

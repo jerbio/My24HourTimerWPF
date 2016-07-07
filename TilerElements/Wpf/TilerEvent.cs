@@ -56,7 +56,7 @@ namespace TilerElements.Wpf
 
         async public Task InitializeClassification()
         {
-            await Semantics.InitializeClassification(NameOfEvent.Name);
+            await Semantics.InitializeClassification(NameOfEvent.NameString);
         }
         public List<TilerUser> getAllUsers()
         {
@@ -258,7 +258,7 @@ namespace TilerElements.Wpf
         {
             get
             {
-                return NameOfEvent.Name;
+                return NameOfEvent.NameString;
             }
         }
 

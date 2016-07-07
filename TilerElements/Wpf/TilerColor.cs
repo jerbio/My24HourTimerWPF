@@ -114,7 +114,7 @@ namespace TilerElements.Wpf
         }
 
 
-        virtual public int User
+        virtual public int UserColorSelection
         {
             set
             {

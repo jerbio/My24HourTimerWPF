@@ -8,10 +8,10 @@ namespace TilerElements.Wpf
     
     public class EventDisplay
     {
-        bool Visible;
-        TilerColor eventColor;
-        int Default = 0;//0->Default Calendar Colors,1->Set As Complete,2->subCalendar Event Specific colors,3->Calendar Event Specific colors
-        bool CompleteUI;
+        protected bool Visible;
+        protected TilerColor eventColor;
+        protected int Default = 0;//0->Default Calendar Colors,1->Set As Complete,2->subCalendar Event Specific colors,3->Calendar Event Specific colors
+        protected bool CompleteUI;
         protected string ID { get; set; } = Guid.NewGuid().ToString();
 
         public EventDisplay()
@@ -46,65 +46,25 @@ namespace TilerElements.Wpf
 
 
         #region Properties
-        virtual public bool isVisible
-        {
-            get
-            {
-                return Visible;
-            }
-            set
-            {
-                Visible = value;
-            }
-        }
-
-        public TilerColor UIColor
+        virtual public TilerColor UIColor
         {
             get
             {
                 return eventColor;
             }
-            set
-            {
-                eventColor = value;
-            }
-        }
-
-
-        virtual public int isDefault
-        {
-            get 
-            {
-                return Default;
-            }
-            set
-            {
-                Default = value;
-            }
-        }
-
-        virtual public bool isCompleteUI
-        {
-            get
-            {
-                return CompleteUI;
-            }
-            set
-            {
-                CompleteUI = value;
-            }
         }
 
         virtual public string Id
         {
-            get {
+            get
+            {
                 return ID;
 
             }
             set
             {
                 Guid testValue;
-                if(Guid.TryParse(value,out testValue))
+                if (Guid.TryParse(value, out testValue))
                 {
                     ID = value;
                 }
@@ -112,15 +72,9 @@ namespace TilerElements.Wpf
                 {
                     throw new Exception("Invalid id for event display");
                 }
-                
+
             }
         }
-        
-
-        
-
-        
-
         #endregion
     }
 

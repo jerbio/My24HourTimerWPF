@@ -69,7 +69,10 @@ namespace TilerElements
             [XmlEnum(Name = "ProcrastinationDecrease")]
             ProcrastinationDecrease,
             [XmlEnum(Name = "SetAsNow")]
-            SetAsNow }
+            SetAsNow,
+            [XmlEnum(Name = "RestrictedEvent")]
+            RestrictedEvent
+        }
         protected Options _Option;
 
         virtual public Options Topic
@@ -175,6 +178,79 @@ namespace TilerElements
         {
             this._Option = Options.PreservedOrder;
         }
+    }
+
+    [Serializable]
+    public class DurationReason : Reason
+    {
+        public DurationReason()
+        {
+            this._Option = Options.Occupancy;
+        }
+    }
+
+    [Serializable]
+    public class RestrictedEventReason : Reason
+    {
+        public RestrictedEventReason()
+        {
+            this._Option = Options.RestrictedEvent;
+        }
+    }
+    [Serializable]
+    public class LocationReason : Reason
+    {
+        List<Location_Elements> _LocationCluster;
+        public LocationReason(IEnumerable<Location_Elements> locations)
+        {
+            this._Option = Options.CloseToCluster;
+            _LocationCluster = locations.Where(location=>location!=null).Where(location=> !location.isNull).ToList();
+        }
+
+        public LocationReason(Location_Elements location)
+        {
+            this._Option = Options.CloseToCluster;
+            if (location != null)
+            {
+                _LocationCluster = new List<Location_Elements>() { location };
+            }
+        }
+
+        public List<Location_Elements> LocationCluster
+        {
+            get
+            {
+                return _LocationCluster;
+            }
+            set
+            {
+                _LocationCluster = value;
+            }
+        }
+    }
+
+    [Serializable]
+    public class NoReason : Reason
+    {
+        static NoReason NoReasonFactoryObject;
+        public static NoReason getNoReasonInstanceFactory()
+        {
+            if (NoReasonFactoryObject == null)
+            {
+                NoReasonFactoryObject = new NoReasonFactory();
+            }
+
+            return NoReasonFactoryObject;
+        }
+        [Serializable]
+        class NoReasonFactory : NoReason
+        {
+            public NoReasonFactory()
+            {
+                this._Option = Options.None;
+            }
+        }
+
     }
 
 }

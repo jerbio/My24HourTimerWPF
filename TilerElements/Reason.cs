@@ -210,6 +210,7 @@ namespace TilerElements
         {
             this._Option = Options.CloseToCluster;
         }
+
         public LocationReason(IEnumerable<Location_Elements> locations)
         {
             this._Option = Options.CloseToCluster;
@@ -236,6 +237,7 @@ namespace TilerElements
                 _LocationCluster = value;
             }
         }
+<<<<<<< fe1fdcc6342d4e093c1394d07708511c3832fb8a
         //[XmlAttribute(DataType = "Option")]
         virtual public Options Option {
             get
@@ -251,6 +253,10 @@ namespace TilerElements
     }
 
 
+=======
+    }
+
+>>>>>>> added the location optimization reason to events
     [Serializable]
     public class NoReason : Reason
     {
@@ -274,4 +280,8 @@ namespace TilerElements
         }
 
     }
+<<<<<<< fe1fdcc6342d4e093c1394d07708511c3832fb8a
+=======
+
+>>>>>>> added the location optimization reason to events
 }

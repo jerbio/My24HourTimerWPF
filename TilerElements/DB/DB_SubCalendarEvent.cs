@@ -19,12 +19,12 @@ namespace TilerElements.DB
         {
             get
             {
-                return base.CreatorId;
+                return _CreatorId;
             }
 
             set
             {
-                base.CreatorId = value;
+                _CreatorId = value;
             }
         }
         [ForeignKey("CreatorId")]

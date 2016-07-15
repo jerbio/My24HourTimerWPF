@@ -1037,8 +1037,8 @@ namespace TilerElements.Wpf
                 UniqueID = this.UniqueID,
                 UserDeleted = this.UserDeleted,
                 UserIDs = this.UserIDs,
-                _Creator = this._Creator,
-                _CreatorId = this._CreatorId,
+                Creator = this.EventCreator,
+                CreatorId = this._CreatorId?? this._Creator.Id,
                 _DataBlob = this._DataBlob,
                 _UsedTime = this._UsedTime,
                 IsEventModified = this.IsEventModified

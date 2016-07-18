@@ -65,7 +65,6 @@
     <Compile Include="ConflictProfile.cs" />
     <Compile Include="DayTimeLine.cs" />
     <Compile Include="Classification.cs" />
-    <Compile Include="GoogleThirdPartyControl.cs" />
     <Compile Include="NowProfile.cs" />
     <Compile Include="PauseProfile.cs" />
     <Compile Include="Procrastination.cs" />

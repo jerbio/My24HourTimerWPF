@@ -9,19 +9,19 @@ namespace TilerElements
 {
     public class Classification
     {
-        
-        Vicinity Placement = Vicinity.None;
-        EnergyDifferential Succubus = EnergyDifferential.None;
-        Leisure LeisureType = Leisure.None;
-        bool Initialized = true;
-        ClassificationInterpreter Deduction;
+        protected string ID = Guid.NewGuid().ToString();   
+        protected Vicinity _Placement = Vicinity.None;
+        protected EnergyDifferential _Succubus = EnergyDifferential.None;
+        protected Leisure _LeisureType = Leisure.None;
+        protected bool _Initialized = true;
+        protected ClassificationInterpreter Deduction;
 #region Constructor
         public Classification(Vicinity LocationPlacement, EnergyDifferential StrengthDelta, Leisure RelaxationData, bool InitializedData)
         {
-            LeisureType = RelaxationData;
-            Succubus = StrengthDelta;
-            Placement = LocationPlacement;
-            Initialized = InitializedData;
+            _LeisureType = RelaxationData;
+            _Succubus = StrengthDelta;
+            _Placement = LocationPlacement;
+            _Initialized = InitializedData;
         }
 
         public Classification()
@@ -31,10 +31,10 @@ namespace TilerElements
         public Classification createCopy()
         {
             Classification RetValue = new Classification();
-            RetValue.Initialized = this.Initialized;
-            RetValue.LeisureType = this.LeisureType;
-            RetValue.Placement = this.Placement;
-            RetValue.Succubus = this.Succubus;
+            RetValue._Initialized = this._Initialized;
+            RetValue._LeisureType = this._LeisureType;
+            RetValue._Placement = this._Placement;
+            RetValue._Succubus = this._Succubus;
             return RetValue;
         }
 #endregion
@@ -44,12 +44,8 @@ namespace TilerElements
         {
             AlchemyAPI.AlchemyAPI AlchemyObj = new AlchemyAPI.AlchemyAPI();
             AlchemyObj.SetAPIKey("c73e93af01a6cb7728a6b90887c266a8881b7665");
-<<<<<<< HEAD:TilerElements/Classification.cs
             var strings = new string [] { "", "" };
             Deduction = new ClassificationInterpreter(strings);
-=======
-            Deduction= new ClassificationInterpreter()
->>>>>>> e7a21b28d976c62be6bd926f4c48357c0a9b085a:TilerElements/Classification.cs
             string xml = "";
             try
             {
@@ -76,7 +72,7 @@ namespace TilerElements
         {
             get
             {
-                return Placement;
+                return _Placement;
             }
         }
 
@@ -84,7 +80,7 @@ namespace TilerElements
         {
             get
             {
-                return Succubus;
+                return _Succubus;
             }
         }
 
@@ -92,7 +88,7 @@ namespace TilerElements
         {
             get
             {
-                return LeisureType;
+                return _LeisureType;
             }
         }
 
@@ -100,15 +96,15 @@ namespace TilerElements
         {
             get
             {
-                return Initialized;
+                return _Initialized;
             }
         }
         #endregion
 
         #region Interior Class
-        class ClassificationInterpreter
+        protected class ClassificationInterpreter
         {
-            Vicinity LocationDeduction = Vicinity.None;
+            protected Vicinity LocationDeduction = Vicinity.None;
             EnergyDifferential SuccubusDeduction= EnergyDifferential.None;
             Leisure LesiureTypeDeduction = Leisure.None;
 
@@ -117,7 +113,7 @@ namespace TilerElements
 
             }
 
-            void Evaluatecategorization ()
+            protected void Evaluatecategorization ()
             {
 
             }

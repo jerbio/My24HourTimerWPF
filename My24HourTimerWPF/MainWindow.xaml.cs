@@ -20,8 +20,6 @@ using System.Windows.Markup;
 using System.Xml;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using System.Collections.Generic;
-using Google.Maps.Geocoding;
 using WinForms = System.Windows.Forms;
 using TilerFront;
 using System.Threading.Tasks;

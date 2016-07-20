@@ -1630,10 +1630,10 @@ namespace TilerElements.Wpf
                 _DataBlob=CalendarEventEntry._DataBlob;
                 LocationInfo =CalendarEventEntry.LocationInfo;
                 otherPartyID = CalendarEventEntry.otherPartyID;
-                this.CreatorIDInfo = CalendarEventEntry.CreatorIDInfo;
+                this._CreatorId = CalendarEventEntry._CreatorId;
+                this._Creator = CalendarEventEntry._Creator;
                 this.CalculableSubEvents = CalendarEventEntry.CalculableSubEvents;
                 this.CompletedCount = CalendarEventEntry.CompletedCount;
-                this.ConstrictRange = CalendarEventEntry.ConstrictRange;
                 this.DeletedCount = CalendarEventEntry.DeletedCount;
                 this.EndOfCalculation = CalendarEventEntry.EndOfCalculation;
                 this.isCalculableInitialized = CalendarEventEntry.isCalculableInitialized;

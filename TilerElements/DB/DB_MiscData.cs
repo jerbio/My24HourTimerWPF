@@ -37,6 +37,17 @@ namespace TilerElements.DB
             }
         }
 
+
+        static public DB_MiscData ConvertToPersistable(MiscData miscData)
+        {
+            DB_MiscData retValue = new DB_MiscData()
+            {
+                Id = miscData.Id,
+                NoteData = miscData.UserNote,
+                Type = miscData.TypeSelection
+            };
+            return retValue;
+        }
         #endregion
     }
 }

@@ -73,7 +73,7 @@ namespace TilerElements.Wpf
                 Guid testValue;
                 if (Guid.TryParse(value, out testValue))
                 {
-                    Id = value;
+                    ID = value;
                 }
                 else
                 {

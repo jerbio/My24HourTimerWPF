@@ -62,5 +62,18 @@ namespace TilerElements.DB
                 CompleteUI = value;
             }
         }
+
+        public static DB_EventDisplay ConvertToPersistable(EventDisplay eventDisplay)
+        {
+            DB_EventDisplay retValue = new DB_EventDisplay()
+            {
+                Id = eventDisplay.Id,
+                Color = eventDisplay.UIColor,
+                isCompleteUI = eventDisplay.isComplete,
+                isDefault = eventDisplay.DefaultId,
+                Visible = eventDisplay.VisibleFlag
+            };
+            return retValue;
+        }
     }
 }

@@ -57,10 +57,6 @@ namespace TilerElements.Wpf
             {
                 return BeginTIme;
             }
-            set
-            {
-                BeginTIme = value;
-            }
         }
 
         virtual public DateTimeOffset DislikedStartTime
@@ -68,10 +64,6 @@ namespace TilerElements.Wpf
             get
             {
                 return FromTime;
-            }
-            set
-            {
-                FromTime = value;
             }
         }
 
@@ -88,10 +80,6 @@ namespace TilerElements.Wpf
             get
             {
                 return SectionOfDay;
-            }
-            set
-            {
-                SectionOfDay = value;
             }
         }
 
@@ -123,6 +111,11 @@ namespace TilerElements.Wpf
         {
             FromTime = new DateTimeOffset();
             BeginTIme = new DateTimeOffset();
+        }
+
+        public bool IsInitialized()
+        {
+            return FromTime != new DateTimeOffset();
         }
         #endregion
     }

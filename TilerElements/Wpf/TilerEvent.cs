@@ -19,8 +19,8 @@ namespace TilerElements.Wpf
         protected bool UserDeleted = false;
         protected bool FromRepeatEvent=false;
         protected Location_Elements LocationInfo;
-        protected EventDisplay UiParams = new EventDisplay();
-        protected MiscData _DataBlob = new MiscData();
+        protected EventDisplay UiParams;// = new EventDisplay();
+        protected MiscData _DataBlob;// = new MiscData();
         //protected bool RepetitionFlag;
         protected bool RigidSchedule;
         protected TimeSpan EventDuration;
@@ -32,8 +32,8 @@ namespace TilerElements.Wpf
         protected int Priority;
         protected static DateTimeOffset EventNow = DateTimeOffset.Now;
         protected static TimeSpan CalculationEndSpan = new TimeSpan(180, 0, 0, 0, 0);
-        protected Procrastination ProfileOfProcrastination = new Procrastination(new DateTimeOffset(), new TimeSpan());
-        protected NowProfile ProfileOfNow = new NowProfile();
+        protected Procrastination ProfileOfProcrastination;// = new Procrastination(new DateTimeOffset(), new TimeSpan());
+        protected NowProfile ProfileOfNow;// = new NowProfile();
         protected long RepetitionSequence = 0;
         protected DateTimeOffset OriginalStart;
         public enum Conflictability { Averse, Normal, Tolerant};
@@ -52,7 +52,7 @@ namespace TilerElements.Wpf
         protected string  _CreatorId;
         protected TilerUser _Creator;
         protected TimeSpan _UsedTime = new TimeSpan();
-        protected Classification Semantics= new Classification();
+        protected Classification Semantics;//= new Classification();
 
         async public Task InitializeClassification()
         {
@@ -65,6 +65,11 @@ namespace TilerElements.Wpf
         public void updateEventName(string NewName)
         {
             NameOfEvent = new EventName( NewName,Id);
+        }
+
+        public void updateEventName(EventName NewName)
+        {
+            NameOfEvent = NewName;
         }
 
         internal void setAsUserDeleted()

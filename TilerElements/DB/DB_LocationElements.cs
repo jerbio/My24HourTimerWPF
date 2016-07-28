@@ -33,6 +33,7 @@ namespace TilerElements.DB
         public string State { get; set; }
         public string Country { get; set; }
         public string Zip { get; set; }
+
         override public string Id
         {
             get
@@ -92,7 +93,6 @@ namespace TilerElements.DB
             }
         }
 
-
         public string Name
         {
             get
@@ -105,7 +105,7 @@ namespace TilerElements.DB
             }
         }
 
-        public string Address
+        public string FullAddress
         {
             get
             {
@@ -115,6 +115,22 @@ namespace TilerElements.DB
             {
                 TaggedAddress = value;
             }
+        }
+
+        static public DB_LocationElements ConvertToPersistable(Location_Elements location)
+        {
+            DB_LocationElements retValue = new DB_LocationElements()
+            {
+                FullAddress = location.Address,
+                TaggedDescription = location.Description,
+                Id = location.Id,
+                isNullLocation = location.isNull,
+                xValue = location.XCoordinate,
+                yValue = location.YCoordinate,
+                DefaultFlag = location.isDefault,
+                Name = location.Description
+            };
+            return retValue;
         }
     }
 }

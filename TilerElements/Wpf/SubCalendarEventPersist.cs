@@ -373,5 +373,26 @@ namespace TilerElements.Wpf
             }
         }
 
+        public override string Id
+        {
+            set
+            {
+                UniqueID = new EventID(value);
+            }
+        }
+
+        override public TimeSpan UsedTime
+        {
+            set
+            {
+                _UsedTime = value;
+            }
+
+            get
+            {
+                return _UsedTime;
+            }
+        }
+
     }
 }

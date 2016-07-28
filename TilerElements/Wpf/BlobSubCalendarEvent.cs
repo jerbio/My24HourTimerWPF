@@ -27,6 +27,24 @@ namespace TilerElements.Wpf
             MuddledEvent = true;
         }
 
+        public BlobSubCalendarEvent()
+        {
+            StartDateTime = new DateTimeOffset();
+            EndDateTime = new DateTimeOffset();
+            UniqueID = EventID.GenerateSubCalendarEvent(EventID.GenerateCalendarEvent().ToString(), 0);
+            BusyFrame = new BusyTimeLine(UniqueID.ToString(), StartDateTime, EndDateTime);
+            CalendarEventRange = new TimeLine(StartDateTime, EndDateTime);
+            CalendarEvent nullEvent = CalendarEvent.getEmptyCalendarEvent(UniqueID, StartDateTime, EndDateTime);
+            RigidSchedule = true;
+            double halfDouble = Double.MaxValue / 2;
+            LocationInfo = new Location_Elements();
+            EventScore = 0;
+            EventClumps = new SubCalendarEvent[0];
+            EventDuration = new TimeSpan();
+            ConflictingEvents = new ConflictProfile();
+            MuddledEvent = true;
+        }
+
         public IEnumerable<SubCalendarEvent> getSubCalendarEventsInBlob()
         {
             return EventClumps;

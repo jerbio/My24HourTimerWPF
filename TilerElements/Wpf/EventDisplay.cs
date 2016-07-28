@@ -54,6 +54,30 @@ namespace TilerElements.Wpf
             }
         }
 
+        virtual public bool isComplete
+        {
+            get
+            {
+                return CompleteUI;
+            }
+        }
+
+        virtual public int DefaultId
+        {
+            get
+            {
+                return Default;
+            }
+        }
+
+        virtual public bool VisibleFlag
+        {
+            get
+            {
+                return Visible;
+            }
+        }
+
         virtual public string Id
         {
             get

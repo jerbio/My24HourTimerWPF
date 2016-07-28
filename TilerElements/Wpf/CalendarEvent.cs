@@ -17,7 +17,7 @@ namespace TilerElements.Wpf
         static Dictionary<string, List<Double>> DistanceMatrixData;
         static List<string> DistanceMatixKeys;
         static List<Location_Elements> Horizontal;
-        public static bool UseDictionarySubCalendarRepresentation = false;
+        protected  bool calculationReadyFlag = false;
         protected Repetition EventRepetition;
         protected int Splits;
         protected TimeSpan TimePerSplit;
@@ -42,7 +42,6 @@ namespace TilerElements.Wpf
         Deviation DeviatingSubCalendarEventInfo = new Deviation();
         Deviation DeviatingCalendarEventInfo = new Deviation();
         public enum DeviationType {deleted, completed, NowProfile};
-        protected NowProfile ProfileOfNow = new NowProfile();
         /// <summary>
         /// Class defines the subevents that deviate from the norm of the calendar event subevent. Thsi could be subebvents that have a completed, deleted, or set as now.
         /// </summary>
@@ -114,27 +113,27 @@ namespace TilerElements.Wpf
 
         public CalendarEvent()
         {
-            EventDuration = new TimeSpan();
+            //EventDuration = new TimeSpan();
             
-            StartDateTime = new DateTimeOffset();
-            EndDateTime = new DateTimeOffset();
-            EventPreDeadline = new TimeSpan();
-            PrepTime = new TimeSpan();
-            Priority = 0;
-            //RepetitionFlag = false;
-            EventRepetition = new Repetition();
-            RigidSchedule = false;
-            Splits = 1;
-            LocationInfo = new Location_Elements();
-            UniqueID = EventID.GenerateCalendarEvent();
-            SubEvents = new Dictionary<EventID, SubCalendarEvent>();
-            //SchedulStatus = false;
-            otherPartyID = "";
-            CalendarError = new CustomErrors(false, string.Empty);
-            EventSequence = new TimeLine();
-            ProfileOfProcrastination = new Procrastination(new DateTimeOffset(), new TimeSpan());
-            ProfileOfNow = new NowProfile();
-            NameOfEvent = new EventName(UniqueID);
+            //StartDateTime = new DateTimeOffset();
+            //EndDateTime = new DateTimeOffset();
+            //EventPreDeadline = new TimeSpan();
+            //PrepTime = new TimeSpan();
+            //Priority = 0;
+            ////RepetitionFlag = false;
+            //EventRepetition = new Repetition();
+            //RigidSchedule = false;
+            //Splits = 1;
+            //LocationInfo = new Location_Elements();
+            //UniqueID = EventID.GenerateCalendarEvent();
+            //SubEvents = new Dictionary<EventID, SubCalendarEvent>();
+            ////SchedulStatus = false;
+            //otherPartyID = "";
+            //CalendarError = new CustomErrors(false, string.Empty);
+            //EventSequence = new TimeLine();
+            //ProfileOfProcrastination = new Procrastination(new DateTimeOffset(), new TimeSpan());
+            //ProfileOfNow = new NowProfile();
+            //NameOfEvent = new EventName(UniqueID);
         }
 
         //CalendarEvent MyCalendarEvent = new CalendarEvent(NameEntry, Duration, StartDate, EndDate, PrepTime, PreDeadline, Rigid, Repeat, Split);
@@ -164,11 +163,6 @@ namespace TilerElements.Wpf
         public CalendarEvent(string EventIDEntry, string NameEntry, string StartTime, DateTimeOffset StartDateEntry, string EndTime, DateTimeOffset EventEndDateEntry,DateTimeOffset OriginalStartData,  string eventSplit, string PreDeadlineTime, string EventDuration, Repetition EventRepetitionEntry, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag, Location_Elements EventLocation, bool EnableFlag, EventDisplay UiData, MiscData NoteData, bool CompletionFlag)
             : this(new ConstructorModified(EventIDEntry, NameEntry, StartTime, StartDateEntry, EndTime, EventEndDateEntry, eventSplit, PreDeadlineTime, EventDuration, EventRepetitionEntry, DefaultPrepTimeflag, RigidScheduleFlag, eventPrepTime, PreDeadlineFlag, EnableFlag, UiData, NoteData, CompletionFlag), new EventID(EventIDEntry), OriginalStartData, EventLocation)
         { }
-        /*
-        internal CalendarEvent(string NameEntry, string StartTime, DateTimeOffset StartDateEntry, string EndTime, DateTimeOffset EventEndDateEntry, string eventSplit, string PreDeadlineTime, string EventDuration, Repetition EventRepetitionEntry, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag,Location_Elements EventLocation,bool EnabledEventFlag, EventDisplay UiData,MiscData NoteData,bool CompletionFlag)
-            : this(new ConstructorModified(NameEntry, StartTime, StartDateEntry, EndTime, EventEndDateEntry, eventSplit, PreDeadlineTime, EventDuration, EventRepetitionEntry, DefaultPrepTimeflag, RigidScheduleFlag, eventPrepTime, PreDeadlineFlag, EnabledEventFlag,  UiData, NoteData, CompletionFlag), EventLocation)
-        {
-        }*/
 
         /// <summary>
         /// TO be used for adding a new event to Tiler
@@ -277,6 +271,7 @@ namespace TilerElements.Wpf
                 {
                     //(TimeSpan Event_Duration, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, Location EventLocation =null, TimeLine RangeOfSubCalEvent = null)
                     SubCalendarEvent newSubCalEvent = new SubCalendarEvent(TimePerSplit, (EndDateTime - TimePerSplit), this.End, new TimeSpan(), OriginalStartData, UniqueID.ToString(),RigidSchedule, this.isEnabled, this.UiParams, this.DataBlob, this.Complete, i+1, EventLocation, this.RangeTimeLine);
+                    newSubCalEvent.updateEventName(this.NameOfEvent);
                     SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
                 }
             }
@@ -327,6 +322,7 @@ namespace TilerElements.Wpf
                 {
                     SubCalendarEvent newSubCalEvent = new SubCalendarEvent(TimePerSplit, (EndDateTime - TimePerSplit), this.End, new TimeSpan(), OriginalStart, UniqueID.ToString(), RigidSchedule, this.Enabled, this.UiParams, this.DataBlob, this.Complete, i+1, EventLocation, this.RangeTimeLine); //new SubCalendarEvent(CalendarEventID);
                     SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
+                    newSubCalEvent.updateEventName(this.NameOfEvent);
                 }
             }
             
@@ -360,7 +356,7 @@ namespace TilerElements.Wpf
         /// <param name="RepeatIndex"></param>
         /// <returns></returns>
 
-        static public CalendarEvent InstantiateRepeatedCandidate(EventID EventIDEntry, string EventName, TimeSpan Event_Duration, DateTimeOffset EventStart, DateTimeOffset EventDeadline, DateTimeOffset OriginalStartData, TimeSpan EventPrepTime, TimeSpan Event_PreDeadline, bool EventRigidFlag, Repetition EventRepetitionEntry, int EventSplit, Location_Elements EventLocation, bool enabledFlag, EventDisplay UiData, MiscData NoteData, bool CompletionFlag, long RepeatIndex, ConcurrentDictionary<DateTimeOffset, CalendarEvent> OrginalStartToCalendarEvent, CalendarEvent RepeatRootData)
+        static public CalendarEvent InstantiateRepeatedCandidate(EventID EventIDEntry, EventName EventName, TimeSpan Event_Duration, DateTimeOffset EventStart, DateTimeOffset EventDeadline, DateTimeOffset OriginalStartData, TimeSpan EventPrepTime, TimeSpan Event_PreDeadline, bool EventRigidFlag, Repetition EventRepetitionEntry, int EventSplit, Location_Elements EventLocation, bool enabledFlag, EventDisplay UiData, MiscData NoteData, bool CompletionFlag, long RepeatIndex, ConcurrentDictionary<DateTimeOffset, CalendarEvent> OrginalStartToCalendarEvent, CalendarEvent RepeatRootData)
         {
             CalendarEvent RetValue= new CalendarEvent();
             
@@ -383,7 +379,7 @@ namespace TilerElements.Wpf
             RetValue.TimePerSplit = TimeSpan.FromTicks(((RetValue.EventDuration.Ticks / RetValue.Splits)));
             RetValue.InitializingTimeSpanPerSplit = RetValue.TimePerSplit;
             RetValue.FromRepeatEvent = true;
-            RetValue.NameOfEvent = new EventName(RetValue.UniqueID, EventName);
+            RetValue.NameOfEvent =  EventName;
             /*
             if (RetValue.EventRepetition.Enable)
             {
@@ -403,6 +399,7 @@ namespace TilerElements.Wpf
                 {
                     //(TimeSpan Event_Duration, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, Location EventLocation =null, TimeLine RangeOfSubCalEvent = null)
                     SubCalendarEvent newSubCalEvent = new SubCalendarEvent(RetValue.TimePerSplit, (RetValue.EndDateTime - RetValue.TimePerSplit), RetValue.End, new TimeSpan(), OriginalStartData, RetValue.UniqueID.ToString(), RetValue.RigidSchedule, RetValue.isEnabled, RetValue.UiParams, RetValue.DataBlob, RetValue.Complete, i+1, EventLocation, RetValue.RangeTimeLine);
+                    newSubCalEvent.updateEventName(RetValue.NameOfEvent);
                     RetValue.SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
                 }
             }
@@ -510,7 +507,7 @@ namespace TilerElements.Wpf
             foreach(SubCalendarEvent eachSubcal in AllSubCalEvents )
             {
                 //eachSubcal.resetNowProfile();
-                DeviatingSubCalendarEventInfo.removeFromDeviatingData(DeviationType.NowProfile, eachSubcal.ID);
+                DeviatingSubCalendarEventInfo.removeFromDeviatingData(DeviationType.NowProfile, eachSubcal.Id);
             }
             ProfileOfNow.reset();
         }
@@ -523,9 +520,9 @@ namespace TilerElements.Wpf
             return SubEvents.ToDictionary(KeyValuePair=> KeyValuePair.Key, KeyValuePair => KeyValuePair.Value);
         }
 
-        public Dictionary<EventID, SubCalendarEvent> getConvertToPersistedSubEvents()
+        public Dictionary<EventID, SubCalendarEvent> getConvertToPersistedSubEvents(Location_Elements location = null, NowProfile nowProfile = null, Procrastination procrastination = null, EventName eventName = null, MiscData dataBlob = null, Classification classification = null, EventDisplay uiData = null)
         {
-            return SubEvents.ToDictionary(KeyValuePair => KeyValuePair.Key, KeyValuePair => (SubCalendarEvent)KeyValuePair.Value.ConvertToPersistable());
+            return SubEvents.ToDictionary(KeyValuePair => KeyValuePair.Key, KeyValuePair => (SubCalendarEvent)KeyValuePair.Value.ConvertToPersistable(location, nowProfile, procrastination, eventName, dataBlob, classification, uiData));
         }
 
         virtual public CalendarEvent createCopy(EventID Id=null)
@@ -1790,8 +1787,14 @@ namespace TilerElements.Wpf
             {
                 AllFreeDayTIme.AsParallel().ForAll(obj => { obj.updateOccupancyOfTimeLine(); });
             }
+
+
+            List < DayTimeLine > retValue = AllFreeDayTIme.ToList();
+            if (ProcrastinationInfo != null)
+            {
+                retValue = retValue.Where(obj => obj.UniversalIndex >= ProcrastinationInfo.PreferredDayIndex).ToList();
+            }
             
-            List<DayTimeLine> retValue = AllFreeDayTIme.Where(obj => obj.UniversalIndex >= ProcrastinationInfo.PreferredDayIndex).ToList();
             return retValue;
         }
 
@@ -2083,6 +2086,7 @@ namespace TilerElements.Wpf
         {
             DB.DB_CalendarEventFly RetValue = new DB.DB_CalendarEventFly()
             {
+                Id = this.Id,
                 DeviationFlag = this.getDeviationFlag(),
                 CalculationEnd = this.getCalculationEnd(),
                 Complete = this.isComplete,
@@ -2101,34 +2105,41 @@ namespace TilerElements.Wpf
                 isDeleted = this.isEnabled,
                 isDeletedByUser = this.isUserDeleted,
                 RigidSchedule = this.Rigid,
-                LastNowProfile = this.NowInfo,
-                ProfileOfProcrastination = this.ProcrastinationInfo,
+                ProfileOfNow = this.NowInfo != null ? (this.NowInfo.isInitialized? DB.DB_NowProfile.ConvertToPersistable(this.NowInfo) : null):null,
+                ProfileOfProcrastination = this.ProcrastinationInfo != null ? (this.ProcrastinationInfo.IsInitialized()? DB.DB_Procrastination.ConvertToPersistable( this.ProcrastinationInfo): null):null,
                 SplitCount = this.NumberOfSplit,
-                SubEvents = this.getConvertToPersistedSubEvents(),
                 TimePerSplit = this.EachSplitTimeSpan,
-                UIData = this.UIParam,
                 Urgency = this.EventPriority,
                 Users = this.getAllUsers(),
-                Name = this.getName(),
+                Name = this.NameOfEvent != null ? (DB.DB_EventName.ConvertToPersistable (this.getName())):null,
                 Notes = this.DataBlob,
                 RepeatRoot = this.Repeat.getRootCalendarEvent(),
                 StartTime = this.Start,
                 EndTime = this.End,
                 IsEventModified = this.IsEventModified,
-                Creator = this.EventCreator
+                Creator = this.EventCreator,
+                LocationInfo = this.LocationInfo != null ? (this.LocationInfo.isNull ? null : DB.DB_LocationElements.ConvertToPersistable( this.LocationInfo)):null,
+                _DataBlob = this._DataBlob != null ? (DB.DB_MiscData.ConvertToPersistable(this._DataBlob)):null,
+                Classification = this.Classification != null ? (DB.DB_Classification.ConvertToPersistable(this.Classification)):null,
+                UIData = this.UIParam != null ? (DB.DB_EventDisplay.ConvertToPersistable(this.UIParam)):null
             };
-            if( RetValue.RepeatRoot == null)
+
+            RetValue.calculationReadyFlag = this.calculationReadyFlag;
+            RetValue.SubEvents = this.getConvertToPersistedSubEvents(RetValue.Location, RetValue.NowInfo, RetValue.ProcrastinationInfo, RetValue.Name, RetValue.DataBlob, RetValue.Classification, RetValue.UIData);
+            
+            if ( RetValue.RepeatRoot == null)
             {
                 RetValue.RepeatRoot = RetValue;
             }
             return RetValue;
         }
 
+
         #endregion
 
         #region Properties
 
-        
+
         public EventID Calendar_EventID
         {
             get
@@ -2177,7 +2188,13 @@ namespace TilerElements.Wpf
         {
             get
             {
-                return EventRepetition.Enable;
+                bool retValue = false;
+                if (EventRepetition != null)
+                {
+                    retValue = EventRepetition.Enable;
+                }
+
+                return retValue;
             }
         }
         public Repetition Repeat
@@ -2206,6 +2223,12 @@ namespace TilerElements.Wpf
         }
 
         */
+
+        public virtual void PrepareForCalculation()
+        {
+            calculationReadyFlag = true;
+            return;
+        }
         
         public TimeSpan Duration
         {
@@ -2252,7 +2275,7 @@ namespace TilerElements.Wpf
         {//return All Subcalevents that enabled or not.
             get
             {
-                if (this.Repeat.Enable)
+                if (RepetitionStatus)
                 {
                     return this.Repeat.RecurringCalendarEvents().SelectMany(obj => obj.AllSubEvents).ToArray();
                 }
@@ -2408,6 +2431,17 @@ namespace TilerElements.Wpf
             get
             {
                 return ProfileOfNow;
+            }
+        }
+
+        public virtual ICollection<SubCalendarEvent> SubCalendarEvents {
+            get
+            {
+                return AllSubEvents;
+            }
+            set
+            {
+                throw new NotImplementedException("You are trying set on SubCalendarEvents. You need to be deriving from this class to set sub events");
             }
         }
         #endregion

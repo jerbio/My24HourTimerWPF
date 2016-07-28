@@ -37,7 +37,7 @@ namespace TilerElements.Wpf
         {
             Parallel.ForEach(SubEventList, eachSubCal =>//(eachSubCal in SubEventList)
             {
-                AllocatedSubEvents.AddOrUpdate(eachSubCal.ID, eachSubCal, (key, value) => eachSubCal);
+                AllocatedSubEvents.AddOrUpdate(eachSubCal.Id, eachSubCal, (key, value) => eachSubCal);
                 
             });
             
@@ -48,7 +48,7 @@ namespace TilerElements.Wpf
         {
             //Parallel.ForEach(SubEventList, eachSubCal =>//(eachSubCal in SubEventList)
             {
-                AllocatedSubEvents.AddOrUpdate(eachSubCal.ID, eachSubCal, (key, value) => eachSubCal);
+                AllocatedSubEvents.AddOrUpdate(eachSubCal.Id, eachSubCal, (key, value) => eachSubCal);
 
             }
             //);
@@ -58,7 +58,7 @@ namespace TilerElements.Wpf
 
         public void InitializeSubEventList(List<SubCalendarEvent> SubEventList)
         {
-            AllocatedSubEvents = new ConcurrentDictionary<string, SubCalendarEvent>(SubEventList.ToDictionary(obj=>obj.ID,obj=>obj));
+            AllocatedSubEvents = new ConcurrentDictionary<string, SubCalendarEvent>(SubEventList.ToDictionary(obj=>obj.Id,obj=>obj));
             updateOccupancyOfTimeLine();
         }
         public void updateOccupancyOfTimeLine()

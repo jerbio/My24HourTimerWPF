@@ -19,9 +19,9 @@ namespace TilerElements.DB
         int DeletedSofar =0;
         int CompletedSofar = 0;
 
-        protected List<SubCalendarEvent> ListBackedSubEVents;
+        protected List<SubCalendarEvent> ListBackedSubEVents = new List<SubCalendarEvent>();
 
-        public DB_CalendarEventFly():base()
+        public DB_CalendarEventFly()//:base()
         {
 
         }
@@ -386,19 +386,18 @@ namespace TilerElements.DB
         {
             get
             {
-                if(UseDictionarySubCalendarRepresentation)
+                if (calculationReadyFlag)
                 {
-                    return SubEvents.Values; 
+                    return SubEvents.Values.ToList();
                 }
                 else
                 {
                     return ListBackedSubEVents;
                 }
-                
             }
             set
             {
-                if (UseDictionarySubCalendarRepresentation)
+                if (calculationReadyFlag)
                 {
                     SubEvents = value.ToDictionary(obj => obj.SubEvent_ID, obj => obj);
                 }
@@ -406,7 +405,15 @@ namespace TilerElements.DB
                 {
                     ListBackedSubEVents = value.ToList();
                 }
+
+                
             }
+        }
+
+        public override void PrepareForCalculation()
+        {
+            SubEvents = ListBackedSubEVents.ToDictionary(obj => obj.SubEvent_ID, obj => obj);
+            calculationReadyFlag = true;
         }
 
         public override TimeSpan TimeSpanPerSplit
@@ -434,6 +441,7 @@ namespace TilerElements.DB
                 this.UiParams = value;
             }
         }
+
 
         public override int Urgency
         {
@@ -479,7 +487,7 @@ namespace TilerElements.DB
         {
             get
             {
-                if (Repeat.Enable)
+                if (RepetitionStatus)
                 {
                     return Repeat;
                 }
@@ -578,7 +586,7 @@ namespace TilerElements.DB
             }
         }
 
-        public override CalendarEventPersist ConvertToPersistable()
+        public virtual CalendarEventPersist ConvertToPersistableCalendarEvent()
         {
             return this;
         }

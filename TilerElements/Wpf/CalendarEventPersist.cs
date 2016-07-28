@@ -38,7 +38,6 @@ namespace TilerElements.Wpf
         public virtual TimeSpan OriginalTimeSpanPerSplit { get; set; }
         public virtual Procrastination ProcrastinationProfile { get; set; }
         public virtual int SplitCount { get; set; }
-        public virtual ICollection<SubCalendarEvent> SubCalendarEvents { get; set; }
         public virtual TimeSpan TimeSpanPerSplit { get; set; }
         public virtual EventDisplay UIData { get; set; }
         public virtual int Urgency { get; set; }
@@ -51,5 +50,25 @@ namespace TilerElements.Wpf
         public virtual CalendarEvent RepeatRoot { get; set; }
         public virtual DateTimeOffset StartTime { get; set; }
         public virtual DateTimeOffset EndTime { get; set; }
+        public override string Id
+        {
+            set
+            {
+                UniqueID = new EventID(value);
+            }
+        }
+
+        override public TimeSpan UsedTime
+        {
+            set
+            {
+                _UsedTime = value;
+            }
+
+            get
+            {
+                return _UsedTime;
+            }
+        }
     }
 }

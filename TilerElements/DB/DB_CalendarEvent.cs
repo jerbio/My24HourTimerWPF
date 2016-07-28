@@ -50,7 +50,6 @@ namespace TilerElements.DB
         public override TimeSpan OriginalTimeSpanPerSplit { get; set; }
         public override Procrastination ProcrastinationProfile { get; set; }
         public override int SplitCount { get; set; }
-        public override ICollection<SubCalendarEvent> SubCalendarEvents { get; set; }
         public override TimeSpan TimeSpanPerSplit { get; set; }
         public override EventDisplay UIData { get; set; }
         public override int Urgency { get; set; }

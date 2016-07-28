@@ -42,5 +42,12 @@ namespace TilerElements.DB
                 this.TimePreferredForEvent = value;
             }
         }
+
+        public static DB_NowProfile ConvertToPersistable(NowProfile nowProfile)
+        {
+            DB_NowProfile retValue = new DB_NowProfile(nowProfile);
+            retValue.Id = nowProfile.Id;
+            return retValue;
+        }
     }
 }

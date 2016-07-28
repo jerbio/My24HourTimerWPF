@@ -175,9 +175,9 @@ namespace TilerElements.Wpf
         {
             SubCalendarEventRestricted copy = new SubCalendarEventRestricted();
             copy.BusyFrame = this.BusyFrame.CreateCopy();
-            copy.CalendarEventRange = CalendarEventRange.CreateCopy();
+            copy.CalendarEventRange = CalendarEventRange != null ? this.CalendarEventRange.CreateCopy():null;
             copy.Complete = Complete;
-            copy.ConflictingEvents = this.ConflictingEvents.CreateCopy();
+            copy.ConflictingEvents = this.ConflictingEvents != null ? this.ConflictingEvents.CreateCopy():null;
             copy._DataBlob = this._DataBlob.createCopy();
             copy.DeadlineElapsed = this.DeadlineElapsed;
             copy.Enabled = this.Enabled;
@@ -188,21 +188,21 @@ namespace TilerElements.Wpf
             copy.EventScore = this.EventScore;
             //copy.EventSequence = this.EventSequence.CreateCopy();
             copy.FromRepeatEvent = this.FromRepeatEvent;
-            copy.HardCalendarEventRange = this.HardCalendarEventRange.CreateCopy();
+            copy.HardCalendarEventRange = this.HardCalendarEventRange != null ? this.HardCalendarEventRange.CreateCopy():null;
             copy.HumaneTimeLine = this.HumaneTimeLine.CreateCopy();
             copy.Vestige = this.Vestige;
-            copy.LocationInfo = this.LocationInfo.CreateCopy();
+            copy.LocationInfo = this.LocationInfo != null ? this.LocationInfo.CreateCopy() : null;
             copy.MiscIntData = this.MiscIntData;
-            copy.NonHumaneTimeLine = this.NonHumaneTimeLine.CreateCopy();
+            copy.NonHumaneTimeLine = this.NonHumaneTimeLine != null ? this.NonHumaneTimeLine.CreateCopy() : null;
             copy.otherPartyID = this.otherPartyID;
             copy.PreferredDayIndex = this.PreferredDayIndex;
             copy.PrepTime = this.PrepTime;
             copy.Priority = this.Priority;
-            copy.ProfileOfRestriction = this.ProfileOfRestriction.createCopy();
+            copy.ProfileOfRestriction = this.ProfileOfRestriction != null ? this.ProfileOfRestriction.createCopy() : null;
             //copy.RepetitionFlag = this.RepetitionFlag;
             copy.RigidSchedule = this.RigidSchedule;
             copy.StartDateTime = this.StartDateTime;
-            copy.UiParams = this.UiParams.createCopy();
+            copy.UiParams = this.UiParams != null ? this.UiParams.createCopy() : null;
 
             if (eventId != null)
             {
@@ -215,7 +215,7 @@ namespace TilerElements.Wpf
             copy.UnUsableIndex = this.UnUsableIndex;
             copy.UserDeleted = this.UserDeleted;
             copy.UserIDs = this.UserIDs.ToList();
-            copy.Semantics = this.Semantics.createCopy();
+            copy.Semantics = this.Semantics != null ? this.Semantics.createCopy():null;
             copy._UsedTime = this._UsedTime;
             copy._Creator = this._Creator;
             return copy;
@@ -316,7 +316,7 @@ namespace TilerElements.Wpf
 
         public bool UpdateThis(SubCalendarEventRestricted SubEventEntryData, bool force = false)
         {
-            if ((this.ID == SubEventEntryData.ID))
+            if ((this.Id == SubEventEntryData.Id))
             {
                 if(force)
                 {

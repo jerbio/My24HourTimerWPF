@@ -270,14 +270,10 @@ namespace TilerElements.Wpf
                 isDeletedByUser = this.isUserDeleted,
                 RigidSchedule = this.Rigid,
                 LastNowProfile = this.NowInfo,
-                ProfileOfProcrastination = this.ProcrastinationInfo,
                 SplitCount = this.NumberOfSplit,
-                SubEvents = this.getConvertToPersistedSubEvents(),
                 TimePerSplit = this.EachSplitTimeSpan,
-                UIData = this.UIParam,
                 Urgency = this.EventPriority,
                 Users = this.getAllUsers(),
-                Name = this.getName(),
                 Notes = this.DataBlob,
                 RepeatRoot = this.Repeat.getRootCalendarEvent(),
                 StartTime = this.Start,
@@ -285,8 +281,16 @@ namespace TilerElements.Wpf
                 isCalculableInitialized = this.isCalculableInitialized,
                 isUnDesignableInitialized = this.isUnDesignableInitialized,
                 ProfileOfRestriction = this.ProfileOfRestriction,
-                IsEventModified = this.IsEventModified
+                IsEventModified = this.IsEventModified,
+                ProfileOfNow = this.NowInfo.isInitialized ? DB.DB_NowProfile.ConvertToPersistable(this.NowInfo) : null,
+                ProfileOfProcrastination = this.ProcrastinationInfo.IsInitialized() ? DB.DB_Procrastination.ConvertToPersistable(this.ProcrastinationInfo) : null,
+                LocationInfo = DB.DB_LocationElements.ConvertToPersistable(this.LocationInfo),
+                Name = DB.DB_EventName.ConvertToPersistable(this.getName()),
+                _DataBlob = DB.DB_MiscData.ConvertToPersistable(this._DataBlob),
+                Classification = DB.DB_Classification.ConvertToPersistable(this.Classification),
+                UIData = DB.DB_EventDisplay.ConvertToPersistable(this.UIParam)
             };
+            RetValue.SubEvents = this.getConvertToPersistedSubEvents(RetValue.Location, RetValue.NowInfo, RetValue.ProcrastinationInfo, RetValue.Name, RetValue.DataBlob, RetValue.Classification, RetValue.UIData);
             return RetValue;
         }
 

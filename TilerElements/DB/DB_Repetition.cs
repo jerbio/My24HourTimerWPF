@@ -133,7 +133,7 @@ namespace TilerElements.DB
                 EachRepeatCalendarEnd = IncreaseByFrequency(EachRepeatCalendarEnd, Frequency);
                 ++StartingIndex;
                 MyEventCalendarID = EventID.GenerateRepeatCalendarEvent(MyParentEvent.Id, StartingIndex);
-                MyRepeatCalendarEvent = DB_CalendarEventFly.InstantiateRepeatedCandidate(MyEventCalendarID, MyRepeatCalendarEvent.NameString, MyRepeatCalendarEvent.Duration, EachRepeatCalendarStart, EachRepeatCalendarEnd, EachRepeatCalendarStart, MyRepeatCalendarEvent.Preparation, MyRepeatCalendarEvent.PreDeadline, MyRepeatCalendarEvent.Rigid, MyRepeatCalendarEvent.Repeat, MyRepeatCalendarEvent.NumberOfSplit, MyParentEvent.Location, MyParentEvent.isEnabled, MyParentEvent.UIParam, MyParentEvent.Notes, MyParentEvent.CompleteFlag, StartingIndex, DictionaryOfStartToCalEvent, MyParentEvent);
+                MyRepeatCalendarEvent = DB_CalendarEventFly.InstantiateRepeatedCandidate(MyEventCalendarID, MyRepeatCalendarEvent.getName(), MyRepeatCalendarEvent.Duration, EachRepeatCalendarStart, EachRepeatCalendarEnd, EachRepeatCalendarStart, MyRepeatCalendarEvent.Preparation, MyRepeatCalendarEvent.PreDeadline, MyRepeatCalendarEvent.Rigid, MyRepeatCalendarEvent.Repeat, MyRepeatCalendarEvent.NumberOfSplit, MyParentEvent.Location, MyParentEvent.isEnabled, MyParentEvent.UIParam, MyParentEvent.Notes, MyParentEvent.CompleteFlag, StartingIndex, DictionaryOfStartToCalEvent, MyParentEvent);
 
                 MyRepeatCalendarEvent.Location = MyParentEvent.Location;
             }

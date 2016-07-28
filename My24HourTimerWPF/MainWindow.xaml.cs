@@ -518,9 +518,6 @@ namespace My24HourTimerWPF
                 eventName += "," + LocationString;
             }*/
 
-
-            CalendarEvent.UseDictionarySubCalendarRepresentation = true;
-
             DateTimeOffset CurrentTimeOfExecution = Schedule.Now.calculationNow;
             string eventStartTime = textBox5.Text;
             string locationInformation = textBox8.Text;
@@ -679,20 +676,25 @@ namespace My24HourTimerWPF
             snugarrayTester.Stop();
             //MessageBox.Show("It took " + snugarrayTester.ElapsedMilliseconds.ToString() + "ms max thread count is ");
 
-            if (!ScheduleUpdateMessage.Status)
+            this.Dispatcher.Invoke((Action)(() =>
             {
-                textBlock9.Text = "Schedule Updated with " + ScheduleUpdated.NameString;
-                if (ScheduleUpdateMessage.Status)
+                if (!ScheduleUpdateMessage.Status)
                 {
-                    textBlock9.Text = ScheduleUpdateMessage.Message;
+                    textBlock9.Text = "Schedule Updated with " + ScheduleUpdated.NameString;
+                    if (ScheduleUpdateMessage.Status)
+                    {
+                        textBlock9.Text = ScheduleUpdateMessage.Message;
+                    }
                 }
-            }
 
-            else
-            {
-                textBlock9.Text = "Failed to update Schedule" + ScheduleUpdated.NameString;
-                //MessageBox.Show(ScheduleUpdateMessage.Message);
-            }
+                else
+                {
+                    textBlock9.Text = "Failed to update Schedule" + ScheduleUpdated.NameString;
+                    //MessageBox.Show(ScheduleUpdateMessage.Message);
+                }
+            }));
+
+            
                 
         }
 
@@ -1477,7 +1479,7 @@ namespace My24HourTimerWPF
             //UserAccountDirect currentUser =  new UserAccountDebug("18");
             await currentUser.Login();
             DateTimeOffset refNow=DateTimeOffset.Now;
-            refNow = DateTimeOffset.Parse("6/16/2016 6:19:00 AM");
+            refNow = DateTimeOffset.Parse("7/20/2016 6:19:00 AM");
             Stopwatch loadSchedule = new Stopwatch();
             loadSchedule.Start();
             this.User = currentUser;

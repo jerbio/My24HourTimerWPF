@@ -72,5 +72,15 @@ namespace TilerElements.DB
                 BeginTIme = value;
             }
         }
+
+        public static DB_Procrastination ConvertToPersistable(Procrastination procrastinationProfile)
+        {
+            DB_Procrastination retValue = new DB_Procrastination(procrastinationProfile.DislikedStartTime, procrastinationProfile.PreferredStartTime, procrastinationProfile.DislikedDaySection)
+            {
+
+            };
+            retValue.Id = procrastinationProfile.Id;
+            return retValue;
+        }
     }
 }

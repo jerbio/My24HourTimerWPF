@@ -106,7 +106,7 @@ namespace TilerElements.Wpf
             _DataBlob = Notes;
             Complete=completeFlag;
             UniqueID = EventID.GenerateSubCalendarEvent(myParentID, RepetitionSequence);
-            BusyFrame = new BusyTimeLine(this.ID, StartDateTime, EndDateTime);//this is because in current implementation busy frame is the same as CalEvent frame
+            BusyFrame = new BusyTimeLine(this.Id, StartDateTime, EndDateTime);//this is because in current implementation busy frame is the same as CalEvent frame
             this.LocationInfo = EventLocation;
 //            EventSequence = new EventTimeLine(UniqueID.ToString(), StartDateTime, EndDateTime);
             RigidSchedule = Rigid;
@@ -171,7 +171,7 @@ namespace TilerElements.Wpf
 
         public virtual string ToString()
         {
-            return this.Start.ToString() + " - " + this.End.ToString() + "::" + this.ID + "\t\t::" + this.ActiveDuration.ToString();
+            return this.Start.ToString() + " - " + this.End.ToString() + "::" + this.Id + "\t\t::" + this.ActiveDuration.ToString();
         }
 
 
@@ -339,7 +339,7 @@ namespace TilerElements.Wpf
             }
             else
             {
-                Id = this.ID;
+                Id = this.Id;
             }
             
            
@@ -349,7 +349,7 @@ namespace TilerElements.Wpf
             MySubCalendarEventCopy.UserDeleted = this.UserDeleted;
             MySubCalendarEventCopy.PreferredDayIndex = this.PreferredDayIndex;
             MySubCalendarEventCopy._Creator = this._Creator;
-            MySubCalendarEventCopy.Semantics = this.Semantics.createCopy();
+            MySubCalendarEventCopy.Semantics = this.Semantics != null ? this.Semantics.createCopy() : null;
             MySubCalendarEventCopy._UsedTime = this._UsedTime;
             MySubCalendarEventCopy._Creator = this._Creator;
             return MySubCalendarEventCopy;
@@ -487,7 +487,7 @@ namespace TilerElements.Wpf
         /// <returns></returns>
         public bool UpdateThis(SubCalendarEvent SubEventEntry,bool force=false)
         {
-            if ((this.ID == SubEventEntry.ID))
+            if ((this.Id == SubEventEntry.Id))
             {
                 if (force)
                 {
@@ -955,7 +955,7 @@ namespace TilerElements.Wpf
              {
                  EventDuration = NewEventDuration;
                  EndDateTime = StartDateTime.Add(EventDuration);
-                 BusyFrame.updateBusyTimeLine(new BusyTimeLine(ID, ActiveSlot.Start, ActiveSlot.Start.Add(EventDuration)));
+                 BusyFrame.updateBusyTimeLine(new BusyTimeLine(Id, ActiveSlot.Start, ActiveSlot.Start.Add(EventDuration)));
                  return;
              }
              throw new Exception("You are trying to reduce the Duration length to Less than zero");
@@ -990,8 +990,224 @@ namespace TilerElements.Wpf
             SubEVents.AsParallel().ForAll(obj=>{obj.UnUsableIndex=UnwantedIndex;});
         }
 
-        public virtual SubCalendarEventPersist ConvertToPersistable()
+        public virtual SubCalendarEventPersist ConvertToPersistable(Location_Elements location = null, NowProfile nowProfile=null, Procrastination procrastination = null, EventName eventName = null, MiscData dataBlob= null, Classification classification= null, EventDisplay uiData = null)
         {
+            if(location != null)
+            {
+                if (location.Id != this.Location.Id)
+                {
+                    if (!this.Location.isNull)
+                    {
+                        location = DB.DB_LocationElements.ConvertToPersistable(this.LocationInfo);
+                    }
+                    else
+                    {
+                        location = null;
+                    }
+                }
+                else/// if location id of passed arfuemwnt is the same as the location id of local data memeber then we can assume they equivalent, and we are assuming changes are universal
+                {
+                }
+            }
+            else
+            {
+                if (this.Location != null)
+                {
+                    if(!this.Location.isNull)
+                    {
+                        location = DB.DB_LocationElements.ConvertToPersistable(this.LocationInfo);
+                    }
+                    else
+                    {
+                        location = null;
+                    }
+                }
+                else
+                {
+                    location = null;
+                }
+            }
+
+
+            ///Now Profile
+            if (nowProfile != null)
+            {
+                if (nowProfile.Id != this.NowInfo.Id)
+                {
+                    if (this.NowInfo.isInitialized)
+                    {
+                        nowProfile = DB.DB_NowProfile.ConvertToPersistable(this.NowInfo);
+                    }
+                    else
+                    {
+                        nowProfile = null;
+                    }
+                }
+                else///if nowprofile id passed on is same as datamember's now profile id then we can assume they are the same. We are ignorign any changes
+                {
+                    
+                }
+            }
+            else
+            {
+                if (this.NowInfo != null)
+                {
+                    if (this.NowInfo.isInitialized)
+                    {
+                        nowProfile = DB.DB_NowProfile.ConvertToPersistable(this.NowInfo);
+                    }
+                    else
+                    {
+                        nowProfile = null;
+                    }
+                }
+                else
+                {
+                    nowProfile = null;
+                }
+            }
+
+            //Procrastination switch
+            if (procrastination != null)
+            {
+                if (procrastination.Id != this.ProcrastinationInfo.Id)
+                {
+                    if (this.ProcrastinationInfo.IsInitialized())
+                    {
+                        procrastination = DB.DB_Procrastination.ConvertToPersistable(this.ProcrastinationInfo);
+                    }
+                    else
+                    {
+                        procrastination = null;
+                    }
+                }
+                else/// if passed calendar event procrastination id equals datamember procrastination id then continue because they are both the same
+                {
+                    
+                }
+            }
+            else
+            {
+                if (this.ProcrastinationInfo != null)
+                {
+                    if (this.ProcrastinationInfo.IsInitialized())
+                    {
+                        procrastination = DB.DB_Procrastination.ConvertToPersistable(this.ProcrastinationInfo);
+                    }
+                    else
+                    {
+                        procrastination = null;
+                    }
+                }
+                else
+                {
+                    procrastination = null;
+                }
+            }
+
+
+            //Event name switch
+            if (eventName != null)
+            {
+                if (eventName.Id != this.NameOfEvent.Id)
+                {
+                    eventName = DB.DB_EventName.ConvertToPersistable(this.NameOfEvent);
+                }
+                else////if passed eventName(calenedar event name) has same id then continue
+                {
+                    //eventName = DB.DB_EventName.ConvertToPersistable(eventName);
+                }
+            }
+            else
+            {
+                if (this.NameOfEvent != null)
+                {
+                    eventName = DB.DB_EventName.ConvertToPersistable(this.NameOfEvent);
+                }
+                else
+                {
+                    eventName = null;
+                }
+            }
+
+
+            //datablob conversion
+            if (dataBlob != null)
+            {
+                if (dataBlob.Id != this.DataBlob.Id)
+                {
+                    dataBlob = DB.DB_MiscData.ConvertToPersistable(this.DataBlob);
+                }
+                else/// if calendarevent datablob id has same id as local dataelement datablob id, then continue
+                {
+                    //dataBlob = DB.DB_MiscData.ConvertToPersistable(dataBlob);
+                }
+            }
+            else
+            {
+                if (this.DataBlob != null)
+                {
+                    dataBlob = DB.DB_MiscData.ConvertToPersistable(this.DataBlob);
+                }
+                else
+                {
+                    dataBlob = null;
+                }
+            }
+
+            //classification conversion
+            if (classification != null)
+            {
+                if (classification.Id != this.Classification.Id)
+                {
+                    classification = DB.DB_Classification.ConvertToPersistable(this.Classification);
+                }
+                else/// if current classification id == calendareven  classification id then continue
+                {
+                    ///classification = DB.DB_Classification.ConvertToPersistable(classification);
+                }
+            }
+            else
+            {
+                if (this.Classification != null)
+                {
+                    classification = DB.DB_Classification.ConvertToPersistable(this.Classification);
+                }
+                else
+                {
+                    classification = null;
+                }
+            }
+
+            //uiData conversion
+            if (uiData != null)
+            {
+                if (uiData.Id != this.UIParam.Id)
+                {
+                    uiData = DB.DB_EventDisplay.ConvertToPersistable(this.UIParam);
+                }
+                else/// if caleventData UIdata == current UIdata then continue
+                {
+                    //uiData = DB.DB_EventDisplay.ConvertToPersistable(uiData);
+                }
+            }
+            else
+            {
+                if (this.UIParam != null)
+                {
+                    uiData = DB.DB_EventDisplay.ConvertToPersistable(this.UIParam);
+                }
+                else
+                {
+                    uiData = null;
+                }
+            }
+
+
+
+            //procrastination = procrastination ?? DB.DB_Procrastination.ConvertToPersistable(this.ProcrastinationInfo);
+            //eventName = eventName ?? DB.DB_EventName.ConvertToPersistable(this.NameOfEvent);
+            //dataBlob = dataBlob ?? DB.DB_MiscData.ConvertToPersistable(this._DataBlob);
             DB.DB_SubCalendarEventFly RetValue = new DB.DB_SubCalendarEventFly()
             {
                 BusyFrame = this.BusyFrame,
@@ -1017,15 +1233,15 @@ namespace TilerElements.Wpf
                 EventDuration = this.EventDuration,
                 EventPreDeadline = this.EventPreDeadline,
                 FromRepeatEvent = this.FromRepeatEvent,
-                LocationInfo = this.LocationInfo,
+                LocationInfo = location,
                 NameOfEvent = this.NameOfEvent,
                 OriginalEventID = this.OriginalEventID,
                 OriginalStart = this.OriginalStart,
                 otherPartyID = this.otherPartyID,
                 PrepTime = this.PrepTime,
                 Priority = this.Priority,
-                ProfileOfNow = this.ProfileOfNow,
-                ProfileOfProcrastination = this.ProfileOfProcrastination,
+                ProfileOfNow = nowProfile,
+                ProfileOfProcrastination = procrastination,
                 RepetitionSequence = this.RepetitionSequence,
                 RigidSchedule = this.RigidSchedule,
                 Semantics = this.Semantics,
@@ -1039,9 +1255,13 @@ namespace TilerElements.Wpf
                 UserIDs = this.UserIDs,
                 Creator = this.EventCreator,
                 CreatorId = this._CreatorId?? this._Creator.Id,
-                _DataBlob = this._DataBlob,
+                _DataBlob = dataBlob,
                 _UsedTime = this._UsedTime,
-                IsEventModified = this.IsEventModified
+                IsEventModified = this.IsEventModified,
+                Name = eventName,
+                Classification = classification,
+                UIData = uiData
+
             };
             return RetValue;
         }
@@ -1068,7 +1288,7 @@ namespace TilerElements.Wpf
             set
             {
                 this.StartDateTime = value;
-                BusyFrame = new BusyTimeLine(Id, value, BusyFrame.End);
+                BusyFrame = new BusyTimeLine(base.Id, value, BusyFrame.End);
             }
         }
 
@@ -1081,7 +1301,7 @@ namespace TilerElements.Wpf
             set
             {
                 this.EndDateTime = value;
-                BusyFrame = new BusyTimeLine(Id, BusyFrame.Start, value);
+                BusyFrame = new BusyTimeLine(base.Id, BusyFrame.Start, value);
             }
         }
 
@@ -1154,16 +1374,6 @@ namespace TilerElements.Wpf
                 return EventDuration;
             }
         }
-
-        public string ID
-        {
-            get
-            {
-                return UniqueID.ToString();
-            }
-        }
-
-        
 
         public EventID SubEvent_ID
         {

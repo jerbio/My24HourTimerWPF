@@ -16,7 +16,8 @@ namespace TilerElements.Wpf
         /// <summary>
         /// Id with which this event is associated 
         /// </summary>
-        protected string EventID { set; get; }
+        protected string _EventId;
+        protected string _SecondaryEventId;
 
         public EventName()
         {
@@ -26,19 +27,19 @@ namespace TilerElements.Wpf
         public EventName(string EventId, string Name= "")
         {
             _Name = Name;
-            EventID = EventId;
+            _EventId = EventId;
         }
 
         public EventName(EventID EventId, string Name)
         {
             _Name = Name;
-            EventID = EventId.ToString() ;
+            _EventId = EventId.ToString() ;
         }
 
         public EventName( EventID EventId)
         {
             _Name = "";
-            EventID = EventId.ToString() ;
+            _EventId = EventId.ToString() ;
         }
         public override string ToString()
         {
@@ -48,7 +49,7 @@ namespace TilerElements.Wpf
         public EventName CreateCopy()
         {
             EventName RetValue = new EventName { ID = this.ID,
-                _Name = this.NameString, EventID = this.EventID };
+                _Name = this.NameString, _EventId = this._EventId };
 
             return RetValue;
         }
@@ -61,11 +62,19 @@ namespace TilerElements.Wpf
             }
         }
 
-        public string EventId
+        public string AssosciatedEventId
         {
             get
             {
-                return EventID;
+                return _EventId;
+            }
+        }
+
+        public string AssociatedSecondaryEventId
+        {
+            get
+            {
+                return _SecondaryEventId;
             }
         }
 

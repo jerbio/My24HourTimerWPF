@@ -159,15 +159,17 @@ namespace TilerElements.DB
                 DataBase.Entry(calEvent).State = EntityState.Modified;
             }
             CalendarEventPersist converted = newlyAddedEvents.ConvertToPersistable();
+            //converted = null;
             ICollection<SubCalendarEvent> subevents=  converted.AllSubEvents;
             if (newlyAddedEvents != null)
             {
                 DataBase.CalendarEvents.Add(converted);
             }
+            var testSuboutn = converted.SubCalendarEvents;
 
-
-            try { 
-            return DataBase.SaveChangesAsync();
+            try
+            { 
+                return DataBase.SaveChangesAsync();
             }
             catch (DbEntityValidationException e)
             {
@@ -181,6 +183,10 @@ namespace TilerElements.DB
                             ve.PropertyName, ve.ErrorMessage);
                     }
                 }
+                throw e;
+            }
+            catch (Exception e)
+            {
                 throw e;
             }
         }
@@ -231,7 +237,7 @@ namespace TilerElements.DB
         /// </summary>
         /// <param name="RangeOfLookup"></param>
         /// <returns></returns>
-        public async Task<Dictionary<string, CalendarEvent>> getCalendarEvents(TimeLine RangeOfLookup = null)
+        public async Task<Dictionary<string, CalendarEvent>> getCalendarEvents(TimeLine RangeOfLookup = null, bool setCalculationReadyFlag = true)
         {
             if(RangeOfLookup == null)
             {
@@ -240,8 +246,10 @@ namespace TilerElements.DB
                 RangeOfLookup = new TimeLine(start, end);
             }
             IQueryable<CalendarEvent> calendarEvents  =  DataBase.CalendarEventsQuery .Where(calEvent => (calEvent.CreatorId == User.Id) && (calEvent.EndTime > RangeOfLookup.Start && calEvent.StartTime < RangeOfLookup.End));
-            calendarEvents.Include(calendarEvent => calendarEvent.AllSubEvents).Include(obj=>obj.Repeat);
-            Task<Dictionary<string, CalendarEvent>> RetValue = calendarEvents.ToDictionaryAsync(CalendarEvent => CalendarEvent.Id, CalendarEvent => (CalendarEvent)CalendarEvent);
+            calendarEvents = calendarEvents.Include(calendarEvent => calendarEvent.SubCalendarEvents).Include(calendarEvent => ((CalendarEventPersist)calendarEvent).Name);//.Include(obj=>obj.Repeat);
+            Task<Dictionary<string, CalendarEvent>> RetValue = calendarEvents.ToDictionaryAsync(CalendarEvent => CalendarEvent.Id, CalendarEvent => { if (setCalculationReadyFlag) { CalendarEvent.PrepareForCalculation(); }; return (CalendarEvent)CalendarEvent; });
+
+
             return await RetValue.ConfigureAwait(false);
 
             //Dictionary<string, CalendarEvent> RetValue = calendarEvents.ToDictionary(CalendarEvent => CalendarEvent.ID, CalendarEvent => (CalendarEvent)CalendarEvent);

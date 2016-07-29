@@ -153,7 +153,7 @@ namespace My24HourTimerWPF
 
         async private Task Initialize(DateTimeOffset referenceNow)
         {
-            if(!myAccount.Status)
+            if(!await myAccount.Status().ConfigureAwait(false))
             {
                 throw new Exception("Using non verified tiler Account, try logging into account first.");
             }
@@ -11592,11 +11592,11 @@ namespace My24HourTimerWPF
 
 
 
-        public bool isScheduleLoadSuccessful
+        public async Task<bool> isScheduleLoadSuccessful()
         {
-            get 
+            //get 
             {
-                return myAccount.Status;
+                return await myAccount.Status().ConfigureAwait(false);
             }
         }
     }

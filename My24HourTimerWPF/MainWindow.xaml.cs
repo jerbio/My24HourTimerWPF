@@ -1479,13 +1479,13 @@ namespace My24HourTimerWPF
             //UserAccountDirect currentUser =  new UserAccountDebug("18");
             await currentUser.Login();
             DateTimeOffset refNow=DateTimeOffset.Now;
-            refNow = DateTimeOffset.Parse("7/20/2016 6:19:00 AM");
+            refNow = DateTimeOffset.Parse("7/28/2016 6:19:00 AM");
             Stopwatch loadSchedule = new Stopwatch();
             loadSchedule.Start();
             this.User = currentUser;
             MySchedule = new Schedule(currentUser, refNow);
             
-            if (MySchedule.isScheduleLoadSuccessful)
+            if (await MySchedule.isScheduleLoadSuccessful().ConfigureAwait(false))
             {
                 loadSchedule.Stop();
                 

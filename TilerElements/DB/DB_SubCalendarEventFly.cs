@@ -107,11 +107,11 @@ namespace TilerElements.DB
             {
                 if (CalendarEventRange == null)
                 {
-                    CalendarEventRange = new TimeLine(BusyFrame.Start, value);
+                    CalendarEventRange = new TimeLine(new DateTimeOffset(), value);
                 }
                 else
                 {
-                    CalendarEventRange = new TimeLine(BusyFrame.Start, value);
+                    CalendarEventRange = new TimeLine(CalendarEventRange.Start, value);
                 }
             }
         }
@@ -124,9 +124,9 @@ namespace TilerElements.DB
             }
             set
             {
-                if (BusyFrame == null)
+                if (CalendarEventRange == null)
                 {
-                    CalendarEventRange = new TimeLine(value, CalendarEventRange.End);
+                    CalendarEventRange = new TimeLine(value, value.AddSeconds(1));
                 }
                 else
                 {
@@ -359,6 +359,14 @@ namespace TilerElements.DB
             set
             {
                 StartDateTime = value;
+                if (BusyFrame == null)
+                {
+                    BusyFrame = new BusyTimeLine(Id, value, value.AddSeconds(1));
+                }
+                else
+                {
+                    BusyFrame = new BusyTimeLine(Id, value, BusyFrame.End);
+                }
             }
         }
 
@@ -372,6 +380,14 @@ namespace TilerElements.DB
             set
             {
                 EndDateTime = value;
+                if (BusyFrame == null)
+                {
+                    BusyFrame = new BusyTimeLine(Id, new DateTimeOffset() , value);
+                }
+                else
+                {
+                    BusyFrame = new BusyTimeLine(Id, BusyFrame.Start, value);
+                }
             }
         }
 

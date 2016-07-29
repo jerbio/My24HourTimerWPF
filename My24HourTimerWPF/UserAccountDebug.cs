@@ -18,7 +18,7 @@ namespace My24HourTimerWPF
             LocalContext db = new TilerDbContext();
             //throw new NotImplementedException();
             sessionUser = user;
-            UserLog = new ScheduleControl(db as TilerDbContext);
+            UserLog = new ScheduleControl(db as TilerDbContext, user);
             ID = sessionUser.Id;
         }
         protected override async System.Threading.Tasks.Task<DateTimeOffset> getDayReferenceTime(string desiredDirectory = "")

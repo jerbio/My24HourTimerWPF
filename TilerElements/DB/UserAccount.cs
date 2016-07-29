@@ -49,7 +49,7 @@ namespace TilerElements.DB
 
         virtual public async Task<bool> Login()
         {
-            bool retValue =  await UserLog.VerifyUser(ID);
+            bool retValue =  await UserLog.VerifyUser();
             sessionUser = UserLog.VerifiedUser;
             return retValue;
         }
@@ -147,15 +147,15 @@ namespace TilerElements.DB
             }
         }
 
-        public bool Status
+        public virtual async Task<bool> Status()
         {
-            get
+            
             {
                 return UserLog.Status;
             }
         }
 
-        public string UserID
+        virtual public string UserID
         {
             get 
             {
@@ -163,7 +163,7 @@ namespace TilerElements.DB
             }
         }
 
-        public string UserName
+        virtual public string UserName
         {
             get
             {
@@ -171,7 +171,7 @@ namespace TilerElements.DB
             }
         }
 
-        public string Usersname
+        virtual public string Usersname
         {
             get
             {

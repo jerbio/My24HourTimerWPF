@@ -60,13 +60,38 @@ namespace TilerElements.DB
         }
 
 
-        public ScheduleControl(TilerDbContext Db)
+        public ScheduleControl(TilerDbContext Db, TilerUser user)
         {
+            this.User = user;
             DataBase = Db;
             LogStatus = false;
             CachedLocation = new Dictionary<string, Location_Elements>();
         }
         #region Functions
+        /// <summary>
+        /// checks to see if the provided 'user' has access to the schedule of 'this' user
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        public virtual async Task<bool> hasAccess(TilerUser user)
+        {
+            bool retValue = false;
+            if (Status)
+            {
+                retValue = (user.Id == User.Id);
+            }
+            else
+            {
+                bool verifyFlag = await VerifyUser();
+                if (verifyFlag)
+                {
+                    retValue = await hasAccess(user);
+                }
+            }
+
+            return retValue;
+        }
+
 
         public void updateUserActivty(UserActivity activity)
         {
@@ -256,18 +281,26 @@ namespace TilerElements.DB
             //return RetValue;
         }
 
-        virtual public async Task<bool> VerifyUser(string userId)
+        /// <summary>
+        /// verifies the initializing tiler user passed in initialization is a real tiler user
+        /// </summary>
+        /// <returns></returns>
+        virtual public async Task<bool> VerifyUser()
         {
-            TilerUser User = DataBase.Users.Find(userId);
-            LogStatus = User != null;
-            bool RetValue = LogStatus;
-            if (LogStatus)
+            bool RetValue = false;
+            if (User != null)
             {
-                this.User = User;
+                TilerUser User = DataBase.Users.Find(this.User.Id);
+                LogStatus = User != null;
+                RetValue = LogStatus;
+                if (LogStatus)
+                {
+                    this.User = User;
+                }
             }
+            
             return RetValue;
         }
-
 
         #endregion
 

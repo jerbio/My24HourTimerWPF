@@ -61,7 +61,7 @@ namespace TilerElements.Connectors
             this.Complete = false;
             this.DeletedCount = 1;
             this.CompletedCount = 1;
-            this.EventRepetition = new DB_Repetition(true, this.RangeTimeLine, "Daily", AllCalendarEvent.ToArray());
+            this.EventRepetition = AllCalendarEvent.Count() > 0 ?  new DB_Repetition(true, this.RangeTimeLine, "Daily", AllCalendarEvent.ToArray()): new DB_Repetition();
             this.NameOfEvent = new EventName(this.UniqueID,  "GOOGLE MOTHER EVENT");
             this.ProfileOfNow = new NowProfile();
         }

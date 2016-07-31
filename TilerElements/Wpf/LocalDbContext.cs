@@ -16,6 +16,7 @@ namespace TilerElements.Wpf
     public class LocalContext: IdentityDbContext<TilerUser>
     {
         public virtual DbSet<CalendarEventPersist> CalendarEvents {get; set;}
+        public virtual DbSet<DB.DB_LocationElements> Location_Elements { get; set; }
         public virtual DbSet<SubCalendarEventPersist> SubCalendarevents { get; set; }
 
         public virtual IQueryable<CalendarEventPersist> CalendarEventsQuery
@@ -48,5 +49,11 @@ namespace TilerElements.Wpf
         {
             return new LocalContext();
         }
+
+        //protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        //{
+        //    base.OnModelCreating(modelBuilder);
+        //    modelBuilder.Entity<Location_Elements>().ToTable("Location_Elements");
+        //}
     }
 }

@@ -56,6 +56,10 @@ namespace TilerElements.Wpf
 
         async public Task InitializeClassification()
         {
+            if(Semantics == null)
+            {
+                Semantics = new Classification();
+            }
             await Semantics.InitializeClassification(NameOfEvent.NameString);
         }
         public List<TilerUser> getAllUsers()

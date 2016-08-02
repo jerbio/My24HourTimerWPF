@@ -336,15 +336,15 @@ namespace My24HourTimerWPF
             {
                 //KeyValuePair<string, int> 
                 List<BusyTimeLine> MyTotalSubEvents = new List<BusyTimeLine>(0);
-                foreach (KeyValuePair<string, CalendarEvent> MyCalendarEvents in AllEventDictionary)
+                foreach ( CalendarEvent eachCalendarEvent in AllEventDictionary.Values.Where(obj=>obj.isActive))
                 {
-                    foreach (SubCalendarEvent MySubCalendarEvent in MyCalendarEvents.Value.ActiveSubEvents)
+                    foreach (SubCalendarEvent MySubCalendarEvent in eachCalendarEvent.ActiveSubEvents)
                     {
                         MyTotalSubEvents.Add(MySubCalendarEvent.ActiveSlot);
                     }
                 }
                 MyTotalSubEvents = Schedule.SortBusyTimeline(MyTotalSubEvents, true);
-                DateTimeOffset MyNow = Now.calculationNow;//Moved Out of For loop for Speed boost
+                DateTimeOffset MyNow = Now.constNow;//Moved Out of For loop for Speed boost
                 for (int i = 0; i < MyTotalSubEvents.Count; i++)
                 {
                     if (MyTotalSubEvents[i].Start > MyNow)

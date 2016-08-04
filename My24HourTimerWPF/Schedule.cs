@@ -1020,7 +1020,7 @@ namespace My24HourTimerWPF
             }
             catch
             {
-                AllEventDictionary[NewEvent.ID] = NewEvent;
+                AllEventDictionary[NewEvent.Id] = NewEvent;
             }
 
             return new CustomErrors(NewEvent.ErrorStatus, NewEvent.ErrorMessage);
@@ -1241,7 +1241,6 @@ namespace My24HourTimerWPF
         //                TimeSpan SpaceTogetAverage = new TimeSpan((long)(ExcessPercentageSpace * (double)eachTimeLine.TimelineSpan.Ticks));
         //                List<mTuple<double, SubCalendarEvent>> CompatibleWithTimeLine = PopulateCompatibleList(TotalMovableList, DictOfPosSubCals.ToList(), eachTimeLine, SpaceTogetAverage);
 
-                        
         //                CompatibleWithTimeLine.AddRange(Utility.SubCalEventsTomTuple(AlreadyAlignedEvents[j], (double)100));
         //                foreach (SubCalendarEvent eeachSubCalendarEvent in CompatibleWithTimeLine.Select(obj=>obj.Item2))
         //                {

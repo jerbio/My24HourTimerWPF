@@ -49,7 +49,7 @@ namespace TilerTests
             CalendarEvent testEvent =  generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), 1, false);
             Schedule.AddToSchedule(testEvent);
             CalendarEvent newlyaddedevent = Schedule.getCalendarEvent(testEvent.Calendar_EventID);
-            Assert.AreEqual(testEvent.ID, newlyaddedevent.ID);
+            Assert.AreEqual(testEvent.Id, newlyaddedevent.Id);
         }
 
         [TestMethod]
@@ -62,7 +62,7 @@ namespace TilerTests
             CalendarEvent testEvent = generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), 1, true);
             Schedule.AddToSchedule(testEvent);
             CalendarEvent newlyaddedevent = Schedule.getCalendarEvent(testEvent.Calendar_EventID);
-            Assert.AreEqual(testEvent.ID, newlyaddedevent.ID);
+            Assert.AreEqual(testEvent.Id, newlyaddedevent.Id);
         }
 
         [TestMethod]
@@ -77,7 +77,7 @@ namespace TilerTests
             schedule = null;
             schedule = new Schedule(user, refNow);
             CalendarEvent newlyaddedevent = schedule.getCalendarEvent(testEvent.Calendar_EventID);
-            Assert.AreEqual(testEvent.ID, newlyaddedevent.ID);
+            Assert.IsTrue(newlyaddedevent.isTestEquivalent(testEvent));
         }
 
     }

@@ -11,42 +11,19 @@ namespace TilerTests
     public class Creation
     {
         Schedule Schedule;
-        DateTimeOffset StartOfTime = new DateTimeOffset();
         CalendarEvent CalendarEvent1;
         CalendarEvent CalendarEvent2;
         CalendarEvent CalendarEvent3;
         
 
-        CalendarEvent generateCalendarEvent(TimeSpan duration, Repetition repetition, int splitCount = 1, bool rigidFlags = false,  DateTimeOffset Start = new DateTimeOffset() )
-        {
-            if(Start == StartOfTime)
-            {
-                Start = TestUtility.Start;
-            }
-            DateTimeOffset End = Start.AddMonths(TestUtility.Rand.Next() % TestUtility.MonthLimit);
-            CalendarEvent RetValue = new CalendarEvent("TestCalendarEvent" + Guid.NewGuid().ToString(), duration, Start, End, new TimeSpan(), new TimeSpan(), rigidFlags, repetition, splitCount, new Location_Elements(), true, new EventDisplay(), new MiscData(), false);
-            return RetValue;
-        }
-
-        UserAccount getTestUser()
-        {
-            TilerFront.Models.LoginViewModel myLogin = new TilerFront.Models.LoginViewModel() { Username = TestUtility.UserName, Password = TestUtility.Password, RememberMe = true };
-
-            TilerFront.Models.AuthorizedUser AuthorizeUser = new TilerFront.Models.AuthorizedUser() { UserID = "065febec-d1fe-4c8b-bd32-548613d4479f", UserName = TestUtility.UserName };
-            Task<UserAccountDebug> waitForUseraccount = AuthorizeUser.getUserAccountDebug();
-            waitForUseraccount.Wait();
-
-            return waitForUseraccount.Result;
-        }
-
         [TestMethod]
         public void TestCreationOfNonRigid()
         {
-            UserAccount currentUser = getTestUser();
+            UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.Now;
             Schedule = new Schedule(currentUser, refNow);
-            CalendarEvent testEvent =  generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), 1, false);
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), 1, false);
             Schedule.AddToSchedule(testEvent);
             CalendarEvent newlyaddedevent = Schedule.getCalendarEvent(testEvent.Calendar_EventID);
             Assert.AreEqual(testEvent.Id, newlyaddedevent.Id);
@@ -55,11 +32,11 @@ namespace TilerTests
         [TestMethod]
         public void TestCreationOfRigid()
         {
-            UserAccount user = getTestUser();
+            UserAccount user = TestUtility.getTestUser();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.Now;
             Schedule = new Schedule(user, refNow);
-            CalendarEvent testEvent = generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), 1, true);
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), 1, true);
             Schedule.AddToSchedule(testEvent);
             CalendarEvent newlyaddedevent = Schedule.getCalendarEvent(testEvent.Calendar_EventID);
             Assert.AreEqual(testEvent.Id, newlyaddedevent.Id);
@@ -68,11 +45,11 @@ namespace TilerTests
         [TestMethod]
         public void testPersistedCalendarEvent()
         {
-            UserAccount user = getTestUser();
+            UserAccount user = TestUtility.getTestUser();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.Now;
             Schedule schedule = new Schedule(user, refNow);
-            CalendarEvent testEvent = generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), 1, true);
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), 1, true);
             schedule.AddToScheduleAndCommit(testEvent).Wait();
             schedule = null;
             schedule = new Schedule(user, refNow);
@@ -80,5 +57,48 @@ namespace TilerTests
             Assert.IsTrue(newlyaddedevent.isTestEquivalent(testEvent));
         }
 
+
+        [TestMethod]
+        public void testPersistedSubCalendarEvent()
+        {
+            UserAccount user = TestUtility.getTestUser();
+            user.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.Now;
+            Schedule schedule = new Schedule(user, refNow);
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), 1, true);
+            string currentID = testEvent.Id;
+            schedule.AddToScheduleAndCommit(testEvent).Wait();
+            CalendarEvent tempEvent = schedule.getCalendarEvent(testEvent.Calendar_EventID);
+            Schedule tempSchedule = schedule;
+            schedule = null;
+            schedule = new Schedule(user, refNow);
+            CalendarEvent newlyaddedevent = schedule.getCalendarEvent(testEvent.Calendar_EventID);
+            Assert.IsTrue(newlyaddedevent.isTestEquivalent(testEvent));
+            foreach (SubCalendarEvent eachSubCalendarEvent in newlyaddedevent.AllSubEvents)
+            {
+                SubCalendarEvent tempSubevent =  testEvent.getSubEvent(eachSubCalendarEvent.SubEvent_ID);
+                Assert.IsTrue(tempSubevent.isTestEquivalent(eachSubCalendarEvent));
+            }
+        }
+
+        [TestCleanup]
+        void cleanUpForEachTest()
+        {
+            UserAccount currentUser = TestUtility.getTestUser();
+            currentUser.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.Now;
+            Schedule Schedule = new Schedule(currentUser, refNow);
+            currentUser.DeleteAllCalendarEvents();
+        }
+
+        [ClassCleanup]
+        public static void cleanUpTest()
+        {
+            UserAccount currentUser = TestUtility.getTestUser();
+            currentUser.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.Now;
+            Schedule Schedule = new Schedule(currentUser, refNow);
+            currentUser.DeleteAllCalendarEvents();
+        }
     }
 }

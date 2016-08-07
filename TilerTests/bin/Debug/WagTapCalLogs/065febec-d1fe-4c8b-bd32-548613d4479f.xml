@@ -4,7 +4,7 @@
 >>>>>>> created and Ran successful intial tests for the creation and persisting of
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ScheduleLog>
-  <LastIDCounter>1040</LastIDCounter>
+  <LastIDCounter>1353</LastIDCounter>
   <referenceDay>8:00 AM</referenceDay>
   <EventSchedules>
     <EventSchedule>
@@ -43,14 +43,14 @@
         <XCoordinate>105.2705</XCoordinate>
       </Location>
       <Enabled>True</Enabled>
-      <ID>1025_7_0_0</ID>
-      <Name>TestCalendarEvent6eab9944-7e9f-4e84-a7c5-28a95887fbc6</Name>
-      <StartTime>3/18/2016 1:52:00 AM</StartTime>
+      <ID>1346_7_0_0</ID>
+      <Name>TestCalendarEvent9e5a02d5-553b-4998-be72-3f654b67e289</Name>
+      <StartTime>5/7/2016 11:40:00 AM</StartTime>
       <PreDeadline>00:00:00</PreDeadline>
       <DeletionCount>0</DeletionCount>
       <CompletionCount>0</CompletionCount>
       <PrepTime>00:00:00</PrepTime>
-      <Deadline>4/18/2016 1:52:00 AM</Deadline>
+      <Deadline>7/7/2016 11:40:00 AM</Deadline>
       <Split>1</Split>
       <Duration>01:00:00</Duration>
       <RigidFlag>True</RigidFlag>
@@ -91,15 +91,15 @@
           </Location>
           <Complete>False</Complete>
           <Enabled>True</Enabled>
-          <ID>1025_7_0_1026</ID>
+          <ID>1346_7_0_1347</ID>
           <Rigid>True</Rigid>
           <ThirdPartyID />
           <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>4/19/2016 4:52:21 AM</ActiveStartTime>
-          <ActiveEndTime>4/19/2016 5:52:21 AM</ActiveEndTime>
+          <ActiveStartTime>7/7/2016 10:40:25 AM</ActiveStartTime>
+          <ActiveEndTime>7/7/2016 11:40:25 AM</ActiveEndTime>
           <Duration>01:00:00</Duration>
-          <StartTime>4/19/2016 4:52:21 AM</StartTime>
-          <EndTime>4/19/2016 5:52:21 AM</EndTime>
+          <StartTime>7/7/2016 10:40:25 AM</StartTime>
+          <EndTime>7/7/2016 11:40:25 AM</EndTime>
         </EventSubSchedule>
       </EventSubSchedules>
       <RepetitionFlag>False</RepetitionFlag>
@@ -141,14 +141,14 @@
         <XCoordinate>105.2705</XCoordinate>
       </Location>
       <Enabled>True</Enabled>
-      <ID>1027_7_0_0</ID>
-      <Name>TestCalendarEventde745925-fa52-49f6-932f-5bc5a40c820e</Name>
-      <StartTime>3/18/2016 1:54:00 AM</StartTime>
+      <ID>1350_7_0_0</ID>
+      <Name>TestCalendarEventb9c97327-88c4-4ca1-bde3-030cd88db2b7</Name>
+      <StartTime>5/7/2016 11:43:00 AM</StartTime>
       <PreDeadline>00:00:00</PreDeadline>
       <DeletionCount>0</DeletionCount>
       <CompletionCount>0</CompletionCount>
       <PrepTime>00:00:00</PrepTime>
-      <Deadline>4/18/2016 1:54:00 AM</Deadline>
+      <Deadline>6/7/2016 11:43:00 AM</Deadline>
       <Split>1</Split>
       <Duration>01:00:00</Duration>
       <RigidFlag>True</RigidFlag>
@@ -189,15 +189,15 @@
           </Location>
           <Complete>False</Complete>
           <Enabled>True</Enabled>
-          <ID>1027_7_0_1028</ID>
+          <ID>1350_7_0_1351</ID>
           <Rigid>True</Rigid>
           <ThirdPartyID />
           <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>4/19/2016 12:54:03 AM</ActiveStartTime>
-          <ActiveEndTime>4/19/2016 1:54:03 AM</ActiveEndTime>
+          <ActiveStartTime>6/7/2016 10:43:24 AM</ActiveStartTime>
+          <ActiveEndTime>6/7/2016 11:43:24 AM</ActiveEndTime>
           <Duration>01:00:00</Duration>
-          <StartTime>4/19/2016 12:54:03 AM</StartTime>
-          <EndTime>4/19/2016 1:54:03 AM</EndTime>
+          <StartTime>6/7/2016 10:43:24 AM</StartTime>
+          <EndTime>6/7/2016 11:43:24 AM</EndTime>
         </EventSubSchedule>
       </EventSubSchedules>
       <RepetitionFlag>False</RepetitionFlag>
@@ -239,14 +239,14 @@
         <XCoordinate>105.2705</XCoordinate>
       </Location>
       <Enabled>True</Enabled>
-      <ID>1029_7_0_0</ID>
-      <Name>TestCalendarEventfeda3dfd-528a-45ce-8034-2c146d2939c3</Name>
-      <StartTime>3/18/2016 1:54:00 AM</StartTime>
+      <ID>1352_7_0_0</ID>
+      <Name>TestCalendarEventddf9480d-54a0-413c-9573-88eeb2cb8b6e</Name>
+      <StartTime>5/7/2016 11:43:24 AM</StartTime>
       <PreDeadline>00:00:00</PreDeadline>
       <DeletionCount>0</DeletionCount>
       <CompletionCount>0</CompletionCount>
       <PrepTime>00:00:00</PrepTime>
-      <Deadline>5/18/2016 1:54:00 AM</Deadline>
+      <Deadline>6/7/2016 11:43:24 AM</Deadline>
       <Split>1</Split>
       <Duration>01:00:00</Duration>
       <RigidFlag>True</RigidFlag>
@@ -287,407 +287,15 @@
           </Location>
           <Complete>False</Complete>
           <Enabled>True</Enabled>
-          <ID>1029_7_0_1030</ID>
+          <ID>1352_7_0_1353</ID>
           <Rigid>True</Rigid>
           <ThirdPartyID />
           <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>5/18/2016 8:54:55 PM</ActiveStartTime>
-          <ActiveEndTime>5/18/2016 9:54:55 PM</ActiveEndTime>
+          <ActiveStartTime>6/7/2016 10:43:24 AM</ActiveStartTime>
+          <ActiveEndTime>6/7/2016 11:43:24 AM</ActiveEndTime>
           <Duration>01:00:00</Duration>
-          <StartTime>5/18/2016 8:54:55 PM</StartTime>
-          <EndTime>5/18/2016 9:54:55 PM</EndTime>
-        </EventSubSchedule>
-      </EventSubSchedules>
-      <RepetitionFlag>False</RepetitionFlag>
-      <Completed>False</Completed>
-    </EventSchedule>
-    <EventSchedule>
-      <Recurrence />
-      <ProcrastinationProfile>
-        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
-        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
-        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
-      </ProcrastinationProfile>
-      <NowProfile>
-        <Initialized>False</Initialized>
-        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
-      </NowProfile>
-      <Restricted>False</Restricted>
-      <MiscData>
-        <TypeSelection>0</TypeSelection>
-        <UserNote />
-      </MiscData>
-      <UIParams>
-        <Type>0</Type>
-        <Color>
-          <UserSelection>-1</UserSelection>
-          <Blue>127</Blue>
-          <Green>127</Green>
-          <Red>127</Red>
-          <Opacity>1</Opacity>
-        </Color>
-        <Visible>True</Visible>
-      </UIParams>
-      <Location>
-        <CheckCalendarEvent>False</CheckCalendarEvent>
-        <isNull>True</isNull>
-        <Description />
-        <Address />
-        <YCoordinate>40.015</YCoordinate>
-        <XCoordinate>105.2705</XCoordinate>
-      </Location>
-      <Enabled>True</Enabled>
-      <ID>1031_7_0_0</ID>
-      <Name>TestCalendarEventab19a716-92bc-4949-afe3-79dc7ad5ded7</Name>
-      <StartTime>3/18/2016 1:58:00 AM</StartTime>
-      <PreDeadline>00:00:00</PreDeadline>
-      <DeletionCount>0</DeletionCount>
-      <CompletionCount>0</CompletionCount>
-      <PrepTime>00:00:00</PrepTime>
-      <Deadline>5/18/2016 1:58:00 AM</Deadline>
-      <Split>1</Split>
-      <Duration>01:00:00</Duration>
-      <RigidFlag>True</RigidFlag>
-      <EventSubSchedules>
-        <EventSubSchedule>
-          <PauseInformation>
-            <UsedUpTime>00:00:00</UsedUpTime>
-            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
-          </PauseInformation>
-          <Restricted>False</Restricted>
-          <ConflictProfile>
-            <ConflictIDs />
-            <Flag>False</Flag>
-            <Type>0</Type>
-          </ConflictProfile>
-          <MiscData>
-            <TypeSelection>0</TypeSelection>
-            <UserNote />
-          </MiscData>
-          <UIParams>
-            <Type>0</Type>
-            <Color>
-              <UserSelection>-1</UserSelection>
-              <Blue>127</Blue>
-              <Green>127</Green>
-              <Red>127</Red>
-              <Opacity>1</Opacity>
-            </Color>
-            <Visible>True</Visible>
-          </UIParams>
-          <Location>
-            <CheckCalendarEvent>False</CheckCalendarEvent>
-            <isNull>True</isNull>
-            <Description />
-            <Address />
-            <YCoordinate>40.015</YCoordinate>
-            <XCoordinate>105.2705</XCoordinate>
-          </Location>
-          <Complete>False</Complete>
-          <Enabled>True</Enabled>
-          <ID>1031_7_0_1032</ID>
-          <Rigid>True</Rigid>
-          <ThirdPartyID />
-          <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>5/18/2016 4:58:36 PM</ActiveStartTime>
-          <ActiveEndTime>5/18/2016 5:58:36 PM</ActiveEndTime>
-          <Duration>01:00:00</Duration>
-          <StartTime>5/18/2016 4:58:36 PM</StartTime>
-          <EndTime>5/18/2016 5:58:36 PM</EndTime>
-        </EventSubSchedule>
-      </EventSubSchedules>
-      <RepetitionFlag>False</RepetitionFlag>
-      <Completed>False</Completed>
-    </EventSchedule>
-    <EventSchedule>
-      <Recurrence />
-      <ProcrastinationProfile>
-        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
-        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
-        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
-      </ProcrastinationProfile>
-      <NowProfile>
-        <Initialized>False</Initialized>
-        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
-      </NowProfile>
-      <Restricted>False</Restricted>
-      <MiscData>
-        <TypeSelection>0</TypeSelection>
-        <UserNote />
-      </MiscData>
-      <UIParams>
-        <Type>0</Type>
-        <Color>
-          <UserSelection>-1</UserSelection>
-          <Blue>127</Blue>
-          <Green>127</Green>
-          <Red>127</Red>
-          <Opacity>1</Opacity>
-        </Color>
-        <Visible>True</Visible>
-      </UIParams>
-      <Location>
-        <CheckCalendarEvent>False</CheckCalendarEvent>
-        <isNull>True</isNull>
-        <Description />
-        <Address />
-        <YCoordinate>40.015</YCoordinate>
-        <XCoordinate>105.2705</XCoordinate>
-      </Location>
-      <Enabled>True</Enabled>
-      <ID>1035_7_0_0</ID>
-      <Name>TestCalendarEvent2a9f1137-be90-4ae6-81a9-62c44e35d55b</Name>
-      <StartTime>3/18/2016 2:15:00 AM</StartTime>
-      <PreDeadline>00:00:00</PreDeadline>
-      <DeletionCount>0</DeletionCount>
-      <CompletionCount>0</CompletionCount>
-      <PrepTime>00:00:00</PrepTime>
-      <Deadline>5/18/2016 2:15:00 AM</Deadline>
-      <Split>1</Split>
-      <Duration>01:00:00</Duration>
-      <RigidFlag>True</RigidFlag>
-      <EventSubSchedules>
-        <EventSubSchedule>
-          <PauseInformation>
-            <UsedUpTime>00:00:00</UsedUpTime>
-            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
-          </PauseInformation>
-          <Restricted>False</Restricted>
-          <ConflictProfile>
-            <ConflictIDs />
-            <Flag>False</Flag>
-            <Type>0</Type>
-          </ConflictProfile>
-          <MiscData>
-            <TypeSelection>0</TypeSelection>
-            <UserNote />
-          </MiscData>
-          <UIParams>
-            <Type>0</Type>
-            <Color>
-              <UserSelection>-1</UserSelection>
-              <Blue>127</Blue>
-              <Green>127</Green>
-              <Red>127</Red>
-              <Opacity>1</Opacity>
-            </Color>
-            <Visible>True</Visible>
-          </UIParams>
-          <Location>
-            <CheckCalendarEvent>False</CheckCalendarEvent>
-            <isNull>True</isNull>
-            <Description />
-            <Address />
-            <YCoordinate>40.015</YCoordinate>
-            <XCoordinate>105.2705</XCoordinate>
-          </Location>
-          <Complete>False</Complete>
-          <Enabled>True</Enabled>
-          <ID>1035_7_0_1036</ID>
-          <Rigid>True</Rigid>
-          <ThirdPartyID />
-          <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>5/18/2016 9:15:08 AM</ActiveStartTime>
-          <ActiveEndTime>5/18/2016 10:15:08 AM</ActiveEndTime>
-          <Duration>01:00:00</Duration>
-          <StartTime>5/18/2016 9:15:08 AM</StartTime>
-          <EndTime>5/18/2016 10:15:08 AM</EndTime>
-        </EventSubSchedule>
-      </EventSubSchedules>
-      <RepetitionFlag>False</RepetitionFlag>
-      <Completed>False</Completed>
-    </EventSchedule>
-    <EventSchedule>
-      <Recurrence />
-      <ProcrastinationProfile>
-        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
-        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
-        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
-      </ProcrastinationProfile>
-      <NowProfile>
-        <Initialized>False</Initialized>
-        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
-      </NowProfile>
-      <Restricted>False</Restricted>
-      <MiscData>
-        <TypeSelection>0</TypeSelection>
-        <UserNote />
-      </MiscData>
-      <UIParams>
-        <Type>0</Type>
-        <Color>
-          <UserSelection>-1</UserSelection>
-          <Blue>127</Blue>
-          <Green>127</Green>
-          <Red>127</Red>
-          <Opacity>1</Opacity>
-        </Color>
-        <Visible>True</Visible>
-      </UIParams>
-      <Location>
-        <CheckCalendarEvent>False</CheckCalendarEvent>
-        <isNull>True</isNull>
-        <Description />
-        <Address />
-        <YCoordinate>40.015</YCoordinate>
-        <XCoordinate>105.2705</XCoordinate>
-      </Location>
-      <Enabled>True</Enabled>
-      <ID>1037_7_0_0</ID>
-      <Name>TestCalendarEvent85d8f666-f240-4198-a1eb-81a4501b8614</Name>
-      <StartTime>3/18/2016 2:15:00 AM</StartTime>
-      <PreDeadline>00:00:00</PreDeadline>
-      <DeletionCount>0</DeletionCount>
-      <CompletionCount>0</CompletionCount>
-      <PrepTime>00:00:00</PrepTime>
-      <Deadline>5/18/2016 2:15:00 AM</Deadline>
-      <Split>1</Split>
-      <Duration>01:00:00</Duration>
-      <RigidFlag>True</RigidFlag>
-      <EventSubSchedules>
-        <EventSubSchedule>
-          <PauseInformation>
-            <UsedUpTime>00:00:00</UsedUpTime>
-            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
-          </PauseInformation>
-          <Restricted>False</Restricted>
-          <ConflictProfile>
-            <ConflictIDs />
-            <Flag>False</Flag>
-            <Type>0</Type>
-          </ConflictProfile>
-          <MiscData>
-            <TypeSelection>0</TypeSelection>
-            <UserNote />
-          </MiscData>
-          <UIParams>
-            <Type>0</Type>
-            <Color>
-              <UserSelection>-1</UserSelection>
-              <Blue>127</Blue>
-              <Green>127</Green>
-              <Red>127</Red>
-              <Opacity>1</Opacity>
-            </Color>
-            <Visible>True</Visible>
-          </UIParams>
-          <Location>
-            <CheckCalendarEvent>False</CheckCalendarEvent>
-            <isNull>True</isNull>
-            <Description />
-            <Address />
-            <YCoordinate>40.015</YCoordinate>
-            <XCoordinate>105.2705</XCoordinate>
-          </Location>
-          <Complete>False</Complete>
-          <Enabled>True</Enabled>
-          <ID>1037_7_0_1038</ID>
-          <Rigid>True</Rigid>
-          <ThirdPartyID />
-          <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>5/18/2016 5:15:37 AM</ActiveStartTime>
-          <ActiveEndTime>5/18/2016 6:15:37 AM</ActiveEndTime>
-          <Duration>01:00:00</Duration>
-          <StartTime>5/18/2016 5:15:37 AM</StartTime>
-          <EndTime>5/18/2016 6:15:37 AM</EndTime>
-        </EventSubSchedule>
-      </EventSubSchedules>
-      <RepetitionFlag>False</RepetitionFlag>
-      <Completed>False</Completed>
-    </EventSchedule>
-    <EventSchedule>
-      <Recurrence />
-      <ProcrastinationProfile>
-        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
-        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
-        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
-      </ProcrastinationProfile>
-      <NowProfile>
-        <Initialized>False</Initialized>
-        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
-      </NowProfile>
-      <Restricted>False</Restricted>
-      <MiscData>
-        <TypeSelection>0</TypeSelection>
-        <UserNote />
-      </MiscData>
-      <UIParams>
-        <Type>0</Type>
-        <Color>
-          <UserSelection>-1</UserSelection>
-          <Blue>127</Blue>
-          <Green>127</Green>
-          <Red>127</Red>
-          <Opacity>1</Opacity>
-        </Color>
-        <Visible>True</Visible>
-      </UIParams>
-      <Location>
-        <CheckCalendarEvent>False</CheckCalendarEvent>
-        <isNull>True</isNull>
-        <Description />
-        <Address />
-        <YCoordinate>40.015</YCoordinate>
-        <XCoordinate>105.2705</XCoordinate>
-      </Location>
-      <Enabled>True</Enabled>
-      <ID>1039_7_0_0</ID>
-      <Name>TestCalendarEvent6c72d0c7-80f1-4136-8a41-46b7ad38f11a</Name>
-      <StartTime>3/18/2016 2:16:38 AM</StartTime>
-      <PreDeadline>00:00:00</PreDeadline>
-      <DeletionCount>0</DeletionCount>
-      <CompletionCount>0</CompletionCount>
-      <PrepTime>00:00:00</PrepTime>
-      <Deadline>5/18/2016 2:16:38 AM</Deadline>
-      <Split>1</Split>
-      <Duration>01:00:00</Duration>
-      <RigidFlag>True</RigidFlag>
-      <EventSubSchedules>
-        <EventSubSchedule>
-          <PauseInformation>
-            <UsedUpTime>00:00:00</UsedUpTime>
-            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
-          </PauseInformation>
-          <Restricted>False</Restricted>
-          <ConflictProfile>
-            <ConflictIDs />
-            <Flag>False</Flag>
-            <Type>0</Type>
-          </ConflictProfile>
-          <MiscData>
-            <TypeSelection>0</TypeSelection>
-            <UserNote />
-          </MiscData>
-          <UIParams>
-            <Type>0</Type>
-            <Color>
-              <UserSelection>-1</UserSelection>
-              <Blue>127</Blue>
-              <Green>127</Green>
-              <Red>127</Red>
-              <Opacity>1</Opacity>
-            </Color>
-            <Visible>True</Visible>
-          </UIParams>
-          <Location>
-            <CheckCalendarEvent>False</CheckCalendarEvent>
-            <isNull>True</isNull>
-            <Description />
-            <Address />
-            <YCoordinate>40.015</YCoordinate>
-            <XCoordinate>105.2705</XCoordinate>
-          </Location>
-          <Complete>False</Complete>
-          <Enabled>True</Enabled>
-          <ID>1039_7_0_1040</ID>
-          <Rigid>True</Rigid>
-          <ThirdPartyID />
-          <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>5/18/2016 1:16:38 AM</ActiveStartTime>
-          <ActiveEndTime>5/18/2016 2:16:38 AM</ActiveEndTime>
-          <Duration>01:00:00</Duration>
-          <StartTime>5/18/2016 1:16:38 AM</StartTime>
-          <EndTime>5/18/2016 2:16:38 AM</EndTime>
+          <StartTime>6/7/2016 10:43:24 AM</StartTime>
+          <EndTime>6/7/2016 11:43:24 AM</EndTime>
         </EventSubSchedule>
       </EventSubSchedules>
       <RepetitionFlag>False</RepetitionFlag>

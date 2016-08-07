@@ -59,7 +59,7 @@ namespace My24HourTimerWPF
         public TimeSpan TwentyFourHourTimeSpan = new TimeSpan(1,0,0,0);
         public TimeSpan OnewWeekTimeSpan = new TimeSpan(7, 0, 0, 0);
         public TimeSpan HourTimeSpan = new TimeSpan(0, 1, 0, 0);
-        Dictionary<ThirdPartyControl.CalendarTool, List<CalendarEvent>> myCalendar = new Dictionary<ThirdPartyControl.CalendarTool, List<CalendarEvent>>();
+        Dictionary<ThirdPartyControl.CalendarTool, List<CalendarEvent>> ThirdPartyCalendars = new Dictionary<ThirdPartyControl.CalendarTool, List<CalendarEvent>>();
         DateTimeOffset StartofDay;
         bool retrievedThirdParty = false;
 
@@ -120,7 +120,7 @@ namespace My24HourTimerWPF
         {
             if (ThirdPartyData!=null)
             {
-                myCalendar.Add(ThirdPartyData.Item1, ThirdPartyData.Item2.ToList());
+                ThirdPartyCalendars.Add(ThirdPartyData.Item1, ThirdPartyData.Item2.ToList());
 
                 foreach(CalendarEvent ThirdPartyCalData in ThirdPartyData.Item2)
                 {
@@ -168,9 +168,10 @@ namespace My24HourTimerWPF
                 if (AllEventDictionary != null)
                 {
                     //setAsComplete();
-                    myCalendar.Add(ThirdPartyControl.CalendarTool.Outlook, new List<CalendarEvent>() {new CalendarEvent() });
-                    CompleteSchedule = getTimeLine();
                     EventID.Initialize((uint)(myAccount.LastEventTopNodeID));
+                    ThirdPartyCalendars.Add(ThirdPartyControl.CalendarTool.Outlook, new List<CalendarEvent>() {});
+                    CompleteSchedule = getTimeLine();
+                    
                     //EventIDGenerator.Initialize((uint)(this.LastScheduleIDNumber));
                 }
                 Locations = profileData.Item3;
@@ -1116,7 +1117,7 @@ namespace My24HourTimerWPF
             myAccount.UpdateReferenceDayTime(ReferenceDayTIime);
             
 
-            foreach (List<CalendarEvent> eachTuple in myCalendar.Values)
+            foreach (List<CalendarEvent> eachTuple in ThirdPartyCalendars.Values)
             {
                 foreach(CalendarEvent THirpartyCalendarEvents in eachTuple)
                 {//= eachThirdPartyCalendarControl.getThirdpartyCalendarEvent();

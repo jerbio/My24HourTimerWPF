@@ -116,9 +116,9 @@ namespace TilerElements
             EventPreDeadline = MyUpdated.PreDeadline;
             RigidSchedule = MyUpdated.Rigid;
             TimePerSplit = MyUpdated.TimePerSplit;
-            if (MyUpdated.ID != null)
+            if (MyUpdated.Id != null)
             {
-                UniqueID = new EventID(MyUpdated.ID);
+                UniqueID = new EventID(MyUpdated.Id);
             }
             Enabled = MyUpdated.isEnabled;
             Complete = MyUpdated.isComplete;
@@ -507,7 +507,7 @@ namespace TilerElements
 
         public override string ToString()
         {
-            return this.ID+"::"+this.Start.ToString() + " - " + this.End.ToString();
+            return this.Id+"::"+this.Start.ToString() + " - " + this.End.ToString();
         }
 
 
@@ -836,7 +836,7 @@ namespace TilerElements
             {
                 DateTimeOffset MyStartTime = ReferenceStartTime;
                 DateTimeOffset EndTIme = MyStartTime + MySubCalendarEvent.ActiveDuration;
-                MySubCalendarEvent.ActiveSlot = new BusyTimeLine(MySubCalendarEvent.ID, (MyStartTime), EndTIme);
+                MySubCalendarEvent.ActiveSlot = new BusyTimeLine(MySubCalendarEvent.Id, (MyStartTime), EndTIme);
                 ReferenceStartTime = EndTIme;
                 MyActiveSlot.Add(MySubCalendarEvent.ActiveSlot);
             }
@@ -1346,7 +1346,7 @@ namespace TilerElements
 
         public virtual void UpdateThis(CalendarEvent CalendarEventEntry)
         {
-            if ((this.ID == CalendarEventEntry.ID))
+            if ((this.Id == CalendarEventEntry.Id))
             {
                 EventDuration=CalendarEventEntry.ActiveDuration;
                 EventName=CalendarEventEntry.Name;
@@ -1816,19 +1816,6 @@ namespace TilerElements
         #endregion
 
         #region Properties
-
-        
-
-        
-        
-        public string ID
-        {
-            get
-            {
-                return UniqueID.ToString();
-            }
-        }
-
 
         public EventID Calendar_EventID
         {

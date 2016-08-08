@@ -48,7 +48,7 @@ namespace TilerElements
             DataBlob = Notes;
             Complete=completeFlag;
             UniqueID = EventID.GenerateSubCalendarEvent(myParentID);
-            BusyFrame = new BusyTimeLine(this.ID, StartDateTime, EndDateTime);//this is because in current implementation busy frame is the same as CalEvent frame
+            BusyFrame = new BusyTimeLine(this.Id, StartDateTime, EndDateTime);//this is because in current implementation busy frame is the same as CalEvent frame
             this.LocationInfo = EventLocation;
 //            EventSequence = new EventTimeLine(UniqueID.ToString(), StartDateTime, EndDateTime);
             RigidSchedule = Rigid;
@@ -111,7 +111,7 @@ namespace TilerElements
 
         public virtual string ToString()
         {
-            return this.Start.ToString() + " - " + this.End.ToString() + "::" + this.ID + "\t\t::" + this.ActiveDuration.ToString();
+            return this.Start.ToString() + " - " + this.End.ToString() + "::" + this.Id + "\t\t::" + this.ActiveDuration.ToString();
         }
 
 
@@ -249,7 +249,7 @@ namespace TilerElements
             }
             else
             {
-                Id = this.ID;
+                Id = this.Id;
             }
             SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(Id, Start, End, BusyFrame.CreateCopy(), this.RigidSchedule, this.isEnabled, this.UiParams.createCopy(), this.Notes.createCopy(), this.Complete, this.LocationInfo, new TimeLine(CalendarEventRange.Start, CalendarEventRange.End), ConflictingEvents.CreateCopy());
             MySubCalendarEventCopy.ThirdPartyID = this.ThirdPartyID;
@@ -395,7 +395,7 @@ namespace TilerElements
         /// <returns></returns>
         virtual public bool UpdateThis(SubCalendarEvent SubEventEntry)
         {
-            if ((this.ID == SubEventEntry.ID)&&canExistWithinTimeLine(SubEventEntry.getCalendarEventRange))
+            if ((this.Id == SubEventEntry.Id)&&canExistWithinTimeLine(SubEventEntry.getCalendarEventRange))
             {
                 this.BusyFrame = SubEventEntry.ActiveSlot;
                 this.CalendarEventRange = SubEventEntry.getCalendarEventRange;
@@ -446,7 +446,7 @@ namespace TilerElements
             */
             retValue.CalendarEventRange = new TimeLine(ProcrastinationData.PreferredStartTime, retValue.CalendarEventRange.End);
             TimeSpan SpanShift = (retValue.CalendarEventRange.End - retValue.RangeSpan) - retValue.Start;
-            retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventData.ID);
+            retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventData.Id);
             retValue.shiftEvent(SpanShift,true);
             return retValue;
         }
@@ -571,7 +571,7 @@ namespace TilerElements
 
         virtual public  bool PinToEndAndIncludeInTimeLine(TimeLine LimitingTimeLine, CalendarEvent RestrctingCalendarEvent)
         {
-            if (new EventID(RestrctingCalendarEvent.ID).getCalendarEventComponent() != UniqueID.getCalendarEventComponent())
+            if (new EventID(RestrctingCalendarEvent.Id).getCalendarEventComponent() != UniqueID.getCalendarEventComponent())
             {
                 throw new Exception("Oh oh Sub calendar event Trying to pin to end of invalid calendar event. Check that you have matchin IDs");
             }
@@ -822,7 +822,7 @@ namespace TilerElements
              {
                  EventDuration = NewEventDuration;
                  EndDateTime = StartDateTime.Add(EventDuration);
-                 BusyFrame.updateBusyTimeLine(new BusyTimeLine(ID, ActiveSlot.Start, ActiveSlot.Start.Add(EventDuration)));
+                 BusyFrame.updateBusyTimeLine(new BusyTimeLine(Id, ActiveSlot.Start, ActiveSlot.Start.Add(EventDuration)));
                  return;
              }
              throw new Exception("You are trying to reduce the Duration length to Less than zero");
@@ -951,16 +951,7 @@ namespace TilerElements
                 return EventDuration;
             }
         }
-
-        public string ID
-        {
-            get
-            {
-                return UniqueID.ToString();
-            }
-        }
-
-        
+       
 
         public EventID SubEvent_ID
         {

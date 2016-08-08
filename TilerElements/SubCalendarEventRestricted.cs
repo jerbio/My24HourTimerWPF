@@ -318,7 +318,7 @@ namespace TilerElements
         
         public override bool UpdateThis(SubCalendarEvent SubEventEntryData)
         {
-            if ((this.ID == SubEventEntryData.ID) && canExistWithinTimeLine(SubEventEntryData.getCalendarEventRange))
+            if ((this.Id == SubEventEntryData.Id) && canExistWithinTimeLine(SubEventEntryData.getCalendarEventRange))
             {
                 SubCalendarEventRestricted SubEventEntry = (SubCalendarEventRestricted)SubEventEntryData;
                 this.BusyFrame = SubEventEntry.ActiveSlot;
@@ -419,7 +419,7 @@ namespace TilerElements
 
             retValue.HardCalendarEventRange= new TimeLineRestricted(ProcrastinationData.PreferredStartTime, CalendarEventData.RangeTimeLine.End,retValue.ProfileOfRestriction);
             TimeSpan SpanShift = ProcrastinationData.PreferredStartTime - retValue.Start;
-            retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventData.ID);
+            retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventData.Id);
             retValue.initializeCalendarEventRange(retValue.ProfileOfRestriction, CalendarEventData.RangeTimeLine);
             retValue.shiftEvent(SpanShift, true);
             return retValue;

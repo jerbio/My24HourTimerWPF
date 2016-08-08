@@ -220,7 +220,7 @@ namespace TilerElements
 
         public override void UpdateThis(CalendarEvent CalendarEventEntry)
         {
-            if ((this.ID == CalendarEventEntry.ID))
+            if ((this.Id == CalendarEventEntry.Id))
             {
                 base.UpdateThis(CalendarEventEntry);
                 CalendarEventRestricted castedEvent = CalendarEventEntry as CalendarEventRestricted;

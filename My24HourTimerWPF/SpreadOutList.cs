@@ -88,7 +88,7 @@ namespace My24HourTimerWPF
         {
             foreach (SubCalendarEvent SubCalendarElement in MyListCopy)
             {
-                if (MySubCalendarEvent.ID == SubCalendarElement.ID)
+                if (MySubCalendarEvent.Id == SubCalendarElement.Id)
                 {
                     return true;
                 }

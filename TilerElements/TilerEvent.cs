@@ -241,5 +241,13 @@ namespace TilerElements
                 return _UsedTime;
             }
         }
+
+        virtual public string Id
+        {
+            get
+            {
+                return UniqueID.ToString();
+            }
+        }
     }
 }

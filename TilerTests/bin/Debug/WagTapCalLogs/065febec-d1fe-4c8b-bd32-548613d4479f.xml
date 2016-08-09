@@ -4,6 +4,7 @@
 >>>>>>> created and Ran successful intial tests for the creation and persisting of
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ScheduleLog>
+<<<<<<< HEAD
   <LastIDCounter>1353</LastIDCounter>
   <referenceDay>8:00 AM</referenceDay>
   <EventSchedules>
@@ -301,9 +302,16 @@
       <RepetitionFlag>False</RepetitionFlag>
       <Completed>False</Completed>
     </EventSchedule>
+=======
+  <LastIDCounter>1075</LastIDCounter>
+  <referenceDay>8:00 AM</referenceDay>
+  <EventSchedules>
+>>>>>>> Fixed issue where test were failing randomly because inconsistent start and end times
   </EventSchedules>
   <LocationCache>
-    <Locations />
+    <Locations>
+    </Locations>
+    <LastID>12</LastID>
   </LocationCache>
 <<<<<<< HEAD
 </ScheduleLog>

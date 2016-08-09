@@ -53,14 +53,63 @@ namespace TilerTests
             }
         }
 
-        public static CalendarEvent generateCalendarEvent(TimeSpan duration, Repetition repetition, int splitCount = 1, bool rigidFlags = false, DateTimeOffset Start = new DateTimeOffset())
+        /// <summary>
+        /// Function 
+        /// </summary>
+        /// <returns></returns>
+        static public List<TimeLine> getTimeFrames(DateTimeOffset refSTart, TimeSpan duration)
+        {
+            TimeSpan FiveYears = TimeSpan.FromDays(365 * 5);
+            TimeSpan ThreeYears = TimeSpan.FromDays(365 * 3);
+            TimeSpan OneYears = TimeSpan.FromDays(365 * 1);
+            TimeSpan SixMonths = TimeSpan.FromDays(180);
+            TimeSpan OneMonth = TimeSpan.FromDays(30);
+            TimeSpan OneWeek = TimeSpan.FromDays(7);
+            TimeSpan OneDay = TimeSpan.FromDays(1);
+            TimeSpan OneHour = TimeSpan.FromHours(1);
+            TimeSpan ZeroSpan = new TimeSpan();
+            List<TimeLine> retValue = new List<TimeLine>();
+            List<TimeSpan> durations = new List<TimeSpan>() { FiveYears, ThreeYears, OneYears, SixMonths, OneMonth, OneWeek, OneDay, OneHour, ZeroSpan };
+            if(refSTart == StartOfTime)
+            {
+                refSTart = DateTimeOffset.UtcNow;
+            }
+            TimeLine minTImeLine = new TimeLine(refSTart, refSTart.Add(duration));
+            //List<TimeSpan> activeDurations = durations.Where(durationObj => durationObj <= duration).OrderBy(obj => obj.Ticks).ToList();
+
+            for(int i =0; i< durations.Count; i++)
+            {
+                for (int j = 0; j < durations.Count; j++)
+                {
+                    DateTimeOffset start = refSTart.Add(-durations[i]);
+                    DateTimeOffset end = refSTart.Add(durations[j]);
+                    TimeLine timeLine = new TimeLine(start, end);
+
+                    TimeLine validFrame = timeLine.InterferringTimeLine(minTImeLine);
+                    if (validFrame != null)
+                    {
+                        if (validFrame.TimelineSpan >= duration)
+                        {
+                            retValue.Add(validFrame);
+                        }
+                    }
+                }
+            }
+
+            return retValue;
+        }
+
+        public static CalendarEvent generateCalendarEvent(TimeSpan duration, Repetition repetition, DateTimeOffset Start, DateTimeOffset End, int splitCount = 1, bool rigidFlags = false)
         {
             if (Start == StartOfTime)
             {
                 Start = TestUtility.Start;
             }
-            DateTimeOffset End = Start.AddMonths(TestUtility.Rand.Next() % TestUtility.MonthLimit);
-            CalendarEvent RetValue = new CalendarEvent("TestCalendarEvent" + Guid.NewGuid().ToString(), duration, Start, End, new TimeSpan(), new TimeSpan(), rigidFlags, repetition, splitCount, new Location_Elements(), true, new EventDisplay(), new MiscData(), false);
+            if(End == StartOfTime)
+            {
+                End = Start.Add(duration);
+            }
+            CalendarEvent RetValue = new CalendarEvent("TestCalendarEvent-" + Guid.NewGuid().ToString(), duration, Start, End, new TimeSpan(), new TimeSpan(), rigidFlags, repetition, splitCount, new Location_Elements(), true, new EventDisplay(), new MiscData(), false);
             return RetValue;
         }
 

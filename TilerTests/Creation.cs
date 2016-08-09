@@ -4,6 +4,8 @@ using TilerElements;
 using My24HourTimerWPF;
 using TilerFront;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace TilerTests
 {
@@ -11,22 +13,30 @@ namespace TilerTests
     public class Creation
     {
         Schedule Schedule;
+        static DateTimeOffset refNow = DateTimeOffset.Now;
         CalendarEvent CalendarEvent1;
         CalendarEvent CalendarEvent2;
         CalendarEvent CalendarEvent3;
-        
+
+
 
         [TestMethod]
         public void TestCreationOfNonRigid()
         {
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Now;
+            
             Schedule = new Schedule(currentUser, refNow);
-            CalendarEvent testEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), 1, false);
-            Schedule.AddToSchedule(testEvent);
-            CalendarEvent newlyaddedevent = Schedule.getCalendarEvent(testEvent.Calendar_EventID);
-            Assert.AreEqual(testEvent.Id, newlyaddedevent.Id);
+            TimeSpan duration = TimeSpan.FromHours(1);
+            List<TimeLine> timeLines = TestUtility.getTimeFrames(refNow , duration);
+            foreach(TimeLine eachTimeLine in timeLines)
+            {
+                CalendarEvent testEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1),  new Repetition(), eachTimeLine.Start, eachTimeLine.End, 1, false);
+                Schedule.AddToSchedule(testEvent);
+                CalendarEvent newlyaddedevent = Schedule.getCalendarEvent(testEvent.Calendar_EventID);
+                Assert.AreEqual(testEvent.Id, newlyaddedevent.Id);
+            }
+            
         }
 
         [TestMethod]
@@ -36,7 +46,10 @@ namespace TilerTests
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.Now;
             Schedule = new Schedule(user, refNow);
-            CalendarEvent testEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), 1, true);
+            TimeSpan duration = TimeSpan.FromHours(1);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.Add(duration);
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, true);
             Schedule.AddToSchedule(testEvent);
             CalendarEvent newlyaddedevent = Schedule.getCalendarEvent(testEvent.Calendar_EventID);
             Assert.AreEqual(testEvent.Id, newlyaddedevent.Id);
@@ -49,7 +62,10 @@ namespace TilerTests
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.Now;
             Schedule schedule = new Schedule(user, refNow);
-            CalendarEvent testEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), 1, true);
+            TimeSpan duration = TimeSpan.FromHours(1);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.Add(duration);
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, true);
             schedule.AddToScheduleAndCommit(testEvent).Wait();
             schedule = null;
             schedule = new Schedule(user, refNow);
@@ -65,7 +81,10 @@ namespace TilerTests
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.Now;
             Schedule schedule = new Schedule(user, refNow);
-            CalendarEvent testEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), 1, true);
+            TimeSpan duration = TimeSpan.FromHours(1);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.Add(duration);
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, true);
             string currentID = testEvent.Id;
             schedule.AddToScheduleAndCommit(testEvent).Wait();
             CalendarEvent tempEvent = schedule.getCalendarEvent(testEvent.Calendar_EventID);

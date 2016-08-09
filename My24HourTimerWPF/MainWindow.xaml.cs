@@ -1450,7 +1450,11 @@ namespace My24HourTimerWPF
             //UserAccountDirect currentUser =  new UserAccountDebug("18");
             await currentUser.Login();
             DateTimeOffset refNow=DateTimeOffset.Now;
+<<<<<<< fc2fc7445b7c4b899bc3e14f2782bf59f5e6baaf
             refNow = DateTimeOffset.Parse("8:26 am 8/21/2016");
+=======
+            refNow = DateTimeOffset.Parse("1:26 am 8/8/2016");
+>>>>>>> Runtime error associated wit h subeventreason and dictionary filure
             //MySchedule = new Schedule(currentUser, refNow);
 
 

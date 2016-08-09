@@ -12,6 +12,13 @@ namespace TilerElements
     [XmlInclude(typeof(BestFitReason))]
     [XmlInclude(typeof(DeadlineApproaching))]
     [XmlInclude(typeof(PreservedOrder))]
+    [XmlInclude(typeof(LocationReason))]
+    [XmlInclude(typeof(DeadlineApproaching))]
+    [XmlInclude(typeof(PreservedOrder))]
+    [XmlInclude(typeof(DurationReason))]
+    [XmlInclude(typeof(RestrictedEventReason))]
+    [XmlInclude(typeof(NoReason))]
+
     [Serializable]
     public abstract class Reason
     {
@@ -201,6 +208,10 @@ namespace TilerElements
     public class LocationReason : Reason
     {
         List<Location_Elements> _LocationCluster;
+        public LocationReason()
+        {
+            this._Option = Options.CloseToCluster;
+        }
         public LocationReason(IEnumerable<Location_Elements> locations)
         {
             this._Option = Options.CloseToCluster;

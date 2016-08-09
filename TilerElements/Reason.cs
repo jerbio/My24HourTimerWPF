@@ -13,6 +13,11 @@ namespace TilerElements
     [XmlInclude(typeof(DeadlineApproaching))]
     [XmlInclude(typeof(PreservedOrder))]
     [XmlInclude(typeof(LocationReason))]
+<<<<<<< fc2fc7445b7c4b899bc3e14f2782bf59f5e6baaf
+=======
+    [XmlInclude(typeof(DeadlineApproaching))]
+    [XmlInclude(typeof(PreservedOrder))]
+>>>>>>> Runtime error associated wit h subeventreason and dictionary filure
     [XmlInclude(typeof(DurationReason))]
     [XmlInclude(typeof(RestrictedEventReason))]
     [XmlInclude(typeof(NoReason))]
@@ -210,7 +215,10 @@ namespace TilerElements
         {
             this._Option = Options.CloseToCluster;
         }
+<<<<<<< fc2fc7445b7c4b899bc3e14f2782bf59f5e6baaf
 
+=======
+>>>>>>> Runtime error associated wit h subeventreason and dictionary filure
         public LocationReason(IEnumerable<Location_Elements> locations)
         {
             this._Option = Options.CloseToCluster;

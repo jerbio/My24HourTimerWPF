@@ -1,6 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ScheduleLog>
+<<<<<<< HEAD
   <LastIDCounter>1351</LastIDCounter>
+=======
+  <LastIDCounter>1067</LastIDCounter>
+>>>>>>> Fixed issue where test were failing randomly because inconsistent start and end times
   <referenceDay>8:00 AM</referenceDay>
   <EventSchedules>
     <EventSchedule>
@@ -39,14 +43,24 @@
         <XCoordinate>105.2705</XCoordinate>
       </Location>
       <Enabled>True</Enabled>
+<<<<<<< HEAD
       <ID>1346_7_0_0</ID>
       <Name>TestCalendarEvent9e5a02d5-553b-4998-be72-3f654b67e289</Name>
       <StartTime>5/7/2016 11:40:00 AM</StartTime>
+=======
+      <ID>1066_7_0_0</ID>
+      <Name>TestCalendarEvent-adfb358e-47bc-471f-9211-e760ee42809e</Name>
+      <StartTime>8/9/2016 6:46:12 AM</StartTime>
+>>>>>>> Fixed issue where test were failing randomly because inconsistent start and end times
       <PreDeadline>00:00:00</PreDeadline>
       <DeletionCount>0</DeletionCount>
       <CompletionCount>0</CompletionCount>
       <PrepTime>00:00:00</PrepTime>
+<<<<<<< HEAD
       <Deadline>7/7/2016 11:40:00 AM</Deadline>
+=======
+      <Deadline>8/9/2016 7:46:12 AM</Deadline>
+>>>>>>> Fixed issue where test were failing randomly because inconsistent start and end times
       <Split>1</Split>
       <Duration>01:00:00</Duration>
       <RigidFlag>True</RigidFlag>
@@ -87,13 +101,18 @@
           </Location>
           <Complete>False</Complete>
           <Enabled>True</Enabled>
+<<<<<<< HEAD
           <ID>1346_7_0_1347</ID>
+=======
+          <ID>1066_7_0_1067</ID>
+>>>>>>> Fixed issue where test were failing randomly because inconsistent start and end times
           <Rigid>True</Rigid>
           <ThirdPartyID />
           <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>7/7/2016 10:40:25 AM</ActiveStartTime>
-          <ActiveEndTime>7/7/2016 11:40:25 AM</ActiveEndTime>
+          <ActiveStartTime>8/9/2016 6:46:12 AM</ActiveStartTime>
+          <ActiveEndTime>8/9/2016 7:46:12 AM</ActiveEndTime>
           <Duration>01:00:00</Duration>
+<<<<<<< HEAD
           <StartTime>7/7/2016 10:40:25 AM</StartTime>
           <EndTime>7/7/2016 11:40:25 AM</EndTime>
         </EventSubSchedule>
@@ -194,6 +213,10 @@
           <Duration>01:00:00</Duration>
           <StartTime>6/7/2016 10:43:24 AM</StartTime>
           <EndTime>6/7/2016 11:43:24 AM</EndTime>
+=======
+          <StartTime>8/9/2016 6:46:12 AM</StartTime>
+          <EndTime>8/9/2016 7:46:12 AM</EndTime>
+>>>>>>> Fixed issue where test were failing randomly because inconsistent start and end times
         </EventSubSchedule>
       </EventSubSchedules>
       <RepetitionFlag>False</RepetitionFlag>
@@ -201,6 +224,8 @@
     </EventSchedule>
   </EventSchedules>
   <LocationCache>
-    <Locations />
+    <Locations>
+    </Locations>
+    <LastID>12</LastID>
   </LocationCache>
 </ScheduleLog>

@@ -28,7 +28,7 @@ namespace TilerTests
             List<CalendarEvent> allEvents = new List<CalendarEvent>();
             for(int i=0; i<count; i++)
             {
-                CalendarEvent CalendarEvent = TestUtility.generateCalendarEvent(durationOfEvents, new TilerElements.Repetition(), 1, true, newStart);
+                CalendarEvent CalendarEvent = TestUtility.generateCalendarEvent(durationOfEvents, new TilerElements.Repetition(), newStart, newStart.Add(durationOfEvents), 1, true );
                 allEvents.Add(CalendarEvent);
                 newStart = newStart.Add(jitterSpan);
                 mySchedule.AddToSchedule(CalendarEvent);

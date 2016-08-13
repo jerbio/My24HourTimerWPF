@@ -1875,6 +1875,7 @@ namespace TilerElements
                 return Splits;
             }
         }
+
         virtual public bool Rigid
         {
             set 

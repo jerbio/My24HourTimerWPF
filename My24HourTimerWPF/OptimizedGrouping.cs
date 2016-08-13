@@ -18,7 +18,6 @@ namespace My24HourTimerWPF
         Location_Elements DefaultLocation;
         TimeSpan TotalDuration;
 
-
         public OptimizedGrouping(TimeOfDayPreferrence.DaySection SectionData, TimeSpan SubeventDurationSum, Location_Elements DefaultLocation)
         {
             Section = SectionData;

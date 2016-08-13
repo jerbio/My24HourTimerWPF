@@ -342,6 +342,7 @@ namespace TilerElements
             //MyCalendarEventCopy.SchedulStatus = SchedulStatus;
             MyCalendarEventCopy.otherPartyID = otherPartyID == null ? null : otherPartyID.ToString();
             MyCalendarEventCopy.UserIDs = this.UserIDs.ToList();
+            MyCalendarEventCopy.DaySectionPreference = this.DaySectionPreference;
             return MyCalendarEventCopy;
         }
 
@@ -2046,7 +2047,7 @@ namespace TilerElements
             }
 
         }
-        virtual public TimeLine RangeTimeLine
+        override public TimeLine RangeTimeLine
         {
             get
             {

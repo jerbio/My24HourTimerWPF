@@ -165,6 +165,7 @@
     <Compile Include="MainWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="OptimizedGrouping.cs" />
     <Compile Include="OptimizedPath.cs" />
     <Compile Include="ReverseGeocode.cs" />
     <Compile Include="RouteDataContract.cs" />

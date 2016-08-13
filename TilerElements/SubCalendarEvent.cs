@@ -295,6 +295,7 @@ namespace TilerElements
             MySubCalendarEventCopy._UsedTime = this._UsedTime;
             MySubCalendarEventCopy.OptimizationFlag = this.OptimizationFlag;
             MySubCalendarEventCopy._LastReasonStartTimeChanged = this._LastReasonStartTimeChanged;
+            MySubCalendarEventCopy.DaySectionPreference = this.DaySectionPreference;
             return MySubCalendarEventCopy;
         }
 
@@ -1098,15 +1099,7 @@ namespace TilerElements
             }
         }
 
-         public bool Rigid
-        {
-            get
-            {
-                return RigidSchedule;
-            }
-        }
-
-        public  TimeLine RangeTimeLine
+        public override  TimeLine RangeTimeLine
         {
             get
             {

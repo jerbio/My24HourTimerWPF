@@ -342,6 +342,7 @@ namespace TilerElements
             MyCalendarEventCopy.SchedulStatus = SchedulStatus;
             MyCalendarEventCopy.otherPartyID = otherPartyID == null ? null : otherPartyID.ToString();
             MyCalendarEventCopy.UserIDs = this.UserIDs.ToList();
+            MyCalendarEventCopy.DaySectionPreference = this.DaySectionPreference;
             return MyCalendarEventCopy;
         }
 
@@ -1874,17 +1875,6 @@ namespace TilerElements
                 return Splits;
             }
         }
-        virtual public bool Rigid
-        {
-            set 
-            {
-                RigidSchedule = value;
-            }
-            get
-            {
-                return RigidSchedule;
-            }
-        }
         public bool RepetitionStatus
         {
             get
@@ -2046,7 +2036,7 @@ namespace TilerElements
             }
 
         }
-        virtual public TimeLine RangeTimeLine
+        override public TimeLine RangeTimeLine
         {
             get
             {

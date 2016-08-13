@@ -3379,7 +3379,7 @@ namespace My24HourTimerWPF
 
             {
                 ulong FirstIndex = AllDayTImeLine[0].UniversalIndex;
-                try
+                //try
                 {
                     ILookup<ulong, SubCalendarEvent> DayToSubEvent = AllRigids.ToLookup(obj => obj.UniversalDayIndex, obj => obj);
                     foreach(IGrouping<ulong,SubCalendarEvent>eachGrouping in DayToSubEvent)

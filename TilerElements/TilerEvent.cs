@@ -40,7 +40,7 @@ namespace TilerElements
         protected string CreatorIDInfo;
         protected TimeSpan _UsedTime = new TimeSpan();
         protected Classification Semantics= new Classification();
-        protected TimeOfDayPreferrence DaySectionPreference = new TimeOfDayPreferrence();
+        protected TimeOfDayPreferrence DaySectionPreference;
 
         async public Task InitializeClassification()
         {
@@ -222,8 +222,12 @@ namespace TilerElements
             }
         }
 
-        public void InitializeDayPreference()
-        { 
+        public void InitializeDayPreference(TimeLine timeLine)
+        {
+            if (DaySectionPreference == null)
+            {
+                DaySectionPreference = new TimeOfDayPreferrence(timeLine);
+            }
             DaySectionPreference.InitializeGrouping(this);// InitializeGrouping
         }
 
@@ -291,6 +295,27 @@ namespace TilerElements
         public virtual string ToString()
         {
             return this.Start.ToString() + " - " + this.End.ToString() + "::" + this.ID + "\t\t::" + this.ActiveDuration.ToString();
+        }
+
+        virtual public bool Rigid
+        {
+            set
+            {
+                RigidSchedule = value;
+            }
+            get
+            {
+                return RigidSchedule;
+            }
+        }
+
+        virtual public TimeLine RangeTimeLine
+        {
+            get
+            {
+                TimeLine retValue = new TimeLine(this.Start, this.End);
+                return retValue;
+            }
         }
     }
 }

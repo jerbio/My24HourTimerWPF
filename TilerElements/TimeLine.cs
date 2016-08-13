@@ -51,7 +51,7 @@ namespace TilerElements
 
         virtual public bool IsDateTimeWithin(DateTimeOffset MyDateTime)
         {
-            if ((MyDateTime > StartTime) && (MyDateTime < EndTime))//you might need to review semantics
+            if ((MyDateTime >= StartTime) && (MyDateTime < EndTime))//you might need to review semantics
             {
                 return true;
             }

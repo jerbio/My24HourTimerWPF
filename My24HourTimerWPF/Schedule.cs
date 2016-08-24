@@ -977,7 +977,8 @@ namespace My24HourTimerWPF
 #if enableTimer
             myWatch.Start();
 #endif
-            HashSet<SubCalendarEvent> NotdoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
+            //HashSet<SubCalendarEvent> NotdoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
+            HashSet<SubCalendarEvent> NotdoneYet = new HashSet<SubCalendarEvent>();// getNoneDoneYetBetweenNowAndReerenceStartTIme();
             if (!NewEvent.Rigid)
             {
                 NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, NotdoneYet);
@@ -1015,7 +1016,7 @@ namespace My24HourTimerWPF
 #if enableTimer
             myWatch.Start();
 #endif
-            HashSet<SubCalendarEvent> NotdoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
+            HashSet<SubCalendarEvent> NotdoneYet = new HashSet<SubCalendarEvent>();// getNoneDoneYetBetweenNowAndReerenceStartTIme();
             if (!NewEvent.Rigid)
             {
                 NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, NotdoneYet);
@@ -10497,7 +10498,7 @@ namespace My24HourTimerWPF
 
         TimeLine JustFillEachOneFirst(TimeLine MyRange, TimeSpan MyActiveDuration)
         {
-            return CentralizeYourSelfWithinRange(MyRange, MyActiveDuration);
+            return Utility.CentralizeYourSelfWithinRange(MyRange, MyActiveDuration);
 
         }
 
@@ -10516,26 +10517,12 @@ namespace My24HourTimerWPF
                 TotalMilliseconds = i * (MySpanForEachSection.TotalMilliseconds);
                 RangeStart = RangeOfSplit.Start.AddMilliseconds(TotalMilliseconds);
                 RangeEnd = RangeStart.Add(MySpanForEachSection);
-                MyArrayOfElements[i] = CentralizeYourSelfWithinRange(new TimeLine(RangeStart, RangeEnd), DurationLength);
+                MyArrayOfElements[i] = Utility. CentralizeYourSelfWithinRange(new TimeLine(RangeStart, RangeEnd), DurationLength);
             }
             return MyArrayOfElements;
 
         }
-
-        TimeLine CentralizeYourSelfWithinRange(TimeLine Range, TimeSpan Centralized)
-        {
-            TimeSpan Difference = Range.TimelineSpan - Centralized;
-            TimeLine CentralizedTimeline = new TimeLine();
-            if (Difference.TotalMilliseconds < 0)
-            {
-                //MessageBox.Show("Cannot generate CentralizeYourSelfWithinRange TimeLine Because Difference is less than zero.\nWill Not Fit!!!");
-                throw (new System.Exception("Cannot generate CentralizeYourSelfWithinRange TimeLine Because Difference is less than zero.\nWill Not Fit!!!"));
-                //return CentralizedTimeline;
-            }
-            DateTimeOffset MyStart = Range.Start.AddSeconds(Difference.TotalSeconds / 2);
-            CentralizedTimeline = new TimeLine(MyStart, MyStart.Add(Centralized));
-            return CentralizedTimeline;
-        }
+        
 
         private SubCalendarEvent AssignSubEventTimeSlot(SubCalendarEvent MySubEvent)
         {

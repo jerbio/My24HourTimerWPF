@@ -11,6 +11,7 @@ namespace TilerElements
     public static class Utility
     {
         public static DateTimeOffset StartOfTime = new DateTimeOffset();
+
         const uint fibonnaciLimit = 150;
         static uint[] fibonacciValues = new uint[fibonnaciLimit];
         static Utility()

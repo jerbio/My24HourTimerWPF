@@ -722,6 +722,11 @@ namespace TilerElements
             }
         }
 
+        virtual public bool shiftEvent(DateTimeOffset newStartTime, bool force = false)
+        {
+            return shiftEvent(newStartTime - this.Start, force);
+        }
+
         public static double CalculateDistanceOfSubEventsWithSameCalendarEvent(IList<SubCalendarEvent> Allevents, double distanceMultiplier)
         {
             double retValue = 0;

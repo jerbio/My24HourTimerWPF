@@ -13,11 +13,12 @@ namespace TilerElements
         protected TimeLine fullDayTImeLine;
         List<Tuple<int, DaySection, bool, TimeLine>> PreferenceOrder;
         List<Tuple<int, DaySection, bool, TimeLine>>  DefaultOrder  = new List<Tuple<int, DaySection, bool, TimeLine>>(new[] {
-                new Tuple<int, DaySection, bool, TimeLine>(0, DaySection.None, false, new TimeLine()),
+                
                 new Tuple<int, DaySection, bool, TimeLine>(1, DaySection.Morning, false, new TimeLine()),
                 new Tuple<int, DaySection, bool, TimeLine>(2, DaySection.Afternoon, false, new TimeLine()),
                 new Tuple<int, DaySection, bool, TimeLine>(3, DaySection.Evening, false, new TimeLine()),
-                new Tuple<int, DaySection, bool, TimeLine>(4, DaySection.Sleep , false, new TimeLine())
+                new Tuple<int, DaySection, bool, TimeLine>(4, DaySection.Sleep , false, new TimeLine()),
+            new Tuple<int, DaySection, bool, TimeLine>(5, DaySection.None, false, new TimeLine())
             });
 
         //TilerEvent ControlEvent;
@@ -26,11 +27,12 @@ namespace TilerElements
             tImeLineStart = timeLine.Start;
             fullDayTImeLine = timeLine.CreateCopy();
             PreferenceOrder = new List<Tuple<int, DaySection, bool, TimeLine>>(new[] {
-                new Tuple<int, DaySection, bool, TimeLine>(0, DaySection.None, false, new TimeLine(timeLine.Start, timeLine.Start.AddDays(1).AddTicks(-1))),
+                
                 new Tuple<int, DaySection, bool, TimeLine>(1, DaySection.Morning, false, new TimeLine(timeLine.Start, timeLine.Start.AddHours(6).AddTicks(-1))),
                 new Tuple<int, DaySection, bool, TimeLine>(2, DaySection.Afternoon, false, new TimeLine(timeLine.Start.AddHours(6), timeLine.Start.AddHours(12).AddTicks(-1))),
                 new Tuple<int, DaySection, bool, TimeLine>(3, DaySection.Evening, false, new TimeLine(timeLine.Start.AddHours(12), timeLine.Start.AddHours(18).AddTicks(-1))),
-                new Tuple<int, DaySection, bool, TimeLine>(4, DaySection.Sleep , false, new TimeLine(timeLine.Start.AddHours(18), timeLine.Start.AddHours(24).AddTicks(-1)))
+                new Tuple<int, DaySection, bool, TimeLine>(4, DaySection.Sleep , false, new TimeLine(timeLine.Start.AddHours(18), timeLine.Start.AddHours(24).AddTicks(-1))),
+                new Tuple<int, DaySection, bool, TimeLine>(5, DaySection.None, false, new TimeLine(timeLine.Start, timeLine.Start.AddDays(1).AddTicks(-1))),
             });
             DefaultOrder = PreferenceOrder.ToList();
         }
@@ -40,11 +42,12 @@ namespace TilerElements
             tImeLineStart = timeLine.Start;
             fullDayTImeLine = timeLine.CreateCopy();
             PreferenceOrder = new List<Tuple<int, DaySection, bool, TimeLine>>(new[] {
-                new Tuple<int, DaySection, bool, TimeLine>(0, DaySection.None, false, new TimeLine(timeLine.Start, timeLine.Start.AddDays(1).AddTicks(-1))),
+
                 new Tuple<int, DaySection, bool, TimeLine>(1, DaySection.Morning, false, new TimeLine(timeLine.Start, timeLine.Start.AddHours(6).AddTicks(-1))),
                 new Tuple<int, DaySection, bool, TimeLine>(2, DaySection.Afternoon, false, new TimeLine(timeLine.Start.AddHours(6), timeLine.Start.AddHours(12).AddTicks(-1))),
                 new Tuple<int, DaySection, bool, TimeLine>(3, DaySection.Evening, false, new TimeLine(timeLine.Start.AddHours(12), timeLine.Start.AddHours(18).AddTicks(-1))),
-                new Tuple<int, DaySection, bool, TimeLine>(4, DaySection.Sleep , false, new TimeLine(timeLine.Start.AddHours(18), timeLine.Start.AddHours(24).AddTicks(-1)))
+                new Tuple<int, DaySection, bool, TimeLine>(4, DaySection.Sleep , false, new TimeLine(timeLine.Start.AddHours(18), timeLine.Start.AddHours(24).AddTicks(-1))),
+                new Tuple<int, DaySection, bool, TimeLine>(5, DaySection.None, false, new TimeLine(timeLine.Start, timeLine.Start.AddDays(1).AddTicks(-1))),
             });
         }
 
@@ -53,7 +56,7 @@ namespace TilerElements
             if (ControlEvent.Rigid)
             {
                 List<Tuple<int, DaySection, bool, TimeLine>> preferenceOrderCopy = DefaultOrder.ToList();
-                preferenceOrderCopy.RemoveAt(0);
+                preferenceOrderCopy.RemoveAll(preferenceOrder => preferenceOrder.Item2 == DaySection.None);
                 List<TimeLine> timeLines = preferenceOrderCopy.Select(timeLine => timeLine.Item4.InterferringTimeLine(ControlEvent.RangeTimeLine)).ToList();
                 PreferenceOrder = new List<Tuple<int, DaySection, bool, TimeLine>>();
                 for (int i=0;i< timeLines.Count; i++)
@@ -119,6 +122,10 @@ namespace TilerElements
             {
                 PreferenceOrder.RemoveAt(0);
             }
+        }
+        public void rejectCurrentPreference(DaySection daySection)
+        {
+            PreferenceOrder.RemoveAll(daySector => daySector.Item2 == daySection);
         }
     }
 }

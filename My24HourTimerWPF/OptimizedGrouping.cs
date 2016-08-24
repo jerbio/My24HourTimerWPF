@@ -19,7 +19,6 @@ namespace My24HourTimerWPF
         TimeSpan TotalDuration;
 
 
-
         public OptimizedGrouping(TimeOfDayPreferrence.DaySection SectionData, TimeSpan SubeventDurationSum, Location_Elements DefaultLocation)
         {
             Section = SectionData;
@@ -157,6 +156,26 @@ namespace My24HourTimerWPF
         {
             //return PathStitchedSubEventsList.OrderBy(obj => obj.Start).ToList();
             return PathStitchedSubEventsList;
+        }
+
+        /// <summary>
+        /// this function is to be used when you need all subevents viable for stitching with other grouping object. It'll check if there are subevents in the the PathStitchedSubEventsList. 
+        /// If there are none then it goes on to select the acknowledged list.
+        /// </summary>
+        /// <returns></returns>
+        public List<SubCalendarEvent> getEventsForStitichingWithOtherOptimizedGroupings()
+        {
+            //return PathStitchedSubEventsList.OrderBy(obj => obj.Start).ToList();
+            if (PathStitchedSubEventsList.Count < 1)
+            {
+                return AcknowlegdedEvents.OrderBy(subEvent => subEvent.Start).ToList();
+                
+            }
+            else
+            {
+                return getPathStitchedSubevents();
+            }
+            
         }
 
 

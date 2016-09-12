@@ -280,7 +280,9 @@ namespace My24HourTimerWPF
             SubCalendarEvent ChangedSubCal = new SubCalendarEvent(mySubCalEvent.Id, SubeventStart, SubeventEnd, new BusyTimeLine(mySubCalEvent.Id, SubeventStart, SubeventEnd), mySubCalEvent.Rigid, mySubCalEvent.isEnabled, mySubCalEvent.UIParam, mySubCalEvent.Notes, mySubCalEvent.isComplete, mySubCalEvent.myLocation, mySubCalEvent.getCalendarEventRange, mySubCalEvent.Conflicts);
 
             //bool InitialRigidStatus = mySubCalEvent.Rigid;
-            bool timeLineChange = (mySubCalEvent.Start != SubeventStart) || (mySubCalEvent.End != SubeventEnd);
+            TimeSpan timeSpanStartDiff = TimeSpan.FromTicks( Math.Abs((mySubCalEvent.Start - SubeventStart).Ticks));
+            TimeSpan timeSpanEndDiff = TimeSpan.FromTicks(Math.Abs((mySubCalEvent.End - SubeventEnd).Ticks));
+            bool timeLineChange = (timeSpanStartDiff >= TimeSpan.FromMinutes(1)) || (timeSpanEndDiff >= TimeSpan.FromMinutes(1));
             if (timeLineChange)
             {
                 mySubCalEvent.UpdateThis(ChangedSubCal);
@@ -312,6 +314,10 @@ namespace My24HourTimerWPF
                 //myCalendarEvent.ActiveSubEvents.AsParallel().ForAll(obj => obj.PinToEnd(myCalendarEvent.RangeTimeLine));
                 myCalendarEvent.updateTimeLine(new TimeLine(newStart,newEnd));
                 HashSet<SubCalendarEvent> NoDoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
+                foreach(SubCalendarEvent subEvent in myCalendarEvent.ActiveSubEvents)
+                {
+                    NoDoneYet.Remove(subEvent);
+                }
                 myCalendarEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(myCalendarEvent, NoDoneYet,null,1);
             }
 

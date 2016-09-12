@@ -414,6 +414,15 @@ namespace TilerElements.DB
         {
             SubEvents = ListBackedSubEVents.ToDictionary(obj => obj.SubEvent_ID, obj => obj);
             calculationReadyFlag = true;
+            if (this.LocationInfo != null)
+            {
+                UpdateLocationMatrix(this.LocationInfo);
+            }
+            else
+            {
+                UpdateLocationMatrix(Location_Elements.getDefaultLocation());
+            }
+            
         }
 
         public override TimeSpan TimeSpanPerSplit

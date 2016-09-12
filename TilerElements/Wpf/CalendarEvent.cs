@@ -219,7 +219,8 @@ namespace TilerElements.Wpf
                 else
                 {
                     SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
-                }   
+                }
+                newSubCalEvent.setClassification(this.Semantics);
             }
             NameOfEvent = MyUpdated.NameOfEvent;
             OriginalStart = MyUpdated.OriginalStart;
@@ -273,6 +274,7 @@ namespace TilerElements.Wpf
                     SubCalendarEvent newSubCalEvent = new SubCalendarEvent(TimePerSplit, (EndDateTime - TimePerSplit), this.End, new TimeSpan(), OriginalStartData, UniqueID.ToString(),RigidSchedule, this.isEnabled, this.UiParams, this.DataBlob, this.Complete, i+1, EventLocation, this.RangeTimeLine);
                     newSubCalEvent.updateEventName(this.NameOfEvent);
                     SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
+                    newSubCalEvent.setClassification(this.Semantics);
                 }
             }
             EventSequence = new TimeLine(StartDateTime, EndDateTime);
@@ -323,6 +325,7 @@ namespace TilerElements.Wpf
                     SubCalendarEvent newSubCalEvent = new SubCalendarEvent(TimePerSplit, (EndDateTime - TimePerSplit), this.End, new TimeSpan(), OriginalStart, UniqueID.ToString(), RigidSchedule, this.Enabled, this.UiParams, this.DataBlob, this.Complete, i+1, EventLocation, this.RangeTimeLine); //new SubCalendarEvent(CalendarEventID);
                     SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
                     newSubCalEvent.updateEventName(this.NameOfEvent);
+                    newSubCalEvent.setClassification(this.Semantics);
                 }
             }
             
@@ -401,6 +404,7 @@ namespace TilerElements.Wpf
                     SubCalendarEvent newSubCalEvent = new SubCalendarEvent(RetValue.TimePerSplit, (RetValue.EndDateTime - RetValue.TimePerSplit), RetValue.End, new TimeSpan(), OriginalStartData, RetValue.UniqueID.ToString(), RetValue.RigidSchedule, RetValue.isEnabled, RetValue.UiParams, RetValue.DataBlob, RetValue.Complete, i+1, EventLocation, RetValue.RangeTimeLine);
                     newSubCalEvent.updateEventName(RetValue.NameOfEvent);
                     RetValue.SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
+                    newSubCalEvent.setClassification(RetValue.Semantics);
                 }
             }
             RetValue.EventSequence = new TimeLine(RetValue.StartDateTime, RetValue.EndDateTime);
@@ -2118,7 +2122,7 @@ namespace TilerElements.Wpf
                 EndTime = this.End,
                 IsEventModified = this.IsEventModified,
                 Creator = this.EventCreator,
-                LocationInfo = this.LocationInfo != null ? (this.LocationInfo.isNull ? null : DB.DB_LocationElements.ConvertToPersistable( this.LocationInfo)):null,
+                LocationInfo = this.LocationInfo != null ? (this.LocationInfo.isNull ? null : DB.DB_LocationElements.ConvertToPersistable( this.LocationInfo, this.CreatorId)):null,
                 _DataBlob = this._DataBlob != null ? (DB.DB_MiscData.ConvertToPersistable(this._DataBlob)):null,
                 Classification = this.Classification != null ? (DB.DB_Classification.ConvertToPersistable(this.Classification)):null,
                 UIData = this.UIParam != null ? (DB.DB_EventDisplay.ConvertToPersistable(this.UIParam)):null

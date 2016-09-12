@@ -112,9 +112,24 @@ namespace TilerElements.DB
         /// updates the logcontrol with a possible new location
         /// </summary>
         /// <param name="NewLocation"></param>
-        public void updateNewLocation(Location_Elements NewLocation)
+        public async Task  updateNewLocation(Location_Elements NewLocation)
         {
             this.NewLocation = NewLocation;
+            string nameHash = Utility.CalculateMD5Hash(NewLocation.Description.Trim());
+            DB_LocationElements locationFromCache = DataBase.Location_Elements.Where(obj => (obj.CreatorId == User.Id) && (obj.NameHash == (nameHash))).SingleOrDefault();
+            //NewLocation.p
+            if (locationFromCache != null)
+            {
+                var distance = Location_Elements.calculateDistance(locationFromCache, NewLocation);
+                if ((locationFromCache.Name == NewLocation.Description) && (distance >0.3))
+                {
+                    locationFromCache.updateThis(this.NewLocation);
+                    DataBase.Entry(locationFromCache).State = EntityState.Modified;
+                    await dbSaveChangesAsync().ConfigureAwait(false);
+                }
+                
+            }
+            
         }
 
         #region Write Data
@@ -271,8 +286,22 @@ namespace TilerElements.DB
                 RangeOfLookup = new TimeLine(start, end);
             }
             IQueryable<CalendarEvent> calendarEvents  =  DataBase.CalendarEventsQuery .Where(calEvent => (calEvent.CreatorId == User.Id) && (calEvent.EndTime > RangeOfLookup.Start && calEvent.StartTime < RangeOfLookup.End));
-            calendarEvents = calendarEvents.Include(calendarEvent => calendarEvent.SubCalendarEvents).Include(calendarEvent => ((CalendarEventPersist)calendarEvent).Name);//.Include(obj=>obj.Repeat);
-            Task<Dictionary<string, CalendarEvent>> RetValue = calendarEvents.ToDictionaryAsync(CalendarEvent => CalendarEvent.Id, CalendarEvent => { if (setCalculationReadyFlag) { CalendarEvent.PrepareForCalculation(); }; return (CalendarEvent)CalendarEvent; });
+            calendarEvents = calendarEvents
+                .Include(calendarEvent => calendarEvent.Location)
+                .Include(calendarEvent => calendarEvent.SubCalendarEvents)
+                .Include(calendarEvent => calendarEvent.SubCalendarEvents.Select(subEvent => subEvent.Location))
+                //.Include(calendarEvent => calendarEvent.SubCalendarEvents.Select(subEvent => (
+                //    ((DB_EventDisplay)((SubCalendarEventPersist)subEvent).UIData).Color
+                //)))
+                .Include(calendarEvent => ((CalendarEventPersist)calendarEvent).Name);
+
+            calendarEvents = calendarEvents
+                .Include(calendarevent => (
+                    ((DB_EventDisplay)((CalendarEventPersist)calendarevent).UIData).Color
+                    )
+                );
+
+            Task<Dictionary<string, CalendarEvent>> RetValue = calendarEvents.ToDictionaryAsync(CalendarEvent => new EventID( CalendarEvent.Id).getCalendarEventComponent(), CalendarEvent => { if (setCalculationReadyFlag) { CalendarEvent.PrepareForCalculation(); }; return (CalendarEvent)CalendarEvent; });
 
 
             return await RetValue.ConfigureAwait(false);
@@ -300,6 +329,32 @@ namespace TilerElements.DB
             }
             
             return RetValue;
+        }
+
+        protected async Task dbSaveChangesAsync()
+        {
+            try
+            {
+                await DataBase.SaveChangesAsync();
+            }
+            catch (DbEntityValidationException e)
+            {
+                foreach (var eve in e.EntityValidationErrors)
+                {
+                    Console.WriteLine("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:",
+                        eve.Entry.Entity.GetType().Name, eve.Entry.State);
+                    foreach (var ve in eve.ValidationErrors)
+                    {
+                        Console.WriteLine("- Property: \"{0}\", Error: \"{1}\"",
+                            ve.PropertyName, ve.ErrorMessage);
+                    }
+                }
+                throw;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         #endregion

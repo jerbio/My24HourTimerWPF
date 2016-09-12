@@ -26,7 +26,7 @@ namespace TilerElements.DB
         /// <summary>
         /// Function provides the COlor object selected. It is the same as UI coloro of event display, only this provides setter
         /// </summary>
-        public TilerColor Color
+        public override TilerColor Color
         {
             get
             {

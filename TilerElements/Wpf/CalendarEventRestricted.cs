@@ -284,7 +284,7 @@ namespace TilerElements.Wpf
                 IsEventModified = this.IsEventModified,
                 ProfileOfNow = this.NowInfo.isInitialized ? DB.DB_NowProfile.ConvertToPersistable(this.NowInfo) : null,
                 ProfileOfProcrastination = this.ProcrastinationInfo.IsInitialized() ? DB.DB_Procrastination.ConvertToPersistable(this.ProcrastinationInfo) : null,
-                LocationInfo = DB.DB_LocationElements.ConvertToPersistable(this.LocationInfo),
+                LocationInfo = DB.DB_LocationElements.ConvertToPersistable(this.LocationInfo, this.CreatorId),
                 Name = DB.DB_EventName.ConvertToPersistable(this.getName()),
                 _DataBlob = DB.DB_MiscData.ConvertToPersistable(this._DataBlob),
                 Classification = DB.DB_Classification.ConvertToPersistable(this.Classification),

@@ -11,10 +11,36 @@ namespace TilerElements.DB
 {
     public class DB_LocationElements:Location_Elements
     {
+        
+        public DB_LocationElements():base()
+        {
+            updateNameHash();
+        }
+
+        public DB_LocationElements(string Address, string tag = "", string ID = ""):base(Address, tag, ID)
+        {
+            updateNameHash();
+        }
+        protected string _NameHash { get; set; }
         /// <summary>
         /// user id for which this location is associated with
         /// </summary>
-        public string UserId { get; set; }
+        [Index(name: "UserId_CacheNameHash", IsUnique = true, Order = 0)]
+        [Required]
+        public string CreatorId { get; set; }
+        protected TilerUser _User { get; set; }
+        [ForeignKey("CreatorId")]
+        public virtual TilerUser User
+        {
+            get
+            {
+                return _User;
+            }
+            set
+            {
+                _User = value;
+            }
+        }
         /// <summary>
         /// Address Line 1
         /// </summary>
@@ -92,7 +118,21 @@ namespace TilerElements.DB
                 NullLocation = value;
             }
         }
+        [Index(name: "UserId_CacheNameHash", IsUnique = true, Order = 1)]
+        [Required]
+        public string NameHash
+        {
+            get
+            {
+                return _NameHash;
+            }
+            set
+            {
+                _NameHash = value;
+            }
+        }
 
+        
         public string Name
         {
             get
@@ -102,7 +142,36 @@ namespace TilerElements.DB
             set
             {
                 TaggedDescription = value;
+                updateNameHash();
             }
+        }
+
+        protected void updateNameHash()
+        {
+            if(!string.IsNullOrEmpty(this.Name)){
+                NameHash = Utility.CalculateMD5Hash(this.Name);
+            }
+            
+        }
+
+        public override bool Validate()
+        {
+            var retValue = base.Validate();
+            updateNameHash();
+            return retValue;
+        }
+        /// <summary>
+        /// this updates  this location element, with every element in newLocation,e xcepth the Id
+        /// </summary>
+        /// <param name="newLocation"></param>
+        public override void updateThis(Location_Elements newLocation)
+        {
+            this.TaggedAddress = newLocation.Address;
+            this.Name = newLocation.Address;
+            this.DefaultFlag = newLocation.isDefault;
+            this.NullLocation = newLocation.isNull;
+            this.xValue = newLocation.XCoordinate;
+            this.yValue = newLocation.YCoordinate;
         }
 
         public string FullAddress
@@ -117,9 +186,9 @@ namespace TilerElements.DB
             }
         }
 
-        static public DB_LocationElements ConvertToPersistable(Location_Elements location)
+        static public DB_LocationElements ConvertToPersistable(Location_Elements location, string UserId)
         {
-            DB_LocationElements retValue = new DB_LocationElements()
+            DB_LocationElements retValue = (location as DB_LocationElements) ?? new DB_LocationElements()
             {
                 FullAddress = location.Address,
                 TaggedDescription = location.Description,
@@ -128,8 +197,10 @@ namespace TilerElements.DB
                 xValue = location.XCoordinate,
                 yValue = location.YCoordinate,
                 DefaultFlag = location.isDefault,
-                Name = location.Description
+                Name = location.Description,
+                CreatorId = UserId
             };
+            retValue.updateNameHash();
             return retValue;
         }
     }

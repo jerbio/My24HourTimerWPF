@@ -62,6 +62,11 @@ namespace TilerElements.Wpf
             }
             await Semantics.InitializeClassification(NameOfEvent.NameString);
         }
+
+        internal void setClassification(Classification nameClassification)
+        {
+            Semantics = nameClassification;
+        }
         public List<TilerUser> getAllUsers()
         {
             return UserIDs.ToList();

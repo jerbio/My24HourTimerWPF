@@ -118,7 +118,7 @@ namespace TilerElements.Wpf
         /// function tries to verify that the address provide exists in external service
         /// </summary>
         /// <returns></returns>
-        public bool Validate()
+        public virtual bool Validate()
         {
             TaggedAddress = TaggedAddress.Trim();
             try
@@ -290,6 +290,17 @@ namespace TilerElements.Wpf
             return retValue;
         }
 
+
+        public virtual void updateThis(Location_Elements location)
+        {
+            this.TaggedAddress = location.Address;
+            this.TaggedDescription = location.Address;
+            this.DefaultFlag = location.DefaultFlag;
+            this.NullLocation = location.NullLocation;
+            this.xValue = location.xValue;
+            this.yValue = location.yValue;
+        }
+
         public override string ToString()
         {
             return Address + "||" + yValue + "\",\"" + xValue;
@@ -303,7 +314,7 @@ namespace TilerElements.Wpf
         {
             get
             {
-                return TaggedDescription;
+                return TaggedDescription.ToLower();
             }
         }
 

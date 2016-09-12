@@ -46,6 +46,21 @@ namespace TilerElements.Wpf
 
 
         #region Properties
+
+        /// <summary>
+        /// Function provides the COlor object selected. It is the same as UI coloro of event display, only this provides setter
+        /// </summary>
+        public virtual TilerColor Color
+        {
+            get
+            {
+                return eventColor;
+            }
+            set
+            {
+                eventColor = value;
+            }
+        }
         virtual public TilerColor UIColor
         {
             get

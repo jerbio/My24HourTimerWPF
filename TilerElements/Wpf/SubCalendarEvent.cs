@@ -343,7 +343,7 @@ namespace TilerElements.Wpf
             }
             
            
-            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(Id, Start, End, BusyFrame.CreateCopy(), OriginalStart, this.RigidSchedule, this.isEnabled, this.UiParams.createCopy(), this.DataBlob.createCopy(), this.Complete, RepetitionSequence, this.LocationInfo, new TimeLine(CalendarEventRange.Start, CalendarEventRange.End), ConflictingEvents.CreateCopy());
+            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(Id, Start, End, BusyFrame?.CreateCopy(), OriginalStart, this.RigidSchedule, this.isEnabled, this.UiParams?.createCopy(), this.DataBlob?.createCopy(), this.Complete, RepetitionSequence, this.LocationInfo, new TimeLine(CalendarEventRange.Start, CalendarEventRange.End), ConflictingEvents.CreateCopy());
             MySubCalendarEventCopy.ThirdPartyID = this.ThirdPartyID;
             MySubCalendarEventCopy.DeadlineElapsed = this.DeadlineElapsed;
             MySubCalendarEventCopy.UserDeleted = this.UserDeleted;
@@ -828,7 +828,9 @@ namespace TilerElements.Wpf
             }
             else
             {
-                return Location_Elements.calculateDistance(Arg1.Location, Arg2.Location, worstDistance);
+                var locationA = Arg1.Location ?? new Location_Elements();
+                var locationB = Arg2.Location ?? new Location_Elements();
+                return Location_Elements.calculateDistance(locationA, locationB, worstDistance);
             }
         }
 
@@ -992,13 +994,13 @@ namespace TilerElements.Wpf
 
         public virtual SubCalendarEventPersist ConvertToPersistable(Location_Elements location = null, NowProfile nowProfile=null, Procrastination procrastination = null, EventName eventName = null, MiscData dataBlob= null, Classification classification= null, EventDisplay uiData = null)
         {
-            if(location != null)
+            if((location != null)&& (this.Location != null))
             {
                 if (location.Id != this.Location.Id)
                 {
                     if (!this.Location.isNull)
                     {
-                        location = DB.DB_LocationElements.ConvertToPersistable(this.LocationInfo);
+                        location = DB.DB_LocationElements.ConvertToPersistable(this.LocationInfo, this.CreatorId);
                     }
                     else
                     {
@@ -1015,7 +1017,7 @@ namespace TilerElements.Wpf
                 {
                     if(!this.Location.isNull)
                     {
-                        location = DB.DB_LocationElements.ConvertToPersistable(this.LocationInfo);
+                        location = DB.DB_LocationElements.ConvertToPersistable(this.LocationInfo, this.CreatorId);
                     }
                     else
                     {
@@ -1030,7 +1032,7 @@ namespace TilerElements.Wpf
 
 
             ///Now Profile
-            if (nowProfile != null)
+            if ((nowProfile != null)&& (this.NowInfo != null))
             {
                 if (nowProfile.Id != this.NowInfo.Id)
                 {
@@ -1068,7 +1070,7 @@ namespace TilerElements.Wpf
             }
 
             //Procrastination switch
-            if (procrastination != null)
+            if ((procrastination != null)&& (this.ProcrastinationInfo != null))
             {
                 if (procrastination.Id != this.ProcrastinationInfo.Id)
                 {
@@ -1107,7 +1109,7 @@ namespace TilerElements.Wpf
 
 
             //Event name switch
-            if (eventName != null)
+            if ((eventName != null)&&(this.NameOfEvent != null))
             {
                 if (eventName.Id != this.NameOfEvent.Id)
                 {
@@ -1132,7 +1134,7 @@ namespace TilerElements.Wpf
 
 
             //datablob conversion
-            if (dataBlob != null)
+            if ((dataBlob != null)&&(this.DataBlob!=null))
             {
                 if (dataBlob.Id != this.DataBlob.Id)
                 {
@@ -1156,7 +1158,7 @@ namespace TilerElements.Wpf
             }
 
             //classification conversion
-            if (classification != null)
+            if ((classification != null)&&(this.Classification!=null))
             {
                 if (classification.Id != this.Classification.Id)
                 {
@@ -1180,7 +1182,7 @@ namespace TilerElements.Wpf
             }
 
             //uiData conversion
-            if (uiData != null)
+            if ((uiData != null) && (this.UIParam != null))
             {
                 if (uiData.Id != this.UIParam.Id)
                 {

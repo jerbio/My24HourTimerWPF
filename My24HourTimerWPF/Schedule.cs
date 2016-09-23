@@ -3380,13 +3380,12 @@ namespace My24HourTimerWPF
             List<SubCalendarEvent> orderedByStart = TotalActiveEvents.OrderBy(obj => obj.Start).ToList(); ;
             List<BlobSubCalendarEvent> conflictingEvetns = Utility.getConflictingEvents(orderedByStart);
 
-            //Optimize = false;
-#if optimizeDailyCalculations
-            if (Optimize)
+            Optimize = true;
 
+            if (Optimize)
             {
                 ulong FirstIndex = AllDayTImeLine[0].UniversalIndex;
-                //try
+                try
                 {
                     ILookup<ulong, SubCalendarEvent> DayToSubEvent = AllRigids.ToLookup(obj => obj.UniversalDayIndex, obj => obj);
                     foreach(IGrouping<ulong,SubCalendarEvent>eachGrouping in DayToSubEvent)
@@ -3403,7 +3402,6 @@ namespace My24HourTimerWPF
                 }
                 
             }
-#endif
 
 
             foreach (SubCalendarEvent element in TotalActiveEvents.OrderBy(SubEvent => SubEvent.Start))

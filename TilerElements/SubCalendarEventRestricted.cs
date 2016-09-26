@@ -189,7 +189,7 @@ namespace TilerElements
             copy.EventPreDeadline = this.EventPreDeadline;
             copy.EventScore = this.EventScore;
             //copy.EventSequence = this.EventSequence.CreateCopy();
-            copy.FromRepeatEvent = this.FromRepeatEvent;
+            copy.RepetitionFlag  = this.RepetitionFlag ;
             copy.HardCalendarEventRange = this.HardCalendarEventRange.CreateCopy();
             copy.HumaneTimeLine = this.HumaneTimeLine.CreateCopy();
             copy.isRestricted = this.isRestricted;
@@ -323,7 +323,7 @@ namespace TilerElements
                 SubCalendarEventRestricted SubEventEntry = (SubCalendarEventRestricted)SubEventEntryData;
                 this.BusyFrame = SubEventEntry.ActiveSlot;
                 this.CalendarEventRange = SubEventEntry.getCalendarEventRange;
-                this.FromRepeatEvent = SubEventEntry.FromRepeat;
+                this.RepetitionFlag  = SubEventEntry.FromRepeat;
                 this.EventName = SubEventEntry.Name;
                 this.EventDuration = SubEventEntry.ActiveDuration;
                 this.Complete = SubEventEntry.isComplete;
@@ -367,7 +367,7 @@ namespace TilerElements
             SubCalendarEventRestricted retValue = new SubCalendarEventRestricted();
             retValue.BusyFrame = this.ActiveSlot;
             retValue.CalendarEventRange = this.getCalendarEventRange.CreateCopy();
-            retValue.FromRepeatEvent = this.FromRepeat;
+            retValue.RepetitionFlag  = this.FromRepeat;
             retValue.EventName = this.Name;
             retValue.EventDuration = this.ActiveDuration;
             retValue.Complete = this.isComplete;

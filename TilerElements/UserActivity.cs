@@ -9,7 +9,7 @@ namespace TilerElements
     public class UserActivity
     {
         protected DateTimeOffset TriggerTimeForEvent { get; set; }
-        public enum ActivityType {Creation, Undo, ThirdPartyUpdate, SetAsNowSingle, SetAsNowCalendarEvent, ProcrastinateSingle, ProcrastinateAll, ProcrastinateCalendarEvent, InternalUpdate, InternalUpdateCalendarEvent, CompleteSingle, CompleteMultiple, CompleteCalendarEvent, DeleteSingle, DeleteMultiple, DeleteCalendarEvent, NewEventCreation, None, Shuffle, Pause, Resume};
+        public enum ActivityType {Undo, ThirdPartyUpdate, SetAsNowSingle, SetAsNowCalendarEvent, ProcrastinateSingle, ProcrastinateAll, ProcrastinateCalendarEvent, InternalUpdate, InternalUpdateCalendarEvent, CompleteSingle, CompleteMultiple, CompleteCalendarEvent, DeleteSingle, DeleteMultiple, DeleteCalendarEvent, NewEventCreation, None, Shuffle, Pause, Resume};
         protected ActivityType Type { get; set; }
 
         protected string MiscelaneousExtraInfo;

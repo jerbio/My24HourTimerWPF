@@ -399,7 +399,7 @@ namespace TilerElements
             {
                 this.BusyFrame = SubEventEntry.ActiveSlot;
                 this.CalendarEventRange = SubEventEntry.getCalendarEventRange;
-                this.FromRepeatEvent = SubEventEntry.FromRepeat;
+                this.RepetitionFlag  = SubEventEntry.FromRepeat;
                 this.EventName = SubEventEntry.Name;
                 this.EventDuration = SubEventEntry.ActiveDuration;
                 this.Complete = SubEventEntry.isComplete;
@@ -466,7 +466,7 @@ namespace TilerElements
             SubCalendarEvent retValue = new SubCalendarEvent();
             retValue.BusyFrame = this.ActiveSlot.CreateCopy();
             retValue.CalendarEventRange = this.getCalendarEventRange.CreateCopy();
-            retValue.FromRepeatEvent = this.FromRepeat;
+            retValue.RepetitionFlag  = this.FromRepeat;
             retValue.EventName = this.Name;
             retValue.EventDuration = this.ActiveDuration;
             retValue.Complete = this.isComplete;

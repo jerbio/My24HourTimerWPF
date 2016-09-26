@@ -81,7 +81,12 @@ namespace TilerElements
             return StartTimeOfDay;
         }
 
+        public override string ToString()
+        {
+            string retValue = StartTimeOfDay + "-" + EndTimeOfDay + "||" + RangeTimeSpan;
+            return retValue;
 
+        }
 
         #region Properties
         public DateTimeOffset Start

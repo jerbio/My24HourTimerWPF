@@ -16,11 +16,11 @@ namespace TilerElements
         protected bool Enabled = true;
         protected bool DeadlineElapsed = false;
         protected bool UserDeleted = false;
-        protected bool FromRepeatEvent=false;
+        protected bool RepetitionFlag =false;
         protected Location_Elements LocationInfo;
         protected EventDisplay UiParams = new EventDisplay();
         protected MiscData DataBlob = new MiscData();
-        protected bool RepetitionFlag;
+        //protected bool RepetitionFlag;
         protected bool RigidSchedule;
         protected TimeSpan EventDuration;
         protected string otherPartyID;
@@ -143,11 +143,11 @@ namespace TilerElements
             }
         }
 
-        public bool FromRepeat
+        public virtual bool FromRepeat
         {
             get
             {
-                return FromRepeatEvent;
+                return RepetitionFlag ;
             }
         }
 

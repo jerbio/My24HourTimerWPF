@@ -152,7 +152,7 @@ namespace TilerElements
                 MyCalendarEventCopy.SubEvents.Add(eachSubCalendarEvent.SubEvent_ID, eachSubCalendarEvent.createCopy(EventID.GenerateSubCalendarEvent(MyCalendarEventCopy.UniqueID) ));
             }
 
-            MyCalendarEventCopy.SchedulStatus = SchedulStatus;
+            //MyCalendarEventCopy.SchedulStatus = SchedulStatus;
             MyCalendarEventCopy.otherPartyID = otherPartyID == null ? null : otherPartyID.ToString();
             MyCalendarEventCopy.UserIDs = this.UserIDs.ToList();
             return MyCalendarEventCopy;

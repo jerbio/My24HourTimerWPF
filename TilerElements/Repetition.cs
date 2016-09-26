@@ -8,15 +8,15 @@ namespace TilerElements
     public class Repetition
     {
 
-        string RepetitionFrequency;
-        TimeLine RepetitionRange;//stores range for repetition so if assuming event happens on thursday from 9-11pm. The range is from today till november 31. The RepetitionRange will be today till November 31
-        bool EnableRepeat;
-        CalendarEvent[] RepeatingEvents;
-        Dictionary<string, CalendarEvent> DictionaryOfIDAndCalendarEvents;
-        Dictionary<int, Repetition> DictionaryOfWeekDayToRepetition = new Dictionary<int,Repetition>();
-        Location_Elements RepeatLocation;
-        TimeLine initializingRange;//stores range for repetition so if assuming event happens on thursday from 9-11pm. The range is from today till november 31. The initializingRange will be 9-11pm
-        int RepetitionWeekDay=7;
+        protected string RepetitionFrequency;
+        protected TimeLine RepetitionRange;//stores range for repetition so if assuming event happens on thursday from 9-11pm. The range is from today till november 31. The RepetitionRange will be today till November 31
+        protected bool EnableRepeat;
+        protected CalendarEvent[] RepeatingEvents;
+        protected Dictionary<string, CalendarEvent> DictionaryOfIDAndCalendarEvents;
+        protected Dictionary<int, Repetition> DictionaryOfWeekDayToRepetition = new Dictionary<int,Repetition>();
+        protected Location_Elements RepeatLocation;
+        protected TimeLine initializingRange;//stores range for repetition so if assuming event happens on thursday from 9-11pm. The range is from today till november 31. The initializingRange will be 9-11pm
+        protected int RepetitionWeekDay =7;
         static DayOfWeek[] Weekdays=new DayOfWeek[7]{DayOfWeek.Sunday,DayOfWeek.Monday,DayOfWeek.Tuesday,DayOfWeek.Wednesday,DayOfWeek.Thursday,DayOfWeek.Friday,DayOfWeek.Saturday};
         static DateTimeOffset CalculationStop = DateTimeOffset.Now;
 
@@ -340,6 +340,23 @@ namespace TilerElements
             get
             {
                 return RepetitionRange;
+            }
+        }
+
+        public TimeLine SingleInstanceTimeFrame
+        {
+            get
+            {
+                return initializingRange;
+            }
+        }
+
+        public Dictionary<int, Repetition> DayIndexToRepetition
+        {
+            get
+            {
+                Dictionary<int, Repetition> retValue = DictionaryOfWeekDayToRepetition.ToDictionary(obj => obj.Key, obj => obj.Value);
+                return retValue;
             }
         }
 

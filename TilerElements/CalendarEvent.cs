@@ -23,7 +23,7 @@ namespace TilerElements
         protected int DeletedCount;
 //        protected bool FromRepetion=false;
         protected Dictionary<EventID, SubCalendarEvent> SubEvents;
-        protected bool SchedulStatus;
+        
         CustomErrors CalendarError = new CustomErrors(false, string.Empty);
         DateTime CalculationEnd;
         List<mTuple<EventID,string>> RemovedIDs;
@@ -56,7 +56,7 @@ namespace TilerElements
             LocationInfo = new Location_Elements();
             UniqueID = EventID.GenerateCalendarEvent();
             SubEvents = new Dictionary<EventID, SubCalendarEvent>();
-            SchedulStatus = false;
+            //SchedulStatus = false;
             otherPartyID = "";
             CalendarError = Error;
             EventSequence = new TimeLine();
@@ -81,7 +81,7 @@ namespace TilerElements
             LocationInfo = new Location_Elements();
             UniqueID = EventID.GenerateCalendarEvent();
             SubEvents = new Dictionary<EventID, SubCalendarEvent>();
-            SchedulStatus = false;
+            //SchedulStatus = false;
             otherPartyID = "";
             CalendarError = new CustomErrors(false, string.Empty);
             EventSequence = new TimeLine();
@@ -136,7 +136,7 @@ namespace TilerElements
                 }   
             }
 
-            SchedulStatus = false;
+            //SchedulStatus = false;
             EventRepetition = MyUpdated.Repeat;
             ProfileOfProcrastination = MyUpdated.ProfileOfProcrastination;
             ProfileOfNow = MyUpdated.NowInfo;
@@ -339,7 +339,7 @@ namespace TilerElements
                 MyCalendarEventCopy.SubEvents.Add(eachSubCalendarEvent.SubEvent_ID, eachSubCalendarEvent.createCopy(EventID.GenerateSubCalendarEvent(MyCalendarEventCopy.UniqueID)));
             }
 
-            MyCalendarEventCopy.SchedulStatus = SchedulStatus;
+            //MyCalendarEventCopy.SchedulStatus = SchedulStatus;
             MyCalendarEventCopy.otherPartyID = otherPartyID == null ? null : otherPartyID.ToString();
             MyCalendarEventCopy.UserIDs = this.UserIDs.ToList();
             return MyCalendarEventCopy;
@@ -1364,7 +1364,7 @@ namespace TilerElements
                 UniqueID=CalendarEventEntry.UniqueID;
                 EventSequence=CalendarEventEntry.EventSequence;;
                 SubEvents=CalendarEventEntry.SubEvents;
-                SchedulStatus=CalendarEventEntry.SchedulStatus;
+                //SchedulStatus=CalendarEventEntry.SchedulStatus;
                 CalendarError = CalendarEventEntry.CalendarError;
                 Enabled=CalendarEventEntry.Enabled;
                 UiParams=CalendarEventEntry.UiParams;
@@ -1878,7 +1878,7 @@ namespace TilerElements
                 return RigidSchedule;
             }
         }
-        public bool RepetitionStatus
+        public virtual bool RepetitionStatus
         {
             get
             {
@@ -1952,7 +1952,7 @@ namespace TilerElements
         }
 
 
-        public SubCalendarEvent[] AllSubEvents
+        public virtual SubCalendarEvent[] AllSubEvents
         {//return All Subcalevents that enabled or not.
             get
             {

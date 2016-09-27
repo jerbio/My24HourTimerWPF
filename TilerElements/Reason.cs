@@ -248,7 +248,7 @@ namespace TilerElements
                 _Option = value;
             }
         }
-
+        
     }
 
     [Serializable]

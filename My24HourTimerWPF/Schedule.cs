@@ -3380,7 +3380,7 @@ namespace My24HourTimerWPF
             List<SubCalendarEvent> orderedByStart = TotalActiveEvents.OrderBy(obj => obj.Start).ToList(); ;
             List<BlobSubCalendarEvent> conflictingEvetns = Utility.getConflictingEvents(orderedByStart);
 
-            Optimize = true;
+            Optimize = false;
 
             if (Optimize)
             {

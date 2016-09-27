@@ -201,7 +201,6 @@ namespace TilerElements
             RigidSchedule = false;
         }
 
-
         virtual public void addReason(Reason eventReason)
         {
             TimeSpan TimeDelta = this.Start - _LastReasonStartTimeChanged;

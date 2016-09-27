@@ -13,7 +13,6 @@ namespace TilerElements
         protected TimeLine fullDayTImeLine;
         List<Tuple<int, DaySection, bool, TimeLine>> PreferenceOrder;
         List<Tuple<int, DaySection, bool, TimeLine>> DefaultOrder = new List<Tuple<int, DaySection, bool, TimeLine>>(new[] {
-
                 new Tuple<int, DaySection, bool, TimeLine>(1, DaySection.Morning, false, new TimeLine()),
                 new Tuple<int, DaySection, bool, TimeLine>(2, DaySection.Afternoon, false, new TimeLine()),
                 new Tuple<int, DaySection, bool, TimeLine>(3, DaySection.Evening, false, new TimeLine()),
@@ -27,7 +26,6 @@ namespace TilerElements
             tImeLineStart = timeLine.Start;
             fullDayTImeLine = timeLine.CreateCopy();
             PreferenceOrder = new List<Tuple<int, DaySection, bool, TimeLine>>(new[] {
-
                 new Tuple<int, DaySection, bool, TimeLine>(1, DaySection.Morning, false, new TimeLine(timeLine.Start, timeLine.Start.AddHours(6).AddTicks(-1))),
                 new Tuple<int, DaySection, bool, TimeLine>(2, DaySection.Afternoon, false, new TimeLine(timeLine.Start.AddHours(6), timeLine.Start.AddHours(12).AddTicks(-1))),
                 new Tuple<int, DaySection, bool, TimeLine>(3, DaySection.Evening, false, new TimeLine(timeLine.Start.AddHours(12), timeLine.Start.AddHours(18).AddTicks(-1))),

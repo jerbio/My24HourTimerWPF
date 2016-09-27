@@ -3409,6 +3409,7 @@ namespace My24HourTimerWPF
             }
             double distanceCovered = Location_Elements.calculateDistance(TotalActiveEvents.OrderBy(SubEvent=> SubEvent.Start).Select(SubEvent => SubEvent.myLocation).ToList());
             Health scheduleHealth = new Health(TotalActiveEvents, Now.calculationNow);
+
             Console.WriteLine("Distance covered is {0}, Optimize is set to {1}\n Health Score is {2}", distanceCovered, Optimize, scheduleHealth.getScore());
             
             return totalNumberOfEvents;
@@ -3432,7 +3433,8 @@ namespace My24HourTimerWPF
             List<SubCalendarEvent> CurrentConstituents = possibleSubCals.Where(obj => obj.RangeTimeLine.InterferringTimeLine(FirstTwentyFour)!=null).ToList();
             
             List<SubCalendarEvent> AllRigids =  ForCalculation.Where(obj => obj.Rigid).ToList();
-            ForCalculation = ForCalculation.Except(AllRigids).ToList();            
+
+            ForCalculation = ForCalculation.Except(AllRigids).ToList();
             ForCalculation.ForEach(obj => obj.addReason(new PreservedOrder()));
 
             HashSet<SubCalendarEvent> OrderedPreviousTwentyfourNorigids = new HashSet<SubCalendarEvent>( ForCalculation.OrderBy(obj=>obj.Start));

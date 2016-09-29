@@ -238,60 +238,6 @@ namespace TilerElements
             return retValue;
         }
 
-
-        static public List<double> multiDimensionCalculationNormalize(IList<IList<double>> collection, List<double> origin = null, IList<double> normalizedFields = null)
-        {
-            int counter = collection.Count;
-            List<double> retValue = (new double[counter]).ToList();
-            int length = collection.First().Count();
-            if (origin == null)
-            {
-                origin = new List<double>();
-                for (int i = 0; i < length; i++)
-                {
-                    origin.Add(0);
-                }
-            }
-            //double[] maxIndexes;
-            if (normalizedFields == null)
-            {
-                normalizedFields = new double[length];
-                //maxIndexes = normalizedFields.ToArray();
-                for (int i = 0; i < normalizedFields.Count; i++)
-                {
-                    normalizedFields[i] = collection.Select(obj => obj[i]).Max();
-                    normalizedFields[i] = normalizedFields[i] == 0 ? 1 : normalizedFields[i];
-                }
-            }
-
-            //maxIndexes = normalizedFields.ToArray();
-            for (int j = 0; j < collection.Count; j++)
-            {
-                IList<double> row = collection[j];
-                for (int i = 0; i < normalizedFields.Count; i++)
-                {
-                    row[i] = row[i] / normalizedFields[i];
-                }
-            }
-
-            for (int i = 0; i < counter; i++)
-            {
-                IList<double> calculationSet = collection[i];
-                double sum = 0;
-                if ((length != calculationSet.Count()) || (origin.Count != length))
-                {
-                    throw new Exception("Oops seems like you are trying to run pythagoras on sets of different sizes");
-                }
-                for (int j = 0; j < calculationSet.Count; j++)
-                {
-                    double delta = (calculationSet[j] - origin[j]);
-                    sum += (delta * delta);
-                }
-                retValue[i] = Math.Sqrt(sum);
-            }
-            return retValue;
-        }
-
         public static List<T> NotInList<T>(List<T> ListToCheck, List<T> MyCurrentList)
         {
             foreach (T MySubCalendarEvent in MyCurrentList)
@@ -326,9 +272,6 @@ namespace TilerElements
                     InListElements.Add(eachTimeSpan, (MyCurrentDictTimeSpanWithStringID.Item1 < DictToCheckTimeSpanWithStringID.Item1 ? MyCurrentDictTimeSpanWithStringID : DictToCheckTimeSpanWithStringID));
                 }
             }
-
-
-
             return InListElements;
         }
 

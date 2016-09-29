@@ -10,13 +10,23 @@ namespace My24HourTimerWPF
     public class OptimizedGrouping
     {
         TimeOfDayPreferrence.DaySection Section;
-        HashSet<SubCalendarEvent> AcknowlegdedEvents;// these events that have being verified to be able to fit within the daytimeline, after evaluating their path optimized. THis have been fully stiuck to the end.Note this is not an ordered  set;
-        HashSet<SubCalendarEvent> PathStitchedSubEvents;// this onliy exist because of PathStitchedSubEventsList. It is to ensure there are no duplicates in PathStitchedSubEventsList
-        List<SubCalendarEvent> PathStitchedSubEventsList;// This is a list thaat just contains subevents that have only being optimized for the path. This does not take into consideration their ability to fit within a specific day
+        /// <summary>
+        /// these events that have being verified to be able to fit within the daytimeline, after evaluating their path optimized. THis have been fully stiuck to the end.Note this is not an ordered  set;
+        /// </summary>
+        HashSet<SubCalendarEvent> AcknowlegdedEvents;
+        /// <summary>
+        /// This onliy exist because of PathStitchedSubEventsList. It is to ensure there are no duplicates in PathStitchedSubEventsList
+        /// </summary>
+        HashSet<SubCalendarEvent> PathStitchedSubEvents;
+        /// <summary>
+        /// This is a list thaat just contains subevents that have only being optimized for the path. This does not take into consideration their ability to fit within a specific day
+        /// </summary>
+        List<SubCalendarEvent> PathStitchedSubEventsList;
         Location_Elements LeftStitch = new Location_Elements();
         Location_Elements RightStitch = new Location_Elements();
         Location_Elements DefaultLocation;
         TimeSpan TotalDuration;
+        OptimizedAverage AverageOfStitched;
 
         public OptimizedGrouping(TimeOfDayPreferrence.DaySection SectionData, TimeSpan SubeventDurationSum, Location_Elements DefaultLocation)
         {
@@ -37,6 +47,8 @@ namespace My24HourTimerWPF
             {
                 SubCalendarEvent.setAsOptimized();
             }
+
+            AverageOfStitched = new OptimizedAverage(AcknowlegdedEvents);
         }
 
         public void movePathStitchedToAcknowledged()
@@ -148,6 +160,7 @@ namespace My24HourTimerWPF
         public void ClearPinnedSubEvents()
         {
             AcknowlegdedEvents.Clear();
+            AverageOfStitched = null;
         }
 
 
@@ -164,17 +177,17 @@ namespace My24HourTimerWPF
         /// <returns></returns>
         public List<SubCalendarEvent> getEventsForStitichingWithOtherOptimizedGroupings()
         {
-            //return PathStitchedSubEventsList.OrderBy(obj => obj.Start).ToList();
+            List<SubCalendarEvent> retValue;
             if (PathStitchedSubEventsList.Count < 1)
             {
-                return AcknowlegdedEvents.OrderBy(subEvent => subEvent.Start).ToList();
+                retValue = AcknowlegdedEvents.OrderBy(subEvent => subEvent.Start).ToList();
                 
             }
             else
             {
-                return getPathStitchedSubevents();
+                retValue = getPathStitchedSubevents();
             }
-            
+            return retValue;
         }
 
 
@@ -207,6 +220,7 @@ namespace My24HourTimerWPF
         public void removeFromAcknwledged(SubCalendarEvent SubEvent)
         {
             AcknowlegdedEvents.Remove(SubEvent);
+            AverageOfStitched = new OptimizedAverage(AcknowlegdedEvents);
             PathStitchedSubEventsList.Remove(SubEvent);
         }
 
@@ -245,6 +259,87 @@ namespace My24HourTimerWPF
             {
                 return Section;
             }
+        }
+
+        public OptimizedAverage GroupAverage
+        {
+            get
+            {
+                return AverageOfStitched;
+            }
+        }
+
+        public class OptimizedAverage
+        {
+            List<SubCalendarEvent> _SubEvents;
+            Location_Elements Location;
+            TimeSpan Duration;
+            TimeLine Range;
+            public OptimizedAverage(HashSet<SubCalendarEvent> subEvents)
+            {
+                if (subEvents != null)
+                {
+                    if (subEvents.Count > 0)
+                    {
+                        _SubEvents = (subEvents).OrderBy(obj => obj.Start).ThenBy(obj => obj.End).ToList(); ;
+                        Location = Location_Elements.AverageGPSLocation(_SubEvents.Select(obj => obj.myLocation));
+                        Duration = TimeSpan.FromTicks((long)(_SubEvents.Average(obj => (obj.RangeSpan.Ticks))));
+                        DateTimeOffset latestEnd = _SubEvents.Max(obj => obj.End);
+                        DateTimeOffset earliestEnd = _SubEvents.Min(obj => obj.Start);
+                        Range = new TimeLine(earliestEnd, latestEnd);
+                    }
+                    else
+                    {
+                        nullOrEmptyListIniialization();
+                    }
+                }
+                else
+                {
+                    nullOrEmptyListIniialization();
+                }
+                
+            }
+
+            void nullOrEmptyListIniialization()
+            {
+                _SubEvents = new List<SubCalendarEvent>();
+                Location = Location_Elements.AverageGPSLocation(_SubEvents.Select(obj => obj.myLocation));
+                Duration = new TimeSpan();
+                Range = new TimeLine();
+            }
+
+            public IEnumerable<SubCalendarEvent> SubEvents
+            {
+                get
+                {
+                    return _SubEvents;
+                }
+            }
+
+            public Location_Elements AverageLocation
+            {
+                get
+                {
+                    return Location.CreateCopy();
+                }
+            }
+
+            public TimeSpan AverageDuration 
+            {
+                get
+                {
+                    return Duration;
+                }
+            }
+
+            public TimeLine RangeTimeLine
+            {
+                get
+                {
+                    return Range.CreateCopy();
+                }
+            }
+
         }
     }
 

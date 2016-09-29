@@ -25,7 +25,14 @@ namespace TilerElements
         protected bool OptimizationFlag = false;
         protected List<Reason> TimePositionReasons = new List<Reason>();
         protected DateTimeOffset _LastReasonStartTimeChanged;
+        /// <summary>
+        /// This holds the current session reasons. It will updated based on data and calculation optimizations from HistoricalCurrentPosition
+        /// </summary>
         protected Dictionary<TimeSpan, List<Reason>> ReasonsForCurrentPosition = new Dictionary<TimeSpan, List<Reason>>();
+        /// <summary>
+        /// Will hold the reasons that were collated from the last time the schedule was modified. This is to be only loaded from storage and not to be updated
+        /// </summary>
+        protected Dictionary<TimeSpan, List<Reason>> HistoricalReasonsCurrentPosition = new Dictionary<TimeSpan, List<Reason>>();
 
         #region Classs Constructor
         public SubCalendarEvent()
@@ -201,7 +208,7 @@ namespace TilerElements
             RigidSchedule = false;
         }
 
-        virtual public void addReason(Reason eventReason)
+        virtual public void addReasons(Reason eventReason)
         {
             TimeSpan TimeDelta = this.Start - _LastReasonStartTimeChanged;
             if (!ReasonsForCurrentPosition.ContainsKey(TimeDelta))
@@ -212,6 +219,11 @@ namespace TilerElements
             ReasonsForCurrentPosition[TimeDelta].Add(eventReason);
             TimePositionReasons.Add(eventReason);
             _LastReasonStartTimeChanged = this.Start;
+        }
+
+        virtual public void clearAllReasons()
+        {
+            ReasonsForCurrentPosition = new Dictionary<TimeSpan, List<Reason>>();
         }
 
         public IWhy Because()
@@ -1191,6 +1203,14 @@ namespace TilerElements
         {
             get {
                 return ReasonsForCurrentPosition;
+            }
+        }
+
+        public virtual Dictionary<TimeSpan, List<Reason>> ReasonsOnHistoryforPosition
+        {
+            get
+            {
+                return HistoricalReasonsCurrentPosition;
             }
         }
         #endregion

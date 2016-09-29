@@ -157,7 +157,7 @@
     <Compile Include="Comparator.cs" />
     <None Include="packages.config" />
     <Compile Include="ErrorManager.cs" />
-    <Compile Include="DistanceSolver.cs" />
+    <None Include="DistanceSolver.cs.old" />
     <Compile Include="EfficientTimeLine.cs" />
     <Compile Include="Geocode.cs" />
     <Compile Include="Geometry.cs" />

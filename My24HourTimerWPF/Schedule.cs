@@ -290,7 +290,7 @@ namespace My24HourTimerWPF
                 mySubCalEvent.UpdateThis(ChangedSubCal);
                 mySubCalEvent.SetAsRigid();
             }
-            return BundleChangeUpdate(ChangedSubCal.SubEvent_ID.getRepeatCalendarEventID(), NewName, TimeLineStart, TimeLineEnd, SplitCount, timeLineChange);//, TimeSpan TimePerSplitCount)
+            return BundleChangeUpdate(ChangedSubCal.SubEvent_ID.getRepeatCalendarEventID(), NewName, new DateTimeOffset(1970, 1, 1, 0, 0, 0, new TimeSpan()), TimeLineEnd, SplitCount, timeLineChange);//, TimeSpan TimePerSplitCount)
 
             
             
@@ -1158,294 +1158,294 @@ namespace My24HourTimerWPF
             return retValue;
         }
 
-        List<List<SubCalendarEvent>> SpreadOutEvents(List<List<SubCalendarEvent>> AlreadyAlignedEvents, Double AverageOccupiedSchedule, List<TimeLine> AllFreeSpots, Dictionary<TimeLine, Dictionary<TimeSpan, Dictionary<string, mTuple<bool, SubCalendarEvent>>>> AllPossibleEvents, List<List<SubCalendarEvent>> RestrictedElements)
-        {
-            //Function takes a List Of TimeLines that have been compressed towards the left of a timeLine and Attempts to spread them out
-            List<List<SubCalendarEvent>> retValue = new List<List<SubCalendarEvent>>();
-            Dictionary<TimeLine, List<mTuple<double, SubCalendarEvent>>> MovableElements_Dict = new Dictionary<TimeLine, List<mTuple<double, SubCalendarEvent>>>();
-            List<mTuple<double, SubCalendarEvent>> TotalMovableList = new List<mTuple<double, SubCalendarEvent>>();
-            Dictionary<SubCalendarEvent, Tuple<int, TimeLine>> SubCalEventCurrentlyAssignedTImeLine = new Dictionary<SubCalendarEvent, Tuple<int, TimeLine>>();
+        //List<List<SubCalendarEvent>> SpreadOutEvents(List<List<SubCalendarEvent>> AlreadyAlignedEvents, Double AverageOccupiedSchedule, List<TimeLine> AllFreeSpots, Dictionary<TimeLine, Dictionary<TimeSpan, Dictionary<string, mTuple<bool, SubCalendarEvent>>>> AllPossibleEvents, List<List<SubCalendarEvent>> RestrictedElements)
+        //{
+        //    //Function takes a List Of TimeLines that have been compressed towards the left of a timeLine and Attempts to spread them out
+        //    List<List<SubCalendarEvent>> retValue = new List<List<SubCalendarEvent>>();
+        //    Dictionary<TimeLine, List<mTuple<double, SubCalendarEvent>>> MovableElements_Dict = new Dictionary<TimeLine, List<mTuple<double, SubCalendarEvent>>>();
+        //    List<mTuple<double, SubCalendarEvent>> TotalMovableList = new List<mTuple<double, SubCalendarEvent>>();
+        //    Dictionary<SubCalendarEvent, Tuple<int, TimeLine>> SubCalEventCurrentlyAssignedTImeLine = new Dictionary<SubCalendarEvent, Tuple<int, TimeLine>>();
 
-            Dictionary<TimeLine, mTuple<TimeSpan, TimeSpan>> TImeLine_ToAverageTimeSpan = new Dictionary<TimeLine, mTuple<TimeSpan, TimeSpan>>();//holds the current timeline to mtuple of ideal average timespan and current total active timespan
-            Dictionary<TimeLine, mTuple<int, double>> TimeLineOccupancy = new Dictionary<TimeLine, mTuple<int, double>>();
-            int j = 0;
-            List<mTuple<TimeLine, int>> LessThanAverage = new List<mTuple<TimeLine, int>>();
-            List<mTuple<TimeLine, int>> AboveAverage = new List<mTuple<TimeLine, int>>();
+        //    Dictionary<TimeLine, mTuple<TimeSpan, TimeSpan>> TImeLine_ToAverageTimeSpan = new Dictionary<TimeLine, mTuple<TimeSpan, TimeSpan>>();//holds the current timeline to mtuple of ideal average timespan and current total active timespan
+        //    Dictionary<TimeLine, mTuple<int, double>> TimeLineOccupancy = new Dictionary<TimeLine, mTuple<int, double>>();
+        //    int j = 0;
+        //    List<mTuple<TimeLine, int>> LessThanAverage = new List<mTuple<TimeLine, int>>();
+        //    List<mTuple<TimeLine, int>> AboveAverage = new List<mTuple<TimeLine, int>>();
 
-            Dictionary<SubCalendarEvent, List<mTuple<TimeLine, int>>> TimeLineAndPossibleCalendarEvents = new Dictionary<SubCalendarEvent, List<mTuple<TimeLine, int>>>();
+        //    Dictionary<SubCalendarEvent, List<mTuple<TimeLine, int>>> TimeLineAndPossibleCalendarEvents = new Dictionary<SubCalendarEvent, List<mTuple<TimeLine, int>>>();
 
-            foreach (TimeLine eachTimeLine in AllFreeSpots)
-            {
-                TimeSpan TotalActiveSpan = Utility.SumOfActiveDuration(AlreadyAlignedEvents[j]);
-                TimeSpan AverageTimeSpan = new TimeSpan((long)(AverageOccupiedSchedule * (double)eachTimeLine.TimelineSpan.Ticks));
-                TImeLine_ToAverageTimeSpan.Add(eachTimeLine, new mTuple<TimeSpan, TimeSpan>(AverageTimeSpan, TotalActiveSpan));
-                double Occupancy = (double)TotalActiveSpan.Ticks / (double)eachTimeLine.TimelineSpan.Ticks;// percentage of active duration relative to the size of the TimeLine Timespan
-                TimeLineOccupancy.Add(eachTimeLine, new mTuple<int, double>(j - 1, Occupancy));
-                if (Occupancy > AverageOccupiedSchedule)
-                {
-                    AboveAverage.Add(new mTuple<TimeLine, int>(eachTimeLine, j));
-                    List<SubCalendarEvent> AlreadyAssigned = AlreadyAlignedEvents[j];
-                    List<SubCalendarEvent> RestrictedSubCalevent = RestrictedElements[j];
-                    List<SubCalendarEvent> MovableElements = AlreadyAssigned.ToList();
-                    MovableElements = MovableElements.Where(obj => (!RestrictedSubCalevent.Contains(obj))).ToList();
-
-
-
-                    IEnumerable<KeyValuePair<SubCalendarEvent, Tuple<int, TimeLine>>> ListOFeachKeyValuePair = MovableElements.Select(obj => new KeyValuePair<SubCalendarEvent, Tuple<int, TimeLine>>(obj, new Tuple<int, TimeLine>(j, AllFreeSpots[j])));
-                    foreach (KeyValuePair<SubCalendarEvent, Tuple<int, TimeLine>> eachKeyValuePair in ListOFeachKeyValuePair)
-                    {
-                        SubCalEventCurrentlyAssignedTImeLine.Add(eachKeyValuePair.Key, eachKeyValuePair.Value);
-                    }
-
-
-                    List<mTuple<double, SubCalendarEvent>> MovableForDict = MovableElements.Select(obj => new mTuple<double, SubCalendarEvent>(DistanceSolver.AverageToAllNodes(obj.myLocation, MovableElements.Where(obj1 => obj1 != obj).ToList().Select(obj2 => obj2.myLocation).ToList()), obj)).ToList();
-                    MovableForDict.Sort(delegate(mTuple<double, SubCalendarEvent> A, mTuple<double, SubCalendarEvent> B)
-                    {
-                        return A.Item1.CompareTo(B.Item1);
-                        /*if(A.Item1==B.Item1) return 0;
-                        else{
-                            A.Item1.CompareTo(A.Item1) 
-                        }*/
-                    });
-                    TotalMovableList.AddRange(MovableForDict);
-                    MovableElements_Dict.Add(AllFreeSpots[j], MovableForDict);
-                }
-                else
-                {
-                    if (Occupancy < AverageOccupiedSchedule)
-                    {
-                        double ExcessPercentageSpace = AverageOccupiedSchedule - Occupancy;
-                        mTuple<TimeLine, int> LessThanAverageEntry = new mTuple<TimeLine, int>(eachTimeLine, j);
-                        LessThanAverage.Add(LessThanAverageEntry);
+        //    foreach (TimeLine eachTimeLine in AllFreeSpots)
+        //    {
+        //        TimeSpan TotalActiveSpan = Utility.SumOfActiveDuration(AlreadyAlignedEvents[j]);
+        //        TimeSpan AverageTimeSpan = new TimeSpan((long)(AverageOccupiedSchedule * (double)eachTimeLine.TimelineSpan.Ticks));
+        //        TImeLine_ToAverageTimeSpan.Add(eachTimeLine, new mTuple<TimeSpan, TimeSpan>(AverageTimeSpan, TotalActiveSpan));
+        //        double Occupancy = (double)TotalActiveSpan.Ticks / (double)eachTimeLine.TimelineSpan.Ticks;// percentage of active duration relative to the size of the TimeLine Timespan
+        //        TimeLineOccupancy.Add(eachTimeLine, new mTuple<int, double>(j - 1, Occupancy));
+        //        if (Occupancy > AverageOccupiedSchedule)
+        //        {
+        //            AboveAverage.Add(new mTuple<TimeLine, int>(eachTimeLine, j));
+        //            List<SubCalendarEvent> AlreadyAssigned = AlreadyAlignedEvents[j];
+        //            List<SubCalendarEvent> RestrictedSubCalevent = RestrictedElements[j];
+        //            List<SubCalendarEvent> MovableElements = AlreadyAssigned.ToList();
+        //            MovableElements = MovableElements.Where(obj => (!RestrictedSubCalevent.Contains(obj))).ToList();
 
 
 
+        //            IEnumerable<KeyValuePair<SubCalendarEvent, Tuple<int, TimeLine>>> ListOFeachKeyValuePair = MovableElements.Select(obj => new KeyValuePair<SubCalendarEvent, Tuple<int, TimeLine>>(obj, new Tuple<int, TimeLine>(j, AllFreeSpots[j])));
+        //            foreach (KeyValuePair<SubCalendarEvent, Tuple<int, TimeLine>> eachKeyValuePair in ListOFeachKeyValuePair)
+        //            {
+        //                SubCalEventCurrentlyAssignedTImeLine.Add(eachKeyValuePair.Key, eachKeyValuePair.Value);
+        //            }
 
-                        IEnumerable<KeyValuePair<TimeSpan, Dictionary<string, mTuple<bool, SubCalendarEvent>>>> DictOfPosSubCals0 = AllPossibleEvents[eachTimeLine].Select(obj => obj);
-                        IEnumerable<Dictionary<string, mTuple<bool, SubCalendarEvent>>> DictOfPosSubCals1 = DictOfPosSubCals0.Select(obj => obj.Value);
+
+        //            List<mTuple<double, SubCalendarEvent>> MovableForDict = MovableElements.Select(obj => new mTuple<double, SubCalendarEvent>(DistanceSolver.AverageToAllNodes(obj.myLocation, MovableElements.Where(obj1 => obj1 != obj).ToList().Select(obj2 => obj2.myLocation).ToList()), obj)).ToList();
+        //            MovableForDict.Sort(delegate(mTuple<double, SubCalendarEvent> A, mTuple<double, SubCalendarEvent> B)
+        //            {
+        //                return A.Item1.CompareTo(B.Item1);
+        //                /*if(A.Item1==B.Item1) return 0;
+        //                else{
+        //                    A.Item1.CompareTo(A.Item1) 
+        //                }*/
+        //            });
+        //            TotalMovableList.AddRange(MovableForDict);
+        //            MovableElements_Dict.Add(AllFreeSpots[j], MovableForDict);
+        //        }
+        //        else
+        //        {
+        //            if (Occupancy < AverageOccupiedSchedule)
+        //            {
+        //                double ExcessPercentageSpace = AverageOccupiedSchedule - Occupancy;
+        //                mTuple<TimeLine, int> LessThanAverageEntry = new mTuple<TimeLine, int>(eachTimeLine, j);
+        //                LessThanAverage.Add(LessThanAverageEntry);
 
 
-                        //List<List<KeyValuePair<string, mTuple<bool, SubCalendarEvent>>>> DictOfPosSubCals0List = AllPossibleEvents[eachTimeLine].Select(obj => obj.Value).ToList();
-                        //IEnumerable<KeyValuePair<string, mTuple<bool, SubCalendarEvent>>> DictOfPosSubCals =    AllPossibleEvents[eachTimeLine].SelectMany(obj=>obj.Value);
-                        IEnumerable<SubCalendarEvent> DictOfPosSubCals = AllPossibleEvents[eachTimeLine].SelectMany(obj => obj.Value).Select(obj => obj.Value.Item2);
 
-                        TimeSpan SpaceTogetAverage = new TimeSpan((long)(ExcessPercentageSpace * (double)eachTimeLine.TimelineSpan.Ticks));
-                        List<mTuple<double, SubCalendarEvent>> CompatibleWithTimeLine = PopulateCompatibleList(TotalMovableList, DictOfPosSubCals.ToList(), eachTimeLine, SpaceTogetAverage);
+
+        //                IEnumerable<KeyValuePair<TimeSpan, Dictionary<string, mTuple<bool, SubCalendarEvent>>>> DictOfPosSubCals0 = AllPossibleEvents[eachTimeLine].Select(obj => obj);
+        //                IEnumerable<Dictionary<string, mTuple<bool, SubCalendarEvent>>> DictOfPosSubCals1 = DictOfPosSubCals0.Select(obj => obj.Value);
+
+
+        //                //List<List<KeyValuePair<string, mTuple<bool, SubCalendarEvent>>>> DictOfPosSubCals0List = AllPossibleEvents[eachTimeLine].Select(obj => obj.Value).ToList();
+        //                //IEnumerable<KeyValuePair<string, mTuple<bool, SubCalendarEvent>>> DictOfPosSubCals =    AllPossibleEvents[eachTimeLine].SelectMany(obj=>obj.Value);
+        //                IEnumerable<SubCalendarEvent> DictOfPosSubCals = AllPossibleEvents[eachTimeLine].SelectMany(obj => obj.Value).Select(obj => obj.Value.Item2);
+
+        //                TimeSpan SpaceTogetAverage = new TimeSpan((long)(ExcessPercentageSpace * (double)eachTimeLine.TimelineSpan.Ticks));
+        //                List<mTuple<double, SubCalendarEvent>> CompatibleWithTimeLine = PopulateCompatibleList(TotalMovableList, DictOfPosSubCals.ToList(), eachTimeLine, SpaceTogetAverage);
 
                         
-                        CompatibleWithTimeLine.AddRange(Utility.SubCalEventsTomTuple(AlreadyAlignedEvents[j], (double)100));
-                        foreach (SubCalendarEvent eeachSubCalendarEvent in CompatibleWithTimeLine.Select(obj=>obj.Item2))
-                        {
-                            if (TimeLineAndPossibleCalendarEvents.ContainsKey(eeachSubCalendarEvent))
-                            {
-                                TimeLineAndPossibleCalendarEvents[eeachSubCalendarEvent].Add(LessThanAverageEntry);
-                            }
-                            else
-                            {
-                                TimeLineAndPossibleCalendarEvents.Add(eeachSubCalendarEvent, new List<mTuple<TimeLine, int>> { (LessThanAverageEntry) });
-                            }
-                        }
+        //                CompatibleWithTimeLine.AddRange(Utility.SubCalEventsTomTuple(AlreadyAlignedEvents[j], (double)100));
+        //                foreach (SubCalendarEvent eeachSubCalendarEvent in CompatibleWithTimeLine.Select(obj=>obj.Item2))
+        //                {
+        //                    if (TimeLineAndPossibleCalendarEvents.ContainsKey(eeachSubCalendarEvent))
+        //                    {
+        //                        TimeLineAndPossibleCalendarEvents[eeachSubCalendarEvent].Add(LessThanAverageEntry);
+        //                    }
+        //                    else
+        //                    {
+        //                        TimeLineAndPossibleCalendarEvents.Add(eeachSubCalendarEvent, new List<mTuple<TimeLine, int>> { (LessThanAverageEntry) });
+        //                    }
+        //                }
 
 
-                    }
-                }
-                j++;
-            }
+        //            }
+        //        }
+        //        j++;
+        //    }
 
-            Dictionary<TimeLine, List<SubCalendarEvent>> OptimumAssignment = AllFreeSpots.ToDictionary(obj => obj, obj=>new List<SubCalendarEvent>());
+        //    Dictionary<TimeLine, List<SubCalendarEvent>> OptimumAssignment = AllFreeSpots.ToDictionary(obj => obj, obj=>new List<SubCalendarEvent>());
 
-            foreach (KeyValuePair<SubCalendarEvent, List<mTuple<TimeLine, int>>> eachKeyValuePair in TimeLineAndPossibleCalendarEvents)
-            { //find best spots for
-                int OptimumLocation = GetBestNodeToInsertSelf(AlreadyAlignedEvents, eachKeyValuePair.Key, eachKeyValuePair.Value, CalendarEvent.DistanceMatrix, OptimumAssignment);
+        //    foreach (KeyValuePair<SubCalendarEvent, List<mTuple<TimeLine, int>>> eachKeyValuePair in TimeLineAndPossibleCalendarEvents)
+        //    { //find best spots for
+        //        int OptimumLocation = GetBestNodeToInsertSelf(AlreadyAlignedEvents, eachKeyValuePair.Key, eachKeyValuePair.Value, CalendarEvent.DistanceMatrix, OptimumAssignment);
 
-                mTuple<TimeLine,int> OptimumIndex= eachKeyValuePair.Value[OptimumLocation];
-                OptimumAssignment[OptimumIndex.Item1].Add(eachKeyValuePair.Key);
-            }
-
-
-
-            foreach (TimeLine eachTimeLine in LessThanAverage.Select(obj => obj.Item1))
-            {
-                j=AllFreeSpots.IndexOf(eachTimeLine);
-                TimeSpan TotalActiveSpan = Utility.SumOfActiveDuration(AlreadyAlignedEvents[j]);
-                TimeSpan AverageTimeSpan = new TimeSpan((long)(AverageOccupiedSchedule * (double)eachTimeLine.TimelineSpan.Ticks));
-                //TImeLine_ToAverageTimeSpan.Add(eachTimeLine, new mTuple<TimeSpan, TimeSpan>(AverageTimeSpan, TotalActiveSpan));
-                double Occupancy = (double)TotalActiveSpan.Ticks / (double)eachTimeLine.TimelineSpan.Ticks;// percentage of active duration relative to the size of the TimeLine Timespan
-
-
-                Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> CompatibleWithListForFunCall = new Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>();
-                Dictionary<SubCalendarEvent, BusyTimeLine> SubCalendarEvent_OldTImeLine = new Dictionary<SubCalendarEvent, BusyTimeLine>();//Dictionary stores the Subcalendar event old TimeLine, just incase the do not get reassigned to the current timeline
-                Dictionary<TimeSpan, Dictionary<string, mTuple<bool, SubCalendarEvent>>> PossibleEventsForFuncCall = new Dictionary<TimeSpan, Dictionary<string, mTuple<bool, SubCalendarEvent>>>();
-                List<mTuple<bool, SubCalendarEvent>> restrictedForFuncCall = Utility.SubCalEventsTomTuple(AlreadyAlignedEvents[j], true);
-                foreach (SubCalendarEvent eachmTuple in OptimumAssignment[eachTimeLine])
-                {
-                    TimeSpan ActiveTimeSpan = eachmTuple.ActiveDuration;
-                    string subcalStringID = eachmTuple.Id;
-                    SubCalendarEvent_OldTImeLine.Add(eachmTuple, eachmTuple.ActiveSlot.CreateCopy());
-
-                    if (CompatibleWithListForFunCall.ContainsKey(ActiveTimeSpan))
-                    {
-                        ++CompatibleWithListForFunCall[ActiveTimeSpan].Item1;
-                        ;
-                    }
-                    else
-                    {
-                        CompatibleWithListForFunCall.Add(ActiveTimeSpan, new mTuple<int, TimeSpanWithStringID>(1, new TimeSpanWithStringID(eachmTuple.ActiveDuration, ActiveTimeSpan.Ticks.ToString())));
-                    }
-
-                    if (PossibleEventsForFuncCall.ContainsKey(ActiveTimeSpan))
-                    {
-                        PossibleEventsForFuncCall[ActiveTimeSpan].Add(subcalStringID, new mTuple<bool, SubCalendarEvent>(true, eachmTuple));
-                    }
-                    else
-                    {
-                        PossibleEventsForFuncCall.Add(ActiveTimeSpan, new Dictionary<string, mTuple<bool, SubCalendarEvent>>());
-                        PossibleEventsForFuncCall[ActiveTimeSpan].Add(subcalStringID, new mTuple<bool, SubCalendarEvent>(true, eachmTuple));
-                    }
-                }
+        //        mTuple<TimeLine,int> OptimumIndex= eachKeyValuePair.Value[OptimumLocation];
+        //        OptimumAssignment[OptimumIndex.Item1].Add(eachKeyValuePair.Key);
+        //    }
 
 
 
-                List<mTuple<bool, SubCalendarEvent>> UpdatedListForTimeLine = stitchUnRestrictedSubCalendarEvent(eachTimeLine, restrictedForFuncCall, PossibleEventsForFuncCall, CompatibleWithListForFunCall, Occupancy);//attempts to add new events into to the timelines with lesser occupancy than average
-
-                TimeSpan OccupiedSpace = Utility.SumOfActiveDuration(UpdatedListForTimeLine.Select(obj => obj.Item2).ToList());//checks for how much space is used up
-                TimeSpan ExcessSpace = OccupiedSpace - AverageTimeSpan;//checks how much excees
-                if (ExcessSpace.Ticks > 0)//tries to trim the UpdatedListForTimeLine. This is done by removing an element in the updated list until its detected that the origin timeline is below or equal to its average
-                {
-                    IEnumerable<SubCalendarEvent> NewlyAddedElements = (UpdatedListForTimeLine.Where(obj => !AlreadyAlignedEvents[j].Contains(obj.Item2))).Select(obj => obj.Item2);//retrieves the newly added elements
-                    List<mTuple<double, SubCalendarEvent>> NewlyAddedElementsWithCost = NewlyAddedElements.Select(obj => new mTuple<double, SubCalendarEvent>(DistanceSolver.AverageToAllNodes(obj.myLocation, UpdatedListForTimeLine.Select(obj3 => obj3.Item2).Where(obj1 => obj1 != obj).ToList().Select(obj2 => obj2.myLocation).ToList()), obj)).ToList();//creates mtuple of cost and subcal events
-                    Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> CompatibilityListFOrTIghtestForExtraAverga = new Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>();
-                    Dictionary<TimeSpan, List<mTuple<double, SubCalendarEvent>>> CompatibilityListForNewlyAddedElements = new Dictionary<TimeSpan, List<mTuple<double, SubCalendarEvent>>>();
-                    foreach (mTuple<double, SubCalendarEvent> eachmTUple in NewlyAddedElementsWithCost)
-                    {
-                        if (CompatibilityListForNewlyAddedElements.ContainsKey(eachmTUple.Item2.ActiveDuration))
-                        {
-                            CompatibilityListForNewlyAddedElements[eachmTUple.Item2.ActiveDuration].Add(eachmTUple);
-                            //CompatibilityListForNewlyAddedElements[eachmTUple.Item2.ActiveDuration] = Utility.RandomizeIEnumerable(CompatibilityListForNewlyAddedElements[eachmTUple.Item2.ActiveDuration]);
-                            CompatibilityListForNewlyAddedElements[eachmTUple.Item2.ActiveDuration].Sort(delegate(mTuple<double, SubCalendarEvent> A, mTuple<double, SubCalendarEvent> B)
-                            {
-                                return A.Item1.CompareTo(B.Item1);
-                            });
-                        }
-                        else
-                        {
-                            CompatibilityListForNewlyAddedElements.Add(eachmTUple.Item2.ActiveDuration, new List<mTuple<double, SubCalendarEvent>>() { eachmTUple });
-                        }
-
-                        if (CompatibilityListFOrTIghtestForExtraAverga.ContainsKey(eachmTUple.Item2.ActiveDuration))
-                        {
-                            ++CompatibilityListFOrTIghtestForExtraAverga[eachmTUple.Item2.ActiveDuration].Item1;
-                        }
-                        else
-                        {
-                            CompatibilityListFOrTIghtestForExtraAverga.Add(eachmTUple.Item2.ActiveDuration, new mTuple<int, TimeSpanWithStringID>(1, new TimeSpanWithStringID(eachmTUple.Item2.ActiveDuration, eachmTUple.Item2.ActiveDuration.Ticks.ToString())));
-                        }
-                    }
-
-                    TimeSpan Space_NonAverage = TimeSpan.FromTicks((long)((1 - AverageOccupiedSchedule) * eachTimeLine.TimelineSpan.Ticks));//Space derive from subtracting the calculated expected average timespan for this time line from thie timeline
-                    //ExcessSpace = Space_NonAverage;
-
-                    SnugArray CompatibilityToBestAverageFit = new SnugArray(CompatibilityListFOrTIghtestForExtraAverga.Values.ToList(), ExcessSpace);
-                    List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>> AllPossibleTIghtExcessFits = CompatibilityToBestAverageFit.MySnugPossibleEntries;
-                    AllPossibleTIghtExcessFits = SnugArray.SortListSnugPossibilities_basedOnTimeSpan(AllPossibleTIghtExcessFits);
-                    Dictionary<int, List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>>> tightestElements = SnugArray.SortListSnugPossibilities_basedOnNumberOfDiffering(AllPossibleTIghtExcessFits);
-                    if (tightestElements.Count > 0)
-                    {
-                        AllPossibleTIghtExcessFits = tightestElements.OrderBy(obj => obj.Key).Last().Value;
-                    }
-
-                    //SnugArray.SortListSnugPossibilities_basedOnTimeSpan(AllPossibleTIghtExcessFits);
-                    List<mTuple<double, SubCalendarEvent>> removedElements = new List<mTuple<double, SubCalendarEvent>>();//stores element that dont get reassigned to this current timeLine
-                    if (AllPossibleTIghtExcessFits.Count > 0)
-                    {
-                        Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> TIghtestFit = AllPossibleTIghtExcessFits[AllPossibleTIghtExcessFits.Count - 1];
-                        foreach (KeyValuePair<TimeSpan, mTuple<int, TimeSpanWithStringID>> eachKeyValuePair in TIghtestFit)//Hack alert: Assumes tightest fit is most diverse
-                        {
-
-                            while (eachKeyValuePair.Value.Item1 > 0)
-                            {
-                                removedElements.Add(CompatibilityListForNewlyAddedElements[eachKeyValuePair.Value.Item2.timeSpan][CompatibilityListForNewlyAddedElements[eachKeyValuePair.Value.Item2.timeSpan].Count - 1]);
-                                CompatibilityListForNewlyAddedElements[eachKeyValuePair.Value.Item2.timeSpan].RemoveAt(CompatibilityListForNewlyAddedElements[eachKeyValuePair.Value.Item2.timeSpan].Count - 1);
-                                --eachKeyValuePair.Value.Item1;
-                            }
-                        }
-                    }
-
-                    NewlyAddedElements = CompatibilityListForNewlyAddedElements.SelectMany(obj => obj.Value).Select(obj => obj.Item2);
-                    UpdatedListForTimeLine.RemoveAll(obj => removedElements.Select(obj1 => obj1.Item2).Contains(obj.Item2));//use LINQ to remove elements currently in "removedElements"
-                    List<SubCalendarEvent> ListOfNewlyAddeedElements = NewlyAddedElements.ToList();
-
-                    TimeSpan AllSumTImeSpan = Utility.SumOfActiveDuration(ListOfNewlyAddeedElements);
-                    removedElements.ForEach(obj => obj.Item2.shiftEvent(SubCalendarEvent_OldTImeLine[obj.Item2].Start - obj.Item2.ActiveSlot.Start));
+        //    foreach (TimeLine eachTimeLine in LessThanAverage.Select(obj => obj.Item1))
+        //    {
+        //        j=AllFreeSpots.IndexOf(eachTimeLine);
+        //        TimeSpan TotalActiveSpan = Utility.SumOfActiveDuration(AlreadyAlignedEvents[j]);
+        //        TimeSpan AverageTimeSpan = new TimeSpan((long)(AverageOccupiedSchedule * (double)eachTimeLine.TimelineSpan.Ticks));
+        //        //TImeLine_ToAverageTimeSpan.Add(eachTimeLine, new mTuple<TimeSpan, TimeSpan>(AverageTimeSpan, TotalActiveSpan));
+        //        double Occupancy = (double)TotalActiveSpan.Ticks / (double)eachTimeLine.TimelineSpan.Ticks;// percentage of active duration relative to the size of the TimeLine Timespan
 
 
-                    Dictionary<int, List<List<SubCalendarEvent>>> CurrentlyAssignedSubCalevents = new Dictionary<int, List<List<SubCalendarEvent>>>();//stores the index of each subcalendarevent timeline and its fellow Subcal events. Key= Index Of Current timeline. OuteList is grouping for each calendar event. Inner List is each Subcalevent within Calevent
+        //        Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> CompatibleWithListForFunCall = new Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>();
+        //        Dictionary<SubCalendarEvent, BusyTimeLine> SubCalendarEvent_OldTImeLine = new Dictionary<SubCalendarEvent, BusyTimeLine>();//Dictionary stores the Subcalendar event old TimeLine, just incase the do not get reassigned to the current timeline
+        //        Dictionary<TimeSpan, Dictionary<string, mTuple<bool, SubCalendarEvent>>> PossibleEventsForFuncCall = new Dictionary<TimeSpan, Dictionary<string, mTuple<bool, SubCalendarEvent>>>();
+        //        List<mTuple<bool, SubCalendarEvent>> restrictedForFuncCall = Utility.SubCalEventsTomTuple(AlreadyAlignedEvents[j], true);
+        //        foreach (SubCalendarEvent eachmTuple in OptimumAssignment[eachTimeLine])
+        //        {
+        //            TimeSpan ActiveTimeSpan = eachmTuple.ActiveDuration;
+        //            string subcalStringID = eachmTuple.Id;
+        //            SubCalendarEvent_OldTImeLine.Add(eachmTuple, eachmTuple.ActiveSlot.CreateCopy());
 
-                    //ListOfNewlyAddeedElements = Utility.RandomizeIEnumerable(ListOfNewlyAddeedElements);
+        //            if (CompatibleWithListForFunCall.ContainsKey(ActiveTimeSpan))
+        //            {
+        //                ++CompatibleWithListForFunCall[ActiveTimeSpan].Item1;
+        //                ;
+        //            }
+        //            else
+        //            {
+        //                CompatibleWithListForFunCall.Add(ActiveTimeSpan, new mTuple<int, TimeSpanWithStringID>(1, new TimeSpanWithStringID(eachmTuple.ActiveDuration, ActiveTimeSpan.Ticks.ToString())));
+        //            }
 
-                    for (int i = 0; i < ListOfNewlyAddeedElements.Count; i++)//removes Each reassigned element from its currently attached field
-                    {
-                        SubCalendarEvent eachSubCalendarEvent = ListOfNewlyAddeedElements[i];
-                        Tuple<int, TimeLine> CurrentMatchingField = SubCalEventCurrentlyAssignedTImeLine[eachSubCalendarEvent];
-                        mTuple<TimeSpan, TimeSpan> AverageTimeSpanAndTotalTimeSpan = TImeLine_ToAverageTimeSpan[CurrentMatchingField.Item2];
-                        if (((AverageTimeSpanAndTotalTimeSpan.Item2 - eachSubCalendarEvent.ActiveDuration) >= AverageTimeSpanAndTotalTimeSpan.Item1))
-                        {
-                            AverageTimeSpanAndTotalTimeSpan.Item2 -= eachSubCalendarEvent.ActiveDuration;
-                            AlreadyAlignedEvents[CurrentMatchingField.Item1].Remove(eachSubCalendarEvent);
-                            SubCalEventCurrentlyAssignedTImeLine[eachSubCalendarEvent] = new Tuple<int, TimeLine>(j, AllFreeSpots[j]);
-
-                            Dictionary<TimeLine, Dictionary<string, Dictionary<string, mTuple<bool, SubCalendarEvent>>>> AllPossibleEvents222222;
-                            TotalMovableList.RemoveAll(obj => NewlyAddedElements.Contains(obj.Item2));//removes the newly added element from Total possible movable elements
-                            AllPossibleEvents[AllFreeSpots[j]][eachSubCalendarEvent.ActiveDuration].Remove(eachSubCalendarEvent.Id);
-                            if (AllPossibleEvents[AllFreeSpots[j]][eachSubCalendarEvent.ActiveDuration].Count < 1)
-                            {
-                                AllPossibleEvents[AllFreeSpots[j]].Remove(eachSubCalendarEvent.ActiveDuration);
-                            }
-                        }
-                        else
-                        {
-                            ListOfNewlyAddeedElements.Remove(eachSubCalendarEvent);
-                            eachSubCalendarEvent.shiftEvent(SubCalendarEvent_OldTImeLine[eachSubCalendarEvent].Start - eachSubCalendarEvent.ActiveSlot.Start);
-                            --i;
-                        }
-                    }
-
-                    NewlyAddedElements = ListOfNewlyAddeedElements;
-
-                    AlreadyAlignedEvents[j].AddRange(NewlyAddedElements);
-
-                    TotalActiveSpan = Utility.SumOfActiveDuration(AlreadyAlignedEvents[j]);
-                    AverageTimeSpan = new TimeSpan((long)(AverageOccupiedSchedule * (double)eachTimeLine.TimelineSpan.Ticks));
-                    Occupancy = (double)TotalActiveSpan.Ticks / (double)eachTimeLine.TimelineSpan.Ticks;// percentage of active duration relative to the size of the TimeLine Timespan
-
-                }
+        //            if (PossibleEventsForFuncCall.ContainsKey(ActiveTimeSpan))
+        //            {
+        //                PossibleEventsForFuncCall[ActiveTimeSpan].Add(subcalStringID, new mTuple<bool, SubCalendarEvent>(true, eachmTuple));
+        //            }
+        //            else
+        //            {
+        //                PossibleEventsForFuncCall.Add(ActiveTimeSpan, new Dictionary<string, mTuple<bool, SubCalendarEvent>>());
+        //                PossibleEventsForFuncCall[ActiveTimeSpan].Add(subcalStringID, new mTuple<bool, SubCalendarEvent>(true, eachmTuple));
+        //            }
+        //        }
 
 
-            }
+
+        //        List<mTuple<bool, SubCalendarEvent>> UpdatedListForTimeLine = stitchUnRestrictedSubCalendarEvent(eachTimeLine, restrictedForFuncCall, PossibleEventsForFuncCall, CompatibleWithListForFunCall, Occupancy);//attempts to add new events into to the timelines with lesser occupancy than average
+
+        //        TimeSpan OccupiedSpace = Utility.SumOfActiveDuration(UpdatedListForTimeLine.Select(obj => obj.Item2).ToList());//checks for how much space is used up
+        //        TimeSpan ExcessSpace = OccupiedSpace - AverageTimeSpan;//checks how much excees
+        //        if (ExcessSpace.Ticks > 0)//tries to trim the UpdatedListForTimeLine. This is done by removing an element in the updated list until its detected that the origin timeline is below or equal to its average
+        //        {
+        //            IEnumerable<SubCalendarEvent> NewlyAddedElements = (UpdatedListForTimeLine.Where(obj => !AlreadyAlignedEvents[j].Contains(obj.Item2))).Select(obj => obj.Item2);//retrieves the newly added elements
+        //            List<mTuple<double, SubCalendarEvent>> NewlyAddedElementsWithCost = NewlyAddedElements.Select(obj => new mTuple<double, SubCalendarEvent>(DistanceSolver.AverageToAllNodes(obj.myLocation, UpdatedListForTimeLine.Select(obj3 => obj3.Item2).Where(obj1 => obj1 != obj).ToList().Select(obj2 => obj2.myLocation).ToList()), obj)).ToList();//creates mtuple of cost and subcal events
+        //            Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> CompatibilityListFOrTIghtestForExtraAverga = new Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>();
+        //            Dictionary<TimeSpan, List<mTuple<double, SubCalendarEvent>>> CompatibilityListForNewlyAddedElements = new Dictionary<TimeSpan, List<mTuple<double, SubCalendarEvent>>>();
+        //            foreach (mTuple<double, SubCalendarEvent> eachmTUple in NewlyAddedElementsWithCost)
+        //            {
+        //                if (CompatibilityListForNewlyAddedElements.ContainsKey(eachmTUple.Item2.ActiveDuration))
+        //                {
+        //                    CompatibilityListForNewlyAddedElements[eachmTUple.Item2.ActiveDuration].Add(eachmTUple);
+        //                    //CompatibilityListForNewlyAddedElements[eachmTUple.Item2.ActiveDuration] = Utility.RandomizeIEnumerable(CompatibilityListForNewlyAddedElements[eachmTUple.Item2.ActiveDuration]);
+        //                    CompatibilityListForNewlyAddedElements[eachmTUple.Item2.ActiveDuration].Sort(delegate(mTuple<double, SubCalendarEvent> A, mTuple<double, SubCalendarEvent> B)
+        //                    {
+        //                        return A.Item1.CompareTo(B.Item1);
+        //                    });
+        //                }
+        //                else
+        //                {
+        //                    CompatibilityListForNewlyAddedElements.Add(eachmTUple.Item2.ActiveDuration, new List<mTuple<double, SubCalendarEvent>>() { eachmTUple });
+        //                }
+
+        //                if (CompatibilityListFOrTIghtestForExtraAverga.ContainsKey(eachmTUple.Item2.ActiveDuration))
+        //                {
+        //                    ++CompatibilityListFOrTIghtestForExtraAverga[eachmTUple.Item2.ActiveDuration].Item1;
+        //                }
+        //                else
+        //                {
+        //                    CompatibilityListFOrTIghtestForExtraAverga.Add(eachmTUple.Item2.ActiveDuration, new mTuple<int, TimeSpanWithStringID>(1, new TimeSpanWithStringID(eachmTUple.Item2.ActiveDuration, eachmTUple.Item2.ActiveDuration.Ticks.ToString())));
+        //                }
+        //            }
+
+        //            TimeSpan Space_NonAverage = TimeSpan.FromTicks((long)((1 - AverageOccupiedSchedule) * eachTimeLine.TimelineSpan.Ticks));//Space derive from subtracting the calculated expected average timespan for this time line from thie timeline
+        //            //ExcessSpace = Space_NonAverage;
+
+        //            SnugArray CompatibilityToBestAverageFit = new SnugArray(CompatibilityListFOrTIghtestForExtraAverga.Values.ToList(), ExcessSpace);
+        //            List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>> AllPossibleTIghtExcessFits = CompatibilityToBestAverageFit.MySnugPossibleEntries;
+        //            AllPossibleTIghtExcessFits = SnugArray.SortListSnugPossibilities_basedOnTimeSpan(AllPossibleTIghtExcessFits);
+        //            Dictionary<int, List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>>> tightestElements = SnugArray.SortListSnugPossibilities_basedOnNumberOfDiffering(AllPossibleTIghtExcessFits);
+        //            if (tightestElements.Count > 0)
+        //            {
+        //                AllPossibleTIghtExcessFits = tightestElements.OrderBy(obj => obj.Key).Last().Value;
+        //            }
+
+        //            //SnugArray.SortListSnugPossibilities_basedOnTimeSpan(AllPossibleTIghtExcessFits);
+        //            List<mTuple<double, SubCalendarEvent>> removedElements = new List<mTuple<double, SubCalendarEvent>>();//stores element that dont get reassigned to this current timeLine
+        //            if (AllPossibleTIghtExcessFits.Count > 0)
+        //            {
+        //                Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> TIghtestFit = AllPossibleTIghtExcessFits[AllPossibleTIghtExcessFits.Count - 1];
+        //                foreach (KeyValuePair<TimeSpan, mTuple<int, TimeSpanWithStringID>> eachKeyValuePair in TIghtestFit)//Hack alert: Assumes tightest fit is most diverse
+        //                {
+
+        //                    while (eachKeyValuePair.Value.Item1 > 0)
+        //                    {
+        //                        removedElements.Add(CompatibilityListForNewlyAddedElements[eachKeyValuePair.Value.Item2.timeSpan][CompatibilityListForNewlyAddedElements[eachKeyValuePair.Value.Item2.timeSpan].Count - 1]);
+        //                        CompatibilityListForNewlyAddedElements[eachKeyValuePair.Value.Item2.timeSpan].RemoveAt(CompatibilityListForNewlyAddedElements[eachKeyValuePair.Value.Item2.timeSpan].Count - 1);
+        //                        --eachKeyValuePair.Value.Item1;
+        //                    }
+        //                }
+        //            }
+
+        //            NewlyAddedElements = CompatibilityListForNewlyAddedElements.SelectMany(obj => obj.Value).Select(obj => obj.Item2);
+        //            UpdatedListForTimeLine.RemoveAll(obj => removedElements.Select(obj1 => obj1.Item2).Contains(obj.Item2));//use LINQ to remove elements currently in "removedElements"
+        //            List<SubCalendarEvent> ListOfNewlyAddeedElements = NewlyAddedElements.ToList();
+
+        //            TimeSpan AllSumTImeSpan = Utility.SumOfActiveDuration(ListOfNewlyAddeedElements);
+        //            removedElements.ForEach(obj => obj.Item2.shiftEvent(SubCalendarEvent_OldTImeLine[obj.Item2].Start - obj.Item2.ActiveSlot.Start));
 
 
-            Dictionary<TimeLine, List<SubCalendarEvent>> CompatibleList = new Dictionary<TimeLine, List<SubCalendarEvent>>();//this Dictionary stores keyValuepair of a TimeLine and Subcalevents that can work within said timeLine that are not part of the currently assigned set;
-            retValue = AlreadyAlignedEvents.ToList();
-            return retValue;
-        }
+        //            Dictionary<int, List<List<SubCalendarEvent>>> CurrentlyAssignedSubCalevents = new Dictionary<int, List<List<SubCalendarEvent>>>();//stores the index of each subcalendarevent timeline and its fellow Subcal events. Key= Index Of Current timeline. OuteList is grouping for each calendar event. Inner List is each Subcalevent within Calevent
+
+        //            //ListOfNewlyAddeedElements = Utility.RandomizeIEnumerable(ListOfNewlyAddeedElements);
+
+        //            for (int i = 0; i < ListOfNewlyAddeedElements.Count; i++)//removes Each reassigned element from its currently attached field
+        //            {
+        //                SubCalendarEvent eachSubCalendarEvent = ListOfNewlyAddeedElements[i];
+        //                Tuple<int, TimeLine> CurrentMatchingField = SubCalEventCurrentlyAssignedTImeLine[eachSubCalendarEvent];
+        //                mTuple<TimeSpan, TimeSpan> AverageTimeSpanAndTotalTimeSpan = TImeLine_ToAverageTimeSpan[CurrentMatchingField.Item2];
+        //                if (((AverageTimeSpanAndTotalTimeSpan.Item2 - eachSubCalendarEvent.ActiveDuration) >= AverageTimeSpanAndTotalTimeSpan.Item1))
+        //                {
+        //                    AverageTimeSpanAndTotalTimeSpan.Item2 -= eachSubCalendarEvent.ActiveDuration;
+        //                    AlreadyAlignedEvents[CurrentMatchingField.Item1].Remove(eachSubCalendarEvent);
+        //                    SubCalEventCurrentlyAssignedTImeLine[eachSubCalendarEvent] = new Tuple<int, TimeLine>(j, AllFreeSpots[j]);
+
+        //                    Dictionary<TimeLine, Dictionary<string, Dictionary<string, mTuple<bool, SubCalendarEvent>>>> AllPossibleEvents222222;
+        //                    TotalMovableList.RemoveAll(obj => NewlyAddedElements.Contains(obj.Item2));//removes the newly added element from Total possible movable elements
+        //                    AllPossibleEvents[AllFreeSpots[j]][eachSubCalendarEvent.ActiveDuration].Remove(eachSubCalendarEvent.Id);
+        //                    if (AllPossibleEvents[AllFreeSpots[j]][eachSubCalendarEvent.ActiveDuration].Count < 1)
+        //                    {
+        //                        AllPossibleEvents[AllFreeSpots[j]].Remove(eachSubCalendarEvent.ActiveDuration);
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    ListOfNewlyAddeedElements.Remove(eachSubCalendarEvent);
+        //                    eachSubCalendarEvent.shiftEvent(SubCalendarEvent_OldTImeLine[eachSubCalendarEvent].Start - eachSubCalendarEvent.ActiveSlot.Start);
+        //                    --i;
+        //                }
+        //            }
+
+        //            NewlyAddedElements = ListOfNewlyAddeedElements;
+
+        //            AlreadyAlignedEvents[j].AddRange(NewlyAddedElements);
+
+        //            TotalActiveSpan = Utility.SumOfActiveDuration(AlreadyAlignedEvents[j]);
+        //            AverageTimeSpan = new TimeSpan((long)(AverageOccupiedSchedule * (double)eachTimeLine.TimelineSpan.Ticks));
+        //            Occupancy = (double)TotalActiveSpan.Ticks / (double)eachTimeLine.TimelineSpan.Ticks;// percentage of active duration relative to the size of the TimeLine Timespan
+
+        //        }
 
 
-        int GetBestNodeToInsertSelf(List<List<SubCalendarEvent>> AllSubEvents, SubCalendarEvent CurrentSubEvent, List<mTuple<TimeLine, int>> ValidLocations, Dictionary<string, List<Double>> DistanceMatrix,Dictionary<TimeLine, List<SubCalendarEvent>> OptimumSelected)
-        {
-            int retValue=-1;
-            List<double> AverageDistances = (new double[(ValidLocations.Count)]).ToList();
+        //    }
+
+
+        //    Dictionary<TimeLine, List<SubCalendarEvent>> CompatibleList = new Dictionary<TimeLine, List<SubCalendarEvent>>();//this Dictionary stores keyValuepair of a TimeLine and Subcalevents that can work within said timeLine that are not part of the currently assigned set;
+        //    retValue = AlreadyAlignedEvents.ToList();
+        //    return retValue;
+        //}
+
+
+        //int GetBestNodeToInsertSelf(List<List<SubCalendarEvent>> AllSubEvents, SubCalendarEvent CurrentSubEvent, List<mTuple<TimeLine, int>> ValidLocations, Dictionary<string, List<Double>> DistanceMatrix,Dictionary<TimeLine, List<SubCalendarEvent>> OptimumSelected)
+        //{
+        //    int retValue=-1;
+        //    List<double> AverageDistances = (new double[(ValidLocations.Count)]).ToList();
             
-            for(int i=0; i<ValidLocations.Count;i++)    
-            {
-                AverageDistances[i]=DistanceSolver.AverageToAllNodes(CurrentSubEvent, AllSubEvents[ValidLocations[i].Item2].Concat(OptimumSelected[ValidLocations[i].Item1]).ToList(), DistanceMatrix);
-            }
+        //    for(int i=0; i<ValidLocations.Count;i++)    
+        //    {
+        //        AverageDistances[i]=DistanceSolver.AverageToAllNodes(CurrentSubEvent, AllSubEvents[ValidLocations[i].Item2].Concat(OptimumSelected[ValidLocations[i].Item1]).ToList(), DistanceMatrix);
+        //    }
 
 
-            retValue = AverageDistances.IndexOf(AverageDistances.Min());
+        //    retValue = AverageDistances.IndexOf(AverageDistances.Min());
 
-            return retValue;
+        //    return retValue;
 
-        }
+        //}
 
 
         List<mTuple<double, SubCalendarEvent>> PopulateCompatibleList(List<mTuple<double, SubCalendarEvent>> AllSubCalEvents, List<SubCalendarEvent> PossibleSubcalEvents, TimeLine PertinentTimeLine, TimeSpan TotalFreeSpaceInTImeLine)
@@ -3447,7 +3447,7 @@ namespace My24HourTimerWPF
             List<SubCalendarEvent> AllRigids =  ForCalculation.Where(obj => obj.Rigid).ToList();
 
             ForCalculation = ForCalculation.Except(AllRigids).ToList();
-            ForCalculation.ForEach(obj => obj.addReason(new PreservedOrder()));
+            ForCalculation.ForEach(obj => obj.addReasons(new PreservedOrder()));
 
             HashSet<SubCalendarEvent> OrderedPreviousTwentyfourNorigids = new HashSet<SubCalendarEvent>( ForCalculation.OrderBy(obj=>obj.Start));
             FirstTwentyFour.AddBusySlots(AllRigids.Select(obj => obj.ActiveSlot));
@@ -3456,7 +3456,7 @@ namespace My24HourTimerWPF
             foreach (SubCalendarEvent subcalendaEvent in PopulatedSubcals.Except(ForCalculation))
             {
                 BestFitReason bestFit = new BestFitReason(FirstTwentyFour.TotalActiveSpan, FirstTwentyFour.TotalFreeSpotAvailable, subcalendaEvent.ActiveDuration);
-                subcalendaEvent.addReason(bestFit);
+                subcalendaEvent.addReasons(bestFit);
             }
 
             List<SubCalendarEvent> retValue =new List<SubCalendarEvent>();
@@ -3518,7 +3518,7 @@ namespace My24HourTimerWPF
             foreach (SubCalendarEvent subcalendaEvent in Reassigned.Except(AllreadyAssigned))
             {
                 BestFitReason bestFit = new BestFitReason(timeLineForCalc.TotalActiveSpan, timeLineForCalc.TotalFreeSpotAvailable, subcalendaEvent.ActiveDuration);
-                subcalendaEvent.addReason(bestFit);
+                subcalendaEvent.addReasons(bestFit);
             }
 
             SubCalendarEvent.updateUnUsable(Calculables.Except(Reassigned), myDayTimeLine.UniversalIndex);//updates the un unsable days
@@ -4166,7 +4166,7 @@ namespace My24HourTimerWPF
                     NewPossibleEVents.Add(NewEvent);
                     ValidForCalculation.Remove(NewEvent);
                 }
-                ValidForCalculation = Utility.RandomizeIEnumerable(ValidForCalculation);
+                //ValidForCalculation = Utility.RandomizeIEnumerable(ValidForCalculation);
                 List<SubCalendarEvent> totalNumberOfEvents = NewPossibleEVents.Concat(newArrangement).ToList();
                 double curroccupancy = ((double)totalNumberOfEvents.Sum(obj => obj.ActiveDuration.Ticks) / myDay.TimelineSpan.Ticks);
                 if ((curroccupancy > averageOccupancy)||(totalNumberOfEvents.Count==precedingCountOfPossibleAssignableevents))
@@ -4882,103 +4882,103 @@ namespace My24HourTimerWPF
         }
 
 
-        List<List<SubCalendarEvent>> ReadjustForDailySchedule(List<List<SubCalendarEvent>> SpreadOutSchedule, List<TimeLine> AllFreeSpots, List<mTuple<SubCalendarEvent, TimeLine>> FirstTwentyFourHours,TimeLine FirstTwentyFOurTimeLine)
-        {
-            List<mTuple<int, TimeLine>> LargerThan24Hours = new List<mTuple<int, TimeLine>>();
-            List<List<SubCalendarEvent>> retValue = new List<List<SubCalendarEvent>>();
-            TimeSpan TwentyFourTimeSpan = new TimeSpan(1, 0, 0, 0);
-            for(int i=0; i<AllFreeSpots.Count;i++)
-            {
+        //List<List<SubCalendarEvent>> ReadjustForDailySchedule(List<List<SubCalendarEvent>> SpreadOutSchedule, List<TimeLine> AllFreeSpots, List<mTuple<SubCalendarEvent, TimeLine>> FirstTwentyFourHours,TimeLine FirstTwentyFOurTimeLine)
+        //{
+        //    List<mTuple<int, TimeLine>> LargerThan24Hours = new List<mTuple<int, TimeLine>>();
+        //    List<List<SubCalendarEvent>> retValue = new List<List<SubCalendarEvent>>();
+        //    TimeSpan TwentyFourTimeSpan = new TimeSpan(1, 0, 0, 0);
+        //    for(int i=0; i<AllFreeSpots.Count;i++)
+        //    {
                 
                 
                 
                 
                 
-                if (AllFreeSpots[i].TimelineSpan >= TwentyFourTimeSpan)
-                {
-                    LargerThan24Hours.Add(new mTuple<int, TimeLine>(i, AllFreeSpots[i]));
-                }
-            }
+        //        if (AllFreeSpots[i].TimelineSpan >= TwentyFourTimeSpan)
+        //        {
+        //            LargerThan24Hours.Add(new mTuple<int, TimeLine>(i, AllFreeSpots[i]));
+        //        }
+        //    }
 
-            List<SubCalendarEvent> AllAssignedSubEvents = SpreadOutSchedule.SelectMany(obj => obj).ToList();
-
-
-            LargerThan24Hours.Reverse();
+        //    List<SubCalendarEvent> AllAssignedSubEvents = SpreadOutSchedule.SelectMany(obj => obj).ToList();
 
 
-            SpreadOutSchedule.Select((obj, i) => { SubCalendarEvent.updateMiscData(obj, i); return obj; });//updates each element with its assigned free spot index
+        //    LargerThan24Hours.Reverse();
 
-            List<Tuple<mTuple<TimeLine, List<SubCalendarEvent>>, int>> InterferringTImeLineWithCOinsidingSubEvents = new List<Tuple<mTuple<TimeLine, List<SubCalendarEvent>>, int>>();
-            List<TimeLine> InterferringTImeLine = new List<TimeLine>();
+
+        //    SpreadOutSchedule.Select((obj, i) => { SubCalendarEvent.updateMiscData(obj, i); return obj; });//updates each element with its assigned free spot index
+
+        //    List<Tuple<mTuple<TimeLine, List<SubCalendarEvent>>, int>> InterferringTImeLineWithCOinsidingSubEvents = new List<Tuple<mTuple<TimeLine, List<SubCalendarEvent>>, int>>();
+        //    List<TimeLine> InterferringTImeLine = new List<TimeLine>();
             
-            for(int i=AllFreeSpots.Count-1; i>=0;i--)
-            {
-                TimeLine myInterferringTImeLine = FirstTwentyFOurTimeLine.InterferringTimeLine(AllFreeSpots[i]);//gets interferring timeline between current Freespot and TwentyFourhour span
-                mTuple<TimeLine, List<SubCalendarEvent>> InterFerringTimeLineAndSubEvents = new mTuple<TimeLine, List<SubCalendarEvent>>(myInterferringTImeLine, new List<SubCalendarEvent>());
-                List<SubCalendarEvent> reassignedSubevents = TossAllEventsToEnd(SpreadOutSchedule.SelectMany(obj => obj).ToList(), SpreadOutSchedule[i], AllFreeSpots[i]);
-                foreach(SubCalendarEvent eachSubCalendarEvent in reassignedSubevents)
-                {
-                    SpreadOutSchedule[eachSubCalendarEvent.IntData].Remove(eachSubCalendarEvent);//removes the reassigned element from its currently assigned position
-                    if (myInterferringTImeLine != null)
-                    {
-                        if (eachSubCalendarEvent.RangeTimeLine.IsDateTimeWithin(myInterferringTImeLine.End))
-                        {
-                            myInterferringTImeLine = new TimeLine(myInterferringTImeLine.Start, eachSubCalendarEvent.End);
-                        }
-                    }
-                    if (eachSubCalendarEvent.Start < FirstTwentyFOurTimeLine.End)
-                    {
-                        InterFerringTimeLineAndSubEvents.Item2.Add(eachSubCalendarEvent);
-                    }
-                }
+        //    for(int i=AllFreeSpots.Count-1; i>=0;i--)
+        //    {
+        //        TimeLine myInterferringTImeLine = FirstTwentyFOurTimeLine.InterferringTimeLine(AllFreeSpots[i]);//gets interferring timeline between current Freespot and TwentyFourhour span
+        //        mTuple<TimeLine, List<SubCalendarEvent>> InterFerringTimeLineAndSubEvents = new mTuple<TimeLine, List<SubCalendarEvent>>(myInterferringTImeLine, new List<SubCalendarEvent>());
+        //        List<SubCalendarEvent> reassignedSubevents = TossAllEventsToEnd(SpreadOutSchedule.SelectMany(obj => obj).ToList(), SpreadOutSchedule[i], AllFreeSpots[i]);
+        //        foreach(SubCalendarEvent eachSubCalendarEvent in reassignedSubevents)
+        //        {
+        //            SpreadOutSchedule[eachSubCalendarEvent.IntData].Remove(eachSubCalendarEvent);//removes the reassigned element from its currently assigned position
+        //            if (myInterferringTImeLine != null)
+        //            {
+        //                if (eachSubCalendarEvent.RangeTimeLine.IsDateTimeWithin(myInterferringTImeLine.End))
+        //                {
+        //                    myInterferringTImeLine = new TimeLine(myInterferringTImeLine.Start, eachSubCalendarEvent.End);
+        //                }
+        //            }
+        //            if (eachSubCalendarEvent.Start < FirstTwentyFOurTimeLine.End)
+        //            {
+        //                InterFerringTimeLineAndSubEvents.Item2.Add(eachSubCalendarEvent);
+        //            }
+        //        }
 
-                SubCalendarEvent.updateMiscData(reassignedSubevents, i);
-                SpreadOutSchedule[i] = reassignedSubevents;
-                InterFerringTimeLineAndSubEvents.Item1 = myInterferringTImeLine;
-                if (myInterferringTImeLine != null)
-                {
-                    InterferringTImeLineWithCOinsidingSubEvents.Add(new Tuple<mTuple<TimeLine, List<SubCalendarEvent>>, int>(InterFerringTimeLineAndSubEvents, i));
-                }
-            }
-
-
-
-            InterferringTImeLineWithCOinsidingSubEvents=InterferringTImeLineWithCOinsidingSubEvents.OrderBy(obj => obj.Item1.Item1.Start).ToList();
-            if(InterferringTImeLineWithCOinsidingSubEvents.Count>0)
-            { 
-                Tuple<mTuple<TimeLine, List<SubCalendarEvent>>, int> LastElement= InterferringTImeLineWithCOinsidingSubEvents.Last();
-                DateTimeOffset BoundaryTime = LastElement.Item1.Item1.Start;
-                List<Tuple<List<SubCalendarEvent>, int>> UpdatedFirstTwentyFour = resolveFirsTwentryFourHours(InterferringTImeLineWithCOinsidingSubEvents, FirstTwentyFourHours);
-                foreach (Tuple<List<SubCalendarEvent>, int> eachTUple in UpdatedFirstTwentyFour)
-                {
-                    foreach (SubCalendarEvent eachSubCalendarEvent in eachTUple.Item1)
-                    {
-                        SpreadOutSchedule[eachSubCalendarEvent.IntData].Remove(eachSubCalendarEvent);//removes the reassigned after getting assigned to First twentyfour hours
-                    }
-
-                    SubCalendarEvent.updateMiscData(eachTUple.Item1, eachTUple.Item2);//updates all the reassigned subevents with a new index
-                    SpreadOutSchedule[eachTUple.Item2].AddRange(eachTUple.Item1);
-                    SpreadOutSchedule[eachTUple.Item2] = SpreadOutSchedule[eachTUple.Item2].OrderBy(obj => obj.Start).ToList();
-                }
-
-
-            }
+        //        SubCalendarEvent.updateMiscData(reassignedSubevents, i);
+        //        SpreadOutSchedule[i] = reassignedSubevents;
+        //        InterFerringTimeLineAndSubEvents.Item1 = myInterferringTImeLine;
+        //        if (myInterferringTImeLine != null)
+        //        {
+        //            InterferringTImeLineWithCOinsidingSubEvents.Add(new Tuple<mTuple<TimeLine, List<SubCalendarEvent>>, int>(InterFerringTimeLineAndSubEvents, i));
+        //        }
+        //    }
 
 
 
+        //    InterferringTImeLineWithCOinsidingSubEvents=InterferringTImeLineWithCOinsidingSubEvents.OrderBy(obj => obj.Item1.Item1.Start).ToList();
+        //    if(InterferringTImeLineWithCOinsidingSubEvents.Count>0)
+        //    { 
+        //        Tuple<mTuple<TimeLine, List<SubCalendarEvent>>, int> LastElement= InterferringTImeLineWithCOinsidingSubEvents.Last();
+        //        DateTimeOffset BoundaryTime = LastElement.Item1.Item1.Start;
+        //        List<Tuple<List<SubCalendarEvent>, int>> UpdatedFirstTwentyFour = resolveFirsTwentryFourHours(InterferringTImeLineWithCOinsidingSubEvents, FirstTwentyFourHours);
+        //        foreach (Tuple<List<SubCalendarEvent>, int> eachTUple in UpdatedFirstTwentyFour)
+        //        {
+        //            foreach (SubCalendarEvent eachSubCalendarEvent in eachTUple.Item1)
+        //            {
+        //                SpreadOutSchedule[eachSubCalendarEvent.IntData].Remove(eachSubCalendarEvent);//removes the reassigned after getting assigned to First twentyfour hours
+        //            }
 
-            foreach (mTuple<int, TimeLine> eachmTuple in LargerThan24Hours)
-            {
-                List<SubCalendarEvent> updatedList = resolveInTo24HourSlots(SpreadOutSchedule[eachmTuple.Item1].ToList(), AllAssignedSubEvents, eachmTuple.Item2);
-                if (updatedList.Count != SpreadOutSchedule[eachmTuple.Item1].Count)
-                {
-                    //throw new Exception("theres an error with resolveInTo24HourSlots");
-                }
-                SpreadOutSchedule[eachmTuple.Item1] = updatedList;
-            }
+        //            SubCalendarEvent.updateMiscData(eachTUple.Item1, eachTUple.Item2);//updates all the reassigned subevents with a new index
+        //            SpreadOutSchedule[eachTUple.Item2].AddRange(eachTUple.Item1);
+        //            SpreadOutSchedule[eachTUple.Item2] = SpreadOutSchedule[eachTUple.Item2].OrderBy(obj => obj.Start).ToList();
+        //        }
 
-            return retValue;
-        }
+
+        //    }
+
+
+
+
+        //    foreach (mTuple<int, TimeLine> eachmTuple in LargerThan24Hours)
+        //    {
+        //        List<SubCalendarEvent> updatedList = resolveInTo24HourSlots(SpreadOutSchedule[eachmTuple.Item1].ToList(), AllAssignedSubEvents, eachmTuple.Item2);
+        //        if (updatedList.Count != SpreadOutSchedule[eachmTuple.Item1].Count)
+        //        {
+        //            //throw new Exception("theres an error with resolveInTo24HourSlots");
+        //        }
+        //        SpreadOutSchedule[eachmTuple.Item1] = updatedList;
+        //    }
+
+        //    return retValue;
+        //}
 
 
         List<Tuple <List<SubCalendarEvent>,int>> resolveFirsTwentryFourHours(List<Tuple<mTuple<TimeLine,List<SubCalendarEvent>>,int>> InterferringTImeLine, List<mTuple<SubCalendarEvent, TimeLine>> FirstTwentyFourHours)
@@ -5094,258 +5094,258 @@ namespace My24HourTimerWPF
             return CompleteReassignedElements;
         }
 
-        List<SubCalendarEvent> resolveInTo24HourSlots(List<SubCalendarEvent> currentListOfSubCalendarElements, List<SubCalendarEvent> AllSubEvents,TimeLine limitingTimeLine, mTuple<SubCalendarEvent,SubCalendarEvent>edgeElements=null)
-        {
-            //function takes a full freespot and tries to allocate them in 24 hour sections
-            //this is done by intially sending every subcalevenet towards the end of the Timeline after which it takes 24hour chunks and attempts to 
+        //List<SubCalendarEvent> resolveInTo24HourSlots(List<SubCalendarEvent> currentListOfSubCalendarElements, List<SubCalendarEvent> AllSubEvents,TimeLine limitingTimeLine, mTuple<SubCalendarEvent,SubCalendarEvent>edgeElements=null)
+        //{
+        //    //function takes a full freespot and tries to allocate them in 24 hour sections
+        //    //this is done by intially sending every subcalevenet towards the end of the Timeline after which it takes 24hour chunks and attempts to 
 
-            AllSubEvents=AllSubEvents.ToList();
+        //    AllSubEvents=AllSubEvents.ToList();
 
 
 
 
             
-            List<SubCalendarEvent> currentListOfSubCalendarElements_cpy = currentListOfSubCalendarElements.ToList();
-            Utility.PinSubEventsToStart(currentListOfSubCalendarElements_cpy, limitingTimeLine);
+        //    List<SubCalendarEvent> currentListOfSubCalendarElements_cpy = currentListOfSubCalendarElements.ToList();
+        //    Utility.PinSubEventsToStart(currentListOfSubCalendarElements_cpy, limitingTimeLine);
             
-            TimeLine limitingTimeLine_cpy = limitingTimeLine.CreateCopy();
+        //    TimeLine limitingTimeLine_cpy = limitingTimeLine.CreateCopy();
 
-            limitingTimeLine.AddBusySlots(currentListOfSubCalendarElements_cpy.Select(obj => obj.ActiveSlot));
-            List<TimeLine> AllFreeSpots = limitingTimeLine_cpy.getAllFreeSlots().ToList();
-            AllFreeSpots=AllFreeSpots.Where(obj => obj.TimelineSpan.Ticks > 0).OrderBy(obj=>obj.End).ToList();
+        //    limitingTimeLine.AddBusySlots(currentListOfSubCalendarElements_cpy.Select(obj => obj.ActiveSlot));
+        //    List<TimeLine> AllFreeSpots = limitingTimeLine_cpy.getAllFreeSlots().ToList();
+        //    AllFreeSpots=AllFreeSpots.Where(obj => obj.TimelineSpan.Ticks > 0).OrderBy(obj=>obj.End).ToList();
 
 
 
-            for (int i = AllFreeSpots.Count() - 1; AllFreeSpots.Count() > 0; )
-            {
-                TimeLine eachTimeLine = AllFreeSpots[i];
-                List<SubCalendarEvent> reassignedElements = TossEndWards(currentListOfSubCalendarElements, eachTimeLine);//tries to toss any subcalendarevent towards the end
-                reassignedElements=reassignedElements.OrderBy(obj => obj.End).ToList();
-                Utility.PinSubEventsToEnd(reassignedElements, eachTimeLine);
+        //    for (int i = AllFreeSpots.Count() - 1; AllFreeSpots.Count() > 0; )
+        //    {
+        //        TimeLine eachTimeLine = AllFreeSpots[i];
+        //        List<SubCalendarEvent> reassignedElements = TossEndWards(currentListOfSubCalendarElements, eachTimeLine);//tries to toss any subcalendarevent towards the end
+        //        reassignedElements=reassignedElements.OrderBy(obj => obj.End).ToList();
+        //        Utility.PinSubEventsToEnd(reassignedElements, eachTimeLine);
                 
-                SubCalendarEvent lastElement;// = reassignedElements.Last();
+        //        SubCalendarEvent lastElement;// = reassignedElements.Last();
 
-                currentListOfSubCalendarElements.RemoveAll(obj => reassignedElements.Contains(obj));
+        //        currentListOfSubCalendarElements.RemoveAll(obj => reassignedElements.Contains(obj));
 
 
-                if (reassignedElements.Count > 0)
-                {
-                    lastElement = reassignedElements.First();
-                    limitingTimeLine = new TimeLine(limitingTimeLine.Start, lastElement.Start);
-                }
-                else 
-                {
-                    currentListOfSubCalendarElements.OrderBy(obj => obj.End);
-                    if (currentListOfSubCalendarElements.Count > 0)//hack alert you need to coscious of coliision scenario
-                    {
-                        lastElement = currentListOfSubCalendarElements.Last();
-                        lastElement.PinToEnd(limitingTimeLine);
-                        currentListOfSubCalendarElements.Remove(lastElement);
-                        limitingTimeLine = new TimeLine(limitingTimeLine.Start, lastElement.Start);
-                    }
-                    else
-                    {
-                        break;
-                    }
+        //        if (reassignedElements.Count > 0)
+        //        {
+        //            lastElement = reassignedElements.First();
+        //            limitingTimeLine = new TimeLine(limitingTimeLine.Start, lastElement.Start);
+        //        }
+        //        else 
+        //        {
+        //            currentListOfSubCalendarElements.OrderBy(obj => obj.End);
+        //            if (currentListOfSubCalendarElements.Count > 0)//hack alert you need to coscious of coliision scenario
+        //            {
+        //                lastElement = currentListOfSubCalendarElements.Last();
+        //                lastElement.PinToEnd(limitingTimeLine);
+        //                currentListOfSubCalendarElements.Remove(lastElement);
+        //                limitingTimeLine = new TimeLine(limitingTimeLine.Start, lastElement.Start);
+        //            }
+        //            else
+        //            {
+        //                break;
+        //            }
                     
                     
-                }
+        //        }
 
-                Utility.PinSubEventsToStart(currentListOfSubCalendarElements, limitingTimeLine);
+        //        Utility.PinSubEventsToStart(currentListOfSubCalendarElements, limitingTimeLine);
 
-                limitingTimeLine.AddBusySlots(currentListOfSubCalendarElements.Select(obj => obj.ActiveSlot));
-                AllFreeSpots = limitingTimeLine.getAllFreeSlots().ToList();
-                i = AllFreeSpots.Count() - 1;
+        //        limitingTimeLine.AddBusySlots(currentListOfSubCalendarElements.Select(obj => obj.ActiveSlot));
+        //        AllFreeSpots = limitingTimeLine.getAllFreeSlots().ToList();
+        //        i = AllFreeSpots.Count() - 1;
                 
-            }
+        //    }
 
-            TimeSpan TotalDuration = Utility.SumOfActiveDuration(currentListOfSubCalendarElements_cpy);
-            double Occupancy = (double)TotalDuration.Ticks / (double)limitingTimeLine_cpy.TimelineSpan.Ticks;
+        //    TimeSpan TotalDuration = Utility.SumOfActiveDuration(currentListOfSubCalendarElements_cpy);
+        //    double Occupancy = (double)TotalDuration.Ticks / (double)limitingTimeLine_cpy.TimelineSpan.Ticks;
 
-            List<SubCalendarEvent> currentListOfSubCalendarElements_cpy_ref = currentListOfSubCalendarElements_cpy.ToList();
-            Dictionary<string, mTuple<SubCalendarEvent, BusyTimeLine>> currentListOfSubCalendarElements_cpy_ref_Dict = currentListOfSubCalendarElements_cpy_ref.ToDictionary(obj => obj.Id, obj => new mTuple<SubCalendarEvent, BusyTimeLine>(obj, obj.ActiveSlot.CreateCopy()));
-            TimeLine limitingTimeLine_cpy_cpy_ref = limitingTimeLine_cpy.CreateCopy();
-            List<SubCalendarEvent> FullyUpdated = new List<SubCalendarEvent>();
+        //    List<SubCalendarEvent> currentListOfSubCalendarElements_cpy_ref = currentListOfSubCalendarElements_cpy.ToList();
+        //    Dictionary<string, mTuple<SubCalendarEvent, BusyTimeLine>> currentListOfSubCalendarElements_cpy_ref_Dict = currentListOfSubCalendarElements_cpy_ref.ToDictionary(obj => obj.Id, obj => new mTuple<SubCalendarEvent, BusyTimeLine>(obj, obj.ActiveSlot.CreateCopy()));
+        //    TimeLine limitingTimeLine_cpy_cpy_ref = limitingTimeLine_cpy.CreateCopy();
+        //    List<SubCalendarEvent> FullyUpdated = new List<SubCalendarEvent>();
 
-            while(true)
-            {
-                Tuple<List<SubCalendarEvent>, TimeLine> CollectionUpdated = every24Interval(currentListOfSubCalendarElements_cpy_ref, limitingTimeLine_cpy_cpy_ref, Occupancy, currentListOfSubCalendarElements_cpy_ref_Dict);
+        //    while(true)
+        //    {
+        //        Tuple<List<SubCalendarEvent>, TimeLine> CollectionUpdated = every24Interval(currentListOfSubCalendarElements_cpy_ref, limitingTimeLine_cpy_cpy_ref, Occupancy, currentListOfSubCalendarElements_cpy_ref_Dict);
 
-                TimeSpan currTotalDuration = Utility.SumOfActiveDuration(CollectionUpdated.Item1);
-                double currOccupancy =-8898;
-                if(CollectionUpdated.Item2.TimelineSpan.Ticks>0)
-                { 
-                    currOccupancy = (double)currTotalDuration.Ticks / (double)CollectionUpdated.Item2.TimelineSpan.Ticks;
-                }
+        //        TimeSpan currTotalDuration = Utility.SumOfActiveDuration(CollectionUpdated.Item1);
+        //        double currOccupancy =-8898;
+        //        if(CollectionUpdated.Item2.TimelineSpan.Ticks>0)
+        //        { 
+        //            currOccupancy = (double)currTotalDuration.Ticks / (double)CollectionUpdated.Item2.TimelineSpan.Ticks;
+        //        }
 
-                FullyUpdated.AddRange(CollectionUpdated.Item1);
+        //        FullyUpdated.AddRange(CollectionUpdated.Item1);
 
-                limitingTimeLine_cpy_cpy_ref = new TimeLine(CollectionUpdated.Item2.End, limitingTimeLine_cpy_cpy_ref.End);
-                currentListOfSubCalendarElements_cpy_ref.RemoveAll(obj => FullyUpdated.Contains(obj));
-                if ((currentListOfSubCalendarElements_cpy_ref.Count < 1) || (limitingTimeLine_cpy_cpy_ref.TimelineSpan.Ticks <= 0))
-                {
-                    break;
-                }
-            }
-
-
-            currentListOfSubCalendarElements_cpy = currentListOfSubCalendarElements_cpy.OrderBy(obj => obj.End).ToList();
-            List<SubCalendarEvent> retValue = currentListOfSubCalendarElements_cpy;
-
-            return retValue;
-        }
+        //        limitingTimeLine_cpy_cpy_ref = new TimeLine(CollectionUpdated.Item2.End, limitingTimeLine_cpy_cpy_ref.End);
+        //        currentListOfSubCalendarElements_cpy_ref.RemoveAll(obj => FullyUpdated.Contains(obj));
+        //        if ((currentListOfSubCalendarElements_cpy_ref.Count < 1) || (limitingTimeLine_cpy_cpy_ref.TimelineSpan.Ticks <= 0))
+        //        {
+        //            break;
+        //        }
+        //    }
 
 
-        Tuple<List<SubCalendarEvent>,TimeLine> every24Interval(List<SubCalendarEvent> currentListOfSubCalendarElements, TimeLine limitingTimeLine, double occupancy, Dictionary<string, mTuple<SubCalendarEvent, BusyTimeLine>> PreservedValues)
-        {
-            //function assigns elements based on a twenty hour interval
-            DateTimeOffset refEndTime=limitingTimeLine.Start.AddDays(1);
-            refEndTime=refEndTime<=limitingTimeLine.End?refEndTime:limitingTimeLine.End;
-            TimeLine CurrentDayReference = new TimeLine(limitingTimeLine.Start, refEndTime);
-            List<SubCalendarEvent> currentOccupiers = new List<SubCalendarEvent>();
+        //    currentListOfSubCalendarElements_cpy = currentListOfSubCalendarElements_cpy.OrderBy(obj => obj.End).ToList();
+        //    List<SubCalendarEvent> retValue = currentListOfSubCalendarElements_cpy;
 
-            currentOccupiers = currentListOfSubCalendarElements.Where(obj => obj.RangeTimeLine.InterferringTimeLine (CurrentDayReference)!=null).OrderBy(obj => obj.End).ToList();//hack alert be cautious of collision scenarios
-            currentListOfSubCalendarElements.RemoveAll(obj=>currentOccupiers.Contains(obj));
-            List<SubCalendarEvent> crossing24HourMark = currentOccupiers.Where(obj => obj.RangeTimeLine.IsDateTimeWithin(CurrentDayReference.End)).ToList();
-            if (crossing24HourMark.Count > 0)
-            {
-                crossing24HourMark=crossing24HourMark.OrderBy(obj => obj.End).ToList();
-                CurrentDayReference = new TimeLine(CurrentDayReference.Start, crossing24HourMark.Last().End);
-            }
+        //    return retValue;
+        //}
 
-            List<SubCalendarEvent> canExistWithinTimeLine = currentListOfSubCalendarElements.Where(obj => obj.canExistWithinTimeLine(limitingTimeLine)).ToList();
 
-            Dictionary<string, Tuple<Location_Elements, List<SubCalendarEvent>>> CalEventDictionaryMapping = new Dictionary<string, Tuple<Location_Elements, List<SubCalendarEvent>>>();
+        //Tuple<List<SubCalendarEvent>,TimeLine> every24Interval(List<SubCalendarEvent> currentListOfSubCalendarElements, TimeLine limitingTimeLine, double occupancy, Dictionary<string, mTuple<SubCalendarEvent, BusyTimeLine>> PreservedValues)
+        //{
+        //    //function assigns elements based on a twenty hour interval
+        //    DateTimeOffset refEndTime=limitingTimeLine.Start.AddDays(1);
+        //    refEndTime=refEndTime<=limitingTimeLine.End?refEndTime:limitingTimeLine.End;
+        //    TimeLine CurrentDayReference = new TimeLine(limitingTimeLine.Start, refEndTime);
+        //    List<SubCalendarEvent> currentOccupiers = new List<SubCalendarEvent>();
 
-            foreach (SubCalendarEvent eachmTuple in canExistWithinTimeLine)
-            { 
-                string calLevelID=eachmTuple.SubEvent_ID.getCalendarEventComponent();
-                if (CalEventDictionaryMapping.ContainsKey(calLevelID))
-                {
-                    CalEventDictionaryMapping[calLevelID].Item2.Add(eachmTuple);
-                }
-                else
-                {
-                    CalEventDictionaryMapping.Add(calLevelID, new Tuple<Location_Elements, List<SubCalendarEvent>>(eachmTuple.myLocation, new List<SubCalendarEvent>() { eachmTuple }));
-                }
-            }
+        //    currentOccupiers = currentListOfSubCalendarElements.Where(obj => obj.RangeTimeLine.InterferringTimeLine (CurrentDayReference)!=null).OrderBy(obj => obj.End).ToList();//hack alert be cautious of collision scenarios
+        //    currentListOfSubCalendarElements.RemoveAll(obj=>currentOccupiers.Contains(obj));
+        //    List<SubCalendarEvent> crossing24HourMark = currentOccupiers.Where(obj => obj.RangeTimeLine.IsDateTimeWithin(CurrentDayReference.End)).ToList();
+        //    if (crossing24HourMark.Count > 0)
+        //    {
+        //        crossing24HourMark=crossing24HourMark.OrderBy(obj => obj.End).ToList();
+        //        CurrentDayReference = new TimeLine(CurrentDayReference.Start, crossing24HourMark.Last().End);
+        //    }
+
+        //    List<SubCalendarEvent> canExistWithinTimeLine = currentListOfSubCalendarElements.Where(obj => obj.canExistWithinTimeLine(limitingTimeLine)).ToList();
+
+        //    Dictionary<string, Tuple<Location_Elements, List<SubCalendarEvent>>> CalEventDictionaryMapping = new Dictionary<string, Tuple<Location_Elements, List<SubCalendarEvent>>>();
+
+        //    foreach (SubCalendarEvent eachmTuple in canExistWithinTimeLine)
+        //    { 
+        //        string calLevelID=eachmTuple.SubEvent_ID.getCalendarEventComponent();
+        //        if (CalEventDictionaryMapping.ContainsKey(calLevelID))
+        //        {
+        //            CalEventDictionaryMapping[calLevelID].Item2.Add(eachmTuple);
+        //        }
+        //        else
+        //        {
+        //            CalEventDictionaryMapping.Add(calLevelID, new Tuple<Location_Elements, List<SubCalendarEvent>>(eachmTuple.myLocation, new List<SubCalendarEvent>() { eachmTuple }));
+        //        }
+        //    }
 
             
 
-            Location_Elements AverageCurrentOccupiersGPSLocation= Location_Elements.AverageGPSLocation(currentOccupiers.Select(obj=>obj.myLocation));
+        //    Location_Elements AverageCurrentOccupiersGPSLocation= Location_Elements.AverageGPSLocation(currentOccupiers.Select(obj=>obj.myLocation));
 
-            List<KeyValuePair<string, Tuple<Location_Elements, List<SubCalendarEvent>>>> SortedCalendarInfo = CalEventDictionaryMapping.OrderBy(obj => Location_Elements.calculateDistance(obj.Value.Item1, AverageCurrentOccupiersGPSLocation)).ToList();//sorted calendar events based on distance from average location
+        //    List<KeyValuePair<string, Tuple<Location_Elements, List<SubCalendarEvent>>>> SortedCalendarInfo = CalEventDictionaryMapping.OrderBy(obj => Location_Elements.calculateDistance(obj.Value.Item1, AverageCurrentOccupiersGPSLocation)).ToList();//sorted calendar events based on distance from average location
 
-            List<SubCalendarEvent> pertinentSubCalEvents = new List<SubCalendarEvent>();
-            TimeSpan durationSofar= new TimeSpan();
+        //    List<SubCalendarEvent> pertinentSubCalEvents = new List<SubCalendarEvent>();
+        //    TimeSpan durationSofar= new TimeSpan();
 
-            for (int q = 0; q < SortedCalendarInfo.Count; )
-            {
-                KeyValuePair<string, Tuple<Location_Elements, List<SubCalendarEvent>>> eachKeyValuePair = SortedCalendarInfo[q];
-                if (eachKeyValuePair.Value.Item2.Count > 0)
-                {
-                    SubCalendarEvent mySubCal = eachKeyValuePair.Value.Item2[0];
-                    pertinentSubCalEvents.Add(mySubCal);
-                    durationSofar=durationSofar.Add(mySubCal.ActiveDuration);
-                    eachKeyValuePair.Value.Item2.RemoveAt(0);
-                }
-                else 
-                {
-                    SortedCalendarInfo.RemoveAt(q);
-                    q--;
-                }
+        //    for (int q = 0; q < SortedCalendarInfo.Count; )
+        //    {
+        //        KeyValuePair<string, Tuple<Location_Elements, List<SubCalendarEvent>>> eachKeyValuePair = SortedCalendarInfo[q];
+        //        if (eachKeyValuePair.Value.Item2.Count > 0)
+        //        {
+        //            SubCalendarEvent mySubCal = eachKeyValuePair.Value.Item2[0];
+        //            pertinentSubCalEvents.Add(mySubCal);
+        //            durationSofar=durationSofar.Add(mySubCal.ActiveDuration);
+        //            eachKeyValuePair.Value.Item2.RemoveAt(0);
+        //        }
+        //        else 
+        //        {
+        //            SortedCalendarInfo.RemoveAt(q);
+        //            q--;
+        //        }
 
-                if (durationSofar >= CurrentDayReference.TimelineSpan)
-                {
-                    break;
-                }
-                else
-                {
-                    if (++q >= SortedCalendarInfo.Count)
-                    {
-                        q = 0;
-                    }
-                }
-            }
+        //        if (durationSofar >= CurrentDayReference.TimelineSpan)
+        //        {
+        //            break;
+        //        }
+        //        else
+        //        {
+        //            if (++q >= SortedCalendarInfo.Count)
+        //            {
+        //                q = 0;
+        //            }
+        //        }
+        //    }
 
-            pertinentSubCalEvents.AddRange(currentOccupiers);
-
-
-
-            Dictionary<TimeSpan, Dictionary<string, mTuple<bool, SubCalendarEvent>>> PossibleEntries= new Dictionary<TimeSpan,Dictionary<string,mTuple<bool,SubCalendarEvent>>>();
+        //    pertinentSubCalEvents.AddRange(currentOccupiers);
 
 
-            foreach (SubCalendarEvent eachmTuple in pertinentSubCalEvents)
-            {
-                TimeSpan ActiveTimeSpan = eachmTuple.ActiveDuration;
-                string subcalStringID = eachmTuple.Id;
+
+        //    Dictionary<TimeSpan, Dictionary<string, mTuple<bool, SubCalendarEvent>>> PossibleEntries= new Dictionary<TimeSpan,Dictionary<string,mTuple<bool,SubCalendarEvent>>>();
+
+
+        //    foreach (SubCalendarEvent eachmTuple in pertinentSubCalEvents)
+        //    {
+        //        TimeSpan ActiveTimeSpan = eachmTuple.ActiveDuration;
+        //        string subcalStringID = eachmTuple.Id;
                     
-                if (PossibleEntries.ContainsKey(ActiveTimeSpan))
-                {
-                    PossibleEntries[ActiveTimeSpan].Add(subcalStringID, new mTuple<bool, SubCalendarEvent>(true, eachmTuple));
-                }
-                else
-                {
-                    PossibleEntries.Add(ActiveTimeSpan, new Dictionary<string, mTuple<bool, SubCalendarEvent>>());
-                    PossibleEntries[ActiveTimeSpan].Add(subcalStringID, new mTuple<bool, SubCalendarEvent>(true, eachmTuple));
-                }
-            }
+        //        if (PossibleEntries.ContainsKey(ActiveTimeSpan))
+        //        {
+        //            PossibleEntries[ActiveTimeSpan].Add(subcalStringID, new mTuple<bool, SubCalendarEvent>(true, eachmTuple));
+        //        }
+        //        else
+        //        {
+        //            PossibleEntries.Add(ActiveTimeSpan, new Dictionary<string, mTuple<bool, SubCalendarEvent>>());
+        //            PossibleEntries[ActiveTimeSpan].Add(subcalStringID, new mTuple<bool, SubCalendarEvent>(true, eachmTuple));
+        //        }
+        //    }
 
-            List<mTuple<bool, SubCalendarEvent>> AllEventsupdated = stitchUnRestrictedSubCalendarEvent(CurrentDayReference, currentOccupiers.Select(obj => new mTuple<bool, SubCalendarEvent>(false, obj)).ToList(), PossibleEntries, new Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>(), 1);
+        //    List<mTuple<bool, SubCalendarEvent>> AllEventsupdated = stitchUnRestrictedSubCalendarEvent(CurrentDayReference, currentOccupiers.Select(obj => new mTuple<bool, SubCalendarEvent>(false, obj)).ToList(), PossibleEntries, new Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>(), 1);
 
-            TimeSpan TotalOfCurrentOccupiers = Utility.SumOfActiveDuration(currentOccupiers);
-            TimeSpan totalUsedUpSpace= Utility.SumOfActiveDuration(AllEventsupdated.Select(obj => obj.Item2));
+        //    TimeSpan TotalOfCurrentOccupiers = Utility.SumOfActiveDuration(currentOccupiers);
+        //    TimeSpan totalUsedUpSpace= Utility.SumOfActiveDuration(AllEventsupdated.Select(obj => obj.Item2));
 
 
-            Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> CompatibilityListFOrTIghtestForExtraAverga = new Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>();
-            TimeSpan ExpectedOccupancyTimeSpan = TimeSpan.FromTicks((long)(CurrentDayReference.TimelineSpan.Ticks * (occupancy)));
-            TimeSpan TotalOccupancyNotWanted = totalUsedUpSpace-TimeSpan.FromTicks((long)(CurrentDayReference.TimelineSpan.Ticks * (occupancy)));//checks the difference between the total used space and ammount used up by the expected occupancy
-            List<SubCalendarEvent> AllTightUsableInfo = AllEventsupdated.Select(obj => obj.Item2).Where(obj => !currentOccupiers.Contains(obj)).ToList();
-            Dictionary<SubCalendarEvent, double> OrderOfWorstFill = new Dictionary<SubCalendarEvent, double>();
+        //    Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> CompatibilityListFOrTIghtestForExtraAverga = new Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>();
+        //    TimeSpan ExpectedOccupancyTimeSpan = TimeSpan.FromTicks((long)(CurrentDayReference.TimelineSpan.Ticks * (occupancy)));
+        //    TimeSpan TotalOccupancyNotWanted = totalUsedUpSpace-TimeSpan.FromTicks((long)(CurrentDayReference.TimelineSpan.Ticks * (occupancy)));//checks the difference between the total used space and ammount used up by the expected occupancy
+        //    List<SubCalendarEvent> AllTightUsableInfo = AllEventsupdated.Select(obj => obj.Item2).Where(obj => !currentOccupiers.Contains(obj)).ToList();
+        //    Dictionary<SubCalendarEvent, double> OrderOfWorstFill = new Dictionary<SubCalendarEvent, double>();
 
             
 
-            List<KeyValuePair<SubCalendarEvent, double>> OrderOfWorstFillAsList = OrderOfWorstFill.ToList();
-            OrderOfWorstFillAsList=OrderOfWorstFillAsList.OrderBy(obj => obj.Value).Reverse().ToList();
+        //    List<KeyValuePair<SubCalendarEvent, double>> OrderOfWorstFillAsList = OrderOfWorstFill.ToList();
+        //    OrderOfWorstFillAsList=OrderOfWorstFillAsList.OrderBy(obj => obj.Value).Reverse().ToList();
 
-            TimeSpan TotalTimeSofar= new TimeSpan(0);
-            int i = -1;
-            bool breakWasSelected = false;
-            int NumberOfElement = 0;
+        //    TimeSpan TotalTimeSofar= new TimeSpan(0);
+        //    int i = -1;
+        //    bool breakWasSelected = false;
+        //    int NumberOfElement = 0;
 
-            List<SubCalendarEvent> removeTheseElements = new List<SubCalendarEvent>();
+        //    List<SubCalendarEvent> removeTheseElements = new List<SubCalendarEvent>();
 
 
-            while (((Utility.SumOfActiveDuration(AllTightUsableInfo) + TotalOfCurrentOccupiers) > ExpectedOccupancyTimeSpan) && (AllTightUsableInfo.Count > 0))// && (TotalOccupancyNotWanted.Ticks > 0))//checks if 
-            {
-                OrderOfWorstFill = AllTightUsableInfo.ToDictionary(obj => obj, obj => DistanceSolver.AverageToAllNodes(obj, AllTightUsableInfo, CalendarEvent.DistanceMatrix));
-                OrderOfWorstFillAsList = OrderOfWorstFill.ToList();
-                OrderOfWorstFillAsList = OrderOfWorstFillAsList.OrderBy(obj => obj.Value).Reverse().ToList();
-                KeyValuePair<SubCalendarEvent, double> eachKeyValuePair = OrderOfWorstFillAsList[0];
-                removeTheseElements.Add(eachKeyValuePair.Key);
-                AllTightUsableInfo.Remove(eachKeyValuePair.Key);
-            }
-            removeTheseElements=removeTheseElements.OrderBy(obj => obj.ActiveDuration).ToList();
-            if (removeTheseElements.Count > 0)
-            {
-                AllTightUsableInfo.Add(removeTheseElements[0]);
-                removeTheseElements.RemoveAt(0);
-            }
+        //    while (((Utility.SumOfActiveDuration(AllTightUsableInfo) + TotalOfCurrentOccupiers) > ExpectedOccupancyTimeSpan) && (AllTightUsableInfo.Count > 0))// && (TotalOccupancyNotWanted.Ticks > 0))//checks if 
+        //    {
+        //        OrderOfWorstFill = AllTightUsableInfo.ToDictionary(obj => obj, obj => DistanceSolver.AverageToAllNodes(obj, AllTightUsableInfo, CalendarEvent.DistanceMatrix));
+        //        OrderOfWorstFillAsList = OrderOfWorstFill.ToList();
+        //        OrderOfWorstFillAsList = OrderOfWorstFillAsList.OrderBy(obj => obj.Value).Reverse().ToList();
+        //        KeyValuePair<SubCalendarEvent, double> eachKeyValuePair = OrderOfWorstFillAsList[0];
+        //        removeTheseElements.Add(eachKeyValuePair.Key);
+        //        AllTightUsableInfo.Remove(eachKeyValuePair.Key);
+        //    }
+        //    removeTheseElements=removeTheseElements.OrderBy(obj => obj.ActiveDuration).ToList();
+        //    if (removeTheseElements.Count > 0)
+        //    {
+        //        AllTightUsableInfo.Add(removeTheseElements[0]);
+        //        removeTheseElements.RemoveAt(0);
+        //    }
 
-            foreach (SubCalendarEvent eachSubCalendarEvent in removeTheseElements)
-            {
-                eachSubCalendarEvent.shiftEvent(PreservedValues[eachSubCalendarEvent.Id].Item2.Start - eachSubCalendarEvent.Start);
-            }
+        //    foreach (SubCalendarEvent eachSubCalendarEvent in removeTheseElements)
+        //    {
+        //        eachSubCalendarEvent.shiftEvent(PreservedValues[eachSubCalendarEvent.Id].Item2.Start - eachSubCalendarEvent.Start);
+        //    }
 
-            Tuple<List<SubCalendarEvent>, TimeLine> retValue;
-            List<SubCalendarEvent> WhatsLeftAndViable = AllTightUsableInfo;//.Select(obj => obj.Key).ToList();
-            WhatsLeftAndViable.AddRange(currentOccupiers);
+        //    Tuple<List<SubCalendarEvent>, TimeLine> retValue;
+        //    List<SubCalendarEvent> WhatsLeftAndViable = AllTightUsableInfo;//.Select(obj => obj.Key).ToList();
+        //    WhatsLeftAndViable.AddRange(currentOccupiers);
 
-            WhatsLeftAndViable = WhatsLeftAndViable.OrderBy(obj => obj.End).ToList();
+        //    WhatsLeftAndViable = WhatsLeftAndViable.OrderBy(obj => obj.End).ToList();
 
-            retValue = new Tuple<List<SubCalendarEvent>, TimeLine>(WhatsLeftAndViable, CurrentDayReference);
-            return retValue;
-        }
+        //    retValue = new Tuple<List<SubCalendarEvent>, TimeLine>(WhatsLeftAndViable, CurrentDayReference);
+        //    return retValue;
+        //}
 
         TimeSpan MinutesPerMile = new TimeSpan(0, 15,0);
 
@@ -6862,7 +6862,7 @@ namespace My24HourTimerWPF
                     ;
 
                 }
-                PossibleSubCaleventsCobination = Utility.RandomizeIEnumerable(PossibleSubCaleventsCobination);
+                //PossibleSubCaleventsCobination = Utility.RandomizeIEnumerable(PossibleSubCaleventsCobination);
                 LowestCostArrangement = getArrangementWithLowestDistanceCost(PossibleSubCaleventsCobination, BoundaryCalendarEvent);
                 //TimeLine FreeSpotUpdated;
             }
@@ -6942,7 +6942,7 @@ namespace My24HourTimerWPF
                     ;
 
                 }
-                PossibleSubCaleventsCobination = Utility.RandomizeIEnumerable(PossibleSubCaleventsCobination);
+                //PossibleSubCaleventsCobination = Utility.RandomizeIEnumerable(PossibleSubCaleventsCobination);
                 LowestCostArrangement = getArrangementWithLowestDistanceCost(PossibleSubCaleventsCobination, BoundaryCalendarEvent);
                 //TimeLine FreeSpotUpdated;
             }
@@ -7390,78 +7390,79 @@ namespace My24HourTimerWPF
 
         List<SubCalendarEvent> getArrangementWithLowestDistanceCost(List<List<SubCalendarEvent>> viableCombinations, Tuple<SubCalendarEvent, SubCalendarEvent> BoundinngSubCaEvents)
         {
-            double LowestCost = double.PositiveInfinity;
-            List<SubCalendarEvent> retValue = new System.Collections.Generic.List<SubCalendarEvent>();
-            Tuple<ICollection<SubCalendarEvent>, double> OptimizedArrangement;
+            return viableCombinations.First();
+            //double LowestCost = double.PositiveInfinity;
+            //List<SubCalendarEvent> retValue = new System.Collections.Generic.List<SubCalendarEvent>();
+            //Tuple<ICollection<SubCalendarEvent>, double> OptimizedArrangement;
 
 
-            if (viableCombinations.Count > 0)
-            {
-                OptimizedArrangement = new Tuple<ICollection<SubCalendarEvent>, double>(viableCombinations[0], Utility.calculateDistance(viableCombinations[0], CalendarEvent.DistanceMatrix));
-                retValue = OptimizedArrangement.Item1.ToList();
-            }
-
-
-
-            foreach (List<SubCalendarEvent> eachList in viableCombinations)
-            {
-
-                if ((eachList.Count < 1))
-                {
-                    List<Location_Elements> AllLocations = new System.Collections.Generic.List<Location_Elements>();
-                    List<SubCalendarEvent> MyList = eachList.ToList();
-                    MyList.Insert(0, BoundinngSubCaEvents.Item1);
-                    MyList.Add(BoundinngSubCaEvents.Item2);
-                    foreach (SubCalendarEvent eachSubCalendarEvent in MyList)
-                    {
-                        if (eachSubCalendarEvent != null)
-                        { AllLocations.Add(eachSubCalendarEvent.myLocation); }
-                    }
-                    OptimizedArrangement = new Tuple<System.Collections.Generic.ICollection<SubCalendarEvent>, double>(eachList, Location_Elements.calculateDistance(AllLocations));
-                }
-                else
-                {
-                    List<SubCalendarEvent> MyList = eachList.ToList();
-                    int beginning = 0;
-                    int End = 0;
-                    int BeginningAndEnd = 0;
-                    if (BoundinngSubCaEvents.Item1 != null)
-                    {
-                        MyList.Insert(0, BoundinngSubCaEvents.Item1); beginning = 1;
-                    }
-
-                    if (BoundinngSubCaEvents.Item2 != null)
-                    {
-                        MyList.Add(BoundinngSubCaEvents.Item2);
-                        End = 2;
-                    }
-
-                    BeginningAndEnd = beginning + End;
-                    OptimizedArrangement = DistanceSolver.Run(MyList, BeginningAndEnd);
-                    OptimizedArrangement.Item1.Remove(BoundinngSubCaEvents.Item2);
-                    OptimizedArrangement.Item1.Remove(BoundinngSubCaEvents.Item1);
-                    Dictionary<string, SubCalendarEvent> TestDict = new Dictionary<string, SubCalendarEvent>();
-                    foreach (SubCalendarEvent eachSubCalendarEvent in OptimizedArrangement.Item1)
-                    {
-                        TestDict.Add(eachSubCalendarEvent.Id, eachSubCalendarEvent);
-                    }
-
-                    if (OptimizedArrangement.Item2 == double.PositiveInfinity)
-                    {
-                        OptimizedArrangement = new Tuple<System.Collections.Generic.ICollection<SubCalendarEvent>, double>(eachList, OptimizedArrangement.Item2);
-                    }
-                }
+            //if (viableCombinations.Count > 0)
+            //{
+            //    OptimizedArrangement = new Tuple<ICollection<SubCalendarEvent>, double>(viableCombinations[0], Utility.calculateDistance(viableCombinations[0], CalendarEvent.DistanceMatrix));
+            //    retValue = OptimizedArrangement.Item1.ToList();
+            //}
 
 
 
-                if (LowestCost >= OptimizedArrangement.Item2)
-                {
-                    LowestCost = OptimizedArrangement.Item2;
-                    retValue = OptimizedArrangement.Item1.ToList();
-                }
-            }
+            //foreach (List<SubCalendarEvent> eachList in viableCombinations)
+            //{
 
-            return retValue;
+            //    if ((eachList.Count < 1))
+            //    {
+            //        List<Location_Elements> AllLocations = new System.Collections.Generic.List<Location_Elements>();
+            //        List<SubCalendarEvent> MyList = eachList.ToList();
+            //        MyList.Insert(0, BoundinngSubCaEvents.Item1);
+            //        MyList.Add(BoundinngSubCaEvents.Item2);
+            //        foreach (SubCalendarEvent eachSubCalendarEvent in MyList)
+            //        {
+            //            if (eachSubCalendarEvent != null)
+            //            { AllLocations.Add(eachSubCalendarEvent.myLocation); }
+            //        }
+            //        OptimizedArrangement = new Tuple<System.Collections.Generic.ICollection<SubCalendarEvent>, double>(eachList, Location_Elements.calculateDistance(AllLocations));
+            //    }
+            //    else
+            //    {
+            //        List<SubCalendarEvent> MyList = eachList.ToList();
+            //        int beginning = 0;
+            //        int End = 0;
+            //        int BeginningAndEnd = 0;
+            //        if (BoundinngSubCaEvents.Item1 != null)
+            //        {
+            //            MyList.Insert(0, BoundinngSubCaEvents.Item1); beginning = 1;
+            //        }
+
+            //        if (BoundinngSubCaEvents.Item2 != null)
+            //        {
+            //            MyList.Add(BoundinngSubCaEvents.Item2);
+            //            End = 2;
+            //        }
+
+            //        BeginningAndEnd = beginning + End;
+            //        OptimizedArrangement = DistanceSolver.Run(MyList, BeginningAndEnd);
+            //        OptimizedArrangement.Item1.Remove(BoundinngSubCaEvents.Item2);
+            //        OptimizedArrangement.Item1.Remove(BoundinngSubCaEvents.Item1);
+            //        Dictionary<string, SubCalendarEvent> TestDict = new Dictionary<string, SubCalendarEvent>();
+            //        foreach (SubCalendarEvent eachSubCalendarEvent in OptimizedArrangement.Item1)
+            //        {
+            //            TestDict.Add(eachSubCalendarEvent.Id, eachSubCalendarEvent);
+            //        }
+
+            //        if (OptimizedArrangement.Item2 == double.PositiveInfinity)
+            //        {
+            //            OptimizedArrangement = new Tuple<System.Collections.Generic.ICollection<SubCalendarEvent>, double>(eachList, OptimizedArrangement.Item2);
+            //        }
+            //    }
+
+
+
+            //    if (LowestCost >= OptimizedArrangement.Item2)
+            //    {
+            //        LowestCost = OptimizedArrangement.Item2;
+            //        retValue = OptimizedArrangement.Item1.ToList();
+            //    }
+            //}
+
+            //return retValue;
         }
 
         Tuple<List<SubCalendarEvent>, double> rearrangeForOptimizedLocationOptimizedLocation(List<SubCalendarEvent> ListOfLocations)

@@ -284,7 +284,7 @@ namespace TilerElements
             {
                 foreach (SubCalendarEvent MySubCalendarEvent1 in MyCurrentList)
                 {
-                    if (MySubCalendarEvent1.ID == MySubCalendarEvent0.ID)
+                    if (MySubCalendarEvent1.Id == MySubCalendarEvent0.Id)
                     {
                         InListElements.Add(MySubCalendarEvent1);
                     }

@@ -31,7 +31,7 @@ namespace TilerElements
         public SubCalendarEvent()
         { }
 
-        public SubCalendarEvent(TimeSpan Event_Duration, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, bool Enabled, EventDisplay UiParam,MiscData Notes,bool completeFlag, Location_Elements EventLocation =null, TimeLine RangeOfSubCalEvent = null, ConflictProfile conflicts=null, string Creator="")
+        public SubCalendarEvent(TimeSpan Event_Duration, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, bool Enabled, EventDisplay UiParam,MiscData Notes,bool completeFlag, Location_Elements EventLocation =null, TimeLine calendarEventRange = null, ConflictProfile conflicts=null, string Creator="")
         {
             CreatorIDInfo = Creator;
             if (conflicts == null)
@@ -39,7 +39,7 @@ namespace TilerElements
                 conflicts = new ConflictProfile();
             }
             ConflictingEvents = conflicts;
-            CalendarEventRange = RangeOfSubCalEvent;
+            CalendarEventRange = calendarEventRange;
             StartDateTime = EventStart;
             EndDateTime = EventDeadline;
             EventDuration = Event_Duration;
@@ -61,7 +61,7 @@ namespace TilerElements
         }
 
 
-        public SubCalendarEvent(string MySubEventID, BusyTimeLine MyBusylot, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location_Elements EventLocation = null, TimeLine RangeOfSubCalEvent = null, ConflictProfile conflicts = null, string Creator = "")
+        public SubCalendarEvent(string MySubEventID, BusyTimeLine MyBusylot, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location_Elements EventLocation = null, TimeLine calendarEventRange = null, ConflictProfile conflicts = null, string Creator = "")
         {
             CreatorIDInfo = Creator;
             if (conflicts == null)
@@ -69,7 +69,7 @@ namespace TilerElements
                 conflicts = new ConflictProfile();
             }
             ConflictingEvents = conflicts;
-            CalendarEventRange = RangeOfSubCalEvent;
+            CalendarEventRange = calendarEventRange;
             //string eventName, TimeSpan EventDuration, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, TimeSpan PreDeadline, bool EventRigidFlag, bool EventRepetition, int EventSplit
             StartDateTime = EventStart;
             EndDateTime = EventDeadline;
@@ -89,7 +89,7 @@ namespace TilerElements
             _LastReasonStartTimeChanged = this.Start;
         }
 
-        public SubCalendarEvent(string MySubEventID, DateTimeOffset EventStart, DateTimeOffset EventDeadline, BusyTimeLine SubEventBusy, bool Rigid, bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location_Elements EventLocation = null, TimeLine RangeOfSubCalEvent = null, ConflictProfile conflicts = null, string Creator = "")
+        public SubCalendarEvent(string MySubEventID, DateTimeOffset EventStart, DateTimeOffset EventDeadline, BusyTimeLine SubEventBusy, bool Rigid, bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location_Elements EventLocation = null, TimeLine calendarEventRange = null, ConflictProfile conflicts = null, string Creator = "")
         {
             CreatorIDInfo = Creator;
             if (conflicts == null)
@@ -97,7 +97,7 @@ namespace TilerElements
                 conflicts = new ConflictProfile();
             }
             ConflictingEvents = conflicts;
-            CalendarEventRange = RangeOfSubCalEvent;
+            CalendarEventRange = calendarEventRange;
             UniqueID = new EventID(MySubEventID);
             StartDateTime = EventStart;
             EndDateTime = EventDeadline;
@@ -1000,7 +1000,9 @@ namespace TilerElements
         #endregion
 
         #region Class Properties
-
+        /// <summary>
+        /// Pathoptimization has been acknowledged on this subevent
+        /// </summary>
         public bool isOptimized
         {
             get
@@ -1101,7 +1103,7 @@ namespace TilerElements
             }
         }
 
-        override public string ID
+        override public string Id
         {
             get
             {

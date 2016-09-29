@@ -277,14 +277,6 @@ namespace TilerElements
             }
         }
 
-        virtual public string ID
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
         virtual public EventID TilerID
         {
             get
@@ -294,7 +286,7 @@ namespace TilerElements
         }
         public virtual string ToString()
         {
-            return this.Start.ToString() + " - " + this.End.ToString() + "::" + this.ID + "\t\t::" + this.ActiveDuration.ToString();
+            return this.Start.ToString() + " - " + this.End.ToString() + "::" + this.Id + "\t\t::" + this.ActiveDuration.ToString();
         }
 
         virtual public bool Rigid

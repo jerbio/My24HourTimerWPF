@@ -14,37 +14,37 @@ namespace My24HourTimerWPF
         Location_Elements DefaultLocation = new Location_Elements();
         Dictionary<SubCalendarEvent, Dictionary<Reason.Options, Reason>> subEventToReason = new Dictionary<SubCalendarEvent, Dictionary<Reason.Options, Reason>>();
         Dictionary<SubCalendarEvent, Dictionary<TimeOfDayPreferrence.DaySection, Dictionary<int, HashSet<int>>>> subEvent_Dict_To_DaySecion = new Dictionary<SubCalendarEvent, Dictionary<TimeOfDayPreferrence.DaySection, Dictionary<int, HashSet<int>>>>();
+        /// <summary>
+        /// This holds the subevents that cannot fit anywhere within this and also have no partial timefram that works
+        /// </summary>
+        HashSet<SubCalendarEvent> NotInvolvedIncalculation = new HashSet<SubCalendarEvent>();
         public OptimizedPath(DayTimeLine DayData, Location_Elements home = null)
         {
             DayInfo = DayData;
-            List<SubCalendarEvent> rigidSubEvents = DayData.getSubEventsInDayTimeLine().Where(obj => obj.Rigid).OrderBy(obj=>obj.Start).ToList();
 
-            if (rigidSubEvents.Count > 0)// this tries to handle the scenario where the rigid elements are across the day border
+            List<SubCalendarEvent> subEventsThatCannotExist = DayData.getSubEventsInDayTimeLine().Where(subEvent => !subEvent.canExistWithinTimeLine(DayData)).ToList();
+            if (subEventsThatCannotExist.Count > 0)
             {
-                var firstRigidSubEvent = rigidSubEvents.First();
-                var lastRigidSubEvent = rigidSubEvents.OrderByDescending(obj => obj.End).Last();
-                DateTimeOffset start = DayInfo.Start;
-                DateTimeOffset end = DayInfo.End;
-                bool reAdjustDayInfo = false;
-                if (firstRigidSubEvent.Start < DayInfo.Start)
+                Dictionary<SubCalendarEvent, TimeLine> subEventToViableTimeLine = subEventsThatCannotExist.ToDictionary(SubEvent => SubEvent, SubEvent => DayData.InterferringTimeLine(SubEvent.RangeTimeLine));
+                HashSet<SubCalendarEvent> allSubEvents = new HashSet<SubCalendarEvent>(DayData.getSubEventsInDayTimeLine());
+                HashSet<SubCalendarEvent> tempSubEvents = new HashSet<SubCalendarEvent>();
+                foreach (SubCalendarEvent subEvent in subEventToViableTimeLine.Keys)
                 {
-                    start = firstRigidSubEvent.Start;
-                    reAdjustDayInfo = true;
+                    allSubEvents.Remove(subEvent);
+                    TimeLine interferringTimeline = subEventToViableTimeLine[subEvent];
+                    if (interferringTimeline != null)
+                    {
+                        SubCalendarEvent slicedValidSubEvent = new SubCalendarEvent(subEvent.Id, interferringTimeline.Start, interferringTimeline.End, new BusyTimeLine(subEvent.Id, interferringTimeline.Start, interferringTimeline.End), subEvent.Rigid, subEvent.isEnabled, subEvent.UIParam, subEvent.Notes, subEvent.isComplete, subEvent.myLocation, subEvent.getCalendarEventRange, subEvent.Conflicts, subEvent.CreatorID);
+                        tempSubEvents.Add(slicedValidSubEvent);
+                    }
+                    else
+                    {
+                        NotInvolvedIncalculation.Add(subEvent);
+                    }
                 }
 
-                if (lastRigidSubEvent.End > DayInfo.End)
-                {
-                    end = lastRigidSubEvent.End;
-                    reAdjustDayInfo = true;
-                }
-
-
-                if(reAdjustDayInfo)
-                {
-                    DayInfo = new DayTimeLine(start, end, DayInfo.UniversalIndex, DayInfo.BoundedIndex);
-                    DayInfo.AddToSubEventList(DayData.getSubEventsInDayTimeLine());
-                }
-                
+                DayInfo = new DayTimeLine(DayData.Start, DayData.End, DayInfo.UniversalIndex, DayInfo.BoundedIndex);
+                DayInfo.AddToSubEventList(allSubEvents.Concat(tempSubEvents));
             }
 
             TimeSpan TotalDuration = SubCalendarEvent.TotalActiveDuration(DayData.getSubEventsInDayTimeLine());
@@ -147,99 +147,86 @@ namespace My24HourTimerWPF
         }
 
 
-        List<SubCalendarEvent> optimizeDisabledEvent(TimeLine timeLine, List<SubCalendarEvent> correctlyAssignedevents, SubCalendarEvent disabledSubEvent)
+        public List<SubCalendarEvent> optimizeDisabledEvent(TimeLine timeLine, List<SubCalendarEvent> correctlyAssignedevents, SubCalendarEvent disabledSubEvent)
         {
-            Dictionary<SubCalendarEvent, int> correctlyAssignedeventsToIndex = new Dictionary<SubCalendarEvent, int>();
-            int i;
-            for (i = 0; i < correctlyAssignedevents.Count; i++)
+            if (disabledSubEvent.canExistWithinTimeLine(timeLine))
             {
-                var subEvent = correctlyAssignedevents[i];
-                correctlyAssignedeventsToIndex.Add(subEvent, i);
-            }
-            Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> subEventToAvailableSpaces = subEventToMaxSpaceAvailable(DayInfo, correctlyAssignedevents);
-            i = 0;
-            List<SubCalendarEvent> fittable = new List<SubCalendarEvent>();
-            HashSet<int> validIndexes = new HashSet<int>();
-
-            //for (i = 0; i < disabledSubEvents.Count; i++)
-            {
-                //disabledSubEvent = disabledSubEvents[i];
-                foreach (KeyValuePair<SubCalendarEvent, mTuple<TimeLine, TimeLine>> keyValuePair in subEventToAvailableSpaces)
+                Dictionary<SubCalendarEvent, int> correctlyAssignedeventsToIndex = new Dictionary<SubCalendarEvent, int>();
+                int i;
+                for (i = 0; i < correctlyAssignedevents.Count; i++)
                 {
-                    if (disabledSubEvent.canExistWithinTimeLine(keyValuePair.Value.Item1))
-                    {
-                        fittable.Add(disabledSubEvent);
-                        validIndexes.Add(correctlyAssignedeventsToIndex[keyValuePair.Key]);
-                    }
+                    var subEvent = correctlyAssignedevents[i];
+                    correctlyAssignedeventsToIndex.Add(subEvent, i);
+                }
+                Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> subEventToAvailableSpaces = subEventToMaxSpaceAvailable(timeLine, correctlyAssignedevents);
+                i = 0;
+                List<SubCalendarEvent> fittable = new List<SubCalendarEvent>();
+                HashSet<int> validIndexes = new HashSet<int>();
 
-                    if (disabledSubEvent.canExistWithinTimeLine(keyValuePair.Value.Item2))
+                //for (i = 0; i < disabledSubEvents.Count; i++)
+                {
+                    //disabledSubEvent = disabledSubEvents[i];
+                    foreach (KeyValuePair<SubCalendarEvent, mTuple<TimeLine, TimeLine>> keyValuePair in subEventToAvailableSpaces)
                     {
-                        fittable.Add(disabledSubEvent);
-                        validIndexes.Add(correctlyAssignedeventsToIndex[keyValuePair.Key] + 1);
+                        if (disabledSubEvent.canExistWithinTimeLine(keyValuePair.Value.Item1))
+                        {
+                            fittable.Add(disabledSubEvent);
+                            validIndexes.Add(correctlyAssignedeventsToIndex[keyValuePair.Key]);
+                        }
+
+                        if (disabledSubEvent.canExistWithinTimeLine(keyValuePair.Value.Item2))
+                        {
+                            fittable.Add(disabledSubEvent);
+                            validIndexes.Add(correctlyAssignedeventsToIndex[keyValuePair.Key] + 1);
+                        }
                     }
                 }
-            }
 
-            List<SubCalendarEvent> subEventsReadjusted = correctlyAssignedevents.ToList();
-
-
-
-            List<int> orderedIndexes = validIndexes.OrderBy(validIndex => validIndex).ToList();
+                List<SubCalendarEvent> subEventsReadjusted = correctlyAssignedevents.ToList();
 
 
 
-            List<int> invalidIndexes = new List<int>();
-            for (i = 0; i < correctlyAssignedevents.Count + 1; i++)
-            {
-                if (validIndexes.Count > 0)
+                List<int> orderedIndexes = validIndexes.OrderBy(validIndex => validIndex).ToList();
+
+
+
+                List<int> invalidIndexes = new List<int>();
+                for (i = 0; i < correctlyAssignedevents.Count + 1; i++)
                 {
-                    if (i == orderedIndexes[0])
+                    if (validIndexes.Count > 0)
                     {
-                        orderedIndexes.RemoveAt(0);
+                        if (i == orderedIndexes[0])
+                        {
+                            orderedIndexes.RemoveAt(0);
+                        }
+                        else
+                        {
+                            invalidIndexes.Add(i);
+                        }
                     }
                     else
                     {
                         invalidIndexes.Add(i);
                     }
                 }
-                else
+                int index = getBestPosition(timeLine, disabledSubEvent, correctlyAssignedevents, new HashSet<int>(invalidIndexes));
+                if (index == -1)
                 {
-                    invalidIndexes.Add(i);
+                    index = getBestPosition(timeLine, disabledSubEvent, correctlyAssignedevents, new HashSet<int>());
                 }
-            }
-            int index = getBestPosition(timeLine, disabledSubEvent, correctlyAssignedevents, new HashSet<int>(invalidIndexes));
-            if (index == -1)
-            {
-                index = getBestPosition(timeLine, disabledSubEvent, correctlyAssignedevents, new HashSet<int>());
-            }
-            subEventsReadjusted.Insert(index, disabledSubEvent);
+                subEventsReadjusted.Insert(index, disabledSubEvent);
 
-            if (!Utility.PinSubEventsToStart(subEventsReadjusted, timeLine))// try to pin subevent for readjust
-            {
-                DateTimeOffset start = timeLine.Start;
-                DateTimeOffset end = timeLine.End;
-                if (index == 0)// if it is the new starting element then pin to beginning
+                if (!Utility.PinSubEventsToStart(subEventsReadjusted, timeLine))// try to pin subevent for readjust
                 {
-                    TimeLine revisedTimeLine = new TimeLine(start, end);
-                    revisedTimeLine = disabledSubEvent.getTimeLineInterferringWithCalEvent(revisedTimeLine).FirstOrDefault();
-                    if (revisedTimeLine != null)
-                    {
-                        disabledSubEvent.shiftEvent(revisedTimeLine.Start);
-                    }
-                    else
-                    {
-                        throw new Exception("there is an issue with pathoptimization of a disabled event");
-                    }
-                }
-                else
-                {
-                    if (index == subEventsReadjusted.Count - 1)// if is the last element, then pin it to the end
+                    DateTimeOffset start = timeLine.Start;
+                    DateTimeOffset end = timeLine.End;
+                    if (index == 0)// if it is the new starting element then pin to beginning
                     {
                         TimeLine revisedTimeLine = new TimeLine(start, end);
-                        revisedTimeLine = disabledSubEvent.getTimeLineInterferringWithCalEvent(revisedTimeLine).LastOrDefault();
+                        revisedTimeLine = disabledSubEvent.getTimeLineInterferringWithCalEvent(revisedTimeLine).FirstOrDefault();
                         if (revisedTimeLine != null)
                         {
-                            disabledSubEvent.shiftEvent(revisedTimeLine.End - disabledSubEvent.ActiveDuration);
+                            disabledSubEvent.shiftEvent(revisedTimeLine.Start);
                         }
                         else
                         {
@@ -248,32 +235,48 @@ namespace My24HourTimerWPF
                     }
                     else
                     {
-                        int beforeIndex = index - 1;
-                        int afterIndex = index + 1;
-                        SubCalendarEvent before = correctlyAssignedevents[beforeIndex];
-                        SubCalendarEvent after = correctlyAssignedevents[afterIndex];
-                        TimeLine relevantTimeline = new TimeLine(before.Start, after.End);
-                        TimeLine revisedOverlappingTImeline = disabledSubEvent.getTimeLineInterferringWithCalEvent(relevantTimeline).FirstOrDefault();
-                        if (revisedOverlappingTImeline != null)
+                        if (index == subEventsReadjusted.Count - 1)// if is the last element, then pin it to the end
                         {
-                            TimeLine centralizedTimeLine = Utility.CentralizeYourSelfWithinRange(revisedOverlappingTImeline, disabledSubEvent.ActiveDuration);
-                            disabledSubEvent.shiftEvent(centralizedTimeLine.Start);
-                            List<SubCalendarEvent> interferringSubEVentsEvents = subEventsReadjusted.Where(subEvent => subEvent.RangeTimeLine.doesTimeLineInterfere(centralizedTimeLine)).ToList();
-
-                            BlobSubCalendarEvent bloberrized = new BlobSubCalendarEvent(interferringSubEVentsEvents);
-                            int firstRemovedElement = subEventsReadjusted.IndexOf(interferringSubEVentsEvents[0]);
-                            subEventsReadjusted.RemoveRange(firstRemovedElement, interferringSubEVentsEvents.Count);
-
-
-                            subEventsReadjusted.Insert(firstRemovedElement, bloberrized);
+                            TimeLine revisedTimeLine = new TimeLine(start, end);
+                            revisedTimeLine = disabledSubEvent.getTimeLineInterferringWithCalEvent(revisedTimeLine).LastOrDefault();
+                            if (revisedTimeLine != null)
+                            {
+                                disabledSubEvent.shiftEvent(revisedTimeLine.End - disabledSubEvent.ActiveDuration);
+                            }
+                            else
+                            {
+                                throw new Exception("there is an issue with pathoptimization of a disabled event");
+                            }
                         }
+                        else
+                        {
+                            int beforeIndex = index - 1;
+                            int afterIndex = index + 1;
+                            SubCalendarEvent before = correctlyAssignedevents[beforeIndex];
+                            SubCalendarEvent after = correctlyAssignedevents[afterIndex];
+                            TimeLine relevantTimeline = new TimeLine(before.Start, after.End);
+                            TimeLine revisedOverlappingTImeline = disabledSubEvent.getTimeLineInterferringWithCalEvent(relevantTimeline).FirstOrDefault();
+                            if (revisedOverlappingTImeline != null)
+                            {
+                                TimeLine centralizedTimeLine = Utility.CentralizeYourSelfWithinRange(revisedOverlappingTImeline, disabledSubEvent.ActiveDuration);
+                                disabledSubEvent.shiftEvent(centralizedTimeLine.Start);
+                                List<SubCalendarEvent> interferringSubEVentsEvents = subEventsReadjusted.Where(subEvent => subEvent.RangeTimeLine.doesTimeLineInterfere(centralizedTimeLine)).ToList();
+
+                                BlobSubCalendarEvent bloberrized = new BlobSubCalendarEvent(interferringSubEVentsEvents);
+                                int firstRemovedElement = subEventsReadjusted.IndexOf(interferringSubEVentsEvents[0]);
+                                subEventsReadjusted.RemoveRange(firstRemovedElement, interferringSubEVentsEvents.Count);
 
 
+                                subEventsReadjusted.Insert(firstRemovedElement, bloberrized);
+                            }
+                        }
                     }
                 }
+                return subEventsReadjusted;
             }
 
-            return subEventsReadjusted;
+            throw new Exception("disabledSubEvent cannot exist within timeLine, consider providing a a time line where disabledSubEvent can exist");
+            
         }
 
         Tuple<Dictionary<TilerEvent, double>, Tuple<Location_Elements, DateTimeOffset, TimeSpan>> evalulateParameter(IEnumerable<SubCalendarEvent> events, OptimizedGrouping.OptimizedAverage optimizedAverage)
@@ -719,7 +722,7 @@ namespace My24HourTimerWPF
                 {
                     List<SubCalendarEvent> FullList_Copy = FullList.ToList();
                     FullList_Copy.Insert(i, SubEvent);
-                    double TotalDistance = SubCalendarEvent.CalculateDistance(FullList_Copy);//,0);
+                    double TotalDistance = SubCalendarEvent.CalculateDistance(FullList_Copy,0, useFibonnacci: false);
                     TotalDistances[i] = TotalDistance;
                 }
 
@@ -882,7 +885,6 @@ namespace My24HourTimerWPF
             ILookup<TimeOfDayPreferrence.DaySection, SubCalendarEvent> RetValue = SubEvents.ToLookup(obj => obj.getDaySection().getCurrentDayPreference(), obj => obj);
             return RetValue;
         }
-
 
 
     }

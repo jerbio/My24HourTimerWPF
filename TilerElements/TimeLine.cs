@@ -421,18 +421,18 @@ namespace TilerElements
 
                 if (ActiveTimeSlots.Length < 2)
                 {
-                    try
+                    if (ActiveTimeSlots.Length == 1)
                     {
-                        if (this.IsTimeLineWithin(ActiveTimeSlots[0]))
+                        if (this.doesTimeLineInterfere(ActiveTimeSlots[0]))
                         {
+                            DictionaryOfClashingTimelines.Add(1, new List<BusyTimeLine>() {
+                                ActiveTimeSlots[0]
+                            });
                             return DictionaryOfClashingTimelines;
                         }
-                        else
-                        {
-                            throw new Exception("invalid TimeLine detected");
-                        }
+                        return DictionaryOfClashingTimelines;
                     }
-                    catch (IndexOutOfRangeException e)
+                    else
                     {
                         return DictionaryOfClashingTimelines;
                     }

@@ -3413,7 +3413,19 @@ namespace My24HourTimerWPF
                 } 
             }
 
-            
+            if (dayToOptimization != null)
+            {
+                List<DayTimeLine> optimizedDays = AllDayTImeLine.Take(optimizedDayLimit).OrderBy(day => day.Start).ToList();
+                Dictionary<DayTimeLine, Tuple<Location_Elements, TimeSpan>> dayTimeLineToAverageLocationWithFreeSpan = optimizedDays.ToDictionary(obj => obj, dayTimeLine => new Tuple<Location_Elements, TimeSpan>(Location_Elements.AverageGPSLocation(dayTimeLine.getSubEventsInDayTimeLine().Select(obj => obj.myLocation)), dayTimeLine.TotalFreeSpace));
+                TimeLine tenDayTImeLine = new TimeLine(optimizedDays[0].Start, optimizedDays[optimizedDays.Count - 1].End);
+                List<SubCalendarEvent> validForRepptimization = undesignatedSubevents.Where(obj => obj.ActiveSlot.doesTimeLineInterfere(tenDayTImeLine) && obj.canExistWithinTimeLine(tenDayTImeLine)).ToList();
+                foreach (SubCalendarEvent undesignatedSubevent in validForRepptimization)
+                {
+
+                }
+            }
+
+
 
             foreach (SubCalendarEvent element in TotalActiveEvents.OrderBy(SubEvent => SubEvent.Start))
             {

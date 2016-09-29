@@ -3163,8 +3163,13 @@ namespace My24HourTimerWPF
             return RetValue;
         }
 
-        void SortForSleep(IEnumerable<DayTimeLine>AllDayTimeLine)
+        /// <summary>
+        /// Funtion makes iterative calls to the daily optimizers
+        /// </summary>
+        /// <param name="AllDayTimeLine"></param>
+        IDictionary<DayTimeLine, OptimizedPath> SortForSleep(IEnumerable<DayTimeLine>AllDayTimeLine)
         {
+            ConcurrentDictionary<DayTimeLine, OptimizedPath> dayToOPtimization = new ConcurrentDictionary<DayTimeLine, OptimizedPath>();
             //Parallel.ForEach(AllDayTimeLine, EachDay=>
             Location_Elements home = null;
             if (Locations.ContainsKey("home"))
@@ -3175,11 +3180,13 @@ namespace My24HourTimerWPF
             {
                 optimizeDay(EachDay);
 
-                OptimizedPath DayPath = new OptimizedPath(EachDay, home);
-                DayPath.OptimizePath();
+                OptimizedPath dayPath = new OptimizedPath(EachDay, home);
+                dayToOPtimization.AddOrUpdate(EachDay, dayPath, ((key, oldValue) => { return dayPath; }));
+                dayPath.OptimizePath();
                 List<SubCalendarEvent> optimizedForDay = EachDay.getSubEventsInDayTimeLine().OrderBy(obj => obj.Start).ToList();
             }
             //);
+            return dayToOPtimization;
         }
 
         void optimizeDay(DayTimeLine myDay)
@@ -3377,11 +3384,15 @@ namespace My24HourTimerWPF
                 totalNumberOfEvents = (ulong)CalendarEvent.getTotalUndesignatedEvents(AllCalEvents);
             }
 
+
+            List<SubCalendarEvent> undesignatedSubevents = TotalActiveEvents.Where(subEvent => !subEvent.isDesignated).ToList();
             List<SubCalendarEvent> orderedByStart = TotalActiveEvents.OrderBy(obj => obj.Start).ToList(); ;
             List<BlobSubCalendarEvent> conflictingEvetns = Utility.getConflictingEvents(orderedByStart);
 
-            Optimize = false;
 
+            int optimizedDayLimit = 10;
+            Optimize = true;
+            IDictionary<DayTimeLine, OptimizedPath> dayToOptimization = null;
             if (Optimize)
             {
                 ulong FirstIndex = AllDayTImeLine[0].UniversalIndex;
@@ -3393,15 +3404,16 @@ namespace My24HourTimerWPF
                         int currentIndex = (int)(eachGrouping.Key - FirstIndex);
                         AllDayTImeLine[currentIndex].AddToSubEventList(DayToSubEvent[eachGrouping.Key]);
                     }
-                    List<DayTimeLine> OptimizedDays = AllDayTImeLine.Take(10).ToList();
-                    SortForSleep(OptimizedDays);
+                    List<DayTimeLine> OptimizedDays = AllDayTImeLine.Take(optimizedDayLimit).ToList();
+                    dayToOptimization = SortForSleep(OptimizedDays);
                 }
                 catch(Exception E)
                 {
                     throw E;
-                }
-                
+                } 
             }
+
+            
 
             foreach (SubCalendarEvent element in TotalActiveEvents.OrderBy(SubEvent => SubEvent.Start))
             {
@@ -9498,36 +9510,6 @@ namespace My24HourTimerWPF
         }
 
 
-        List<List<List<SubCalendarEvent>>> FixSubCalEventOrder(List<List<List<SubCalendarEvent>>> AllPossibleFullTimeLines, TimeLine[] JustFreeSpots)
-        {
-            List<List<List<SubCalendarEvent>>> retValue = new System.Collections.Generic.List<System.Collections.Generic.List<System.Collections.Generic.List<SubCalendarEvent>>>();
-
-            foreach (List<List<SubCalendarEvent>> PossibleTimeLine in AllPossibleFullTimeLines)
-            {
-                int index = 0;
-
-
-                Dictionary<int, List<List<SubCalendarEvent>>> DictOfSubCalEvent = new System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<System.Collections.Generic.List<SubCalendarEvent>>>();
-                for (; index < JustFreeSpots.Length; index++)
-                {
-                    DictOfSubCalEvent.Add(index, new System.Collections.Generic.List<System.Collections.Generic.List<SubCalendarEvent>>());
-                    List<SubCalendarEvent> SubCalendarEventsInFreeTimeLine = PossibleTimeLine[index];
-                    SubCalendarEventsInFreeTimeLine = SubCalendarEventsInFreeTimeLine.OrderBy(obj => obj.getCalendarEventRange.End).ToList();
-                    List<List<SubCalendarEvent>> latestPermutations = Pseudo_generateTreeCallsToSnugArray(SubCalendarEventsInFreeTimeLine, JustFreeSpots[index]);
-
-                    DictOfSubCalEvent[index].AddRange(latestPermutations);
-                }
-
-                retValue.AddRange(SerializeDictionary(DictOfSubCalEvent));
-
-            }
-
-            retValue.RemoveRange(0, Convert.ToInt32(retValue.Count * 0.9999));
-
-            return retValue;
-        }
-
-
 
         List<List<List<SubCalendarEvent>>> SerializeDictionary(Dictionary<int, List<List<SubCalendarEvent>>> DictOfSubCalEvent)
         {
@@ -9570,57 +9552,6 @@ namespace My24HourTimerWPF
             }
 
             return retValue;
-        }
-
-        List<List<SubCalendarEvent>> Pseudo_generateTreeCallsToSnugArray(List<SubCalendarEvent> SortedAvailableSubCalEvents_Deadline, TimeLine BoundaryTimeLine)//, Dictionary<TimeLine, List<SubCalendarEvent>> DictionaryOfTimelineAndSubcalendarEvents)//, List<SubCalendarEvent> usedSubCalendarEvensts)
-        {
-
-            List<List<SubCalendarEvent>> RetValue = new System.Collections.Generic.List<System.Collections.Generic.List<SubCalendarEvent>>();
-            if (SortedAvailableSubCalEvents_Deadline.Count < 1)
-            {
-                return RetValue;
-                // throw new Exception("Check your Stack Calls to Pseudo_generateTreeCallsToSnugArray. Theres an error you are passing empty SortedAvailableSubCalEvents_Deadline");
-            }
-
-
-            ClumpSubCalendarEvent ClumpedSubEvents = new ClumpSubCalendarEvent(SortedAvailableSubCalEvents_Deadline.ToList(), BoundaryTimeLine);
-            List<List<SubCalendarEvent>> ClumpendListOfSubCalEvetns = ClumpedSubEvents.GenerateList(0);
-            ClumpSubCalendarEvent.Completed = 0;
-            foreach (List<SubCalendarEvent> AlreadyAssignedSubCalEvents in ClumpendListOfSubCalEvetns)
-            {
-                Utility.PinSubEventsToEnd(AlreadyAssignedSubCalEvents.ToList(), BoundaryTimeLine);
-                //Utility.PinSubEventsToStart(AlreadyAssignedSubCalEvents.ToList(), BoundaryTimeLine);
-
-                /*TimeLine UpdatedBoundary = new TimeLine(AlreadyAssignedSubCalEvents[AlreadyAssignedSubCalEvents.Count - 1].End, BoundaryTimeLine.End);
-                List<SubCalendarEvent> SubCalEventsLeft=Utility.NotInList_NoEffect(SortedAvailableSubCalEvents_Deadline, AlreadyAssignedSubCalEvents);
-                List<List<SubCalendarEvent>> FurtherClumpedList = new System.Collections.Generic.List<System.Collections.Generic.List<SubCalendarEvent>>();
-                if (SubCalEventsLeft.Count > 0)
-                {
-                    FurtherClumpedList = Pseudo_generateTreeCallsToSnugArray(SubCalEventsLeft, UpdatedBoundary);
-                }
-                if (FurtherClumpedList.Count > 0)
-                {
-                    foreach (List<SubCalendarEvent> UpdatedClumpList in FurtherClumpedList)
-                    {
-                        UpdatedClumpList.AddRange(AlreadyAssignedSubCalEvents);
-
-                    }
-                }
-                else
-                {
-                    FurtherClumpedList = new System.Collections.Generic.List<System.Collections.Generic.List<SubCalendarEvent>>();
-                    FurtherClumpedList.Add(new System.Collections.Generic.List<SubCalendarEvent>());
-                    FurtherClumpedList[0].AddRange(AlreadyAssignedSubCalEvents);
-                }
-
-                
-                RetValue.AddRange(FurtherClumpedList);*/
-                RetValue.Add(AlreadyAssignedSubCalEvents);
-            }
-
-
-            return RetValue;
-
         }
 
 

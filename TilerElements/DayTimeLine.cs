@@ -65,6 +65,7 @@ namespace TilerElements
         {
             OccupancyOfTImeLine = ((double)(SubCalendarEvent.TotalActiveDuration(AllocatedSubEvents.Values).Ticks+ ActiveTimeSlots.Sum(obj=>obj.BusyTimeSpan.Ticks)) / (double)TimelineSpan.Ticks);
             freeSpace = TimelineSpan - SubCalendarEvent.TotalActiveDuration(AllocatedSubEvents.Values);
+            OccupiedSlots = AllocatedSubEvents.Select(obj => obj.Value.ActiveSlot).ToArray();
         }
 
         public List<SubCalendarEvent> getSubEventsInDayTimeLine()

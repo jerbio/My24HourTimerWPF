@@ -1817,7 +1817,7 @@ namespace TilerElements
         #endregion
 
         #region Properties
-        override public string ID
+        override public string Id
         {
             get
             {
@@ -2131,21 +2131,4 @@ namespace TilerElements
         #endregion
 
     }
-
-    //public struct Event_Struct
-    //{
-    //    //public string EventID;
-    //    public float Testint;
-    //    //public long StartTicks;
-    //    //public long EndTicks;
-    //    //public long DurationTicks;
-    //    public Location_struct EventLocation;
-    //    //public bool Enabled;
-    //    public Event_Struct(float number, Location_struct locationData)
-    //    {
-    //        Testint = number;
-    //        EventLocation = locationData;
-    //    }
-
-    //}
 }

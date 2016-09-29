@@ -851,7 +851,7 @@ namespace My24HourTimerWPF
                         List<Reason> reasons = positionReasons.Where(keyValuePair => keyValuePair.Value.Option != Reason.Options.None).Select(keyValuePair => keyValuePair.Value).ToList();
                         foreach (Reason positionReason in reasons)
                         {
-                            eachSubCalendarEvent.addReason(positionReason);
+                            eachSubCalendarEvent.addReasons(positionReason);
                             positionReasons.Remove(positionReason.Option);
                         }
                     }

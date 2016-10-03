@@ -3178,11 +3178,12 @@ namespace My24HourTimerWPF
             }
             foreach (DayTimeLine EachDay in AllDayTimeLine)
             {
-                optimizeDay(EachDay);
+                
 
                 OptimizedPath dayPath = new OptimizedPath(EachDay, home);
                 dayToOPtimization.AddOrUpdate(EachDay, dayPath, ((key, oldValue) => { return dayPath; }));
                 dayPath.OptimizePath();
+                optimizeDay(EachDay);
                 List<SubCalendarEvent> optimizedForDay = EachDay.getSubEventsInDayTimeLine().OrderBy(obj => obj.Start).ToList();
             }
             //);

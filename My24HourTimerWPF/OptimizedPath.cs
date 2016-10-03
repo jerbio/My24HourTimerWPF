@@ -66,36 +66,9 @@ namespace My24HourTimerWPF
             
 
             DayInfo = new DayTimeLine(DayData.Start, DayData.End, DayData.UniversalIndex, DayData.BoundedIndex);
-            //IEnumerable<SubCalendarEvent> evaluatedSubEvents = processAllInitializingRigids(subEventsForCalculation);
-            //subEventsForCalculation = evaluatedSubEvents.ToList();
             DayInfo.AddToSubEventList(subEventsForCalculation);
         }
 
-        /// <summary>
-        /// Function initializes all rigids for calculaton in optimized path. It sets them as initialized. It also groups conflicting rigids into blobs this ensures the calculation accuracy of optimized path
-        /// </summary>
-        /// <param name="allSubEvents"></param>
-        HashSet<SubCalendarEvent> processAllInitializingRigids(IEnumerable<SubCalendarEvent> allSubEvents)
-        {
-            HashSet<SubCalendarEvent> allRigidSubevent = new HashSet<SubCalendarEvent> (allSubEvents.Where(subEvent => subEvent.Rigid).ToList());
-            HashSet<SubCalendarEvent> noneRigidSubevent = new HashSet<SubCalendarEvent>(allSubEvents.Where(subEvent => !subEvent.Rigid).ToList());
-
-            List<BlobSubCalendarEvent> conflictingEvents = Utility.getConflictingEvents(allRigidSubevent);
-            foreach (BlobSubCalendarEvent blobEvent in conflictingEvents)
-            {
-                foreach(SubCalendarEvent subEvent in blobEvent.getSubCalendarEventsInBlob())
-                {
-                    allRigidSubevent.Remove(subEvent);
-                }
-            }
-
-            HashSet<SubCalendarEvent> retValue = new HashSet<SubCalendarEvent>(allRigidSubevent.Concat(conflictingEvents).Concat(noneRigidSubevent));
-            foreach(SubCalendarEvent subEvent in retValue.Where(obj=>obj.Rigid))
-            {
-                subEvent.setAsOptimized();
-            }
-            return retValue;
-        }
 
         void assignRigidsToTimeGroupings(IEnumerable<SubCalendarEvent> subEvents, DayTimeLine DayData)
         {

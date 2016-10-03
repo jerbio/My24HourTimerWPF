@@ -18,9 +18,28 @@ namespace My24HourTimerWPF
         /// This holds the subevents that cannot fit anywhere within this and also have no partial timefram that works
         /// </summary>
         HashSet<SubCalendarEvent> NotInvolvedIncalculation = new HashSet<SubCalendarEvent>();
-        public OptimizedPath(DayTimeLine DayData, Location_Elements home = null)
+        public OptimizedPath(DayTimeLine dayData, Location_Elements home = null)
         {
-            DayInfo = DayData;
+            initializeSubEvents(dayData);
+
+            TimeSpan TotalDuration = SubCalendarEvent.TotalActiveDuration(dayData.getSubEventsInDayTimeLine());
+            DefaultLocation = Location_Elements.AverageGPSLocation(DayInfo.getSubEventsInDayTimeLine().Select(obj => obj.myLocation), false);
+            if (home == null)
+            {
+                home = DefaultLocation.CreateCopy();
+            }
+
+            AllGroupings.Add(TimeOfDayPreferrence.DaySection.Morning, new OptimizedGrouping(TimeOfDayPreferrence.DaySection.Morning, TotalDuration, DefaultLocation.CreateCopy()));
+            AllGroupings.Add(TimeOfDayPreferrence.DaySection.Afternoon, new OptimizedGrouping(TimeOfDayPreferrence.DaySection.Afternoon, TotalDuration, DefaultLocation.CreateCopy()));
+            AllGroupings.Add(TimeOfDayPreferrence.DaySection.Evening, new OptimizedGrouping(TimeOfDayPreferrence.DaySection.Evening, TotalDuration, DefaultLocation.CreateCopy()));
+            AllGroupings.Add(TimeOfDayPreferrence.DaySection.Sleep, new OptimizedGrouping(TimeOfDayPreferrence.DaySection.Sleep, TotalDuration, home));
+            AllGroupings.Add(TimeOfDayPreferrence.DaySection.None, new OptimizedGrouping(TimeOfDayPreferrence.DaySection.None, TotalDuration, DefaultLocation.CreateCopy()));
+            assignRigidsToTimeGroupings(DayInfo.getSubEventsInDayTimeLine(), DayInfo);
+        }
+
+        void initializeSubEvents(DayTimeLine DayData)
+        {
+            List<SubCalendarEvent> subEventsForCalculation = DayData.getSubEventsInDayTimeLine();
 
             List<SubCalendarEvent> subEventsThatCannotExist = DayData.getSubEventsInDayTimeLine().Where(subEvent => !subEvent.canExistWithinTimeLine(DayData)).ToList();
             if (subEventsThatCannotExist.Count > 0)
@@ -42,23 +61,58 @@ namespace My24HourTimerWPF
                         NotInvolvedIncalculation.Add(subEvent);
                     }
                 }
-
-                DayInfo = new DayTimeLine(DayData.Start, DayData.End, DayInfo.UniversalIndex, DayInfo.BoundedIndex);
-                DayInfo.AddToSubEventList(allSubEvents.Concat(tempSubEvents));
+                subEventsForCalculation = allSubEvents.Concat(tempSubEvents).ToList();
             }
+            
 
-            TimeSpan TotalDuration = SubCalendarEvent.TotalActiveDuration(DayData.getSubEventsInDayTimeLine());
-            DefaultLocation = Location_Elements.AverageGPSLocation(DayInfo.getSubEventsInDayTimeLine().Select(obj => obj.myLocation), false);
-            if (home == null)
+            DayInfo = new DayTimeLine(DayData.Start, DayData.End, DayData.UniversalIndex, DayData.BoundedIndex);
+            //IEnumerable<SubCalendarEvent> evaluatedSubEvents = processAllInitializingRigids(subEventsForCalculation);
+            //subEventsForCalculation = evaluatedSubEvents.ToList();
+            DayInfo.AddToSubEventList(subEventsForCalculation);
+        }
+
+        /// <summary>
+        /// Function initializes all rigids for calculaton in optimized path. It sets them as initialized. It also groups conflicting rigids into blobs this ensures the calculation accuracy of optimized path
+        /// </summary>
+        /// <param name="allSubEvents"></param>
+        HashSet<SubCalendarEvent> processAllInitializingRigids(IEnumerable<SubCalendarEvent> allSubEvents)
+        {
+            HashSet<SubCalendarEvent> allRigidSubevent = new HashSet<SubCalendarEvent> (allSubEvents.Where(subEvent => subEvent.Rigid).ToList());
+            HashSet<SubCalendarEvent> noneRigidSubevent = new HashSet<SubCalendarEvent>(allSubEvents.Where(subEvent => !subEvent.Rigid).ToList());
+
+            List<BlobSubCalendarEvent> conflictingEvents = Utility.getConflictingEvents(allRigidSubevent);
+            foreach (BlobSubCalendarEvent blobEvent in conflictingEvents)
             {
-                home = DefaultLocation.CreateCopy();
+                foreach(SubCalendarEvent subEvent in blobEvent.getSubCalendarEventsInBlob())
+                {
+                    allRigidSubevent.Remove(subEvent);
+                }
             }
 
-            AllGroupings.Add(TimeOfDayPreferrence.DaySection.Morning, new OptimizedGrouping(TimeOfDayPreferrence.DaySection.Morning, TotalDuration, DefaultLocation.CreateCopy()));
-            AllGroupings.Add(TimeOfDayPreferrence.DaySection.Afternoon, new OptimizedGrouping(TimeOfDayPreferrence.DaySection.Afternoon, TotalDuration, DefaultLocation.CreateCopy()));
-            AllGroupings.Add(TimeOfDayPreferrence.DaySection.Evening, new OptimizedGrouping(TimeOfDayPreferrence.DaySection.Evening, TotalDuration, DefaultLocation.CreateCopy()));
-            AllGroupings.Add(TimeOfDayPreferrence.DaySection.Sleep, new OptimizedGrouping(TimeOfDayPreferrence.DaySection.Sleep, TotalDuration, home));
-            AllGroupings.Add(TimeOfDayPreferrence.DaySection.None, new OptimizedGrouping(TimeOfDayPreferrence.DaySection.None, TotalDuration, DefaultLocation.CreateCopy()));
+            HashSet<SubCalendarEvent> retValue = new HashSet<SubCalendarEvent>(allRigidSubevent.Concat(conflictingEvents).Concat(noneRigidSubevent));
+            foreach(SubCalendarEvent subEvent in retValue.Where(obj=>obj.Rigid))
+            {
+                subEvent.setAsOptimized();
+            }
+            return retValue;
+        }
+
+        void assignRigidsToTimeGroupings(IEnumerable<SubCalendarEvent> subEvents, DayTimeLine DayData)
+        {
+            IEnumerable<SubCalendarEvent> rigidSubEvents = subEvents.Where(subEvent => subEvent.Rigid);
+            HashSet<OptimizedGrouping> retrievedGroupings = new HashSet<OptimizedGrouping>();
+            foreach(SubCalendarEvent subEvent in rigidSubEvents)
+            {
+                subEvent.InitializeDayPreference(DayData);
+                TimeOfDayPreferrence daySection = subEvent.getDaySection();
+                OptimizedGrouping grouping = AllGroupings[daySection.getCurrentDayPreference()];
+                grouping.AddToStitchedEvents(subEvent);
+                retrievedGroupings.Add(grouping);
+            }
+            foreach (OptimizedGrouping grouping in retrievedGroupings)
+            {
+                grouping.movePathStitchedToAcknowledged();
+            }
         }
 
         public void OptimizePath()

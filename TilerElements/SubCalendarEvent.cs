@@ -311,7 +311,7 @@ namespace TilerElements
             {
                 Id = this.Id;
             }
-            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(Id, Start, End, BusyFrame.CreateCopy(), this.RigidSchedule, this.isEnabled, this.UiParams.createCopy(), this.Notes.createCopy(), this.Complete, this.LocationInfo, new TimeLine(CalendarEventRange.Start, CalendarEventRange.End), ConflictingEvents.CreateCopy());
+            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(Id, Start, End, BusyFrame.CreateCopy(), this.RigidSchedule, this.isEnabled, this.UiParams?.createCopy(), this.Notes?.createCopy(), this.Complete, this.LocationInfo, new TimeLine(CalendarEventRange.Start, CalendarEventRange.End), ConflictingEvents?.CreateCopy());
             MySubCalendarEventCopy.ThirdPartyID = this.ThirdPartyID;
             MySubCalendarEventCopy.DeadlineElapsed = this.DeadlineElapsed;
             MySubCalendarEventCopy.UserDeleted = this.UserDeleted;

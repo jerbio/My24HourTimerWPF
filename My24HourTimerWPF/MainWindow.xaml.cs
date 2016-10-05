@@ -588,6 +588,7 @@ namespace My24HourTimerWPF
                 //
             }
             //C6RXEZ             
+            
             Location_Elements var0 = new Location_Elements(textBox8.Text);
             var0.Validate();
             EventDisplay UiData = new EventDisplay();

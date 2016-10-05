@@ -4272,12 +4272,19 @@ namespace My24HourTimerWPF
             {
                 j = i + 1;
                 Tuple<SubCalendarEvent, SubCalendarEvent> myCoEvents = new Tuple<SubCalendarEvent, SubCalendarEvent>(AllEvents[i], AllEvents[j]);
-                double distance=SubCalendarEvent.CalculateDistance(myCoEvents.Item1,myCoEvents.Item2, -1);
-                if (distance <.5)
+                
+                TimeSpan bufferSpan = Location_Elements.getDrivingTimeFromWeb(myCoEvents.Item1.myLocation, myCoEvents.Item2.myLocation);
+                if (bufferSpan.Ticks < 0)
                 {
-                    distance = 1;
+                    double distance = SubCalendarEvent.CalculateDistance(myCoEvents.Item1, myCoEvents.Item2, -1);
+                    if (distance < .5)
+                    {
+                        distance = 1;
+                    }
+                    bufferSpan = new TimeSpan((long)(bufferPerMile.Ticks * distance));
                 }
-                TimeSpan bufferSpan = new TimeSpan((long)(bufferPerMile.Ticks * distance));
+
+                
                 referencePinningTImeline = new TimeLine(myCoEvents.Item1.End.Add(bufferSpan), myCoEvents.Item2.End);
                 if (!myCoEvents.Item2.PinToStart(referencePinningTImeline))
                 {

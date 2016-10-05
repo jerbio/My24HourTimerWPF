@@ -7,8 +7,11 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using Google.Maps.Geocoding;
-
+using GoogleMapsApi.Entities.Geocoding.Request;
+using GoogleMapsApi;
+using GoogleMapsApi.Entities.Geocoding.Response;
+using GoogleMapsApi.Entities.Directions.Request;
+using GoogleMapsApi.Entities.Directions.Response;
 
 namespace TilerElements
 {
@@ -67,7 +70,7 @@ namespace TilerElements
             }
         }
 
-        public Location_Elements(double MyxValue, double MyyValue, string AddressEntry, string AddressDescription, bool isNull,bool iaDefaultFlag, string ID = "")
+        public Location_Elements(double MyxValue, double MyyValue, string AddressEntry, string AddressDescription, bool isNull, bool iaDefaultFlag, string ID = "")
         {
             xValue = MyxValue;
             yValue = MyyValue;
@@ -122,42 +125,57 @@ namespace TilerElements
             TaggedAddress = TaggedAddress.Trim();
             try
             {
-                var request = new GeocodingRequest();
+                GeocodingRequest request = new GeocodingRequest();
                 request.Address = TaggedAddress;
                 request.Sensor = false;
-                var response = new GeocodingService().GetResponse(request);
-                var result = response.Results.First();
-                if (string.IsNullOrEmpty(TaggedDescription))
-                {
-                    TaggedDescription = TaggedAddress;
-                }
 
-                TaggedAddress = result.FormattedAddress.ToLower();
-                xValue = Convert.ToDouble(result.Geometry.Location.Latitude);
-                yValue = Convert.ToDouble(result.Geometry.Location.Longitude);
-                NullLocation = false;
-                //MessageBox.Show("Found Location At: " + result.FormattedAddress + " Latitude: " + xValue + " Longitude: " + yValue); 
+
+                var geocodingEngine = GoogleMaps.Geocode;
+                GeocodingResponse geocode = geocodingEngine.Query(request);
+                Console.WriteLine(geocode);
+
+                if (geocode.Status == Status.OK)
+                {
+                    if (string.IsNullOrEmpty(TaggedDescription))
+                    {
+                        TaggedDescription = TaggedAddress;
+                    }
+                    var result = geocode.Results.First();
+                    TaggedAddress = result.FormattedAddress.ToLower();
+                    xValue = Convert.ToDouble(result.Geometry.Location.Latitude);
+                    yValue = Convert.ToDouble(result.Geometry.Location.Longitude);
+                    NullLocation = false;
+                }
+                else
+                {
+                    initializeWithNull();
+                }
             }
             catch
             {
-                xValue = MaxLatitude;
-                yValue = MaxLongitude;
-                if (string.IsNullOrEmpty(TaggedDescription) && !string.IsNullOrEmpty(TaggedAddress))
-                {
-                    TaggedDescription = TaggedAddress.ToLower();
-                }
-
-                else
-                {
-                    if (string.IsNullOrEmpty(TaggedAddress) && !string.IsNullOrEmpty(TaggedDescription))
-                    {
-                        TaggedAddress = TaggedDescription.ToLower();
-                    }
-                }
-                NullLocation = true;
+                initializeWithNull();
             }
 
             return NullLocation;
+        }
+
+        void initializeWithNull()
+        {
+            xValue = MaxLatitude;
+            yValue = MaxLongitude;
+            if (string.IsNullOrEmpty(TaggedDescription) && !string.IsNullOrEmpty(TaggedAddress))
+            {
+                TaggedDescription = TaggedAddress.ToLower();
+            }
+
+            else
+            {
+                if (string.IsNullOrEmpty(TaggedAddress) && !string.IsNullOrEmpty(TaggedDescription))
+                {
+                    TaggedAddress = TaggedDescription.ToLower();
+                }
+            }
+            NullLocation = true;
         }
 
         #region Functions
@@ -173,6 +191,28 @@ namespace TilerElements
             RetValue.DefaultFlag = true;
             RetValue.NullLocation = false;
             return RetValue;
+        }
+
+        static public TimeSpan getDrivingTimeFromWeb(Location_Elements first, Location_Elements second)
+        {
+            TimeSpan retValue = new TimeSpan(-1);
+            if(!first.isNull && !second.isNull)
+            {
+                DirectionsRequest directionsRequest = new DirectionsRequest()
+                {
+                    Origin = first.justLongLatString(),
+                    Destination = second.justLongLatString(),
+                };
+                DirectionsResponse directions = GoogleMaps.Directions.Query(directionsRequest);
+                if (directions.Status == DirectionsStatusCodes.OK)
+                {
+                    var route = directions.Routes.First();
+                    retValue = route.Legs.First().Duration.Value;
+                }
+            }
+            
+
+            return retValue;
         }
 
         

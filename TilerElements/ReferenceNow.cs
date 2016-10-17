@@ -7,16 +7,16 @@ namespace TilerElements
 {
     public class ReferenceNow
     {
-        static DateTimeOffset StartOfTime;
+        public static DateTimeOffset StartOfTime;
         DateTimeOffset CalculationNow;
         DateTimeOffset ImmutableNow;
         UInt64 ImmutableDayIndex;//'Cause tiler will exist 18,446,744,073,709,551,615 from 1970 
-        TimeSpan ConstOfCalculation = new TimeSpan(90, 0, 0, 0, 0);
+        protected TimeSpan ConstOfCalculation = new TimeSpan(90, 0, 0, 0, 0);
         DateTimeOffset tempNow = new DateTimeOffset(DateTimeOffset.Now.Year, DateTimeOffset.Now.Month, DateTimeOffset.Now.Day, 0, 0, 0, new TimeSpan());
         TimeLine ComputationBound;// = new TimeLine(new DateTimeOffset(DateTimeOffset.Now.Year, DateTimeOffset.Now.Month, DateTimeOffset.Now.Day, 0, 0, 0, new TimeSpan()), new DateTimeOffset(DateTimeOffset.Now.Year, DateTimeOffset.Now.Month, DateTimeOffset.Now.Day, 0, 0, 0, new TimeSpan()).AddDays(90));
         DateTimeOffset StartOfDay;
         DayTimeLine refFirstDay;
-        DayTimeLine[] AllDays;
+        protected DayTimeLine[] AllDays;
         Dictionary<ulong, DayTimeLine> DayLookUp;
         uint DayCount;
 
@@ -31,7 +31,7 @@ namespace TilerElements
             
         }
 
-        void InitializeParameters()
+        protected virtual void InitializeParameters()
         {
             DateTimeOffset IndifferentStartOfDay = new DateTimeOffset(CalculationNow.Year, CalculationNow.Month, CalculationNow.Day, StartOfDay.Hour, StartOfDay.Minute, 0, new TimeSpan());
             DateTimeOffset refDayStart = CalculationNow;// < IndifferentStartOfDay ? CalculationNow : IndifferentStartOfDay;
@@ -105,7 +105,7 @@ namespace TilerElements
             return retValue;
         }
 
-        public Tuple<int, int> indexRange(TimeLine Range)
+        virtual public Tuple<int, int> indexRange(TimeLine Range)
         {
             Tuple<int, int> retValue = new Tuple<int, int>((int)(Range.Start - ComputationBound.Start).TotalDays, (int)(Range.End - ComputationBound.Start).TotalDays);
             return retValue;
@@ -117,6 +117,12 @@ namespace TilerElements
             return retValue;
         }
 
+
+        virtual public ulong getDayIndexByTime(DateTimeOffset myDay)
+        {
+            ulong retValue = (ulong)((myDay - ComputationBound.Start).TotalDays);
+            return retValue;
+        }
         public DateTimeOffset constNow
         {
             get

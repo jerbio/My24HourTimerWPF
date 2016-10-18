@@ -220,7 +220,7 @@ namespace My24HourTimerWPF
                 List<int> invalidIndexes = new List<int>();
                 for (i = 0; i < correctlyAssignedevents.Count + 1; i++)
                 {
-                    if (validIndexes.Count > 0)
+                    if (orderedIndexes.Count > 0)
                     {
                         if (i == orderedIndexes[0])
                         {

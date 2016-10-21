@@ -3421,7 +3421,7 @@ namespace My24HourTimerWPF
                 Console.WriteLine(element.myLocation.justLongLatString());
             }
             double distanceCovered = Location_Elements.calculateDistance(TotalActiveEvents.OrderBy(SubEvent=> SubEvent.Start).Select(SubEvent => SubEvent.myLocation).ToList());
-            Health scheduleHealth = new Health(TotalActiveEvents, Now.calculationNow);
+            Health scheduleHealth = new Health(TotalActiveEvents, Now.calculationNow, new TimeSpan(7,0,0,0));
 
             Console.WriteLine("Distance covered is {0}, Optimize is set to {1}\n Health Score is {2}", distanceCovered, Optimize, scheduleHealth.getScore());
             

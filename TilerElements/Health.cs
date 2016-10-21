@@ -11,21 +11,23 @@ namespace TilerElements
     /// </summary>
     public class Health
     {
-        public static TimeSpan EvaluationSpan = new TimeSpan(90, 0, 0, 0, 0);
+        public TimeSpan EvaluationSpan = new TimeSpan(7, 0, 0, 0, 0);
         public TimeLine CalculationTimeline;
         List<SubCalendarEvent> RelevantSubEvents = new List<SubCalendarEvent>();
-        public Health(IEnumerable<CalendarEvent> AllEvents, DateTimeOffset startTime)
+        public Health(IEnumerable<CalendarEvent> AllEvents, DateTimeOffset startTime, TimeSpan evaluationSpan)
         {
             IEnumerable<SubCalendarEvent> SubEvents = AllEvents.SelectMany(CalEvent => CalEvent.ActiveSubEvents);
             CalculationTimeline = new TimeLine(startTime, startTime.Add(EvaluationSpan));
             RelevantSubEvents = SubEvents.Where(SubEvent => SubEvent.RangeTimeLine.InterferringTimeLine(CalculationTimeline) != null).OrderBy(obj=>obj.Start).ToList();
+            EvaluationSpan = evaluationSpan;
         }
 
-        public Health(IEnumerable<SubCalendarEvent> AllEvents, DateTimeOffset startTime)
+        public Health(IEnumerable<SubCalendarEvent> AllEvents, DateTimeOffset startTime, TimeSpan evaluationSpan)
         {
             IEnumerable<SubCalendarEvent> SubEvents = AllEvents;
             CalculationTimeline = new TimeLine(startTime, startTime.Add(EvaluationSpan));
             RelevantSubEvents = SubEvents.Where(SubEvent => SubEvent.RangeTimeLine.InterferringTimeLine(CalculationTimeline) != null).OrderBy(obj => obj.Start).ToList();
+            EvaluationSpan = evaluationSpan;
         }
 
         public double getScore()
@@ -66,14 +68,31 @@ namespace TilerElements
                     lastId = iterationId;
                 }
             }
-            
-            
-            
-            
 
             return retValue;
 
 
+        }
+
+        public class HealthScore
+        {
+            public HealthScore (IEnumerable<TilerEvent> TilerEvents)
+            {
+                List<TilerEvent> orderexListOfTilerEvents = TilerEvents.OrderBy(tilerEvent => tilerEvent.Start).ThenByDescending(tilerEvent => tilerEvent.End).ToList();
+                TotalDistance = Location_Elements.calculateDistance(orderexListOfTilerEvents.Select(ob=>ob.myLocation).ToList());
+            }
+
+            void evaluateSleepSchedule(IEnumerable<DayTimeLine> dayTimeLines)
+            {
+                List<DayTimeLine> daysSortedBystart = dayTimeLines.OrderBy(obj => obj.Start).ToList();
+                for (int i = 0; i < daysSortedBystart.Count; i++)
+                {
+                }
+            }
+
+            public Double TotalDistance { get; set; }
+            public TimeSpan SleepPerDDay { get; set; }
+            public Double OddsOfProcrastination { get; set; }
         }
     }
 }

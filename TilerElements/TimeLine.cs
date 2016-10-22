@@ -150,21 +150,31 @@ namespace TilerElements
             return false;
         }
 
-        virtual public void AddBusySlots(BusyTimeLine MyBusySlot)//Hack Alert further update will be to check if it interferes
+
+        /// <summary>
+        /// function adds a busytimeline to the active time slot of a timeline. It checks if the busyTImeLine will interfer. It only adds the section or frame that interfers. Any excess is cut out
+        /// </summary>
+        /// <param name="busyTimeLine"></param>
+        virtual public void AddBusySlots(BusyTimeLine busyTimeLine)//Hack Alert further update will be to check if it interferes
         {
-            //List<BusyTimeLine> MyListOfActiveSlots = ActiveTimeSlots.ToList();//;
-            //MyListOfActiveSlots.Add(MyBusySlot);
-            //ActiveTimeSlots = MyListOfActiveSlots.ToArray();
-            ActiveTimeSlots.Add(MyBusySlot);
+            if (doesTimeLineInterfere(busyTimeLine))
+            {
+                TimeLine interferringFrame = InterferringTimeLine(busyTimeLine);
+                ActiveTimeSlots.Add(new BusyTimeLine(busyTimeLine.ID, interferringFrame));
+            }
         }
 
         virtual public void AddBusySlots(IEnumerable<BusyTimeLine> MyBusySlot)//Hack Alert further update will be to check if it busy slots fall within range of the timeLine
         {
-            IEnumerable<BusyTimeLine> AllBusyTImeLine = MyBusySlot.Where(obj => obj.Start <= this.End);
-            AllBusyTImeLine = AllBusyTImeLine.Where(obj => obj.End >= this.Start);
+            IEnumerable<BusyTimeLine> AllBusyTImeLine = MyBusySlot.Where(obj => obj.doesTimeLineInterfere(this));
             //var MyNewArray = ActiveTimeSlots.Concat(AllBusyTImeLine);
             //ActiveTimeSlots = MyNewArray.ToArray();
-            AllBusyTImeLine.AsParallel().ForAll(obj => ActiveTimeSlots.Add(obj));
+            AllBusyTImeLine.AsParallel().ForAll(
+                obj => {
+                    TimeLine interferringFrame = InterferringTimeLine(obj);
+                    ActiveTimeSlots.Add(new BusyTimeLine(obj.ID, interferringFrame));
+                }
+            );
         }
 
 
@@ -203,7 +213,7 @@ namespace TilerElements
             if (ActiveTimeSlots.Length < 1)
             {
                 //List<TimeLine> SingleTimeline= new List<TimeLine>();
-                ListOfFreeSpots.Add(this.CreateCopy());
+                ListOfFreeSpots.Add(new TimeLine(this.Start, this.End));
 
                 return ListOfFreeSpots.ToArray();
             }
@@ -382,7 +392,9 @@ namespace TilerElements
             }
         }
 
-
+        /// <summary>
+        /// Property gets you the total active span within timespan. Note that overlapping timespans are evaluated as one.
+        /// </summary>
         virtual public TimeSpan TotalActiveSpan
         {
             get

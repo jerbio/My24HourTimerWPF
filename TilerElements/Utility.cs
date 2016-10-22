@@ -352,7 +352,7 @@ namespace TilerElements
             /// <returns></returns>
             Tuple<IEnumerable<IDefinedRange>, IEnumerable<IDefinedRange>> getConflictingRangeElements(IEnumerable<IDefinedRange> elements)
             {
-                elements = elements.OrderBy(obj => obj.Start);
+                elements = elements.Where(element => element.RangeTimeLine.TimelineSpan.Ticks > 0).OrderBy(obj => obj.Start);
                 List<IDefinedRange> EventsWithTImeline = elements.ToList();
                 List<TimeLine> retValue_ItemA = new List<TimeLine>();
 

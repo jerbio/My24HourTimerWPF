@@ -1,0 +1,1787 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.Owin.Hosting.Fakes</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Owin.Hosting.Builder.Fakes.ShimAppActivator">
+            <summary>Shim type of Microsoft.Owin.Hosting.Builder.AppActivator</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Builder.Fakes.ShimAppActivator.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Builder.Fakes.ShimAppActivator.#ctor(Microsoft.Owin.Hosting.Builder.AppActivator)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Builder.Fakes.ShimAppActivator.ActivateType">
+            <summary>Sets the shim of AppActivator.Activate(Type type)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Builder.Fakes.ShimAppActivator.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Builder.Fakes.ShimAppActivator.AllInstances.ActivateType">
+            <summary>Sets the shim of AppActivator.Activate(Type type)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Builder.Fakes.ShimAppActivator.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Builder.Fakes.ShimAppActivator.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Builder.Fakes.ShimAppActivator.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Builder.Fakes.ShimAppActivator.Bind(Microsoft.Owin.Hosting.Builder.IAppActivator)">
+            <summary>Binds the members of the interface to the shim.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Builder.Fakes.ShimAppActivator.ConstructorIServiceProvider">
+            <summary>Sets the shim of AppActivator.AppActivator(IServiceProvider services)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Builder.Fakes.ShimAppBuilderFactory">
+            <summary>Shim type of Microsoft.Owin.Hosting.Builder.AppBuilderFactory</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Builder.Fakes.ShimAppBuilderFactory.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Builder.Fakes.ShimAppBuilderFactory.#ctor(Microsoft.Owin.Hosting.Builder.AppBuilderFactory)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Builder.Fakes.ShimAppBuilderFactory.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Builder.Fakes.ShimAppBuilderFactory.AllInstances.Create">
+            <summary>Sets the shim of AppBuilderFactory.Create()</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Builder.Fakes.ShimAppBuilderFactory.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Builder.Fakes.ShimAppBuilderFactory.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Builder.Fakes.ShimAppBuilderFactory.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Builder.Fakes.ShimAppBuilderFactory.Bind(Microsoft.Owin.Hosting.Builder.IAppBuilderFactory)">
+            <summary>Binds the members of the interface to the shim.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Builder.Fakes.ShimAppBuilderFactory.Constructor">
+            <summary>Sets the shim of AppBuilderFactory.AppBuilderFactory()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Builder.Fakes.ShimAppBuilderFactory.Create">
+            <summary>Sets the shim of AppBuilderFactory.Create()</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Builder.Fakes.StubAppActivator">
+            <summary>Stub type of Microsoft.Owin.Hosting.Builder.AppActivator</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Builder.Fakes.StubAppActivator.#ctor(System.IServiceProvider)">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Builder.Fakes.StubAppActivator.Activate(System.Type)">
+            <summary>Sets the stub of AppActivator.Activate(Type type)</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Builder.Fakes.StubAppActivator.ActivateType">
+            <summary>Sets the stub of AppActivator.Activate(Type type)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Builder.Fakes.StubAppActivator.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Builder.Fakes.StubAppActivator.InitializeStub">
+            <summary>Initializes a new instance of type StubAppActivator</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Builder.Fakes.StubAppActivator.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Builder.Fakes.StubAppActivator.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Builder.Fakes.StubAppBuilderFactory">
+            <summary>Stub type of Microsoft.Owin.Hosting.Builder.AppBuilderFactory</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Builder.Fakes.StubAppBuilderFactory.#ctor">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Builder.Fakes.StubAppBuilderFactory.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Builder.Fakes.StubAppBuilderFactory.Create">
+            <summary>Sets the stub of AppBuilderFactory.Create()</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Builder.Fakes.StubAppBuilderFactory.Create01">
+            <summary>Sets the stub of AppBuilderFactory.Create()</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Builder.Fakes.StubAppBuilderFactory.InitializeStub">
+            <summary>Initializes a new instance of type StubAppBuilderFactory</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Builder.Fakes.StubAppBuilderFactory.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Builder.Fakes.StubAppBuilderFactory.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Builder.Fakes.StubIAppActivator">
+            <summary>Stub type of Microsoft.Owin.Hosting.Builder.IAppActivator</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Builder.Fakes.StubIAppActivator.#ctor">
+            <summary>Initializes a new instance of type StubIAppActivator</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Builder.Fakes.StubIAppActivator.ActivateType">
+            <summary>Sets the stub of IAppActivator.Activate(Type type)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Builder.Fakes.StubIAppActivator.Microsoft#Owin#Hosting#Builder#IAppActivator#Activate(System.Type)">
+            <summary>Sets the stub of IAppActivator.Activate(Type type)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Builder.Fakes.StubIAppBuilderFactory">
+            <summary>Stub type of Microsoft.Owin.Hosting.Builder.IAppBuilderFactory</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Builder.Fakes.StubIAppBuilderFactory.#ctor">
+            <summary>Initializes a new instance of type StubIAppBuilderFactory</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Builder.Fakes.StubIAppBuilderFactory.Create">
+            <summary>Sets the stub of IAppBuilderFactory.Create()</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Builder.Fakes.StubIAppBuilderFactory.Microsoft#Owin#Hosting#Builder#IAppBuilderFactory#Create">
+            <summary>Sets the stub of IAppBuilderFactory.Create()</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine">
+            <summary>Shim type of Microsoft.Owin.Hosting.Engine.HostingEngine</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.#ctor(Microsoft.Owin.Hosting.Engine.HostingEngine)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.AllInstances.EnableTracingStartContext">
+            <summary>Sets the shim of HostingEngine.EnableTracing(StartContext context)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.AllInstances.InitializeBuilderStartContext">
+            <summary>Sets the shim of HostingEngine.InitializeBuilder(StartContext context)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.AllInstances.ResolveAppStartContext">
+            <summary>Sets the shim of HostingEngine.ResolveApp(StartContext context)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.AllInstances.ResolveOutputStartContext">
+            <summary>Sets the shim of HostingEngine.ResolveOutput(StartContext context)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.AllInstances.ResolveServerFactoryStartContext">
+            <summary>Sets the shim of HostingEngine.ResolveServerFactory(StartContext context)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.AllInstances.StartStartContext">
+            <summary>Sets the shim of HostingEngine.Start(StartContext context)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.Bind(Microsoft.Owin.Hosting.Engine.IHostingEngine)">
+            <summary>Binds the members of the interface to the shim.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.ConstructorIAppBuilderFactoryITraceOutputFactoryIAppLoaderIServerFactoryLoaderILoggerFactory">
+            <summary>Sets the shim of HostingEngine.HostingEngine(IAppBuilderFactory appBuilderFactory, ITraceOutputFactory traceOutputFactory, IAppLoader appLoader, IServerFactoryLoader serverFactoryLoader, ILoggerFactory loggerFactory)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.DeconstructUrlStringStringOutStringOutStringOutStringOut">
+            <summary>Sets the shim of HostingEngine.DeconstructUrl(String url, String&amp; scheme, String&amp; host, String&amp; port, String&amp; path)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.DefaultPortGet">
+            <summary>Sets the shim of HostingEngine.get_DefaultPort()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.DetermineApplicationNameStartContext">
+            <summary>Sets the shim of HostingEngine.DetermineApplicationName(StartContext context)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.DetermineOwinServerStartContext">
+            <summary>Sets the shim of HostingEngine.DetermineOwinServer(StartContext context)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.DeterminePortStartContext">
+            <summary>Sets the shim of HostingEngine.DeterminePort(StartContext context)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.EnableDisposingStartContext">
+            <summary>Sets the shim of HostingEngine.EnableDisposing(StartContext context)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.EnableTracingStartContext">
+            <summary>Sets the shim of HostingEngine.EnableTracing(StartContext context)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.GetPortEnvironmentVariable">
+            <summary>Sets the shim of HostingEngine.GetPortEnvironmentVariable()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.InitializeBuilderStartContext">
+            <summary>Sets the shim of HostingEngine.InitializeBuilder(StartContext context)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.InitializeServerFactoryStartContext">
+            <summary>Sets the shim of HostingEngine.InitializeServerFactory(StartContext context)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.ResolveAppStartContext">
+            <summary>Sets the shim of HostingEngine.ResolveApp(StartContext context)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.ResolveOutputStartContext">
+            <summary>Sets the shim of HostingEngine.ResolveOutput(StartContext context)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.ResolveServerFactoryStartContext">
+            <summary>Sets the shim of HostingEngine.ResolveServerFactory(StartContext context)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.StartServerStartContext">
+            <summary>Sets the shim of HostingEngine.StartServer(StartContext context)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.StartStartContext">
+            <summary>Sets the shim of HostingEngine.Start(StartContext context)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimHostingEngine.TryDetermineCustomPortStartOptionsInt32Out">
+            <summary>Sets the shim of HostingEngine.TryDetermineCustomPort(StartOptions options, Int32&amp; port)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext">
+            <summary>Shim type of Microsoft.Owin.Hosting.Engine.StartContext</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.#ctor(Microsoft.Owin.Hosting.Engine.StartContext)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.AllInstances.AppGet">
+            <summary>Sets the shim of StartContext.get_App()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.AllInstances.AppSetFuncOfIDictionaryOfStringObjectTask">
+            <summary>Sets the shim of StartContext.set_App(Func`2&lt;IDictionary`2&lt;String,Object&gt;,Task&gt; value)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.AllInstances.BuilderGet">
+            <summary>Sets the shim of StartContext.get_Builder()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.AllInstances.BuilderSetIAppBuilder">
+            <summary>Sets the shim of StartContext.set_Builder(IAppBuilder value)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.AllInstances.EnvironmentDataGet">
+            <summary>Sets the shim of StartContext.get_EnvironmentData()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.AllInstances.EnvironmentDataSetIListOfKeyValuePairOfStringObject">
+            <summary>Sets the shim of StartContext.set_EnvironmentData(IList`1&lt;KeyValuePair`2&lt;String,Object&gt;&gt; value)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.AllInstances.OptionsGet">
+            <summary>Sets the shim of StartContext.get_Options()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.AllInstances.OptionsSetStartOptions">
+            <summary>Sets the shim of StartContext.set_Options(StartOptions value)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.AllInstances.ServerFactoryGet">
+            <summary>Sets the shim of StartContext.get_ServerFactory()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.AllInstances.ServerFactorySetIServerFactoryAdapter">
+            <summary>Sets the shim of StartContext.set_ServerFactory(IServerFactoryAdapter value)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.AllInstances.StartupGet">
+            <summary>Sets the shim of StartContext.get_Startup()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.AllInstances.StartupSetActionOfIAppBuilder">
+            <summary>Sets the shim of StartContext.set_Startup(Action`1&lt;IAppBuilder&gt; value)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.AllInstances.TraceOutputGet">
+            <summary>Sets the shim of StartContext.get_TraceOutput()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.AllInstances.TraceOutputSetTextWriter">
+            <summary>Sets the shim of StartContext.set_TraceOutput(TextWriter value)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.AppGet">
+            <summary>Sets the shim of StartContext.get_App()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.AppSetFuncOfIDictionaryOfStringObjectTask">
+            <summary>Sets the shim of StartContext.set_App(Func`2&lt;IDictionary`2&lt;String,Object&gt;,Task&gt; value)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.BuilderGet">
+            <summary>Sets the shim of StartContext.get_Builder()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.BuilderSetIAppBuilder">
+            <summary>Sets the shim of StartContext.set_Builder(IAppBuilder value)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.ConstructorStartOptions">
+            <summary>Sets the shim of StartContext.StartContext(StartOptions options)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.EnvironmentDataGet">
+            <summary>Sets the shim of StartContext.get_EnvironmentData()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.EnvironmentDataSetIListOfKeyValuePairOfStringObject">
+            <summary>Sets the shim of StartContext.set_EnvironmentData(IList`1&lt;KeyValuePair`2&lt;String,Object&gt;&gt; value)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.OptionsGet">
+            <summary>Sets the shim of StartContext.get_Options()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.OptionsSetStartOptions">
+            <summary>Sets the shim of StartContext.set_Options(StartOptions value)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.ServerFactoryGet">
+            <summary>Sets the shim of StartContext.get_ServerFactory()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.ServerFactorySetIServerFactoryAdapter">
+            <summary>Sets the shim of StartContext.set_ServerFactory(IServerFactoryAdapter value)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.StartupGet">
+            <summary>Sets the shim of StartContext.get_Startup()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.StartupSetActionOfIAppBuilder">
+            <summary>Sets the shim of StartContext.set_Startup(Action`1&lt;IAppBuilder&gt; value)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.TraceOutputGet">
+            <summary>Sets the shim of StartContext.get_TraceOutput()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.ShimStartContext.TraceOutputSetTextWriter">
+            <summary>Sets the shim of StartContext.set_TraceOutput(TextWriter value)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Engine.Fakes.StubHostingEngine">
+            <summary>Stub type of Microsoft.Owin.Hosting.Engine.HostingEngine</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Engine.Fakes.StubHostingEngine.#ctor(Microsoft.Owin.Hosting.Builder.IAppBuilderFactory,Microsoft.Owin.Hosting.Tracing.ITraceOutputFactory,Microsoft.Owin.Hosting.Loader.IAppLoader,Microsoft.Owin.Hosting.ServerFactory.IServerFactoryLoader,Microsoft.Owin.Logging.ILoggerFactory)">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.StubHostingEngine.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Engine.Fakes.StubHostingEngine.InitializeStub">
+            <summary>Initializes a new instance of type StubHostingEngine</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.StubHostingEngine.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.StubHostingEngine.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Engine.Fakes.StubIHostingEngine">
+            <summary>Stub type of Microsoft.Owin.Hosting.Engine.IHostingEngine</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Engine.Fakes.StubIHostingEngine.#ctor">
+            <summary>Initializes a new instance of type StubIHostingEngine</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Engine.Fakes.StubIHostingEngine.Microsoft#Owin#Hosting#Engine#IHostingEngine#Start(Microsoft.Owin.Hosting.Engine.StartContext)">
+            <summary>Sets the stub of IHostingEngine.Start(StartContext context)</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Engine.Fakes.StubIHostingEngine.StartStartContext">
+            <summary>Sets the stub of IHostingEngine.Start(StartContext context)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Engine.Fakes.StubStartContext">
+            <summary>Stub type of Microsoft.Owin.Hosting.Engine.StartContext</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Engine.Fakes.StubStartContext.#ctor(Microsoft.Owin.Hosting.StartOptions)">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.StubStartContext.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Engine.Fakes.StubStartContext.InitializeStub">
+            <summary>Initializes a new instance of type StubStartContext</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.StubStartContext.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Engine.Fakes.StubStartContext.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Fakes.ShimStartOptions">
+            <summary>Shim type of Microsoft.Owin.Hosting.StartOptions</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Fakes.ShimStartOptions.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Fakes.ShimStartOptions.#ctor(Microsoft.Owin.Hosting.StartOptions)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Fakes.ShimStartOptions.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimStartOptions.AllInstances.AppStartupGet">
+            <summary>Sets the shim of StartOptions.get_AppStartup()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimStartOptions.AllInstances.AppStartupSetString">
+            <summary>Sets the shim of StartOptions.set_AppStartup(String value)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimStartOptions.AllInstances.PortGet">
+            <summary>Sets the shim of StartOptions.get_Port()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimStartOptions.AllInstances.PortSetNullableOfInt32">
+            <summary>Sets the shim of StartOptions.set_Port(Nullable`1&lt;Int32&gt; value)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimStartOptions.AllInstances.ServerFactoryGet">
+            <summary>Sets the shim of StartOptions.get_ServerFactory()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimStartOptions.AllInstances.ServerFactorySetString">
+            <summary>Sets the shim of StartOptions.set_ServerFactory(String value)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimStartOptions.AllInstances.SettingsGet">
+            <summary>Sets the shim of StartOptions.get_Settings()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimStartOptions.AllInstances.SettingsSetIDictionaryOfStringString">
+            <summary>Sets the shim of StartOptions.set_Settings(IDictionary`2&lt;String,String&gt; value)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimStartOptions.AllInstances.UrlsGet">
+            <summary>Sets the shim of StartOptions.get_Urls()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimStartOptions.AllInstances.UrlsSetIListOfString">
+            <summary>Sets the shim of StartOptions.set_Urls(IList`1&lt;String&gt; value)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimStartOptions.AppStartupGet">
+            <summary>Sets the shim of StartOptions.get_AppStartup()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimStartOptions.AppStartupSetString">
+            <summary>Sets the shim of StartOptions.set_AppStartup(String value)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Fakes.ShimStartOptions.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Fakes.ShimStartOptions.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimStartOptions.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimStartOptions.Constructor">
+            <summary>Sets the shim of StartOptions.StartOptions()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimStartOptions.ConstructorString">
+            <summary>Sets the shim of StartOptions.StartOptions(String url)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimStartOptions.PortGet">
+            <summary>Sets the shim of StartOptions.get_Port()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimStartOptions.PortSetNullableOfInt32">
+            <summary>Sets the shim of StartOptions.set_Port(Nullable`1&lt;Int32&gt; value)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimStartOptions.ServerFactoryGet">
+            <summary>Sets the shim of StartOptions.get_ServerFactory()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimStartOptions.ServerFactorySetString">
+            <summary>Sets the shim of StartOptions.set_ServerFactory(String value)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimStartOptions.SettingsGet">
+            <summary>Sets the shim of StartOptions.get_Settings()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimStartOptions.SettingsSetIDictionaryOfStringString">
+            <summary>Sets the shim of StartOptions.set_Settings(IDictionary`2&lt;String,String&gt; value)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimStartOptions.UrlsGet">
+            <summary>Sets the shim of StartOptions.get_Urls()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimStartOptions.UrlsSetIListOfString">
+            <summary>Sets the shim of StartOptions.set_Urls(IList`1&lt;String&gt; value)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Fakes.ShimWebApp">
+            <summary>Shim type of Microsoft.Owin.Hosting.WebApp</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Fakes.ShimWebApp.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Fakes.ShimWebApp.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Fakes.ShimWebApp.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimWebApp.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimWebApp.BuildOptionsString">
+            <summary>Sets the shim of WebApp.BuildOptions(String url)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimWebApp.BuildServicesStartOptions">
+            <summary>Sets the shim of WebApp.BuildServices(StartOptions options)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimWebApp.StartImplementationIServiceProviderStartOptions">
+            <summary>Sets the shim of WebApp.StartImplementation(IServiceProvider services, StartOptions options)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimWebApp.StartImplementationIServiceProviderStartOptionsActionOfIAppBuilder">
+            <summary>Sets the shim of WebApp.StartImplementation(IServiceProvider services, StartOptions options, Action`1&lt;IAppBuilder&gt; startup)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Fakes.ShimWebApp.StartOf1StartOptions``1(Microsoft.QualityTools.Testing.Fakes.FakesDelegates.Func{Microsoft.Owin.Hosting.StartOptions,System.IDisposable})">
+            <summary>Sets the shim of WebApp.Start(StartOptions options)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Fakes.ShimWebApp.StartOf1String``1(Microsoft.QualityTools.Testing.Fakes.FakesDelegates.Func{System.String,System.IDisposable})">
+            <summary>Sets the shim of WebApp.Start(String url)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimWebApp.StartStartOptions">
+            <summary>Sets the shim of WebApp.Start(StartOptions options)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimWebApp.StartStartOptionsActionOfIAppBuilder">
+            <summary>Sets the shim of WebApp.Start(StartOptions options, Action`1&lt;IAppBuilder&gt; startup)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimWebApp.StartString">
+            <summary>Sets the shim of WebApp.Start(String url)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.ShimWebApp.StartStringActionOfIAppBuilder">
+            <summary>Sets the shim of WebApp.Start(String url, Action`1&lt;IAppBuilder&gt; startup)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Fakes.StubStartOptions">
+            <summary>Stub type of Microsoft.Owin.Hosting.StartOptions</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Fakes.StubStartOptions.#ctor">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Fakes.StubStartOptions.#ctor(System.String)">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.StubStartOptions.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Fakes.StubStartOptions.InitializeStub">
+            <summary>Initializes a new instance of type StubStartOptions</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.StubStartOptions.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Fakes.StubStartOptions.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Loader.Fakes.ShimAppLoader">
+            <summary>Shim type of Microsoft.Owin.Hosting.Loader.AppLoader</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Loader.Fakes.ShimAppLoader.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Loader.Fakes.ShimAppLoader.#ctor(Microsoft.Owin.Hosting.Loader.AppLoader)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Loader.Fakes.ShimAppLoader.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Loader.Fakes.ShimAppLoader.AllInstances.LoadStringIListOfString">
+            <summary>Sets the shim of AppLoader.Load(String appName, IList`1&lt;String&gt; errors)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Loader.Fakes.ShimAppLoader.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Loader.Fakes.ShimAppLoader.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Loader.Fakes.ShimAppLoader.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Loader.Fakes.ShimAppLoader.Bind(Microsoft.Owin.Hosting.Loader.IAppLoader)">
+            <summary>Binds the members of the interface to the shim.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Loader.Fakes.ShimAppLoader.ConstructorIEnumerableOfIAppLoaderFactory">
+            <summary>Sets the shim of AppLoader.AppLoader(IEnumerable`1&lt;IAppLoaderFactory&gt; providers)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Loader.Fakes.ShimAppLoader.LoadStringIListOfString">
+            <summary>Sets the shim of AppLoader.Load(String appName, IList`1&lt;String&gt; errors)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Loader.Fakes.ShimAppLoader._Loadb__0StringIListOfString">
+            <summary>Sets the shim of AppLoader.&lt;Load&gt;b__0(String arg, IList`1&lt;String&gt; arg2)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Loader.Fakes.ShimAppLoader._Loadb__1FuncOfStringIListOfStringActionOfIAppBuilderIAppLoaderFactory">
+            <summary>Sets the shim of AppLoader.&lt;Load&gt;b__1(Func`3&lt;String,IList`1&lt;String&gt;,Action`1&lt;IAppBuilder&gt;&gt; next, IAppLoaderFactory provider)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Loader.Fakes.ShimAppLoaderFactory">
+            <summary>Shim type of Microsoft.Owin.Hosting.Loader.AppLoaderFactory</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Loader.Fakes.ShimAppLoaderFactory.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Loader.Fakes.ShimAppLoaderFactory.#ctor(Microsoft.Owin.Hosting.Loader.AppLoaderFactory)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Loader.Fakes.ShimAppLoaderFactory.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Loader.Fakes.ShimAppLoaderFactory.AllInstances.CreateFuncOfStringIListOfStringActionOfIAppBuilder">
+            <summary>Sets the shim of AppLoaderFactory.Create(Func`3&lt;String,IList`1&lt;String&gt;,Action`1&lt;IAppBuilder&gt;&gt; nextLoader)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Loader.Fakes.ShimAppLoaderFactory.AllInstances.OrderGet">
+            <summary>Sets the shim of AppLoaderFactory.get_Order()</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Loader.Fakes.ShimAppLoaderFactory.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Loader.Fakes.ShimAppLoaderFactory.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Loader.Fakes.ShimAppLoaderFactory.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Loader.Fakes.ShimAppLoaderFactory.Bind(Microsoft.Owin.Hosting.Loader.IAppLoaderFactory)">
+            <summary>Binds the members of the interface to the shim.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Loader.Fakes.ShimAppLoaderFactory.ConstructorIAppActivator">
+            <summary>Sets the shim of AppLoaderFactory.AppLoaderFactory(IAppActivator activator)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Loader.Fakes.ShimAppLoaderFactory.CreateFuncOfStringIListOfStringActionOfIAppBuilder">
+            <summary>Sets the shim of AppLoaderFactory.Create(Func`3&lt;String,IList`1&lt;String&gt;,Action`1&lt;IAppBuilder&gt;&gt; nextLoader)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Loader.Fakes.ShimAppLoaderFactory.OrderGet">
+            <summary>Sets the shim of AppLoaderFactory.get_Order()</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Loader.Fakes.StubAppLoader">
+            <summary>Stub type of Microsoft.Owin.Hosting.Loader.AppLoader</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Loader.Fakes.StubAppLoader.#ctor(System.Collections.Generic.IEnumerable{Microsoft.Owin.Hosting.Loader.IAppLoaderFactory})">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Loader.Fakes.StubAppLoader.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Loader.Fakes.StubAppLoader.InitializeStub">
+            <summary>Initializes a new instance of type StubAppLoader</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Loader.Fakes.StubAppLoader.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Loader.Fakes.StubAppLoader.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Loader.Fakes.StubAppLoader.Load(System.String,System.Collections.Generic.IList{System.String})">
+            <summary>Sets the stub of AppLoader.Load(String appName, IList`1&lt;String&gt; errors)</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Loader.Fakes.StubAppLoader.LoadStringIListOfString">
+            <summary>Sets the stub of AppLoader.Load(String appName, IList`1&lt;String&gt; errors)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Loader.Fakes.StubAppLoaderFactory">
+            <summary>Stub type of Microsoft.Owin.Hosting.Loader.AppLoaderFactory</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Loader.Fakes.StubAppLoaderFactory.#ctor(Microsoft.Owin.Hosting.Builder.IAppActivator)">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Loader.Fakes.StubAppLoaderFactory.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Loader.Fakes.StubAppLoaderFactory.Create(System.Func{System.String,System.Collections.Generic.IList{System.String},System.Action{Owin.IAppBuilder}})">
+            <summary>Sets the stub of AppLoaderFactory.Create(Func`3&lt;String,IList`1&lt;String&gt;,Action`1&lt;IAppBuilder&gt;&gt; nextLoader)</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Loader.Fakes.StubAppLoaderFactory.CreateFuncOfStringIListOfStringActionOfIAppBuilder">
+            <summary>Sets the stub of AppLoaderFactory.Create(Func`3&lt;String,IList`1&lt;String&gt;,Action`1&lt;IAppBuilder&gt;&gt; nextLoader)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Loader.Fakes.StubAppLoaderFactory.InitializeStub">
+            <summary>Initializes a new instance of type StubAppLoaderFactory</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Loader.Fakes.StubAppLoaderFactory.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Loader.Fakes.StubAppLoaderFactory.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Loader.Fakes.StubAppLoaderFactory.Order">
+            <summary>Sets the stub of AppLoaderFactory.get_Order()</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Loader.Fakes.StubAppLoaderFactory.OrderGet">
+            <summary>Sets the stub of AppLoaderFactory.get_Order()</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Loader.Fakes.StubIAppLoader">
+            <summary>Stub type of Microsoft.Owin.Hosting.Loader.IAppLoader</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Loader.Fakes.StubIAppLoader.#ctor">
+            <summary>Initializes a new instance of type StubIAppLoader</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Loader.Fakes.StubIAppLoader.LoadStringIListOfString">
+            <summary>Sets the stub of IAppLoader.Load(String appName, IList`1&lt;String&gt; errors)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Loader.Fakes.StubIAppLoader.Microsoft#Owin#Hosting#Loader#IAppLoader#Load(System.String,System.Collections.Generic.IList{System.String})">
+            <summary>Sets the stub of IAppLoader.Load(String appName, IList`1&lt;String&gt; errors)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Loader.Fakes.StubIAppLoaderFactory">
+            <summary>Stub type of Microsoft.Owin.Hosting.Loader.IAppLoaderFactory</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Loader.Fakes.StubIAppLoaderFactory.#ctor">
+            <summary>Initializes a new instance of type StubIAppLoaderFactory</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Loader.Fakes.StubIAppLoaderFactory.CreateFuncOfStringIListOfStringActionOfIAppBuilder">
+            <summary>Sets the stub of IAppLoaderFactory.Create(Func`3&lt;String,IList`1&lt;String&gt;,Action`1&lt;IAppBuilder&gt;&gt; nextLoader)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Loader.Fakes.StubIAppLoaderFactory.Microsoft#Owin#Hosting#Loader#IAppLoaderFactory#Create(System.Func{System.String,System.Collections.Generic.IList{System.String},System.Action{Owin.IAppBuilder}})">
+            <summary>Sets the stub of IAppLoaderFactory.Create(Func`3&lt;String,IList`1&lt;String&gt;,Action`1&lt;IAppBuilder&gt;&gt; nextLoader)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Loader.Fakes.StubIAppLoaderFactory.Microsoft#Owin#Hosting#Loader#IAppLoaderFactory#Order">
+            <summary>Sets the stub of IAppLoaderFactory.get_Order()</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Loader.Fakes.StubIAppLoaderFactory.OrderGet">
+            <summary>Sets the stub of IAppLoaderFactory.get_Order()</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryActivator">
+            <summary>Shim type of Microsoft.Owin.Hosting.ServerFactory.ServerFactoryActivator</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryActivator.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryActivator.#ctor(Microsoft.Owin.Hosting.ServerFactory.ServerFactoryActivator)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryActivator.ActivateType">
+            <summary>Sets the shim of ServerFactoryActivator.Activate(Type type)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryActivator.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryActivator.AllInstances.ActivateType">
+            <summary>Sets the shim of ServerFactoryActivator.Activate(Type type)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryActivator.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryActivator.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryActivator.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryActivator.Bind(Microsoft.Owin.Hosting.ServerFactory.IServerFactoryActivator)">
+            <summary>Binds the members of the interface to the shim.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryActivator.ConstructorIServiceProvider">
+            <summary>Sets the shim of ServerFactoryActivator.ServerFactoryActivator(IServiceProvider services)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryAdapter">
+            <summary>Shim type of Microsoft.Owin.Hosting.ServerFactory.ServerFactoryAdapter</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryAdapter.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryAdapter.#ctor(Microsoft.Owin.Hosting.ServerFactory.ServerFactoryAdapter)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryAdapter.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryAdapter.AllInstances.CreateIAppBuilder">
+            <summary>Sets the shim of ServerFactoryAdapter.Create(IAppBuilder builder)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryAdapter.AllInstances.InitializeIAppBuilder">
+            <summary>Sets the shim of ServerFactoryAdapter.Initialize(IAppBuilder builder)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryAdapter.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryAdapter.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryAdapter.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryAdapter.Bind(Microsoft.Owin.Hosting.ServerFactory.IServerFactoryAdapter)">
+            <summary>Binds the members of the interface to the shim.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryAdapter.ConstructorObject">
+            <summary>Sets the shim of ServerFactoryAdapter.ServerFactoryAdapter(Object serverFactory)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryAdapter.ConstructorTypeIServerFactoryActivator">
+            <summary>Sets the shim of ServerFactoryAdapter.ServerFactoryAdapter(Type serverFactoryType, IServerFactoryActivator activator)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryAdapter.CreateIAppBuilder">
+            <summary>Sets the shim of ServerFactoryAdapter.Create(IAppBuilder builder)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryAdapter.InitializeIAppBuilder">
+            <summary>Sets the shim of ServerFactoryAdapter.Initialize(IAppBuilder builder)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryLoader">
+            <summary>Shim type of Microsoft.Owin.Hosting.ServerFactory.ServerFactoryLoader</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryLoader.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryLoader.#ctor(Microsoft.Owin.Hosting.ServerFactory.ServerFactoryLoader)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryLoader.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryLoader.AllInstances.LoadString">
+            <summary>Sets the shim of ServerFactoryLoader.Load(String serverName)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryLoader.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryLoader.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryLoader.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryLoader.Bind(Microsoft.Owin.Hosting.ServerFactory.IServerFactoryLoader)">
+            <summary>Binds the members of the interface to the shim.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryLoader.ConstructorIServerFactoryActivator">
+            <summary>Sets the shim of ServerFactoryLoader.ServerFactoryLoader(IServerFactoryActivator activator)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryLoader.DotByDotString">
+            <summary>Sets the shim of ServerFactoryLoader.DotByDot(String text)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryLoader.GetTypeAndMethodNameForConfigurationStringString">
+            <summary>Sets the shim of ServerFactoryLoader.GetTypeAndMethodNameForConfigurationString(String configuration)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryLoader.HuntForAssembliesString">
+            <summary>Sets the shim of ServerFactoryLoader.HuntForAssemblies(String configurationString)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryLoader.LoadString">
+            <summary>Sets the shim of ServerFactoryLoader.Load(String serverName)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.ServerFactory.Fakes.ShimServerFactoryLoader.TryAssemblyLoadString">
+            <summary>Sets the shim of ServerFactoryLoader.TryAssemblyLoad(String assemblyName)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubIServerFactoryActivator">
+            <summary>Stub type of Microsoft.Owin.Hosting.ServerFactory.IServerFactoryActivator</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubIServerFactoryActivator.#ctor">
+            <summary>Initializes a new instance of type StubIServerFactoryActivator</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubIServerFactoryActivator.ActivateType">
+            <summary>Sets the stub of IServerFactoryActivator.Activate(Type type)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubIServerFactoryActivator.Microsoft#Owin#Hosting#ServerFactory#IServerFactoryActivator#Activate(System.Type)">
+            <summary>Sets the stub of IServerFactoryActivator.Activate(Type type)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubIServerFactoryAdapter">
+            <summary>Stub type of Microsoft.Owin.Hosting.ServerFactory.IServerFactoryAdapter</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubIServerFactoryAdapter.#ctor">
+            <summary>Initializes a new instance of type StubIServerFactoryAdapter</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubIServerFactoryAdapter.CreateIAppBuilder">
+            <summary>Sets the stub of IServerFactoryAdapter.Create(IAppBuilder builder)</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubIServerFactoryAdapter.InitializeIAppBuilder">
+            <summary>Sets the stub of IServerFactoryAdapter.Initialize(IAppBuilder builder)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubIServerFactoryAdapter.Microsoft#Owin#Hosting#ServerFactory#IServerFactoryAdapter#Create(Owin.IAppBuilder)">
+            <summary>Sets the stub of IServerFactoryAdapter.Create(IAppBuilder builder)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubIServerFactoryAdapter.Microsoft#Owin#Hosting#ServerFactory#IServerFactoryAdapter#Initialize(Owin.IAppBuilder)">
+            <summary>Sets the stub of IServerFactoryAdapter.Initialize(IAppBuilder builder)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubIServerFactoryLoader">
+            <summary>Stub type of Microsoft.Owin.Hosting.ServerFactory.IServerFactoryLoader</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubIServerFactoryLoader.#ctor">
+            <summary>Initializes a new instance of type StubIServerFactoryLoader</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubIServerFactoryLoader.LoadString">
+            <summary>Sets the stub of IServerFactoryLoader.Load(String serverName)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubIServerFactoryLoader.Microsoft#Owin#Hosting#ServerFactory#IServerFactoryLoader#Load(System.String)">
+            <summary>Sets the stub of IServerFactoryLoader.Load(String serverName)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubServerFactoryActivator">
+            <summary>Stub type of Microsoft.Owin.Hosting.ServerFactory.ServerFactoryActivator</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubServerFactoryActivator.#ctor(System.IServiceProvider)">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubServerFactoryActivator.Activate(System.Type)">
+            <summary>Sets the stub of ServerFactoryActivator.Activate(Type type)</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubServerFactoryActivator.ActivateType">
+            <summary>Sets the stub of ServerFactoryActivator.Activate(Type type)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubServerFactoryActivator.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubServerFactoryActivator.InitializeStub">
+            <summary>Initializes a new instance of type StubServerFactoryActivator</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubServerFactoryActivator.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubServerFactoryActivator.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubServerFactoryAdapter">
+            <summary>Stub type of Microsoft.Owin.Hosting.ServerFactory.ServerFactoryAdapter</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubServerFactoryAdapter.#ctor(System.Object)">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubServerFactoryAdapter.#ctor(System.Type,Microsoft.Owin.Hosting.ServerFactory.IServerFactoryActivator)">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubServerFactoryAdapter.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubServerFactoryAdapter.Create(Owin.IAppBuilder)">
+            <summary>Sets the stub of ServerFactoryAdapter.Create(IAppBuilder builder)</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubServerFactoryAdapter.CreateIAppBuilder">
+            <summary>Sets the stub of ServerFactoryAdapter.Create(IAppBuilder builder)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubServerFactoryAdapter.Initialize(Owin.IAppBuilder)">
+            <summary>Sets the stub of ServerFactoryAdapter.Initialize(IAppBuilder builder)</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubServerFactoryAdapter.InitializeIAppBuilder">
+            <summary>Sets the stub of ServerFactoryAdapter.Initialize(IAppBuilder builder)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubServerFactoryAdapter.InitializeStub">
+            <summary>Initializes a new instance of type StubServerFactoryAdapter</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubServerFactoryAdapter.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubServerFactoryAdapter.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubServerFactoryLoader">
+            <summary>Stub type of Microsoft.Owin.Hosting.ServerFactory.ServerFactoryLoader</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubServerFactoryLoader.#ctor(Microsoft.Owin.Hosting.ServerFactory.IServerFactoryActivator)">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubServerFactoryLoader.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubServerFactoryLoader.InitializeStub">
+            <summary>Initializes a new instance of type StubServerFactoryLoader</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubServerFactoryLoader.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubServerFactoryLoader.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubServerFactoryLoader.Load(System.String)">
+            <summary>Sets the stub of ServerFactoryLoader.Load(String serverName)</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.ServerFactory.Fakes.StubServerFactoryLoader.LoadString">
+            <summary>Sets the stub of ServerFactoryLoader.Load(String serverName)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Services.Fakes.ShimActivatorUtilities">
+            <summary>Shim type of Microsoft.Owin.Hosting.Services.ActivatorUtilities</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.ShimActivatorUtilities.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.ShimActivatorUtilities.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.ShimActivatorUtilities.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimActivatorUtilities.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimActivatorUtilities.CreateFactoryType">
+            <summary>Sets the shim of ActivatorUtilities.CreateFactory(Type type)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimActivatorUtilities.CreateInstanceIServiceProviderType">
+            <summary>Sets the shim of ActivatorUtilities.CreateInstance(IServiceProvider services, Type type)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimActivatorUtilities.GetServiceNoExceptionsIServiceProviderType">
+            <summary>Sets the shim of ActivatorUtilities.GetServiceNoExceptions(IServiceProvider services, Type type)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimActivatorUtilities.GetServiceOrCreateInstanceIServiceProviderType">
+            <summary>Sets the shim of ActivatorUtilities.GetServiceOrCreateInstance(IServiceProvider services, Type type)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimActivatorUtilities.IsInjectableConstructorInfo">
+            <summary>Sets the shim of ActivatorUtilities.IsInjectable(ConstructorInfo constructor)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider">
+            <summary>Shim type of Microsoft.Owin.Hosting.Services.ServiceProvider</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.#ctor(Microsoft.Owin.Hosting.Services.ServiceProvider)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.AddInstanceOf1Object``1(Microsoft.QualityTools.Testing.Fakes.FakesDelegates.Func{System.Object,Microsoft.Owin.Hosting.Services.ServiceProvider})">
+            <summary>Sets the shim of ServiceProvider.AddInstance(Object instance)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.AddInstanceTypeObject">
+            <summary>Sets the shim of ServiceProvider.AddInstance(Type service, Object instance)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.AddOf2``2(Microsoft.QualityTools.Testing.Fakes.FakesDelegates.Func{Microsoft.Owin.Hosting.Services.ServiceProvider})">
+            <summary>Sets the shim of ServiceProvider.Add()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.AddTypeFuncOfObject">
+            <summary>Sets the shim of ServiceProvider.Add(Type serviceType, Func`1&lt;Object&gt; serviceFactory)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.AddTypeType">
+            <summary>Sets the shim of ServiceProvider.Add(Type serviceType, Type implementationType)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.AllInstances.AddInstanceOf1Object``1(Microsoft.QualityTools.Testing.Fakes.FakesDelegates.Func{Microsoft.Owin.Hosting.Services.ServiceProvider,System.Object,Microsoft.Owin.Hosting.Services.ServiceProvider})">
+            <summary>Sets the shim of ServiceProvider.AddInstance(Object instance)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.AllInstances.AddInstanceTypeObject">
+            <summary>Sets the shim of ServiceProvider.AddInstance(Type service, Object instance)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.AllInstances.AddOf2``2(Microsoft.QualityTools.Testing.Fakes.FakesDelegates.Func{Microsoft.Owin.Hosting.Services.ServiceProvider,Microsoft.Owin.Hosting.Services.ServiceProvider})">
+            <summary>Sets the shim of ServiceProvider.Add()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.AllInstances.AddTypeFuncOfObject">
+            <summary>Sets the shim of ServiceProvider.Add(Type serviceType, Func`1&lt;Object&gt; serviceFactory)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.AllInstances.AddTypeType">
+            <summary>Sets the shim of ServiceProvider.Add(Type serviceType, Type implementationType)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.AllInstances.GetMultiServiceType">
+            <summary>Sets the shim of ServiceProvider.GetMultiService(Type collectionType)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.AllInstances.GetServiceType">
+            <summary>Sets the shim of ServiceProvider.GetService(Type serviceType)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.AllInstances.GetSingleServiceType">
+            <summary>Sets the shim of ServiceProvider.GetSingleService(Type serviceType)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.AllInstances.RemoveAllOf1``1(Microsoft.QualityTools.Testing.Fakes.FakesDelegates.Func{Microsoft.Owin.Hosting.Services.ServiceProvider,Microsoft.Owin.Hosting.Services.ServiceProvider})">
+            <summary>Sets the shim of ServiceProvider.RemoveAll()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.AllInstances.RemoveAllType">
+            <summary>Sets the shim of ServiceProvider.RemoveAll(Type type)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.AllInstances._ctorb__0">
+            <summary>Sets the shim of ServiceProvider.&lt;.ctor&gt;b__0()</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.Bind(System.IServiceProvider)">
+            <summary>Binds the members of the interface to the shim.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.Constructor">
+            <summary>Sets the shim of ServiceProvider.ServiceProvider()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.GetMultiServiceType">
+            <summary>Sets the shim of ServiceProvider.GetMultiService(Type collectionType)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.GetServiceType">
+            <summary>Sets the shim of ServiceProvider.GetService(Type serviceType)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.GetSingleServiceType">
+            <summary>Sets the shim of ServiceProvider.GetSingleService(Type serviceType)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.RemoveAllOf1``1(Microsoft.QualityTools.Testing.Fakes.FakesDelegates.Func{Microsoft.Owin.Hosting.Services.ServiceProvider})">
+            <summary>Sets the shim of ServiceProvider.RemoveAll()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider.RemoveAllType">
+            <summary>Sets the shim of ServiceProvider.RemoveAll(Type type)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProvider._ctorb__0">
+            <summary>Sets the shim of ServiceProvider.&lt;.ctor&gt;b__0()</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProviderExtensions">
+            <summary>Shim type of Microsoft.Owin.Hosting.Services.ServiceProviderExtensions</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProviderExtensions.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProviderExtensions.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProviderExtensions.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProviderExtensions.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.ShimServiceProviderExtensions.GetServiceOf1IServiceProvider``1(Microsoft.QualityTools.Testing.Fakes.FakesDelegates.Func{System.IServiceProvider,``0})">
+            <summary>Sets the shim of ServiceProviderExtensions.GetService(IServiceProvider services)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Services.Fakes.ShimServicesFactory">
+            <summary>Shim type of Microsoft.Owin.Hosting.Services.ServicesFactory</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.ShimServicesFactory.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.ShimServicesFactory.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.ShimServicesFactory.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServicesFactory.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServicesFactory.Create">
+            <summary>Sets the shim of ServicesFactory.Create()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServicesFactory.CreateActionOfServiceProvider">
+            <summary>Sets the shim of ServicesFactory.Create(Action`1&lt;ServiceProvider&gt; configuration)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServicesFactory.CreateIDictionaryOfStringString">
+            <summary>Sets the shim of ServicesFactory.Create(IDictionary`2&lt;String,String&gt; settings)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServicesFactory.CreateIDictionaryOfStringStringActionOfServiceProvider">
+            <summary>Sets the shim of ServicesFactory.Create(IDictionary`2&lt;String,String&gt; settings, Action`1&lt;ServiceProvider&gt; configuration)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServicesFactory.CreateString">
+            <summary>Sets the shim of ServicesFactory.Create(String settingsFile)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServicesFactory.CreateStringActionOfServiceProvider">
+            <summary>Sets the shim of ServicesFactory.Create(String settingsFile, Action`1&lt;ServiceProvider&gt; configuration)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServicesFactory.DoCallbackActionOfTypeType">
+            <summary>Sets the shim of ServicesFactory.DoCallback(Action`2&lt;Type,Type&gt; callback)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServicesFactory.DoCallbackIDictionaryOfStringStringActionOfTypeType">
+            <summary>Sets the shim of ServicesFactory.DoCallback(IDictionary`2&lt;String,String&gt; settings, Action`2&lt;Type,Type&gt; callback)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServicesFactory.ForEachActionOfTypeType">
+            <summary>Sets the shim of ServicesFactory.ForEach(Action`2&lt;Type,Type&gt; callback)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServicesFactory.ForEachIDictionaryOfStringStringActionOfTypeType">
+            <summary>Sets the shim of ServicesFactory.ForEach(IDictionary`2&lt;String,String&gt; settings, Action`2&lt;Type,Type&gt; callback)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServicesFactory.ForEachStringActionOfTypeType">
+            <summary>Sets the shim of ServicesFactory.ForEach(String settingsFile, Action`2&lt;Type,Type&gt; callback)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServicesFactory.StaticConstructor">
+            <summary>Sets the shim of ServicesFactory.ServicesFactory()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.ShimServicesFactory._cctorb__6ServiceProvider">
+            <summary>Sets the shim of ServicesFactory.&lt;.cctor&gt;b__6(ServiceProvider _)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Services.Fakes.StubServiceProvider">
+            <summary>Stub type of Microsoft.Owin.Hosting.Services.ServiceProvider</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.StubServiceProvider.#ctor">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.StubServiceProvider.Add``2">
+            <summary>Sets the stub of ServiceProvider.Add()</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.StubServiceProvider.Add(System.Type,System.Type)">
+            <summary>Sets the stub of ServiceProvider.Add(Type serviceType, Type implementationType)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.StubServiceProvider.Add(System.Type,System.Func{System.Object})">
+            <summary>Sets the stub of ServiceProvider.Add(Type serviceType, Func`1&lt;Object&gt; serviceFactory)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.StubServiceProvider.AddInstance``1(System.Object)">
+            <summary>Sets the stub of ServiceProvider.AddInstance(Object instance)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.StubServiceProvider.AddInstance(System.Type,System.Object)">
+            <summary>Sets the stub of ServiceProvider.AddInstance(Type service, Object instance)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.StubServiceProvider.AddInstanceOf1Object``1(Microsoft.QualityTools.Testing.Fakes.FakesDelegates.Func{System.Object,Microsoft.Owin.Hosting.Services.ServiceProvider})">
+            <summary>Sets stubs of AddInstance(Object instance)</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Services.Fakes.StubServiceProvider.AddInstanceTypeObject">
+            <summary>Sets the stub of ServiceProvider.AddInstance(Type service, Object instance)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.StubServiceProvider.AddOf2``2(Microsoft.QualityTools.Testing.Fakes.FakesDelegates.Func{Microsoft.Owin.Hosting.Services.ServiceProvider})">
+            <summary>Sets stubs of Add()</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Services.Fakes.StubServiceProvider.AddTypeFuncOfObject">
+            <summary>Sets the stub of ServiceProvider.Add(Type serviceType, Func`1&lt;Object&gt; serviceFactory)</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Services.Fakes.StubServiceProvider.AddTypeType">
+            <summary>Sets the stub of ServiceProvider.Add(Type serviceType, Type implementationType)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.StubServiceProvider.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.StubServiceProvider.GetService(System.Type)">
+            <summary>Sets the stub of ServiceProvider.GetService(Type serviceType)</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Services.Fakes.StubServiceProvider.GetServiceType">
+            <summary>Sets the stub of ServiceProvider.GetService(Type serviceType)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.StubServiceProvider.InitializeStub">
+            <summary>Initializes a new instance of type StubServiceProvider</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.StubServiceProvider.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Services.Fakes.StubServiceProvider.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.StubServiceProvider.RemoveAll``1">
+            <summary>Sets the stub of ServiceProvider.RemoveAll()</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.StubServiceProvider.RemoveAll(System.Type)">
+            <summary>Sets the stub of ServiceProvider.RemoveAll(Type type)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Services.Fakes.StubServiceProvider.RemoveAllOf1``1(Microsoft.QualityTools.Testing.Fakes.FakesDelegates.Func{Microsoft.Owin.Hosting.Services.ServiceProvider})">
+            <summary>Sets stubs of RemoveAll()</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Services.Fakes.StubServiceProvider.RemoveAllType">
+            <summary>Sets the stub of ServiceProvider.RemoveAll(Type type)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Starter.Fakes.ShimDirectHostingStarter">
+            <summary>Shim type of Microsoft.Owin.Hosting.Starter.DirectHostingStarter</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimDirectHostingStarter.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimDirectHostingStarter.#ctor(Microsoft.Owin.Hosting.Starter.DirectHostingStarter)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Starter.Fakes.ShimDirectHostingStarter.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimDirectHostingStarter.AllInstances.StartStartOptions">
+            <summary>Sets the shim of DirectHostingStarter.Start(StartOptions options)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimDirectHostingStarter.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimDirectHostingStarter.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimDirectHostingStarter.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimDirectHostingStarter.Bind(Microsoft.Owin.Hosting.Starter.IHostingStarter)">
+            <summary>Binds the members of the interface to the shim.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimDirectHostingStarter.ConstructorIHostingEngine">
+            <summary>Sets the shim of DirectHostingStarter.DirectHostingStarter(IHostingEngine engine)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimDirectHostingStarter.StartStartOptions">
+            <summary>Sets the shim of DirectHostingStarter.Start(StartOptions options)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarter">
+            <summary>Shim type of Microsoft.Owin.Hosting.Starter.DomainHostingStarter</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarter.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarter.#ctor(Microsoft.Owin.Hosting.Starter.DomainHostingStarter)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarter.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarter.AllInstances.StartStartOptions">
+            <summary>Sets the shim of DomainHostingStarter.Start(StartOptions options)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarter.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarter.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarter.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarter.Bind(Microsoft.Owin.Hosting.Starter.IHostingStarter)">
+            <summary>Binds the members of the interface to the shim.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarter.Constructor">
+            <summary>Sets the shim of DomainHostingStarter.DomainHostingStarter()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarter.CreateAgentAppDomain">
+            <summary>Sets the shim of DomainHostingStarter.CreateAgent(AppDomain domain)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarter.StartStartOptions">
+            <summary>Sets the shim of DomainHostingStarter.Start(StartOptions options)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarter._Startb__1DirectoryInfo">
+            <summary>Sets the shim of DomainHostingStarter.&lt;Start&gt;b__1(DirectoryInfo subDirInfo)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarterAgent">
+            <summary>Shim type of Microsoft.Owin.Hosting.Starter.DomainHostingStarterAgent</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarterAgent.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarterAgent.#ctor(Microsoft.Owin.Hosting.Starter.DomainHostingStarterAgent)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarterAgent.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarterAgent.AllInstances.Dispose">
+            <summary>Sets the shim of DomainHostingStarterAgent.Dispose()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarterAgent.AllInstances.DisposeBoolean">
+            <summary>Sets the shim of DomainHostingStarterAgent.Dispose(Boolean disposing)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarterAgent.AllInstances.RenewalILease">
+            <summary>Sets the shim of DomainHostingStarterAgent.Renewal(ILease lease)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarterAgent.AllInstances.ResolveAssembliesFromDirectoryString">
+            <summary>Sets the shim of DomainHostingStarterAgent.ResolveAssembliesFromDirectory(String directory)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarterAgent.AllInstances.StartStartOptions">
+            <summary>Sets the shim of DomainHostingStarterAgent.Start(StartOptions options)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarterAgent.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarterAgent.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarterAgent.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarterAgent.Bind(System.IDisposable)">
+            <summary>Binds the members of the interface to the shim.</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarterAgent.Bind(System.Runtime.Remoting.Lifetime.ISponsor)">
+            <summary>Binds the members of the interface to the shim.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarterAgent.Constructor">
+            <summary>Sets the shim of DomainHostingStarterAgent.DomainHostingStarterAgent()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarterAgent.Dispose">
+            <summary>Sets the shim of DomainHostingStarterAgent.Dispose()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarterAgent.DisposeBoolean">
+            <summary>Sets the shim of DomainHostingStarterAgent.Dispose(Boolean disposing)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarterAgent.RenewalILease">
+            <summary>Sets the shim of DomainHostingStarterAgent.Renewal(ILease lease)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarterAgent.ResolveAssembliesFromDirectoryString">
+            <summary>Sets the shim of DomainHostingStarterAgent.ResolveAssembliesFromDirectory(String directory)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimDomainHostingStarterAgent.StartStartOptions">
+            <summary>Sets the shim of DomainHostingStarterAgent.Start(StartOptions options)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarter">
+            <summary>Shim type of Microsoft.Owin.Hosting.Starter.HostingStarter</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarter.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarter.#ctor(Microsoft.Owin.Hosting.Starter.HostingStarter)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarter.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarter.AllInstances.StartStartOptions">
+            <summary>Sets the shim of HostingStarter.Start(StartOptions options)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarter.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarter.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarter.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarter.Bind(Microsoft.Owin.Hosting.Starter.IHostingStarter)">
+            <summary>Binds the members of the interface to the shim.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarter.ConstructorIHostingStarterFactory">
+            <summary>Sets the shim of HostingStarter.HostingStarter(IHostingStarterFactory hostingStarterFactory)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarter.StartStartOptions">
+            <summary>Sets the shim of HostingStarter.Start(StartOptions options)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterActivator">
+            <summary>Shim type of Microsoft.Owin.Hosting.Starter.HostingStarterActivator</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterActivator.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterActivator.#ctor(Microsoft.Owin.Hosting.Starter.HostingStarterActivator)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterActivator.ActivateType">
+            <summary>Sets the shim of HostingStarterActivator.Activate(Type type)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterActivator.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterActivator.AllInstances.ActivateType">
+            <summary>Sets the shim of HostingStarterActivator.Activate(Type type)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterActivator.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterActivator.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterActivator.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterActivator.Bind(Microsoft.Owin.Hosting.Starter.IHostingStarterActivator)">
+            <summary>Binds the members of the interface to the shim.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterActivator.ConstructorIServiceProvider">
+            <summary>Sets the shim of HostingStarterActivator.HostingStarterActivator(IServiceProvider services)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterAttribute">
+            <summary>Shim type of Microsoft.Owin.Hosting.Starter.HostingStarterAttribute</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterAttribute.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterAttribute.#ctor(Microsoft.Owin.Hosting.Starter.HostingStarterAttribute)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterAttribute.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterAttribute.AllInstances.HostingStarterTypeGet">
+            <summary>Sets the shim of HostingStarterAttribute.get_HostingStarterType()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterAttribute.AllInstances.HostingStarterTypeSetType">
+            <summary>Sets the shim of HostingStarterAttribute.set_HostingStarterType(Type value)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterAttribute.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterAttribute.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterAttribute.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterAttribute.ConstructorType">
+            <summary>Sets the shim of HostingStarterAttribute.HostingStarterAttribute(Type hostingStarterType)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterAttribute.HostingStarterTypeGet">
+            <summary>Sets the shim of HostingStarterAttribute.get_HostingStarterType()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterAttribute.HostingStarterTypeSetType">
+            <summary>Sets the shim of HostingStarterAttribute.set_HostingStarterType(Type value)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterFactory">
+            <summary>Shim type of Microsoft.Owin.Hosting.Starter.HostingStarterFactory</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterFactory.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterFactory.#ctor(Microsoft.Owin.Hosting.Starter.HostingStarterFactory)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterFactory.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterFactory.AllInstances.CreateString">
+            <summary>Sets the shim of HostingStarterFactory.Create(String name)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterFactory.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterFactory.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterFactory.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterFactory.Bind(Microsoft.Owin.Hosting.Starter.IHostingStarterFactory)">
+            <summary>Binds the members of the interface to the shim.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterFactory.ConstructorIHostingStarterActivator">
+            <summary>Sets the shim of HostingStarterFactory.HostingStarterFactory(IHostingStarterActivator hostingStarterActivator)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterFactory.CreateString">
+            <summary>Sets the shim of HostingStarterFactory.Create(String name)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterFactory.LoadProviderStringArray">
+            <summary>Sets the shim of HostingStarterFactory.LoadProvider(String[] names)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.ShimHostingStarterFactory._Createb__0HostingStarterAttribute">
+            <summary>Sets the shim of HostingStarterFactory.&lt;Create&gt;b__0(HostingStarterAttribute attribute)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Starter.Fakes.StubDirectHostingStarter">
+            <summary>Stub type of Microsoft.Owin.Hosting.Starter.DirectHostingStarter</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.StubDirectHostingStarter.#ctor(Microsoft.Owin.Hosting.Engine.IHostingEngine)">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.StubDirectHostingStarter.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.StubDirectHostingStarter.InitializeStub">
+            <summary>Initializes a new instance of type StubDirectHostingStarter</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.StubDirectHostingStarter.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.StubDirectHostingStarter.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.StubDirectHostingStarter.Start(Microsoft.Owin.Hosting.StartOptions)">
+            <summary>Sets the stub of DirectHostingStarter.Start(StartOptions options)</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Starter.Fakes.StubDirectHostingStarter.StartStartOptions">
+            <summary>Sets the stub of DirectHostingStarter.Start(StartOptions options)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Starter.Fakes.StubDomainHostingStarter">
+            <summary>Stub type of Microsoft.Owin.Hosting.Starter.DomainHostingStarter</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.StubDomainHostingStarter.#ctor">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.StubDomainHostingStarter.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.StubDomainHostingStarter.InitializeStub">
+            <summary>Initializes a new instance of type StubDomainHostingStarter</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.StubDomainHostingStarter.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.StubDomainHostingStarter.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.StubDomainHostingStarter.Start(Microsoft.Owin.Hosting.StartOptions)">
+            <summary>Sets the stub of DomainHostingStarter.Start(StartOptions options)</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Starter.Fakes.StubDomainHostingStarter.StartStartOptions">
+            <summary>Sets the stub of DomainHostingStarter.Start(StartOptions options)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Starter.Fakes.StubDomainHostingStarterAgent">
+            <summary>Stub type of Microsoft.Owin.Hosting.Starter.DomainHostingStarterAgent</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.StubDomainHostingStarterAgent.#ctor">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.StubDomainHostingStarterAgent.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.StubDomainHostingStarterAgent.Dispose(System.Boolean)">
+            <summary>Sets the stub of DomainHostingStarterAgent.Dispose(Boolean disposing)</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Starter.Fakes.StubDomainHostingStarterAgent.DisposeBoolean">
+            <summary>Sets the stub of DomainHostingStarterAgent.Dispose(Boolean disposing)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.StubDomainHostingStarterAgent.InitializeStub">
+            <summary>Initializes a new instance of type StubDomainHostingStarterAgent</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.StubDomainHostingStarterAgent.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.StubDomainHostingStarterAgent.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.StubDomainHostingStarterAgent.Renewal(System.Runtime.Remoting.Lifetime.ILease)">
+            <summary>Sets the stub of DomainHostingStarterAgent.Renewal(ILease lease)</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Starter.Fakes.StubDomainHostingStarterAgent.RenewalILease">
+            <summary>Sets the stub of DomainHostingStarterAgent.Renewal(ILease lease)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.StubDomainHostingStarterAgent.ResolveAssembliesFromDirectory(System.String)">
+            <summary>Sets the stub of DomainHostingStarterAgent.ResolveAssembliesFromDirectory(String directory)</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Starter.Fakes.StubDomainHostingStarterAgent.ResolveAssembliesFromDirectoryString">
+            <summary>Sets the stub of DomainHostingStarterAgent.ResolveAssembliesFromDirectory(String directory)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.StubDomainHostingStarterAgent.Start(Microsoft.Owin.Hosting.StartOptions)">
+            <summary>Sets the stub of DomainHostingStarterAgent.Start(StartOptions options)</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Starter.Fakes.StubDomainHostingStarterAgent.StartStartOptions">
+            <summary>Sets the stub of DomainHostingStarterAgent.Start(StartOptions options)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Starter.Fakes.StubHostingStarter">
+            <summary>Stub type of Microsoft.Owin.Hosting.Starter.HostingStarter</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.StubHostingStarter.#ctor(Microsoft.Owin.Hosting.Starter.IHostingStarterFactory)">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.StubHostingStarter.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.StubHostingStarter.InitializeStub">
+            <summary>Initializes a new instance of type StubHostingStarter</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.StubHostingStarter.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.StubHostingStarter.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.StubHostingStarter.Start(Microsoft.Owin.Hosting.StartOptions)">
+            <summary>Sets the stub of HostingStarter.Start(StartOptions options)</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Starter.Fakes.StubHostingStarter.StartStartOptions">
+            <summary>Sets the stub of HostingStarter.Start(StartOptions options)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Starter.Fakes.StubHostingStarterActivator">
+            <summary>Stub type of Microsoft.Owin.Hosting.Starter.HostingStarterActivator</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.StubHostingStarterActivator.#ctor(System.IServiceProvider)">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.StubHostingStarterActivator.Activate(System.Type)">
+            <summary>Sets the stub of HostingStarterActivator.Activate(Type type)</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Starter.Fakes.StubHostingStarterActivator.ActivateType">
+            <summary>Sets the stub of HostingStarterActivator.Activate(Type type)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.StubHostingStarterActivator.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.StubHostingStarterActivator.InitializeStub">
+            <summary>Initializes a new instance of type StubHostingStarterActivator</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.StubHostingStarterActivator.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.StubHostingStarterActivator.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Starter.Fakes.StubHostingStarterFactory">
+            <summary>Stub type of Microsoft.Owin.Hosting.Starter.HostingStarterFactory</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.StubHostingStarterFactory.#ctor(Microsoft.Owin.Hosting.Starter.IHostingStarterActivator)">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.StubHostingStarterFactory.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.StubHostingStarterFactory.Create(System.String)">
+            <summary>Sets the stub of HostingStarterFactory.Create(String name)</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Starter.Fakes.StubHostingStarterFactory.CreateString">
+            <summary>Sets the stub of HostingStarterFactory.Create(String name)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.StubHostingStarterFactory.InitializeStub">
+            <summary>Initializes a new instance of type StubHostingStarterFactory</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.StubHostingStarterFactory.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Starter.Fakes.StubHostingStarterFactory.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Starter.Fakes.StubIHostingStarter">
+            <summary>Stub type of Microsoft.Owin.Hosting.Starter.IHostingStarter</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.StubIHostingStarter.#ctor">
+            <summary>Initializes a new instance of type StubIHostingStarter</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.StubIHostingStarter.Microsoft#Owin#Hosting#Starter#IHostingStarter#Start(Microsoft.Owin.Hosting.StartOptions)">
+            <summary>Sets the stub of IHostingStarter.Start(StartOptions options)</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Starter.Fakes.StubIHostingStarter.StartStartOptions">
+            <summary>Sets the stub of IHostingStarter.Start(StartOptions options)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Starter.Fakes.StubIHostingStarterActivator">
+            <summary>Stub type of Microsoft.Owin.Hosting.Starter.IHostingStarterActivator</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.StubIHostingStarterActivator.#ctor">
+            <summary>Initializes a new instance of type StubIHostingStarterActivator</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Starter.Fakes.StubIHostingStarterActivator.ActivateType">
+            <summary>Sets the stub of IHostingStarterActivator.Activate(Type type)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.StubIHostingStarterActivator.Microsoft#Owin#Hosting#Starter#IHostingStarterActivator#Activate(System.Type)">
+            <summary>Sets the stub of IHostingStarterActivator.Activate(Type type)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Starter.Fakes.StubIHostingStarterFactory">
+            <summary>Stub type of Microsoft.Owin.Hosting.Starter.IHostingStarterFactory</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.StubIHostingStarterFactory.#ctor">
+            <summary>Initializes a new instance of type StubIHostingStarterFactory</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Starter.Fakes.StubIHostingStarterFactory.CreateString">
+            <summary>Sets the stub of IHostingStarterFactory.Create(String name)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Starter.Fakes.StubIHostingStarterFactory.Microsoft#Owin#Hosting#Starter#IHostingStarterFactory#Create(System.String)">
+            <summary>Sets the stub of IHostingStarterFactory.Create(String name)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Tracing.Fakes.ShimTraceOutputFactory">
+            <summary>Shim type of Microsoft.Owin.Hosting.Tracing.TraceOutputFactory</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Tracing.Fakes.ShimTraceOutputFactory.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Tracing.Fakes.ShimTraceOutputFactory.#ctor(Microsoft.Owin.Hosting.Tracing.TraceOutputFactory)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Tracing.Fakes.ShimTraceOutputFactory.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Tracing.Fakes.ShimTraceOutputFactory.AllInstances.CreateString">
+            <summary>Sets the shim of TraceOutputFactory.Create(String outputFile)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Tracing.Fakes.ShimTraceOutputFactory.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Tracing.Fakes.ShimTraceOutputFactory.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Tracing.Fakes.ShimTraceOutputFactory.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Tracing.Fakes.ShimTraceOutputFactory.Bind(Microsoft.Owin.Hosting.Tracing.ITraceOutputFactory)">
+            <summary>Binds the members of the interface to the shim.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Tracing.Fakes.ShimTraceOutputFactory.Constructor">
+            <summary>Sets the shim of TraceOutputFactory.TraceOutputFactory()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Tracing.Fakes.ShimTraceOutputFactory.CreateString">
+            <summary>Sets the shim of TraceOutputFactory.Create(String outputFile)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Tracing.Fakes.StubITraceOutputFactory">
+            <summary>Stub type of Microsoft.Owin.Hosting.Tracing.ITraceOutputFactory</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Tracing.Fakes.StubITraceOutputFactory.#ctor">
+            <summary>Initializes a new instance of type StubITraceOutputFactory</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Tracing.Fakes.StubITraceOutputFactory.CreateString">
+            <summary>Sets the stub of ITraceOutputFactory.Create(String outputFile)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Tracing.Fakes.StubITraceOutputFactory.Microsoft#Owin#Hosting#Tracing#ITraceOutputFactory#Create(System.String)">
+            <summary>Sets the stub of ITraceOutputFactory.Create(String outputFile)</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Tracing.Fakes.StubTraceOutputFactory">
+            <summary>Stub type of Microsoft.Owin.Hosting.Tracing.TraceOutputFactory</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Tracing.Fakes.StubTraceOutputFactory.#ctor">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Tracing.Fakes.StubTraceOutputFactory.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Tracing.Fakes.StubTraceOutputFactory.Create(System.String)">
+            <summary>Sets the stub of TraceOutputFactory.Create(String outputFile)</summary>
+        </member>
+        <member name="F:Microsoft.Owin.Hosting.Tracing.Fakes.StubTraceOutputFactory.CreateString">
+            <summary>Sets the stub of TraceOutputFactory.Create(String outputFile)</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Tracing.Fakes.StubTraceOutputFactory.InitializeStub">
+            <summary>Initializes a new instance of type StubTraceOutputFactory</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Tracing.Fakes.StubTraceOutputFactory.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Tracing.Fakes.StubTraceOutputFactory.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="T:Microsoft.Owin.Hosting.Utilities.Fakes.ShimSettingsLoader">
+            <summary>Shim type of Microsoft.Owin.Hosting.Utilities.SettingsLoader</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Utilities.Fakes.ShimSettingsLoader.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Utilities.Fakes.ShimSettingsLoader.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Microsoft.Owin.Hosting.Utilities.Fakes.ShimSettingsLoader.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Utilities.Fakes.ShimSettingsLoader.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Utilities.Fakes.ShimSettingsLoader.LoadFromConfig">
+            <summary>Sets the shim of SettingsLoader.LoadFromConfig()</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Utilities.Fakes.ShimSettingsLoader.LoadFromConfigIDictionaryOfStringString">
+            <summary>Sets the shim of SettingsLoader.LoadFromConfig(IDictionary`2&lt;String,String&gt; settings)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Utilities.Fakes.ShimSettingsLoader.LoadFromSettingsFileString">
+            <summary>Sets the shim of SettingsLoader.LoadFromSettingsFile(String settingsFile)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Utilities.Fakes.ShimSettingsLoader.LoadFromSettingsFileStringIDictionaryOfStringString">
+            <summary>Sets the shim of SettingsLoader.LoadFromSettingsFile(String settingsFile, IDictionary`2&lt;String,String&gt; settings)</summary>
+        </member>
+        <member name="P:Microsoft.Owin.Hosting.Utilities.Fakes.ShimSettingsLoader._LoadFromConfigb__0">
+            <summary>Sets the shim of SettingsLoader.&lt;LoadFromConfig&gt;b__0()</summary>
+        </member>
+        <member name="T:Microsoft.QualityTools.Testing.Fakes.Delegates.MicrosoftOwinHostingDelegates">
+            <summary>Contains custom delegates used for the stubs and shims of Microsoft.Owin.Hosting</summary>
+        </member>
+    </members>
+</doc>

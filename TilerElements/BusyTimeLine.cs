@@ -27,6 +27,14 @@ namespace TilerElements
             TimeLineEventID = MyEventID;
         }
 
+        public BusyTimeLine(string eventID, TimeLine timeLine)
+        {
+            StartTime = timeLine.Start;
+            EndTime = timeLine.End;
+            BusySpan = EndTime - StartTime;
+            TimeLineEventID = eventID;
+        }
+
         #region functions
         public BusyTimeLine CreateCopy()
         {

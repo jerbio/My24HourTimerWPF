@@ -22,7 +22,12 @@ namespace TilerTests
             currentUser.DeleteAllCalendarEvents();
         }
 
-
+        /// <summary>
+        /// Function evaluates the schedule based on the newly added event.
+        /// Duplicate semantically equivalent schedules are created, each adding a the same calendarevent(newCalEvent) with the same parameters.
+        /// in each duplicate schedule events on a particular day have the same location. The newCalEvent gets a random location that is best aligned for a given day.
+        /// Each duplicate schedule is evaluated after the addition of a duplicate version newCalevent and tested to see if the day with the maching location of newCalevent has the best score.
+        /// </summary>
         [TestMethod]
         public void scheduleEvaluation()
         {
@@ -99,9 +104,9 @@ namespace TilerTests
             Console.WriteLine("==============================================");
             for (int j = 0; j < count; j++)
             {
-                CalendarEvent newCalendarEvent = TestUtility.generateCalendarEvent(durationOfEvents, new TilerElements.Repetition(), newStart, lastTime, 1, false, randomLocation);
+                CalendarEvent newCalEvent = TestUtility.generateCalendarEvent(durationOfEvents, new TilerElements.Repetition(), newStart, newStart.AddDays(1), 1, false, randomLocation);
                 mySchedule = new TestSchedule(calendarEvents.Select(obj=>obj.createCopy()), user, refNow);
-                mySchedule.AddToSchedule(newCalendarEvent);
+                mySchedule.AddToSchedule(newCalEvent);
                 newStart = newStart.AddDays(1);
                 Health scheduleHealth = new Health(mySchedule.getAllCalendarEvents(), encompassingTimeline.Start, encompassingTimeline.TimelineSpan, Schedule.Now);
                 dayIndexToHealth.Add(j, scheduleHealth);

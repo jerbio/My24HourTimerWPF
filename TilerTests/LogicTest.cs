@@ -38,7 +38,7 @@ namespace TilerTests
             int conflictingEventCount = conflictingEvents.Sum(blob => blob.getSubCalendarEventsInBlob().Count());
             Assert.AreEqual(conflictingEventCount, count);
         }
-
+        
         [ClassCleanup]
         public static void cleanUpTest()
         {

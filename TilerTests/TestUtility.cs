@@ -99,7 +99,7 @@ namespace TilerTests
             return retValue;
         }
 
-        public static CalendarEvent generateCalendarEvent(TimeSpan duration, Repetition repetition, DateTimeOffset Start, DateTimeOffset End, int splitCount = 1, bool rigidFlags = false)
+        public static CalendarEvent generateCalendarEvent(TimeSpan duration, Repetition repetition, DateTimeOffset Start, DateTimeOffset End, int splitCount = 1, bool rigidFlags = false, Location_Elements location = null, RestrictionProfile restrictionProfile = null)
         {
             if (Start == StartOfTime)
             {
@@ -109,7 +109,23 @@ namespace TilerTests
             {
                 End = Start.Add(duration);
             }
-            CalendarEvent RetValue = new CalendarEvent("TestCalendarEvent-" + Guid.NewGuid().ToString(), duration, Start, End, new TimeSpan(), new TimeSpan(), rigidFlags, repetition, splitCount, new Location_Elements(), true, new EventDisplay(), new MiscData(), false);
+
+            if(location == null)
+            {
+                location = new Location_Elements();
+            }
+
+            CalendarEvent RetValue;
+            if(restrictionProfile == null)
+            {
+                RetValue = new CalendarEvent("TestCalendarEvent-" + Guid.NewGuid().ToString(), duration, Start, End, new TimeSpan(), new TimeSpan(), rigidFlags, repetition, splitCount, location, true, new EventDisplay(), new MiscData(), false);
+            }
+            else
+            {
+                RetValue = new CalendarEventRestricted("TestCalendarEvent-" + Guid.NewGuid().ToString() + "-Restricted", Start, End, restrictionProfile, duration, repetition, false, true, splitCount, rigidFlags, location, new TimeSpan(), new TimeSpan(), UiSettings: null, NoteData: null);
+
+            }
+            
             return RetValue;
         }
 

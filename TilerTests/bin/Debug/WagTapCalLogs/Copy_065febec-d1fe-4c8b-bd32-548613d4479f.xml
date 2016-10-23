@@ -1,10 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ScheduleLog>
-<<<<<<< HEAD
-  <LastIDCounter>1351</LastIDCounter>
-=======
-  <LastIDCounter>1067</LastIDCounter>
->>>>>>> Fixed issue where test were failing randomly because inconsistent start and end times
+  <LastIDCounter>1312</LastIDCounter>
   <referenceDay>8:00 AM</referenceDay>
   <EventSchedules>
     <EventSchedule>
@@ -43,24 +39,14 @@
         <XCoordinate>105.2705</XCoordinate>
       </Location>
       <Enabled>True</Enabled>
-<<<<<<< HEAD
-      <ID>1346_7_0_0</ID>
-      <Name>TestCalendarEvent9e5a02d5-553b-4998-be72-3f654b67e289</Name>
-      <StartTime>5/7/2016 11:40:00 AM</StartTime>
-=======
-      <ID>1066_7_0_0</ID>
-      <Name>TestCalendarEvent-adfb358e-47bc-471f-9211-e760ee42809e</Name>
-      <StartTime>8/9/2016 6:46:12 AM</StartTime>
->>>>>>> Fixed issue where test were failing randomly because inconsistent start and end times
+      <ID>1311_7_0_0</ID>
+      <Name>TestCalendarEvent-92850180-1787-43a9-84c8-5c0cb0aa8f5f</Name>
+      <StartTime>10/23/2016 4:20:09 AM</StartTime>
       <PreDeadline>00:00:00</PreDeadline>
       <DeletionCount>0</DeletionCount>
       <CompletionCount>0</CompletionCount>
       <PrepTime>00:00:00</PrepTime>
-<<<<<<< HEAD
-      <Deadline>7/7/2016 11:40:00 AM</Deadline>
-=======
-      <Deadline>8/9/2016 7:46:12 AM</Deadline>
->>>>>>> Fixed issue where test were failing randomly because inconsistent start and end times
+      <Deadline>10/23/2016 5:20:09 AM</Deadline>
       <Split>1</Split>
       <Duration>01:00:00</Duration>
       <RigidFlag>True</RigidFlag>
@@ -71,6 +57,7 @@
             <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
           </PauseInformation>
           <Restricted>False</Restricted>
+          <TimePositionReasons />
           <ConflictProfile>
             <ConflictIDs />
             <Flag>False</Flag>
@@ -101,122 +88,15 @@
           </Location>
           <Complete>False</Complete>
           <Enabled>True</Enabled>
-<<<<<<< HEAD
-          <ID>1346_7_0_1347</ID>
-=======
-          <ID>1066_7_0_1067</ID>
->>>>>>> Fixed issue where test were failing randomly because inconsistent start and end times
+          <ID>1311_7_0_1312</ID>
           <Rigid>True</Rigid>
           <ThirdPartyID />
           <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>8/9/2016 6:46:12 AM</ActiveStartTime>
-          <ActiveEndTime>8/9/2016 7:46:12 AM</ActiveEndTime>
+          <ActiveStartTime>10/23/2016 4:20:09 AM</ActiveStartTime>
+          <ActiveEndTime>10/23/2016 5:20:09 AM</ActiveEndTime>
           <Duration>01:00:00</Duration>
-<<<<<<< HEAD
-          <StartTime>7/7/2016 10:40:25 AM</StartTime>
-          <EndTime>7/7/2016 11:40:25 AM</EndTime>
-        </EventSubSchedule>
-      </EventSubSchedules>
-      <RepetitionFlag>False</RepetitionFlag>
-      <Completed>False</Completed>
-    </EventSchedule>
-    <EventSchedule>
-      <Recurrence />
-      <ProcrastinationProfile>
-        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
-        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
-        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
-      </ProcrastinationProfile>
-      <NowProfile>
-        <Initialized>False</Initialized>
-        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
-      </NowProfile>
-      <Restricted>False</Restricted>
-      <MiscData>
-        <TypeSelection>0</TypeSelection>
-        <UserNote />
-      </MiscData>
-      <UIParams>
-        <Type>0</Type>
-        <Color>
-          <UserSelection>-1</UserSelection>
-          <Blue>127</Blue>
-          <Green>127</Green>
-          <Red>127</Red>
-          <Opacity>1</Opacity>
-        </Color>
-        <Visible>True</Visible>
-      </UIParams>
-      <Location>
-        <CheckCalendarEvent>False</CheckCalendarEvent>
-        <isNull>True</isNull>
-        <Description />
-        <Address />
-        <YCoordinate>40.015</YCoordinate>
-        <XCoordinate>105.2705</XCoordinate>
-      </Location>
-      <Enabled>True</Enabled>
-      <ID>1350_7_0_0</ID>
-      <Name>TestCalendarEventb9c97327-88c4-4ca1-bde3-030cd88db2b7</Name>
-      <StartTime>5/7/2016 11:43:24 AM</StartTime>
-      <PreDeadline>00:00:00</PreDeadline>
-      <DeletionCount>0</DeletionCount>
-      <CompletionCount>0</CompletionCount>
-      <PrepTime>00:00:00</PrepTime>
-      <Deadline>6/7/2016 11:43:24 AM</Deadline>
-      <Split>1</Split>
-      <Duration>01:00:00</Duration>
-      <RigidFlag>True</RigidFlag>
-      <EventSubSchedules>
-        <EventSubSchedule>
-          <PauseInformation>
-            <UsedUpTime>00:00:00</UsedUpTime>
-            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
-          </PauseInformation>
-          <Restricted>False</Restricted>
-          <ConflictProfile>
-            <ConflictIDs />
-            <Flag>False</Flag>
-            <Type>0</Type>
-          </ConflictProfile>
-          <MiscData>
-            <TypeSelection>0</TypeSelection>
-            <UserNote />
-          </MiscData>
-          <UIParams>
-            <Type>0</Type>
-            <Color>
-              <UserSelection>-1</UserSelection>
-              <Blue>127</Blue>
-              <Green>127</Green>
-              <Red>127</Red>
-              <Opacity>1</Opacity>
-            </Color>
-            <Visible>True</Visible>
-          </UIParams>
-          <Location>
-            <CheckCalendarEvent>False</CheckCalendarEvent>
-            <isNull>True</isNull>
-            <Description />
-            <Address />
-            <YCoordinate>40.015</YCoordinate>
-            <XCoordinate>105.2705</XCoordinate>
-          </Location>
-          <Complete>False</Complete>
-          <Enabled>True</Enabled>
-          <ID>1350_7_0_1351</ID>
-          <Rigid>True</Rigid>
-          <ThirdPartyID />
-          <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>6/7/2016 10:43:24 AM</ActiveStartTime>
-          <ActiveEndTime>6/7/2016 11:43:24 AM</ActiveEndTime>
-          <Duration>01:00:00</Duration>
-          <StartTime>6/7/2016 10:43:24 AM</StartTime>
-          <EndTime>6/7/2016 11:43:24 AM</EndTime>
-=======
-          <StartTime>8/9/2016 6:46:12 AM</StartTime>
-          <EndTime>8/9/2016 7:46:12 AM</EndTime>
->>>>>>> Fixed issue where test were failing randomly because inconsistent start and end times
+          <StartTime>10/23/2016 4:20:09 AM</StartTime>
+          <EndTime>10/23/2016 5:20:09 AM</EndTime>
         </EventSubSchedule>
       </EventSubSchedules>
       <RepetitionFlag>False</RepetitionFlag>
@@ -224,8 +104,6 @@
     </EventSchedule>
   </EventSchedules>
   <LocationCache>
-    <Locations>
-    </Locations>
-    <LastID>12</LastID>
+    <Locations />
   </LocationCache>
 </ScheduleLog>

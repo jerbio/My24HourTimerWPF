@@ -25,6 +25,7 @@ namespace TilerElements
             Now = now;
         }
 
+
         public Health(IEnumerable<CalendarEvent> AllEvents, DateTimeOffset startTime, TimeSpan evaluationSpan, ReferenceNow refNow) : this(AllEvents.SelectMany(CalEvent => CalEvent.ActiveSubEvents), startTime, evaluationSpan, refNow)
         {
         }

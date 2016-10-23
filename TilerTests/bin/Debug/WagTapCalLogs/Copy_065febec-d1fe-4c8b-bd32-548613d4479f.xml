@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ScheduleLog>
-  <LastIDCounter>1312</LastIDCounter>
+  <LastIDCounter>1332</LastIDCounter>
   <referenceDay>8:00 AM</referenceDay>
   <EventSchedules>
     <EventSchedule>
@@ -39,14 +39,14 @@
         <XCoordinate>105.2705</XCoordinate>
       </Location>
       <Enabled>True</Enabled>
-      <ID>1311_7_0_0</ID>
-      <Name>TestCalendarEvent-92850180-1787-43a9-84c8-5c0cb0aa8f5f</Name>
-      <StartTime>10/23/2016 4:20:09 AM</StartTime>
+      <ID>1331_7_0_0</ID>
+      <Name>TestCalendarEvent-d823db30-25be-4b7c-90b2-3cbacd943dda</Name>
+      <StartTime>10/23/2016 4:44:08 AM</StartTime>
       <PreDeadline>00:00:00</PreDeadline>
       <DeletionCount>0</DeletionCount>
       <CompletionCount>0</CompletionCount>
       <PrepTime>00:00:00</PrepTime>
-      <Deadline>10/23/2016 5:20:09 AM</Deadline>
+      <Deadline>10/23/2016 5:44:08 AM</Deadline>
       <Split>1</Split>
       <Duration>01:00:00</Duration>
       <RigidFlag>True</RigidFlag>
@@ -88,15 +88,15 @@
           </Location>
           <Complete>False</Complete>
           <Enabled>True</Enabled>
-          <ID>1311_7_0_1312</ID>
+          <ID>1331_7_0_1332</ID>
           <Rigid>True</Rigid>
           <ThirdPartyID />
           <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>10/23/2016 4:20:09 AM</ActiveStartTime>
-          <ActiveEndTime>10/23/2016 5:20:09 AM</ActiveEndTime>
+          <ActiveStartTime>10/23/2016 4:44:08 AM</ActiveStartTime>
+          <ActiveEndTime>10/23/2016 5:44:08 AM</ActiveEndTime>
           <Duration>01:00:00</Duration>
-          <StartTime>10/23/2016 4:20:09 AM</StartTime>
-          <EndTime>10/23/2016 5:20:09 AM</EndTime>
+          <StartTime>10/23/2016 4:44:08 AM</StartTime>
+          <EndTime>10/23/2016 5:44:08 AM</EndTime>
         </EventSubSchedule>
       </EventSubSchedules>
       <RepetitionFlag>False</RepetitionFlag>

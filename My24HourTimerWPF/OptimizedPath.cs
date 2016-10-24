@@ -254,6 +254,18 @@ namespace My24HourTimerWPF
                         if (revisedTimeLine != null)
                         {
                             disabledSubEvent.shiftEvent(revisedTimeLine.Start);
+                            //HashSet<SubCalendarEvent> allSubEvents = new HashSet<SubCalendarEvent>(subEventsReadjusted);
+                            //allSubEvents.Remove(disabledSubEvent);
+                            //List<BlobSubCalendarEvent> conflictingSubevent = Utility.getConflictingEvents(allSubEvents);
+                            //foreach (SubCalendarEvent subEvent in conflictingSubevent.SelectMany(blob => blob.getSubCalendarEventsInBlob()))
+                            //{
+                            //    allSubEvents.Remove(subEvent);
+                            //}
+
+                            //List<SubCalendarEvent> realignedSubEvents = allSubEvents.Concat(conflictingSubevent).ToList();
+                            //subEventsReadjusted = realignedSubEvents.OrderBy(obj => obj.Start).ToList();
+
+                            subEventsReadjusted = ConvertInterFerringEventsToBlobAndsubEvent(subEventsReadjusted);//
                         }
                         else
                         {
@@ -269,6 +281,18 @@ namespace My24HourTimerWPF
                             if (revisedTimeLine != null)
                             {
                                 disabledSubEvent.shiftEvent(revisedTimeLine.End - disabledSubEvent.ActiveDuration);
+                                //HashSet<SubCalendarEvent> allSubEvents = new HashSet<SubCalendarEvent>(subEventsReadjusted);
+                                //allSubEvents.Remove(disabledSubEvent);
+                                //List<BlobSubCalendarEvent> conflictingSubevent = Utility.getConflictingEvents(allSubEvents);
+                                //foreach (SubCalendarEvent subEvent in conflictingSubevent.SelectMany(blob => blob.getSubCalendarEventsInBlob()))
+                                //{
+                                //    allSubEvents.Remove(subEvent);
+                                //}
+
+                                //List<SubCalendarEvent> realignedSubEvents = allSubEvents.Concat(conflictingSubevent).ToList();
+                                //subEventsReadjusted = realignedSubEvents.OrderBy(obj => obj.Start).ToList();
+
+                                subEventsReadjusted = ConvertInterFerringEventsToBlobAndsubEvent(subEventsReadjusted);
                             }
                             else
                             {
@@ -287,14 +311,16 @@ namespace My24HourTimerWPF
                             {
                                 TimeLine centralizedTimeLine = Utility.CentralizeYourSelfWithinRange(revisedOverlappingTImeline, disabledSubEvent.ActiveDuration);
                                 disabledSubEvent.shiftEvent(centralizedTimeLine.Start);
-                                List<SubCalendarEvent> interferringSubEVentsEvents = subEventsReadjusted.Where(subEvent => subEvent.RangeTimeLine.doesTimeLineInterfere(centralizedTimeLine)).ToList();
+                                //List<SubCalendarEvent> interferringSubEVentsEvents = subEventsReadjusted.Where(subEvent => subEvent.RangeTimeLine.doesTimeLineInterfere(centralizedTimeLine)).ToList();
 
-                                BlobSubCalendarEvent bloberrized = new BlobSubCalendarEvent(interferringSubEVentsEvents);
-                                int firstRemovedElement = subEventsReadjusted.IndexOf(interferringSubEVentsEvents[0]);
-                                subEventsReadjusted.RemoveRange(firstRemovedElement, interferringSubEVentsEvents.Count);
+                                //BlobSubCalendarEvent bloberrized = new BlobSubCalendarEvent(interferringSubEVentsEvents);
+                                //int firstRemovedElement = subEventsReadjusted.IndexOf(interferringSubEVentsEvents[0]);
+                                //subEventsReadjusted.RemoveRange(firstRemovedElement, interferringSubEVentsEvents.Count);
 
 
-                                subEventsReadjusted.Insert(firstRemovedElement, bloberrized);
+                                //subEventsReadjusted.Insert(firstRemovedElement, bloberrized);
+
+                                subEventsReadjusted = ConvertInterFerringEventsToBlobAndsubEvent(subEventsReadjusted);
                             }
                         }
                     }
@@ -304,6 +330,25 @@ namespace My24HourTimerWPF
 
             throw new Exception("disabledSubEvent cannot exist within timeLine, consider providing a a time line where disabledSubEvent can exist");
             
+        }
+
+        /// <summary>
+        /// Function takes a list of possibly conflicting subevent 'possiblyConflictingSubEvent' and then returns a non conflicting subevent. If there are conflicts in "possiblyConflictingSubEvent" the returned value will one or more blobsubcalendarevents
+        /// </summary>
+        /// <param name="possiblyConflictingSubEvent"></param>
+        /// <returns></returns>
+        List<SubCalendarEvent> ConvertInterFerringEventsToBlobAndsubEvent(List<SubCalendarEvent> possiblyConflictingSubEvent)
+        {
+            HashSet<SubCalendarEvent> allSubEvents = new HashSet<SubCalendarEvent>(possiblyConflictingSubEvent);
+            List<BlobSubCalendarEvent> conflictingSubevent = Utility.getConflictingEvents(allSubEvents);
+            foreach (SubCalendarEvent subEvent in conflictingSubevent.SelectMany(blob => blob.getSubCalendarEventsInBlob()))
+            {
+                allSubEvents.Remove(subEvent);
+            }
+
+            List<SubCalendarEvent> realignedSubEvents = allSubEvents.Concat(conflictingSubevent).ToList();
+            possiblyConflictingSubEvent = realignedSubEvents.OrderBy(obj => obj.Start).ToList();
+            return possiblyConflictingSubEvent;
         }
 
         Tuple<Dictionary<TilerEvent, double>, Tuple<Location_Elements, DateTimeOffset, TimeSpan>> evalulateParameter(IEnumerable<SubCalendarEvent> events, OptimizedGrouping.OptimizedAverage optimizedAverage)

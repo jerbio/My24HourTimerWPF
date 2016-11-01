@@ -96,24 +96,26 @@ namespace TilerTests
             }
 
 
-            List<CalendarEvent> calendarEvents = mySchedule.getAllCalendarEvents().Select(calEvent => calEvent.createCopy()).ToList();
+            List<CalendarEvent> calendarEvents = mySchedule.getAllCalendarEvents().Select(calEvent => calEvent.createCopy()).OrderBy(obj=>obj.Start).ToList();
             Dictionary<int, Health> dayIndexToHealth = new Dictionary<int, Health>();
             newStart = Start;
             TimeLine encompassingTimeline = new TimeLine(Start, lastTime);
 
             Console.WriteLine("==============================================");
-            for (int j = 0; j < count; j++)
-            {
-                CalendarEvent newCalEvent = TestUtility.generateCalendarEvent(durationOfEvents, new TilerElements.Repetition(), newStart, newStart.AddDays(1), 1, false, randomLocation);
-                mySchedule = new TestSchedule(calendarEvents.Select(obj=>obj.createCopy()), user, refNow);
-                mySchedule.AddToSchedule(newCalEvent);
-                newStart = newStart.AddDays(1);
-                Health scheduleHealth = new Health(mySchedule.getAllCalendarEvents(), encompassingTimeline.Start, encompassingTimeline.TimelineSpan, Schedule.Now);
-                dayIndexToHealth.Add(j, scheduleHealth);
-            }
+            
+            CalendarEvent testCalEvent = TestUtility.generateCalendarEvent(durationOfEvents, new TilerElements.Repetition(), encompassingTimeline.Start, encompassingTimeline.End, 1, false, randomLocation);
+            mySchedule = new TestSchedule(calendarEvents.Select(obj=>obj.createCopy()), user, refNow);
+            mySchedule.AddToSchedule(testCalEvent);
+            newStart = newStart.AddDays(1);
+            Health scheduleHealth = new Health(mySchedule.getAllCalendarEvents(), encompassingTimeline.Start, encompassingTimeline.TimelineSpan, Schedule.Now);
+            
+            SubCalendarEvent firstSubEvent = calendarEvents.First().ActiveSubEvents.First();
 
-            List<Tuple<double,  KeyValuePair<int, Health >>> orderedKeys = dayIndexToHealth.Select(keyValuePair => new Tuple<double, KeyValuePair<int, Health>>(keyValuePair.Value.getScore(), keyValuePair)).OrderBy(tuple => tuple.Item1).ToList();
-            Assert.AreEqual(orderedKeys[0].Item2.Key, index);
+            SubCalendarEvent testSubEvent = testCalEvent.ActiveSubEvents.First();
+
+            int dayIndex = (firstSubEvent.Start.Date - testSubEvent.Start.Date).Days;
+
+            Assert.AreEqual(dayIndex, index);
         }
 
         [ClassCleanup]
@@ -125,6 +127,5 @@ namespace TilerTests
             Schedule Schedule = new Schedule(currentUser, refNow);
             currentUser.DeleteAllCalendarEvents();
         }
-
     }
 }

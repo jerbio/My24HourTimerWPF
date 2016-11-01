@@ -167,12 +167,14 @@ namespace My24HourTimerWPF
                     }
                 }
             }
-
-
-
-
         }
 
+
+        public List<SubCalendarEvent> getSubevents()
+        {
+            List<SubCalendarEvent> retValue = AllGroupings.SelectMany(group => group.Value.getPinnedEvents()).ToList();
+            return retValue;
+        }
 
         public List<SubCalendarEvent> optimizeDisabledEvent(TimeLine timeLine, List<SubCalendarEvent> correctlyAssignedevents, SubCalendarEvent disabledSubEvent)
         {
@@ -303,8 +305,8 @@ namespace My24HourTimerWPF
                         {
                             int beforeIndex = index - 1;
                             int afterIndex = index + 1;
-                            SubCalendarEvent before = correctlyAssignedevents[beforeIndex];
-                            SubCalendarEvent after = correctlyAssignedevents[afterIndex];
+                            SubCalendarEvent before = subEventsReadjusted[beforeIndex];
+                            SubCalendarEvent after = subEventsReadjusted[afterIndex];
                             TimeLine relevantTimeline = new TimeLine(before.Start, after.End);
                             TimeLine revisedOverlappingTImeline = disabledSubEvent.getTimeLineInterferringWithCalEvent(relevantTimeline).FirstOrDefault();
                             if (revisedOverlappingTImeline != null)

@@ -530,7 +530,8 @@
         </member>
         <member name="T:Google.Apis.Download.MediaDownloader">
             <summary>
-            A media downloader implementation which handles media downloads.
+            A media downloader implementation which handles media downloads. It supports downloading a media content in 
+            chunks, when each chunk size is defined by <see cref="P:Google.Apis.Download.MediaDownloader.ChunkSize"/>.
             </summary>
         </member>
         <member name="F:Google.Apis.Download.MediaDownloader.service">
@@ -541,10 +542,9 @@
         </member>
         <member name="P:Google.Apis.Download.MediaDownloader.ChunkSize">
             <summary>
-            Gets or sets the amount of data that will be downloaded before notifying the caller of
-            the download's progress.
-            Must not exceed <see cref="F:Google.Apis.Download.MediaDownloader.MaximumChunkSize"/>.
-            Default value is <see cref="F:Google.Apis.Download.MediaDownloader.MaximumChunkSize"/>.
+            Gets or sets the size of each chunk to download from the server.
+            Chunks can't be set to be a value bigger than <see cref="F:Google.Apis.Download.MediaDownloader.MaximumChunkSize"/>. Default value is 
+            <see cref="F:Google.Apis.Download.MediaDownloader.MaximumChunkSize"/>.
             </summary>
         </member>
         <member name="T:Google.Apis.Download.MediaDownloader.DownloadProgress">
@@ -580,43 +580,10 @@
         <member name="M:Google.Apis.Download.MediaDownloader.#ctor(Google.Apis.Services.IClientService)">
             <summary>Constructs a new downloader with the given client service.</summary>
         </member>
-        <member name="T:Google.Apis.Download.MediaDownloader.CountedBuffer">
-            <summary>
-            CountedBuffer bundles together a byte buffer and a count of valid bytes.
-            </summary>
-        </member>
-        <member name="P:Google.Apis.Download.MediaDownloader.CountedBuffer.Count">
-            <summary>
-            How many bytes at the beginning of Data are valid.
-            </summary>
-        </member>
-        <member name="P:Google.Apis.Download.MediaDownloader.CountedBuffer.IsEmpty">
-            <summary>
-            Returns true if the buffer contains no data.
-            </summary>
-        </member>
-        <member name="M:Google.Apis.Download.MediaDownloader.CountedBuffer.Fill(System.IO.Stream,System.Threading.CancellationToken)">
-            <summary>
-            Read data from stream until the stream is empty or the buffer is full.
-            </summary>
-            <param name="stream">Stream from which to read.</param>
-            <param name="cancellationToken">Cancellation token for the operation.</param>
-        </member>
-        <member name="M:Google.Apis.Download.MediaDownloader.CountedBuffer.RemoveFromFront(System.Int32)">
-            <summary>
-            Remove the first n bytes of the buffer. Move any remaining valid bytes to the beginning.
-            Trying to remove more bytes than the buffer contains just clears the buffer.
-            </summary>
-            <param name="n">The number of bytes to remove.</param>
-        </member>
         <member name="M:Google.Apis.Download.MediaDownloader.DownloadCoreAsync(System.String,System.IO.Stream,System.Threading.CancellationToken)">
             <summary>
-            The core download logic. We download the media and write it to an output stream
-            ChunkSize bytes at a time, raising the ProgressChanged event after each chunk.
-            
-            The chunking behavior is largely a historical artifact: a previous implementation
-            issued multiple web requests, each for ChunkSize bytes. Now we do everything in
-            one request, but the API and client-visible behavior are retained for compatibility.
+            The core download logic. It downloads the media in parts, where each part's size is defined by 
+            <see cref="P:Google.Apis.Download.MediaDownloader.ChunkSize"/> (in bytes).
             </summary>
             <param name="url">The URL of the resource to download.</param>
             <param name="stream">The download will download the resource into this stream.</param>
@@ -633,23 +600,6 @@
             <summary>
             Creates a suitable exception for an HTTP response, attempting to parse the body as
             JSON but falling back to just using the text as the message.
-            </summary>
-        </member>
-        <member name="T:Google.Apis.Upload.IUploadSessionData">
-            <summary>
-            Interface IUploadSessionData: Provides UploadUri for client to persist. Allows resuming an upload after a program restart for seekable ContentStreams.
-            </summary>
-            <remarks>
-            Defines the data passed from the ResumeableUpload class upon initiation of an upload.
-            When the client application adds an event handler for the UploadSessionData event, the data
-            defined in this interface (currently the UploadURI) is passed as a parameter to the event handler procedure.
-            An event handler for the UploadSessionData event is only required if the application will support resuming the
-            upload after a program restart.
-            </remarks>
-        </member>
-        <member name="P:Google.Apis.Upload.IUploadSessionData.UploadUri">
-            <summary>
-            The resumable session URI (UploadUri)
             </summary>
         </member>
         <member name="T:Google.Apis.Upload.UploadStatus">
@@ -758,9 +708,7 @@
             <param name="path">The path for this media upload method.</param>
             <param name="httpMethod">The HTTP method to start this upload.</param>
             <param name="contentStream">The stream containing the content to upload.</param>
-            <param name="contentType">Content type of the content to be uploaded. Some services
-            may allow this to be null; others require a content type to be specified and will
-            fail when the upload is started if the value is null.</param>
+            <param name="contentType">Content type of the content to be uploaded.</param>
             <remarks>
             Caller is responsible for maintaining the <paramref name="contentStream"/> open until the upload is 
             completed.
@@ -796,14 +744,13 @@
             <summary>
             Gets or sets the content of the last buffer request to the server or <c>null</c>. It is used when the media
             content length is unknown, for resending it in case of server error.
-            Only used with a non-seekable stream.
             </summary>
         </member>
+        <member name="P:Google.Apis.Upload.ResumableUpload`1.CachedByte">
+            <summary>Gets or sets cached byte which indicates whether the end of stream has been reached.</summary>
+        </member>
         <member name="P:Google.Apis.Upload.ResumableUpload`1.LastMediaLength">
-            <summary>
-            Gets or sets the last request length.
-            Only used with a non-seekable stream.
-            </summary>
+            <summary>Gets or sets the last request length.</summary>
         </member>
         <member name="P:Google.Apis.Upload.ResumableUpload`1.UploadUri">
             <summary>
@@ -885,32 +832,6 @@
             <returns>An IUploadProgress describing the current progress of the upload.</returns>
             <seealso cref="E:Google.Apis.Upload.ResumableUpload`1.ProgressChanged"/>
         </member>
-        <member name="E:Google.Apis.Upload.ResumableUpload`1.UploadSessionData">
-            <summary>
-            Event called when an UploadUri is created. 
-            Not needed if the application program will not support resuming after a program restart.
-            </summary>
-            <remarks>
-            Within the event, persist the UploadUri to storage.
-            It is strongly recommended that the full path filename (or other media identifier) is also stored so that it can be compared to the current open filename (media) upon restart.
-            </remarks>
-        </member>
-        <member name="T:Google.Apis.Upload.ResumableUpload`1.ResumeableUploadSessionData">
-            <summary>
-            Data to be passed to the application program to allow resuming an upload after a program restart.
-            </summary>
-        </member>
-        <member name="M:Google.Apis.Upload.ResumableUpload`1.ResumeableUploadSessionData.#ctor(System.Uri)">
-            <summary>
-            Create a ResumeableUploadSessionData instance to pass the UploadUri to the client.
-            </summary>
-            <param name="uploadUri">The resumable session URI.</param>
-        </member>
-        <member name="M:Google.Apis.Upload.ResumableUpload`1.SendUploadSessionData(Google.Apis.Upload.ResumableUpload{`0}.ResumeableUploadSessionData)">
-            <summary>
-            Send data (UploadUri) to application so it can store it to persistent storage.
-            </summary>
-        </member>
         <member name="M:Google.Apis.Upload.ResumableUpload`1.Upload">
             <summary>
             Uploads the content to the server. This method is synchronous and will block until the upload is completed.
@@ -933,74 +854,14 @@
             <param name="cancellationToken">A cancellation token to cancel operation.</param>
         </member>
         <member name="M:Google.Apis.Upload.ResumableUpload`1.Resume">
-            <summary>
-            Resumes the upload from the last point it was interrupted. 
-            Use when resuming and the program was not restarted.
-            </summary>
-        </member>
-        <member name="M:Google.Apis.Upload.ResumableUpload`1.Resume(System.Uri)">
-            <summary>
-            Resumes the upload from the last point it was interrupted. 
-            Use when the program was restarted and you wish to resume the upload that was in progress when the program was halted. 
-            Implemented only for ContentStreams where .CanSeek is True.
-            </summary>
-            <remarks>
-            In your application's UploadSessionData Event Handler, store UploadUri.AbsoluteUri property value (resumable session URI string value)
-            to persistent storage for use with Resume() or ResumeAsync() upon a program restart.
-            It is strongly recommended that the FullPathFilename of the media file that is being uploaded is saved also so that a subsequent execution of the
-            program can compare the saved FullPathFilename value to the FullPathFilename of the media file that it has opened for uploading.
-            You do not need to seek to restart point in the ContentStream file.
-            </remarks>
-            <param name="uploadUri">VideosResource.InsertMediaUpload UploadUri property value that was saved to persistent storage during a prior execution.</param>
+            <summary>Resumes the upload form the last point it was interrupted.</summary>
         </member>
         <member name="M:Google.Apis.Upload.ResumableUpload`1.ResumeAsync">
-            <summary>
-            Asynchronously resumes the upload from the last point it was interrupted.
-            </summary>
-            <remarks>
-            You do not need to seek to restart point in the ContentStream file.
-            </remarks>
+            <summary>Asynchronously resumes the upload form the last point it was interrupted.</summary>
         </member>
         <member name="M:Google.Apis.Upload.ResumableUpload`1.ResumeAsync(System.Threading.CancellationToken)">
-            <summary>
-            Asynchronously resumes the upload from the last point it was interrupted. 
-            Use when resuming and the program was not restarted.
-            </summary>
-            <remarks>
-            You do not need to seek to restart point in the ContentStream file.
-            </remarks>
-            <param name="cancellationToken">A cancellation token to cancel the asynchronous operation.</param>
-        </member>
-        <member name="M:Google.Apis.Upload.ResumableUpload`1.ResumeAsync(System.Uri)">
-            <summary>
-            Asynchronously resumes the upload from the last point it was interrupted. 
-            Use when resuming and the program was restarted.
-            Implemented only for ContentStreams where .CanSeek is True.
-            </summary>
-            <remarks>
-            In your application's UploadSessionData Event Handler, store UploadUri.AbsoluteUri property value (resumable session URI string value)
-            to persistent storage for use with Resume() or ResumeAsync() upon a program restart.
-            It is strongly recommended that the FullPathFilename of the media file that is being uploaded is saved also so that a subsequent execution of the
-            program can compare the saved FullPathFilename value to the FullPathFilename of the media file that it has opened for uploading.
-            You do not need to seek to restart point in the ContentStream file.
-            </remarks>
-            <param name="uploadUri">VideosResource.InsertMediaUpload UploadUri property value that was saved to persistent storage during a prior execution.</param>
-        </member>
-        <member name="M:Google.Apis.Upload.ResumableUpload`1.ResumeAsync(System.Uri,System.Threading.CancellationToken)">
-            <summary>
-            Asynchronously resumes the upload from the last point it was interrupted. 
-            Use when the program was restarted and you wish to resume the upload that was in progress when the program was halted.
-            Implemented only for ContentStreams where .CanSeek is True.
-            </summary>
-            <remarks>
-            In your application's UploadSessionData Event Handler, store UploadUri.AbsoluteUri property value (resumable session URI string value)
-            to persistent storage for use with Resume() or ResumeAsync() upon a program restart.
-            It is strongly recommended that the FullPathFilename of the media file that is being uploaded is saved also so that a subsequent execution of the
-            program can compare the saved FullPathFilename value to the FullPathFilename of the media file that it has opened for uploading.
-            You do not need to seek to restart point in the ContentStream file.
-            </remarks>
-            <param name="uploadUri">VideosResource.InsertMediaUpload UploadUri property value that was saved to persistent storage during a prior execution.</param>
-            <param name="cancellationToken">A cancellation token to cancel the asynchronous operation.</param>
+            <summary>Asynchronously resumes the upload form the last point it was interrupted.</summary>
+            <param name="cancellationToken">A cancellation token to cancel operation.</param>
         </member>
         <member name="M:Google.Apis.Upload.ResumableUpload`1.UploadCoreAsync(System.Threading.CancellationToken)">
             <summary>The core logic for uploading a stream. It is used by the upload and resume methods.</summary>

@@ -67,6 +67,7 @@
     <Compile Include="TestSchedule.cs" />
     <Compile Include="TestUtility.cs" />
     <Compile Include="ScheduleEvaluation.cs" />
+    <Compile Include="PathOptimization.cs" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

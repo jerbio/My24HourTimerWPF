@@ -2627,26 +2627,26 @@ namespace My24HourTimerWPF
                 OptimizedPath dayPath = new OptimizedPath(EachDay, home);
                 dayToOPtimization.AddOrUpdate(EachDay, dayPath, ((key, oldValue) => { return dayPath; }));
                 dayPath.OptimizePath();
-                optimizeDay(EachDay);
+                optimizeDay(EachDay, dayPath.getSubevents());
                 List<SubCalendarEvent> optimizedForDay = EachDay.getSubEventsInDayTimeLine().OrderBy(obj => obj.Start).ToList();
             }
             //);
             return dayToOPtimization;
         }
 
-        void optimizeDay(DayTimeLine myDay)
+        void optimizeDay(DayTimeLine myDay, List<SubCalendarEvent> subEvents)
         {
-            List<SubCalendarEvent> AllSubEvents = myDay.getSubEventsInDayTimeLine().Distinct().OrderBy(obj => obj.End).ToList();
+            List<SubCalendarEvent> orderedByStartSubEvents = subEvents.OrderBy(subEvent => subEvent.Start).ToList();
             TimeLine myTimeLine = myDay.getJustTimeLine();
-            if(AllSubEvents.Count>0)
+            if(orderedByStartSubEvents.Count>0)
             {
                 DateTimeOffset EarliestStart = myTimeLine.Start;// AllSubEvents.Max(obj => obj.Start);
                 DateTimeOffset LatestEnd = myTimeLine.End;//AllSubEvents.Max(obj=>obj.End);
                 
                 int count = 10;
 
-                DateTimeOffset LowestSubEventStart = AllSubEvents.Min(obj => obj.Start);
-                DateTimeOffset HighestSubEventStart = AllSubEvents.Max(obj => obj.End);
+                DateTimeOffset LowestSubEventStart = orderedByStartSubEvents.Min(obj => obj.Start);
+                DateTimeOffset HighestSubEventStart = orderedByStartSubEvents.Max(obj => obj.End);
 
                 EarliestStart = LowestSubEventStart < EarliestStart ? LowestSubEventStart : EarliestStart;
                 LatestEnd = HighestSubEventStart > LatestEnd ? HighestSubEventStart : LatestEnd;
@@ -2661,11 +2661,11 @@ namespace My24HourTimerWPF
                     RefTimeLine = new TimeLine(EarliestStart, LatestEnd);
                     --count;
                 }
-                while ((Utility.PinSubEventsToStart(AllSubEvents, RefTimeLine)) && (count > 0));
+                while ((Utility.PinSubEventsToStart(orderedByStartSubEvents, RefTimeLine)) && (count > 0));
 
-                bool DidYouWork = Utility.PinSubEventsToStart(AllSubEvents, LastSuccessfull);
+                bool DidYouWork = Utility.PinSubEventsToStart(orderedByStartSubEvents, LastSuccessfull);
 
-                CreateBufferForEachEvent(AllSubEvents, LastSuccessfull);
+                CreateBufferForEachEvent(orderedByStartSubEvents, LastSuccessfull);
             }
             
         }

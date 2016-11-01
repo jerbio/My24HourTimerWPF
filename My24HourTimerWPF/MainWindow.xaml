@@ -69,7 +69,7 @@
                         <CheckBox Content="Default Pre-Deadline Time:" Height="16" HorizontalAlignment="Left" Margin="294,13,0,0" Name="checkBox4" VerticalAlignment="Top" IsChecked="True" />
                         <TextBox Height="23" HorizontalAlignment="Left" Margin="395,39,0,0" Name="textBox6" VerticalAlignment="Top" Width="58" IsEnabled="False" Text="0:00" />
                         <TextBlock Height="23" HorizontalAlignment="Left" Margin="6,45,0,0" Name="textBlock13" Text="End Time:" VerticalAlignment="Top" Width="54" />
-                        <TextBox Height="29" HorizontalAlignment="Left" Margin="91,39,0,0" Name="textBox7" VerticalAlignment="Top" Width="120" Text="12:59pm" />
+                        <TextBox Height="29" HorizontalAlignment="Left" Margin="91,39,0,0" Name="textBox7" VerticalAlignment="Top" Width="120" Text="3:59am" />
 
                         <DatePicker Height="25" HorizontalAlignment="Left" Margin="91,83,0,0" Name="datePicker2" VerticalAlignment="Top" Width="115" SelectedDate="11/24/2013" />
                         <TextBox Height="23" HorizontalAlignment="Left" Margin="755,248,-295,0" x:Name="textBox10" VerticalAlignment="Top" Width="29" Text="7" TextAlignment="Center" />

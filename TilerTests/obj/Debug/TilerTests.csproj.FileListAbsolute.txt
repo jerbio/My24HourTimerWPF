@@ -83,5 +83,5 @@ C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\Til
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerTests\bin\Debug\System.Web.WebPages.Deployment.xml
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerTests\obj\Debug\TilerTests.dll
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerTests\obj\Debug\TilerTests.pdb
-C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerTests\bin\Debug\SendGrid.dll
-C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerTests\bin\Debug\SendGrid.CSharp.HTTP.Client.dll
+C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerTests\bin\Debug\SendGridMail.dll
+C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerTests\bin\Debug\SendGrid.SmtpApi.dll

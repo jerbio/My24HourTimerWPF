@@ -23,10 +23,10 @@ namespace TilerTests
         }
 
         /// <summary>
-        /// Function evaluates the schedule based on the newly added event.
-        /// Duplicate semantically equivalent schedules are created, each adding a the same calendarevent(newCalEvent) with the same parameters.
-        /// in each duplicate schedule events on a particular day have the same location. The newCalEvent gets a random location that is best aligned for a given day.
-        /// Each duplicate schedule is evaluated after the addition of a duplicate version newCalevent and tested to see if the day with the maching location of newCalevent has the best score.
+        /// Function evaluates the addition of a enwEvent to an already  populated schedule
+        /// The newly added sub event should fall on the same day as events with the same location as the event.
+        /// The test is structured in such away that the established schedule has each calendarevent on a given day will all have the same location. .
+        /// So if the algorithm is correct it should select a day in which all calendar events have the same loocation as the newly tested event
         /// </summary>
         [TestMethod]
         public void scheduleEvaluation()
@@ -82,6 +82,7 @@ namespace TilerTests
             int index = new Random().Next(locations.Count);
             Location_Elements randomLocation = locations[index];
             DateTimeOffset lastTime = new DateTimeOffset();
+            //for loop establishes the schedule with different days
             for (int j = 0; j < count; j++)
             {
                 for (int i = 0; i < count; i++)

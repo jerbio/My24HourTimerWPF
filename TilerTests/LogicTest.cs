@@ -10,6 +10,9 @@ using My24HourTimerWPF;
 
 namespace TilerTests
 {
+    /// <summary>
+    /// Test tries to verify the check for conflict algorithm works correctly in blob subcalendar event.
+    /// </summary>
     [TestClass]
     public class LogicTest
     {

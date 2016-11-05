@@ -70,7 +70,7 @@ namespace TilerElements
             }
         }
 
-        public Location_Elements(double MyxValue, double MyyValue, string AddressEntry, string AddressDescription, bool isNull, bool iaDefaultFlag, string ID = "")
+        public Location_Elements(double MyxValue, double MyyValue, string AddressEntry, string AddressDescription, bool isNull, bool isDefaultFlag, string ID = "")
         {
             xValue = MyxValue;
             yValue = MyyValue;
@@ -85,7 +85,7 @@ namespace TilerElements
             {
                 LocationID = ID;
             }
-            DefaultFlag = isDefault;
+            DefaultFlag = isDefaultFlag;
         }
 
         public Location_Elements(string Address, string tag = "", string ID = "")

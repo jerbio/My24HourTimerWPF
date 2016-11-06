@@ -11,8 +11,8 @@ namespace TilerElements
     /// </summary>
     public class TimeLineWithEdgeElements:BusyTimeLine
     {
-        string startingEventID;
-        string endingEventID;
+        string _StartingEventID;
+        string _EndingEventID;
         public TimeLineWithEdgeElements():base()
         { 
         
@@ -21,9 +21,22 @@ namespace TilerElements
         {
             StartTime = start;
             EndTime = End;
-            startingEventID = StartingEdgeEleemnt;
-            endingEventID = EndingEdgeElement;
+            _StartingEventID = StartingEdgeEleemnt;
+            _EndingEventID = EndingEdgeElement;
         }
-        
+
+        public virtual string BeginningEventId {
+            get
+            {
+                return _StartingEventID;
+            }
+        }
+        public virtual string EndingEventId
+        {
+            get
+            {
+                return _EndingEventID;
+            }
+        }
     }
 }

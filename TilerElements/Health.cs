@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GoogleMapsApi.Entities.Directions.Request;
 
 namespace TilerElements
 {
@@ -15,18 +17,20 @@ namespace TilerElements
         public TimeLine CalculationTimeline;
         ReferenceNow Now;
         List<SubCalendarEvent> orderedByStartThenEndSubEvents = new List<SubCalendarEvent>();
-        
-        public Health(IEnumerable<SubCalendarEvent> AllEvents, DateTimeOffset startTime, TimeSpan evaluationSpan, ReferenceNow now)
+        GoogleMapsApi.Entities.Directions.Request.TravelMode TravelMode;
+
+        public Health(IEnumerable<SubCalendarEvent> AllEvents, DateTimeOffset startTime, TimeSpan evaluationSpan, ReferenceNow now, TravelMode travelmode = TravelMode.Driving)
         {
             IEnumerable<SubCalendarEvent> SubEvents = AllEvents;
             CalculationTimeline = new TimeLine(startTime, startTime.Add(EvaluationSpan));
             orderedByStartThenEndSubEvents = SubEvents.Where(SubEvent => SubEvent.RangeTimeLine.InterferringTimeLine(CalculationTimeline) != null).OrderBy(obj => obj.Start).ThenByDescending(tilerEvent => tilerEvent.End).ToList();
             EvaluationSpan = evaluationSpan;
             Now = now;
+            this.TravelMode = travelmode;
         }
 
 
-        public Health(IEnumerable<CalendarEvent> AllEvents, DateTimeOffset startTime, TimeSpan evaluationSpan, ReferenceNow refNow) : this(AllEvents.SelectMany(CalEvent => CalEvent.ActiveSubEvents), startTime, evaluationSpan, refNow)
+        public Health(IEnumerable<CalendarEvent> AllEvents, DateTimeOffset startTime, TimeSpan evaluationSpan, ReferenceNow refNow, TravelMode travelMode) : this(AllEvents.SelectMany(CalEvent => CalEvent.ActiveSubEvents), startTime, evaluationSpan, refNow, travelMode)
         {
         }
 
@@ -34,6 +38,7 @@ namespace TilerElements
         {
             double totalDistance = evaluateTotalDistance();
             double positioningScore = evaluatePositioning();
+            double conflictScore = evaluateConflicts();
             double retValue = Utility.CalcuateResultant(totalDistance, positioningScore);
             return retValue;
         }
@@ -67,8 +72,14 @@ namespace TilerElements
                     lastId = iterationId;
                 }
             }
-
             return retValue;
+        }
+
+        public double evaluateConflicts()
+        {
+            List<BlobSubCalendarEvent> conflictingEvents = Utility.getConflictingEvents(orderedByStartThenEndSubEvents);
+            double result = conflictingEvents.Sum(blob => blob.getSubCalendarEventsInBlob().Count());
+            return result;
         }
 
         Dictionary<TimeLine, TimeLine> evaluateSleepSchedule(IEnumerable<DayTimeLine> dayTimeLines)
@@ -91,14 +102,16 @@ namespace TilerElements
             return retValue;
         }
 
-        public Double TotalDistance {
+        public Double TotalDistance
+        {
             get
             {
                 return evaluateTotalDistance();
             }
         }
 
-        public TimeSpan SleepPerDay {
+        public TimeSpan SleepPerDay
+        {
             get
             {
                 IEnumerable<DayTimeLine> dayTimeLines = Now.getAllDaysCount(7);
@@ -112,6 +125,98 @@ namespace TilerElements
                 TimeSpan retValue = TimeSpan.FromTicks( totalSum.Ticks / validTimeLines.Count);
                 return retValue;
             }
+        }
+
+        class TravelTime
+        {
+            List<SubCalendarEvent> OrderedSubEvents;
+            Dictionary<EventID, SubCalendarEvent> EventIdToSubEvent;
+            TimeLine EventSequence;
+            TravelMode TravelMode;
+
+            /// <summary>
+            /// Dictionary holds subevent Ids to free timeline. If the Id doesnt exist then it should then a freespot greater than zero ticks was not found
+            /// </summary>
+            /// <param name="transitingIdsToFreespot"></param>
+            Dictionary<string, TimeLineWithEdgeElements> TransitingIdsToFreespot;
+            ConcurrentDictionary<string, TimeSpan> TransitingIdsToWebTravelSpan;
+            ConcurrentDictionary<string, TimeSpan> TransitingIdsToSuccess;
+            public TravelTime(IEnumerable<SubCalendarEvent> subEvents, TravelMode travelMode = TravelMode.Driving)
+            {
+                TravelMode = travelMode;
+                if (subEvents.Count()>0)
+                {
+                    OrderedSubEvents = subEvents.OrderBy(subEvent => subEvent.Start).ThenBy(subEvent => subEvent.End).ToList();
+                    EventSequence = new TimeLine(OrderedSubEvents.First().Start, OrderedSubEvents.Last().End);
+                    EventSequence.AddBusySlots(OrderedSubEvents.Select(subEvent => subEvent.ActiveSlot));
+                    EventIdToSubEvent = OrderedSubEvents.ToDictionary(subEvent => subEvent.SubEvent_ID, subEvent => subEvent);
+                    TransitingIdsToWebTravelSpan = new ConcurrentDictionary<string, TimeSpan>();
+                    TransitingIdsToSuccess = new ConcurrentDictionary<string, TimeSpan>();
+                    if (EventSequence.OccupiedSlots.Length> 1)
+                    {
+                        TimeLineWithEdgeElements[] timeLineWithEdge = EventSequence.getAllFreeSlotsWithEdges();
+                        for(int i=0; i< timeLineWithEdge.Length; i++)
+                        {
+                            TimeLineWithEdgeElements freeSpotWithEdge = timeLineWithEdge[i];
+                            string[] ids = { freeSpotWithEdge.BeginningEventId, freeSpotWithEdge.EndingEventId };
+                            TransitingIdsToFreespot.Add(string.Join(",", ids), freeSpotWithEdge);
+                        }
+                    }
+                    
+                }
+                else
+                {
+                    OrderedSubEvents = new List<SubCalendarEvent>();
+                    EventSequence = new TimeLine();
+                    EventIdToSubEvent = new Dictionary<EventID, SubCalendarEvent>();
+                    TransitingIdsToFreespot = new Dictionary<string, TimeLineWithEdgeElements>();
+                    TransitingIdsToWebTravelSpan = new ConcurrentDictionary<string, TimeSpan>();
+                    TransitingIdsToSuccess = new ConcurrentDictionary<string, TimeSpan>();
+                } 
+            }
+            async public Task evaluate()
+            {
+                if (EventSequence.OccupiedSlots.Length > 1)
+                {
+                    Parallel.For(0, EventSequence.OccupiedSlots.Length, (i) =>
+                        //for (int i = 0; i< EventSequence.OccupiedSlots.Length-1; i++)
+                        {
+                            int j = i + 1;
+                            SubCalendarEvent firstSubEvent = OrderedSubEvents[i];
+                            SubCalendarEvent secondSubEvent = OrderedSubEvents[j];
+                            TimeSpan travelSpan = Location_Elements.getDrivingTimeFromWeb(firstSubEvent.myLocation, secondSubEvent.myLocation, this.TravelMode);
+                            string[] ids = { firstSubEvent.Id, secondSubEvent.Id };
+                            string concatId = string.Join(",", ids);
+                            TransitingIdsToWebTravelSpan.AddOrUpdate(concatId, travelSpan, ((key, oldValue) => { return travelSpan; }));
+                            TimeSpan freeSpotSpan = new TimeSpan();
+                            if (TransitingIdsToFreespot.ContainsKey(concatId))
+                            {
+                                freeSpotSpan = TransitingIdsToFreespot[concatId].TimelineSpan;
+                            }
+                            TimeSpan differenceSpan = (freeSpotSpan - travelSpan);
+                            TransitingIdsToSuccess.AddOrUpdate(concatId, differenceSpan, ((key, oldValue) => { return differenceSpan; }));
+                        }
+                    );
+                }
+            }
+
+            public Dictionary<string, TimeSpan> result()
+            {
+                Dictionary<string, TimeSpan> retValue = TransitingIdsToSuccess.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                return retValue;
+            }
+        }
+
+        /// <summary>
+        /// Class is simply to provide a way to hold the result of an evaluated schedule. It is not meant to be used outside this Class. 
+        /// </summary>
+        class HealthEvaluation
+        {
+            public List<BlobSubCalendarEvent> ConflictingEvents { get; set; }
+            public double TotalDistance { get; set; }
+            public double PositioningScore { get; set; }
+            public List<TimeSpan> SleepSchedule { get; set; }
+            public TravelTime TravelTimeAnalysis { get; set; }
         }
 
     }

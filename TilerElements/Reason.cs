@@ -73,6 +73,8 @@ namespace TilerElements
             ProcrastinationIncrease,
             [XmlEnum(Name = "ProcrastinationDecrease")]
             ProcrastinationDecrease,
+            [XmlEnum(Name = "ProcrastinationSame")]
+            ProcrastinationSame,
             [XmlEnum(Name = "SetAsNow")]
             SetAsNow,
             [XmlEnum(Name = "RestrictedEvent")]
@@ -177,6 +179,29 @@ namespace TilerElements
     }
 
     [Serializable]
+    public class ProcrastinationReason : Reason
+    {
+        public ProcrastinationReason(Procrastination oldProcrastination, Procrastination newProcrastination)
+        {
+            if (oldProcrastination.PreferredStartTime < newProcrastination.PreferredStartTime)
+            {
+                this._Option = Options.ProcrastinationIncrease;
+            }
+            else
+            {
+                if (oldProcrastination.PreferredStartTime == newProcrastination.PreferredStartTime)
+                {
+                    this._Option = Options.ProcrastinationSame;
+                }
+                else
+                {
+                    this._Option = Options.ProcrastinationDecrease;
+                }
+            }
+        }
+    }
+
+        [Serializable]
     public class PreservedOrder : Reason
     {
         public PreservedOrder()

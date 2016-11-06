@@ -36,6 +36,7 @@ namespace TilerElements
         protected double yValue;
         protected string TaggedDescription = "";
         protected string TaggedAddress = "";
+
         /// <summary>
         /// was tiler able to pull location from google maps. If tiler fails to pull location from google maps then this location is null.
         /// </summary>
@@ -193,15 +194,24 @@ namespace TilerElements
             return RetValue;
         }
 
-        static public TimeSpan getDrivingTimeFromWeb(Location_Elements first, Location_Elements second)
+        /// <summary>
+        /// FUnction gets the timespan needed to travel from location 'first' to 'second'. The travelMode provides the desired medium of traveling.
+        /// </summary>
+        /// <param name="first"></param>
+        /// <param name="second"></param>
+        /// <param name="travelMode"></param>
+        /// <returns>The timespan it'll take to travel between both points. Note if the timespan ticks is less than 0 then the value could not be evaluated</returns>
+        static public TimeSpan getDrivingTimeFromWeb(Location_Elements first, Location_Elements second, TravelMode travelMode = TravelMode.Driving)
         {
             TimeSpan retValue = new TimeSpan(-1);
             if(!first.isNull && !second.isNull)
             {
+                
                 DirectionsRequest directionsRequest = new DirectionsRequest()
                 {
                     Origin = first.justLongLatString(),
                     Destination = second.justLongLatString(),
+                    TravelMode = travelMode
                 };
                 DirectionsResponse directions = GoogleMaps.Directions.Query(directionsRequest);
                 if (directions.Status == DirectionsStatusCodes.OK)
@@ -454,6 +464,10 @@ namespace TilerElements
                 return LocationID;
             }
         }
+        /// <summary>
+        /// Holds the timeline this location is occupied
+        /// </summary>
+        public TimeLine TimeLineLocation { get; set; }
         #endregion
     }
 }

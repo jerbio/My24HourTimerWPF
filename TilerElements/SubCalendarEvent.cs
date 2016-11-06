@@ -226,32 +226,32 @@ namespace TilerElements
             ReasonsForCurrentPosition = new Dictionary<TimeSpan, List<Reason>>();
         }
 
-        public IWhy Because()
+        virtual public IWhy Because()
         {
             throw new NotImplementedException("Yet to implement a because functionality for subcalendar event");
         }
 
-        public IWhy OtherWise()
+        virtual public IWhy OtherWise()
         {
             throw new NotImplementedException("Yet to implement a OtherWise functionality for subcalendar event");
         }
 
-        public IWhy WhatIf(DateTimeOffset AssumedTime)
+        virtual public IWhy WhatIf(DateTimeOffset AssumedTime)
         {
             throw new NotImplementedException("Yet to implement a WhatIf functionality for subcalendar event");
         }
 
-        public IWhy WhatIfDeadline(DateTimeOffset AssumedTime)
+        virtual public IWhy WhatIfDeadline(DateTimeOffset AssumedTime)
         {
             throw new NotImplementedException("Yet to implement a WhatIf functionality for subcalendar event");
         }
 
-        public IWhy WhatIfStartTime(DateTimeOffset AssumedTime)
+        virtual public IWhy WhatIfStartTime(DateTimeOffset AssumedTime)
         {
             throw new NotImplementedException("Yet to implement a WhatIf functionality for subcalendar event");
         }
 
-        public IWhy WhatIf(params Reason[] reasons)
+        virtual public IWhy WhatIf(params Reason[] reasons)
         {
             throw new NotImplementedException("Yet to implement a WhatIf functionality for subcalendar event");
         }

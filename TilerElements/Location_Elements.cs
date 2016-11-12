@@ -464,10 +464,6 @@ namespace TilerElements
                 return LocationID;
             }
         }
-        /// <summary>
-        /// Holds the timeline this location is occupied
-        /// </summary>
-        public TimeLine TimeLineLocation { get; set; }
         #endregion
     }
 }

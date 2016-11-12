@@ -1,10 +1,41 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ScheduleLog>
-  <LastIDCounter>1642</LastIDCounter>
+  <LastIDCounter>2056</LastIDCounter>
   <referenceDay>8:00 AM</referenceDay>
   <EventSchedules>
   </EventSchedules>
   <LocationCache>
-    <Locations />
+    <Locations>
+      <Location>
+        <CachedName>work</CachedName>
+        <LocationID>d7ecd36d-cbfe-4556-9fd1-8fd92792506b</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Work</Description>
+        <Address>1228 euclid Ave cleveland OH</Address>
+        <YCoordinate>-81.6839155</YCoordinate>
+        <XCoordinate>41.5002762</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>gym</CachedName>
+        <LocationID>27e8eaac-a7ab-49f3-b0b3-593a86ce7ead</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Gym</Description>
+        <Address>619 Prospect Avenue Cleveland, OH 44115</Address>
+        <YCoordinate>-81.6884993</YCoordinate>
+        <XCoordinate>41.4987461</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>2895 van aken blvd cleveland oh 44120</CachedName>
+        <LocationID>d1d4c0ba-2df2-42a7-a5d4-91657fc55372</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>2895 Van aken Blvd cleveland OH 44120</Description>
+        <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+        <YCoordinate>-81.585446</YCoordinate>
+        <XCoordinate>41.480352</XCoordinate>
+      </Location>
+    </Locations>
   </LocationCache>
 </ScheduleLog>

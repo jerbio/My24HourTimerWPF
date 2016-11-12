@@ -1250,6 +1250,7 @@
         <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.MaxResults">
             <summary>Maximum number of events returned on one result page. By default the value is 250 events. The
             page size can never be larger than 2500 events. Optional.</summary>
+            [default: 250]
             [minimum: 1]
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.ListRequest.OrderBy">
@@ -1568,6 +1569,7 @@
         <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.MaxResults">
             <summary>Maximum number of events returned on one result page. By default the value is 250 events. The
             page size can never be larger than 2500 events. Optional.</summary>
+            [default: 250]
             [minimum: 1]
         </member>
         <member name="P:Google.Apis.Calendar.v3.EventsResource.WatchRequest.OrderBy">

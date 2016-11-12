@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ScheduleLog>
-  <LastIDCounter>1634</LastIDCounter>
+  <LastIDCounter>2045</LastIDCounter>
   <referenceDay>8:00 AM</referenceDay>
   <EventSchedules>
     <EventSchedule>
@@ -32,24 +32,24 @@
       </UIParams>
       <Location>
         <CheckCalendarEvent>False</CheckCalendarEvent>
-        <isNull>True</isNull>
-        <Description />
-        <Address />
-        <YCoordinate>40.015</YCoordinate>
-        <XCoordinate>105.2705</XCoordinate>
+        <isNull>False</isNull>
+        <Description>2895 Van aken Blvd cleveland OH 44120</Description>
+        <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+        <YCoordinate>-81.585446</YCoordinate>
+        <XCoordinate>41.480352</XCoordinate>
       </Location>
       <Enabled>True</Enabled>
-      <ID>1633_7_0_0</ID>
-      <Name>TestCalendarEvent-33472564-30c6-4633-bfd4-afa2d235833c</Name>
-      <StartTime>10/31/2016 3:19:55 AM</StartTime>
+      <ID>2038_7_0_0</ID>
+      <Name>TestCalendarEvent-c1008d76-d1c6-4343-8ddf-d5f2dc10be5d</Name>
+      <StartTime>11/12/2016 8:24:00 AM</StartTime>
       <PreDeadline>00:00:00</PreDeadline>
       <DeletionCount>0</DeletionCount>
       <CompletionCount>0</CompletionCount>
       <PrepTime>00:00:00</PrepTime>
-      <Deadline>10/31/2016 4:19:55 AM</Deadline>
+      <Deadline>11/12/2016 8:24:00 PM</Deadline>
       <Split>1</Split>
       <Duration>01:00:00</Duration>
-      <RigidFlag>True</RigidFlag>
+      <RigidFlag>False</RigidFlag>
       <EventSubSchedules>
         <EventSubSchedule>
           <PauseInformation>
@@ -57,7 +57,23 @@
             <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
           </PauseInformation>
           <Restricted>False</Restricted>
-          <TimePositionReasons />
+          <TimePositionReasons>
+            <Reason xsi:type="BestFitReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>BestFit</Option>
+              <UsedUp>PT0S</UsedUp>
+              <Available>PT9H36M</Available>
+              <CurrentUse>PT1H</CurrentUse>
+            </Reason>
+            <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>CloseToCluster</Option>
+              <LocationCluster>
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+              </LocationCluster>
+            </Reason>
+          </TimePositionReasons>
           <ConflictProfile>
             <ConflictIDs />
             <Flag>False</Flag>
@@ -80,23 +96,368 @@
           </UIParams>
           <Location>
             <CheckCalendarEvent>False</CheckCalendarEvent>
-            <isNull>True</isNull>
-            <Description />
-            <Address />
-            <YCoordinate>40.015</YCoordinate>
-            <XCoordinate>105.2705</XCoordinate>
+            <isNull>False</isNull>
+            <Description>2895 Van aken Blvd cleveland OH 44120</Description>
+            <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+            <YCoordinate>-81.585446</YCoordinate>
+            <XCoordinate>41.480352</XCoordinate>
           </Location>
           <Complete>False</Complete>
           <Enabled>True</Enabled>
-          <ID>1633_7_0_1634</ID>
-          <Rigid>True</Rigid>
+          <ID>2038_7_0_2039</ID>
+          <Rigid>False</Rigid>
           <ThirdPartyID />
           <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>10/31/2016 3:19:55 AM</ActiveStartTime>
-          <ActiveEndTime>10/31/2016 4:19:55 AM</ActiveEndTime>
+          <ActiveStartTime>11/12/2016 8:24:00 AM</ActiveStartTime>
+          <ActiveEndTime>11/12/2016 9:24:00 AM</ActiveEndTime>
           <Duration>01:00:00</Duration>
-          <StartTime>10/31/2016 3:19:55 AM</StartTime>
-          <EndTime>10/31/2016 4:19:55 AM</EndTime>
+          <StartTime>11/12/2016 8:24:00 AM</StartTime>
+          <EndTime>11/12/2016 9:24:00 AM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
+    <EventSchedule>
+      <Recurrence />
+      <ProcrastinationProfile>
+        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
+        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
+        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
+      </ProcrastinationProfile>
+      <NowProfile>
+        <Initialized>False</Initialized>
+        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
+      </NowProfile>
+      <Restricted>False</Restricted>
+      <MiscData>
+        <TypeSelection>0</TypeSelection>
+        <UserNote />
+      </MiscData>
+      <UIParams>
+        <Type>0</Type>
+        <Color>
+          <UserSelection>-1</UserSelection>
+          <Blue>127</Blue>
+          <Green>127</Green>
+          <Red>127</Red>
+          <Opacity>1</Opacity>
+        </Color>
+        <Visible>True</Visible>
+      </UIParams>
+      <Location>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>2895 Van aken Blvd cleveland OH 44120</Description>
+        <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+        <YCoordinate>-81.585446</YCoordinate>
+        <XCoordinate>41.480352</XCoordinate>
+      </Location>
+      <Enabled>True</Enabled>
+      <ID>2040_7_0_0</ID>
+      <Name>TestCalendarEvent-0d45fab3-cedb-4168-b802-945fa623b198</Name>
+      <StartTime>11/12/2016 8:24:00 AM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <DeletionCount>0</DeletionCount>
+      <CompletionCount>0</CompletionCount>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>11/13/2016 8:24:00 AM</Deadline>
+      <Split>1</Split>
+      <Duration>01:00:00</Duration>
+      <RigidFlag>False</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons>
+            <Reason xsi:type="BestFitReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>BestFit</Option>
+              <UsedUp>PT0S</UsedUp>
+              <Available>PT9H36M</Available>
+              <CurrentUse>PT1H</CurrentUse>
+            </Reason>
+            <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>CloseToCluster</Option>
+              <LocationCluster>
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+              </LocationCluster>
+            </Reason>
+          </TimePositionReasons>
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+            <Visible>True</Visible>
+          </UIParams>
+          <Location>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>2895 Van aken Blvd cleveland OH 44120</Description>
+            <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+            <YCoordinate>-81.585446</YCoordinate>
+            <XCoordinate>41.480352</XCoordinate>
+          </Location>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>2040_7_0_2041</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>11/12/2016 9:24:00 AM</ActiveStartTime>
+          <ActiveEndTime>11/12/2016 10:24:00 AM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>11/12/2016 9:24:00 AM</StartTime>
+          <EndTime>11/12/2016 10:24:00 AM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
+    <EventSchedule>
+      <Recurrence />
+      <ProcrastinationProfile>
+        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
+        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
+        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
+      </ProcrastinationProfile>
+      <NowProfile>
+        <Initialized>False</Initialized>
+        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
+      </NowProfile>
+      <Restricted>False</Restricted>
+      <MiscData>
+        <TypeSelection>0</TypeSelection>
+        <UserNote />
+      </MiscData>
+      <UIParams>
+        <Type>0</Type>
+        <Color>
+          <UserSelection>-1</UserSelection>
+          <Blue>127</Blue>
+          <Green>127</Green>
+          <Red>127</Red>
+          <Opacity>1</Opacity>
+        </Color>
+        <Visible>True</Visible>
+      </UIParams>
+      <Location>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Work</Description>
+        <Address>1228 euclid ave, cleveland, oh 44115, usa</Address>
+        <YCoordinate>-81.6839155</YCoordinate>
+        <XCoordinate>41.5002762</XCoordinate>
+      </Location>
+      <Enabled>True</Enabled>
+      <ID>2042_7_0_0</ID>
+      <Name>TestCalendarEvent-e9adab58-1500-47db-bc97-1f38c34521dc</Name>
+      <StartTime>11/12/2016 8:24:00 AM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <DeletionCount>0</DeletionCount>
+      <CompletionCount>0</CompletionCount>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>11/13/2016 8:24:00 AM</Deadline>
+      <Split>1</Split>
+      <Duration>01:00:00</Duration>
+      <RigidFlag>False</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons>
+            <Reason xsi:type="BestFitReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>BestFit</Option>
+              <UsedUp>PT0S</UsedUp>
+              <Available>PT9H36M</Available>
+              <CurrentUse>PT1H</CurrentUse>
+            </Reason>
+            <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>CloseToCluster</Option>
+              <LocationCluster>
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+              </LocationCluster>
+            </Reason>
+          </TimePositionReasons>
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+            <Visible>True</Visible>
+          </UIParams>
+          <Location>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Work</Description>
+            <Address>1228 euclid ave, cleveland, oh 44115, usa</Address>
+            <YCoordinate>-81.6839155</YCoordinate>
+            <XCoordinate>41.5002762</XCoordinate>
+          </Location>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>2042_7_0_2043</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>11/12/2016 10:44:13 AM</ActiveStartTime>
+          <ActiveEndTime>11/12/2016 11:44:13 AM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>11/12/2016 10:44:13 AM</StartTime>
+          <EndTime>11/12/2016 11:44:13 AM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
+    <EventSchedule>
+      <Recurrence />
+      <ProcrastinationProfile>
+        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
+        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
+        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
+      </ProcrastinationProfile>
+      <NowProfile>
+        <Initialized>False</Initialized>
+        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
+      </NowProfile>
+      <Restricted>False</Restricted>
+      <MiscData>
+        <TypeSelection>0</TypeSelection>
+        <UserNote />
+      </MiscData>
+      <UIParams>
+        <Type>0</Type>
+        <Color>
+          <UserSelection>-1</UserSelection>
+          <Blue>127</Blue>
+          <Green>127</Green>
+          <Red>127</Red>
+          <Opacity>1</Opacity>
+        </Color>
+        <Visible>True</Visible>
+      </UIParams>
+      <Location>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Gym</Description>
+        <Address>619 prospect ave e, cleveland, oh 44115, usa</Address>
+        <YCoordinate>-81.6884993</YCoordinate>
+        <XCoordinate>41.4987461</XCoordinate>
+      </Location>
+      <Enabled>True</Enabled>
+      <ID>2044_7_0_0</ID>
+      <Name>TestCalendarEvent-8354d0a9-d27f-49fb-a1c7-f7a60febc95f</Name>
+      <StartTime>11/12/2016 8:24:41 AM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <DeletionCount>0</DeletionCount>
+      <CompletionCount>0</CompletionCount>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>11/13/2016 8:24:41 AM</Deadline>
+      <Split>1</Split>
+      <Duration>01:00:00</Duration>
+      <RigidFlag>False</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons>
+            <Reason xsi:type="BestFitReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>BestFit</Option>
+              <UsedUp>PT0S</UsedUp>
+              <Available>PT9H36M</Available>
+              <CurrentUse>PT1H</CurrentUse>
+            </Reason>
+            <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>CloseToCluster</Option>
+              <LocationCluster>
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+              </LocationCluster>
+            </Reason>
+          </TimePositionReasons>
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+            <Visible>True</Visible>
+          </UIParams>
+          <Location>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Gym</Description>
+            <Address>619 prospect ave e, cleveland, oh 44115, usa</Address>
+            <YCoordinate>-81.6884993</YCoordinate>
+            <XCoordinate>41.4987461</XCoordinate>
+          </Location>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>2044_7_0_2045</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>11/12/2016 11:47:26 AM</ActiveStartTime>
+          <ActiveEndTime>11/12/2016 12:47:26 PM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>11/12/2016 11:47:26 AM</StartTime>
+          <EndTime>11/12/2016 12:47:26 PM</EndTime>
         </EventSubSchedule>
       </EventSubSchedules>
       <RepetitionFlag>False</RepetitionFlag>
@@ -104,6 +465,37 @@
     </EventSchedule>
   </EventSchedules>
   <LocationCache>
-    <Locations />
+    <Locations>
+      <Location>
+        <CachedName>work</CachedName>
+        <LocationID>d7ecd36d-cbfe-4556-9fd1-8fd92792506b</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Work</Description>
+        <Address>1228 euclid Ave cleveland OH</Address>
+        <YCoordinate>-81.6839155</YCoordinate>
+        <XCoordinate>41.5002762</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>gym</CachedName>
+        <LocationID>27e8eaac-a7ab-49f3-b0b3-593a86ce7ead</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Gym</Description>
+        <Address>619 Prospect Avenue Cleveland, OH 44115</Address>
+        <YCoordinate>-81.6884993</YCoordinate>
+        <XCoordinate>41.4987461</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>2895 van aken blvd cleveland oh 44120</CachedName>
+        <LocationID>d1d4c0ba-2df2-42a7-a5d4-91657fc55372</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>2895 Van aken Blvd cleveland OH 44120</Description>
+        <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+        <YCoordinate>-81.585446</YCoordinate>
+        <XCoordinate>41.480352</XCoordinate>
+      </Location>
+    </Locations>
   </LocationCache>
 </ScheduleLog>

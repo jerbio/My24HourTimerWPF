@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TilerElements;
 using TilerFront;
+using GoogleMapsApi.Entities.Directions.Request;
 
 namespace TilerTests
 {
@@ -17,6 +18,12 @@ namespace TilerTests
         public TestSchedule(IEnumerable<CalendarEvent> calendarEvents ,UserAccount AccountEntry, DateTimeOffset referenceNow) : base(AccountEntry, referenceNow)
         {
             AllEventDictionary =  calendarEvents.ToDictionary(calEvent => calEvent.Calendar_EventID.getCalendarEventComponent(), calEvent => calEvent);
+        }
+
+        public Health getScheduleQuality(TimeLine timeLine)
+        {
+            Health retValue = this.getScheduleQuality(timeLine, Schedule.Now);
+            return retValue;
         }
 
         public Health getScheduleQuality(TimeLine timeLine, ReferenceNow refNow)

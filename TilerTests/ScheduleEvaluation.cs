@@ -6,6 +6,7 @@ using TilerElements;
 using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
+using GoogleMapsApi.Entities.Directions.Request;
 
 namespace TilerTests
 {
@@ -116,7 +117,96 @@ namespace TilerTests
 
             int dayIndex = (firstSubEvent.Start.Date - testSubEvent.Start.Date).Days;
 
-            Assert.AreEqual(dayIndex, index);
+            //Assert.AreEqual(dayIndex, index);
+        }
+        /// <summary>
+        /// Test tries to evaluate changess to a schedule to see if the schedule was made for the better or worse
+        /// </summary>
+        [TestMethod]
+        public void scheduleComparisonEvaluation()
+        {
+            Location_Elements homeLocation = new Location_Elements("2895 Van aken Blvd cleveland OH 44120");
+            homeLocation.Validate();
+            //if (homeLocation.isNull)
+            //{
+            //    throw new AssertFailedException("failed to Validate homeLocation");
+            //}
+
+            Location_Elements workLocation = new Location_Elements(41.5002762, -81.6839155, "1228 euclid Ave cleveland OH", "Work", false, false);
+            workLocation.Validate();
+            //if (workLocation.isNull)
+            //{
+            //    throw new AssertFailedException("failed to Validate workLocation");
+            //}
+            Location_Elements gymLocation = new Location_Elements(41.4987461, -81.6884993, "619 Prospect Avenue Cleveland, OH 44115", "Gym", false, false);
+            gymLocation.Validate();
+            //if (gymLocation.isNull)
+            //{
+            //    throw new AssertFailedException("failed to Validate gymLocation");
+            //}
+
+            Location_Elements churchLocation = new Location_Elements(41.569467, -81.539422, "1465 Dille Rd, Cleveland, OH 44117", "Church", false, false);
+            churchLocation.Validate();
+            //if (churchLocation.isNull)
+            //{
+            //    throw new AssertFailedException("failed to Validate churchLocation");
+            //}
+
+            Location_Elements shakerLibrary = new Location_Elements(41.4658937, -81.5664832, "16500 Van Aken Blvd, Shaker Heights, OH 44120", "Shake Library", false, false);
+            shakerLibrary.Validate();
+            //if (shakerLibrary.isNull)
+            //{
+            //    throw new AssertFailedException("failed to Validate shakerLibrary");
+            //}
+
+            List<Location_Elements> locations = new List<Location_Elements>() { homeLocation, homeLocation, workLocation, gymLocation };//, churchLocation };
+
+            UserAccount currentUser = TestUtility.getTestUser();
+            currentUser.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.Now;
+            
+            TimeSpan duration = TimeSpan.FromDays(1);
+            TimeLine eachTimeLine = new TimeLine(refNow, refNow.Add(duration));
+            HashSet<EventID> hashEventIDs = new HashSet<EventID>();
+            HashSet<EventID> EventIDs = new HashSet<EventID>();
+            for (int i =0;i<4;i++)
+            {
+                Schedule Schedule = new TestSchedule(currentUser, refNow);
+                CalendarEvent testEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), eachTimeLine.Start,i == 0 ? eachTimeLine.End.AddHours(-12) : eachTimeLine.End, 1, false, locations[i]);
+                Schedule.AddToScheduleAndCommit(testEvent).Wait();
+                hashEventIDs.Add(testEvent.Calendar_EventID);
+                EventIDs.Add(testEvent.Calendar_EventID);
+            }
+
+
+
+            TestSchedule scheduleA = new TestSchedule(currentUser, refNow);
+            List<CalendarEvent> allCalEvents = scheduleA.getAllCalendarEvents().ToList();
+            List<SubCalendarEvent> subEvents = allCalEvents.SelectMany(obj => obj.AllSubEvents).OrderBy(obj => obj.Start).ToList();
+            SubCalendarEvent second = subEvents[1];
+            TestSchedule scheduleB = new TestSchedule(currentUser, refNow);
+            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> procrastinatioCompletion =scheduleB.ProcrastinateJustAnEvent(second.Id, TimeSpan.FromHours(10));
+            scheduleB.UpdateWithProcrastinateSchedule(procrastinatioCompletion.Item2).ConfigureAwait(false);
+            allCalEvents = scheduleB.getAllCalendarEvents().ToList();
+            subEvents = allCalEvents.SelectMany(obj => obj.AllSubEvents).OrderBy(obj => obj.Start).ToList();
+
+
+            Health healthA = scheduleA.getScheduleQuality(eachTimeLine);
+            Health healthB = scheduleB.getScheduleQuality(eachTimeLine);
+
+            List<Health> healths = new List<Health>() { healthB, healthA };
+            healths.Sort();
+            Assert.AreEqual(healths.First(), healthA);
+        }
+
+        [TestCleanup]
+        public void eachTestCleanUp()
+        {
+            UserAccount currentUser = TestUtility.getTestUser();
+            currentUser.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.Now;
+            Schedule Schedule = new Schedule(currentUser, refNow);
+            currentUser.DeleteAllCalendarEvents();
         }
 
         [ClassCleanup]

@@ -12,6 +12,12 @@ namespace TilerTests
 {
     class TestSchedule : Schedule
     {
+        protected DateTimeOffset StartOfDay;
+        public TestSchedule(UserAccount AccountEntry, DateTimeOffset referenceNow, DateTimeOffset startOfDay) : base(AccountEntry, referenceNow)
+        {
+            StartOfDay = startOfDay;
+            Initialize(referenceNow, StartOfDay).Wait();
+        }
         public TestSchedule(UserAccount AccountEntry, DateTimeOffset referenceNow) : base(AccountEntry, referenceNow)
         {}
 
@@ -22,7 +28,7 @@ namespace TilerTests
 
         public Health getScheduleQuality(TimeLine timeLine)
         {
-            Health retValue = this.getScheduleQuality(timeLine, Schedule.Now);
+            Health retValue = this.getScheduleQuality(timeLine, this.Now);
             return retValue;
         }
 

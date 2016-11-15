@@ -71,7 +71,15 @@ namespace My24HourTimerWPF
 
         double PercentageOccupancy = 0;
         //public static DateTimeOffset Now = new DateTimeOffset(2014,4,6,0,0,0);//DateTimeOffset.Now;
-        public static ReferenceNow Now;// = new ReferenceNow( DateTimeOffset.Now);
+        protected ReferenceNow _Now;// = new ReferenceNow( DateTimeOffset.Now);
+
+        public ReferenceNow Now
+        {
+            get
+            {
+                return _Now;
+            }
+        }
         //Schedule.Now = DateTimeOffset.Now;
         DateTimeOffset ReferenceDayTIime;
         static string stageOfProgram = "";
@@ -150,18 +158,17 @@ namespace My24HourTimerWPF
 
 
 
-        async private Task Initialize(DateTimeOffset referenceNow)
+        async virtual protected Task Initialize(DateTimeOffset referenceNow)
         {
             if(!myAccount.Status)
             {
                 throw new Exception("Using non verified tiler Account, try logging into account first.");
             }
             DateTimeOffset StartOfDay = await myAccount.ScheduleData.getDayReferenceTime().ConfigureAwait(false);
-            Now = new ReferenceNow(referenceNow, StartOfDay);
+            _Now = new ReferenceNow(referenceNow, StartOfDay);
             Tuple<Dictionary<string, CalendarEvent>, DateTimeOffset, Dictionary<string, Location_Elements>> profileData =await  myAccount.ScheduleData.getProfileInfo().ConfigureAwait(false);
             if (profileData!=null)
             {
-                
                 DateTimeOffset referenceDayTimeNow = new DateTimeOffset(Now.calculationNow.Year, Now.calculationNow.Month, Now.calculationNow.Day, profileData.Item2.Hour, profileData.Item2.Minute, profileData.Item2.Second, new TimeSpan());// profileData.Item2;
                 ReferenceDayTIime = Now.calculationNow < referenceDayTimeNow ? referenceDayTimeNow.AddDays(-1) : referenceDayTimeNow;
                 AllEventDictionary = profileData.Item1;
@@ -169,12 +176,59 @@ namespace My24HourTimerWPF
                 {
                     //setAsComplete();
                     EventID.Initialize((uint)(myAccount.LastEventTopNodeID));
-                    ThirdPartyCalendars.Add(ThirdPartyControl.CalendarTool.Outlook, new List<CalendarEvent>() {});
+                    initializeThirdPartyCalendars();
+                    updateThirdPartyCalendars(ThirdPartyControl.CalendarTool.Outlook, new List<CalendarEvent>() { });
                     CompleteSchedule = getTimeLine();
                     
                     //EventIDGenerator.Initialize((uint)(this.LastScheduleIDNumber));
                 }
                 Locations = profileData.Item3;
+            }
+        }
+
+        async virtual protected Task Initialize(DateTimeOffset referenceNow, DateTimeOffset StartOfDay)
+        {
+            if (!myAccount.Status)
+            {
+                throw new Exception("Using non verified tiler Account, try logging into account first.");
+            }
+            _Now = new ReferenceNow(referenceNow, StartOfDay);
+            Tuple<Dictionary<string, CalendarEvent>, DateTimeOffset, Dictionary<string, Location_Elements>> profileData = await myAccount.ScheduleData.getProfileInfo().ConfigureAwait(false);
+            if (profileData != null)
+            {
+                DateTimeOffset referenceDayTimeNow = new DateTimeOffset(Now.calculationNow.Year, Now.calculationNow.Month, Now.calculationNow.Day, profileData.Item2.Hour, profileData.Item2.Minute, profileData.Item2.Second, new TimeSpan());// profileData.Item2;
+                ReferenceDayTIime = Now.calculationNow < referenceDayTimeNow ? referenceDayTimeNow.AddDays(-1) : referenceDayTimeNow;
+                AllEventDictionary = profileData.Item1;
+                if (AllEventDictionary != null)
+                {
+                    //setAsComplete();
+                    EventID.Initialize((uint)(myAccount.LastEventTopNodeID));
+                    initializeThirdPartyCalendars();
+                    updateThirdPartyCalendars(ThirdPartyControl.CalendarTool.Outlook, new List<CalendarEvent>() { });
+                    CompleteSchedule = getTimeLine();
+
+                    //EventIDGenerator.Initialize((uint)(this.LastScheduleIDNumber));
+                }
+                Locations = profileData.Item3;
+            }
+        }
+
+        protected void initializeThirdPartyCalendars()
+        {
+            ThirdPartyCalendars = new Dictionary<ThirdPartyControl.CalendarTool, List<CalendarEvent>>();
+
+            
+        }
+
+        public void updateThirdPartyCalendars(ThirdPartyControl.CalendarTool calendarOption, IEnumerable<CalendarEvent> calendarEvents)
+        {
+            if (!ThirdPartyCalendars.ContainsKey(calendarOption))
+            {
+                ThirdPartyCalendars.Add(calendarOption, calendarEvents.ToList());
+            }
+            else
+            {
+                ThirdPartyCalendars[calendarOption].AddRange(calendarEvents);
             }
         }
 

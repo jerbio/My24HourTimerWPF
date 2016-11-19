@@ -2676,8 +2676,6 @@ namespace My24HourTimerWPF
             }
             foreach (DayTimeLine EachDay in AllDayTimeLine)
             {
-                
-
                 OptimizedPath dayPath = new OptimizedPath(EachDay, home);
                 dayToOPtimization.AddOrUpdate(EachDay, dayPath, ((key, oldValue) => { return dayPath; }));
                 dayPath.OptimizePath();
@@ -2697,7 +2695,7 @@ namespace My24HourTimerWPF
                 DateTimeOffset EarliestStart = myTimeLine.Start;// AllSubEvents.Max(obj => obj.Start);
                 DateTimeOffset LatestEnd = myTimeLine.End;//AllSubEvents.Max(obj=>obj.End);
                 
-                int count = 10;
+                int numberOfHoursBeforPinningCanStopcount = 10;
 
                 DateTimeOffset LowestSubEventStart = orderedByStartSubEvents.Min(obj => obj.Start);
                 DateTimeOffset HighestSubEventStart = orderedByStartSubEvents.Max(obj => obj.End);
@@ -2708,23 +2706,45 @@ namespace My24HourTimerWPF
                 TimeLine LastSuccessfull = RefTimeLine.CreateCopy();
                 RefTimeLine = new TimeLine(EarliestStart, LatestEnd);
 
+                Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> subEventssToTimelines = Utility.subEventToMaxSpaceAvailable(RefTimeLine, orderedByStartSubEvents);
+                List<KeyValuePair<SubCalendarEvent, mTuple<TimeLine, TimeLine>>> kvpSubEventssToTimelines = subEventssToTimelines.ToList();
+                Dictionary<SubCalendarEvent, List<double>> subEventToDimensions = kvpSubEventssToTimelines.ToDictionary(kvp => kvp.Key, kvp => getTimeLineSpaceAndTimeLineStart(RefTimeLine.Start, kvp.Value.Item1));
+                List<KeyValuePair<SubCalendarEvent, List<double>>> kvpSubEventToDimensions = subEventToDimensions.ToList();
+                List<double> result= Utility.multiDimensionCalculation((kvpSubEventToDimensions.Select(obj => (IList<double>)obj.Value).ToList()));
+                int maxIndex = result.MaxIndex();
+                KeyValuePair<SubCalendarEvent, mTuple<TimeLine, TimeLine>> validKvp = kvpSubEventssToTimelines[maxIndex];
+                RefTimeLine = new TimeLine(validKvp.Value.Item1.Start, RefTimeLine.End);
+
+                int beginningIndex = orderedByStartSubEvents.IndexOf(validKvp.Key);
+                List<SubCalendarEvent> subSetAfterSleepOfSubevent = orderedByStartSubEvents.GetRange(beginningIndex, orderedByStartSubEvents.Count - beginningIndex);
+                List<SubCalendarEvent> subSetBeforeSleepOfSubevent = orderedByStartSubEvents.GetRange(0, beginningIndex);
                 do
                 {
                     LastSuccessfull = RefTimeLine.CreateCopy();
                     EarliestStart = EarliestStart.AddHours(1);
                     RefTimeLine = new TimeLine(EarliestStart, LatestEnd);
-                    --count;
+                    --numberOfHoursBeforPinningCanStopcount;
                 }
-                while ((Utility.PinSubEventsToStart(orderedByStartSubEvents, RefTimeLine)) && (count > 0));
+                while ((Utility.PinSubEventsToStart(subSetAfterSleepOfSubevent, RefTimeLine)) && (numberOfHoursBeforPinningCanStopcount > 0));
 
-                bool DidYouWork = Utility.PinSubEventsToStart(orderedByStartSubEvents, LastSuccessfull);
-
-                CreateBufferForEachEvent(orderedByStartSubEvents, LastSuccessfull);
+                bool DidYouWork = Utility.PinSubEventsToStart(subSetAfterSleepOfSubevent, LastSuccessfull);
+                ///First call tries to pin a subset of subevents  to  the section that can afford the max amount for sleep
+                CreateBufferForEachEvent(subSetAfterSleepOfSubevent, LastSuccessfull);
+                ///Second call pins the remaining that are not optimal to the previous day. It takes the beginning of the new day to the begin time of the preceding group. This takes advantage of the fact that CreateBufferForEachEvent favors pinning to start
+                TimeLine beforeSleepTimeline = new TimeLine(myTimeLine.Start, LastSuccessfull.Start);
+                CreateBufferForEachEvent(subSetBeforeSleepOfSubevent, beforeSleepTimeline);
             }
-            
-        }
-        
 
+        }
+
+        
+        List<double> getTimeLineSpaceAndTimeLineStart(DateTimeOffset endOfDay, TimeLine timeLine)
+        {
+            double span = timeLine.TimelineSpan.TotalHours;
+            double startTIme = (endOfDay - timeLine.Start).TotalHours;
+            List<double> retValue = new List<double>() { span, startTIme };
+            return retValue;
+        }
         
         ulong ParallelizeCallsToDay(List<CalendarEvent> AllCalEvents,List<SubCalendarEvent> TotalActiveEvents, DayTimeLine[] AllDayTImeLine ,bool Optimize=true, bool preserveFirttwentyFourHours=true)
         {

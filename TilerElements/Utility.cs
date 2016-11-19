@@ -807,6 +807,23 @@ namespace TilerElements
             return num;
         }
 
+        public static int MaxIndex<T>(this IEnumerable<T> sequence) where T : IComparable<T>
+        {
+            int num = -1;
+            T other = default(T);
+            int num2 = 0;
+            foreach (T local2 in sequence)
+            {
+                if ((local2.CompareTo(other) > 0) || (num == -1))
+                {
+                    num = num2;
+                    other = local2;
+                }
+                num2++;
+            }
+            return num;
+        }
+
 
         public static SubCalendarEvent getClosestSubCalendarEvent(IEnumerable<SubCalendarEvent> AllSubCalEvents, Location_Elements ReferenceSubEvent)
         {
@@ -1238,6 +1255,54 @@ namespace TilerElements
                     dedupData.Add(data);
                 }
             }
+            return retValue;
+        }
+
+        public static Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> subEventToMaxSpaceAvailable(TimeLine maxTImeLine, IEnumerable<SubCalendarEvent> subEvents)
+        {
+            List<SubCalendarEvent> ordedsubEvents = subEvents.ToList();
+            Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> retValue = new Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>>();
+            TimeLine timeLine = new TimeLine();
+            DateTimeOffset start = maxTImeLine.Start;
+            DateTimeOffset end = maxTImeLine.End;
+            DateTimeOffset startBefore = maxTImeLine.Start;
+            DateTimeOffset endBefore = maxTImeLine.End;
+            DateTimeOffset startAfter = maxTImeLine.Start;
+            DateTimeOffset endAfter = maxTImeLine.End;
+
+
+
+            TimeLine iterationTImeLine = new TimeLine(start, end);
+            TimeLine timeLineBefore = new TimeLine();
+            TimeLine timeLineAfter = new TimeLine();
+            if (Utility.PinSubEventsToStart(ordedsubEvents, maxTImeLine))
+            {
+                for (int i = 0; i < ordedsubEvents.Count; i++)
+                {
+                    List<SubCalendarEvent> subList = ordedsubEvents.Skip(i).ToList();
+                    SubCalendarEvent anchorIterationEvent = subList.First();
+                    if (Utility.PinSubEventsToEnd(subList, iterationTImeLine))
+                    {
+                        startBefore = iterationTImeLine.Start;
+                        endBefore = anchorIterationEvent.Start;
+                        timeLineBefore = new TimeLine(startBefore, endBefore);
+                    }
+
+                    if (Utility.PinSubEventsToStart(subList, iterationTImeLine))
+                    {
+                        startAfter = anchorIterationEvent.End;
+                        endAfter = subList.Count > 1 ? subList[1].Start : maxTImeLine.End;
+                        timeLineAfter = new TimeLine(startAfter, endAfter);
+                    }
+                    mTuple<TimeLine, TimeLine> tupleData = new mTuple<TimeLine, TimeLine>(timeLineBefore, timeLineAfter);
+                    retValue.Add(anchorIterationEvent, tupleData);
+                }
+            }
+            else
+            {
+                throw new Exception("There is a problem pinning the first initial bunch of elements in subEventToMaxSpaceAvailable");
+            }
+
             return retValue;
         }
 

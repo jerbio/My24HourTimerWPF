@@ -187,7 +187,7 @@ namespace My24HourTimerWPF
                     var subEvent = correctlyAssignedevents[i];
                     correctlyAssignedeventsToIndex.Add(subEvent, i);
                 }
-                Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> subEventToAvailableSpaces = subEventToMaxSpaceAvailable(timeLine, correctlyAssignedevents);
+                Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> subEventToAvailableSpaces = Utility.subEventToMaxSpaceAvailable(timeLine, correctlyAssignedevents);
                 i = 0;
                 List<SubCalendarEvent> fittable = new List<SubCalendarEvent>();
                 HashSet<int> validIndexes = new HashSet<int>();
@@ -489,53 +489,6 @@ namespace My24HourTimerWPF
             }
         }
 
-        Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> subEventToMaxSpaceAvailable(TimeLine maxTImeLine, IEnumerable<SubCalendarEvent> subEvents)
-        {
-            List<SubCalendarEvent> ordedsubEvents = subEvents.ToList();
-            Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> retValue = new Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>>();
-            TimeLine timeLine = new TimeLine();
-            DateTimeOffset start = maxTImeLine.Start;
-            DateTimeOffset end = maxTImeLine.End;
-            DateTimeOffset startBefore = maxTImeLine.Start;
-            DateTimeOffset endBefore = maxTImeLine.End;
-            DateTimeOffset startAfter = maxTImeLine.Start;
-            DateTimeOffset endAfter = maxTImeLine.End;
-
-
-
-            TimeLine iterationTImeLine = new TimeLine(start, end);
-            TimeLine timeLineBefore = new TimeLine();
-            TimeLine timeLineAfter = new TimeLine();
-            if (Utility.PinSubEventsToStart(ordedsubEvents, maxTImeLine))
-            {
-                for (int i = 0; i < ordedsubEvents.Count; i++)
-                {
-                    List<SubCalendarEvent> subList = ordedsubEvents.Skip(i).ToList();
-                    SubCalendarEvent anchorIterationEvent = subList.First();
-                    if (Utility.PinSubEventsToEnd(subList, iterationTImeLine))
-                    {
-                        startBefore = iterationTImeLine.Start;
-                        endBefore = anchorIterationEvent.Start;
-                        timeLineBefore = new TimeLine(startBefore, endBefore);
-                    }
-
-                    if (Utility.PinSubEventsToStart(subList, iterationTImeLine))
-                    {
-                        startAfter = anchorIterationEvent.End;
-                        endAfter = subList.Count > 1 ? subList[1].Start : maxTImeLine.End;
-                        timeLineAfter = new TimeLine(startAfter, endAfter);
-                    }
-                    mTuple<TimeLine, TimeLine> tupleData = new mTuple<TimeLine, TimeLine>(timeLineBefore, timeLineAfter);
-                    retValue.Add(anchorIterationEvent, tupleData);
-                }
-            }
-            else
-            {
-                throw new Exception("There is a problem pinning the first initial bunch of elements in subEventToMaxSpaceAvailable");
-            }
-
-            return retValue;
-        }
 
         void OptimizeGrouping(OptimizedGrouping Grouping, IEnumerable<SubCalendarEvent> eventEntry, TimeLine timeLine)
         {
@@ -548,7 +501,7 @@ namespace My24HourTimerWPF
             List<SubCalendarEvent> fittable = new List<SubCalendarEvent>();
             if (Stitched_Revised.Count > 0)//if there are current events that are currently known to be stitched into the current day section
             {
-                Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> subEventToAvailableSpaces = subEventToMaxSpaceAvailable(timeLine, Stitched_Revised);
+                Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> subEventToAvailableSpaces = Utility.subEventToMaxSpaceAvailable(timeLine, Stitched_Revised);
                 bool NoTimeLineAvailable = true;//flag holds signal for if a viable space has been found. If no viable timeline is found then this this daysector is removed
                 for (i = 0; i < AllEvents.Count; i++)
                 {

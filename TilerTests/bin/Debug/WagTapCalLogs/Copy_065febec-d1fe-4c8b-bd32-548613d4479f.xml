@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ScheduleLog>
-  <LastIDCounter>1082</LastIDCounter>
+  <LastIDCounter>1160</LastIDCounter>
   <referenceDay>10:00 PM</referenceDay>
   <EventSchedules>
     <EventSchedule>
@@ -39,14 +39,14 @@
         <XCoordinate>41.480352</XCoordinate>
       </Location>
       <Enabled>True</Enabled>
-      <ID>1077_7_0_0</ID>
-      <Name>TestCalendarEvent-e02299aa-229b-4245-bf9b-0d57eada2e6a</Name>
-      <StartTime>11/14/2016 10:00:00 PM</StartTime>
+      <ID>1155_7_0_0</ID>
+      <Name>TestCalendarEvent-da832a09-fb6c-47be-be82-a1c944db0aa3</Name>
+      <StartTime>11/19/2016 10:00:00 PM</StartTime>
       <PreDeadline>00:00:00</PreDeadline>
       <DeletionCount>0</DeletionCount>
       <CompletionCount>0</CompletionCount>
       <PrepTime>00:00:00</PrepTime>
-      <Deadline>11/15/2016 10:00:00 PM</Deadline>
+      <Deadline>11/20/2016 10:00:00 PM</Deadline>
       <Split>1</Split>
       <Duration>01:30:00</Duration>
       <RigidFlag>False</RigidFlag>
@@ -101,15 +101,15 @@
           </Location>
           <Complete>False</Complete>
           <Enabled>True</Enabled>
-          <ID>1077_7_0_1078</ID>
+          <ID>1155_7_0_1156</ID>
           <Rigid>False</Rigid>
           <ThirdPartyID />
           <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>11/15/2016 7:00:00 AM</ActiveStartTime>
-          <ActiveEndTime>11/15/2016 8:30:00 AM</ActiveEndTime>
+          <ActiveStartTime>11/20/2016 7:00:00 AM</ActiveStartTime>
+          <ActiveEndTime>11/20/2016 8:30:00 AM</ActiveEndTime>
           <Duration>01:30:00</Duration>
-          <StartTime>11/15/2016 7:00:00 AM</StartTime>
-          <EndTime>11/15/2016 8:30:00 AM</EndTime>
+          <StartTime>11/20/2016 7:00:00 AM</StartTime>
+          <EndTime>11/20/2016 8:30:00 AM</EndTime>
         </EventSubSchedule>
       </EventSubSchedules>
       <RepetitionFlag>False</RepetitionFlag>
@@ -151,14 +151,14 @@
         <XCoordinate>41.480352</XCoordinate>
       </Location>
       <Enabled>True</Enabled>
-      <ID>1079_7_0_0</ID>
-      <Name>TestCalendarEvent-d2ad7c86-1d8f-45a6-a313-c8b08ddf0609</Name>
-      <StartTime>11/16/2016 10:00:00 PM</StartTime>
+      <ID>1157_7_0_0</ID>
+      <Name>TestCalendarEvent-840b920b-fbf1-479f-ad11-8f3f6dc18d1b</Name>
+      <StartTime>11/21/2016 10:00:00 PM</StartTime>
       <PreDeadline>00:00:00</PreDeadline>
       <DeletionCount>0</DeletionCount>
       <CompletionCount>0</CompletionCount>
       <PrepTime>00:00:00</PrepTime>
-      <Deadline>11/17/2016 12:00:00 AM</Deadline>
+      <Deadline>11/22/2016 12:00:00 AM</Deadline>
       <Split>1</Split>
       <Duration>01:30:00</Duration>
       <RigidFlag>False</RigidFlag>
@@ -213,15 +213,15 @@
           </Location>
           <Complete>False</Complete>
           <Enabled>True</Enabled>
-          <ID>1079_7_0_1080</ID>
+          <ID>1157_7_0_1158</ID>
           <Rigid>False</Rigid>
           <ThirdPartyID />
           <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>11/16/2016 10:00:00 PM</ActiveStartTime>
-          <ActiveEndTime>11/16/2016 11:30:00 PM</ActiveEndTime>
+          <ActiveStartTime>11/21/2016 10:00:00 PM</ActiveStartTime>
+          <ActiveEndTime>11/21/2016 11:30:00 PM</ActiveEndTime>
           <Duration>01:30:00</Duration>
-          <StartTime>11/16/2016 10:00:00 PM</StartTime>
-          <EndTime>11/16/2016 11:30:00 PM</EndTime>
+          <StartTime>11/21/2016 10:00:00 PM</StartTime>
+          <EndTime>11/21/2016 11:30:00 PM</EndTime>
         </EventSubSchedule>
       </EventSubSchedules>
       <RepetitionFlag>False</RepetitionFlag>

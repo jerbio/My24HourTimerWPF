@@ -355,6 +355,11 @@ namespace My24HourTimerWPF
 
         Tuple<Dictionary<TilerEvent, double>, Tuple<Location_Elements, DateTimeOffset, TimeSpan>> evalulateParameter(IEnumerable<SubCalendarEvent> events, OptimizedGrouping.OptimizedAverage optimizedAverage)
         {
+            
+            if(events.Count() == 0) // handles scenario where there is not event
+            {
+                throw new Exception("events is empty");
+            }
             Dictionary<TilerEvent, List<double>> dimensionsPerEvent = new Dictionary<TilerEvent, List<double>>();
             Dictionary<string, uint> fibboIndexes = new Dictionary<string, uint>();
             Location_Elements avgLocation;
@@ -538,42 +543,50 @@ namespace My24HourTimerWPF
 
             i = 0;
             AllEvents = fittable.ToList();
-            Tuple<Dictionary<TilerEvent, double>, Tuple<Location_Elements, DateTimeOffset, TimeSpan>> evaluatedParams = evalulateParameter(AllEvents, Grouping.GroupAverage);
-            Dictionary<TilerEvent, double> evaluatedEvents = evaluatedParams.Item1;
-            List<KeyValuePair<TilerEvent, double>> subEventsEvaluated = evaluatedEvents.OrderBy(obj => obj.Value).ToList();
-
-            IEnumerable<SubCalendarEvent> subEvents = (IEnumerable<SubCalendarEvent>)evaluatedEvents.OrderBy(obj => obj.Value).Select(obj => (SubCalendarEvent)obj.Key);
-            List<String> locations = subEvents.Select(obj => "" + obj.myLocation.XCoordinate + "," + obj.myLocation.YCoordinate).ToList();
-            Subevents = subEvents.Take(5).ToList();
-            //Subevents= Utility.getBestPermutation(Subevents.ToList(), double.MaxValue, new Tuple<Location_Elements, Location_Elements>(Grouping.LeftBorder, Grouping.RightBorder)).ToList();
-            Tuple<Location_Elements, Location_Elements> borderElements = null;
-            //if (!Grouping.LeftBorder.isNull && !Grouping.RightBorder.isNull)
-            //{
-            //    borderElements = new Tuple<Location_Elements, Location_Elements>(Grouping.LeftBorder, Grouping.RightBorder);
-            //}
-
-            Subevents = Utility.getBestPermutation(Subevents.ToList(), borderElements, 0).ToList();
-            Dictionary<SubCalendarEvent, int> subEventTOIndex = new Dictionary<SubCalendarEvent, int>();
-
-            if (Stitched_Revised.Count == 0)
+            if (AllEvents.Count > 0)
             {
-                for (i = 0; i < Subevents.Count; i++)
+                Tuple<Dictionary<TilerEvent, double>, Tuple<Location_Elements, DateTimeOffset, TimeSpan>> evaluatedParams = evalulateParameter(AllEvents, Grouping.GroupAverage);
+                Dictionary<TilerEvent, double> evaluatedEvents = evaluatedParams.Item1;
+                List<KeyValuePair<TilerEvent, double>> subEventsEvaluated = evaluatedEvents.OrderBy(obj => obj.Value).ToList();
+
+                IEnumerable<SubCalendarEvent> subEvents = (IEnumerable<SubCalendarEvent>)evaluatedEvents.OrderBy(obj => obj.Value).Select(obj => (SubCalendarEvent)obj.Key);
+                List<String> locations = subEvents.Select(obj => "" + obj.myLocation.XCoordinate + "," + obj.myLocation.YCoordinate).ToList();
+                Subevents = subEvents.Take(5).ToList();
+                //Subevents= Utility.getBestPermutation(Subevents.ToList(), double.MaxValue, new Tuple<Location_Elements, Location_Elements>(Grouping.LeftBorder, Grouping.RightBorder)).ToList();
+                Tuple<Location_Elements, Location_Elements> borderElements = null;
+                //if (!Grouping.LeftBorder.isNull && !Grouping.RightBorder.isNull)
+                //{
+                //    borderElements = new Tuple<Location_Elements, Location_Elements>(Grouping.LeftBorder, Grouping.RightBorder);
+                //}
+
+                Subevents = Utility.getBestPermutation(Subevents.ToList(), borderElements, 0).ToList();
+                Dictionary<SubCalendarEvent, int> subEventTOIndex = new Dictionary<SubCalendarEvent, int>();
+
+                if (Stitched_Revised.Count == 0)
                 {
-                    SubCalendarEvent mySubEvent = Subevents[i];
-                    if (subEvent_Dict_To_DaySecion[mySubEvent].ContainsKey(Grouping.DaySector))
+                    for (i = 0; i < Subevents.Count; i++)
                     {
-                        if (subEvent_Dict_To_DaySecion[mySubEvent][Grouping.DaySector].ContainsKey(initializingCount))
+                        SubCalendarEvent mySubEvent = Subevents[i];
+                        if (subEvent_Dict_To_DaySecion[mySubEvent].ContainsKey(Grouping.DaySector))
                         {
-                            HashSet<int> unwantedIndexes = subEvent_Dict_To_DaySecion[mySubEvent][Grouping.DaySector][initializingCount];
-                            int BestPostion = getBestPosition(mySubEvent, Stitched_Revised, unwantedIndexes);
-                            if (BestPostion != -1)
+                            if (subEvent_Dict_To_DaySecion[mySubEvent][Grouping.DaySector].ContainsKey(initializingCount))
                             {
-                                Stitched_Revised.Insert(BestPostion, mySubEvent);
-                                subEventTOIndex.Add(mySubEvent, BestPostion);
+                                HashSet<int> unwantedIndexes = subEvent_Dict_To_DaySecion[mySubEvent][Grouping.DaySector][initializingCount];
+                                int BestPostion = getBestPosition(mySubEvent, Stitched_Revised, unwantedIndexes);
+                                if (BestPostion != -1)
+                                {
+                                    Stitched_Revised.Insert(BestPostion, mySubEvent);
+                                    subEventTOIndex.Add(mySubEvent, BestPostion);
+                                }
+                                else
+                                {
+                                    mySubEvent.getDaySection().rejectCurrentPreference();
+                                }
                             }
                             else
                             {
-                                mySubEvent.getDaySection().rejectCurrentPreference();
+                                Stitched_Revised.Add(mySubEvent);
+                                subEventTOIndex.Add(mySubEvent, i);
                             }
                         }
                         else
@@ -581,94 +594,90 @@ namespace My24HourTimerWPF
                             Stitched_Revised.Add(mySubEvent);
                             subEventTOIndex.Add(mySubEvent, i);
                         }
+
+
                     }
-                    else
-                    {
-                        Stitched_Revised.Add(mySubEvent);
-                        subEventTOIndex.Add(mySubEvent, i);
-                    }
-
-
-                }
-            }
-            else
-            {
-                HashSet<int> unwantedIndexes = new HashSet<int>();
-                for (i = 0; i < Subevents.Count; i++)
-                {
-                    unwantedIndexes = new HashSet<int>();
-                    SubCalendarEvent mySubEvent = Subevents[i];
-
-                    if (subEvent_Dict_To_DaySecion[mySubEvent].ContainsKey(Grouping.DaySector))
-                    {
-                        if (subEvent_Dict_To_DaySecion[mySubEvent][Grouping.DaySector].ContainsKey(initializingCount))
-                        {
-                            unwantedIndexes = subEvent_Dict_To_DaySecion[mySubEvent][Grouping.DaySector][initializingCount];
-                        }
-                    }
-
-
-                    int BestPostion = getBestPosition(mySubEvent, Stitched_Revised, unwantedIndexes);
-                    if (BestPostion != -1)
-                    {
-                        Stitched_Revised.Insert(BestPostion, mySubEvent);
-                        subEventTOIndex.Add(mySubEvent, BestPostion);
-                    }
-                    else
-                    {
-                        mySubEvent.getDaySection().rejectCurrentPreference();
-                    }
-
-                }
-            }
-
-            List<SubCalendarEvent> noHistoryOfindexFailureEvents = Stitched_Revised.Intersect(Subevents).ToList();
-            foreach (SubCalendarEvent subEvent in noHistoryOfindexFailureEvents)
-            {
-                if (!subEvent_Dict_To_DaySecion[subEvent].ContainsKey(Grouping.DaySector))
-                {
-                    HashSet<int> indexes = new HashSet<int>();
-                    Dictionary<int, HashSet<int>> countToUnwantedIndex = new Dictionary<int, HashSet<int>>();
-                    indexes.Add(subEventTOIndex[subEvent]);
-                    countToUnwantedIndex.Add(initializingCount, indexes);
-                    subEvent_Dict_To_DaySecion[subEvent].Add(Grouping.DaySector, countToUnwantedIndex);
                 }
                 else
                 {
-                    Dictionary<int, HashSet<int>> countToUnwantedIndexes = subEvent_Dict_To_DaySecion[subEvent][Grouping.DaySector];
-                    if (countToUnwantedIndexes.ContainsKey(initializingCount))
+                    HashSet<int> unwantedIndexes = new HashSet<int>();
+                    for (i = 0; i < Subevents.Count; i++)
                     {
-                        countToUnwantedIndexes[initializingCount].Add(subEventTOIndex[subEvent]);
+                        unwantedIndexes = new HashSet<int>();
+                        SubCalendarEvent mySubEvent = Subevents[i];
+
+                        if (subEvent_Dict_To_DaySecion[mySubEvent].ContainsKey(Grouping.DaySector))
+                        {
+                            if (subEvent_Dict_To_DaySecion[mySubEvent][Grouping.DaySector].ContainsKey(initializingCount))
+                            {
+                                unwantedIndexes = subEvent_Dict_To_DaySecion[mySubEvent][Grouping.DaySector][initializingCount];
+                            }
+                        }
+
+
+                        int BestPostion = getBestPosition(mySubEvent, Stitched_Revised, unwantedIndexes);
+                        if (BestPostion != -1)
+                        {
+                            Stitched_Revised.Insert(BestPostion, mySubEvent);
+                            subEventTOIndex.Add(mySubEvent, BestPostion);
+                        }
+                        else
+                        {
+                            mySubEvent.getDaySection().rejectCurrentPreference();
+                        }
+
+                    }
+                }
+
+                List<SubCalendarEvent> noHistoryOfindexFailureEvents = Stitched_Revised.Intersect(Subevents).ToList();
+                foreach (SubCalendarEvent subEvent in noHistoryOfindexFailureEvents)
+                {
+                    if (!subEvent_Dict_To_DaySecion[subEvent].ContainsKey(Grouping.DaySector))
+                    {
+                        HashSet<int> indexes = new HashSet<int>();
+                        Dictionary<int, HashSet<int>> countToUnwantedIndex = new Dictionary<int, HashSet<int>>();
+                        indexes.Add(subEventTOIndex[subEvent]);
+                        countToUnwantedIndex.Add(initializingCount, indexes);
+                        subEvent_Dict_To_DaySecion[subEvent].Add(Grouping.DaySector, countToUnwantedIndex);
                     }
                     else
                     {
-                        HashSet<int> indexes = new HashSet<int>();
-                        countToUnwantedIndexes.Add(initializingCount, indexes);
-                        indexes.Add(subEventTOIndex[subEvent]);
+                        Dictionary<int, HashSet<int>> countToUnwantedIndexes = subEvent_Dict_To_DaySecion[subEvent][Grouping.DaySector];
+                        if (countToUnwantedIndexes.ContainsKey(initializingCount))
+                        {
+                            countToUnwantedIndexes[initializingCount].Add(subEventTOIndex[subEvent]);
+                        }
+                        else
+                        {
+                            HashSet<int> indexes = new HashSet<int>();
+                            countToUnwantedIndexes.Add(initializingCount, indexes);
+                            indexes.Add(subEventTOIndex[subEvent]);
+                        }
                     }
                 }
+
+                LocationReason locationReason = new LocationReason(Stitched_Revised.Select(subEvent => subEvent.myLocation));
+                DurationReason durationReason = new DurationReason();
+                RestrictedEventReason restrictedReason = new RestrictedEventReason();
+                Stitched_Revised.ForEach(subEvent =>
+                {
+                    updateSubeventReason(subEvent, locationReason);
+                    if (subEvent.ActiveDuration > evaluatedParams.Item2.Item3)
+                    {
+                        updateSubeventReason(subEvent, durationReason);
+                    }
+                    if (subEvent.isEventRestricted)
+                    {
+                        updateSubeventReason(subEvent, restrictedReason);
+                    }
+                });
+
+
+                Grouping.setPathStitchedEvents(Stitched_Revised);
+                //Grouping.setPathStitchedEvents(Subevents);
+                //Grouping.updateSubEvents(Acknowledged_Revised);
             }
 
-            LocationReason locationReason = new LocationReason(Stitched_Revised.Select(subEvent => subEvent.myLocation));
-            DurationReason durationReason = new DurationReason();
-            RestrictedEventReason restrictedReason = new RestrictedEventReason();
-            Stitched_Revised.ForEach(subEvent =>
-            {
-                updateSubeventReason(subEvent, locationReason);
-                if (subEvent.ActiveDuration > evaluatedParams.Item2.Item3)
-                {
-                    updateSubeventReason(subEvent, durationReason);
-                }
-                if (subEvent.isEventRestricted)
-                {
-                    updateSubeventReason(subEvent, restrictedReason);
-                }
-            });
-
-
-            Grouping.setPathStitchedEvents(Stitched_Revised);
-            //Grouping.setPathStitchedEvents(Subevents);
-            //Grouping.updateSubEvents(Acknowledged_Revised);
         }
 
         int getBestPosition(TimeLine timeLine, SubCalendarEvent subEvent, IEnumerable<SubCalendarEvent> CurrentList, HashSet<int> unusableIndexes = null)

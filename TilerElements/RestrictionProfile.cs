@@ -13,9 +13,21 @@ namespace TilerElements
     {
         static DateTimeOffset SundayDate = new DateTimeOffset(2015, 3, 15, 0, 0, 0, new TimeSpan());
         public static readonly DayOfWeek[] AllDaysOfWeek = new DayOfWeek[7] { DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday };
-        protected Tuple<DayOfWeek, RestrictionTimeLine>[] DaySelection = new Tuple<DayOfWeek, RestrictionTimeLine>[7];
-        protected Tuple<DayOfWeek, RestrictionTimeLine>[] NoNull_DaySelections;
+        protected RestrictionDay[] DaySelection = new RestrictionDay[7];
+        protected RestrictionDay[] NoNull_DaySelections;
+        /// <summary>
+        /// given a series of days to their restricted timelines, this data member holds the number of days the restricted timeline overlaps. Note even though it always has seven memebers the first element in the tuple is always in respect to the index of nonull dayselections.
+        /// The first element in the tuple represents the day to which the restricting timeline is associated. The second element in the tuple is the number of days from the day of origin for which this will cover.
+        /// So for example if you have a restricted profile with just one restricted timeline of Saturday => "4:00 PM - 10:00AM". Note: this is from Saturday, from 4:00pm to sunday 10:00 am
+        /// This will translate to DayOfWeekToOverlappingIndexes having [[<0,1>],[],[],[],[],[],[<0,1>]].
+        /// Notice there are seven internal arrays. Each internal array is for each day of the week. Where 0(zero) is for Sunday and 6 is Saturday. Only the arrays for sunday and saturday have elements in them.
+        /// The way to read each element in the internal array:
+        /// <0,1> is in element 0 means. 0 index means it is on Sunday. There is a restrictive timeline that interacts with Sunday.
+        /// The Tuple Item1 '0' means the origin is from the day in the 0 index of NoNull_DaySelections.
+        /// The Tuple Item2 '1' means it is overlaps 1 day after the original. So it overlaps one more day, which is in this case Sunday. The original day in this case is Saturday.
+        /// </summary>
         protected List<Tuple<int,int>>[] DayOfWeekToOverlappingIndexes = new List<Tuple<int,int>>[7];
+        protected List<DayOfWeek>[] DaysThatCanReachFrom_DayOfWeekToOverlappingIndexes = new List<DayOfWeek>[7];
 
 
         bool[] ActiveDays = new bool[7];
@@ -38,20 +50,20 @@ namespace TilerElements
                         DateTimeOffset tempEnd  = Start.Add(FiveDays );
                         tempEnd = new DateTimeOffset(tempEnd  .Year,tempEnd  .Month,tempEnd  .Day,End.Hour,End.Minute,End.Second,new TimeSpan());
                         FiveDays=tempEnd-Start;
-                        NoNull_DaySelections = new Tuple<DayOfWeek, RestrictionTimeLine>[1];
+                        NoNull_DaySelections = new RestrictionDay[1];
                         for (int i = (int)beginningDayOfWeek; i < 2; i++)//starting i from 1 because workweek starts on Monday and Monday index is 1
                         {
-                            DaySelection[i] = new Tuple<DayOfWeek, RestrictionTimeLine>(AllDaysOfWeek[i], new RestrictionTimeLine(Start, FiveDays));
+                            DaySelection[i] = new RestrictionDay(AllDaysOfWeek[i], new RestrictionTimeLine(Start, FiveDays));
                             NoNull_DaySelections[0] = DaySelection[i];
                         }
                     }
                     break;
                 default://Work week and Office Hours
                     {
-                        NoNull_DaySelections = new Tuple<DayOfWeek, RestrictionTimeLine>[5];
+                        NoNull_DaySelections = new RestrictionDay[5];
                         for (int i = (int)beginningDayOfWeek, j = 0; j < NoNull_DaySelections.Length; i++, j++)//starting i from 1 because workweek starts on Monday and Monday index is 1
                         {
-                            DaySelection[i] = new Tuple<DayOfWeek, RestrictionTimeLine>(AllDaysOfWeek[i], new RestrictionTimeLine(Start, End));
+                            DaySelection[i] = new RestrictionDay(AllDaysOfWeek[i], new RestrictionTimeLine(Start, End));
                             NoNull_DaySelections[j] = DaySelection[i];
                         }
                     }
@@ -61,10 +73,10 @@ namespace TilerElements
         }
         public RestrictionProfile(DateTimeOffset RestrictStart, TimeSpan RestrictDuration)
         {
-            DaySelection = new Tuple<DayOfWeek, RestrictionTimeLine>[7];
+            DaySelection = new RestrictionDay[7];
             for (int i = 0; i < DaySelection.Length; i++)
             {
-                DaySelection[i] = new Tuple<DayOfWeek, RestrictionTimeLine>(AllDaysOfWeek[i], new RestrictionTimeLine(RestrictStart, RestrictDuration));
+                DaySelection[i] = new RestrictionDay(AllDaysOfWeek[i], new RestrictionTimeLine(RestrictStart, RestrictDuration));
                 ActiveDays[i] = true;
             }
             NoNull_DaySelections = DaySelection.ToArray();
@@ -78,7 +90,7 @@ namespace TilerElements
             foreach (DayOfWeek eachDayOfWeek in DaysOfWeekSelection)
             {
                 int DayOfWeekInt = (int)eachDayOfWeek;
-                DaySelection[DayOfWeekInt] = new Tuple<DayOfWeek, RestrictionTimeLine>(eachDayOfWeek, constrictionProgile);
+                DaySelection[DayOfWeekInt] = new RestrictionDay(eachDayOfWeek, constrictionProgile);
             }
 
             NoNull_DaySelections = DaySelection.Where(obj => obj != null).ToArray();
@@ -100,7 +112,7 @@ namespace TilerElements
                     DayOfWeek eachDayOfWeek = AllDay[i];
                     RestrictionTimeLine RestrictingFrame = RestrictingTimeLines[i];
                     int DayOfWeekInt = (int)eachDayOfWeek;
-                    DaySelection[DayOfWeekInt] = new Tuple<DayOfWeek, RestrictionTimeLine>(eachDayOfWeek, RestrictingFrame);
+                    DaySelection[DayOfWeekInt] = new RestrictionDay(eachDayOfWeek, RestrictingFrame);
                 }
 
                 NoNull_DaySelections = DaySelection.Where(obj => obj != null).ToArray();
@@ -114,8 +126,6 @@ namespace TilerElements
                 }
                 throw new Exception("Number of days not equal to number of RestrictionTimeLine ");
             }
-
-            
         }
 
 
@@ -130,13 +140,13 @@ namespace TilerElements
 
             for (int i = 0; i < NoNull_DaySelections.Length; i++)
             {
-                DateTimeOffset myStartTime=NoNull_DaySelections[i].Item2.getSampleTestTIme();
+                DateTimeOffset myStartTime=NoNull_DaySelections[i].RestrictionTimeLine.getSampleTestTIme();
                 DateTimeOffset StartOfNextDay = myStartTime.AddDays(1);
                 StartOfNextDay = new DateTimeOffset(StartOfNextDay.Year, StartOfNextDay.Month, StartOfNextDay.Day, 0, 0, 0, new TimeSpan());
                 TimeSpan RestOfDaySpan = StartOfNextDay - myStartTime;
-                TimeSpan RestrictionSpanLeft = NoNull_DaySelections[i].Item2.Span - RestOfDaySpan;
+                TimeSpan RestrictionSpanLeft = NoNull_DaySelections[i].RestrictionTimeLine.Span - RestOfDaySpan;
                 int NumberOfDaysExtra = (int)Math.Ceiling( (double)RestrictionSpanLeft.Ticks / (double)twentyFourHourSpan.Ticks);
-                int StartingIndex = (int)NoNull_DaySelections[i].Item1;
+                int StartingIndex = (int)NoNull_DaySelections[i].DayOfWeek;
                 DayOfWeekToOverlappingIndexes[StartingIndex].Add(new Tuple<int, int>(i, NumberOfDaysExtra));
                 StartingIndex += 1;//increasing by one so that the index can begin on the next day
                 for(int j=0;j<NumberOfDaysExtra;j++)
@@ -150,8 +160,8 @@ namespace TilerElements
         public RestrictionProfile createCopy()
         {
             RestrictionProfile retValue = new RestrictionProfile();
-            retValue.DaySelection = this.DaySelection.Select(obj => obj == null ? obj : new Tuple<DayOfWeek, RestrictionTimeLine>(obj.Item1, obj.Item2.createCopy())).ToArray();
-            retValue.NoNull_DaySelections = this.DaySelection.Where(obj=>obj!=null).Select(obj => new Tuple<DayOfWeek, RestrictionTimeLine>(obj.Item1, obj.Item2.createCopy())).ToArray();
+            retValue.DaySelection = this.DaySelection.Select(obj => obj == null ? obj : new RestrictionDay(obj.DayOfWeek, obj.RestrictionTimeLine.createCopy())).ToArray();
+            retValue.NoNull_DaySelections = this.DaySelection.Where(obj=>obj!=null).Select(obj => new RestrictionDay(obj.DayOfWeek, obj.RestrictionTimeLine.createCopy())).ToArray();
             retValue.DayOfWeekToOverlappingIndexes = this.DayOfWeekToOverlappingIndexes.ToArray();
             return retValue;
         }
@@ -225,7 +235,7 @@ namespace TilerElements
         }
 
         /// <summary>
-        /// functiontries to get the time full frame that encases "StartData". If there isnt it returns null
+        /// function tries to get the time full frame that encases "StartData". If there isnt it returns null
         /// </summary>
         /// <param name="StartData"></param>
         /// <returns></returns>
@@ -242,8 +252,8 @@ namespace TilerElements
             for (int i = 0; i < AllInterFerringIndexes.Count; i++)
             {
                 Tuple<int, int> myTUple = AllInterFerringIndexes[i];
-                int NumberOfDays = StartData.DayOfWeek - NoNull_DaySelections[myTUple.Item1].Item1;
-                TimeLine DayFramTImeLine = getTImeLineFromTuple(NoNull_DaySelections[myTUple.Item1], StartData);
+                int NumberOfDays = StartData.DayOfWeek - NoNull_DaySelections[myTUple.Item1].DayOfWeek;
+                TimeLine DayFramTImeLine = getTimeLinesFromTuple(NoNull_DaySelections[myTUple.Item1], StartData);
                 if (DayFramTImeLine.IsDateTimeWithin(StartData) || (DayFramTImeLine.Start == StartData) || (DayFramTImeLine.End == StartData))
                 {
                     retValue = DayFramTImeLine;
@@ -255,12 +265,12 @@ namespace TilerElements
         }
 
         /// <summary>
-        /// Function gets all the available Restriction frames within a timeLine. Note this does not return partial framess. So if reftimeline was March 2 2015 monday 7:00am - 10:00am and Day selections were MTW 9:00a- 9:00p. It'll return only March 2 9:00am - 9:00pm. Note it didn't return a partial of March 2 9:00am-10:00am.
+        /// Function gets all the available Restriction frames within a timeLine. So if reftimeline was March 2 2015 monday 7:00am - 10:00am and Day selections were MTW 9:00a- 9:00p. It'll return only March 2 9:00am - 10:00am.
         /// </summary>
         /// <param name="RefTimeLine"></param>
         /// <returns></returns>
 
-        public List<TimeLine> getAllTimePossibleTimeFrames(IDefinedRange RefTimeLine)
+        public List<TimeLine> getAllNonPartialTimeFrames(IDefinedRange RefTimeLine)
         {
             TimeLine FirstFrame = getEarliestActiveFrameAfterBeginning(RefTimeLine);
             TimeLine LastFrame = getLatestActiveTimeFrameBeforeEnd(RefTimeLine);
@@ -274,7 +284,7 @@ namespace TilerElements
             int initializingIndex =0;
             for (; initializingIndex< NoNull_DaySelections.Length; initializingIndex++)
             {
-                if (NoNull_DaySelections[initializingIndex].Item1 == InitializigWeekday)
+                if (NoNull_DaySelections[initializingIndex].DayOfWeek == InitializigWeekday)
                 {
                     break;
                 }
@@ -284,38 +294,75 @@ namespace TilerElements
             //for (int i = initializingIndex; i < NoNull_DaySelections.Length; i++)
             {
                 i = (i + lengthOfNoNull_DaySelections) % lengthOfNoNull_DaySelections;
-                Tuple<DayOfWeek, RestrictionTimeLine> eachTuple = NoNull_DaySelections[i];
+                RestrictionDay eachTuple = NoNull_DaySelections[i];
                 List<TimeLine> ListOfTimeLine = TimeLinesPerDaySelection[i];
-                int DayDiff = ((eachTuple.Item1-FirstFrame.Start.DayOfWeek)+7) % 7;
+                int DayDiff = ((eachTuple.DayOfWeek-FirstFrame.Start.DayOfWeek)+7) % 7;
                 DateTimeOffset Start = FirstFrame.Start.AddDays(DayDiff);
                 //Start= eachTuple.Item2.getInjectedStartHourMinIntoDateTime(Start);
-                TimeLine myTimeLine = getTImeLineFromTuple(eachTuple, Start);// eachTuple.Item2.getTimeLineFromStartFrame(Start);
-                while (myTimeLine.Start < LastFrame.End)
-                //while (Start < LastFrame.End)
+                TimeLine myTimeLine = getTimeLinesFromTuple(eachTuple, Start);// eachTuple.Item2.getTimeLineFromStartFrame(Start);
+                myTimeLine = new TimeLine(myTimeLine.Start, myTimeLine.End >= LastFrame.End ? LastFrame.End : myTimeLine.End);
+                if(myTimeLine.TimelineSpan.Ticks > 0)
                 {
-                    ListOfTimeLine.Add(myTimeLine);
-                    Start=Start.AddDays(7);
-                    myTimeLine = eachTuple.Item2.getTimeLineFromStartFrame(Start);
+                    while (myTimeLine.Start < LastFrame.End)
+                    //while (Start < LastFrame.End)
+                    {
+                        ListOfTimeLine.Add(myTimeLine);
+                        Start = Start.AddDays(7);
+                        myTimeLine = eachTuple.RestrictionTimeLine.getTimeLineFromStartFrame(Start);
+                    }
                 }
+
             }
 
             List<TimeLine> retValue = TimeLinesPerDaySelection.SelectMany(obj => obj).ToList();
             if (retValue.Count>0)
             {
-                if (retValue[0].Start < FirstFrame.Start)//ensures that the first frame is within RefTimeLine. THe preceding code always generates a full frame so, we need to generate a partial frame
+                TimeLine firstTimeLine = retValue[0];
+                if ((firstTimeLine.Start < FirstFrame.Start) && (firstTimeLine.End == FirstFrame.End))//ensures that the first frame is within RefTimeLine. THe preceding code always generates a full frame so, we need to generate a partial frame
                 {
                     retValue[0] = FirstFrame;
                 }
+                else if ((firstTimeLine.Start < FirstFrame.Start) && (firstTimeLine.End != FirstFrame.End))
+                {
+                    throw new Exception("There is something wrong with the implementation of getAllNonPartialTimeFrames, the first frame should always be part of the set");
+                }
 
-                if (retValue.Last().End > LastFrame.End)
+                TimeLine lastTimeLine = retValue.Last();
+                if ((lastTimeLine.End > LastFrame.End)&& (lastTimeLine.Start == LastFrame.Start))
                 {
                     retValue[retValue.Count - 1] = LastFrame;
                 }
-                
+                else if ((lastTimeLine.End > LastFrame.End) && (lastTimeLine.Start != LastFrame.Start))
+                {
+                    throw new Exception("There is something wrong with the implementation of getAllNonPartialTimeFrames, the last frame should always be part of the established set");
+                }
+            }
+            else
+            {
+                retValue = new List<TimeLine>();
+                if (FirstFrame.isEqualStartAndEnd(LastFrame))
+                {
+                    if (FirstFrame.TimelineSpan.Ticks > 0)
+                    {
+                        retValue.Add(FirstFrame);
+                    }
+
+                }
+                else {
+                    if (FirstFrame.TimelineSpan.Ticks > 0)
+                    {
+                        retValue.Add(FirstFrame);
+                    }
+
+                    if (LastFrame.TimelineSpan.Ticks > 0)
+                    {
+                        retValue.Add(LastFrame);
+                    }
+                }
             }
             return retValue;
         }
-        
+
 
 
         /// <summary>
@@ -348,16 +395,16 @@ namespace TilerElements
             int IniStartIndexOfDayIndex = StartIndexOfDayOfweek;
             int DayDiff = 0;
             TimeLine preceedingCycleFrame = new TimeLine(RefStart, RefStart);
-            Tuple<DayOfWeek, RestrictionTimeLine> selectedDay;
+            RestrictionDay selectedDay;
             for (int i = 0; i < 7; i++, StartIndexOfDayOfweek++)
             {
                 int OffSetStartIndex = StartIndexOfDayOfweek % 7;
                 selectedDay = DaySelection[OffSetStartIndex];
                 if (selectedDay != null)
                 {
-                    DayDiff = (((int)selectedDay.Item1 - IniStartIndexOfDayIndex) + 7) % 7;
+                    DayDiff = (((int)selectedDay.DayOfWeek - IniStartIndexOfDayIndex) + 7) % 7;
                     DateTimeOffset newTime = Start.AddDays(DayDiff);
-                    TimeLine currentFrame = getTImeLineFromTuple(selectedDay, newTime);
+                    TimeLine currentFrame = getTimeLinesFromTuple(selectedDay, newTime);
                     newTime = currentFrame.Start;
                     if (newTime >= RefStart)
                     {
@@ -425,7 +472,7 @@ namespace TilerElements
             int DayDiff = 0;
 
             TimeLine preceedingCycleFrame = new TimeLine(RefTime, RefTime);
-            Tuple<DayOfWeek, RestrictionTimeLine> selectedDay;
+            RestrictionDay selectedDay;
             for (int i = 7 ; i > 0; i--, StartIndexOfDayOfweek--)
             {
                 int OffSetStartIndex = (StartIndexOfDayOfweek + 14) % 7;
@@ -434,17 +481,17 @@ namespace TilerElements
                 {
 
 
-                    DayDiff = (((int)selectedDay.Item1) - (IniStartIndexOfDayIndex + 7)) % 7;//gets the delta to be added to the new 
+                    DayDiff = (((int)selectedDay.DayOfWeek) - (IniStartIndexOfDayIndex + 7)) % 7;//gets the delta to be added to the new 
                     DateTimeOffset newTime = RefTime.AddDays(DayDiff);
                     TimeLine currentFrame ;
 
-                    if((int)selectedDay.Item1<=(int)RefTime.DayOfWeek)
+                    if((int)selectedDay.DayOfWeek<=(int)RefTime.DayOfWeek)
                     {
-                        currentFrame = getTImeLineFromTuple(selectedDay, RefTime);
+                        currentFrame = getTimeLinesFromTuple(selectedDay, RefTime);
                     }
                     else
                     {
-                        currentFrame = getTImeLineFromTuple(selectedDay, RefTime.AddDays(-7));
+                        currentFrame = getTimeLinesFromTuple(selectedDay, RefTime.AddDays(-7));
                     }
 
                     newTime = currentFrame.End;
@@ -459,46 +506,7 @@ namespace TilerElements
             }
             preceedingCycleFrame = new TimeLine(preceedingCycleFrame.Start.AddDays(-7), preceedingCycleFrame.End.AddDays(-7));
             return preceedingCycleFrame;
-            /*
-            throw new Exception("This isn't suppposed to happen in getLatestEndTimeFrameBorder");
-            DateTimeOffset retValueTime = RefTime.AddDays(-7);
-            retValueTime = new DateTimeOffset(retValueTime.Year, retValueTime.Month, retValueTime.Day, NoNull_DaySelections[0].Item2.End.Hour, NoNull_DaySelections[0].Item2.End.Minute, NoNull_DaySelections[0].Item2.End.Second, new TimeSpan());
-            retValue = NoNull_DaySelections[0].Item2.getTimelineFromEndFrame(retValueTime);
-            return retValue;*/
         }
-        
-        
-        /*
-        public TimeLine getLatestEndTimeFrameBorder(DateTimeOffset RefTime)
-        {
-            TimeLine retValue ;
-            DateTimeOffset End = RefTime;
-            int StartIndexOfDayOfweek = (int)End.DayOfWeek;
-            int IniStartIndexOfDayIndex = StartIndexOfDayOfweek;
-            int DayDiff = 0;
-            Tuple<DayOfWeek, RestrictionTimeLine> selectedDay;
-            for (int i = 7; i >0; i--, StartIndexOfDayOfweek--)
-            {
-                int OffSetStartIndex = (StartIndexOfDayOfweek + 14) % 7;
-                selectedDay = DaySelection[OffSetStartIndex];
-                if (selectedDay != null)
-                {
-                    DayDiff = (((int)selectedDay.Item1 - IniStartIndexOfDayIndex)) % 7;//gets the delta to be added to the new 
-                    DateTimeOffset newTime = End.AddDays(DayDiff);
-                    newTime = selectedDay.Item2.getInjectedEndHourMinIntoDateTime(newTime);
-                    if (newTime <= RefTime)
-                    {
-                        retValue =selectedDay.Item2.getTimelineFromEndFrame( newTime);
-                        return retValue;
-                    }
-                }
-            }
-            DateTimeOffset retValueTime = RefTime.AddDays(-7);
-            retValueTime = new DateTimeOffset(retValueTime.Year, retValueTime.Month, retValueTime.Day, NoNull_DaySelections[0].Item2.End.Hour, NoNull_DaySelections[0].Item2.End.Minute, NoNull_DaySelections[0].Item2.End.Second, new TimeSpan());
-            retValue = NoNull_DaySelections[0].Item2.getTimelineFromEndFrame(retValueTime);    
-            return retValue;
-        }
-        */
 
 
 
@@ -521,7 +529,7 @@ namespace TilerElements
             for (int i = 0; i < AllInterFerringIndexes.Count; i++)
             {
                 Tuple<int,int> myTUple=AllInterFerringIndexes[i];
-                int NumberOfDays = NoNull_DaySelections[myTUple.Item1].Item1- pivotTime.DayOfWeek;
+                int NumberOfDays = NoNull_DaySelections[myTUple.Item1].DayOfWeek- pivotTime.DayOfWeek;
                 //checks if the day difference is morethan the supposed span of coverage. If it is, simply subtract the supposed number of days. 
                 //This will ensuree that the right week gets selected. thik Pivotday been a sunday and myTUple.item2 being a saturday. They are both on different weeks.
                 //This ensures that later call to getTImeLineFromTuple. operates on the date in right week
@@ -530,15 +538,15 @@ namespace TilerElements
                     pivotTime = pivotTime.AddDays(-myTUple.Item2);
                 }
 
-                TimeLine dayFrameTImeLine = getTImeLineFromTuple(NoNull_DaySelections[myTUple.Item1], pivotTime);
+                TimeLine dayFrameTImeLine = getTimeLinesFromTuple(NoNull_DaySelections[myTUple.Item1], pivotTime);
                 if (dayFrameTImeLine.IsDateTimeWithin(RefTime) || (dayFrameTImeLine.End == RefTime))// || (DayFramTImeLine.Start == RefTime))
                 {
-                    retValue = new TimeLine(dayFrameTImeLine.Start, pivotTime);
+                    retValue = new TimeLine(dayFrameTImeLine.Start, RefTime);
                     return retValue;
                 }
                 allPossibleTimeLines.Add(dayFrameTImeLine);
             }
-            if (allPossibleTimeLines.Count > 0)//OPTIMIZATION figure out awayy to make the call not check through all the timelines
+            if (allPossibleTimeLines.Count > 0)//OPTIMIZATION or TODO figure out awayy to make the call not check through all the timelines
             {
                 List<TimeLine> timelines = allPossibleTimeLines.Where(obj => obj.End <= RefTime).ToList();//gets timelines where they occur before current timeline
                 if(timelines.Count>0)
@@ -552,7 +560,6 @@ namespace TilerElements
             return retValue;
                 
         }
-
 
         /// <summary>
         /// function tries to select earliest time after or at the RefStart time that as is within any of the restriction frame. So Assuming you had frame Nov 11 2015 Mon 11a-2p, Nov 13 2015 Wed 11a-2p. And RefStart is Nov 11 2015 Mon 12p, it'll pick Nov 11 2015 Mon 12a because its within the Mon Frame.
@@ -569,12 +576,24 @@ namespace TilerElements
 
             List<Tuple<int,int>> AllInterFerringIndexes = DayOfWeekToOverlappingIndexes[DayOfWeekInt];
             int RightIndex = -1;
-
+            TimeLine DayFramTImeLine;
             for (int i = 0; i < AllInterFerringIndexes.Count; i++)
             {
                 Tuple<int,int> myTUple=AllInterFerringIndexes[i];
-                int NumberOfDays = StartData.DayOfWeek - NoNull_DaySelections[myTUple.Item1].Item1;
-                TimeLine DayFramTImeLine = getTImeLineFromTuple(NoNull_DaySelections[myTUple.Item1],StartData);
+                DayOfWeek noNullDayOfweek = NoNull_DaySelections[myTUple.Item1].DayOfWeek;
+                if (StartData.DayOfWeek == DayOfWeek.Sunday && noNullDayOfweek == DayOfWeek.Saturday)
+                {
+                    DateTimeOffset readjustToPreviousWeek = StartData.AddDays(-7);
+                    readjustToPreviousWeek = new DateTimeOffset(readjustToPreviousWeek.Year, readjustToPreviousWeek.Month, readjustToPreviousWeek.Day, StartData.Hour, StartData.Minute, StartData.Second, new TimeSpan());
+                    DayFramTImeLine = getTimeLinesFromTuple(NoNull_DaySelections[myTUple.Item1], readjustToPreviousWeek);
+
+                }
+                else
+                {
+                    DayFramTImeLine = getTimeLinesFromTuple(NoNull_DaySelections[myTUple.Item1], StartData);
+                }
+
+
                 if (DayFramTImeLine.IsDateTimeWithin(StartData) || (DayFramTImeLine.Start == StartData))// || (DayFramTImeLine.End == StartData))
                 {
                     retValue = new TimeLine(StartData, DayFramTImeLine.End);
@@ -584,9 +603,7 @@ namespace TilerElements
 
             retValue = getEarliestStartTimeFrameBorder(StartData);
             return retValue;
-            
         }
-        
 
         /// <summary>
         /// Function generates a timeline based on myTuple and Start. The timeline represents the full frame for the provided "myTuple". The "Start" provides the time component. Note: the function creates the time frame for the week of "Start",a week starts in Sunday. The next two example explain the result.
@@ -596,14 +613,18 @@ namespace TilerElements
         /// <param name="myTuple"></param>
         /// <param name="Start"></param>
         /// <returns></returns>
-        TimeLine getTImeLineFromTuple(Tuple<DayOfWeek, RestrictionTimeLine> myTuple, DateTimeOffset refDate)
+        TimeLine getTimeLinesFromTuple(RestrictionDay myTuple, DateTimeOffset refDate)
         {
-            int DayDifference = myTuple.Item1- refDate.DayOfWeek;
+            int DayDifference = myTuple.DayOfWeek - refDate.DayOfWeek;
             DateTimeOffset refStart = refDate.AddDays(DayDifference);
-            TimeLine retValue =  myTuple.Item2.getTimeLineFromStartFrame(refStart);
-            return retValue;
+            TimeLine retValueOrigin = myTuple.RestrictionTimeLine.getTimeLineFromStartFrame(refStart);
+            TimeLine retValueA = new TimeLine(retValueOrigin.Start.AddDays(-7), retValueOrigin.End.AddDays(-7));
+            TimeLine retValueB = new TimeLine(retValueOrigin.Start.AddDays(7), retValueOrigin.End.AddDays(7));
+            Tuple<TimeLine, TimeLine, TimeLine> retValue = new Tuple<TimeLine, TimeLine, TimeLine>(retValueA, retValueOrigin, retValueB);
+            //return retValue;
+            return retValueOrigin;
         }
-        
+
         /*
         public TimeLine getEarliestStartTimeWithinAFrameAfterRefTime(DateTimeOffset RefStart)
         {    
@@ -660,7 +681,7 @@ namespace TilerElements
         }
 
 
-        public List<Tuple<DayOfWeek, RestrictionTimeLine>> getActiveDays()
+        public List<RestrictionDay> getActiveDays()
         {
             return NoNull_DaySelections.ToList();
         }

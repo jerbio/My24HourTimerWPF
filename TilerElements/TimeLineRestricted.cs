@@ -28,7 +28,7 @@ namespace TilerElements
         {
             isPlausible = false;
             DayOfYearToTimeLine = new Dictionary<ulong, HashSet<TimeLine>>();
-            List<TimeLine> AllTImeLines = RestrictionInfo.getAllTimePossibleTimeFrames(new TimeLine(NonViableStart, NonViableEnd)).OrderBy(obj => obj.Start).ToList();
+            List<TimeLine> AllTImeLines = RestrictionInfo.getAllNonPartialTimeFrames(new TimeLine(NonViableStart, NonViableEnd)).OrderBy(obj => obj.Start).ToList();
 
             ILookup<ulong, TimeLine> lookUpData0 = AllTImeLines.ToLookup(obj => ReferenceNow.getDayIndexFromStartOfTime(obj.Start), obj => obj);
             ILookup<ulong, TimeLine> lookUpData1 = AllTImeLines.ToLookup(obj => ReferenceNow.getDayIndexFromStartOfTime(obj.End), obj => obj);
@@ -209,7 +209,7 @@ namespace TilerElements
         /// <returns></returns>
         public override bool IsTimeLineWithin(TimeLine MyTimeLine)
         {
-            List<TimeLine> timeFrames = RestrictionInfo.getAllTimePossibleTimeFrames(new TimeLine (this.StartTime,this.EndTime)).Where(obj=>obj.TimelineSpan >= MyTimeLine.TimelineSpan).ToList();
+            List<TimeLine> timeFrames = RestrictionInfo.getAllNonPartialTimeFrames(new TimeLine (this.StartTime,this.EndTime)).Where(obj=>obj.TimelineSpan >= MyTimeLine.TimelineSpan).ToList();
 
             foreach (TimeLine eachTimeLine in timeFrames)
             { 

@@ -11,6 +11,8 @@ namespace TilerElements
     /// </summary>
     public class RestrictionTimeLine
     {
+        //ToDo restriction timeline needs to include a day component
+        static TimeSpan TwentyFourHourTImeSpan = TimeSpan.FromDays(1);
         protected DateTimeOffset StartTimeOfDay;
         protected TimeSpan RangeTimeSpan;
         protected DateTimeOffset EndTimeOfDay;
@@ -27,6 +29,10 @@ namespace TilerElements
             StartTimeOfDay = new DateTimeOffset(1, 1, 1, Start.Hour, Start.Minute, Start.Second, new TimeSpan());
             End = End <= Start ? End.AddDays(1) : End;
             RangeTimeSpan = End - Start;
+            if(RangeTimeSpan > TwentyFourHourTImeSpan)
+            {
+                throw new Exception("RestrictionTimeLine cannot have a time span more than twenty four hours");
+            }
             EndTimeOfDay = StartTimeOfDay.Add(RangeTimeSpan);
         }
 
@@ -35,6 +41,10 @@ namespace TilerElements
         {
             StartTimeOfDay = new DateTimeOffset(1, 1, 1, Start.Hour, Start.Minute, Start.Second, new TimeSpan());
             RangeTimeSpan = SpanDuration;
+            if (RangeTimeSpan > TwentyFourHourTImeSpan)
+            {
+                throw new Exception("RestrictionTimeLine cannot have a time span more than twenty four hours");
+            }
             EndTimeOfDay = StartTimeOfDay.Add(RangeTimeSpan);
         }
 

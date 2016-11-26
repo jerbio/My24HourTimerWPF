@@ -73,6 +73,7 @@
     <Compile Include="ScheduleEvaluation.cs" />
     <Compile Include="PathOptimization.cs" />
     <Compile Include="SleepEvaluation.cs" />
+    <Compile Include="MiscTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

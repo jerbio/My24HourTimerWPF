@@ -2713,25 +2713,31 @@ namespace My24HourTimerWPF
                 List<double> result= Utility.multiDimensionCalculation((kvpSubEventToDimensions.Select(obj => (IList<double>)obj.Value).ToList()));
                 int maxIndex = result.MaxIndex();
                 KeyValuePair<SubCalendarEvent, mTuple<TimeLine, TimeLine>> validKvp = kvpSubEventssToTimelines[maxIndex];
-                RefTimeLine = new TimeLine(validKvp.Value.Item1.Start, RefTimeLine.End);
+                TimeLine afterSleepTimeLine = new TimeLine(validKvp.Value.Item1.Start, RefTimeLine.End);
 
                 int beginningIndex = orderedByStartSubEvents.IndexOf(validKvp.Key);
                 List<SubCalendarEvent> subSetAfterSleepOfSubevent = orderedByStartSubEvents.GetRange(beginningIndex, orderedByStartSubEvents.Count - beginningIndex);
                 List<SubCalendarEvent> subSetBeforeSleepOfSubevent = orderedByStartSubEvents.GetRange(0, beginningIndex);
                 do
                 {
-                    LastSuccessfull = RefTimeLine.CreateCopy();
-                    EarliestStart = EarliestStart.AddHours(1);
-                    RefTimeLine = new TimeLine(EarliestStart, LatestEnd);
+                    LastSuccessfull = afterSleepTimeLine.CreateCopy();
+                    EarliestStart = afterSleepTimeLine.Start.AddHours(1);
+                    afterSleepTimeLine = new TimeLine(EarliestStart, LatestEnd);
                     --numberOfHoursBeforPinningCanStopcount;
                 }
-                while ((Utility.PinSubEventsToStart(subSetAfterSleepOfSubevent, RefTimeLine)) && (numberOfHoursBeforPinningCanStopcount > 0));
+                while ((Utility.PinSubEventsToStart(subSetAfterSleepOfSubevent, afterSleepTimeLine)) && (numberOfHoursBeforPinningCanStopcount > 0));
 
                 bool DidYouWork = Utility.PinSubEventsToStart(subSetAfterSleepOfSubevent, LastSuccessfull);
                 ///First call tries to pin a subset of subevents  to  the section that can afford the max amount for sleep
                 CreateBufferForEachEvent(subSetAfterSleepOfSubevent, LastSuccessfull);
                 ///Second call pins the remaining that are not optimal to the previous day. It takes the beginning of the new day to the begin time of the preceding group. This takes advantage of the fact that CreateBufferForEachEvent favors pinning to start
-                TimeLine beforeSleepTimeline = new TimeLine(myTimeLine.Start, LastSuccessfull.Start);
+                DateTimeOffset startTimeOfBeforeSet = LastSuccessfull.Start;
+                if(subSetAfterSleepOfSubevent.Count > 0)
+                {
+                    startTimeOfBeforeSet = subSetAfterSleepOfSubevent.First().Start;
+                }
+
+                TimeLine beforeSleepTimeline = new TimeLine(myTimeLine.Start, startTimeOfBeforeSet);
                 CreateBufferForEachEvent(subSetBeforeSleepOfSubevent, beforeSleepTimeline);
             }
 
@@ -2940,7 +2946,7 @@ namespace My24HourTimerWPF
             double distanceCovered = Location_Elements.calculateDistance(TotalActiveEvents.OrderBy(SubEvent=> SubEvent.Start).Select(SubEvent => SubEvent.myLocation).ToList(),0);
             Health scheduleHealth = new Health(TotalActiveEvents, Now.calculationNow, new TimeSpan(7,0,0,0), Now);
 
-            Console.WriteLine("Distance covered is {0}, Optimize is set to {1}\n Health Score is {2}", distanceCovered, Optimize, scheduleHealth.getScore());
+            //Console.WriteLine("Distance covered is {0}, Optimize is set to {1}\n Health Score is {2}", distanceCovered, Optimize, scheduleHealth.getScore());
             
             return totalNumberOfEvents;
         }
@@ -4081,7 +4087,7 @@ namespace My24HourTimerWPF
             TimeLine pertinentFreeSpot;
             List<SubCalendarEvent> LowestOrderedElements = new List<SubCalendarEvent>();
 
-            DateTimeOffset TestTime = new DateTimeOffset(2014, 9, 19, 10, 0, 0, new TimeSpan());
+            
             //++CountCall;
             for (int i = 0; ((i < ID_To_SubEvent_Restricted_List.Count)&&(i>=0)); )
             {
@@ -7690,12 +7696,12 @@ namespace My24HourTimerWPF
                 bool PinningSuccess = PivotNodeData.Item2.Item2.PinToEnd (RestrictingTimeLine);
                 DateTimeOffset StartTimeOfLeftTree = RestrictingTimeLine.Start;
                 DateTimeOffset EndTimeOfLeftTree = RestrictingTimeLine.End;
-                SubCalendarEvent includentSubCakendarEvent = null;
+                SubCalendarEvent includeSubCalendarEvent = null;
                 TimeLine leftOver = new TimeLine();
                 if (PinningSuccess)//hack alert Subevent fittable a double less than 1 e,g 0.5
                 {
                     EndTimeOfLeftTree = PivotNodeData.Item2.Item2.Start;
-                    includentSubCakendarEvent = PivotNodeData.Item2.Item2;
+                    includeSubCalendarEvent = PivotNodeData.Item2.Item2;
                     leftOver = new TimeLine(PivotNodeData.Item2.Item2.End, RestrictingTimeLine.End);//gets the left of timeline to ensure that 
                 }
 
@@ -7710,9 +7716,9 @@ namespace My24HourTimerWPF
                 SubCalendarEvent.incrementMiscdata(willFitInleftOver);
 
                 List<SubCalendarEvent> leftTreeResult = stitchRestrictedSubCalendarEvent(WorkableList, LefTimeLine);
-                if (includentSubCakendarEvent != null)
+                if (includeSubCalendarEvent != null)
                 {
-                    leftTreeResult.Add(includentSubCakendarEvent);
+                    leftTreeResult.Add(includeSubCalendarEvent);
                 }
 
                 if (!Utility.PinSubEventsToStart(leftTreeResult, RestrictingTimeLine))

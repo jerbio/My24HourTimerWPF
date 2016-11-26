@@ -61,7 +61,7 @@ namespace TilerElements
 
         public IEnumerable<TimeLine> getFeasibleTimeLines(TimeLine TimeLineEntry)
         {
-            return ProfileOfRestriction.getAllTimePossibleTimeFrames(TimeLineEntry);
+            return ProfileOfRestriction.getAllNonPartialTimeFrames(TimeLineEntry);
         }
 
 
@@ -72,7 +72,7 @@ namespace TilerElements
             {
                 return false;
             }
-            List<TimeLine> allPossibleTimelines = ProfileOfRestriction.getAllTimePossibleTimeFrames(LimitingTimeLine).Where(obj => obj.TimelineSpan >= ActiveDuration).OrderByDescending(obj => obj.End).ToList();
+            List<TimeLine> allPossibleTimelines = ProfileOfRestriction.getAllNonPartialTimeFrames(LimitingTimeLine).Where(obj => obj.TimelineSpan >= ActiveDuration).OrderByDescending(obj => obj.End).ToList();
             if (allPossibleTimelines.Count > 0)
             {
                 LimitingTimeLine = LimitingTimeLine.InterferringTimeLine( allPossibleTimelines[0]);
@@ -102,7 +102,7 @@ namespace TilerElements
             {
                 return false;
             }
-            List<TimeLine> allPossibleTimelines = ProfileOfRestriction.getAllTimePossibleTimeFrames(MyTimeLine).Where(obj=>obj.TimelineSpan>=ActiveDuration).OrderBy(obj=>obj.Start).ToList();
+            List<TimeLine> allPossibleTimelines = ProfileOfRestriction.getAllNonPartialTimeFrames(MyTimeLine).Where(obj=>obj.TimelineSpan>=ActiveDuration).OrderBy(obj=>obj.Start).ToList();
 
             if (allPossibleTimelines.Count > 0)
             {
@@ -146,7 +146,7 @@ namespace TilerElements
         public override bool canExistTowardsEndWithoutSpace(TimeLine PossibleTimeLine)
         {
             bool retValue = false;
-            List<TimeLine> AllTimeLines = ProfileOfRestriction.getAllTimePossibleTimeFrames(PossibleTimeLine).OrderBy(obj=>obj.Start).ToList();
+            List<TimeLine> AllTimeLines = ProfileOfRestriction.getAllNonPartialTimeFrames(PossibleTimeLine).OrderBy(obj=>obj.Start).ToList();
             if (AllTimeLines.Count > 0)
             {
                 return base.canExistTowardsEndWithoutSpace(AllTimeLines.Last());
@@ -160,7 +160,7 @@ namespace TilerElements
         public override bool canExistTowardsStartWithoutSpace(TimeLine PossibleTimeLine)
         {
             bool retValue = false;
-            List<TimeLine> AllTimeLines = ProfileOfRestriction.getAllTimePossibleTimeFrames(PossibleTimeLine).OrderBy(obj => obj.Start).ToList();
+            List<TimeLine> AllTimeLines = ProfileOfRestriction.getAllNonPartialTimeFrames(PossibleTimeLine).OrderBy(obj => obj.Start).ToList();
             if (AllTimeLines.Count > 0)
             {
                 return base.canExistTowardsStartWithoutSpace(AllTimeLines.First());
@@ -280,7 +280,7 @@ namespace TilerElements
 
         public override bool PinToPossibleLimit(TimeLine referenceTimeLine)
         {
-            List<TimeLine> AllPossibleTimeLines = ProfileOfRestriction.getAllTimePossibleTimeFrames(referenceTimeLine).   Where(obj => obj.TimelineSpan >= this.ActiveDuration).OrderByDescending (obj=>obj.End). ToList();
+            List<TimeLine> AllPossibleTimeLines = ProfileOfRestriction.getAllNonPartialTimeFrames(referenceTimeLine).   Where(obj => obj.TimelineSpan >= this.ActiveDuration).OrderByDescending (obj=>obj.End). ToList();
             if (AllPossibleTimeLines.Count > 0)
             {
                 return base.PinToEnd(AllPossibleTimeLines[0]);
@@ -301,7 +301,7 @@ namespace TilerElements
         public override List<TimeLine> getTimeLineInterferringWithCalEvent(TimeLine TimeLineData, bool orderByStart = true)
         {
             List<TimeLine> retValue = null;
-            List<TimeLine> possibleTimeLines = orderByStart ? ProfileOfRestriction.getAllTimePossibleTimeFrames(TimeLineData).OrderByDescending(obj => obj.TimelineSpan).ThenBy(obj => obj.Start).ToList() : ProfileOfRestriction.getAllTimePossibleTimeFrames(TimeLineData).OrderByDescending(obj => obj.TimelineSpan).ThenBy(obj => obj.Start).ToList();
+            List<TimeLine> possibleTimeLines = orderByStart ? ProfileOfRestriction.getAllNonPartialTimeFrames(TimeLineData).OrderByDescending(obj => obj.TimelineSpan).ThenBy(obj => obj.Start).ToList() : ProfileOfRestriction.getAllNonPartialTimeFrames(TimeLineData).OrderByDescending(obj => obj.TimelineSpan).ThenBy(obj => obj.Start).ToList();
             if (possibleTimeLines.Count > 0)
             {
                 retValue = possibleTimeLines;

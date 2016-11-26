@@ -1258,9 +1258,18 @@ namespace TilerElements
             return retValue;
         }
 
+        /// <summary>
+        /// function takes subEvents and generates the max timeline before and after each subevent. It tries to evaluate this max before and after by manipulating the pin to start and pin to end of each sub event preceding it.
+        /// </summary>
+        /// <param name="maxTImeLine"> The restricting timeline for which to evealutate the maximum timeline for pinning.</param>
+        /// <param name="subEvents"></param>
+        /// <returns></returns>
         public static Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> subEventToMaxSpaceAvailable(TimeLine maxTImeLine, IEnumerable<SubCalendarEvent> subEvents)
         {
-            List<SubCalendarEvent> ordedsubEvents = subEvents.ToList();
+            Dictionary<EventID, SubCalendarEvent> eventIdToSubEvent = subEvents.ToDictionary(subEvent => subEvent.SubEvent_ID, subEvent => subEvent);
+            Dictionary<EventID, DateTimeOffset> startTimes = new Dictionary<EventID, DateTimeOffset>();
+            Dictionary<EventID, DateTimeOffset> endTimes = new Dictionary<EventID, DateTimeOffset>();
+            List<SubCalendarEvent> ordedsubEvents = subEvents.Select(subEvent => subEvent.createCopy(subEvent.SubEvent_ID)).ToList();// the ordered passed in is preserved. We don't care about the time frame
             Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> retValue = new Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>>();
             TimeLine timeLine = new TimeLine();
             DateTimeOffset start = maxTImeLine.Start;
@@ -1269,7 +1278,7 @@ namespace TilerElements
             DateTimeOffset endBefore = maxTImeLine.End;
             DateTimeOffset startAfter = maxTImeLine.Start;
             DateTimeOffset endAfter = maxTImeLine.End;
-
+            List<SubCalendarEvent> pinnedStartingFromLast = new List<SubCalendarEvent>();
 
 
             TimeLine iterationTImeLine = new TimeLine(start, end);
@@ -1277,26 +1286,33 @@ namespace TilerElements
             TimeLine timeLineAfter = new TimeLine();
             if (Utility.PinSubEventsToStart(ordedsubEvents, maxTImeLine))
             {
-                for (int i = 0; i < ordedsubEvents.Count; i++)
+                SubCalendarEvent subEvent;
+                int i = ordedsubEvents.Count - 1;
+                for (; i > 0; i--)
                 {
-                    List<SubCalendarEvent> subList = ordedsubEvents.Skip(i).ToList();
-                    SubCalendarEvent anchorIterationEvent = subList.First();
-                    if (Utility.PinSubEventsToEnd(subList, iterationTImeLine))
-                    {
-                        startBefore = iterationTImeLine.Start;
-                        endBefore = anchorIterationEvent.Start;
-                        timeLineBefore = new TimeLine(startBefore, endBefore);
-                    }
-
-                    if (Utility.PinSubEventsToStart(subList, iterationTImeLine))
-                    {
-                        startAfter = anchorIterationEvent.End;
-                        endAfter = subList.Count > 1 ? subList[1].Start : maxTImeLine.End;
-                        timeLineAfter = new TimeLine(startAfter, endAfter);
-                    }
-                    mTuple<TimeLine, TimeLine> tupleData = new mTuple<TimeLine, TimeLine>(timeLineBefore, timeLineAfter);
-                    retValue.Add(anchorIterationEvent, tupleData);
+                    int j = i - 1;
+                    subEvent = ordedsubEvents[i];
+                    pinnedStartingFromLast.Insert(0, subEvent);
+                    startAfter = subEvent.End;
+                    timeLineAfter = new TimeLine(startAfter, endAfter);
+                    startBefore = ordedsubEvents[j].End;
+                    Utility.PinSubEventsToEnd(ordedsubEvents, maxTImeLine);
+                    endAfter = subEvent.Start;
+                    endBefore = ordedsubEvents[i].Start;
+                    timeLineBefore = new TimeLine(startBefore, endBefore);
+                    retValue.Add(eventIdToSubEvent[subEvent.SubEvent_ID], new mTuple<TimeLine, TimeLine>(timeLineBefore, timeLineAfter));
                 }
+
+                subEvent = ordedsubEvents[i];
+                pinnedStartingFromLast.Insert(0, subEvent);
+                startAfter = subEvent.End;
+                timeLineAfter = new TimeLine(startAfter, endAfter);
+                startBefore = ordedsubEvents[i].End;
+                Utility.PinSubEventsToEnd(ordedsubEvents, maxTImeLine);
+                endAfter = subEvent.Start;
+                endBefore = ordedsubEvents[i].Start;
+                timeLineBefore = new TimeLine(startBefore, endBefore);
+                retValue.Add(eventIdToSubEvent[subEvent.SubEvent_ID], new mTuple<TimeLine, TimeLine>(timeLineBefore, timeLineAfter));
             }
             else
             {

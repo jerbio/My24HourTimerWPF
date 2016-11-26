@@ -74,6 +74,7 @@
     <Compile Include="Procrastination.cs" />
     <Compile Include="Reason.cs" />
     <Compile Include="ReferenceNow.cs" />
+    <Compile Include="RestrictionDay.cs" />
     <Compile Include="RestrictionProfile.cs" />
     <Compile Include="RestrictionTimeLine.cs" />
     <Compile Include="SubCalendarEventRestricted.cs" />

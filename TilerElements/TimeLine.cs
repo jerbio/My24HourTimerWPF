@@ -419,6 +419,17 @@ namespace TilerElements
             return LatestEndBusyTime;
         }
         #region Properties
+        /// <summary>
+        /// Function returns true if the start time and the end time equals the respective start time and end time 'timeLine'
+        /// </summary>
+        /// <param name="timeLine"></param>
+        /// <returns></returns>
+        public virtual bool isEqualStartAndEnd(TimeLine timeLine)
+        {
+            bool retValue = this.Start == timeLine.Start && this.End == timeLine.End;
+            return retValue;
+        }
+
         public Dictionary<int, List<BusyTimeLine>> ClashingTimelines
         {
             get

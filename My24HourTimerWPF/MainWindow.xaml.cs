@@ -1450,7 +1450,7 @@ namespace My24HourTimerWPF
             //UserAccountDirect currentUser =  new UserAccountDebug("18");
             await currentUser.Login();
             DateTimeOffset refNow=DateTimeOffset.Now;
-            refNow = DateTimeOffset.Parse("5:52 am 11/20/2016");
+            refNow = DateTimeOffset.Parse("6:56 am 11/26/2016");
             //MySchedule = new Schedule(currentUser, refNow);
 
 

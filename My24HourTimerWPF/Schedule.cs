@@ -3766,6 +3766,7 @@ namespace My24HourTimerWPF
             allEvents_reversed.Reverse();
             foreach (SubCalendarEvent eachSubCalendarEvent in allEvents_reversed)
             {
+                TimeLine oldTimeLine = myTimeLines;
                 bool pinSuccess=eachSubCalendarEvent.PinToEnd(myTimeLines);
                 myTimeLines = new TimeLine(restrictingTimeline.Start, eachSubCalendarEvent.Start);
                 if (!pinSuccess && !eachSubCalendarEvent.Rigid)

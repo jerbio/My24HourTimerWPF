@@ -1296,7 +1296,7 @@ namespace TilerElements
                     startAfter = subEvent.End;
                     timeLineAfter = new TimeLine(startAfter, endAfter);
                     startBefore = ordedsubEvents[j].End;
-                    Utility.PinSubEventsToEnd(ordedsubEvents, maxTImeLine);
+                    Utility.PinSubEventsToEnd(pinnedStartingFromLast, maxTImeLine);
                     endAfter = subEvent.Start;
                     endBefore = ordedsubEvents[i].Start;
                     timeLineBefore = new TimeLine(startBefore, endBefore);
@@ -1308,7 +1308,7 @@ namespace TilerElements
                 startAfter = subEvent.End;
                 timeLineAfter = new TimeLine(startAfter, endAfter);
                 startBefore = ordedsubEvents[i].End;
-                Utility.PinSubEventsToEnd(ordedsubEvents, maxTImeLine);
+                Utility.PinSubEventsToEnd(pinnedStartingFromLast, maxTImeLine);
                 endAfter = subEvent.Start;
                 endBefore = ordedsubEvents[i].Start;
                 timeLineBefore = new TimeLine(startBefore, endBefore);

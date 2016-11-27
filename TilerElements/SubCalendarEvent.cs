@@ -867,10 +867,18 @@ namespace TilerElements
 
          virtual public bool canExistWithinTimeLine(TimeLine PossibleTimeLine)
          {
-             SubCalendarEvent thisCopy = this.createCopy(this.UniqueID);
-             bool retValue= (thisCopy.PinToStart(PossibleTimeLine) && thisCopy.PinToEnd(PossibleTimeLine));
-             return retValue;
-         }
+            bool retValue = false;
+            if (!this.Rigid)
+            {
+                SubCalendarEvent thisCopy = this.createCopy(this.UniqueID);
+                retValue = (thisCopy.PinToStart(PossibleTimeLine) && thisCopy.PinToEnd(PossibleTimeLine));
+            }
+            else
+            {
+                retValue = PossibleTimeLine.IsTimeLineWithin(this.RangeTimeLine);
+            }
+            return retValue;
+        }
 
          virtual public bool canExistTowardsEndWithoutSpace(TimeLine PossibleTimeLine)
          {

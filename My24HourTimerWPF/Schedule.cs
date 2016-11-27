@@ -330,25 +330,44 @@ namespace My24HourTimerWPF
         public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> BundleChangeUpdate(string SubEventID, string NewName, DateTimeOffset SubeventStart, DateTimeOffset SubeventEnd, DateTimeOffset TimeLineStart, DateTimeOffset TimeLineEnd, int SplitCount)//, Time)
         {
             EventID myEventID = new EventID(SubEventID);
-            //CalendarEvent myCalendarEvent = getCalendarEvent(myEventID.getCalendarEventID());
-
             SubCalendarEvent mySubCalEvent = getSubCalendarEvent(SubEventID);
+            CalendarEvent myCalendarEvent = getCalendarEvent(SubEventID);
+            DateTimeOffset calEventStart = new DateTimeOffset(1970, 1, 1, 0, 0, 0, new TimeSpan());
+            TimeLine calendarEventRange = null;
+            bool isFromRigidEvent = false;
+            if (mySubCalEvent.Rigid && myCalendarEvent.Rigid)
+            {
+                calEventStart = myCalendarEvent.Start;
+                calendarEventRange = new TimeLine(SubeventStart, SubeventEnd);
+                isFromRigidEvent = true;
+            }
+            else
+            {
+                calendarEventRange = mySubCalEvent.getCalendarEventRange;
+            }
 
-            SubCalendarEvent ChangedSubCal = new SubCalendarEvent(mySubCalEvent.Id, SubeventStart, SubeventEnd, new BusyTimeLine(mySubCalEvent.Id, SubeventStart, SubeventEnd), mySubCalEvent.Rigid, mySubCalEvent.isEnabled, mySubCalEvent.UIParam, mySubCalEvent.Notes, mySubCalEvent.isComplete, mySubCalEvent.myLocation, mySubCalEvent.getCalendarEventRange, mySubCalEvent.Conflicts);
+            SubCalendarEvent ChangedSubCal = new SubCalendarEvent(mySubCalEvent.Id, SubeventStart, SubeventEnd, new BusyTimeLine(mySubCalEvent.Id, SubeventStart, SubeventEnd), mySubCalEvent.Rigid, mySubCalEvent.isEnabled, mySubCalEvent.UIParam, mySubCalEvent.Notes, mySubCalEvent.isComplete, mySubCalEvent.myLocation, calendarEventRange, mySubCalEvent.Conflicts);
 
             //bool InitialRigidStatus = mySubCalEvent.Rigid;
             TimeSpan timeSpanStartDiff = TimeSpan.FromTicks( Math.Abs((mySubCalEvent.Start - SubeventStart).Ticks));
             TimeSpan timeSpanEndDiff = TimeSpan.FromTicks(Math.Abs((mySubCalEvent.End - SubeventEnd).Ticks));
             bool timeLineChange = (timeSpanStartDiff >= TimeSpan.FromMinutes(1)) || (timeSpanEndDiff >= TimeSpan.FromMinutes(1));
+
             if (timeLineChange)
             {
-                mySubCalEvent.UpdateThis(ChangedSubCal);
-                mySubCalEvent.SetAsRigid();
+                if (!isFromRigidEvent)
+                {
+                    mySubCalEvent.UpdateThis(ChangedSubCal);
+                    mySubCalEvent.SetAsRigid();
+                }
+                else
+                {
+                    mySubCalEvent.shiftEvent(ChangedSubCal.Start, true);
+                    mySubCalEvent.UpdateThis(ChangedSubCal);
+                }
+                    
             }
-            return BundleChangeUpdate(ChangedSubCal.SubEvent_ID.getRepeatCalendarEventID(), NewName, new DateTimeOffset(1970, 1, 1, 0, 0, 0, new TimeSpan()), TimeLineEnd, SplitCount, timeLineChange);//, TimeSpan TimePerSplitCount)
-
-            
-            
+            return BundleChangeUpdate(ChangedSubCal.SubEvent_ID.getRepeatCalendarEventID(), NewName, calEventStart, TimeLineEnd, SplitCount, timeLineChange);//, TimeSpan TimePerSplitCount)
         }
         public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> BundleChangeUpdate(string EventId, string NewName, DateTimeOffset newStart, DateTimeOffset newEnd, int newSplitCount, bool forceRecalculation=false)//, TimeSpan TimePerSplitCount)
         {

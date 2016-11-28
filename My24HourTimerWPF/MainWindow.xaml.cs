@@ -190,7 +190,7 @@ namespace My24HourTimerWPF
             //DateTimeOffset fullDate = new DateTimeOffset(EndDate.Year, EndDate.Month, EndDate.Day, EndTime.Hour, EndTime.Minute, EndTime.Second, new TimeSpan());
             //Tuple<CustomErrors, Dictionary<string, CalendarEvent>>result= MySchedule.UpdateDeadLine(EventID, fullDate);
             
-            await MySchedule.UpdateWithProcrastinateSchedule(result.Item2).ConfigureAwait(false);
+            await MySchedule.UpdateWithDifferentSchedule(result.Item2).ConfigureAwait(false);
 
         }
 
@@ -1189,13 +1189,13 @@ namespace My24HourTimerWPF
                 
                 if (result == MessageBoxResult.Yes)
                 {
-                    await MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
+                    await MySchedule.UpdateWithDifferentSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
                 }
             }
             else
             {
 
-                await MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
+                await MySchedule.UpdateWithDifferentSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
 
                 textBlock9.Text = "Schedule updated no clash detected";
             }
@@ -1216,7 +1216,7 @@ namespace My24HourTimerWPF
             ///*
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ScheduleUpdateMessage=MySchedule.SetCalendarEventAsNow(EventID);
 
-             await MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
+             await MySchedule.UpdateWithDifferentSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
              return;
             //*///
             /*
@@ -1233,18 +1233,18 @@ namespace My24HourTimerWPF
                             if (result == MessageBoxResult.Yes)
                             {
                                 ScheduleUpdateMessage=MySchedule.SetEventAsNow(EventID, true); ;
-                                await MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
+                                await MySchedule.UpdateWithDifferentSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
                             }
                         }
                         break;
                     default://hack alert we need to figure out how to fix this error
-                        await MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
+                        await MySchedule.UpdateWithDifferentSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
                         break;
                 }
             }
             else
             {
-                await MySchedule.UpdateWithProcrastinateSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
+                await MySchedule.UpdateWithDifferentSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
             }
             
         }
@@ -1450,7 +1450,7 @@ namespace My24HourTimerWPF
             //UserAccountDirect currentUser =  new UserAccountDebug("18");
             await currentUser.Login();
             DateTimeOffset refNow=DateTimeOffset.Now;
-            refNow = DateTimeOffset.Parse("6:56 am 11/26/2016");
+            refNow = DateTimeOffset.Parse("3:47 am 11/27/2016");
             //MySchedule = new Schedule(currentUser, refNow);
 
 

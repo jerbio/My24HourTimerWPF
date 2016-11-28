@@ -1669,9 +1669,8 @@ namespace TilerElements
             }
             else 
             {
-                SplitCOunt = Math.Abs(SplitCOunt);
                 int delta = (SplitCOunt - NumberOfSplit);
-                uint Change = (uint) delta;
+                uint Change = (uint)Math.Abs(delta);
                 if (delta > 0)
                 {
 
@@ -1702,7 +1701,7 @@ namespace TilerElements
             }
         }
 
-        void ReduceSplitCount(uint delta)
+        virtual protected void ReduceSplitCount(uint delta)
         {
             if (delta<Splits)
             {
@@ -1711,13 +1710,15 @@ namespace TilerElements
                     SubCalendarEvent SubEvent = SubEvents.Last().Value;
                     SubEvents.Remove(SubEvent.SubEvent_ID);
                 }
-                Splits -= (int)delta;    
+                Splits -= (int)delta;
+                EventDuration = TimeSpan.FromTicks(SubEvents.Values.Sum(subEvent => subEvent.ActiveDuration.Ticks));
                 return;
             }
+            
             throw new Exception("You are trying to reduce the number of subevents past the min count");
         }
 
-        void IncreaseSplitCount(uint delta)
+        virtual protected void IncreaseSplitCount(uint delta)
         {
             List<SubCalendarEvent> newSubs = new List<SubCalendarEvent>();
             for (int i = 0; i < delta; i++)
@@ -1726,6 +1727,7 @@ namespace TilerElements
                 SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
             }
             Splits += (int)delta;
+            EventDuration = TimeSpan.FromTicks(SubEvents.Values.Sum(subEvent => subEvent.ActiveDuration.Ticks));
         }
 
         public short ChangeTimePerSplit(TimeSpan newTimePerSplit)
@@ -1807,11 +1809,34 @@ namespace TilerElements
         }
         
 
-        public void updateTimeLine(TimeLine newTImeLine)
+        virtual public void updateTimeLine(TimeLine newTImeLine)
         {
-            StartDateTime = newTImeLine.Start;
-            EndDateTime = newTImeLine.End;
-            ActiveSubEvents.AsParallel().ForAll(obj => obj.changeTimeLineRange(newTImeLine));
+            TimeLine oldTimeLine = new TimeLine(StartDateTime, EndDateTime);
+            AllSubEvents.AsParallel().ForAll(obj => obj.changeTimeLineRange(newTImeLine));
+            bool worksForAllSubevents = true;
+            SubCalendarEvent failingSubEvent = SubCalendarEvent.getEmptySubCalendarEvent(this.Calendar_EventID);
+            foreach(var obj in AllSubEvents)
+            {
+                if (!obj.canExistWithinTimeLine(newTImeLine))
+                {
+                    worksForAllSubevents = false;
+                    failingSubEvent = obj;
+                }
+            }
+            if(worksForAllSubevents)
+            {
+                StartDateTime = newTImeLine.Start;
+                EndDateTime = newTImeLine.End;
+                if (this.Rigid)
+                {
+                    EventDuration = EndDateTime - StartDateTime;
+                }
+            } else
+            {
+                AllSubEvents.AsParallel().ForAll(obj => obj.changeTimeLineRange(oldTimeLine));
+                CustomErrors customError = new CustomErrors(true, "Cannot update the timeline for the calendar event with sub event " + failingSubEvent.Id + ". Most likely because the new time line won't fit the sub event", 40000001);
+                throw  customError;
+            }
         }
 
         #endregion

@@ -37,9 +37,13 @@ namespace TilerElements
         {
             Parallel.ForEach(SubEventList, eachSubCal =>//(eachSubCal in SubEventList)
             {
-                AllocatedSubEvents.AddOrUpdate(eachSubCal.Id, eachSubCal, (key, value) => eachSubCal);
-                
+                AllocatedSubEvents.AddOrUpdate(eachSubCal.Id, eachSubCal, (key, value) => eachSubCal);    
             });
+
+            foreach(SubCalendarEvent eachSubCal in SubEventList)
+            {
+                base.AddBusySlots(eachSubCal.ActiveSlot);
+            }
             
             updateOccupancyOfTimeLine();
         }
@@ -49,11 +53,12 @@ namespace TilerElements
             //Parallel.ForEach(SubEventList, eachSubCal =>//(eachSubCal in SubEventList)
             {
                 AllocatedSubEvents.AddOrUpdate(eachSubCal.Id, eachSubCal, (key, value) => eachSubCal);
-
+                base.AddBusySlots(eachSubCal.ActiveSlot);
             }
             //);
 
             updateOccupancyOfTimeLine();
+            
         }
 
         public void InitializeSubEventList(List<SubCalendarEvent> SubEventList)
@@ -90,6 +95,20 @@ namespace TilerElements
             */
             return CopyTimeLine;
         }
+        
+
+        public override void AddBusySlots(BusyTimeLine busyTimeLine)
+        {
+            ///This exception is thrown so we can enforce the calculation of coccupancy. In daytimeline we want the occupancy to be strongly related to subevents and not simply timelines
+            throw new Exception("Cannot simply add  busytimeline to daytime it needs to be a subevent. You need to call AddToSubEventList");
+        }
+
+        
+        public override void AddBusySlots(IEnumerable<BusyTimeLine> MyBusySlot)
+        {
+            ///This exception is thrown so we can enforce the calculation of coccupancy. In daytimeline we want the occupancy to be strongly related to subevents and not simply timelines
+            throw new Exception("Cannot simply add  busytimelines to daytime it needs to be a subevent. You need to call AddToSubEventList");
+        }
 
         public override string ToString()
         {
@@ -97,12 +116,16 @@ namespace TilerElements
         }
         
         /// <summary>
-        /// Function returns a timeLine with the begining and end. It does not populate the busyslots. It returns a new TImeline object
+        /// Function returns a timeLine with the begining and end. It does not populate the busyslots. It returns a new TImeline object. If you want the Active slots to be included, you can call add busy slots
         /// </summary>
         /// <returns></returns>
-        public TimeLine getJustTimeLine()
+        virtual public TimeLine getJustTimeLine(bool includeActiveSlots = false)
         {
             TimeLine RetValue = new TimeLine(this.StartTime, this.EndTime);
+            if(includeActiveSlots)
+            {
+                RetValue.AddBusySlots(AllocatedSubEvents.Values.Select(subCal => subCal.ActiveSlot));
+            }
             return RetValue;
         }
 

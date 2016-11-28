@@ -234,7 +234,7 @@ namespace TilerElements
 
                 PreceedingDateTime = MyActiveSlot.End;
             }
-            ListOfFreeSpots.Add(new TimeLine(AllActiveSlots.Last().End, EndTime));
+            ListOfFreeSpots.Add(new TimeLine(PreceedingDateTime, EndTime));
 
             return ListOfFreeSpots.ToArray();
         }

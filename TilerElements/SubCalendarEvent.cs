@@ -458,7 +458,7 @@ namespace TilerElements
         /// <returns></returns>
         virtual public bool UpdateThis(SubCalendarEvent SubEventEntry)
         {
-            if ((this.Id == SubEventEntry.Id)&&canExistWithinTimeLine(SubEventEntry.getCalendarEventRange))
+            if (this.Id == SubEventEntry.Id)
             {
                 this.BusyFrame = SubEventEntry.ActiveSlot;
                 this.CalendarEventRange = SubEventEntry.getCalendarEventRange;
@@ -632,38 +632,38 @@ namespace TilerElements
         */
 
 
-        virtual public  bool PinToEndAndIncludeInTimeLine(TimeLine LimitingTimeLine, CalendarEvent RestrctingCalendarEvent)
-        {
-            if (new EventID(RestrctingCalendarEvent.Id).getCalendarEventComponent() != UniqueID.getCalendarEventComponent())
-            {
-                throw new Exception("Oh oh Sub calendar event Trying to pin to end of invalid calendar event. Check that you have matchin IDs");
-            }
-            DateTimeOffset ReferenceTime = new DateTimeOffset();
-            EndDateTime=RestrctingCalendarEvent.End;
-            if (EndDateTime > LimitingTimeLine.End)
-            {
-                ReferenceTime = LimitingTimeLine.End;
-            }
-            /*else
-            {
-                ReferenceTime = End;
-            }*/
+        //virtual public  bool PinToEndAndIncludeInTimeLine(TimeLine LimitingTimeLine, CalendarEvent RestrctingCalendarEvent)
+        //{
+        //    if (new EventID(RestrctingCalendarEvent.Id).getCalendarEventComponent() != UniqueID.getCalendarEventComponent())
+        //    {
+        //        throw new Exception("Oh oh Sub calendar event Trying to pin to end of invalid calendar event. Check that you have matchin IDs");
+        //    }
+        //    DateTimeOffset ReferenceTime = new DateTimeOffset();
+        //    EndDateTime=RestrctingCalendarEvent.End;
+        //    if (EndDateTime > LimitingTimeLine.End)
+        //    {
+        //        ReferenceTime = LimitingTimeLine.End;
+        //    }
+        //    /*else
+        //    {
+        //        ReferenceTime = End;
+        //    }*/
             
-            DateTimeOffset MyStartTime = ReferenceTime - this.EventDuration;
+        //    DateTimeOffset MyStartTime = ReferenceTime - this.EventDuration;
 
-            if (this.getCalendarEventRange.IsTimeLineWithin(new TimeLine(MyStartTime, ReferenceTime)))
-            {
-                StartDateTime = MyStartTime;
-                //ActiveSlot = new BusyTimeLine(this.ID, (MyStartTime), ReferenceTime);
-                TimeSpan BusyTimeLineShift = MyStartTime - ActiveSlot.Start;
-                ActiveSlot.shiftTimeline(BusyTimeLineShift);
-                EndDateTime = ReferenceTime;
-                LimitingTimeLine.AddBusySlots(ActiveSlot);
-                return true;
-            }
+        //    if (this.getCalendarEventRange.IsTimeLineWithin(new TimeLine(MyStartTime, ReferenceTime)))
+        //    {
+        //        StartDateTime = MyStartTime;
+        //        //ActiveSlot = new BusyTimeLine(this.ID, (MyStartTime), ReferenceTime);
+        //        TimeSpan BusyTimeLineShift = MyStartTime - ActiveSlot.Start;
+        //        ActiveSlot.shiftTimeline(BusyTimeLineShift);
+        //        EndDateTime = ReferenceTime;
+        //        LimitingTimeLine.AddBusySlots(ActiveSlot);
+        //        return true;
+        //    }
 
-            return false;
-        }
+        //    return false;
+        //}
 
         virtual public bool PinToEnd(TimeLine LimitingTimeLine)
         {

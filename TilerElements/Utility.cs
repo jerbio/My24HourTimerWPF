@@ -1157,24 +1157,6 @@ namespace TilerElements
 
         }
 
-        static public TimeLine AddSubCaleventsToTimeLine(TimeLine EncasingTimeLine, IEnumerable<SubCalendarEvent> SubCalendarEvents)
-        {
-            EncasingTimeLine = EncasingTimeLine.CreateCopy();
-            foreach (SubCalendarEvent eachSubCalendarEvent in SubCalendarEvents)
-            {
-                if (eachSubCalendarEvent.canExistWithinTimeLine(EncasingTimeLine))
-                {
-                    EncasingTimeLine.AddBusySlots(eachSubCalendarEvent.ActiveSlot);
-                }
-                else
-                {
-                    return null;
-                }
-            }
-
-            return EncasingTimeLine;
-        }
-
 
         static public IEnumerable<T> serialLizeMtuple_MTupleToVarT<T>(IEnumerable<mTuple<int, T>> EnunerableData)
         {
@@ -1307,7 +1289,7 @@ namespace TilerElements
                 pinnedStartingFromLast.Insert(0, subEvent);
                 startAfter = subEvent.End;
                 timeLineAfter = new TimeLine(startAfter, endAfter);
-                startBefore = ordedsubEvents[i].End;
+                startBefore = maxTImeLine.Start;
                 Utility.PinSubEventsToEnd(pinnedStartingFromLast, maxTImeLine);
                 endAfter = subEvent.Start;
                 endBefore = ordedsubEvents[i].Start;

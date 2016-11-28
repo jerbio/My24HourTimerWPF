@@ -248,12 +248,23 @@ namespace TilerElements
 
             List<Tuple<int, int>> AllInterFerringIndexes = DayOfWeekToOverlappingIndexes[DayOfWeekInt];
             int RightIndex = -1;
-
+            TimeLine DayFramTImeLine;
             for (int i = 0; i < AllInterFerringIndexes.Count; i++)
             {
                 Tuple<int, int> myTUple = AllInterFerringIndexes[i];
-                int NumberOfDays = StartData.DayOfWeek - NoNull_DaySelections[myTUple.Item1].DayOfWeek;
-                TimeLine DayFramTImeLine = getTimeLinesFromTuple(NoNull_DaySelections[myTUple.Item1], StartData);
+                DayOfWeek noNullDayOfweek = NoNull_DaySelections[myTUple.Item1].DayOfWeek;
+                if (StartData.DayOfWeek == DayOfWeek.Sunday && noNullDayOfweek == DayOfWeek.Saturday)
+                {
+                    DateTimeOffset readjustToPreviousWeek = StartData.AddDays(-7);
+                    readjustToPreviousWeek = new DateTimeOffset(readjustToPreviousWeek.Year, readjustToPreviousWeek.Month, readjustToPreviousWeek.Day, StartData.Hour, StartData.Minute, StartData.Second, new TimeSpan());
+                    DayFramTImeLine = getTimeLinesFromTuple(NoNull_DaySelections[myTUple.Item1], readjustToPreviousWeek);
+
+                }
+                else
+                {
+                    DayFramTImeLine = getTimeLinesFromTuple(NoNull_DaySelections[myTUple.Item1], StartData);
+                }
+
                 if (DayFramTImeLine.IsDateTimeWithin(StartData) || (DayFramTImeLine.Start == StartData) || (DayFramTImeLine.End == StartData))
                 {
                     retValue = DayFramTImeLine;

@@ -162,10 +162,11 @@ namespace TilerElements
 
         void InstantiateSubEvents()
         {
+            TimeLine eachStart = ProfileOfRestriction.getEarliestStartTimeWithinAFrameAfterRefTime(this.Start);
             for (int i = 0; i < Splits; i++)
             {
-                DateTimeOffset SubStart = this.Start;
-                DateTimeOffset SubEnd = Start.Add(TimePerSplit);
+                DateTimeOffset SubStart = eachStart.Start;
+                DateTimeOffset SubEnd = SubStart.Add(TimePerSplit);
                 SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(UniqueID.ToString(), SubStart, SubEnd, ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), RigidSchedule, PrepTime, EventPreDeadline, LocationInfo, UiParams, DataBlob, Priority, DeadlineElapsed, ThirdPartyID);
                 SubEvents.Add(newEvent.SubEvent_ID, newEvent);
             }
@@ -216,6 +217,21 @@ namespace TilerElements
             RetValue.ProfileOfRestriction = this.ProfileOfRestriction.createCopy();
             RetValue.UpdateLocationMatrix(RetValue.LocationInfo);
             return RetValue;
+        }
+
+        override protected void IncreaseSplitCount(uint delta)
+        {
+            List<SubCalendarEvent> newSubs = new List<SubCalendarEvent>();
+            TimeLine eachStart = ProfileOfRestriction.getEarliestStartTimeWithinAFrameAfterRefTime(this.Start);
+            for (int i = 0; i < delta; i++)
+            {
+                DateTimeOffset SubStart = eachStart.Start;
+                DateTimeOffset SubEnd = SubStart.Add(TimePerSplit);
+                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(UniqueID.ToString(), SubStart, SubEnd, ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), RigidSchedule, PrepTime, EventPreDeadline, LocationInfo, UiParams, DataBlob, Priority, DeadlineElapsed, ThirdPartyID);
+                SubEvents.Add(newEvent.SubEvent_ID, newEvent);
+            }
+            Splits += (int)delta;
+            EventDuration = TimeSpan.FromTicks(SubEvents.Values.Sum(subEvent => subEvent.ActiveDuration.Ticks));
         }
 
         public override void UpdateThis(CalendarEvent CalendarEventEntry)

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ScheduleLog>
-  <LastIDCounter>1160</LastIDCounter>
-  <referenceDay>10:00 PM</referenceDay>
+  <LastIDCounter>4499656</LastIDCounter>
+  <referenceDay>3/5/2015 12:30:00 PM +00:00</referenceDay>
   <EventSchedules>
     <EventSchedule>
       <Recurrence />
@@ -32,24 +32,24 @@
       </UIParams>
       <Location>
         <CheckCalendarEvent>False</CheckCalendarEvent>
-        <isNull>False</isNull>
-        <Description>Home</Description>
-        <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
-        <YCoordinate>-81.585446</YCoordinate>
-        <XCoordinate>41.480352</XCoordinate>
+        <isNull>True</isNull>
+        <Description />
+        <Address />
+        <YCoordinate>-87.9074989664028</YCoordinate>
+        <XCoordinate>43.1788769526111</XCoordinate>
       </Location>
       <Enabled>True</Enabled>
-      <ID>1155_7_0_0</ID>
-      <Name>TestCalendarEvent-da832a09-fb6c-47be-be82-a1c944db0aa3</Name>
-      <StartTime>11/19/2016 10:00:00 PM</StartTime>
+      <ID>4499339_7_0_0</ID>
+      <Name>45908e89-e594-4931-a7fa-01ececedc399</Name>
+      <StartTime>11/28/2016 6:38:00 AM</StartTime>
       <PreDeadline>00:00:00</PreDeadline>
       <DeletionCount>0</DeletionCount>
       <CompletionCount>0</CompletionCount>
       <PrepTime>00:00:00</PrepTime>
-      <Deadline>11/20/2016 10:00:00 PM</Deadline>
+      <Deadline>11/28/2016 7:38:00 AM</Deadline>
       <Split>1</Split>
-      <Duration>01:30:00</Duration>
-      <RigidFlag>False</RigidFlag>
+      <Duration>01:00:00</Duration>
+      <RigidFlag>True</RigidFlag>
       <EventSubSchedules>
         <EventSubSchedule>
           <PauseInformation>
@@ -57,20 +57,7 @@
             <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
           </PauseInformation>
           <Restricted>False</Restricted>
-          <TimePositionReasons>
-            <Reason xsi:type="BestFitReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-              <Option>BestFit</Option>
-              <UsedUp>PT0S</UsedUp>
-              <Available>P1D</Available>
-              <CurrentUse>PT1H30M</CurrentUse>
-            </Reason>
-            <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-              <Option>CloseToCluster</Option>
-              <LocationCluster>
-                <Location_Elements />
-              </LocationCluster>
-            </Reason>
-          </TimePositionReasons>
+          <TimePositionReasons />
           <ConflictProfile>
             <ConflictIDs />
             <Flag>False</Flag>
@@ -93,23 +80,23 @@
           </UIParams>
           <Location>
             <CheckCalendarEvent>False</CheckCalendarEvent>
-            <isNull>False</isNull>
-            <Description>Home</Description>
-            <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
-            <YCoordinate>-81.585446</YCoordinate>
-            <XCoordinate>41.480352</XCoordinate>
+            <isNull>True</isNull>
+            <Description />
+            <Address />
+            <YCoordinate>-87.9074989664028</YCoordinate>
+            <XCoordinate>43.1788769526111</XCoordinate>
           </Location>
           <Complete>False</Complete>
           <Enabled>True</Enabled>
-          <ID>1155_7_0_1156</ID>
-          <Rigid>False</Rigid>
+          <ID>4499339_7_0_4499340</ID>
+          <Rigid>True</Rigid>
           <ThirdPartyID />
           <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>11/20/2016 7:00:00 AM</ActiveStartTime>
-          <ActiveEndTime>11/20/2016 8:30:00 AM</ActiveEndTime>
-          <Duration>01:30:00</Duration>
-          <StartTime>11/20/2016 7:00:00 AM</StartTime>
-          <EndTime>11/20/2016 8:30:00 AM</EndTime>
+          <ActiveStartTime>11/28/2016 6:38:42 AM</ActiveStartTime>
+          <ActiveEndTime>11/28/2016 7:38:42 AM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>11/28/2016 6:38:42 AM</StartTime>
+          <EndTime>11/28/2016 7:38:42 AM</EndTime>
         </EventSubSchedule>
       </EventSubSchedules>
       <RepetitionFlag>False</RepetitionFlag>
@@ -144,23 +131,392 @@
       </UIParams>
       <Location>
         <CheckCalendarEvent>False</CheckCalendarEvent>
-        <isNull>False</isNull>
-        <Description>Home</Description>
-        <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
-        <YCoordinate>-81.585446</YCoordinate>
-        <XCoordinate>41.480352</XCoordinate>
+        <isNull>True</isNull>
+        <Description />
+        <Address />
+        <YCoordinate>-87.9074989664028</YCoordinate>
+        <XCoordinate>43.1788769526111</XCoordinate>
       </Location>
       <Enabled>True</Enabled>
-      <ID>1157_7_0_0</ID>
-      <Name>TestCalendarEvent-840b920b-fbf1-479f-ad11-8f3f6dc18d1b</Name>
-      <StartTime>11/21/2016 10:00:00 PM</StartTime>
+      <ID>4499343_7_0_0</ID>
+      <Name>dd5f42b3-581a-4c56-896b-c854b4c9d00a</Name>
+      <StartTime>11/28/2016 6:38:00 AM</StartTime>
       <PreDeadline>00:00:00</PreDeadline>
       <DeletionCount>0</DeletionCount>
       <CompletionCount>0</CompletionCount>
       <PrepTime>00:00:00</PrepTime>
-      <Deadline>11/22/2016 12:00:00 AM</Deadline>
+      <Deadline>11/28/2016 8:38:00 AM</Deadline>
       <Split>1</Split>
-      <Duration>01:30:00</Duration>
+      <Duration>01:00:00</Duration>
+      <RigidFlag>False</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+            <Visible>True</Visible>
+          </UIParams>
+          <Location>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>True</isNull>
+            <Description />
+            <Address />
+            <YCoordinate>-87.9074989664028</YCoordinate>
+            <XCoordinate>43.1788769526111</XCoordinate>
+          </Location>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>4499343_7_0_4499344</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>11/28/2016 7:38:00 AM</ActiveStartTime>
+          <ActiveEndTime>11/28/2016 8:38:00 AM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>11/28/2016 7:38:00 AM</StartTime>
+          <EndTime>11/28/2016 8:38:00 AM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
+    <EventSchedule>
+      <Recurrence />
+      <RestrictionProfile>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>72000000000</RangeSpan>
+            <EndTime>1/1/0001 9:38:42 AM</EndTime>
+            <StartTime>1/1/0001 7:38:42 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>0</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>72000000000</RangeSpan>
+            <EndTime>1/1/0001 9:38:42 AM</EndTime>
+            <StartTime>1/1/0001 7:38:42 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>1</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>72000000000</RangeSpan>
+            <EndTime>1/1/0001 9:38:42 AM</EndTime>
+            <StartTime>1/1/0001 7:38:42 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>2</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>72000000000</RangeSpan>
+            <EndTime>1/1/0001 9:38:42 AM</EndTime>
+            <StartTime>1/1/0001 7:38:42 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>3</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>72000000000</RangeSpan>
+            <EndTime>1/1/0001 9:38:42 AM</EndTime>
+            <StartTime>1/1/0001 7:38:42 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>4</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>72000000000</RangeSpan>
+            <EndTime>1/1/0001 9:38:42 AM</EndTime>
+            <StartTime>1/1/0001 7:38:42 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>5</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>72000000000</RangeSpan>
+            <EndTime>1/1/0001 9:38:42 AM</EndTime>
+            <StartTime>1/1/0001 7:38:42 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>6</RestrictionDayOfWeek>
+        </RestrictionNode>
+      </RestrictionProfile>
+      <ProcrastinationProfile>
+        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
+        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
+        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
+      </ProcrastinationProfile>
+      <NowProfile>
+        <Initialized>False</Initialized>
+        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
+      </NowProfile>
+      <Restricted>True</Restricted>
+      <MiscData>
+        <TypeSelection>0</TypeSelection>
+        <UserNote />
+      </MiscData>
+      <UIParams>
+        <Type>0</Type>
+        <Color>
+          <UserSelection>-1</UserSelection>
+          <Blue>127</Blue>
+          <Green>127</Green>
+          <Red>127</Red>
+          <Opacity>1</Opacity>
+        </Color>
+        <Visible>True</Visible>
+      </UIParams>
+      <Location>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>True</isNull>
+        <Description />
+        <Address />
+        <YCoordinate>-87.9074989664028</YCoordinate>
+        <XCoordinate>43.1788769526111</XCoordinate>
+      </Location>
+      <Enabled>True</Enabled>
+      <ID>4499351_7_0_0</ID>
+      <Name>acf9e35e-d675-4000-9c9e-d0e896561539</Name>
+      <StartTime>11/28/2016 6:38:00 AM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <DeletionCount>0</DeletionCount>
+      <CompletionCount>0</CompletionCount>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>11/28/2016 10:38:00 AM</Deadline>
+      <Split>1</Split>
+      <Duration>01:00:00</Duration>
+      <RigidFlag>False</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <RestrictionProfile>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:42 AM</EndTime>
+                <StartTime>1/1/0001 7:38:42 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>0</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:42 AM</EndTime>
+                <StartTime>1/1/0001 7:38:42 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>1</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:42 AM</EndTime>
+                <StartTime>1/1/0001 7:38:42 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>2</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:42 AM</EndTime>
+                <StartTime>1/1/0001 7:38:42 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>3</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:42 AM</EndTime>
+                <StartTime>1/1/0001 7:38:42 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>4</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:42 AM</EndTime>
+                <StartTime>1/1/0001 7:38:42 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>5</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:42 AM</EndTime>
+                <StartTime>1/1/0001 7:38:42 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>6</RestrictionDayOfWeek>
+            </RestrictionNode>
+          </RestrictionProfile>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>True</Restricted>
+          <TimePositionReasons>
+            <Reason xsi:type="BestFitReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>BestFit</Option>
+              <UsedUp>PT1H59M18S</UsedUp>
+              <Available>PT13H22M42S</Available>
+              <CurrentUse>PT1H</CurrentUse>
+            </Reason>
+            <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>CloseToCluster</Option>
+              <LocationCluster>
+                <Location_Elements />
+              </LocationCluster>
+            </Reason>
+            <Reason xsi:type="DurationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>Occupancy</Option>
+            </Reason>
+            <Reason xsi:type="RestrictedEventReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>RestrictedEvent</Option>
+            </Reason>
+            <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>CloseToCluster</Option>
+              <LocationCluster>
+                <Location_Elements />
+              </LocationCluster>
+            </Reason>
+            <Reason xsi:type="DurationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>Occupancy</Option>
+            </Reason>
+            <Reason xsi:type="RestrictedEventReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>RestrictedEvent</Option>
+            </Reason>
+            <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>CloseToCluster</Option>
+              <LocationCluster>
+                <Location_Elements />
+              </LocationCluster>
+            </Reason>
+            <Reason xsi:type="DurationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>Occupancy</Option>
+            </Reason>
+            <Reason xsi:type="RestrictedEventReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>RestrictedEvent</Option>
+            </Reason>
+            <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>CloseToCluster</Option>
+              <LocationCluster>
+                <Location_Elements />
+              </LocationCluster>
+            </Reason>
+            <Reason xsi:type="DurationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>Occupancy</Option>
+            </Reason>
+            <Reason xsi:type="RestrictedEventReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>RestrictedEvent</Option>
+            </Reason>
+          </TimePositionReasons>
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>True</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+            <Visible>True</Visible>
+          </UIParams>
+          <Location>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>True</isNull>
+            <Description />
+            <Address />
+            <YCoordinate>-87.9074989664028</YCoordinate>
+            <XCoordinate>43.1788769526111</XCoordinate>
+          </Location>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>4499351_7_0_4499352</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>11/28/2016 8:38:00 AM</ActiveStartTime>
+          <ActiveEndTime>11/28/2016 9:38:00 AM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>11/28/2016 8:38:00 AM</StartTime>
+          <EndTime>11/28/2016 9:38:00 AM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
+    <EventSchedule>
+      <Recurrence />
+      <ProcrastinationProfile>
+        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
+        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
+        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
+      </ProcrastinationProfile>
+      <NowProfile>
+        <Initialized>False</Initialized>
+        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
+      </NowProfile>
+      <Restricted>False</Restricted>
+      <MiscData>
+        <TypeSelection>0</TypeSelection>
+        <UserNote />
+      </MiscData>
+      <UIParams>
+        <Type>0</Type>
+        <Color>
+          <UserSelection>-1</UserSelection>
+          <Blue>127</Blue>
+          <Green>127</Green>
+          <Red>127</Red>
+          <Opacity>1</Opacity>
+        </Color>
+        <Visible>True</Visible>
+      </UIParams>
+      <Location>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>True</isNull>
+        <Description />
+        <Address />
+        <YCoordinate>-87.9074989664028</YCoordinate>
+        <XCoordinate>43.1788769526111</XCoordinate>
+      </Location>
+      <Enabled>True</Enabled>
+      <ID>4499372_7_0_0</ID>
+      <Name>TestCalendarEvent-ff627d01-9c88-4d48-84c8-f63a76c3a457</Name>
+      <StartTime>11/28/2016 6:38:00 AM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <DeletionCount>0</DeletionCount>
+      <CompletionCount>0</CompletionCount>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>11/28/2016 11:38:00 AM</Deadline>
+      <Split>1</Split>
+      <Duration>01:00:00</Duration>
       <RigidFlag>False</RigidFlag>
       <EventSubSchedules>
         <EventSubSchedule>
@@ -172,9 +528,184 @@
           <TimePositionReasons>
             <Reason xsi:type="BestFitReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
               <Option>BestFit</Option>
-              <UsedUp>PT0S</UsedUp>
-              <Available>P1D</Available>
-              <CurrentUse>PT1H30M</CurrentUse>
+              <UsedUp>PT1H59M18S</UsedUp>
+              <Available>PT13H22M42S</Available>
+              <CurrentUse>PT1H</CurrentUse>
+            </Reason>
+            <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>CloseToCluster</Option>
+              <LocationCluster>
+                <Location_Elements />
+              </LocationCluster>
+            </Reason>
+            <Reason xsi:type="DurationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>Occupancy</Option>
+            </Reason>
+          </TimePositionReasons>
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>True</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+            <Visible>True</Visible>
+          </UIParams>
+          <Location>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>True</isNull>
+            <Description />
+            <Address />
+            <YCoordinate>-87.9074989664028</YCoordinate>
+            <XCoordinate>43.1788769526111</XCoordinate>
+          </Location>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>4499372_7_0_4499373</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>11/28/2016 10:18:00 AM</ActiveStartTime>
+          <ActiveEndTime>11/28/2016 11:18:00 AM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>11/28/2016 10:18:00 AM</StartTime>
+          <EndTime>11/28/2016 11:18:00 AM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
+    <EventSchedule>
+      <Recurrence />
+      <ProcrastinationProfile>
+        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
+        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
+        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
+      </ProcrastinationProfile>
+      <NowProfile>
+        <Initialized>False</Initialized>
+        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
+      </NowProfile>
+      <Restricted>False</Restricted>
+      <MiscData>
+        <TypeSelection>0</TypeSelection>
+        <UserNote />
+      </MiscData>
+      <UIParams>
+        <Type>0</Type>
+        <Color>
+          <UserSelection>-1</UserSelection>
+          <Blue>127</Blue>
+          <Green>127</Green>
+          <Red>127</Red>
+          <Opacity>1</Opacity>
+        </Color>
+        <Visible>True</Visible>
+      </UIParams>
+      <Location>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>True</isNull>
+        <Description />
+        <Address />
+        <YCoordinate>-87.9074989664028</YCoordinate>
+        <XCoordinate>43.1788769526111</XCoordinate>
+      </Location>
+      <Enabled>True</Enabled>
+      <ID>4499396_7_0_0</ID>
+      <Name>TestCalendarEvent-e4028eb2-8184-4430-ad78-6e5680fd5f9a</Name>
+      <StartTime>11/28/2016 6:38:00 AM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <DeletionCount>0</DeletionCount>
+      <CompletionCount>0</CompletionCount>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>11/28/2016 11:38:00 AM</Deadline>
+      <Split>2</Split>
+      <Duration>00:40:00</Duration>
+      <RigidFlag>False</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons>
+            <Reason xsi:type="BestFitReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>BestFit</Option>
+              <UsedUp>PT1H59M18S</UsedUp>
+              <Available>PT13H22M42S</Available>
+              <CurrentUse>PT20M</CurrentUse>
+            </Reason>
+            <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>CloseToCluster</Option>
+              <LocationCluster>
+                <Location_Elements />
+              </LocationCluster>
+            </Reason>
+          </TimePositionReasons>
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>True</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+            <Visible>True</Visible>
+          </UIParams>
+          <Location>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>True</isNull>
+            <Description />
+            <Address />
+            <YCoordinate>-87.9074989664028</YCoordinate>
+            <XCoordinate>43.1788769526111</XCoordinate>
+          </Location>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>4499396_7_0_4499399</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>11/28/2016 9:38:00 AM</ActiveStartTime>
+          <ActiveEndTime>11/28/2016 9:58:00 AM</ActiveEndTime>
+          <Duration>00:20:00</Duration>
+          <StartTime>11/28/2016 9:38:00 AM</StartTime>
+          <EndTime>11/28/2016 9:58:00 AM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons>
+            <Reason xsi:type="BestFitReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>BestFit</Option>
+              <UsedUp>PT4H19M18S</UsedUp>
+              <Available>PT11H2M42S</Available>
+              <CurrentUse>PT20M</CurrentUse>
             </Reason>
             <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
               <Option>CloseToCluster</Option>
@@ -205,23 +736,1076 @@
           </UIParams>
           <Location>
             <CheckCalendarEvent>False</CheckCalendarEvent>
-            <isNull>False</isNull>
-            <Description>Home</Description>
-            <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
-            <YCoordinate>-81.585446</YCoordinate>
-            <XCoordinate>41.480352</XCoordinate>
+            <isNull>True</isNull>
+            <Description />
+            <Address />
+            <YCoordinate>-87.9074989664028</YCoordinate>
+            <XCoordinate>43.1788769526111</XCoordinate>
           </Location>
           <Complete>False</Complete>
           <Enabled>True</Enabled>
-          <ID>1157_7_0_1158</ID>
+          <ID>4499396_7_0_4499398</ID>
           <Rigid>False</Rigid>
           <ThirdPartyID />
           <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>11/21/2016 10:00:00 PM</ActiveStartTime>
-          <ActiveEndTime>11/21/2016 11:30:00 PM</ActiveEndTime>
-          <Duration>01:30:00</Duration>
-          <StartTime>11/21/2016 10:00:00 PM</StartTime>
-          <EndTime>11/21/2016 11:30:00 PM</EndTime>
+          <ActiveStartTime>11/28/2016 8:50:00 AM</ActiveStartTime>
+          <ActiveEndTime>11/28/2016 9:10:00 AM</ActiveEndTime>
+          <Duration>00:20:00</Duration>
+          <StartTime>11/28/2016 8:50:00 AM</StartTime>
+          <EndTime>11/28/2016 9:10:00 AM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
+    <EventSchedule>
+      <Recurrence />
+      <RestrictionProfile>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>72000000000</RangeSpan>
+            <EndTime>1/1/0001 9:38:43 AM</EndTime>
+            <StartTime>1/1/0001 7:38:43 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>0</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>72000000000</RangeSpan>
+            <EndTime>1/1/0001 9:38:43 AM</EndTime>
+            <StartTime>1/1/0001 7:38:43 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>1</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>72000000000</RangeSpan>
+            <EndTime>1/1/0001 9:38:43 AM</EndTime>
+            <StartTime>1/1/0001 7:38:43 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>2</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>72000000000</RangeSpan>
+            <EndTime>1/1/0001 9:38:43 AM</EndTime>
+            <StartTime>1/1/0001 7:38:43 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>3</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>72000000000</RangeSpan>
+            <EndTime>1/1/0001 9:38:43 AM</EndTime>
+            <StartTime>1/1/0001 7:38:43 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>4</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>72000000000</RangeSpan>
+            <EndTime>1/1/0001 9:38:43 AM</EndTime>
+            <StartTime>1/1/0001 7:38:43 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>5</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>72000000000</RangeSpan>
+            <EndTime>1/1/0001 9:38:43 AM</EndTime>
+            <StartTime>1/1/0001 7:38:43 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>6</RestrictionDayOfWeek>
+        </RestrictionNode>
+      </RestrictionProfile>
+      <ProcrastinationProfile>
+        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
+        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
+        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
+      </ProcrastinationProfile>
+      <NowProfile>
+        <Initialized>False</Initialized>
+        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
+      </NowProfile>
+      <Restricted>True</Restricted>
+      <MiscData>
+        <TypeSelection>0</TypeSelection>
+        <UserNote />
+      </MiscData>
+      <UIParams>
+        <Type>0</Type>
+        <Color>
+          <UserSelection>-1</UserSelection>
+          <Blue>127</Blue>
+          <Green>127</Green>
+          <Red>127</Red>
+          <Opacity>1</Opacity>
+        </Color>
+        <Visible>True</Visible>
+      </UIParams>
+      <Location>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>True</isNull>
+        <Description />
+        <Address />
+        <YCoordinate>-87.9074989664028</YCoordinate>
+        <XCoordinate>43.1788769526111</XCoordinate>
+      </Location>
+      <Enabled>True</Enabled>
+      <ID>4499434_7_0_0</ID>
+      <Name>TestCalendarEvent-2f4efca7-4f5d-4bec-8a59-7f314ad3cbdd-Restricted</Name>
+      <StartTime>11/28/2016 6:38:00 AM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <DeletionCount>0</DeletionCount>
+      <CompletionCount>0</CompletionCount>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>11/28/2016 11:38:00 AM</Deadline>
+      <Split>1</Split>
+      <Duration>01:00:00</Duration>
+      <RigidFlag>False</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <RestrictionProfile>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:43 AM</EndTime>
+                <StartTime>1/1/0001 7:38:43 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>0</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:43 AM</EndTime>
+                <StartTime>1/1/0001 7:38:43 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>1</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:43 AM</EndTime>
+                <StartTime>1/1/0001 7:38:43 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>2</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:43 AM</EndTime>
+                <StartTime>1/1/0001 7:38:43 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>3</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:43 AM</EndTime>
+                <StartTime>1/1/0001 7:38:43 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>4</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:43 AM</EndTime>
+                <StartTime>1/1/0001 7:38:43 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>5</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:43 AM</EndTime>
+                <StartTime>1/1/0001 7:38:43 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>6</RestrictionDayOfWeek>
+            </RestrictionNode>
+          </RestrictionProfile>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>True</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>True</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+            <Visible>True</Visible>
+          </UIParams>
+          <Location>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>True</isNull>
+            <Description />
+            <Address />
+            <YCoordinate>-87.9074989664028</YCoordinate>
+            <XCoordinate>43.1788769526111</XCoordinate>
+          </Location>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>4499434_7_0_4499435</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>11/28/2016 7:38:43 AM</ActiveStartTime>
+          <ActiveEndTime>11/28/2016 8:38:43 AM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>11/28/2016 7:38:43 AM</StartTime>
+          <EndTime>11/28/2016 8:38:43 AM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
+    <EventSchedule>
+      <Recurrence />
+      <RestrictionProfile>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>72000000000</RangeSpan>
+            <EndTime>1/1/0001 9:38:43 AM</EndTime>
+            <StartTime>1/1/0001 7:38:43 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>0</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>72000000000</RangeSpan>
+            <EndTime>1/1/0001 9:38:43 AM</EndTime>
+            <StartTime>1/1/0001 7:38:43 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>1</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>72000000000</RangeSpan>
+            <EndTime>1/1/0001 9:38:43 AM</EndTime>
+            <StartTime>1/1/0001 7:38:43 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>2</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>72000000000</RangeSpan>
+            <EndTime>1/1/0001 9:38:43 AM</EndTime>
+            <StartTime>1/1/0001 7:38:43 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>3</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>72000000000</RangeSpan>
+            <EndTime>1/1/0001 9:38:43 AM</EndTime>
+            <StartTime>1/1/0001 7:38:43 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>4</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>72000000000</RangeSpan>
+            <EndTime>1/1/0001 9:38:43 AM</EndTime>
+            <StartTime>1/1/0001 7:38:43 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>5</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>72000000000</RangeSpan>
+            <EndTime>1/1/0001 9:38:43 AM</EndTime>
+            <StartTime>1/1/0001 7:38:43 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>6</RestrictionDayOfWeek>
+        </RestrictionNode>
+      </RestrictionProfile>
+      <ProcrastinationProfile>
+        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
+        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
+        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
+      </ProcrastinationProfile>
+      <NowProfile>
+        <Initialized>False</Initialized>
+        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
+      </NowProfile>
+      <Restricted>True</Restricted>
+      <MiscData>
+        <TypeSelection>0</TypeSelection>
+        <UserNote />
+      </MiscData>
+      <UIParams>
+        <Type>0</Type>
+        <Color>
+          <UserSelection>-1</UserSelection>
+          <Blue>127</Blue>
+          <Green>127</Green>
+          <Red>127</Red>
+          <Opacity>1</Opacity>
+        </Color>
+        <Visible>True</Visible>
+      </UIParams>
+      <Location>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>True</isNull>
+        <Description />
+        <Address />
+        <YCoordinate>-87.9074989664028</YCoordinate>
+        <XCoordinate>43.1788769526111</XCoordinate>
+      </Location>
+      <Enabled>True</Enabled>
+      <ID>4499480_7_0_0</ID>
+      <Name>TestCalendarEvent-1a553658-2b1f-4ef3-85ba-b1c1e43e95c8-Restricted</Name>
+      <StartTime>11/28/2016 6:38:00 AM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <DeletionCount>0</DeletionCount>
+      <CompletionCount>0</CompletionCount>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>11/28/2016 11:38:00 AM</Deadline>
+      <Split>3</Split>
+      <Duration>01:00:00</Duration>
+      <RigidFlag>False</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <RestrictionProfile>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:43 AM</EndTime>
+                <StartTime>1/1/0001 7:38:43 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>0</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:43 AM</EndTime>
+                <StartTime>1/1/0001 7:38:43 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>1</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:43 AM</EndTime>
+                <StartTime>1/1/0001 7:38:43 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>2</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:43 AM</EndTime>
+                <StartTime>1/1/0001 7:38:43 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>3</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:43 AM</EndTime>
+                <StartTime>1/1/0001 7:38:43 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>4</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:43 AM</EndTime>
+                <StartTime>1/1/0001 7:38:43 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>5</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:43 AM</EndTime>
+                <StartTime>1/1/0001 7:38:43 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>6</RestrictionDayOfWeek>
+            </RestrictionNode>
+          </RestrictionProfile>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>True</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>True</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+            <Visible>True</Visible>
+          </UIParams>
+          <Location>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>True</isNull>
+            <Description />
+            <Address />
+            <YCoordinate>-87.9074989664028</YCoordinate>
+            <XCoordinate>43.1788769526111</XCoordinate>
+          </Location>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>4499480_7_0_4499483</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>11/28/2016 7:38:43 AM</ActiveStartTime>
+          <ActiveEndTime>11/28/2016 7:58:43 AM</ActiveEndTime>
+          <Duration>00:20:00</Duration>
+          <StartTime>11/28/2016 7:38:43 AM</StartTime>
+          <EndTime>11/28/2016 7:58:43 AM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <RestrictionProfile>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:43 AM</EndTime>
+                <StartTime>1/1/0001 7:38:43 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>0</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:43 AM</EndTime>
+                <StartTime>1/1/0001 7:38:43 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>1</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:43 AM</EndTime>
+                <StartTime>1/1/0001 7:38:43 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>2</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:43 AM</EndTime>
+                <StartTime>1/1/0001 7:38:43 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>3</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:43 AM</EndTime>
+                <StartTime>1/1/0001 7:38:43 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>4</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:43 AM</EndTime>
+                <StartTime>1/1/0001 7:38:43 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>5</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:43 AM</EndTime>
+                <StartTime>1/1/0001 7:38:43 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>6</RestrictionDayOfWeek>
+            </RestrictionNode>
+          </RestrictionProfile>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>True</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>True</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+            <Visible>True</Visible>
+          </UIParams>
+          <Location>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>True</isNull>
+            <Description />
+            <Address />
+            <YCoordinate>-87.9074989664028</YCoordinate>
+            <XCoordinate>43.1788769526111</XCoordinate>
+          </Location>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>4499480_7_0_4499482</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>11/28/2016 7:38:43 AM</ActiveStartTime>
+          <ActiveEndTime>11/28/2016 7:58:43 AM</ActiveEndTime>
+          <Duration>00:20:00</Duration>
+          <StartTime>11/28/2016 7:38:43 AM</StartTime>
+          <EndTime>11/28/2016 7:58:43 AM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <RestrictionProfile>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:43 AM</EndTime>
+                <StartTime>1/1/0001 7:38:43 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>0</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:43 AM</EndTime>
+                <StartTime>1/1/0001 7:38:43 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>1</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:43 AM</EndTime>
+                <StartTime>1/1/0001 7:38:43 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>2</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:43 AM</EndTime>
+                <StartTime>1/1/0001 7:38:43 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>3</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:43 AM</EndTime>
+                <StartTime>1/1/0001 7:38:43 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>4</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:43 AM</EndTime>
+                <StartTime>1/1/0001 7:38:43 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>5</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:43 AM</EndTime>
+                <StartTime>1/1/0001 7:38:43 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>6</RestrictionDayOfWeek>
+            </RestrictionNode>
+          </RestrictionProfile>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>True</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>True</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+            <Visible>True</Visible>
+          </UIParams>
+          <Location>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>True</isNull>
+            <Description />
+            <Address />
+            <YCoordinate>-87.9074989664028</YCoordinate>
+            <XCoordinate>43.1788769526111</XCoordinate>
+          </Location>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>4499480_7_0_4499481</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>11/28/2016 7:38:43 AM</ActiveStartTime>
+          <ActiveEndTime>11/28/2016 7:58:43 AM</ActiveEndTime>
+          <Duration>00:20:00</Duration>
+          <StartTime>11/28/2016 7:38:43 AM</StartTime>
+          <EndTime>11/28/2016 7:58:43 AM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
+    <EventSchedule>
+      <Recurrence />
+      <ProcrastinationProfile>
+        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
+        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
+        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
+      </ProcrastinationProfile>
+      <NowProfile>
+        <Initialized>False</Initialized>
+        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
+      </NowProfile>
+      <Restricted>False</Restricted>
+      <MiscData>
+        <TypeSelection>0</TypeSelection>
+        <UserNote />
+      </MiscData>
+      <UIParams>
+        <Type>0</Type>
+        <Color>
+          <UserSelection>-1</UserSelection>
+          <Blue>127</Blue>
+          <Green>127</Green>
+          <Red>127</Red>
+          <Opacity>1</Opacity>
+        </Color>
+        <Visible>True</Visible>
+      </UIParams>
+      <Location>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>True</isNull>
+        <Description />
+        <Address />
+        <YCoordinate>-87.9074989664028</YCoordinate>
+        <XCoordinate>43.1788769526111</XCoordinate>
+      </Location>
+      <Enabled>True</Enabled>
+      <ID>4499498_7_0_0</ID>
+      <Name>TestCalendarEvent-9f2c1e91-974f-4594-a5a6-5cadc3b90ff5</Name>
+      <StartTime>11/28/2016 6:38:00 AM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <DeletionCount>0</DeletionCount>
+      <CompletionCount>0</CompletionCount>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>11/28/2016 7:38:00 AM</Deadline>
+      <Split>1</Split>
+      <Duration>01:00:00</Duration>
+      <RigidFlag>True</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+            <Visible>True</Visible>
+          </UIParams>
+          <Location>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>True</isNull>
+            <Description />
+            <Address />
+            <YCoordinate>-87.9074989664028</YCoordinate>
+            <XCoordinate>43.1788769526111</XCoordinate>
+          </Location>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>4499498_7_0_4499499</ID>
+          <Rigid>True</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>11/28/2016 6:38:44 AM</ActiveStartTime>
+          <ActiveEndTime>11/28/2016 7:38:44 AM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>11/28/2016 6:38:44 AM</StartTime>
+          <EndTime>11/28/2016 7:38:44 AM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
+    <EventSchedule>
+      <Recurrence />
+      <ProcrastinationProfile>
+        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
+        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
+        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
+      </ProcrastinationProfile>
+      <NowProfile>
+        <Initialized>False</Initialized>
+        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
+      </NowProfile>
+      <Restricted>False</Restricted>
+      <MiscData>
+        <TypeSelection>0</TypeSelection>
+        <UserNote />
+      </MiscData>
+      <UIParams>
+        <Type>0</Type>
+        <Color>
+          <UserSelection>-1</UserSelection>
+          <Blue>127</Blue>
+          <Green>127</Green>
+          <Red>127</Red>
+          <Opacity>1</Opacity>
+        </Color>
+        <Visible>True</Visible>
+      </UIParams>
+      <Location>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>True</isNull>
+        <Description />
+        <Address />
+        <YCoordinate>-87.9074989664028</YCoordinate>
+        <XCoordinate>43.1788769526111</XCoordinate>
+      </Location>
+      <Enabled>True</Enabled>
+      <ID>4499514_7_0_0</ID>
+      <Name>TestCalendarEvent-63a9b783-4b1b-4621-80e5-6d85764813b2</Name>
+      <StartTime>11/28/2016 6:38:00 AM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <DeletionCount>0</DeletionCount>
+      <CompletionCount>0</CompletionCount>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>11/28/2016 8:08:00 AM</Deadline>
+      <Split>1</Split>
+      <Duration>01:00:00</Duration>
+      <RigidFlag>False</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>True</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+            <Visible>True</Visible>
+          </UIParams>
+          <Location>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>True</isNull>
+            <Description />
+            <Address />
+            <YCoordinate>-87.9074989664028</YCoordinate>
+            <XCoordinate>43.1788769526111</XCoordinate>
+          </Location>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>4499514_7_0_4499515</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>11/28/2016 7:08:00 AM</ActiveStartTime>
+          <ActiveEndTime>11/28/2016 8:08:00 AM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>11/28/2016 7:08:00 AM</StartTime>
+          <EndTime>11/28/2016 8:08:00 AM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
+    <EventSchedule>
+      <Recurrence />
+      <RestrictionProfile>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>72000000000</RangeSpan>
+            <EndTime>1/1/0001 9:38:45 AM</EndTime>
+            <StartTime>1/1/0001 7:38:45 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>0</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>72000000000</RangeSpan>
+            <EndTime>1/1/0001 9:38:45 AM</EndTime>
+            <StartTime>1/1/0001 7:38:45 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>1</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>72000000000</RangeSpan>
+            <EndTime>1/1/0001 9:38:45 AM</EndTime>
+            <StartTime>1/1/0001 7:38:45 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>2</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>72000000000</RangeSpan>
+            <EndTime>1/1/0001 9:38:45 AM</EndTime>
+            <StartTime>1/1/0001 7:38:45 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>3</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>72000000000</RangeSpan>
+            <EndTime>1/1/0001 9:38:45 AM</EndTime>
+            <StartTime>1/1/0001 7:38:45 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>4</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>72000000000</RangeSpan>
+            <EndTime>1/1/0001 9:38:45 AM</EndTime>
+            <StartTime>1/1/0001 7:38:45 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>5</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>72000000000</RangeSpan>
+            <EndTime>1/1/0001 9:38:45 AM</EndTime>
+            <StartTime>1/1/0001 7:38:45 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>6</RestrictionDayOfWeek>
+        </RestrictionNode>
+      </RestrictionProfile>
+      <ProcrastinationProfile>
+        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
+        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
+        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
+      </ProcrastinationProfile>
+      <NowProfile>
+        <Initialized>False</Initialized>
+        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
+      </NowProfile>
+      <Restricted>True</Restricted>
+      <MiscData>
+        <TypeSelection>0</TypeSelection>
+        <UserNote />
+      </MiscData>
+      <UIParams>
+        <Type>0</Type>
+        <Color>
+          <UserSelection>-1</UserSelection>
+          <Blue>127</Blue>
+          <Green>127</Green>
+          <Red>127</Red>
+          <Opacity>1</Opacity>
+        </Color>
+        <Visible>True</Visible>
+      </UIParams>
+      <Location>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>True</isNull>
+        <Description />
+        <Address />
+        <YCoordinate>-87.9074989664028</YCoordinate>
+        <XCoordinate>43.1788769526111</XCoordinate>
+      </Location>
+      <Enabled>True</Enabled>
+      <ID>4499603_7_0_0</ID>
+      <Name>TestCalendarEvent-f3a40516-bcfa-45bb-9ba5-aea817b24062-Restricted</Name>
+      <StartTime>11/28/2016 6:38:45 AM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <DeletionCount>0</DeletionCount>
+      <CompletionCount>0</CompletionCount>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>11/28/2016 12:38:45 PM</Deadline>
+      <Split>1</Split>
+      <Duration>01:00:00</Duration>
+      <RigidFlag>False</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <RestrictionProfile>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:45 AM</EndTime>
+                <StartTime>1/1/0001 7:38:45 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>0</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:45 AM</EndTime>
+                <StartTime>1/1/0001 7:38:45 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>1</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:45 AM</EndTime>
+                <StartTime>1/1/0001 7:38:45 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>2</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:45 AM</EndTime>
+                <StartTime>1/1/0001 7:38:45 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>3</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:45 AM</EndTime>
+                <StartTime>1/1/0001 7:38:45 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>4</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:45 AM</EndTime>
+                <StartTime>1/1/0001 7:38:45 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>5</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>72000000000</RangeSpan>
+                <EndTime>1/1/0001 9:38:45 AM</EndTime>
+                <StartTime>1/1/0001 7:38:45 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>6</RestrictionDayOfWeek>
+            </RestrictionNode>
+          </RestrictionProfile>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>True</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>True</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+            <Visible>True</Visible>
+          </UIParams>
+          <Location>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>True</isNull>
+            <Description />
+            <Address />
+            <YCoordinate>-87.9074989664028</YCoordinate>
+            <XCoordinate>43.1788769526111</XCoordinate>
+          </Location>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>4499603_7_0_4499604</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>11/28/2016 7:38:45 AM</ActiveStartTime>
+          <ActiveEndTime>11/28/2016 8:38:45 AM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>11/28/2016 7:38:45 AM</StartTime>
+          <EndTime>11/28/2016 8:38:45 AM</EndTime>
         </EventSubSchedule>
       </EventSubSchedules>
       <RepetitionFlag>False</RepetitionFlag>
@@ -231,38 +1815,8 @@
   <LocationCache>
     <Locations>
       <Location>
-        <CachedName>work</CachedName>
-        <LocationID>d7ecd36d-cbfe-4556-9fd1-8fd92792506b</LocationID>
-        <CheckCalendarEvent>False</CheckCalendarEvent>
-        <isNull>False</isNull>
-        <Description>Work</Description>
-        <Address>1228 euclid Ave cleveland OH</Address>
-        <YCoordinate>-81.6839155</YCoordinate>
-        <XCoordinate>41.5002762</XCoordinate>
-      </Location>
-      <Location>
-        <CachedName>gym</CachedName>
-        <LocationID>27e8eaac-a7ab-49f3-b0b3-593a86ce7ead</LocationID>
-        <CheckCalendarEvent>False</CheckCalendarEvent>
-        <isNull>False</isNull>
-        <Description>Gym</Description>
-        <Address>619 Prospect Avenue Cleveland, OH 44115</Address>
-        <YCoordinate>-81.6884993</YCoordinate>
-        <XCoordinate>41.4987461</XCoordinate>
-      </Location>
-      <Location>
-        <CachedName>2895 van aken blvd cleveland oh 44120</CachedName>
-        <LocationID>d1d4c0ba-2df2-42a7-a5d4-91657fc55372</LocationID>
-        <CheckCalendarEvent>False</CheckCalendarEvent>
-        <isNull>False</isNull>
-        <Description>2895 Van aken Blvd cleveland OH 44120</Description>
-        <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
-        <YCoordinate>-81.585446</YCoordinate>
-        <XCoordinate>41.480352</XCoordinate>
-      </Location>
-      <Location>
         <CachedName>home</CachedName>
-        <LocationID>2206ce29-34a3-4c17-af60-99777170bc56</LocationID>
+        <LocationID>0e9046e9-6642-46d4-8104-3d343673de79</LocationID>
         <CheckCalendarEvent>False</CheckCalendarEvent>
         <isNull>False</isNull>
         <Description>Home</Description>
@@ -270,6 +1824,1307 @@
         <YCoordinate>-81.585446</YCoordinate>
         <XCoordinate>41.480352</XCoordinate>
       </Location>
+      <Location>
+        <CachedName>folsom field boulder co</CachedName>
+        <LocationID>4</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Folsom Field Boulder CO</Description>
+        <Address>Folsom Field, 2400 Colorado Avenue, Boulder, CO 80302, USA</Address>
+        <YCoordinate>-105.2669388</YCoordinate>
+        <XCoordinate>40.0094149</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>gym</CachedName>
+        <LocationID>6</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Gym</Description>
+        <Address>Folsom Field, 2400 Colorado Avenue, Boulder, CO 80302, USA</Address>
+        <YCoordinate>-105.2669388</YCoordinate>
+        <XCoordinate>40.0094149</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>engineering center boulder co</CachedName>
+        <LocationID>11</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Work</Description>
+        <Address>Engineering Center, Boulder, CO 80305, USA</Address>
+        <YCoordinate>-105.2628183</YCoordinate>
+        <XCoordinate>40.0067912</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>church</CachedName>
+        <LocationID>472e4a9e-f089-4591-85b2-4e933501b930</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Church</Description>
+        <Address>1465 dille rd, euclid, oh 44117, usa</Address>
+        <YCoordinate>-81.539422</YCoordinate>
+        <XCoordinate>41.569467</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>bike place</CachedName>
+        <LocationID>13</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Bike Place</Description>
+        <Address>Boulder, CO, USA</Address>
+        <YCoordinate>-105.2705456</YCoordinate>
+        <XCoordinate>40.0149856</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>galvanize boulder co</CachedName>
+        <LocationID>14</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Galvanize Boulder CO</Description>
+        <Address>1035 Pearl St. Boulder, CO 80302, USA</Address>
+        <YCoordinate>-105.2819596</YCoordinate>
+        <XCoordinate>40.0293099</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>3003 valmont rd boulder co</CachedName>
+        <LocationID>15</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>3003 Valmont Rd Boulder CO</Description>
+        <Address>3003 Valmont Road, Boulder, CO 80301, USA</Address>
+        <YCoordinate>-105.250556</YCoordinate>
+        <XCoordinate>40.030965</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>folsom field boulder co</CachedName>
+        <LocationID>16</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Folsom Field Boulder CO</Description>
+        <Address>Folsom Field, 2400 Colorado Avenue, Boulder, CO 80302, USA</Address>
+        <YCoordinate>-105.2669388</YCoordinate>
+        <XCoordinate>40.0094149</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>woody creek cafe</CachedName>
+        <LocationID>17</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Woody Creek Cafe</Description>
+        <Address>1207 pearl street, pearl street mall, boulder, co 80302, usa</Address>
+        <YCoordinate>-105.2796838</YCoordinate>
+        <XCoordinate>40.0180967</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>galvanize boulder co</CachedName>
+        <LocationID>18</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Galvanize Boulder CO</Description>
+        <Address>1035 pearl street, boulder, co 80302, usa</Address>
+        <YCoordinate>-105.2819596</YCoordinate>
+        <XCoordinate>40.0177185</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>church</CachedName>
+        <LocationID>19</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Church</Description>
+        <Address>hope boulder foursquare church, 4705 baseline road, boulder, co 80303, usa</Address>
+        <YCoordinate>-105.2354425</YCoordinate>
+        <XCoordinate>40.0005079</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>itll</CachedName>
+        <LocationID>20</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>ITLL</Description>
+        <Address>engineering center, boulder, co 80305, usa</Address>
+        <YCoordinate>-105.2628183</YCoordinate>
+        <XCoordinate>40.0067912</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>wittemeyer courtroom, wolf law building</CachedName>
+        <LocationID>21</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Wittemeyer Courtroom, Wolf Law Building</Description>
+        <Address>2450 kittredge loop drive, boulder, co 80305, usa</Address>
+        <YCoordinate>-105.2620866</YCoordinate>
+        <XCoordinate>40.0009183</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>home</CachedName>
+        <LocationID>24</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Home</Description>
+        <Address>3003 valmont road, boulder, co 80301, usa</Address>
+        <YCoordinate>-105.250556</YCoordinate>
+        <XCoordinate>40.030965</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>engineering center boulder co</CachedName>
+        <LocationID>25</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Engineering Center Boulder CO</Description>
+        <Address>engineering center, boulder, co 80305, usa</Address>
+        <YCoordinate>-105.2628183</YCoordinate>
+        <XCoordinate>40.0067912</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>work</CachedName>
+        <LocationID>26</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Work</Description>
+        <Address>engineering center, boulder, co 80305, usa</Address>
+        <YCoordinate>-105.2628183</YCoordinate>
+        <XCoordinate>40.0067912</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>umc</CachedName>
+        <LocationID>28</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>UMC</Description>
+        <Address>university memorial center (umc), boulder, co 80302, usa</Address>
+        <YCoordinate>-105.2715817</YCoordinate>
+        <XCoordinate>40.0066464</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>ecot 831</CachedName>
+        <LocationID>29</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>ECOT 831</Description>
+        <Address>engineering center, boulder, co 80305, usa</Address>
+        <YCoordinate>-105.2628183</YCoordinate>
+        <XCoordinate>40.0067912</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>csel</CachedName>
+        <LocationID>30</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>CSEL</Description>
+        <Address>engineering center, boulder, co 80305, usa</Address>
+        <YCoordinate>-105.2628183</YCoordinate>
+        <XCoordinate>40.0067912</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>grocery store</CachedName>
+        <LocationID>31</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Grocery store</Description>
+        <Address>king soopers pharmacy, 1650 30th street, boulder, co 80302, usa</Address>
+        <YCoordinate>-105.251789</YCoordinate>
+        <XCoordinate>40.0157896</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>community cycles</CachedName>
+        <LocationID>32</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Community Cycles</Description>
+        <Address>boulder, co, usa</Address>
+        <YCoordinate>-105.2705456</YCoordinate>
+        <XCoordinate>40.0149856</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>techstars</CachedName>
+        <LocationID>34</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Techstars</Description>
+        <Address>boulder, co, usa</Address>
+        <YCoordinate>-105.2705456</YCoordinate>
+        <XCoordinate>40.0149856</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>google boulder</CachedName>
+        <LocationID>35</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Google Boulder</Description>
+        <Address>2590 pearl street, boulder, co 80302, usa</Address>
+        <YCoordinate>-105.2610221</YCoordinate>
+        <XCoordinate>40.0215128</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>target</CachedName>
+        <LocationID>36</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Target</Description>
+        <Address>30th street, boulder, co, usa</Address>
+        <YCoordinate>-105.2537703</YCoordinate>
+        <XCoordinate>40.0243154</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>chem 140</CachedName>
+        <LocationID>37</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Chem 140</Description>
+        <Address>engineering center, 1111 engineering drive, boulder, co 80309, usa</Address>
+        <YCoordinate>-105.2628183</YCoordinate>
+        <XCoordinate>40.0067912</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>ozo coffee </CachedName>
+        <LocationID>38</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Ozo coffee </Description>
+        <Address>pearl street, boulder, co, usa</Address>
+        <YCoordinate>-105.2731232</YCoordinate>
+        <XCoordinate>40.0193136</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>spark boulder </CachedName>
+        <LocationID>39</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Spark Boulder </Description>
+        <Address>1310 east college avenue, boulder, co 80302, usa</Address>
+        <YCoordinate>-105.2760413</YCoordinate>
+        <XCoordinate>40.0071585</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>heat on skin</CachedName>
+        <LocationID>40</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>heat on skin</Description>
+        <Address>fira 847 00, greece</Address>
+        <YCoordinate>25.431667</YCoordinate>
+        <XCoordinate>36.42</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>heart safe</CachedName>
+        <LocationID>41</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Heart Safe</Description>
+        <Address>the spinning mill, spring head road, oakworth, keighley, west yorkshire bd22 7su, uk</Address>
+        <YCoordinate>-1.9559099</YCoordinate>
+        <XCoordinate>53.8364367</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>ozo</CachedName>
+        <LocationID>42</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Ozo</Description>
+        <Address>boulder, co, usa</Address>
+        <YCoordinate>-105.2705456</YCoordinate>
+        <XCoordinate>40.0149856</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>trident </CachedName>
+        <LocationID>43</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Trident </Description>
+        <Address>boulder, co, usa</Address>
+        <YCoordinate>-105.2705456</YCoordinate>
+        <XCoordinate>40.0149856</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>jscb</CachedName>
+        <LocationID>44</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>JSCB</Description>
+        <Address>research park, colorado avenue &amp; innovation drive, boulder, co 80303, usa</Address>
+        <YCoordinate>-105.2485257</YCoordinate>
+        <XCoordinate>40.0075242</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>c4c</CachedName>
+        <LocationID>45</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>C4C</Description>
+        <Address>center for community, boulder, co 80305, usa</Address>
+        <YCoordinate>-105.2648405</YCoordinate>
+        <XCoordinate>40.0044427</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>laughing goat </CachedName>
+        <LocationID>46</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Laughing goat </Description>
+        <Address>boulder, co, usa</Address>
+        <YCoordinate>-105.2705456</YCoordinate>
+        <XCoordinate>40.0149856</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>fedex</CachedName>
+        <LocationID>47</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Fedex</Description>
+        <Address>pearl street, boulder, co, usa</Address>
+        <YCoordinate>-105.2731232</YCoordinate>
+        <XCoordinate>40.0193136</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>eccs 1b12</CachedName>
+        <LocationID>48</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>ECCS 1B12</Description>
+        <Address>engineering center, 1111 engineering drive, boulder, co 80309, usa</Address>
+        <YCoordinate>-105.2627072</YCoordinate>
+        <XCoordinate>40.0071657</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>fleming </CachedName>
+        <LocationID>49</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Fleming </Description>
+        <Address>boulder, co, usa</Address>
+        <YCoordinate>-105.2705456</YCoordinate>
+        <XCoordinate>40.0149856</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>engineering center, boulder, co 80305, usa</CachedName>
+        <LocationID>50</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Engineering Center, Boulder, CO 80305, USA</Description>
+        <Address>engineering center, 1111 engineering drive, boulder, co 80309, usa</Address>
+        <YCoordinate>-105.2627072</YCoordinate>
+        <XCoordinate>40.0071657</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>3003 valmont road, boulder, co 80301, usa</CachedName>
+        <LocationID>51</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>3003 valmont road, boulder, co 80301, usa</Description>
+        <Address>3003 valmont road, boulder, co 80301, usa</Address>
+        <YCoordinate>-105.250556</YCoordinate>
+        <XCoordinate>40.030965</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>engineering center eccr 245 boulder co</CachedName>
+        <LocationID>52</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Engineering Center ECCR 245 Boulder CO</Description>
+        <Address>boulder, co, usa</Address>
+        <YCoordinate>-105.2705456</YCoordinate>
+        <XCoordinate>40.0149856</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>engineering center, 1111 engineering drive, boulder, co 80309, usa</CachedName>
+        <LocationID>53</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>engineering center, 1111 engineering drive, boulder, co 80309, usa</Description>
+        <Address>engineering center, 1111 engineering drive, boulder, co 80309, usa</Address>
+        <YCoordinate>-105.2627072</YCoordinate>
+        <XCoordinate>40.0071657</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>give me some</CachedName>
+        <LocationID>54</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>give me some</Description>
+        <Address>give me some</Address>
+        <YCoordinate>1.79769313486232E+308</YCoordinate>
+        <XCoordinate>1.79769313486232E+308</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>folsom field, 2400 colorado avenue, boulder, co 80302, usa</CachedName>
+        <LocationID>55</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Folsom Field, 2400 Colorado Avenue, Boulder, CO 80302, USA</Description>
+        <Address>folsom field, 2400 colorado avenue, boulder, co 80302, usa</Address>
+        <YCoordinate>-105.2669388</YCoordinate>
+        <XCoordinate>40.0094149</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>work</CachedName>
+        <LocationID>56</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Work</Description>
+        <Address>engineering center, boulder, co 80305, usa</Address>
+        <YCoordinate>-105.2628183</YCoordinate>
+        <XCoordinate>40.0067912</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>home</CachedName>
+        <LocationID>57</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Home</Description>
+        <Address>3003 valmont road, boulder, co 80301, usa</Address>
+        <YCoordinate>-105.250556</YCoordinate>
+        <XCoordinate>40.030965</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>folsom field boulder co</CachedName>
+        <LocationID>58</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Folsom Field Boulder CO</Description>
+        <Address>folsom field, 2400 colorado avenue, boulder, co 80302, usa</Address>
+        <YCoordinate>-105.2669388</YCoordinate>
+        <XCoordinate>40.0094149</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>engineering center boulder co</CachedName>
+        <LocationID>59</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Engineering Center Boulder CO</Description>
+        <Address>engineering center, boulder, co 80305, usa</Address>
+        <YCoordinate>-105.2628183</YCoordinate>
+        <XCoordinate>40.0067912</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>woody creek cafe</CachedName>
+        <LocationID>60</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Woody Creek Cafe</Description>
+        <Address>1207 pearl street, pearl street mall, boulder, co 80302, usa</Address>
+        <YCoordinate>-105.2796838</YCoordinate>
+        <XCoordinate>40.0180967</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>galvanize boulder co</CachedName>
+        <LocationID>61</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Galvanize Boulder CO</Description>
+        <Address>1035 pearl street, boulder, co 80302, usa</Address>
+        <YCoordinate>-105.2819596</YCoordinate>
+        <XCoordinate>40.0177185</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>church</CachedName>
+        <LocationID>62</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Church</Description>
+        <Address>hope boulder foursquare church, 4705 baseline road, boulder, co 80303, usa</Address>
+        <YCoordinate>-105.2354425</YCoordinate>
+        <XCoordinate>40.0005079</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>itll</CachedName>
+        <LocationID>63</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>ITLL</Description>
+        <Address>engineering center, boulder, co 80305, usa</Address>
+        <YCoordinate>-105.2628183</YCoordinate>
+        <XCoordinate>40.0067912</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>wittemeyer courtroom, wolf law building</CachedName>
+        <LocationID>64</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Wittemeyer Courtroom, Wolf Law Building</Description>
+        <Address>2450 kittredge loop drive, boulder, co 80305, usa</Address>
+        <YCoordinate>-105.2620866</YCoordinate>
+        <XCoordinate>40.0009183</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>umc</CachedName>
+        <LocationID>65</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>UMC</Description>
+        <Address>university memorial center (umc), boulder, co 80302, usa</Address>
+        <YCoordinate>-105.2715817</YCoordinate>
+        <XCoordinate>40.0066464</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>ecot 831</CachedName>
+        <LocationID>66</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>ECOT 831</Description>
+        <Address>engineering center, boulder, co 80305, usa</Address>
+        <YCoordinate>-105.2628183</YCoordinate>
+        <XCoordinate>40.0067912</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>csel</CachedName>
+        <LocationID>67</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>CSEL</Description>
+        <Address>engineering center, boulder, co 80305, usa</Address>
+        <YCoordinate>-105.2628183</YCoordinate>
+        <XCoordinate>40.0067912</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>grocery store</CachedName>
+        <LocationID>68</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Grocery store</Description>
+        <Address>king soopers pharmacy, 1650 30th street, boulder, co 80302, usa</Address>
+        <YCoordinate>-105.251789</YCoordinate>
+        <XCoordinate>40.0157896</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>community cycles</CachedName>
+        <LocationID>69</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Community Cycles</Description>
+        <Address>boulder, co, usa</Address>
+        <YCoordinate>-105.2705456</YCoordinate>
+        <XCoordinate>40.0149856</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>techstars</CachedName>
+        <LocationID>70</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Techstars</Description>
+        <Address>boulder, co, usa</Address>
+        <YCoordinate>-105.2705456</YCoordinate>
+        <XCoordinate>40.0149856</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>google boulder</CachedName>
+        <LocationID>71</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Google Boulder</Description>
+        <Address>2590 pearl street, boulder, co 80302, usa</Address>
+        <YCoordinate>-105.2610221</YCoordinate>
+        <XCoordinate>40.0215128</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>heart safe</CachedName>
+        <LocationID>72</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Heart Safe</Description>
+        <Address>the spinning mill, spring head road, oakworth, keighley, west yorkshire bd22 7su, uk</Address>
+        <YCoordinate>-1.9559099</YCoordinate>
+        <XCoordinate>53.8364367</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>spark boulder </CachedName>
+        <LocationID>73</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Spark Boulder </Description>
+        <Address>1310 east college avenue, boulder, co 80302, usa</Address>
+        <YCoordinate>-105.2760413</YCoordinate>
+        <XCoordinate>40.0071585</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>ozo</CachedName>
+        <LocationID>74</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Ozo</Description>
+        <Address>boulder, co, usa</Address>
+        <YCoordinate>-105.2705456</YCoordinate>
+        <XCoordinate>40.0149856</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>trident </CachedName>
+        <LocationID>75</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Trident </Description>
+        <Address>boulder, co, usa</Address>
+        <YCoordinate>-105.2705456</YCoordinate>
+        <XCoordinate>40.0149856</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>gym</CachedName>
+        <LocationID>76</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Gym</Description>
+        <Address>folsom field, 2400 colorado avenue, boulder, co 80302, usa</Address>
+        <YCoordinate>-105.2669388</YCoordinate>
+        <XCoordinate>40.0094149</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>jscb</CachedName>
+        <LocationID>77</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>JSCB</Description>
+        <Address>research park, colorado avenue &amp; innovation drive, boulder, co 80303, usa</Address>
+        <YCoordinate>-105.2485257</YCoordinate>
+        <XCoordinate>40.0075242</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>c4c</CachedName>
+        <LocationID>78</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>C4C</Description>
+        <Address>center for community, boulder, co 80305, usa</Address>
+        <YCoordinate>-105.2648405</YCoordinate>
+        <XCoordinate>40.0044427</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>laughing goat </CachedName>
+        <LocationID>79</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Laughing goat </Description>
+        <Address>boulder, co, usa</Address>
+        <YCoordinate>-105.2705456</YCoordinate>
+        <XCoordinate>40.0149856</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>fedex</CachedName>
+        <LocationID>80</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Fedex</Description>
+        <Address>pearl street, boulder, co, usa</Address>
+        <YCoordinate>-105.2731232</YCoordinate>
+        <XCoordinate>40.0193136</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>eccs 1b12</CachedName>
+        <LocationID>81</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>ECCS 1B12</Description>
+        <Address>engineering center, 1111 engineering drive, boulder, co 80309, usa</Address>
+        <YCoordinate>-105.2627072</YCoordinate>
+        <XCoordinate>40.0071657</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>fleming </CachedName>
+        <LocationID>82</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Fleming </Description>
+        <Address>boulder, co, usa</Address>
+        <YCoordinate>-105.2705456</YCoordinate>
+        <XCoordinate>40.0149856</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>engineering center, boulder, co 80305, usa</CachedName>
+        <LocationID>83</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Engineering Center, Boulder, CO 80305, USA</Description>
+        <Address>engineering center, 1111 engineering drive, boulder, co 80309, usa</Address>
+        <YCoordinate>-105.2627072</YCoordinate>
+        <XCoordinate>40.0071657</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>3003 valmont road, boulder, co 80301, usa</CachedName>
+        <LocationID>84</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>3003 valmont road, boulder, co 80301, usa</Description>
+        <Address>3003 valmont road, boulder, co 80301, usa</Address>
+        <YCoordinate>-105.250556</YCoordinate>
+        <XCoordinate>40.030965</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>engineering center eccr 245 boulder co</CachedName>
+        <LocationID>85</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Engineering Center ECCR 245 Boulder CO</Description>
+        <Address>boulder, co, usa</Address>
+        <YCoordinate>-105.2705456</YCoordinate>
+        <XCoordinate>40.0149856</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>engineering center, 1111 engineering drive, boulder, co 80309, usa</CachedName>
+        <LocationID>86</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>engineering center, 1111 engineering drive, boulder, co 80309, usa</Description>
+        <Address>engineering center, 1111 engineering drive, boulder, co 80309, usa</Address>
+        <YCoordinate>-105.2627072</YCoordinate>
+        <XCoordinate>40.0071657</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>folsom field, 2400 colorado avenue, boulder, co 80302, usa</CachedName>
+        <LocationID>87</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Folsom Field, 2400 Colorado Avenue, Boulder, CO 80302, USA</Description>
+        <Address>folsom field, 2400 colorado avenue, boulder, co 80302, usa</Address>
+        <YCoordinate>-105.2669388</YCoordinate>
+        <XCoordinate>40.0094149</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>boulder theater 2032 14th street boulder, co 80302</CachedName>
+        <LocationID>88</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Boulder Theater 2032 14th Street Boulder, CO 80302</Description>
+        <Address>2032 14th street, boulder, co 80302, usa</Address>
+        <YCoordinate>-105.2771847</YCoordinate>
+        <XCoordinate>40.0192165</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>1310 e college avenue boulder , co 80309</CachedName>
+        <LocationID>89</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>1310 E College Avenue Boulder , CO 80309</Description>
+        <Address>1310 east college avenue, boulder, co 80302, usa</Address>
+        <YCoordinate>-105.2759389</YCoordinate>
+        <XCoordinate>40.0071616</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>2450 kittredge loop drive boulder co 80309</CachedName>
+        <LocationID>90</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>2450 Kittredge Loop Drive Boulder CO 80309</Description>
+        <Address>2450 kittredge loop drive, boulder, co 80305, usa</Address>
+        <YCoordinate>-105.2621458</YCoordinate>
+        <XCoordinate>40.0011727</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>1050 walnut street suite #202, boulder, co</CachedName>
+        <LocationID>91</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>1050 Walnut Street Suite #202, Boulder, CO</Description>
+        <Address>1050 walnut street #202, boulder, co 80302, usa</Address>
+        <YCoordinate>-105.2813491</YCoordinate>
+        <XCoordinate>40.0163001</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>12101 airport way suite 100 broomfield, co 80021</CachedName>
+        <LocationID>92</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>12101 Airport Way Suite 100 Broomfield, CO 80021</Description>
+        <Address>12101 airport way #100, broomfield, co 80021, usa</Address>
+        <YCoordinate>-105.107727</YCoordinate>
+        <XCoordinate>39.914712</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>umc boulder co</CachedName>
+        <LocationID>93</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>UMC boulder CO</Description>
+        <Address>first united methodist church, 1421 spruce street, boulder, co 80302, usa</Address>
+        <YCoordinate>-105.2773228</YCoordinate>
+        <XCoordinate>40.0197532</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>laughing goat pearl street boulder co</CachedName>
+        <LocationID>94</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Laughing Goat Pearl street Boulder CO</Description>
+        <Address>pearl street, boulder, co, usa</Address>
+        <YCoordinate>-105.2731232</YCoordinate>
+        <XCoordinate>40.0193136</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>king soopers</CachedName>
+        <LocationID>95</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>King Soopers</Description>
+        <Address>1650 30th street, boulder, co 80301, usa</Address>
+        <YCoordinate>-105.2520568</YCoordinate>
+        <XCoordinate>40.0158016</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>regent drive &amp; broadway boulder co</CachedName>
+        <LocationID>96</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Regent Drive &amp; Broadway Boulder CO</Description>
+        <Address>broadway &amp; regent drive, boulder, co 80302, usa</Address>
+        <YCoordinate>-105.2677661</YCoordinate>
+        <XCoordinate>40.0034113</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>1512 hunters pl</CachedName>
+        <LocationID>97</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>1512 Hunters Pl</Description>
+        <Address>1512 hunters place, highlands ranch, co 80129, usa</Address>
+        <YCoordinate>-105.0185741</YCoordinate>
+        <XCoordinate>39.5540885</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>1228 euclid ave cleveland oh</CachedName>
+        <LocationID>1d466892-4214-434b-8015-64608c8032a6</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>1228 Euclid Ave Cleveland OH</Description>
+        <Address>1228 euclid ave, cleveland, oh 44115, usa</Address>
+        <YCoordinate>-81.6839155</YCoordinate>
+        <XCoordinate>41.5002762</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>walmart supercenter</CachedName>
+        <LocationID>56d77f51-f0e5-4ca2-9f87-370227d67fc8</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Walmart Supercenter</Description>
+        <Address>1868 warrensville center rd, cleveland heights, oh 44118, usa</Address>
+        <YCoordinate>-81.5404504</YCoordinate>
+        <XCoordinate>41.5088879</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>library</CachedName>
+        <LocationID>100</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Library</Description>
+        <Address>cleveland public library community garden, 8216 lorain ave, cleveland, oh 44102, usa</Address>
+        <YCoordinate>-81.7415034</YCoordinate>
+        <XCoordinate>41.4712703</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>case western university</CachedName>
+        <LocationID>101</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Case western university</Description>
+        <Address>case st, bozeman, mt 59718, usa</Address>
+        <YCoordinate>-111.0754124</YCoordinate>
+        <XCoordinate>45.6917334</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>titans gym</CachedName>
+        <LocationID>94d8d5fc-ba87-4565-9057-2ac285d9f5e3</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Titans Gym</Description>
+        <Address>619 prospect ave e, cleveland, oh 44115, usa</Address>
+        <YCoordinate>-81.6884993</YCoordinate>
+        <XCoordinate>41.4987461</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>launch house</CachedName>
+        <LocationID>103</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Launch House</Description>
+        <Address>3558 lee rd, shaker heights, oh 44120, usa</Address>
+        <YCoordinate>-81.5656594</YCoordinate>
+        <XCoordinate>41.4629806</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>usps</CachedName>
+        <LocationID>47501b9c-30c7-4bb3-8dcf-2bff9166719e</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>USPS</Description>
+        <Address>2855 e 130th st, cleveland, oh 44120, usa</Address>
+        <YCoordinate>-81.5914717</YCoordinate>
+        <XCoordinate>41.4805858</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>1400 euclid ave cleveland oh</CachedName>
+        <LocationID>105</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>1400 Euclid Ave Cleveland oh</Description>
+        <Address>1400 euclid ave, cleveland, oh 44115, usa</Address>
+        <YCoordinate>-81.6813234</YCoordinate>
+        <XCoordinate>41.5007395</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>starbucks</CachedName>
+        <LocationID>e6feab5e-21e1-4b25-a587-36841c573379</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Starbucks</Description>
+        <Address>1400 euclid ave, cleveland, oh 44115, usa</Address>
+        <YCoordinate>-81.6813234</YCoordinate>
+        <XCoordinate>41.5007395</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>shaker square cinemas</CachedName>
+        <LocationID>107</LocationID>
+        <CheckCalendarEvent>0</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Shaker Square Cinemas</Description>
+        <Address>ahmed shaker st, al golf, nasr city, cairo governorate, egypt</Address>
+        <YCoordinate>31.3260663</YCoordinate>
+        <XCoordinate>30.0808341</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>2895 van aken blvd, cleveland, oh 44120, usa</CachedName>
+        <LocationID>fa50afb1-2380-464e-baa1-58608c2e1780</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>2895 van aken blvd, cleveland, oh 44120, usa</Description>
+        <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+        <YCoordinate>-81.585446</YCoordinate>
+        <XCoordinate>41.480352</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>9300 euclid ave, clevleand oh</CachedName>
+        <LocationID>125fe45f-ca4b-4814-b30d-381945643c75</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>9300 euclid ave, CLevleand OH</Description>
+        <Address>9300 euclid ave, cleveland, oh 44106, usa</Address>
+        <YCoordinate>-81.6215439</YCoordinate>
+        <XCoordinate>41.503318</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>cleveland public library</CachedName>
+        <LocationID>b22fb0ae-554c-4f71-ad64-11f3c465f46a</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Cleveland Public Library</Description>
+        <Address>11535 shaker blvd, cleveland, oh 44104, usa</Address>
+        <YCoordinate>-81.6032461</YCoordinate>
+        <XCoordinate>41.4847997</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>1465 dille road, euclid, oh</CachedName>
+        <LocationID>b4dc1482-d540-477a-b458-7d3fb4cafb78</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>1465 Dille Road, Euclid, OH</Description>
+        <Address>1465 dille rd, euclid, oh 44117, usa</Address>
+        <YCoordinate>-81.539422</YCoordinate>
+        <XCoordinate>41.569467</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>2102 euclid ave, cleveland, oh 44115</CachedName>
+        <LocationID>788c86df-9797-44e4-9241-ff45eedc8d1d</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>2102 Euclid Ave, Cleveland, OH 44115</Description>
+        <Address>2102 euclid ave, cleveland, oh 44115, usa</Address>
+        <YCoordinate>-81.675218</YCoordinate>
+        <XCoordinate>41.501249</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>230 w huron rd #7256, cleveland, oh 44113</CachedName>
+        <LocationID>5b7c1c41-2509-4592-a74b-5afe5abbbddd</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>230 W Huron Rd #7256, Cleveland, OH 44113</Description>
+        <Address>230 w huron rd #7256, cleveland, oh 44113, usa</Address>
+        <YCoordinate>-81.6939786</YCoordinate>
+        <XCoordinate>41.4979423</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>2895 van aken blvd cleveland oh</CachedName>
+        <LocationID>e0e38f06-983e-4847-83bd-4a097fb856ae</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>2895 van Aken Blvd Cleveland OH</Description>
+        <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+        <YCoordinate>-81.585446</YCoordinate>
+        <XCoordinate>41.480352</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>tower city center cleveland oh</CachedName>
+        <LocationID>06bb22de-d14e-4d4f-97e6-37996ba1d5bb</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Tower City Center Cleveland OH</Description>
+        <Address>cleveland, oh, usa</Address>
+        <YCoordinate>-81.6943605</YCoordinate>
+        <XCoordinate>41.49932</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>tobi's apt</CachedName>
+        <LocationID>63c660de-cc64-4f38-a9f5-26ff4f4cb0be</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Tobi's apt</Description>
+        <Address>2139 chester ave #1208d, cleveland, oh 44114, usa</Address>
+        <YCoordinate>-81.6756745</YCoordinate>
+        <XCoordinate>41.5038022</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>cain park bicycle</CachedName>
+        <LocationID>7b2fa7ff-029c-40fc-8dde-708026953b67</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Cain Park Bicycle</Description>
+        <Address>1904 lee rd, cleveland heights, oh 44118, usa</Address>
+        <YCoordinate>-81.5657242</YCoordinate>
+        <XCoordinate>41.5077393</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>blazing saddle cycle east</CachedName>
+        <LocationID>42ae8003-0671-4a27-a7f7-d1f3a3e6f139</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Blazing Saddle Cycle East</Description>
+        <Address>2190 murray hill rd, cleveland, oh 44106, usa</Address>
+        <YCoordinate>-81.6007442</YCoordinate>
+        <XCoordinate>41.5041175</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>montlack realty llc</CachedName>
+        <LocationID>3859970e-dc39-4f18-919e-a6b83bf13788</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Montlack Realty LLC</Description>
+        <Address>12000 fairhill rd #108, cleveland, oh 44120, usa</Address>
+        <YCoordinate>-81.5991618</YCoordinate>
+        <XCoordinate>41.4925008</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>sylvain house</CachedName>
+        <LocationID>c870c1bf-17d9-425c-bc2f-eb08750e4aec</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Sylvain House</Description>
+        <Address>20369 parkview ave, rocky river, oh 44116, usa</Address>
+        <YCoordinate>-81.8449897</YCoordinate>
+        <XCoordinate>41.4606072</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>cleveland hopkins international airport</CachedName>
+        <LocationID>c35384de-0e0a-4fe3-ac0f-51b597dfd524</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Cleveland Hopkins International Airport</Description>
+        <Address>5300 riverside dr, cleveland, oh 44135, usa</Address>
+        <YCoordinate>-81.8336741</YCoordinate>
+        <XCoordinate>41.4109065</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>evelyn's apt</CachedName>
+        <LocationID>e2f10357-1dc1-497a-b7e3-25fc6e93e384</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Evelyn's apt</Description>
+        <Address>3147 prospect ave e, cleveland, oh 44115, usa</Address>
+        <YCoordinate>-81.665243</YCoordinate>
+        <XCoordinate>41.5017564</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>1465 dille rd, cleveland, oh 44117</CachedName>
+        <LocationID>9191eaba-73c6-4ac2-8616-2356ebf2e2d0</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>1465 Dille Rd, Cleveland, OH 44117</Description>
+        <Address>1465 dille rd, euclid, oh 44117, usa</Address>
+        <YCoordinate>-81.539422</YCoordinate>
+        <XCoordinate>41.569467</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>itunu apt</CachedName>
+        <LocationID>81ec6656-d903-4761-96eb-4c508fcddae1</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Itunu apt</Description>
+        <Address>20996 detroit rd #16, rocky river, oh 44116, usa</Address>
+        <YCoordinate>-81.851766</YCoordinate>
+        <XCoordinate>41.475088</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>13855 superior rd, cleveland, oh 44118, united states</CachedName>
+        <LocationID>2149e6e0-6191-4b02-a5e1-02c1bd248991</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>13855 Superior Rd, Cleveland, OH 44118, United States</Description>
+        <Address>13855 superior rd, east cleveland, oh 44118, usa</Address>
+        <YCoordinate>-81.5839279</YCoordinate>
+        <XCoordinate>41.520791</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>2139 chester ave #1208d, cleveland, oh 44114, usa</CachedName>
+        <LocationID>187a0121-2dd4-4da7-bcb2-cf2f53dbc306</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>2139 chester ave #1208d, cleveland, oh 44114, usa</Description>
+        <Address>2139 chester ave #1208d, cleveland, oh 44114, usa</Address>
+        <YCoordinate>-81.6756745</YCoordinate>
+        <XCoordinate>41.5038022</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>johnny waves</CachedName>
+        <LocationID>5fdb870d-f883-4319-aaf7-72118b52df4f</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Johnny Waves</Description>
+        <Address>6807 mayfield rd #1271, mayfield heights, oh 44124, usa</Address>
+        <YCoordinate>-81.4327859</YCoordinate>
+        <XCoordinate>41.5241549</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>richard's &amp; michael's apt</CachedName>
+        <LocationID>4fce92d0-eed3-463c-838f-d729012b10db</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Richard's &amp; Michael's apt</Description>
+        <Address>2910 hampton rd, cleveland, oh 44120, usa</Address>
+        <YCoordinate>-81.5897279</YCoordinate>
+        <XCoordinate>41.4792429</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>2895 van aken cleveland oh</CachedName>
+        <LocationID>84b46f57-6e45-4d21-a007-a9b301e538cd</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>2895 van aken cleveland oh</Description>
+        <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+        <YCoordinate>-81.585446</YCoordinate>
+        <XCoordinate>41.480352</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>24265 cedar road, lyndhurst, oh 44124</CachedName>
+        <LocationID>3a078032-c9c7-4594-bc4a-0661b6e2e076</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>24265 Cedar Road, Lyndhurst, OH 44124</Description>
+        <Address>24265 cedar rd, lyndhurst, oh 44124, usa</Address>
+        <YCoordinate>-81.5022309</YCoordinate>
+        <XCoordinate>41.5023709</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>1465 dille road cleveland oh</CachedName>
+        <LocationID>d5c5e2f4-cbd2-4ca1-a46e-c8c9c3078ce8</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>1465 dille road Cleveland OH</Description>
+        <Address>1465 dille rd, euclid, oh 44117, usa</Address>
+        <YCoordinate>-81.539422</YCoordinate>
+        <XCoordinate>41.569467</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>shaker heights public library</CachedName>
+        <LocationID>26de11d1-0826-45d9-b98e-6822f8252eea</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Shaker Heights Public Library</Description>
+        <Address>16500 van aken blvd, shaker heights, oh 44120, usa</Address>
+        <YCoordinate>-81.5664832</YCoordinate>
+        <XCoordinate>41.4658937</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>2 ikorudu road, ikeja, nigeria</CachedName>
+        <LocationID>dc1f1fd6-a319-478a-b5af-a85a107d6491</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>2 Ikorudu Road, Ikeja, Nigeria</Description>
+        <Address>2 ikorodu rd service ln, lagos, nigeria</Address>
+        <YCoordinate>3.3674505</YCoordinate>
+        <XCoordinate>6.552415</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>muritala mohammed airport lagos nigeria</CachedName>
+        <LocationID>7d700e98-ad97-4cb6-988c-de75afbc6a83</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>muritala mohammed airport lagos Nigeria</Description>
+        <Address>murtala muhammed international airport (los), lagos 23401, nigeria</Address>
+        <YCoordinate>3.3211348</YCoordinate>
+        <XCoordinate>6.5818185</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>dhl</CachedName>
+        <LocationID>83eec2a6-96f3-4e8c-b64b-bae1821107ce</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>DHL</Description>
+        <Address>megamound investment limited, plot 14 muri okunola street, lagos 23401, nigeria</Address>
+        <YCoordinate>3.438828</YCoordinate>
+        <XCoordinate>6.4320185</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>litcaf</CachedName>
+        <LocationID>edffb377-e9ca-4e8e-9796-90e33d3e8335</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>LitCaf</Description>
+        <Address>yaba, lagos, nigeria</Address>
+        <YCoordinate>3.3826863</YCoordinate>
+        <XCoordinate>6.5177906</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>zenith bank plc</CachedName>
+        <LocationID>e4561e59-e38f-4e32-8949-a5029090edab</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Zenith Bank Plc</Description>
+        <Address>herbert macaulay rd, lagos, nigeria</Address>
+        <YCoordinate>3.379027</YCoordinate>
+        <XCoordinate>6.497601</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>halle building</CachedName>
+        <LocationID>e2e51b03-7bbd-4fd7-b697-d40d6e10e5f2</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Halle Building</Description>
+        <Address>1228 euclid ave, cleveland, oh 44115, usa</Address>
+        <YCoordinate>-81.6839155</YCoordinate>
+        <XCoordinate>41.5002762</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>1465 dille rd euclid oh</CachedName>
+        <LocationID>25fc3d13-9b6a-46dc-91f7-d151998764ef</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>1465 Dille Rd Euclid OH</Description>
+        <Address>1465 dille rd, euclid, oh 44117, usa</Address>
+        <YCoordinate>-81.539422</YCoordinate>
+        <XCoordinate>41.569467</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>2895 van aken blvd cleveland oh 44120</CachedName>
+        <LocationID>581d651e-d21e-4416-a4fd-7a274b8094f4</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>2895 van aken blvd cleveland Oh 44120</Description>
+        <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+        <YCoordinate>-81.585446</YCoordinate>
+        <XCoordinate>41.480352</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>16000 terrace rd apt 611 east cleveland oh 44112</CachedName>
+        <LocationID>fe2c9865-466f-41d5-9af8-976fa7d7455c</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>16000 Terrace Rd Apt 611 East Cleveland OH 44112</Description>
+        <Address>16000 terrace rd #611, east cleveland, oh 44112, usa</Address>
+        <YCoordinate>-81.5660567</YCoordinate>
+        <XCoordinate>41.5407215</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>leasing office</CachedName>
+        <LocationID>5fc63752-9e18-4ede-8ebe-cd05e4822bcc</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Leasing office</Description>
+        <Address>12215 clifton blvd, lakewood, oh 44107, usa</Address>
+        <YCoordinate>-81.774582</YCoordinate>
+        <XCoordinate>41.48849</XCoordinate>
+      </Location>
     </Locations>
+    <LastID>107</LastID>
   </LocationCache>
 </ScheduleLog>

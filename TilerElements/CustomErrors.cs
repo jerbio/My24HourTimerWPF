@@ -5,7 +5,7 @@ using System.Web;
 
 namespace TilerElements
 {
-    public class CustomErrors
+    public class CustomErrors: Exception
     {
         bool Errorstatus;
         string ErrorMessage;

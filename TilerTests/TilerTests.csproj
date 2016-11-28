@@ -74,6 +74,7 @@
     <Compile Include="PathOptimization.cs" />
     <Compile Include="SleepEvaluation.cs" />
     <Compile Include="MiscTests.cs" />
+    <Compile Include="EventUpdate.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -104,6 +104,8 @@
     <Compile Include="BusyTimeLine.cs" />
     <Compile Include="CalendarEvent.cs" />
     <Compile Include="CalendarEventRestricted.cs" />
+    <Compile Include="ProcrastinateAllCalendarEvent.cs" />
+    <Compile Include="ProcrastinateAllSubCalendarEvent.cs" />
     <Compile Include="ConflictProfile.cs" />
     <Compile Include="DayTimeLine.cs" />
     <Compile Include="EventName.cs" />

@@ -90,6 +90,33 @@ namespace TilerTests
             Assert.AreEqual(0, conflicts.Count);
         }
 
+        [TestMethod]
+        public void scheduleAroudRigidEvents()
+        {
+            List<Location_Elements> locations = TestUtility.getLocations();
+            UserAccount currentUser = TestUtility.getTestUser();
+            currentUser.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.Parse("12:00AM");
+            DateTimeOffset start = DateTimeOffset.Parse("2:00PM");
+            TimeSpan duration = TimeSpan.FromHours(4);
+            DateTimeOffset end = start.Add(duration);
+            CalendarEvent hugeRigid = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, true, locations[0]);
+            TestSchedule Schedule = new TestSchedule(currentUser, refNow);
+            Schedule.AddToScheduleAndCommit(hugeRigid).Wait();
+            CalendarEvent randomSubEvents = TestUtility.generateCalendarEvent(TimeSpan.FromHours(6), new Repetition(), refNow, refNow.AddDays(1), 6, false, locations[1]);
+            Schedule = new TestSchedule(currentUser, refNow);
+            Schedule.AddToScheduleAndCommit(randomSubEvents).Wait();
+
+            currentUser.DeleteAllCalendarEvents();
+            List<SubCalendarEvent> allSubEvents = Schedule.getAllCalendarEvents().SelectMany(calEvent => calEvent.AllSubEvents).OrderBy(meSubEvent => meSubEvent.Start).ToList();
+            SubCalendarEvent subEvent = allSubEvents.Single(meSubEvent => meSubEvent.Id == hugeRigid.AllSubEvents.First().Id);
+            int calidIndex = allSubEvents.Count / 2;
+            int index = allSubEvents.IndexOf(subEvent);
+            Assert.AreEqual(index, 3);
+        }
+
+
+
         [ClassCleanup]
         public static void cleanUpTest()
         {

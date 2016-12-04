@@ -18,7 +18,7 @@ namespace TilerElements
         static List<Location_Elements> Horizontal;
         protected Repetition EventRepetition;
         protected int Splits;
-        protected TimeSpan TimePerSplit;
+        protected TimeSpan AverageTimePerSplit;
         protected int CompletedCount;
         protected int DeletedCount;
 //        protected bool FromRepetion=false;
@@ -115,7 +115,7 @@ namespace TilerElements
             PrepTime = MyUpdated.PrepTime;
             EventPreDeadline = MyUpdated.PreDeadline;
             RigidSchedule = MyUpdated.Rigid;
-            TimePerSplit = MyUpdated.TimePerSplit;
+            AverageTimePerSplit = MyUpdated.AverageTimePerSplit;
             if (MyUpdated.Id != null)
             {
                 UniqueID = new EventID(MyUpdated.Id);
@@ -172,18 +172,19 @@ namespace TilerElements
             if (EventRepetition.Enable)
             {
                 Splits = EventSplit;
-                TimePerSplit = new TimeSpan();
+                AverageTimePerSplit = new TimeSpan();
             }
             else
             {
                 Splits = EventSplit;
-                TimePerSplit = TimeSpan.FromTicks(((EventDuration.Ticks / Splits)));
+                AverageTimePerSplit = TimeSpan.FromTicks(((EventDuration.Ticks / Splits)));
             }
             SubEvents = new Dictionary<EventID, SubCalendarEvent>();
             for (int i = 0; i < Splits; i++)
             {
                 //(TimeSpan Event_Duration, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, Location EventLocation =null, TimeLine RangeOfSubCalEvent = null)
-                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(TimePerSplit, this.Name, (EndDateTime - TimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), RigidSchedule,this.isEnabled, this.UiParams,this.Notes,this.Complete, EventLocation, this.RangeTimeLine);
+
+                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(AverageTimePerSplit, this.Name, (EndDateTime - AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), RigidSchedule,this.isEnabled, this.UiParams,this.Notes,this.Complete, EventLocation, this.RangeTimeLine);
                 SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
             }
 
@@ -224,18 +225,19 @@ namespace TilerElements
             if (EventRepetition.Enable)
             {
                 Splits = EventSplit;
-                TimePerSplit = new TimeSpan();
+                AverageTimePerSplit = new TimeSpan();
             }
             else
             {
                 Splits = EventSplit;
-                TimePerSplit = TimeSpan.FromTicks(((EventDuration.Ticks / Splits)));
+                AverageTimePerSplit = TimeSpan.FromTicks(((EventDuration.Ticks / Splits)));
             }
 
             SubEvents = new Dictionary<EventID, SubCalendarEvent>();
             for (int i = 0; i < Splits; i++)
             {
-                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(TimePerSplit,this.Name, (EndDateTime - TimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), RigidSchedule, this.Enabled, this.UiParams, this.Notes, this.Complete, EventLocation, this.RangeTimeLine); //new SubCalendarEvent(CalendarEventID);
+
+                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(AverageTimePerSplit, this.Name, (EndDateTime - AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), RigidSchedule, this.Enabled, this.UiParams, this.Notes, this.Complete, EventLocation, this.RangeTimeLine); //new SubCalendarEvent(CalendarEventID);
                 SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
             }
 
@@ -307,7 +309,7 @@ namespace TilerElements
             MyCalendarEventCopy.Complete = this.Complete;
             MyCalendarEventCopy.RigidSchedule = RigidSchedule;//hack
             MyCalendarEventCopy.Splits = Splits;
-            MyCalendarEventCopy.TimePerSplit = new TimeSpan(TimePerSplit.Ticks);
+            MyCalendarEventCopy.AverageTimePerSplit = new TimeSpan(AverageTimePerSplit.Ticks);
             
             if (Id != null)
             {
@@ -1361,7 +1363,7 @@ namespace TilerElements
                 Complete = CalendarEventEntry.Complete;
                 RigidSchedule = CalendarEventEntry.RigidSchedule;
                 Splits=CalendarEventEntry.Splits;
-                TimePerSplit=CalendarEventEntry.TimePerSplit;
+                AverageTimePerSplit=CalendarEventEntry.AverageTimePerSplit;
                 UniqueID=CalendarEventEntry.UniqueID;
                 EventSequence=CalendarEventEntry.EventSequence;;
                 SubEvents=CalendarEventEntry.SubEvents;
@@ -1546,7 +1548,7 @@ namespace TilerElements
                 AllFreeDayTIme.AsParallel().ForAll(obj => { obj.updateOccupancyOfTimeLine(); });
             }
 
-            List<DayTimeLine> retValue = AllFreeDayTIme.Where(obj => obj.TotalFreeSpace > TimePerSplit).ToList();
+            List<DayTimeLine> retValue = AllFreeDayTIme.Where(obj => obj.TotalFreeSpace > AverageTimePerSplit).ToList();
             return retValue;
         }
 
@@ -1572,7 +1574,7 @@ namespace TilerElements
                 AllFreeDayTIme.AsParallel().ForAll(obj => { obj.updateOccupancyOfTimeLine(); });
             }
 
-            List<DayTimeLine> retValue = AllFreeDayTIme.Where(obj => obj.TotalFreeSpace > TimePerSplit).ToList();
+            List<DayTimeLine> retValue = AllFreeDayTIme.Where(obj => obj.TotalFreeSpace > AverageTimePerSplit).ToList();
             return retValue;
         }
 
@@ -1616,7 +1618,7 @@ namespace TilerElements
             RetValue.Complete = this.isComplete;
             RetValue.RigidSchedule = this.Rigid;//hack
             RetValue.Splits = this.NumberOfSplit;
-            RetValue.TimePerSplit = this.EachSplitTimeSpan;
+            RetValue.AverageTimePerSplit = this.EachSplitTimeSpan;
             RetValue.UniqueID = EventID.GenerateCalendarEvent();
             RetValue.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
             RetValue.UiParams = this.UIParam;
@@ -1712,6 +1714,7 @@ namespace TilerElements
                 }
                 Splits -= (int)delta;
                 EventDuration = TimeSpan.FromTicks(SubEvents.Values.Sum(subEvent => subEvent.ActiveDuration.Ticks));
+                UpdateTimePerSplit();
                 return;
             }
             
@@ -1723,34 +1726,18 @@ namespace TilerElements
             List<SubCalendarEvent> newSubs = new List<SubCalendarEvent>();
             for (int i = 0; i < delta; i++)
             {
-                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(TimePerSplit, this.Name, (EndDateTime - TimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), RigidSchedule, this.isEnabled, this.UiParams, this.Notes, this.Complete, LocationInfo, this.RangeTimeLine);
+                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(AverageTimePerSplit, this.Name, (EndDateTime - AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), RigidSchedule, this.isEnabled, this.UiParams, this.Notes, this.Complete, LocationInfo, this.RangeTimeLine);
                 SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
             }
             Splits += (int)delta;
             EventDuration = TimeSpan.FromTicks(SubEvents.Values.Sum(subEvent => subEvent.ActiveDuration.Ticks));
+            UpdateTimePerSplit();
         }
 
-        public short ChangeTimePerSplit(TimeSpan newTimePerSplit)
+        public short UpdateTimePerSplit()
         {
             short retValue = 0;
-            if (TimePerSplit == newTimePerSplit)
-            {
-                return retValue;
-            }
-            else
-            {
-                if (TimePerSplit < newTimePerSplit)
-                {
-                    retValue = 2;
-                }
-                else 
-                {
-                    retValue = 1;
-                }
-
-                TimeSpan Delta = newTimePerSplit - TimePerSplit;
-                ActiveSubEvents.AsParallel().ForAll(obj => obj.changeDurartion(Delta));
-            }
+            AverageTimePerSplit = TimeSpan.FromTicks(EventDuration.Ticks / Splits);
             return retValue;
         }
 
@@ -1763,7 +1750,7 @@ namespace TilerElements
 
         public void removeDayTimeLinesWithInsufficientSpace()
         {
-            List<DayTimeLine> DaysWithInSufficientSpace=CalculationLimitation.Values.Where(obj => obj.TotalFreeSpace < TimePerSplit).ToList();
+            List<DayTimeLine> DaysWithInSufficientSpace=CalculationLimitation.Values.Where(obj => obj.TotalFreeSpace < AverageTimePerSplit).ToList();
             DaysWithInSufficientSpace.ForEach(obj => CalculationLimitation.Remove(obj.UniversalIndex));
             DaysWithInSufficientSpace.ForEach(obj => FreeDaysLimitation.Remove(obj.UniversalIndex));
 
@@ -1947,11 +1934,11 @@ namespace TilerElements
             }
         }
 
-        public TimeSpan EachSplitTimeSpan
+        protected TimeSpan EachSplitTimeSpan
         {
             get
             {
-                return TimePerSplit;
+                return AverageTimePerSplit;
             }
         }
 

@@ -496,7 +496,7 @@ namespace My24HourTimerWPF
         async private void button5_Click_2(object sender, RoutedEventArgs e)
         {
             
-            string eventName = textBox1.Text;
+            EventName eventName = new EventName( textBox1.Text);
             string LocationString  = textBox8.Text.Trim();
             /*if (LocationString != "")
             {
@@ -684,7 +684,7 @@ namespace My24HourTimerWPF
         async private void PeekIntoFuture(object sender, RoutedEventArgs e)
         {
 
-            string eventName = textBox1.Text;
+            EventName eventName = new EventName( textBox1.Text);
             string LocationString = textBox8.Text.Trim();
             /*if (LocationString != "")
             {
@@ -1262,8 +1262,8 @@ namespace My24HourTimerWPF
 
                 UserAccount currentUser = await AuthorizeUser.getUserAccountDebug();
                 //MySchedule = new Schedule(currentUser,DateTimeOffset.Now);
-                
-                string eventName = textBox1.Text;
+
+                EventName eventName = new EventName( textBox1.Text);
                 string LocationString = textBox8.Text.Trim();
                 /*if (LocationString != "")
                 {

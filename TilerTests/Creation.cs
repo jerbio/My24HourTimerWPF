@@ -100,6 +100,39 @@ namespace TilerTests
             }
         }
 
+        [TestMethod]
+        public void testChangeOfNameOfEvent()
+        {
+            UserAccount user = TestUtility.getTestUser();
+            user.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            refNow = new DateTimeOffset(refNow.Year, refNow.Month, refNow.Day, refNow.Hour, refNow.Minute, refNow.Second, new TimeSpan());
+            Schedule schedule = new TestSchedule(user, refNow);
+            TimeSpan duration = TimeSpan.FromHours(1);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.Add(duration);//.Add(duration).Add(duration);
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, true);
+            EventName oldName = testEvent.Name;
+            schedule.AddToScheduleAndCommit(testEvent).Wait();
+            schedule = new TestSchedule(user, refNow);
+            CalendarEvent copyOfTestEvent = schedule.getCalendarEvent(testEvent.Id);
+            EventName newName = new EventName("test-Event-For-stack-"+Guid.NewGuid().ToString());
+            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> tupleResult = schedule.BundleChangeUpdate(testEvent.ActiveSubEvents.First().Id, 
+                newName, 
+                testEvent.ActiveSubEvents.First().Start, 
+                testEvent.ActiveSubEvents.First().End, 
+                testEvent.ActiveSubEvents.First().Start, 
+                testEvent.ActiveSubEvents.First().End, 
+                testEvent.NumberOfSplit);
+            schedule.UpdateWithDifferentSchedule(tupleResult.Item2).Wait();
+            TestSchedule scheduleReloaded = new TestSchedule(user, refNow);
+            CalendarEvent renamedEvent = scheduleReloaded.getCalendarEvent(testEvent.Id);
+            Assert.AreEqual(renamedEvent.Name.NameValue, newName.NameValue);
+            Assert.AreEqual(renamedEvent.ActiveSubEvents.First().Name.NameValue, newName.NameValue);
+            Assert.AreEqual(renamedEvent.Name.NameId, testEvent.Name.NameId);
+
+        }
+
         [TestCleanup]
         void cleanUpForEachTest()
         {

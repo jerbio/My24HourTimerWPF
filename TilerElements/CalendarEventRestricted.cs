@@ -15,9 +15,9 @@ namespace TilerElements
         ;
         }
 
-        public CalendarEventRestricted(string Name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, Location_Elements Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventDisplay UiSettings = null, MiscData NoteData=null)
+        public CalendarEventRestricted(EventName Name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, Location_Elements Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventDisplay UiSettings = null, MiscData NoteData=null)
         {
-            EventName = Name;
+           _Name =  Name;
             StartDateTime = Start;
             EndDateTime = End;
             RigidSchedule = isRigid;
@@ -46,9 +46,9 @@ namespace TilerElements
 
 
 
-        public CalendarEventRestricted(EventID EventIDEntry, string Name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, Location_Elements Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventDisplay UiSettings = null, MiscData NoteData = null)
+        public CalendarEventRestricted(EventID EventIDEntry, EventName Name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, Location_Elements Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventDisplay UiSettings = null, MiscData NoteData = null)
         {
-            EventName = Name;
+            _Name = Name;
             StartDateTime = Start;
             EndDateTime = End;
             RigidSchedule = isRigid;
@@ -76,11 +76,11 @@ namespace TilerElements
             InstantiateSubEvents();
         }
 
-        static public CalendarEventRestricted InstantiateRepeatedCandidate(string Name, DateTimeOffset Start, DateTimeOffset End, EventID CalendarEventID, RestrictionProfile restrictionProfile, TimeSpan Duration, int division, Location_Elements Location,EventDisplay UiSettings,bool RigidFlag,TimeSpan preparation, string thirdPartyID)
+        static public CalendarEventRestricted InstantiateRepeatedCandidate(EventName Name, DateTimeOffset Start, DateTimeOffset End, EventID CalendarEventID, RestrictionProfile restrictionProfile, TimeSpan Duration, int division, Location_Elements Location,EventDisplay UiSettings,bool RigidFlag,TimeSpan preparation, string thirdPartyID)
         { 
             CalendarEventRestricted retValue = new CalendarEventRestricted();
             retValue .UniqueID = EventID.GenerateRepeatCalendarEvent(CalendarEventID.ToString());
-            retValue .EventName =Name;
+            retValue ._Name =  Name;
             retValue.EventDuration = Duration;
             retValue.StartDateTime = Start;
             retValue.EndDateTime = End;
@@ -109,7 +109,7 @@ namespace TilerElements
         {
             CalendarEventRestricted MyCalendarEventCopy = new CalendarEventRestricted();
             MyCalendarEventCopy.EventDuration = new TimeSpan(EventDuration.Ticks);
-            MyCalendarEventCopy.EventName = EventName.ToString();
+            MyCalendarEventCopy._Name = this._Name.createCopy();
             MyCalendarEventCopy.StartDateTime = StartDateTime;
             MyCalendarEventCopy.EndDateTime = EndDateTime;
             MyCalendarEventCopy.EventPreDeadline = new TimeSpan(EventPreDeadline.Ticks);
@@ -167,7 +167,7 @@ namespace TilerElements
             {
                 DateTimeOffset SubStart = eachStart.Start;
                 DateTimeOffset SubEnd = SubStart.Add(TimePerSplit);
-                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(UniqueID.ToString(), SubStart, SubEnd, ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), RigidSchedule, PrepTime, EventPreDeadline, LocationInfo, UiParams, DataBlob, Priority, DeadlineElapsed, ThirdPartyID);
+                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(UniqueID.ToString(),this.Name, SubStart, SubEnd, ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), RigidSchedule, PrepTime, EventPreDeadline, LocationInfo, UiParams, DataBlob, Priority, DeadlineElapsed, ThirdPartyID);
                 SubEvents.Add(newEvent.SubEvent_ID, newEvent);
             }
             
@@ -184,7 +184,7 @@ namespace TilerElements
         {
             CalendarEventRestricted RetValue = new CalendarEventRestricted();
             RetValue.EventDuration = this.ActiveDuration;
-            RetValue.EventName = this.Name;
+            RetValue._Name = this.Name.createCopy();
             RetValue.StartDateTime = this.Start;
             RetValue.EndDateTime = this.End;
             RetValue.EventPreDeadline = this.PreDeadline;
@@ -227,7 +227,7 @@ namespace TilerElements
             {
                 DateTimeOffset SubStart = eachStart.Start;
                 DateTimeOffset SubEnd = SubStart.Add(TimePerSplit);
-                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(UniqueID.ToString(), SubStart, SubEnd, ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), RigidSchedule, PrepTime, EventPreDeadline, LocationInfo, UiParams, DataBlob, Priority, DeadlineElapsed, ThirdPartyID);
+                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(UniqueID.ToString(),this.Name, SubStart, SubEnd, ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), RigidSchedule, PrepTime, EventPreDeadline, LocationInfo, UiParams, DataBlob, Priority, DeadlineElapsed, ThirdPartyID);
                 SubEvents.Add(newEvent.SubEvent_ID, newEvent);
             }
             Splits += (int)delta;

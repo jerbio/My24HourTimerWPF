@@ -35,7 +35,7 @@ namespace TilerTests
         [TestMethod]
         public void NameOfRigidSubEventUpdate()
         {
-            string newName = Guid.NewGuid().ToString();
+            EventName newName = new EventName( Guid.NewGuid().ToString());
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.Now;
@@ -63,7 +63,7 @@ namespace TilerTests
         [TestMethod]
         public void NameOfNonRigidSubEventUpdate()
         {
-            string newName = Guid.NewGuid().ToString();
+            EventName newName = new EventName( Guid.NewGuid().ToString());
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.Now;
@@ -91,7 +91,7 @@ namespace TilerTests
         [TestMethod]
         public void NameOfRestrictedSubEventUpdate()
         {
-            string newName = Guid.NewGuid().ToString();
+            EventName newName = new EventName( Guid.NewGuid().ToString());
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.Now;

@@ -53,7 +53,7 @@ namespace My24HourTimerWPF
                     TimeLine interferringTimeline = subEventToViableTimeLine[subEvent];
                     if (interferringTimeline != null)
                     {
-                        SubCalendarEvent slicedValidSubEvent = new SubCalendarEvent(subEvent.Id, interferringTimeline.Start, interferringTimeline.End, new BusyTimeLine(subEvent.Id, interferringTimeline.Start, interferringTimeline.End), subEvent.Rigid, subEvent.isEnabled, subEvent.UIParam, subEvent.Notes, subEvent.isComplete, subEvent.myLocation, subEvent.getCalendarEventRange, subEvent.Conflicts, subEvent.CreatorID);
+                        SubCalendarEvent slicedValidSubEvent = new SubCalendarEvent(subEvent.Id,subEvent.Name, interferringTimeline.Start, interferringTimeline.End, new BusyTimeLine(subEvent.Id, interferringTimeline.Start, interferringTimeline.End), subEvent.Rigid, subEvent.isEnabled, subEvent.UIParam, subEvent.Notes, subEvent.isComplete, subEvent.myLocation, subEvent.getCalendarEventRange, subEvent.Conflicts, subEvent.CreatorID);
                         tempSubEvents.Add(slicedValidSubEvent);
                     }
                     else

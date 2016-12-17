@@ -10,13 +10,13 @@ namespace TilerElements
         protected TimeLine HardCalendarEventRange;//this does not include the restriction
         protected RestrictionProfile ProfileOfRestriction;
         #region Constructor
-        public SubCalendarEventRestricted(string CalEventID, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile constrictionProgile, TimeLine HardCalEventTimeRange, bool isEnabled, bool isComplete, ConflictProfile conflictingEvents, bool RigidFlag,TimeSpan PrepTimeData ,TimeSpan PreDeadline, Location_Elements Locationdata, EventDisplay UiData, MiscData Notes, int Priority = 0, bool isDeadlineElapsed = false, string thirdPartyID = "", ConflictProfile conflicts = null)
+        public SubCalendarEventRestricted(string CalEventID, EventName name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile constrictionProgile, TimeLine HardCalEventTimeRange, bool isEnabled, bool isComplete, ConflictProfile conflictingEvents, bool RigidFlag,TimeSpan PrepTimeData ,TimeSpan PreDeadline, Location_Elements Locationdata, EventDisplay UiData, MiscData Notes, int Priority = 0, bool isDeadlineElapsed = false, string thirdPartyID = "", ConflictProfile conflicts = null )
         { 
             isRestricted =true;
             StartDateTime = Start;
             EndDateTime = End;
             EventDuration = EndDateTime - StartDateTime;
-            
+            _Name = name;
             UniqueID = EventID.GenerateSubCalendarEvent(CalEventID);
             ProfileOfRestriction = constrictionProgile;
             HardCalendarEventRange = HardCalEventTimeRange;
@@ -187,7 +187,7 @@ namespace TilerElements
             copy.Enabled = this.Enabled;
             copy.EndDateTime = this.EndDateTime;
             copy.EventDuration = this.EventDuration;
-            copy.EventName = this.EventName;
+            copy._Name = this.Name.createCopy();
             copy.EventPreDeadline = this.EventPreDeadline;
             copy.EventScore = this.EventScore;
             //copy.EventSequence = this.EventSequence.CreateCopy();
@@ -327,7 +327,7 @@ namespace TilerElements
                 this.BusyFrame = SubEventEntry.ActiveSlot;
                 this.CalendarEventRange = SubEventEntry.getCalendarEventRange;
                 this.RepetitionFlag  = SubEventEntry.FromRepeat;
-                this.EventName = SubEventEntry.Name;
+                this._Name = SubEventEntry.Name;
                 this.EventDuration = SubEventEntry.ActiveDuration;
                 this.Complete = SubEventEntry.isComplete;
                 this.ConflictingEvents = SubEventEntry.Conflicts;
@@ -371,7 +371,7 @@ namespace TilerElements
             retValue.BusyFrame = this.ActiveSlot;
             retValue.CalendarEventRange = this.getCalendarEventRange.CreateCopy();
             retValue.RepetitionFlag  = this.FromRepeat;
-            retValue.EventName = this.Name;
+            retValue._Name = this.Name.createCopy();
             retValue.EventDuration = this.ActiveDuration;
             retValue.Complete = this.isComplete;
             retValue.ConflictingEvents = this.Conflicts;

@@ -9,7 +9,8 @@ namespace TilerElements
     public abstract class TilerEvent
     {
         public static TimeSpan ZeroTimeSpan = new TimeSpan(0);
-        protected string EventName="";
+        //protected string EventName="";
+        protected EventName _Name;
         protected DateTimeOffset StartDateTime;
         protected DateTimeOffset EndDateTime;
         protected bool Complete = false;
@@ -41,18 +42,25 @@ namespace TilerElements
         protected TimeSpan _UsedTime = new TimeSpan();
         protected Classification Semantics= new Classification();
         protected TimeOfDayPreferrence DaySectionPreference;
+        protected List<TilerUser> Users;
+        protected bool SingleUser;
 
         async public Task InitializeClassification()
         {
-            await Semantics.InitializeClassification(EventName);
+            await Semantics.InitializeClassification(_Name.NameValue);
         }
         public List<string> getAllUserIDs()
         {
             return UserIDs.ToList();
         }
-        public void updateEventName(string NewName)
+
+        /// <summary>
+        /// This updates the name of a calendar event
+        /// </summary>
+        /// <param name="NewName">The new name of the calendar event</param>
+        virtual public void updateEventName(string NewName)
         {
-            EventName = NewName;
+            _Name.updateName(NewName);
         }
 
         public bool isComplete
@@ -181,11 +189,11 @@ namespace TilerElements
                  return DeadlineElapsed;
              }
          }
-        public string Name
+        public EventName Name
         {
             get
             {
-                return EventName;
+                return _Name;
             }
         }
 

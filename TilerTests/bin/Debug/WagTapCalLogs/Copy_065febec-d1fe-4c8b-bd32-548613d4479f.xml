@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ScheduleLog>
-  <LastIDCounter>4499656</LastIDCounter>
+  <LastIDCounter>4500221</LastIDCounter>
   <referenceDay>3/5/2015 12:30:00 PM +00:00</referenceDay>
   <EventSchedules>
     <EventSchedule>
@@ -32,120 +32,22 @@
       </UIParams>
       <Location>
         <CheckCalendarEvent>False</CheckCalendarEvent>
-        <isNull>True</isNull>
-        <Description />
-        <Address />
-        <YCoordinate>-87.9074989664028</YCoordinate>
-        <XCoordinate>43.1788769526111</XCoordinate>
+        <isNull>False</isNull>
+        <Description>Home</Description>
+        <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+        <YCoordinate>-81.585446</YCoordinate>
+        <XCoordinate>41.480352</XCoordinate>
       </Location>
       <Enabled>True</Enabled>
-      <ID>4499339_7_0_0</ID>
-      <Name>45908e89-e594-4931-a7fa-01ececedc399</Name>
-      <StartTime>11/28/2016 6:38:00 AM</StartTime>
+      <ID>4500190_7_0_0</ID>
+      <NameId>20d26c04-ca05-4af6-a6a2-a38cc385d6c1</NameId>
+      <Name>TestCalendarEvent-93d71bad-2529-4fb3-ab5e-b3ee895ae77e</Name>
+      <StartTime>12/19/2016 2:37:00 AM</StartTime>
       <PreDeadline>00:00:00</PreDeadline>
       <DeletionCount>0</DeletionCount>
       <CompletionCount>0</CompletionCount>
       <PrepTime>00:00:00</PrepTime>
-      <Deadline>11/28/2016 7:38:00 AM</Deadline>
-      <Split>1</Split>
-      <Duration>01:00:00</Duration>
-      <RigidFlag>True</RigidFlag>
-      <EventSubSchedules>
-        <EventSubSchedule>
-          <PauseInformation>
-            <UsedUpTime>00:00:00</UsedUpTime>
-            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
-          </PauseInformation>
-          <Restricted>False</Restricted>
-          <TimePositionReasons />
-          <ConflictProfile>
-            <ConflictIDs />
-            <Flag>False</Flag>
-            <Type>0</Type>
-          </ConflictProfile>
-          <MiscData>
-            <TypeSelection>0</TypeSelection>
-            <UserNote />
-          </MiscData>
-          <UIParams>
-            <Type>0</Type>
-            <Color>
-              <UserSelection>-1</UserSelection>
-              <Blue>127</Blue>
-              <Green>127</Green>
-              <Red>127</Red>
-              <Opacity>1</Opacity>
-            </Color>
-            <Visible>True</Visible>
-          </UIParams>
-          <Location>
-            <CheckCalendarEvent>False</CheckCalendarEvent>
-            <isNull>True</isNull>
-            <Description />
-            <Address />
-            <YCoordinate>-87.9074989664028</YCoordinate>
-            <XCoordinate>43.1788769526111</XCoordinate>
-          </Location>
-          <Complete>False</Complete>
-          <Enabled>True</Enabled>
-          <ID>4499339_7_0_4499340</ID>
-          <Rigid>True</Rigid>
-          <ThirdPartyID />
-          <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>11/28/2016 6:38:42 AM</ActiveStartTime>
-          <ActiveEndTime>11/28/2016 7:38:42 AM</ActiveEndTime>
-          <Duration>01:00:00</Duration>
-          <StartTime>11/28/2016 6:38:42 AM</StartTime>
-          <EndTime>11/28/2016 7:38:42 AM</EndTime>
-        </EventSubSchedule>
-      </EventSubSchedules>
-      <RepetitionFlag>False</RepetitionFlag>
-      <Completed>False</Completed>
-    </EventSchedule>
-    <EventSchedule>
-      <Recurrence />
-      <ProcrastinationProfile>
-        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
-        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
-        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
-      </ProcrastinationProfile>
-      <NowProfile>
-        <Initialized>False</Initialized>
-        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
-      </NowProfile>
-      <Restricted>False</Restricted>
-      <MiscData>
-        <TypeSelection>0</TypeSelection>
-        <UserNote />
-      </MiscData>
-      <UIParams>
-        <Type>0</Type>
-        <Color>
-          <UserSelection>-1</UserSelection>
-          <Blue>127</Blue>
-          <Green>127</Green>
-          <Red>127</Red>
-          <Opacity>1</Opacity>
-        </Color>
-        <Visible>True</Visible>
-      </UIParams>
-      <Location>
-        <CheckCalendarEvent>False</CheckCalendarEvent>
-        <isNull>True</isNull>
-        <Description />
-        <Address />
-        <YCoordinate>-87.9074989664028</YCoordinate>
-        <XCoordinate>43.1788769526111</XCoordinate>
-      </Location>
-      <Enabled>True</Enabled>
-      <ID>4499343_7_0_0</ID>
-      <Name>dd5f42b3-581a-4c56-896b-c854b4c9d00a</Name>
-      <StartTime>11/28/2016 6:38:00 AM</StartTime>
-      <PreDeadline>00:00:00</PreDeadline>
-      <DeletionCount>0</DeletionCount>
-      <CompletionCount>0</CompletionCount>
-      <PrepTime>00:00:00</PrepTime>
-      <Deadline>11/28/2016 8:38:00 AM</Deadline>
+      <Deadline>12/26/2016 2:37:00 AM</Deadline>
       <Split>1</Split>
       <Duration>01:00:00</Duration>
       <RigidFlag>False</RigidFlag>
@@ -156,280 +58,39 @@
             <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
           </PauseInformation>
           <Restricted>False</Restricted>
-          <TimePositionReasons />
-          <ConflictProfile>
-            <ConflictIDs />
-            <Flag>False</Flag>
-            <Type>0</Type>
-          </ConflictProfile>
-          <MiscData>
-            <TypeSelection>0</TypeSelection>
-            <UserNote />
-          </MiscData>
-          <UIParams>
-            <Type>0</Type>
-            <Color>
-              <UserSelection>-1</UserSelection>
-              <Blue>127</Blue>
-              <Green>127</Green>
-              <Red>127</Red>
-              <Opacity>1</Opacity>
-            </Color>
-            <Visible>True</Visible>
-          </UIParams>
-          <Location>
-            <CheckCalendarEvent>False</CheckCalendarEvent>
-            <isNull>True</isNull>
-            <Description />
-            <Address />
-            <YCoordinate>-87.9074989664028</YCoordinate>
-            <XCoordinate>43.1788769526111</XCoordinate>
-          </Location>
-          <Complete>False</Complete>
-          <Enabled>True</Enabled>
-          <ID>4499343_7_0_4499344</ID>
-          <Rigid>False</Rigid>
-          <ThirdPartyID />
-          <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>11/28/2016 7:38:00 AM</ActiveStartTime>
-          <ActiveEndTime>11/28/2016 8:38:00 AM</ActiveEndTime>
-          <Duration>01:00:00</Duration>
-          <StartTime>11/28/2016 7:38:00 AM</StartTime>
-          <EndTime>11/28/2016 8:38:00 AM</EndTime>
-        </EventSubSchedule>
-      </EventSubSchedules>
-      <RepetitionFlag>False</RepetitionFlag>
-      <Completed>False</Completed>
-    </EventSchedule>
-    <EventSchedule>
-      <Recurrence />
-      <RestrictionProfile>
-        <RestrictionNode>
-          <RestrictionTimeLineData>
-            <RangeSpan>72000000000</RangeSpan>
-            <EndTime>1/1/0001 9:38:42 AM</EndTime>
-            <StartTime>1/1/0001 7:38:42 AM</StartTime>
-          </RestrictionTimeLineData>
-          <RestrictionDayOfWeek>0</RestrictionDayOfWeek>
-        </RestrictionNode>
-        <RestrictionNode>
-          <RestrictionTimeLineData>
-            <RangeSpan>72000000000</RangeSpan>
-            <EndTime>1/1/0001 9:38:42 AM</EndTime>
-            <StartTime>1/1/0001 7:38:42 AM</StartTime>
-          </RestrictionTimeLineData>
-          <RestrictionDayOfWeek>1</RestrictionDayOfWeek>
-        </RestrictionNode>
-        <RestrictionNode>
-          <RestrictionTimeLineData>
-            <RangeSpan>72000000000</RangeSpan>
-            <EndTime>1/1/0001 9:38:42 AM</EndTime>
-            <StartTime>1/1/0001 7:38:42 AM</StartTime>
-          </RestrictionTimeLineData>
-          <RestrictionDayOfWeek>2</RestrictionDayOfWeek>
-        </RestrictionNode>
-        <RestrictionNode>
-          <RestrictionTimeLineData>
-            <RangeSpan>72000000000</RangeSpan>
-            <EndTime>1/1/0001 9:38:42 AM</EndTime>
-            <StartTime>1/1/0001 7:38:42 AM</StartTime>
-          </RestrictionTimeLineData>
-          <RestrictionDayOfWeek>3</RestrictionDayOfWeek>
-        </RestrictionNode>
-        <RestrictionNode>
-          <RestrictionTimeLineData>
-            <RangeSpan>72000000000</RangeSpan>
-            <EndTime>1/1/0001 9:38:42 AM</EndTime>
-            <StartTime>1/1/0001 7:38:42 AM</StartTime>
-          </RestrictionTimeLineData>
-          <RestrictionDayOfWeek>4</RestrictionDayOfWeek>
-        </RestrictionNode>
-        <RestrictionNode>
-          <RestrictionTimeLineData>
-            <RangeSpan>72000000000</RangeSpan>
-            <EndTime>1/1/0001 9:38:42 AM</EndTime>
-            <StartTime>1/1/0001 7:38:42 AM</StartTime>
-          </RestrictionTimeLineData>
-          <RestrictionDayOfWeek>5</RestrictionDayOfWeek>
-        </RestrictionNode>
-        <RestrictionNode>
-          <RestrictionTimeLineData>
-            <RangeSpan>72000000000</RangeSpan>
-            <EndTime>1/1/0001 9:38:42 AM</EndTime>
-            <StartTime>1/1/0001 7:38:42 AM</StartTime>
-          </RestrictionTimeLineData>
-          <RestrictionDayOfWeek>6</RestrictionDayOfWeek>
-        </RestrictionNode>
-      </RestrictionProfile>
-      <ProcrastinationProfile>
-        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
-        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
-        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
-      </ProcrastinationProfile>
-      <NowProfile>
-        <Initialized>False</Initialized>
-        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
-      </NowProfile>
-      <Restricted>True</Restricted>
-      <MiscData>
-        <TypeSelection>0</TypeSelection>
-        <UserNote />
-      </MiscData>
-      <UIParams>
-        <Type>0</Type>
-        <Color>
-          <UserSelection>-1</UserSelection>
-          <Blue>127</Blue>
-          <Green>127</Green>
-          <Red>127</Red>
-          <Opacity>1</Opacity>
-        </Color>
-        <Visible>True</Visible>
-      </UIParams>
-      <Location>
-        <CheckCalendarEvent>False</CheckCalendarEvent>
-        <isNull>True</isNull>
-        <Description />
-        <Address />
-        <YCoordinate>-87.9074989664028</YCoordinate>
-        <XCoordinate>43.1788769526111</XCoordinate>
-      </Location>
-      <Enabled>True</Enabled>
-      <ID>4499351_7_0_0</ID>
-      <Name>acf9e35e-d675-4000-9c9e-d0e896561539</Name>
-      <StartTime>11/28/2016 6:38:00 AM</StartTime>
-      <PreDeadline>00:00:00</PreDeadline>
-      <DeletionCount>0</DeletionCount>
-      <CompletionCount>0</CompletionCount>
-      <PrepTime>00:00:00</PrepTime>
-      <Deadline>11/28/2016 10:38:00 AM</Deadline>
-      <Split>1</Split>
-      <Duration>01:00:00</Duration>
-      <RigidFlag>False</RigidFlag>
-      <EventSubSchedules>
-        <EventSubSchedule>
-          <RestrictionProfile>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:42 AM</EndTime>
-                <StartTime>1/1/0001 7:38:42 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>0</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:42 AM</EndTime>
-                <StartTime>1/1/0001 7:38:42 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>1</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:42 AM</EndTime>
-                <StartTime>1/1/0001 7:38:42 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>2</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:42 AM</EndTime>
-                <StartTime>1/1/0001 7:38:42 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>3</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:42 AM</EndTime>
-                <StartTime>1/1/0001 7:38:42 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>4</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:42 AM</EndTime>
-                <StartTime>1/1/0001 7:38:42 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>5</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:42 AM</EndTime>
-                <StartTime>1/1/0001 7:38:42 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>6</RestrictionDayOfWeek>
-            </RestrictionNode>
-          </RestrictionProfile>
-          <PauseInformation>
-            <UsedUpTime>00:00:00</UsedUpTime>
-            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
-          </PauseInformation>
-          <Restricted>True</Restricted>
           <TimePositionReasons>
             <Reason xsi:type="BestFitReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
               <Option>BestFit</Option>
-              <UsedUp>PT1H59M18S</UsedUp>
-              <Available>PT13H22M42S</Available>
+              <UsedUp>PT0S</UsedUp>
+              <Available>P1D</Available>
               <CurrentUse>PT1H</CurrentUse>
             </Reason>
             <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
               <Option>CloseToCluster</Option>
               <LocationCluster>
                 <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
               </LocationCluster>
-            </Reason>
-            <Reason xsi:type="DurationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-              <Option>Occupancy</Option>
-            </Reason>
-            <Reason xsi:type="RestrictedEventReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-              <Option>RestrictedEvent</Option>
             </Reason>
             <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
               <Option>CloseToCluster</Option>
               <LocationCluster>
                 <Location_Elements />
-              </LocationCluster>
-            </Reason>
-            <Reason xsi:type="DurationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-              <Option>Occupancy</Option>
-            </Reason>
-            <Reason xsi:type="RestrictedEventReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-              <Option>RestrictedEvent</Option>
-            </Reason>
-            <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-              <Option>CloseToCluster</Option>
-              <LocationCluster>
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
                 <Location_Elements />
               </LocationCluster>
-            </Reason>
-            <Reason xsi:type="DurationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-              <Option>Occupancy</Option>
-            </Reason>
-            <Reason xsi:type="RestrictedEventReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-              <Option>RestrictedEvent</Option>
-            </Reason>
-            <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-              <Option>CloseToCluster</Option>
-              <LocationCluster>
-                <Location_Elements />
-              </LocationCluster>
-            </Reason>
-            <Reason xsi:type="DurationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-              <Option>Occupancy</Option>
-            </Reason>
-            <Reason xsi:type="RestrictedEventReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-              <Option>RestrictedEvent</Option>
             </Reason>
           </TimePositionReasons>
           <ConflictProfile>
             <ConflictIDs />
-            <Flag>True</Flag>
+            <Flag>False</Flag>
             <Type>0</Type>
           </ConflictProfile>
           <MiscData>
@@ -449,23 +110,25 @@
           </UIParams>
           <Location>
             <CheckCalendarEvent>False</CheckCalendarEvent>
-            <isNull>True</isNull>
-            <Description />
-            <Address />
-            <YCoordinate>-87.9074989664028</YCoordinate>
-            <XCoordinate>43.1788769526111</XCoordinate>
+            <isNull>False</isNull>
+            <Description>Home</Description>
+            <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+            <YCoordinate>-81.585446</YCoordinate>
+            <XCoordinate>41.480352</XCoordinate>
           </Location>
+          <NameId>20d26c04-ca05-4af6-a6a2-a38cc385d6c1</NameId>
+          <Name>TestCalendarEvent-93d71bad-2529-4fb3-ab5e-b3ee895ae77e</Name>
           <Complete>False</Complete>
           <Enabled>True</Enabled>
-          <ID>4499351_7_0_4499352</ID>
+          <ID>4500190_7_0_4500191</ID>
           <Rigid>False</Rigid>
           <ThirdPartyID />
           <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>11/28/2016 8:38:00 AM</ActiveStartTime>
-          <ActiveEndTime>11/28/2016 9:38:00 AM</ActiveEndTime>
+          <ActiveStartTime>12/19/2016 5:37:57 AM</ActiveStartTime>
+          <ActiveEndTime>12/19/2016 6:37:57 AM</ActiveEndTime>
           <Duration>01:00:00</Duration>
-          <StartTime>11/28/2016 8:38:00 AM</StartTime>
-          <EndTime>11/28/2016 9:38:00 AM</EndTime>
+          <StartTime>12/19/2016 5:37:57 AM</StartTime>
+          <EndTime>12/19/2016 6:37:57 AM</EndTime>
         </EventSubSchedule>
       </EventSubSchedules>
       <RepetitionFlag>False</RepetitionFlag>
@@ -500,21 +163,22 @@
       </UIParams>
       <Location>
         <CheckCalendarEvent>False</CheckCalendarEvent>
-        <isNull>True</isNull>
-        <Description />
-        <Address />
-        <YCoordinate>-87.9074989664028</YCoordinate>
-        <XCoordinate>43.1788769526111</XCoordinate>
+        <isNull>False</isNull>
+        <Description>Home</Description>
+        <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+        <YCoordinate>-81.585446</YCoordinate>
+        <XCoordinate>41.480352</XCoordinate>
       </Location>
       <Enabled>True</Enabled>
-      <ID>4499372_7_0_0</ID>
-      <Name>TestCalendarEvent-ff627d01-9c88-4d48-84c8-f63a76c3a457</Name>
-      <StartTime>11/28/2016 6:38:00 AM</StartTime>
+      <ID>4500195_7_0_0</ID>
+      <NameId>2d5f61f5-17ba-492c-ac13-65abd67fbf47</NameId>
+      <Name>TestCalendarEvent-c3ca6ac0-04d7-4902-bc3e-e1701af7c428</Name>
+      <StartTime>12/19/2016 2:37:00 AM</StartTime>
       <PreDeadline>00:00:00</PreDeadline>
       <DeletionCount>0</DeletionCount>
       <CompletionCount>0</CompletionCount>
       <PrepTime>00:00:00</PrepTime>
-      <Deadline>11/28/2016 11:38:00 AM</Deadline>
+      <Deadline>12/26/2016 2:37:00 AM</Deadline>
       <Split>1</Split>
       <Duration>01:00:00</Duration>
       <RigidFlag>False</RigidFlag>
@@ -528,188 +192,29 @@
           <TimePositionReasons>
             <Reason xsi:type="BestFitReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
               <Option>BestFit</Option>
-              <UsedUp>PT1H59M18S</UsedUp>
-              <Available>PT13H22M42S</Available>
+              <UsedUp>PT0S</UsedUp>
+              <Available>P1D</Available>
               <CurrentUse>PT1H</CurrentUse>
             </Reason>
             <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
               <Option>CloseToCluster</Option>
               <LocationCluster>
                 <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
               </LocationCluster>
-            </Reason>
-            <Reason xsi:type="DurationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-              <Option>Occupancy</Option>
-            </Reason>
-          </TimePositionReasons>
-          <ConflictProfile>
-            <ConflictIDs />
-            <Flag>True</Flag>
-            <Type>0</Type>
-          </ConflictProfile>
-          <MiscData>
-            <TypeSelection>0</TypeSelection>
-            <UserNote />
-          </MiscData>
-          <UIParams>
-            <Type>0</Type>
-            <Color>
-              <UserSelection>-1</UserSelection>
-              <Blue>127</Blue>
-              <Green>127</Green>
-              <Red>127</Red>
-              <Opacity>1</Opacity>
-            </Color>
-            <Visible>True</Visible>
-          </UIParams>
-          <Location>
-            <CheckCalendarEvent>False</CheckCalendarEvent>
-            <isNull>True</isNull>
-            <Description />
-            <Address />
-            <YCoordinate>-87.9074989664028</YCoordinate>
-            <XCoordinate>43.1788769526111</XCoordinate>
-          </Location>
-          <Complete>False</Complete>
-          <Enabled>True</Enabled>
-          <ID>4499372_7_0_4499373</ID>
-          <Rigid>False</Rigid>
-          <ThirdPartyID />
-          <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>11/28/2016 10:18:00 AM</ActiveStartTime>
-          <ActiveEndTime>11/28/2016 11:18:00 AM</ActiveEndTime>
-          <Duration>01:00:00</Duration>
-          <StartTime>11/28/2016 10:18:00 AM</StartTime>
-          <EndTime>11/28/2016 11:18:00 AM</EndTime>
-        </EventSubSchedule>
-      </EventSubSchedules>
-      <RepetitionFlag>False</RepetitionFlag>
-      <Completed>False</Completed>
-    </EventSchedule>
-    <EventSchedule>
-      <Recurrence />
-      <ProcrastinationProfile>
-        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
-        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
-        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
-      </ProcrastinationProfile>
-      <NowProfile>
-        <Initialized>False</Initialized>
-        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
-      </NowProfile>
-      <Restricted>False</Restricted>
-      <MiscData>
-        <TypeSelection>0</TypeSelection>
-        <UserNote />
-      </MiscData>
-      <UIParams>
-        <Type>0</Type>
-        <Color>
-          <UserSelection>-1</UserSelection>
-          <Blue>127</Blue>
-          <Green>127</Green>
-          <Red>127</Red>
-          <Opacity>1</Opacity>
-        </Color>
-        <Visible>True</Visible>
-      </UIParams>
-      <Location>
-        <CheckCalendarEvent>False</CheckCalendarEvent>
-        <isNull>True</isNull>
-        <Description />
-        <Address />
-        <YCoordinate>-87.9074989664028</YCoordinate>
-        <XCoordinate>43.1788769526111</XCoordinate>
-      </Location>
-      <Enabled>True</Enabled>
-      <ID>4499396_7_0_0</ID>
-      <Name>TestCalendarEvent-e4028eb2-8184-4430-ad78-6e5680fd5f9a</Name>
-      <StartTime>11/28/2016 6:38:00 AM</StartTime>
-      <PreDeadline>00:00:00</PreDeadline>
-      <DeletionCount>0</DeletionCount>
-      <CompletionCount>0</CompletionCount>
-      <PrepTime>00:00:00</PrepTime>
-      <Deadline>11/28/2016 11:38:00 AM</Deadline>
-      <Split>2</Split>
-      <Duration>00:40:00</Duration>
-      <RigidFlag>False</RigidFlag>
-      <EventSubSchedules>
-        <EventSubSchedule>
-          <PauseInformation>
-            <UsedUpTime>00:00:00</UsedUpTime>
-            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
-          </PauseInformation>
-          <Restricted>False</Restricted>
-          <TimePositionReasons>
-            <Reason xsi:type="BestFitReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-              <Option>BestFit</Option>
-              <UsedUp>PT1H59M18S</UsedUp>
-              <Available>PT13H22M42S</Available>
-              <CurrentUse>PT20M</CurrentUse>
             </Reason>
             <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
               <Option>CloseToCluster</Option>
               <LocationCluster>
                 <Location_Elements />
-              </LocationCluster>
-            </Reason>
-          </TimePositionReasons>
-          <ConflictProfile>
-            <ConflictIDs />
-            <Flag>True</Flag>
-            <Type>0</Type>
-          </ConflictProfile>
-          <MiscData>
-            <TypeSelection>0</TypeSelection>
-            <UserNote />
-          </MiscData>
-          <UIParams>
-            <Type>0</Type>
-            <Color>
-              <UserSelection>-1</UserSelection>
-              <Blue>127</Blue>
-              <Green>127</Green>
-              <Red>127</Red>
-              <Opacity>1</Opacity>
-            </Color>
-            <Visible>True</Visible>
-          </UIParams>
-          <Location>
-            <CheckCalendarEvent>False</CheckCalendarEvent>
-            <isNull>True</isNull>
-            <Description />
-            <Address />
-            <YCoordinate>-87.9074989664028</YCoordinate>
-            <XCoordinate>43.1788769526111</XCoordinate>
-          </Location>
-          <Complete>False</Complete>
-          <Enabled>True</Enabled>
-          <ID>4499396_7_0_4499399</ID>
-          <Rigid>False</Rigid>
-          <ThirdPartyID />
-          <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>11/28/2016 9:38:00 AM</ActiveStartTime>
-          <ActiveEndTime>11/28/2016 9:58:00 AM</ActiveEndTime>
-          <Duration>00:20:00</Duration>
-          <StartTime>11/28/2016 9:38:00 AM</StartTime>
-          <EndTime>11/28/2016 9:58:00 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <PauseInformation>
-            <UsedUpTime>00:00:00</UsedUpTime>
-            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
-          </PauseInformation>
-          <Restricted>False</Restricted>
-          <TimePositionReasons>
-            <Reason xsi:type="BestFitReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-              <Option>BestFit</Option>
-              <UsedUp>PT4H19M18S</UsedUp>
-              <Available>PT11H2M42S</Available>
-              <CurrentUse>PT20M</CurrentUse>
-            </Reason>
-            <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-              <Option>CloseToCluster</Option>
-              <LocationCluster>
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
                 <Location_Elements />
               </LocationCluster>
             </Reason>
@@ -736,663 +241,25 @@
           </UIParams>
           <Location>
             <CheckCalendarEvent>False</CheckCalendarEvent>
-            <isNull>True</isNull>
-            <Description />
-            <Address />
-            <YCoordinate>-87.9074989664028</YCoordinate>
-            <XCoordinate>43.1788769526111</XCoordinate>
+            <isNull>False</isNull>
+            <Description>Home</Description>
+            <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+            <YCoordinate>-81.585446</YCoordinate>
+            <XCoordinate>41.480352</XCoordinate>
           </Location>
+          <NameId>2d5f61f5-17ba-492c-ac13-65abd67fbf47</NameId>
+          <Name>TestCalendarEvent-c3ca6ac0-04d7-4902-bc3e-e1701af7c428</Name>
           <Complete>False</Complete>
           <Enabled>True</Enabled>
-          <ID>4499396_7_0_4499398</ID>
+          <ID>4500195_7_0_4500196</ID>
           <Rigid>False</Rigid>
           <ThirdPartyID />
           <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>11/28/2016 8:50:00 AM</ActiveStartTime>
-          <ActiveEndTime>11/28/2016 9:10:00 AM</ActiveEndTime>
-          <Duration>00:20:00</Duration>
-          <StartTime>11/28/2016 8:50:00 AM</StartTime>
-          <EndTime>11/28/2016 9:10:00 AM</EndTime>
-        </EventSubSchedule>
-      </EventSubSchedules>
-      <RepetitionFlag>False</RepetitionFlag>
-      <Completed>False</Completed>
-    </EventSchedule>
-    <EventSchedule>
-      <Recurrence />
-      <RestrictionProfile>
-        <RestrictionNode>
-          <RestrictionTimeLineData>
-            <RangeSpan>72000000000</RangeSpan>
-            <EndTime>1/1/0001 9:38:43 AM</EndTime>
-            <StartTime>1/1/0001 7:38:43 AM</StartTime>
-          </RestrictionTimeLineData>
-          <RestrictionDayOfWeek>0</RestrictionDayOfWeek>
-        </RestrictionNode>
-        <RestrictionNode>
-          <RestrictionTimeLineData>
-            <RangeSpan>72000000000</RangeSpan>
-            <EndTime>1/1/0001 9:38:43 AM</EndTime>
-            <StartTime>1/1/0001 7:38:43 AM</StartTime>
-          </RestrictionTimeLineData>
-          <RestrictionDayOfWeek>1</RestrictionDayOfWeek>
-        </RestrictionNode>
-        <RestrictionNode>
-          <RestrictionTimeLineData>
-            <RangeSpan>72000000000</RangeSpan>
-            <EndTime>1/1/0001 9:38:43 AM</EndTime>
-            <StartTime>1/1/0001 7:38:43 AM</StartTime>
-          </RestrictionTimeLineData>
-          <RestrictionDayOfWeek>2</RestrictionDayOfWeek>
-        </RestrictionNode>
-        <RestrictionNode>
-          <RestrictionTimeLineData>
-            <RangeSpan>72000000000</RangeSpan>
-            <EndTime>1/1/0001 9:38:43 AM</EndTime>
-            <StartTime>1/1/0001 7:38:43 AM</StartTime>
-          </RestrictionTimeLineData>
-          <RestrictionDayOfWeek>3</RestrictionDayOfWeek>
-        </RestrictionNode>
-        <RestrictionNode>
-          <RestrictionTimeLineData>
-            <RangeSpan>72000000000</RangeSpan>
-            <EndTime>1/1/0001 9:38:43 AM</EndTime>
-            <StartTime>1/1/0001 7:38:43 AM</StartTime>
-          </RestrictionTimeLineData>
-          <RestrictionDayOfWeek>4</RestrictionDayOfWeek>
-        </RestrictionNode>
-        <RestrictionNode>
-          <RestrictionTimeLineData>
-            <RangeSpan>72000000000</RangeSpan>
-            <EndTime>1/1/0001 9:38:43 AM</EndTime>
-            <StartTime>1/1/0001 7:38:43 AM</StartTime>
-          </RestrictionTimeLineData>
-          <RestrictionDayOfWeek>5</RestrictionDayOfWeek>
-        </RestrictionNode>
-        <RestrictionNode>
-          <RestrictionTimeLineData>
-            <RangeSpan>72000000000</RangeSpan>
-            <EndTime>1/1/0001 9:38:43 AM</EndTime>
-            <StartTime>1/1/0001 7:38:43 AM</StartTime>
-          </RestrictionTimeLineData>
-          <RestrictionDayOfWeek>6</RestrictionDayOfWeek>
-        </RestrictionNode>
-      </RestrictionProfile>
-      <ProcrastinationProfile>
-        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
-        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
-        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
-      </ProcrastinationProfile>
-      <NowProfile>
-        <Initialized>False</Initialized>
-        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
-      </NowProfile>
-      <Restricted>True</Restricted>
-      <MiscData>
-        <TypeSelection>0</TypeSelection>
-        <UserNote />
-      </MiscData>
-      <UIParams>
-        <Type>0</Type>
-        <Color>
-          <UserSelection>-1</UserSelection>
-          <Blue>127</Blue>
-          <Green>127</Green>
-          <Red>127</Red>
-          <Opacity>1</Opacity>
-        </Color>
-        <Visible>True</Visible>
-      </UIParams>
-      <Location>
-        <CheckCalendarEvent>False</CheckCalendarEvent>
-        <isNull>True</isNull>
-        <Description />
-        <Address />
-        <YCoordinate>-87.9074989664028</YCoordinate>
-        <XCoordinate>43.1788769526111</XCoordinate>
-      </Location>
-      <Enabled>True</Enabled>
-      <ID>4499434_7_0_0</ID>
-      <Name>TestCalendarEvent-2f4efca7-4f5d-4bec-8a59-7f314ad3cbdd-Restricted</Name>
-      <StartTime>11/28/2016 6:38:00 AM</StartTime>
-      <PreDeadline>00:00:00</PreDeadline>
-      <DeletionCount>0</DeletionCount>
-      <CompletionCount>0</CompletionCount>
-      <PrepTime>00:00:00</PrepTime>
-      <Deadline>11/28/2016 11:38:00 AM</Deadline>
-      <Split>1</Split>
-      <Duration>01:00:00</Duration>
-      <RigidFlag>False</RigidFlag>
-      <EventSubSchedules>
-        <EventSubSchedule>
-          <RestrictionProfile>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:43 AM</EndTime>
-                <StartTime>1/1/0001 7:38:43 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>0</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:43 AM</EndTime>
-                <StartTime>1/1/0001 7:38:43 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>1</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:43 AM</EndTime>
-                <StartTime>1/1/0001 7:38:43 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>2</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:43 AM</EndTime>
-                <StartTime>1/1/0001 7:38:43 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>3</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:43 AM</EndTime>
-                <StartTime>1/1/0001 7:38:43 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>4</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:43 AM</EndTime>
-                <StartTime>1/1/0001 7:38:43 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>5</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:43 AM</EndTime>
-                <StartTime>1/1/0001 7:38:43 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>6</RestrictionDayOfWeek>
-            </RestrictionNode>
-          </RestrictionProfile>
-          <PauseInformation>
-            <UsedUpTime>00:00:00</UsedUpTime>
-            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
-          </PauseInformation>
-          <Restricted>True</Restricted>
-          <TimePositionReasons />
-          <ConflictProfile>
-            <ConflictIDs />
-            <Flag>True</Flag>
-            <Type>0</Type>
-          </ConflictProfile>
-          <MiscData>
-            <TypeSelection>0</TypeSelection>
-            <UserNote />
-          </MiscData>
-          <UIParams>
-            <Type>0</Type>
-            <Color>
-              <UserSelection>-1</UserSelection>
-              <Blue>127</Blue>
-              <Green>127</Green>
-              <Red>127</Red>
-              <Opacity>1</Opacity>
-            </Color>
-            <Visible>True</Visible>
-          </UIParams>
-          <Location>
-            <CheckCalendarEvent>False</CheckCalendarEvent>
-            <isNull>True</isNull>
-            <Description />
-            <Address />
-            <YCoordinate>-87.9074989664028</YCoordinate>
-            <XCoordinate>43.1788769526111</XCoordinate>
-          </Location>
-          <Complete>False</Complete>
-          <Enabled>True</Enabled>
-          <ID>4499434_7_0_4499435</ID>
-          <Rigid>False</Rigid>
-          <ThirdPartyID />
-          <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>11/28/2016 7:38:43 AM</ActiveStartTime>
-          <ActiveEndTime>11/28/2016 8:38:43 AM</ActiveEndTime>
+          <ActiveStartTime>12/19/2016 4:37:57 AM</ActiveStartTime>
+          <ActiveEndTime>12/19/2016 5:37:57 AM</ActiveEndTime>
           <Duration>01:00:00</Duration>
-          <StartTime>11/28/2016 7:38:43 AM</StartTime>
-          <EndTime>11/28/2016 8:38:43 AM</EndTime>
-        </EventSubSchedule>
-      </EventSubSchedules>
-      <RepetitionFlag>False</RepetitionFlag>
-      <Completed>False</Completed>
-    </EventSchedule>
-    <EventSchedule>
-      <Recurrence />
-      <RestrictionProfile>
-        <RestrictionNode>
-          <RestrictionTimeLineData>
-            <RangeSpan>72000000000</RangeSpan>
-            <EndTime>1/1/0001 9:38:43 AM</EndTime>
-            <StartTime>1/1/0001 7:38:43 AM</StartTime>
-          </RestrictionTimeLineData>
-          <RestrictionDayOfWeek>0</RestrictionDayOfWeek>
-        </RestrictionNode>
-        <RestrictionNode>
-          <RestrictionTimeLineData>
-            <RangeSpan>72000000000</RangeSpan>
-            <EndTime>1/1/0001 9:38:43 AM</EndTime>
-            <StartTime>1/1/0001 7:38:43 AM</StartTime>
-          </RestrictionTimeLineData>
-          <RestrictionDayOfWeek>1</RestrictionDayOfWeek>
-        </RestrictionNode>
-        <RestrictionNode>
-          <RestrictionTimeLineData>
-            <RangeSpan>72000000000</RangeSpan>
-            <EndTime>1/1/0001 9:38:43 AM</EndTime>
-            <StartTime>1/1/0001 7:38:43 AM</StartTime>
-          </RestrictionTimeLineData>
-          <RestrictionDayOfWeek>2</RestrictionDayOfWeek>
-        </RestrictionNode>
-        <RestrictionNode>
-          <RestrictionTimeLineData>
-            <RangeSpan>72000000000</RangeSpan>
-            <EndTime>1/1/0001 9:38:43 AM</EndTime>
-            <StartTime>1/1/0001 7:38:43 AM</StartTime>
-          </RestrictionTimeLineData>
-          <RestrictionDayOfWeek>3</RestrictionDayOfWeek>
-        </RestrictionNode>
-        <RestrictionNode>
-          <RestrictionTimeLineData>
-            <RangeSpan>72000000000</RangeSpan>
-            <EndTime>1/1/0001 9:38:43 AM</EndTime>
-            <StartTime>1/1/0001 7:38:43 AM</StartTime>
-          </RestrictionTimeLineData>
-          <RestrictionDayOfWeek>4</RestrictionDayOfWeek>
-        </RestrictionNode>
-        <RestrictionNode>
-          <RestrictionTimeLineData>
-            <RangeSpan>72000000000</RangeSpan>
-            <EndTime>1/1/0001 9:38:43 AM</EndTime>
-            <StartTime>1/1/0001 7:38:43 AM</StartTime>
-          </RestrictionTimeLineData>
-          <RestrictionDayOfWeek>5</RestrictionDayOfWeek>
-        </RestrictionNode>
-        <RestrictionNode>
-          <RestrictionTimeLineData>
-            <RangeSpan>72000000000</RangeSpan>
-            <EndTime>1/1/0001 9:38:43 AM</EndTime>
-            <StartTime>1/1/0001 7:38:43 AM</StartTime>
-          </RestrictionTimeLineData>
-          <RestrictionDayOfWeek>6</RestrictionDayOfWeek>
-        </RestrictionNode>
-      </RestrictionProfile>
-      <ProcrastinationProfile>
-        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
-        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
-        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
-      </ProcrastinationProfile>
-      <NowProfile>
-        <Initialized>False</Initialized>
-        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
-      </NowProfile>
-      <Restricted>True</Restricted>
-      <MiscData>
-        <TypeSelection>0</TypeSelection>
-        <UserNote />
-      </MiscData>
-      <UIParams>
-        <Type>0</Type>
-        <Color>
-          <UserSelection>-1</UserSelection>
-          <Blue>127</Blue>
-          <Green>127</Green>
-          <Red>127</Red>
-          <Opacity>1</Opacity>
-        </Color>
-        <Visible>True</Visible>
-      </UIParams>
-      <Location>
-        <CheckCalendarEvent>False</CheckCalendarEvent>
-        <isNull>True</isNull>
-        <Description />
-        <Address />
-        <YCoordinate>-87.9074989664028</YCoordinate>
-        <XCoordinate>43.1788769526111</XCoordinate>
-      </Location>
-      <Enabled>True</Enabled>
-      <ID>4499480_7_0_0</ID>
-      <Name>TestCalendarEvent-1a553658-2b1f-4ef3-85ba-b1c1e43e95c8-Restricted</Name>
-      <StartTime>11/28/2016 6:38:00 AM</StartTime>
-      <PreDeadline>00:00:00</PreDeadline>
-      <DeletionCount>0</DeletionCount>
-      <CompletionCount>0</CompletionCount>
-      <PrepTime>00:00:00</PrepTime>
-      <Deadline>11/28/2016 11:38:00 AM</Deadline>
-      <Split>3</Split>
-      <Duration>01:00:00</Duration>
-      <RigidFlag>False</RigidFlag>
-      <EventSubSchedules>
-        <EventSubSchedule>
-          <RestrictionProfile>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:43 AM</EndTime>
-                <StartTime>1/1/0001 7:38:43 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>0</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:43 AM</EndTime>
-                <StartTime>1/1/0001 7:38:43 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>1</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:43 AM</EndTime>
-                <StartTime>1/1/0001 7:38:43 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>2</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:43 AM</EndTime>
-                <StartTime>1/1/0001 7:38:43 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>3</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:43 AM</EndTime>
-                <StartTime>1/1/0001 7:38:43 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>4</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:43 AM</EndTime>
-                <StartTime>1/1/0001 7:38:43 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>5</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:43 AM</EndTime>
-                <StartTime>1/1/0001 7:38:43 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>6</RestrictionDayOfWeek>
-            </RestrictionNode>
-          </RestrictionProfile>
-          <PauseInformation>
-            <UsedUpTime>00:00:00</UsedUpTime>
-            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
-          </PauseInformation>
-          <Restricted>True</Restricted>
-          <TimePositionReasons />
-          <ConflictProfile>
-            <ConflictIDs />
-            <Flag>True</Flag>
-            <Type>0</Type>
-          </ConflictProfile>
-          <MiscData>
-            <TypeSelection>0</TypeSelection>
-            <UserNote />
-          </MiscData>
-          <UIParams>
-            <Type>0</Type>
-            <Color>
-              <UserSelection>-1</UserSelection>
-              <Blue>127</Blue>
-              <Green>127</Green>
-              <Red>127</Red>
-              <Opacity>1</Opacity>
-            </Color>
-            <Visible>True</Visible>
-          </UIParams>
-          <Location>
-            <CheckCalendarEvent>False</CheckCalendarEvent>
-            <isNull>True</isNull>
-            <Description />
-            <Address />
-            <YCoordinate>-87.9074989664028</YCoordinate>
-            <XCoordinate>43.1788769526111</XCoordinate>
-          </Location>
-          <Complete>False</Complete>
-          <Enabled>True</Enabled>
-          <ID>4499480_7_0_4499483</ID>
-          <Rigid>False</Rigid>
-          <ThirdPartyID />
-          <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>11/28/2016 7:38:43 AM</ActiveStartTime>
-          <ActiveEndTime>11/28/2016 7:58:43 AM</ActiveEndTime>
-          <Duration>00:20:00</Duration>
-          <StartTime>11/28/2016 7:38:43 AM</StartTime>
-          <EndTime>11/28/2016 7:58:43 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <RestrictionProfile>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:43 AM</EndTime>
-                <StartTime>1/1/0001 7:38:43 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>0</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:43 AM</EndTime>
-                <StartTime>1/1/0001 7:38:43 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>1</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:43 AM</EndTime>
-                <StartTime>1/1/0001 7:38:43 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>2</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:43 AM</EndTime>
-                <StartTime>1/1/0001 7:38:43 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>3</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:43 AM</EndTime>
-                <StartTime>1/1/0001 7:38:43 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>4</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:43 AM</EndTime>
-                <StartTime>1/1/0001 7:38:43 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>5</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:43 AM</EndTime>
-                <StartTime>1/1/0001 7:38:43 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>6</RestrictionDayOfWeek>
-            </RestrictionNode>
-          </RestrictionProfile>
-          <PauseInformation>
-            <UsedUpTime>00:00:00</UsedUpTime>
-            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
-          </PauseInformation>
-          <Restricted>True</Restricted>
-          <TimePositionReasons />
-          <ConflictProfile>
-            <ConflictIDs />
-            <Flag>True</Flag>
-            <Type>0</Type>
-          </ConflictProfile>
-          <MiscData>
-            <TypeSelection>0</TypeSelection>
-            <UserNote />
-          </MiscData>
-          <UIParams>
-            <Type>0</Type>
-            <Color>
-              <UserSelection>-1</UserSelection>
-              <Blue>127</Blue>
-              <Green>127</Green>
-              <Red>127</Red>
-              <Opacity>1</Opacity>
-            </Color>
-            <Visible>True</Visible>
-          </UIParams>
-          <Location>
-            <CheckCalendarEvent>False</CheckCalendarEvent>
-            <isNull>True</isNull>
-            <Description />
-            <Address />
-            <YCoordinate>-87.9074989664028</YCoordinate>
-            <XCoordinate>43.1788769526111</XCoordinate>
-          </Location>
-          <Complete>False</Complete>
-          <Enabled>True</Enabled>
-          <ID>4499480_7_0_4499482</ID>
-          <Rigid>False</Rigid>
-          <ThirdPartyID />
-          <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>11/28/2016 7:38:43 AM</ActiveStartTime>
-          <ActiveEndTime>11/28/2016 7:58:43 AM</ActiveEndTime>
-          <Duration>00:20:00</Duration>
-          <StartTime>11/28/2016 7:38:43 AM</StartTime>
-          <EndTime>11/28/2016 7:58:43 AM</EndTime>
-        </EventSubSchedule>
-        <EventSubSchedule>
-          <RestrictionProfile>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:43 AM</EndTime>
-                <StartTime>1/1/0001 7:38:43 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>0</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:43 AM</EndTime>
-                <StartTime>1/1/0001 7:38:43 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>1</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:43 AM</EndTime>
-                <StartTime>1/1/0001 7:38:43 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>2</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:43 AM</EndTime>
-                <StartTime>1/1/0001 7:38:43 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>3</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:43 AM</EndTime>
-                <StartTime>1/1/0001 7:38:43 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>4</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:43 AM</EndTime>
-                <StartTime>1/1/0001 7:38:43 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>5</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:43 AM</EndTime>
-                <StartTime>1/1/0001 7:38:43 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>6</RestrictionDayOfWeek>
-            </RestrictionNode>
-          </RestrictionProfile>
-          <PauseInformation>
-            <UsedUpTime>00:00:00</UsedUpTime>
-            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
-          </PauseInformation>
-          <Restricted>True</Restricted>
-          <TimePositionReasons />
-          <ConflictProfile>
-            <ConflictIDs />
-            <Flag>True</Flag>
-            <Type>0</Type>
-          </ConflictProfile>
-          <MiscData>
-            <TypeSelection>0</TypeSelection>
-            <UserNote />
-          </MiscData>
-          <UIParams>
-            <Type>0</Type>
-            <Color>
-              <UserSelection>-1</UserSelection>
-              <Blue>127</Blue>
-              <Green>127</Green>
-              <Red>127</Red>
-              <Opacity>1</Opacity>
-            </Color>
-            <Visible>True</Visible>
-          </UIParams>
-          <Location>
-            <CheckCalendarEvent>False</CheckCalendarEvent>
-            <isNull>True</isNull>
-            <Description />
-            <Address />
-            <YCoordinate>-87.9074989664028</YCoordinate>
-            <XCoordinate>43.1788769526111</XCoordinate>
-          </Location>
-          <Complete>False</Complete>
-          <Enabled>True</Enabled>
-          <ID>4499480_7_0_4499481</ID>
-          <Rigid>False</Rigid>
-          <ThirdPartyID />
-          <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>11/28/2016 7:38:43 AM</ActiveStartTime>
-          <ActiveEndTime>11/28/2016 7:58:43 AM</ActiveEndTime>
-          <Duration>00:20:00</Duration>
-          <StartTime>11/28/2016 7:38:43 AM</StartTime>
-          <EndTime>11/28/2016 7:58:43 AM</EndTime>
+          <StartTime>12/19/2016 4:37:57 AM</StartTime>
+          <EndTime>12/19/2016 5:37:57 AM</EndTime>
         </EventSubSchedule>
       </EventSubSchedules>
       <RepetitionFlag>False</RepetitionFlag>
@@ -1427,24 +294,25 @@
       </UIParams>
       <Location>
         <CheckCalendarEvent>False</CheckCalendarEvent>
-        <isNull>True</isNull>
-        <Description />
-        <Address />
-        <YCoordinate>-87.9074989664028</YCoordinate>
-        <XCoordinate>43.1788769526111</XCoordinate>
+        <isNull>False</isNull>
+        <Description>Home</Description>
+        <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+        <YCoordinate>-81.585446</YCoordinate>
+        <XCoordinate>41.480352</XCoordinate>
       </Location>
       <Enabled>True</Enabled>
-      <ID>4499498_7_0_0</ID>
-      <Name>TestCalendarEvent-9f2c1e91-974f-4594-a5a6-5cadc3b90ff5</Name>
-      <StartTime>11/28/2016 6:38:00 AM</StartTime>
+      <ID>4500200_7_0_0</ID>
+      <NameId>6b7dc479-a7c9-41b4-a302-18288fc047d7</NameId>
+      <Name>TestCalendarEvent-c2a6c99e-7091-48f4-b8d6-47e6aa4b815b</Name>
+      <StartTime>12/19/2016 2:37:00 AM</StartTime>
       <PreDeadline>00:00:00</PreDeadline>
       <DeletionCount>0</DeletionCount>
       <CompletionCount>0</CompletionCount>
       <PrepTime>00:00:00</PrepTime>
-      <Deadline>11/28/2016 7:38:00 AM</Deadline>
+      <Deadline>12/26/2016 2:37:00 AM</Deadline>
       <Split>1</Split>
       <Duration>01:00:00</Duration>
-      <RigidFlag>True</RigidFlag>
+      <RigidFlag>False</RigidFlag>
       <EventSubSchedules>
         <EventSubSchedule>
           <PauseInformation>
@@ -1452,7 +320,36 @@
             <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
           </PauseInformation>
           <Restricted>False</Restricted>
-          <TimePositionReasons />
+          <TimePositionReasons>
+            <Reason xsi:type="BestFitReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>BestFit</Option>
+              <UsedUp>PT0S</UsedUp>
+              <Available>P1D</Available>
+              <CurrentUse>PT1H</CurrentUse>
+            </Reason>
+            <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>CloseToCluster</Option>
+              <LocationCluster>
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+              </LocationCluster>
+            </Reason>
+            <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>CloseToCluster</Option>
+              <LocationCluster>
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+              </LocationCluster>
+            </Reason>
+          </TimePositionReasons>
           <ConflictProfile>
             <ConflictIDs />
             <Flag>False</Flag>
@@ -1475,23 +372,25 @@
           </UIParams>
           <Location>
             <CheckCalendarEvent>False</CheckCalendarEvent>
-            <isNull>True</isNull>
-            <Description />
-            <Address />
-            <YCoordinate>-87.9074989664028</YCoordinate>
-            <XCoordinate>43.1788769526111</XCoordinate>
+            <isNull>False</isNull>
+            <Description>Home</Description>
+            <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+            <YCoordinate>-81.585446</YCoordinate>
+            <XCoordinate>41.480352</XCoordinate>
           </Location>
+          <NameId>6b7dc479-a7c9-41b4-a302-18288fc047d7</NameId>
+          <Name>TestCalendarEvent-c2a6c99e-7091-48f4-b8d6-47e6aa4b815b</Name>
           <Complete>False</Complete>
           <Enabled>True</Enabled>
-          <ID>4499498_7_0_4499499</ID>
-          <Rigid>True</Rigid>
+          <ID>4500200_7_0_4500201</ID>
+          <Rigid>False</Rigid>
           <ThirdPartyID />
           <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>11/28/2016 6:38:44 AM</ActiveStartTime>
-          <ActiveEndTime>11/28/2016 7:38:44 AM</ActiveEndTime>
+          <ActiveStartTime>12/19/2016 5:37:57 PM</ActiveStartTime>
+          <ActiveEndTime>12/19/2016 6:37:57 PM</ActiveEndTime>
           <Duration>01:00:00</Duration>
-          <StartTime>11/28/2016 6:38:44 AM</StartTime>
-          <EndTime>11/28/2016 7:38:44 AM</EndTime>
+          <StartTime>12/19/2016 5:37:57 PM</StartTime>
+          <EndTime>12/19/2016 6:37:57 PM</EndTime>
         </EventSubSchedule>
       </EventSubSchedules>
       <RepetitionFlag>False</RepetitionFlag>
@@ -1526,21 +425,22 @@
       </UIParams>
       <Location>
         <CheckCalendarEvent>False</CheckCalendarEvent>
-        <isNull>True</isNull>
-        <Description />
-        <Address />
-        <YCoordinate>-87.9074989664028</YCoordinate>
-        <XCoordinate>43.1788769526111</XCoordinate>
+        <isNull>False</isNull>
+        <Description>Home</Description>
+        <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+        <YCoordinate>-81.585446</YCoordinate>
+        <XCoordinate>41.480352</XCoordinate>
       </Location>
       <Enabled>True</Enabled>
-      <ID>4499514_7_0_0</ID>
-      <Name>TestCalendarEvent-63a9b783-4b1b-4621-80e5-6d85764813b2</Name>
-      <StartTime>11/28/2016 6:38:00 AM</StartTime>
+      <ID>4500205_7_0_0</ID>
+      <NameId>b8aee6fe-cb23-442f-9878-b7373903a6d5</NameId>
+      <Name>TestCalendarEvent-d13a6d68-f7bc-48fa-b158-efdec065eefd</Name>
+      <StartTime>12/19/2016 2:37:00 AM</StartTime>
       <PreDeadline>00:00:00</PreDeadline>
       <DeletionCount>0</DeletionCount>
       <CompletionCount>0</CompletionCount>
       <PrepTime>00:00:00</PrepTime>
-      <Deadline>11/28/2016 8:08:00 AM</Deadline>
+      <Deadline>12/26/2016 2:37:00 AM</Deadline>
       <Split>1</Split>
       <Duration>01:00:00</Duration>
       <RigidFlag>False</RigidFlag>
@@ -1551,10 +451,39 @@
             <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
           </PauseInformation>
           <Restricted>False</Restricted>
-          <TimePositionReasons />
+          <TimePositionReasons>
+            <Reason xsi:type="BestFitReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>BestFit</Option>
+              <UsedUp>PT0S</UsedUp>
+              <Available>P1D</Available>
+              <CurrentUse>PT1H</CurrentUse>
+            </Reason>
+            <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>CloseToCluster</Option>
+              <LocationCluster>
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+              </LocationCluster>
+            </Reason>
+            <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>CloseToCluster</Option>
+              <LocationCluster>
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+              </LocationCluster>
+            </Reason>
+          </TimePositionReasons>
           <ConflictProfile>
             <ConflictIDs />
-            <Flag>True</Flag>
+            <Flag>False</Flag>
             <Type>0</Type>
           </ConflictProfile>
           <MiscData>
@@ -1574,23 +503,25 @@
           </UIParams>
           <Location>
             <CheckCalendarEvent>False</CheckCalendarEvent>
-            <isNull>True</isNull>
-            <Description />
-            <Address />
-            <YCoordinate>-87.9074989664028</YCoordinate>
-            <XCoordinate>43.1788769526111</XCoordinate>
+            <isNull>False</isNull>
+            <Description>Home</Description>
+            <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+            <YCoordinate>-81.585446</YCoordinate>
+            <XCoordinate>41.480352</XCoordinate>
           </Location>
+          <NameId>b8aee6fe-cb23-442f-9878-b7373903a6d5</NameId>
+          <Name>TestCalendarEvent-d13a6d68-f7bc-48fa-b158-efdec065eefd</Name>
           <Complete>False</Complete>
           <Enabled>True</Enabled>
-          <ID>4499514_7_0_4499515</ID>
+          <ID>4500205_7_0_4500206</ID>
           <Rigid>False</Rigid>
           <ThirdPartyID />
           <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>11/28/2016 7:08:00 AM</ActiveStartTime>
-          <ActiveEndTime>11/28/2016 8:08:00 AM</ActiveEndTime>
+          <ActiveStartTime>12/19/2016 6:37:57 AM</ActiveStartTime>
+          <ActiveEndTime>12/19/2016 7:37:57 AM</ActiveEndTime>
           <Duration>01:00:00</Duration>
-          <StartTime>11/28/2016 7:08:00 AM</StartTime>
-          <EndTime>11/28/2016 8:08:00 AM</EndTime>
+          <StartTime>12/19/2016 6:37:57 AM</StartTime>
+          <EndTime>12/19/2016 7:37:57 AM</EndTime>
         </EventSubSchedule>
       </EventSubSchedules>
       <RepetitionFlag>False</RepetitionFlag>
@@ -1598,64 +529,6 @@
     </EventSchedule>
     <EventSchedule>
       <Recurrence />
-      <RestrictionProfile>
-        <RestrictionNode>
-          <RestrictionTimeLineData>
-            <RangeSpan>72000000000</RangeSpan>
-            <EndTime>1/1/0001 9:38:45 AM</EndTime>
-            <StartTime>1/1/0001 7:38:45 AM</StartTime>
-          </RestrictionTimeLineData>
-          <RestrictionDayOfWeek>0</RestrictionDayOfWeek>
-        </RestrictionNode>
-        <RestrictionNode>
-          <RestrictionTimeLineData>
-            <RangeSpan>72000000000</RangeSpan>
-            <EndTime>1/1/0001 9:38:45 AM</EndTime>
-            <StartTime>1/1/0001 7:38:45 AM</StartTime>
-          </RestrictionTimeLineData>
-          <RestrictionDayOfWeek>1</RestrictionDayOfWeek>
-        </RestrictionNode>
-        <RestrictionNode>
-          <RestrictionTimeLineData>
-            <RangeSpan>72000000000</RangeSpan>
-            <EndTime>1/1/0001 9:38:45 AM</EndTime>
-            <StartTime>1/1/0001 7:38:45 AM</StartTime>
-          </RestrictionTimeLineData>
-          <RestrictionDayOfWeek>2</RestrictionDayOfWeek>
-        </RestrictionNode>
-        <RestrictionNode>
-          <RestrictionTimeLineData>
-            <RangeSpan>72000000000</RangeSpan>
-            <EndTime>1/1/0001 9:38:45 AM</EndTime>
-            <StartTime>1/1/0001 7:38:45 AM</StartTime>
-          </RestrictionTimeLineData>
-          <RestrictionDayOfWeek>3</RestrictionDayOfWeek>
-        </RestrictionNode>
-        <RestrictionNode>
-          <RestrictionTimeLineData>
-            <RangeSpan>72000000000</RangeSpan>
-            <EndTime>1/1/0001 9:38:45 AM</EndTime>
-            <StartTime>1/1/0001 7:38:45 AM</StartTime>
-          </RestrictionTimeLineData>
-          <RestrictionDayOfWeek>4</RestrictionDayOfWeek>
-        </RestrictionNode>
-        <RestrictionNode>
-          <RestrictionTimeLineData>
-            <RangeSpan>72000000000</RangeSpan>
-            <EndTime>1/1/0001 9:38:45 AM</EndTime>
-            <StartTime>1/1/0001 7:38:45 AM</StartTime>
-          </RestrictionTimeLineData>
-          <RestrictionDayOfWeek>5</RestrictionDayOfWeek>
-        </RestrictionNode>
-        <RestrictionNode>
-          <RestrictionTimeLineData>
-            <RangeSpan>72000000000</RangeSpan>
-            <EndTime>1/1/0001 9:38:45 AM</EndTime>
-            <StartTime>1/1/0001 7:38:45 AM</StartTime>
-          </RestrictionTimeLineData>
-          <RestrictionDayOfWeek>6</RestrictionDayOfWeek>
-        </RestrictionNode>
-      </RestrictionProfile>
       <ProcrastinationProfile>
         <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
         <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
@@ -1665,7 +538,7 @@
         <Initialized>False</Initialized>
         <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
       </NowProfile>
-      <Restricted>True</Restricted>
+      <Restricted>False</Restricted>
       <MiscData>
         <TypeSelection>0</TypeSelection>
         <UserNote />
@@ -1683,93 +556,55 @@
       </UIParams>
       <Location>
         <CheckCalendarEvent>False</CheckCalendarEvent>
-        <isNull>True</isNull>
-        <Description />
-        <Address />
-        <YCoordinate>-87.9074989664028</YCoordinate>
-        <XCoordinate>43.1788769526111</XCoordinate>
+        <isNull>False</isNull>
+        <Description>Home</Description>
+        <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+        <YCoordinate>-81.585446</YCoordinate>
+        <XCoordinate>41.480352</XCoordinate>
       </Location>
       <Enabled>True</Enabled>
-      <ID>4499603_7_0_0</ID>
-      <Name>TestCalendarEvent-f3a40516-bcfa-45bb-9ba5-aea817b24062-Restricted</Name>
-      <StartTime>11/28/2016 6:38:45 AM</StartTime>
+      <ID>4500210_7_0_0</ID>
+      <NameId>eb443a64-cfd8-44bf-bdaf-2f119d5d7e63</NameId>
+      <Name>TestCalendarEvent-51d5e4a2-7c11-48aa-b28f-da0467b2f0a2</Name>
+      <StartTime>12/19/2016 2:37:00 AM</StartTime>
       <PreDeadline>00:00:00</PreDeadline>
       <DeletionCount>0</DeletionCount>
       <CompletionCount>0</CompletionCount>
       <PrepTime>00:00:00</PrepTime>
-      <Deadline>11/28/2016 12:38:45 PM</Deadline>
+      <Deadline>12/26/2016 2:37:00 AM</Deadline>
       <Split>1</Split>
       <Duration>01:00:00</Duration>
       <RigidFlag>False</RigidFlag>
       <EventSubSchedules>
         <EventSubSchedule>
-          <RestrictionProfile>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:45 AM</EndTime>
-                <StartTime>1/1/0001 7:38:45 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>0</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:45 AM</EndTime>
-                <StartTime>1/1/0001 7:38:45 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>1</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:45 AM</EndTime>
-                <StartTime>1/1/0001 7:38:45 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>2</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:45 AM</EndTime>
-                <StartTime>1/1/0001 7:38:45 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>3</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:45 AM</EndTime>
-                <StartTime>1/1/0001 7:38:45 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>4</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:45 AM</EndTime>
-                <StartTime>1/1/0001 7:38:45 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>5</RestrictionDayOfWeek>
-            </RestrictionNode>
-            <RestrictionNode>
-              <RestrictionTimeLineData>
-                <RangeSpan>72000000000</RangeSpan>
-                <EndTime>1/1/0001 9:38:45 AM</EndTime>
-                <StartTime>1/1/0001 7:38:45 AM</StartTime>
-              </RestrictionTimeLineData>
-              <RestrictionDayOfWeek>6</RestrictionDayOfWeek>
-            </RestrictionNode>
-          </RestrictionProfile>
           <PauseInformation>
             <UsedUpTime>00:00:00</UsedUpTime>
             <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
           </PauseInformation>
-          <Restricted>True</Restricted>
-          <TimePositionReasons />
+          <Restricted>False</Restricted>
+          <TimePositionReasons>
+            <Reason xsi:type="BestFitReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>BestFit</Option>
+              <UsedUp>PT0S</UsedUp>
+              <Available>P1D</Available>
+              <CurrentUse>PT1H</CurrentUse>
+            </Reason>
+            <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>CloseToCluster</Option>
+              <LocationCluster>
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+              </LocationCluster>
+            </Reason>
+          </TimePositionReasons>
           <ConflictProfile>
             <ConflictIDs />
-            <Flag>True</Flag>
+            <Flag>False</Flag>
             <Type>0</Type>
           </ConflictProfile>
           <MiscData>
@@ -1789,23 +624,277 @@
           </UIParams>
           <Location>
             <CheckCalendarEvent>False</CheckCalendarEvent>
-            <isNull>True</isNull>
-            <Description />
-            <Address />
-            <YCoordinate>-87.9074989664028</YCoordinate>
-            <XCoordinate>43.1788769526111</XCoordinate>
+            <isNull>False</isNull>
+            <Description>Home</Description>
+            <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+            <YCoordinate>-81.585446</YCoordinate>
+            <XCoordinate>41.480352</XCoordinate>
           </Location>
+          <NameId>eb443a64-cfd8-44bf-bdaf-2f119d5d7e63</NameId>
+          <Name>TestCalendarEvent-51d5e4a2-7c11-48aa-b28f-da0467b2f0a2</Name>
           <Complete>False</Complete>
           <Enabled>True</Enabled>
-          <ID>4499603_7_0_4499604</ID>
+          <ID>4500210_7_0_4500211</ID>
           <Rigid>False</Rigid>
           <ThirdPartyID />
           <PrepTime>00:00:00</PrepTime>
-          <ActiveStartTime>11/28/2016 7:38:45 AM</ActiveStartTime>
-          <ActiveEndTime>11/28/2016 8:38:45 AM</ActiveEndTime>
+          <ActiveStartTime>12/19/2016 3:37:57 AM</ActiveStartTime>
+          <ActiveEndTime>12/19/2016 4:37:57 AM</ActiveEndTime>
           <Duration>01:00:00</Duration>
-          <StartTime>11/28/2016 7:38:45 AM</StartTime>
-          <EndTime>11/28/2016 8:38:45 AM</EndTime>
+          <StartTime>12/19/2016 3:37:57 AM</StartTime>
+          <EndTime>12/19/2016 4:37:57 AM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
+    <EventSchedule>
+      <Recurrence />
+      <ProcrastinationProfile>
+        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
+        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
+        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
+      </ProcrastinationProfile>
+      <NowProfile>
+        <Initialized>False</Initialized>
+        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
+      </NowProfile>
+      <Restricted>False</Restricted>
+      <MiscData>
+        <TypeSelection>0</TypeSelection>
+        <UserNote />
+      </MiscData>
+      <UIParams>
+        <Type>0</Type>
+        <Color>
+          <UserSelection>-1</UserSelection>
+          <Blue>127</Blue>
+          <Green>127</Green>
+          <Red>127</Red>
+          <Opacity>1</Opacity>
+        </Color>
+        <Visible>True</Visible>
+      </UIParams>
+      <Location>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Home</Description>
+        <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+        <YCoordinate>-81.585446</YCoordinate>
+        <XCoordinate>41.480352</XCoordinate>
+      </Location>
+      <Enabled>True</Enabled>
+      <ID>4500215_7_0_0</ID>
+      <NameId>57d7840f-9936-4a59-8830-685f5a96c5ca</NameId>
+      <Name>TestCalendarEvent-a81e4ef8-0e36-439f-838e-bb86e818f6db</Name>
+      <StartTime>12/19/2016 2:37:00 AM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <DeletionCount>0</DeletionCount>
+      <CompletionCount>0</CompletionCount>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>12/26/2016 2:37:00 AM</Deadline>
+      <Split>1</Split>
+      <Duration>01:00:00</Duration>
+      <RigidFlag>False</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons>
+            <Reason xsi:type="BestFitReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>BestFit</Option>
+              <UsedUp>PT0S</UsedUp>
+              <Available>P1D</Available>
+              <CurrentUse>PT1H</CurrentUse>
+            </Reason>
+            <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>CloseToCluster</Option>
+              <LocationCluster>
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+              </LocationCluster>
+            </Reason>
+            <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>CloseToCluster</Option>
+              <LocationCluster>
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+              </LocationCluster>
+            </Reason>
+          </TimePositionReasons>
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+            <Visible>True</Visible>
+          </UIParams>
+          <Location>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Home</Description>
+            <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+            <YCoordinate>-81.585446</YCoordinate>
+            <XCoordinate>41.480352</XCoordinate>
+          </Location>
+          <NameId>57d7840f-9936-4a59-8830-685f5a96c5ca</NameId>
+          <Name>TestCalendarEvent-a81e4ef8-0e36-439f-838e-bb86e818f6db</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>4500215_7_0_4500216</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>12/19/2016 7:37:57 AM</ActiveStartTime>
+          <ActiveEndTime>12/19/2016 8:37:57 AM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>12/19/2016 7:37:57 AM</StartTime>
+          <EndTime>12/19/2016 8:37:57 AM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
+    <EventSchedule>
+      <Recurrence />
+      <ProcrastinationProfile>
+        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
+        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
+        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
+      </ProcrastinationProfile>
+      <NowProfile>
+        <Initialized>False</Initialized>
+        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
+      </NowProfile>
+      <Restricted>False</Restricted>
+      <MiscData>
+        <TypeSelection>0</TypeSelection>
+        <UserNote />
+      </MiscData>
+      <UIParams>
+        <Type>0</Type>
+        <Color>
+          <UserSelection>-1</UserSelection>
+          <Blue>127</Blue>
+          <Green>127</Green>
+          <Red>127</Red>
+          <Opacity>1</Opacity>
+        </Color>
+        <Visible>True</Visible>
+      </UIParams>
+      <Location>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Home</Description>
+        <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+        <YCoordinate>-81.585446</YCoordinate>
+        <XCoordinate>41.480352</XCoordinate>
+      </Location>
+      <Enabled>True</Enabled>
+      <ID>4500220_7_0_0</ID>
+      <NameId>4b9ef9d7-a57c-4cac-88a5-6e0e77a3deb4</NameId>
+      <Name>TestCalendarEvent-304542b0-ec38-461b-9ed3-24c794e55155</Name>
+      <StartTime>12/19/2016 2:37:57 AM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <DeletionCount>0</DeletionCount>
+      <CompletionCount>0</CompletionCount>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>12/26/2016 2:37:57 AM</Deadline>
+      <Split>1</Split>
+      <Duration>01:00:00</Duration>
+      <RigidFlag>False</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons>
+            <Reason xsi:type="BestFitReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>BestFit</Option>
+              <UsedUp>PT0S</UsedUp>
+              <Available>P1D</Available>
+              <CurrentUse>PT1H</CurrentUse>
+            </Reason>
+            <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>CloseToCluster</Option>
+              <LocationCluster>
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+                <Location_Elements />
+              </LocationCluster>
+            </Reason>
+          </TimePositionReasons>
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+            <Visible>True</Visible>
+          </UIParams>
+          <Location>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Home</Description>
+            <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+            <YCoordinate>-81.585446</YCoordinate>
+            <XCoordinate>41.480352</XCoordinate>
+          </Location>
+          <NameId>4b9ef9d7-a57c-4cac-88a5-6e0e77a3deb4</NameId>
+          <Name>TestCalendarEvent-304542b0-ec38-461b-9ed3-24c794e55155</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>4500220_7_0_4500221</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>12/19/2016 2:37:57 AM</ActiveStartTime>
+          <ActiveEndTime>12/19/2016 3:37:57 AM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>12/19/2016 2:37:57 AM</StartTime>
+          <EndTime>12/19/2016 3:37:57 AM</EndTime>
         </EventSubSchedule>
       </EventSubSchedules>
       <RepetitionFlag>False</RepetitionFlag>

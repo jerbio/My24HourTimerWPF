@@ -56,7 +56,6 @@ namespace TilerElements
                 base.AddBusySlots(eachSubCal.ActiveSlot);
             }
             //);
-
             updateOccupancyOfTimeLine();
             
         }

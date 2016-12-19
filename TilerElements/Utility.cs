@@ -1303,6 +1303,17 @@ namespace TilerElements
 
             return retValue;
         }
-
+        /// <summary>
+        /// Removes the seconds and milliseconds of the datetimeoffset account. It returns a new datetimeoffset struct object.
+        /// </summary>
+        /// <param name="time"></param>
+        /// <returns></returns>
+        public static DateTimeOffset removeSecondsAndMilliseconds(this DateTimeOffset time)
+        {
+            DateTimeOffset retValue = time;
+            retValue = retValue.AddSeconds(-time.Second);
+            retValue = retValue.AddMilliseconds(-time.Millisecond);
+            return retValue;
+        }
     }
 }

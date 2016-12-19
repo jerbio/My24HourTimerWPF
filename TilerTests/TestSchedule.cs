@@ -37,5 +37,17 @@ namespace TilerTests
             Health retValue = new Health(this.getAllCalendarEvents(), timeLine.Start, timeLine.TimelineSpan, refNow);
             return retValue;
         }
+
+        public void populateDayTimeLinesWithSubcalendarEvents()
+        {
+            IEnumerable<CalendarEvent> calendarEvents = getAllCalendarEvents();
+            foreach(SubCalendarEvent subevent in  calendarEvents.SelectMany(calEvent => calEvent.AllSubEvents))
+            {
+                DayTimeLine dayTimeLineStart  = Now.getDayTimeLineByTime(subevent.Start);
+                DayTimeLine dayTimeLineAfter = Now.getDayTimeLineByTime(subevent.Start);
+                dayTimeLineStart.AddToSubEventList(subevent);
+                dayTimeLineAfter.AddToSubEventList(subevent);
+            }
+        }
     }
 }

@@ -271,20 +271,6 @@ namespace My24HourTimerWPF
 
         public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> UpdateCalEventTimeLine(CalendarEvent myCalendarEvent, TimeLine NewTimeLine)
         {
-            /*
-            IEnumerable<SubCalendarEvent> AllSubEVents = myCalendarEvent.AllSubEvents.Select(obj=>obj.createCopy());
-            
-            IEnumerable<SubCalendarEvent> referenceSubEVents = AllSubEVents.Where(obj => obj.isActive);
-            //bool InitEnableStatus=myCalendarEvent.isEnabled;
-            //myCalendarEvent.Disable(false);
-
-            //(string EventName, TimeSpan Event_Duration, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, TimeSpan Event_PreDeadline, bool EventRigidFlag, Repetition EventRepetitionEntry, int EventSplit, Location EventLocation, bool EnableFlag, EventDisplay UiData, MiscData NoteData, bool CompletionFlag)
-            
-            CalendarEvent ReadjustedCalendarEvent = new CalendarEvent(myCalendarEvent.Name, Utility.SumOfActiveDuration(referenceSubEVents), NewTimeLine.Start, NewTimeLine.End, ZeroTimeSpan, ZeroTimeSpan, myCalendarEvent.Rigid, new Repetition(), referenceSubEVents.Count(), myCalendarEvent.myLocation, true, myCalendarEvent.UIParam, myCalendarEvent.Notes, myCalendarEvent.isComplete);
-            IEnumerable<SubCalendarEvent>  referenceSubEVents_Changed = referenceSubEVents.Select(obj => new SubCalendarEvent(obj.ActiveDuration, obj.Start, obj.End, obj.Preparation, ReadjustedCalendarEvent.ID, obj.Rigid, true, obj.UIParam, obj.Notes, obj.isComplete, obj.myLocation, ReadjustedCalendarEvent.RangeTimeLine));
-            ReadjustedCalendarEvent = new CalendarEvent(ReadjustedCalendarEvent, referenceSubEVents_Changed.ToArray());
-            */
-
             myCalendarEvent.updateTimeLine(NewTimeLine);
             HashSet<SubCalendarEvent> NoDoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
             
@@ -293,22 +279,7 @@ namespace My24HourTimerWPF
 
 
             myCalendarEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(myCalendarEvent, NoDoneYet);
-
-            
-            
-            /*
-            foreach (SubCalendarEvent eachSubCalendarEvent in referenceSubEVents)
-            {
-                myCalendarEvent.updateSubEvent(eachSubCalendarEvent.SubEvent_ID, UpdatedSubEvents[i++]);
-            }
-
-            ReadjustedCalendarEvent = new CalendarEvent(ReadjustedCalendarEvent, myCalendarEvent.AllSubEvents.ToArray());
-
-            myCalendarEvent.UpdateThis(ReadjustedCalendarEvent);
-            */
-
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(myCalendarEvent.Error, AllEventDictionary);
-            //myCalendarEvent.SetEventEnableStatus(InitEnableStatus);
             AllEventDictionary=AllEventDictionary_Cpy;
             return retValue ;
         }
@@ -449,14 +420,6 @@ namespace My24HourTimerWPF
             {
                 var Holder = MyTotalBusySlots.Concat(GetBusySlotPerCalendarEvent(MyCalendarEvent.Value));
                 MyTotalBusySlots = Holder.ToList();
-                /*foreach (SubCalendarEvent MySubCalendarEvent in MyCalendarEvent.Value.AllEvents)
-                {
-                    if (MySubCalendarEvent.End > LastDeadline)
-                    {
-                        LastDeadline = MySubCalendarEvent.End;
-                    }
-                    MyTotalBusySlots.Add(MySubCalendarEvent.ActiveSlot);
-                }*/
             }
             MyTotalBusySlots = SortBusyTimeline(MyTotalBusySlots, true);
             TimeLine MyTimeLine = new TimeLine(Now.calculationNow, Now.calculationNow.AddHours(1));
@@ -468,7 +431,12 @@ namespace My24HourTimerWPF
             return MyTimeLine;
         }
 
-
+        public List<SubCalendarEvent> getSubweventsForDay(DateTimeOffset time)
+        {
+            DayTimeLine daytimeLine = Now.getDayTimeLineByTime(time);
+            List<SubCalendarEvent> retValue = daytimeLine.getSubEventsInDayTimeLine();
+            return retValue;
+        }
 
         public void RemoveAllCalendarEventFromLogAndCalendar()//MyTemp Function for deleting all calendar events
         {

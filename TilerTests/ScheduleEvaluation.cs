@@ -209,6 +209,105 @@ namespace TilerTests
             currentUser.DeleteAllCalendarEvents();
         }
 
+        /// <summary>
+        /// This test tries to evaluate a simple schedule balance.
+        /// Essentially we are creating seven calendar events. Each having only 1 splits. The scheduler should initially schedule things to be initially evenly spaced so every day should have seven sub calendar events.
+        /// There should be one and only one event on each day
+        /// </summary>
+        [TestMethod]
+        public void testScheduleCountBalance()
+        {
+            UserAccount currentUser = TestUtility.getTestUser();
+            currentUser.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.Now;
+            refNow = refNow.LocalDateTime;
+            TimeSpan activeDuration = TimeSpan.FromHours(1);
+            int numberOfDays = 7;
+            TimeSpan timeLineDuration = TimeSpan.FromDays(numberOfDays);
+            TimeLine eventTimeLine = new TimeLine(refNow, refNow.Add(timeLineDuration));
+            int numberOfSubeventPerCalendarEvent = 1;
+            int numberOfCalendarEvent = 7;
+            List<CalendarEvent> allCalendarevents = new List<CalendarEvent>();
+            Location_Elements location = TestUtility.getLocations()[0];
+            TestSchedule schedule = new TestSchedule(currentUser, refNow, refNow);
+            for (int i = 0; i < numberOfCalendarEvent; i++)
+            {
+                CalendarEvent calEvent = TestUtility.generateCalendarEvent(activeDuration, new TilerElements.Repetition(), eventTimeLine.Start, eventTimeLine.End, numberOfSubeventPerCalendarEvent, false, location);
+                allCalendarevents.Add(calEvent);
+                schedule.AddToScheduleAndCommit(calEvent).Wait();
+                schedule = new TestSchedule(currentUser, refNow, refNow);
+                schedule.FindMeSomethingToDo(location).Wait();
+                schedule = new TestSchedule(currentUser, refNow, refNow);
+            }
+
+            List<DayTimeLine> daytimeLines = new List<DayTimeLine>();
+
+            for (int i=0; i< numberOfDays; i++)
+            {
+                DateTimeOffset start = eventTimeLine.Start.AddDays(i);
+                DayTimeLine dayTimeLine = schedule.Now.getDayTimeLineByTime(start);
+                daytimeLines.Add(dayTimeLine);
+            }
+
+            schedule.populateDayTimeLinesWithSubcalendarEvents();
+
+            foreach (DayTimeLine daytimeLine in daytimeLines)
+            {
+                int numberOfSubevent = daytimeLine.getSubEventsInDayTimeLine().Count;
+                Assert.AreEqual(numberOfSubevent, numberOfSubeventPerCalendarEvent);
+            }
+        }
+
+        /// <summary>
+        /// This test tries to evaluate a simple schedule balance.
+        /// Essentially we are creating seven calendar events. Each having only 7 splits. The scheduler should initially schedule things to be initially evenly spaced so every day should have seven sub calendar events.
+        /// There should be 7 and only one event on each day
+        /// </summary>
+        [TestMethod]
+        public void testScheduleCountBalance0()
+        {
+            UserAccount currentUser = TestUtility.getTestUser();
+            currentUser.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.Now;
+            refNow = refNow.LocalDateTime;
+            TimeSpan activeDuration = TimeSpan.FromHours(1);
+            int numberOfDays = 7;
+            TimeSpan timeLineDuration = TimeSpan.FromDays(numberOfDays);
+            TimeLine eventTimeLine = new TimeLine(refNow, refNow.Add(timeLineDuration));
+            int numberOfCalendarEvent = 7;
+            int numberOfSubevents = 7;
+            int numberOfSubeventPerCalendarEvent = 7;
+            List<CalendarEvent> allCalendarevents = new List<CalendarEvent>();
+            Location_Elements location = TestUtility.getLocations()[0];
+            TestSchedule schedule = new TestSchedule(currentUser, refNow, refNow);
+            for (int i = 0; i < numberOfCalendarEvent; i++)
+            {
+                CalendarEvent calEvent = TestUtility.generateCalendarEvent(TimeSpan.FromTicks(activeDuration.Ticks * numberOfSubevents), new TilerElements.Repetition(), eventTimeLine.Start, eventTimeLine.End, numberOfSubevents, false, location);
+                allCalendarevents.Add(calEvent);
+                schedule.AddToScheduleAndCommit(calEvent).Wait();
+                schedule = new TestSchedule(currentUser, refNow, refNow);
+                schedule.FindMeSomethingToDo(location).Wait();
+                schedule = new TestSchedule(currentUser, refNow, refNow);
+            }
+
+            List<DayTimeLine> daytimeLines = new List<DayTimeLine>();
+
+            for (int i = 0; i < numberOfDays; i++)
+            {
+                DateTimeOffset start = eventTimeLine.Start.AddDays(i);
+                DayTimeLine dayTimeLine = schedule.Now.getDayTimeLineByTime(start);
+                daytimeLines.Add(dayTimeLine);
+            }
+
+            schedule.populateDayTimeLinesWithSubcalendarEvents();
+
+            foreach (DayTimeLine daytimeLine in daytimeLines)
+            {
+                int numberOfSubevent = daytimeLine.getSubEventsInDayTimeLine().Count;
+                Assert.AreEqual(numberOfSubevent, numberOfSubeventPerCalendarEvent);
+            }
+        }
+
         [ClassCleanup]
         public static void cleanUpTest()
         {

@@ -10,14 +10,16 @@ namespace TilerElements
         public static DateTimeOffset StartOfTime;
         DateTimeOffset CalculationNow;
         DateTimeOffset ImmutableNow;
+        const int numberOfDfDays = 90;
         UInt64 ImmutableDayIndex;//'Cause tiler will exist 18,446,744,073,709,551,615 from 1970 
-        protected TimeSpan ConstOfCalculation = new TimeSpan(90, 0, 0, 0, 0);
+        protected TimeSpan ConstOfCalculation = new TimeSpan(numberOfDfDays, 0, 0, 0, 0);
         DateTimeOffset tempNow = new DateTimeOffset(DateTimeOffset.Now.Year, DateTimeOffset.Now.Month, DateTimeOffset.Now.Day, 0, 0, 0, new TimeSpan());
         TimeLine ComputationBound;// = new TimeLine(new DateTimeOffset(DateTimeOffset.Now.Year, DateTimeOffset.Now.Month, DateTimeOffset.Now.Day, 0, 0, 0, new TimeSpan()), new DateTimeOffset(DateTimeOffset.Now.Year, DateTimeOffset.Now.Month, DateTimeOffset.Now.Day, 0, 0, 0, new TimeSpan()).AddDays(90));
         DateTimeOffset StartOfDay;
         DayTimeLine refFirstDay;
         protected DayTimeLine[] AllDays;
         Dictionary<ulong, DayTimeLine> DayLookUp;
+        ulong lastDayIndex = 0;
         uint DayCount;
 
         public ReferenceNow(DateTimeOffset Now, DateTimeOffset StartOfDay)
@@ -60,6 +62,10 @@ namespace TilerElements
                 AllDayTImeLine.Add( new DayTimeLine(ComputationStart, ComputationEnd, myIndeUniversalIndex, i));
                 ComputationStart = ComputationEnd;
                 ComputationEnd = ComputationEnd.AddDays(1);
+                if(lastDayIndex < myIndeUniversalIndex)
+                {
+                    lastDayIndex = myIndeUniversalIndex;
+                }
             }
             AllDays = AllDayTImeLine.ToArray();
             DayLookUp = AllDays.ToDictionary(obj => obj.UniversalIndex, obj => obj);
@@ -81,6 +87,40 @@ namespace TilerElements
         public IEnumerable<DayTimeLine> getAllDaysForCalc()
         {
             return AllDays;
+        }
+
+
+        /// <summary>
+        /// Function return the corresponding daytimeline for a provided daytime. In the time calculations are alwways done in UTC. Note this dayIndex is the universal day index. If a dayindex cannot be found an exception is thrown. So the time being provided has to be pertinent to the initialization of this reference now object.
+        /// e.g if this reference now is being initialized ON 1970,1,2 - 1970, 1, 4. This means this will be initialized with an index of just daytimelines within that timeline. Remmber universsal time starts from 1970,1,1. Meaning if you try to access the days of 1970,1,1 or 1970,1,5, this function will throw an exception.
+        /// </summary>
+        /// <param name="time">time to be looked up</param>
+        /// <returns></returns>
+        public DayTimeLine getDayTimeLineByTime(DateTimeOffset time)
+        {
+            
+            ulong dayIndex = getDayIndexFromStartOfTime(time);
+            DayTimeLine retValue = getDayTimeLineByDayIndex(dayIndex);
+            return retValue;
+        }
+
+
+        /// <summary>
+        /// Function return the corresponding daytimeline for a provided dayIndex. Note this dayIndex is the universal day index. If a dayindex cannot be found an exception is thrown. So the dayindex being provided has to be pertinent to the initialization of this reference now object.
+        /// e.g if this reference now is being initialized ON 1970,1,2 - 1970, 1, 4. This means this will be initialized with an index of 1-3. Remmber universsal time starts from 1970,1,1. Meaning if you try to access the day universal indexes of 0 or 4, this function will throw an exception.
+        /// </summary>
+        /// <param name="dayIndex">the desired dxay index</param>
+        /// <returns></returns>
+        public DayTimeLine getDayTimeLineByDayIndex(ulong dayIndex)
+        {
+            if (DayLookUp.ContainsKey(dayIndex))
+            {
+                return DayLookUp[dayIndex];
+            }
+            ulong start = lastDayIndex - (DayCount-1);
+            ulong end = lastDayIndex;
+            string errorMessage = "You are trying to make a query for a day that isn't within the " + ConstOfCalculation.TotalDays + " For Reference now. Hint: the only valid indexes are" + start + " - " + end;
+            throw new Exception(errorMessage);
         }
 
         public IEnumerable<DayTimeLine> getAllDaysCount(uint NumberOfDays)
@@ -111,13 +151,23 @@ namespace TilerElements
             return retValue;
         }
 
+        /// <summary>
+        /// This returns the universal index relative to the start of time. which in this case is supposed to be 1970 ,1,1. Note all calculations are done using the utc timezone
+        /// </summary>
+        /// <param name="myDay">the time to be used as the reference day. This will be the beginning of the utc day</param>
+        /// <returns></returns>
         static public ulong getDayIndexFromStartOfTime(DateTimeOffset myDay)
         {
+            myDay = myDay.LocalDateTime;
             ulong retValue = (ulong)((myDay - StartOfTime).TotalDays);
             return retValue;
         }
 
-
+        /// <summary>
+        /// Function returns the index relative to the starting of the computation bound. Note, this does not return a universal index. If you ant a universal index then you should call getDayIndexFromStartOfTime
+        /// </summary>
+        /// <param name="myDay"></param>
+        /// <returns></returns>
         virtual public ulong getDayIndexByTime(DateTimeOffset myDay)
         {
             ulong retValue = (ulong)((myDay - ComputationBound.Start).TotalDays);

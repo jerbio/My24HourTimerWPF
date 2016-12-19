@@ -170,7 +170,6 @@ namespace TilerElements
                 SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(UniqueID.ToString(),this.Name, SubStart, SubEnd, ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), RigidSchedule, PrepTime, EventPreDeadline, LocationInfo, UiParams, DataBlob, Priority, DeadlineElapsed, ThirdPartyID);
                 SubEvents.Add(newEvent.SubEvent_ID, newEvent);
             }
-            
         }
 
         public RestrictionProfile RetrictionInfo

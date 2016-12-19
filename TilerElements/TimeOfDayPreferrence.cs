@@ -8,7 +8,7 @@ namespace TilerElements
 {
     public class TimeOfDayPreferrence
     {
-        public enum DaySection { Sleep, Morning, Afternoon, Evening, None, Disabled }
+        public enum DaySection { Morning, Afternoon, Evening, Sleep, None, Disabled }
         protected DateTimeOffset tImeLineStart;
         protected TimeLine fullDayTImeLine;
         List<Tuple<int, DaySection, bool, TimeLine>> PreferenceOrder;

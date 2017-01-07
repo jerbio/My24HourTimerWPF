@@ -10,7 +10,7 @@ namespace TilerElements
         protected TimeLine HardCalendarEventRange;//this does not include the restriction
         protected RestrictionProfile ProfileOfRestriction;
         #region Constructor
-        public SubCalendarEventRestricted(string CalEventID, EventName name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile constrictionProgile, TimeLine HardCalEventTimeRange, bool isEnabled, bool isComplete, ConflictProfile conflictingEvents, bool RigidFlag,TimeSpan PrepTimeData ,TimeSpan PreDeadline, Location_Elements Locationdata, EventDisplay UiData, MiscData Notes, int Priority = 0, bool isDeadlineElapsed = false, string thirdPartyID = "", ConflictProfile conflicts = null )
+        public SubCalendarEventRestricted(TilerUser creator, TilerUserGroup users,  string CalEventID, EventName name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile constrictionProgile, TimeLine HardCalEventTimeRange, bool isEnabled, bool isComplete, ConflictProfile conflictingEvents, bool RigidFlag,TimeSpan PrepTimeData ,TimeSpan PreDeadline, Location_Elements Locationdata, EventDisplay UiData, MiscData Notes, int Priority = 0, bool isDeadlineElapsed = false, string thirdPartyID = "", ConflictProfile conflicts = null )
         { 
             isRestricted =true;
             StartDateTime = Start;
@@ -22,7 +22,7 @@ namespace TilerElements
             HardCalendarEventRange = HardCalEventTimeRange;
             initializeCalendarEventRange(ProfileOfRestriction,HardCalendarEventRange);
             BusyFrame = new BusyTimeLine(UniqueID.ToString(),StartDateTime, EndDateTime);
-            UserIDs = new List<string>();
+            _Users = new TilerUserGroup();
             RigidSchedule = RigidFlag;
             Complete = isComplete;
             DeadlineElapsed = isDeadlineElapsed;
@@ -31,7 +31,6 @@ namespace TilerElements
             this.Priority = Priority;
             this.LocationInfo = Locationdata;
             otherPartyID = thirdPartyID;
-            UserIDs = this.UserIDs.ToList();
             this.UiParams = UiData;
             this.ConflictingEvents = conflicts;
             DataBlob = Notes;
@@ -40,6 +39,8 @@ namespace TilerElements
             HumaneTimeLine = BusyFrame.CreateCopy();
             NonHumaneTimeLine = BusyFrame.CreateCopy();
             _LastReasonStartTimeChanged = this.Start;
+            this._Creator = creator;
+            this._Users = users;
         }
 
         public SubCalendarEventRestricted()
@@ -190,8 +191,6 @@ namespace TilerElements
             copy._Name = this.Name.createCopy();
             copy.EventPreDeadline = this.EventPreDeadline;
             copy.EventScore = this.EventScore;
-            //copy.EventSequence = this.EventSequence.CreateCopy();
-            copy.RepetitionFlag  = this.RepetitionFlag ;
             copy.HardCalendarEventRange = this.HardCalendarEventRange.CreateCopy();
             copy.HumaneTimeLine = this.HumaneTimeLine.CreateCopy();
             copy.isRestricted = this.isRestricted;
@@ -204,7 +203,6 @@ namespace TilerElements
             copy.PrepTime = this.PrepTime;
             copy.Priority = this.Priority;
             copy.ProfileOfRestriction = this.ProfileOfRestriction.createCopy();
-            copy.RepetitionFlag = this.RepetitionFlag;
             copy.RigidSchedule = this.RigidSchedule;
             copy.StartDateTime = this.StartDateTime;
             copy.UiParams = this.UiParams.createCopy();
@@ -219,7 +217,7 @@ namespace TilerElements
             }
             copy.UnUsableIndex = this.UnUsableIndex;
             copy.UserDeleted = this.UserDeleted;
-            copy.UserIDs = this.UserIDs.ToList();
+            copy._Users = this._Users;
             copy.Semantics = this.Semantics.createCopy();
             copy._UsedTime = this._UsedTime;
             copy.OptimizationFlag = this.OptimizationFlag;
@@ -321,12 +319,11 @@ namespace TilerElements
         
         public override bool UpdateThis(SubCalendarEvent SubEventEntryData)
         {
-            if ((this.Id == SubEventEntryData.Id) && canExistWithinTimeLine(SubEventEntryData.getCalendarEventRange))
+            if ((this.getId == SubEventEntryData.getId) && canExistWithinTimeLine(SubEventEntryData.getCalendarEventRange))
             {
                 SubCalendarEventRestricted SubEventEntry = (SubCalendarEventRestricted)SubEventEntryData;
                 this.BusyFrame = SubEventEntry.ActiveSlot;
                 this.CalendarEventRange = SubEventEntry.getCalendarEventRange;
-                this.RepetitionFlag  = SubEventEntry.FromRepeat;
                 this._Name = SubEventEntry.Name;
                 this.EventDuration = SubEventEntry.ActiveDuration;
                 this.Complete = SubEventEntry.isComplete;
@@ -346,17 +343,16 @@ namespace TilerElements
                 this.Priority = SubEventEntry.EventPriority;
                 this.ProfileOfNow = SubEventEntry.ProfileOfNow;
                 this.ProfileOfProcrastination = SubEventEntry.ProfileOfProcrastination;
-                this.RepetitionFlag = SubEventEntry.FromRepeat;
                 //this.RigidSchedule = this.rig
                 this.StartDateTime = SubEventEntry.Start;
                 this.UiParams = SubEventEntry.UIParam;
                 this.UniqueID = SubEventEntry.SubEvent_ID;
                 this.UserDeleted = SubEventEntry.isUserDeleted;
-                this.UserIDs = SubEventEntry.getAllUserIDs();
+                this._Users = SubEventEntry.getAllUsers();
                 this.Vestige = SubEventEntry.isVestige;
                 this.otherPartyID = SubEventEntry.otherPartyID;
                 this.ProfileOfRestriction = SubEventEntry.ProfileOfRestriction;
-                this.CreatorIDInfo = SubEventEntry.CreatorIDInfo;
+                this._Creator = SubEventEntry._Creator;
                 this.Semantics = SubEventEntry.Semantics;
                 this._UsedTime = SubEventEntry._UsedTime;
                 return true;
@@ -370,7 +366,6 @@ namespace TilerElements
             SubCalendarEventRestricted retValue = new SubCalendarEventRestricted();
             retValue.BusyFrame = this.ActiveSlot;
             retValue.CalendarEventRange = this.getCalendarEventRange.CreateCopy();
-            retValue.RepetitionFlag  = this.FromRepeat;
             retValue._Name = this.Name.createCopy();
             retValue.EventDuration = this.ActiveDuration;
             retValue.Complete = this.isComplete;
@@ -390,13 +385,12 @@ namespace TilerElements
             retValue.Priority = this.EventPriority;
             retValue.ProfileOfNow = this.ProfileOfNow.CreateCopy();
             retValue.ProfileOfProcrastination = this.ProfileOfProcrastination.CreateCopy();
-            retValue.RepetitionFlag = this.FromRepeat;
             retValue.RigidSchedule = this.Rigid;
             retValue.StartDateTime = this.Start;
             retValue.UiParams = this.UIParam;
             retValue.UniqueID = this.SubEvent_ID;
             retValue.UserDeleted = this.isUserDeleted;
-            retValue.UserIDs = this.getAllUserIDs();
+            retValue._Users = this.getAllUsers();
             retValue.Vestige = this.isVestige;
             retValue.otherPartyID = this.otherPartyID;
             retValue.ProfileOfRestriction = this.ProfileOfRestriction;
@@ -422,7 +416,7 @@ namespace TilerElements
 
             retValue.HardCalendarEventRange= new TimeLineRestricted(ProcrastinationData.PreferredStartTime, CalendarEventData.RangeTimeLine.End,retValue.ProfileOfRestriction);
             TimeSpan SpanShift = ProcrastinationData.PreferredStartTime - retValue.Start;
-            retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventData.Id);
+            retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventData.getId);
             retValue.initializeCalendarEventRange(retValue.ProfileOfRestriction, CalendarEventData.RangeTimeLine);
             retValue.shiftEvent(SpanShift, true);
             return retValue;

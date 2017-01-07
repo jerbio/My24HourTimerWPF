@@ -580,7 +580,7 @@ namespace My24HourTimerWPF
 
             CustomErrors ErrorCheck = ValidateInputValues(EventDuration, eventStartTime, eventStartDate.ToString(), eventEndTime, eventEndDate.ToString(), RepeatStart.ToString(), RepeatEnd.ToString(), PreDeadlineTime, eventSplit, eventPrepTime, CurrentNow);
 
-            if (!ErrorCheck.Status)
+            if (ErrorCheck != null)
             { 
                 MessageBox.Show(ErrorCheck.Message);
                 return;
@@ -600,7 +600,26 @@ namespace My24HourTimerWPF
             DateTimeOffset EndData = DateTimeOffset.Parse(eventEndDate.Date.ToShortDateString() + " " + eventEndTime);
 
             //CalendarEvent ScheduleUpdated = CreateSchedule(eventName, eventStartTime, eventStartDate, eventEndTime, eventEndDate, eventSplit, PreDeadlineTime, EventDuration, EventRepetitionflag, DefaultPreDeadlineFlag, RigidScheduleFlag, eventPrepTime, DefaultPreDeadlineFlag);
-            CalendarEvent ScheduleUpdated = new CalendarEvent(eventName, StartData, EndData, eventSplit, PreDeadlineTime, EventDuration, MyRepetition, DefaultPreDeadlineFlag, RigidFlag, eventPrepTime, DefaultPreDeadlineFlag, var0, true, UiData, NoteData, CompletedFlag);
+            CalendarEvent ScheduleUpdated;
+            
+            TimeSpan activeDuration = TimeSpan.Parse(EventDuration);
+            TimeSpan prepTimeSpan = TimeSpan.Parse(eventPrepTime);
+            TimeSpan predeadlineSpan = TimeSpan.Parse(PreDeadlineTime);
+            if (RigidFlag)
+            {
+                ScheduleUpdated = new RigidCalendarEvent(
+                    //EventID.GenerateCalendarEvent(), 
+                    eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, MyRepetition,  var0, UiData, NoteData, true, CompletedFlag, new TilerLogicUser(MySchedule.getUserAccount().UserID),new TilerUserGroup(), "UTC" , null);
+            }
+            else
+            {
+                int splitCount = Convert.ToInt32(eventSplit);
+                ScheduleUpdated = new CalendarEvent(
+                    //EventID.GenerateCalendarEvent(), 
+                    eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, splitCount, MyRepetition, var0, UiData, NoteData, null,new NowProfile(), true, CompletedFlag, new TilerLogicUser(MySchedule.getUserAccount().UserID), new TilerUserGroup(), "UTC", null);
+            }
+            
+            
             if (RestrictedCheckbox.IsChecked.Value)
             {
                 string TimeString = eventStartDate.Date.ToShortDateString() + " " + eventStartTime+" +00:00";
@@ -648,7 +667,7 @@ namespace My24HourTimerWPF
 
 
 
-                ScheduleUpdated = new CalendarEventRestricted(eventName, StartDateTime, EndDateTime, myRestrictionProfile, TimeSpan.Parse(EventDuration), MyRepetition, false, true, Convert.ToInt32(eventSplit), RigidFlag, new Location_Elements(), TimeSpan.Parse(eventPrepTime), TimeSpan.Parse(PreDeadlineTime), UiData, NoteData);
+                ScheduleUpdated = new CalendarEventRestricted(eventName, StartDateTime, EndDateTime, myRestrictionProfile, TimeSpan.Parse(EventDuration), MyRepetition, false, true, Convert.ToInt32(eventSplit), RigidFlag, new Location_Elements(), TimeSpan.Parse(eventPrepTime), TimeSpan.Parse(PreDeadlineTime), null, UiData, NoteData);
             }
             
             ScheduleUpdated.Repeat.PopulateRepetitionParameters(ScheduleUpdated);
@@ -664,15 +683,10 @@ namespace My24HourTimerWPF
             snugarrayTester.Stop();
             //MessageBox.Show("It took " + snugarrayTester.ElapsedMilliseconds.ToString() + "ms max thread count is ");
 
-            if (!ScheduleUpdateMessage.Status)
+            if (ScheduleUpdateMessage==null)
             {
                 textBlock9.Text = "Schedule Updated with " + ScheduleUpdated.Name;
-                if (ScheduleUpdateMessage.Status)
-                {
-                    textBlock9.Text = ScheduleUpdateMessage.Message;
-                }
             }
-
             else
             {
                 textBlock9.Text = "Failed to update Schedule" + ScheduleUpdated.Name;
@@ -768,7 +782,7 @@ namespace My24HourTimerWPF
 
             CustomErrors ErrorCheck = ValidateInputValues(EventDuration, eventStartTime, eventStartDate.ToString(), eventEndTime, eventEndDate.ToString(), RepeatStart.ToString(), RepeatEnd.ToString(), PreDeadlineTime, eventSplit, eventPrepTime, CurrentNow);
 
-            if (!ErrorCheck.Status)
+            if (ErrorCheck !=null)
             {
                 MessageBox.Show(ErrorCheck.Message);
                 return;
@@ -787,7 +801,22 @@ namespace My24HourTimerWPF
             DateTimeOffset EndData = DateTimeOffset.Parse(eventEndDate.Date.ToShortDateString() + " " + eventEndTime);
 
             //CalendarEvent ScheduleUpdated = CreateSchedule(eventName, eventStartTime, eventStartDate, eventEndTime, eventEndDate, eventSplit, PreDeadlineTime, EventDuration, EventRepetitionflag, DefaultPreDeadlineFlag, RigidScheduleFlag, eventPrepTime, DefaultPreDeadlineFlag);
-            CalendarEvent ScheduleUpdated = new CalendarEvent(eventName, StartData, EndData, eventSplit, PreDeadlineTime, EventDuration, MyRepetition, DefaultPreDeadlineFlag, RigidFlag, eventPrepTime, DefaultPreDeadlineFlag, var0, true, UiData, NoteData, CompletedFlag);
+            CalendarEvent ScheduleUpdated;
+            TimeSpan activeDuration = TimeSpan.Parse(EventDuration);
+            TimeSpan prepTimeSpan = TimeSpan.Parse(eventPrepTime);
+            TimeSpan predeadlineSpan = TimeSpan.Parse(PreDeadlineTime);
+            if (RigidFlag)
+            {
+                ScheduleUpdated = new RigidCalendarEvent(
+                    //EventID.GenerateCalendarEvent(), 
+                    eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, MyRepetition, var0, UiData, NoteData, true, CompletedFlag, new TilerLogicUser(MySchedule.getUserAccount().UserID), new TilerUserGroup(), "UTC", null);
+            }
+            else
+            {
+                int splitCount = Convert.ToInt32(eventSplit);
+                ScheduleUpdated = new CalendarEvent(//EventID.GenerateCalendarEvent(), 
+                    eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, splitCount, MyRepetition, var0, UiData, NoteData, null, new NowProfile(), true, CompletedFlag, new TilerLogicUser(MySchedule.getUserAccount().UserID), new TilerUserGroup(), "UTC", null);
+            }
             if (RestrictedCheckbox.IsChecked.Value)
             {
                 string TimeString = eventStartDate.Date.ToShortDateString() + " " + eventStartTime + " +00:00";
@@ -835,7 +864,7 @@ namespace My24HourTimerWPF
 
 
 
-                ScheduleUpdated = new CalendarEventRestricted(eventName, StartDateTime, EndDateTime, myRestrictionProfile, TimeSpan.Parse(EventDuration), MyRepetition, false, true, Convert.ToInt32(eventSplit), RigidFlag, new Location_Elements(), TimeSpan.Parse(eventPrepTime), TimeSpan.Parse(PreDeadlineTime), UiData, NoteData);
+                ScheduleUpdated = new CalendarEventRestricted(eventName, StartDateTime, EndDateTime, myRestrictionProfile, TimeSpan.Parse(EventDuration), MyRepetition, false, true, Convert.ToInt32(eventSplit), RigidFlag, new Location_Elements(), TimeSpan.Parse(eventPrepTime), TimeSpan.Parse(PreDeadlineTime), null, UiData, NoteData);
             }
 
             ScheduleUpdated.Repeat.PopulateRepetitionParameters(ScheduleUpdated);
@@ -884,25 +913,25 @@ namespace My24HourTimerWPF
 
             if (!uint.TryParse(NumberOfSplits.Trim(), out SplitCount))//checks to see if Number Of splits is integer
             {
-                return new CustomErrors(false, "Please Check Number Split");
+                return new CustomErrors("Please Check Number Split");
             }
 
             if (!uint.TryParse(NumberOfSplits.Trim(), out SplitCount))
             {
-                return new CustomErrors(false, "Please Check Number Split");
+                return new CustomErrors("Please Check Number Split");
             }
 
             if (ActiveDuration.Trim() != "00:00:00")//checks if Active Duration has valid input
             {
                 if (ActiveDurationTimeSpan.ToString() == "00:00:00")
                 {
-                    return new CustomErrors(false, "Invalid Duration Input");
+                    return new CustomErrors("Invalid Duration Input");
                 }
             }
 
             if (ActiveDurationTimeSpan > (EndDateTime - StartDateTime))
             {
-                return new CustomErrors(false, "Please Check your active duration, it is longer than the time span available between Start time and End Time");
+                return new CustomErrors("Please Check your active duration, it is longer than the time span available between Start time and End Time");
             }
 
             if (PrepTime.Trim() != "00:00:00")//checks if Active Duration has valid input
@@ -935,17 +964,17 @@ namespace My24HourTimerWPF
                 }
                 else 
                 {
-                    return new CustomErrors(false, "Please Check your Repeat EndDate, it cannot be earlier than Repeat StartDate ");
+                    return new CustomErrors("Please Check your Repeat EndDate, it cannot be earlier than Repeat StartDate ");
                 }
                 
             }
 
             if (EndDateTime <= StartDateTime)// checks if repeat start date is greater or later than Repeat End date
             {
-                return new CustomErrors(false, "Please Check your End Date, it cannot be earlier than Start Date ");
+                return new CustomErrors("Please Check your End Date, it cannot be earlier than Start Date ");
             }
 
-            return new CustomErrors(true, "");
+            return new CustomErrors("");
         }
 
         void UpdatePreDealineTime()
@@ -1180,10 +1209,7 @@ namespace My24HourTimerWPF
                 ScheduleUpdateMessage=MySchedule.ProcrastinateJustAnEvent(textBox9.Text, DelaySpan);
             }
 
-
-            
-
-            if (ScheduleUpdateMessage.Item1.Status)//checks for error
+            if (ScheduleUpdateMessage.Item1 !=null)//checks for error
             {
                 MessageBoxResult result = MessageBox.Show(ScheduleUpdateMessage.Item1.Message, "Schedule Collision, do you want to continue with this collision? ", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 
@@ -1223,7 +1249,7 @@ namespace My24HourTimerWPF
             
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ScheduleUpdateMessage = MySchedule.SetEventAsNow(EventID);
             //*/
-            if (ScheduleUpdateMessage.Item1.Status)
+            if (ScheduleUpdateMessage.Item1!=null)
             {
                 switch (ScheduleUpdateMessage.Item1.Code)
                 {
@@ -1348,7 +1374,7 @@ namespace My24HourTimerWPF
 
                 CustomErrors ErrorCheck = ValidateInputValues(EventDuration, eventStartTime, eventStartDate.ToString(), eventEndTime, eventEndDate.ToString(), RepeatStart.ToString(), RepeatEnd.ToString(), PreDeadlineTime, eventSplit, eventPrepTime, CurrentNow);
 
-                if (!ErrorCheck.Status)
+                if (ErrorCheck!=null)
                 {
                     //MessageBox.Show(ErrorCheck.Message);
                     return;
@@ -1365,7 +1391,21 @@ namespace My24HourTimerWPF
                 DateTimeOffset EndData = DateTimeOffset.Parse(eventEndTime + " " + eventEndDate.Date.ToShortDateString());
 
                 //CalendarEvent ScheduleUpdated = CreateSchedule(eventName, eventStartTime, eventStartDate, eventEndTime, eventEndDate, eventSplit, PreDeadlineTime, EventDuration, EventRepetitionflag, DefaultPreDeadlineFlag, RigidScheduleFlag, eventPrepTime, DefaultPreDeadlineFlag);
-                CalendarEvent ScheduleUpdated = new CalendarEvent(eventName, StartData, EndData, eventSplit, PreDeadlineTime, EventDuration, MyRepetition, DefaultPreDeadlineFlag, RigidFlag, eventPrepTime, DefaultPreDeadlineFlag, var0, true, UiData, NoteData, CompletedFlag);
+                CalendarEvent ScheduleUpdated;
+                TimeSpan activeDuration = TimeSpan.Parse(EventDuration);
+                TimeSpan prepTimeSpan = TimeSpan.Parse(eventPrepTime);
+                TimeSpan predeadlineSpan = TimeSpan.Parse(PreDeadlineTime);
+                if (RigidFlag)
+                {
+                    ScheduleUpdated = new RigidCalendarEvent(//EventID.GenerateCalendarEvent(), 
+                        eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, MyRepetition, var0, UiData, NoteData, true, CompletedFlag, new TilerLogicUser(MySchedule.getUserAccount().UserID), new TilerUserGroup(), "UTC", null);
+                }
+                else
+                {
+                    int splitCount = Convert.ToInt32(eventSplit);
+                    ScheduleUpdated = new CalendarEvent(//EventID.GenerateCalendarEvent(), 
+                        eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, splitCount, MyRepetition, var0, UiData, NoteData, null, new NowProfile(),  true, CompletedFlag, new TilerLogicUser(MySchedule.getUserAccount().UserID), new TilerUserGroup(), "UTC", null);
+                }
                 ScheduleUpdated.Repeat.PopulateRepetitionParameters(ScheduleUpdated);
                 
                 Stopwatch snugarrayTester = new Stopwatch();
@@ -1449,8 +1489,8 @@ namespace My24HourTimerWPF
             
             //UserAccountDirect currentUser =  new UserAccountDebug("18");
             await currentUser.Login();
-            DateTimeOffset refNow=DateTimeOffset.Now;
-            refNow = DateTimeOffset.Parse("3:47 am 11/27/2016");
+            DateTimeOffset refNow=DateTimeOffset.UtcNow;
+            //refNow = DateTimeOffset.Parse("3:47 am 11/27/2016");
             //MySchedule = new Schedule(currentUser, refNow);
 
 

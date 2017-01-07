@@ -109,7 +109,7 @@ namespace TilerTests
 
             currentUser.DeleteAllCalendarEvents();
             List<SubCalendarEvent> allSubEvents = Schedule.getAllCalendarEvents().SelectMany(calEvent => calEvent.AllSubEvents).OrderBy(meSubEvent => meSubEvent.Start).ToList();
-            SubCalendarEvent subEvent = allSubEvents.Single(meSubEvent => meSubEvent.Id == hugeRigid.AllSubEvents.First().Id);
+            SubCalendarEvent subEvent = allSubEvents.Single(meSubEvent => meSubEvent.getId == hugeRigid.AllSubEvents.First().getId);
             int calidIndex = allSubEvents.Count / 2;
             int index = allSubEvents.IndexOf(subEvent);
             Assert.AreEqual(index, 3);

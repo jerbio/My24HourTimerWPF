@@ -10,6 +10,7 @@ namespace TilerElements
     /// </summary>
     public class Procrastination
     {
+        protected string _Id { get; set; }
         protected DateTimeOffset FromTime;//Time from which an event was procrastinated
         //TimeSpan Duration;//Span of procrastination
         protected DateTimeOffset BeginTIme;//Next time for a possible calculation of a new schedule
@@ -50,6 +51,14 @@ namespace TilerElements
             }
         }
 
+        virtual public string getId
+        {
+            get
+            {
+                return _Id;
+            }
+        }
+
         public DayOfWeek DislikedDayOfWeek
         { 
             get
@@ -82,9 +91,18 @@ namespace TilerElements
             }
         }
 
-        public Procrastination CreateCopy()
+        public Procrastination CreateCopy(string id = "")
         {
             Procrastination retValue = new Procrastination(this.FromTime,BeginTIme-FromTime);
+            if(string.IsNullOrEmpty(id))
+            {
+                retValue._Id = this.getId;
+            }
+            else
+            {
+                retValue._Id = id;
+            }
+            
             return retValue ;
         }
 

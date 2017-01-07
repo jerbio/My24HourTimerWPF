@@ -7,7 +7,6 @@ namespace TilerElements
 {
     public class CustomErrors: Exception
     {
-        bool Errorstatus;
         string ErrorMessage;
         int ErrorCode;
         /* Error Code 0: No Error
@@ -18,22 +17,10 @@ namespace TilerElements
          * 40000000<=Code => Schedule Maniputlation Error issue
          */
 
-        public CustomErrors(bool StatusEntry, string MessagEntry, int ErrorCode = 0)
+        public CustomErrors(string MessagEntry, int ErrorCode = 0)
         {
-            Errorstatus = StatusEntry;
             ErrorMessage = MessagEntry;
             this.ErrorCode = ErrorCode;
-        }
-
-        //
-        //
-
-        public bool Status
-        {
-            get
-            {
-                return Errorstatus;
-            }
         }
 
         public string Message

@@ -18,6 +18,7 @@ namespace TilerTests
         static readonly Random _Rand = new Random((int)DateTimeOffset.Now.Ticks);
         static readonly string _UserName = "TestUserTiler";
         static readonly string _Password = "T35tU53r#";
+        static TilerUser testUser;
 
 
         public static int MonthLimit
@@ -184,25 +185,49 @@ namespace TilerTests
             if(restrictionProfile == null)
             {
                 EventName name = new EventName("TestCalendarEvent-" + Guid.NewGuid().ToString());
-                RetValue = new CalendarEvent(name, duration, Start, End, new TimeSpan(), new TimeSpan(), rigidFlags, repetition, splitCount, location, true, new EventDisplay(), new MiscData(), false);
+                if(testUser == null)
+                {
+                    getTestUser(true);
+                }
+                if (rigidFlags)
+                {
+                    RetValue = new RigidCalendarEvent(
+                        //EventID.GenerateCalendarEvent(), 
+                        name, Start, End, duration, new TimeSpan(), new TimeSpan(), repetition, location, new EventDisplay(), new MiscData(), true, false, testUser, new TilerUserGroup(), "UTC", null);
+                }
+                else
+                {
+                    RetValue = new CalendarEvent(
+                        //EventID.GenerateCalendarEvent(), 
+                        name, Start, End, duration, new TimeSpan(), new TimeSpan(), splitCount , repetition, location, new EventDisplay(), new MiscData(), null, new NowProfile(), true, false, testUser, new TilerUserGroup(), "UTC", null);
+                }
             }
             else
             {
                 EventName name = new EventName("TestCalendarEvent-" + Guid.NewGuid().ToString() + "-Restricted");
-                RetValue = new CalendarEventRestricted(name, Start, End, restrictionProfile, duration, repetition, false, true, splitCount, false, location, new TimeSpan(), new TimeSpan(), UiSettings: new EventDisplay(), NoteData: new MiscData());
+                RetValue = new CalendarEventRestricted(name, Start, End, restrictionProfile, duration, repetition, false, true, splitCount, false, location, new TimeSpan(), new TimeSpan(), null, UiSettings: new EventDisplay(), NoteData: new MiscData());
 
+            }
+
+            if (repetition.Enable)
+            {
+                repetition.PopulateRepetitionParameters(RetValue);
             }
             
             return RetValue;
         }
 
-        public static UserAccount getTestUser()
+        public static UserAccount getTestUser(bool forxeUpdateOfTilerUser = false)
         {
             TilerFront.Models.LoginViewModel myLogin = new TilerFront.Models.LoginViewModel() { Username = TestUtility.UserName, Password = TestUtility.Password, RememberMe = true };
 
             TilerFront.Models.AuthorizedUser AuthorizeUser = new TilerFront.Models.AuthorizedUser() { UserID = "065febec-d1fe-4c8b-bd32-548613d4479f", UserName = TestUtility.UserName };
             Task<UserAccountDebug> waitForUseraccount = AuthorizeUser.getUserAccountDebug();
             waitForUseraccount.Wait();
+            if((testUser == null )|| (forxeUpdateOfTilerUser))
+            {
+                testUser = new TilerTestUser(AuthorizeUser.UserID);
+            }
             return waitForUseraccount.Result;
         }
 
@@ -216,7 +241,7 @@ namespace TilerTests
             DateTimeOffset secondEnd = DateTimeOffset.Parse(secondCalEvent.End.ToString(format));
             Type eventType = secondCalEvent.GetType();
             {
-                if (firstCalEvent.Id == secondCalEvent.Id)
+                if (firstCalEvent.getId == secondCalEvent.getId)
                 {
                     if ((firstStart == secondStart) && (firstEnd == secondEnd))
                     {

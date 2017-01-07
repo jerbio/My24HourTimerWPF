@@ -18,8 +18,6 @@ namespace TilerTests
         CalendarEvent CalendarEvent2;
         CalendarEvent CalendarEvent3;
 
-
-
         [TestMethod]
         public void TestCreationOfNonRigid()
         {
@@ -32,11 +30,11 @@ namespace TilerTests
             foreach(TimeLine eachTimeLine in timeLines)
             {
                 CalendarEvent testEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1),  new Repetition(), eachTimeLine.Start, eachTimeLine.End, 1, false);
-                Schedule.AddToSchedule(testEvent);
+                Schedule.AddToScheduleAndCommit(testEvent).Wait();
+                Schedule = new Schedule(currentUser, refNow);
                 CalendarEvent newlyaddedevent = Schedule.getCalendarEvent(testEvent.Calendar_EventID);
-                Assert.AreEqual(testEvent.Id, newlyaddedevent.Id);
+                Assert.AreEqual(testEvent.getId, newlyaddedevent.getId);
             }
-            
         }
 
         [TestMethod]
@@ -50,9 +48,29 @@ namespace TilerTests
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(duration);
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, true);
-            Schedule.AddToSchedule(testEvent);
+            Schedule.AddToScheduleAndCommit(testEvent).Wait();
             CalendarEvent newlyaddedevent = Schedule.getCalendarEvent(testEvent.Calendar_EventID);
-            Assert.AreEqual(testEvent.Id, newlyaddedevent.Id);
+            Assert.AreEqual(testEvent.getId, newlyaddedevent.getId);
+        }
+
+        [TestMethod]
+        public void TestCreationOfRepeatRigid()
+        {
+            UserAccount user = TestUtility.getTestUser();
+            user.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.Now;
+            Schedule = new Schedule(user, refNow);
+            TimeSpan duration = TimeSpan.FromHours(1);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.Add(duration);
+            TimeLine repetitionRange = new TimeLine(start, start.AddDays(14));
+            Repetition repetition = new Repetition(true, repetitionRange, "daily", new TimeLine(start, end));
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, repetition, start, end, 1, true);
+            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            CalendarEvent newlyaddedevent = Schedule.getCalendarEvent(testEvent.Calendar_EventID);
+            Assert.AreEqual(testEvent.getId, newlyaddedevent.getId);
+            CalendarEvent newlyaddedevent0 = Schedule.getCalendarEvent(newlyaddedevent.ActiveSubEvents.First().SubEvent_ID.getIDUpToRepeatCalendarEvent());
+            Assert.AreEqual(newlyaddedevent.Calendar_EventID.getCalendarEventComponent(), newlyaddedevent0.Calendar_EventID.getCalendarEventComponent());
         }
 
         [TestMethod]
@@ -73,7 +91,6 @@ namespace TilerTests
             Assert.IsTrue(newlyaddedevent.isTestEquivalent(testEvent));
         }
 
-
         [TestMethod]
         public void testPersistedSubCalendarEvent()
         {
@@ -85,7 +102,7 @@ namespace TilerTests
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(duration);
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, true);
-            string currentID = testEvent.Id;
+            string currentID = testEvent.getId;
             schedule.AddToScheduleAndCommit(testEvent).Wait();
             CalendarEvent tempEvent = schedule.getCalendarEvent(testEvent.Calendar_EventID);
             Schedule tempSchedule = schedule;
@@ -115,9 +132,9 @@ namespace TilerTests
             EventName oldName = testEvent.Name;
             schedule.AddToScheduleAndCommit(testEvent).Wait();
             schedule = new TestSchedule(user, refNow);
-            CalendarEvent copyOfTestEvent = schedule.getCalendarEvent(testEvent.Id);
+            CalendarEvent copyOfTestEvent = schedule.getCalendarEvent(testEvent.getId);
             EventName newName = new EventName("test-Event-For-stack-"+Guid.NewGuid().ToString());
-            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> tupleResult = schedule.BundleChangeUpdate(testEvent.ActiveSubEvents.First().Id, 
+            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> tupleResult = schedule.BundleChangeUpdate(testEvent.ActiveSubEvents.First().getId, 
                 newName, 
                 testEvent.ActiveSubEvents.First().Start, 
                 testEvent.ActiveSubEvents.First().End, 
@@ -126,7 +143,7 @@ namespace TilerTests
                 testEvent.NumberOfSplit);
             schedule.UpdateWithDifferentSchedule(tupleResult.Item2).Wait();
             TestSchedule scheduleReloaded = new TestSchedule(user, refNow);
-            CalendarEvent renamedEvent = scheduleReloaded.getCalendarEvent(testEvent.Id);
+            CalendarEvent renamedEvent = scheduleReloaded.getCalendarEvent(testEvent.getId);
             Assert.AreEqual(renamedEvent.Name.NameValue, newName.NameValue);
             Assert.AreEqual(renamedEvent.ActiveSubEvents.First().Name.NameValue, newName.NameValue);
             Assert.AreEqual(renamedEvent.Name.NameId, testEvent.Name.NameId);

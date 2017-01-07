@@ -10,6 +10,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TilerElements", "TilerElements\TilerElements.csproj", "{307ED69E-4DF8-41C4-934C-38495FC8900C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TilerTests", "TilerTests\TilerTests.csproj", "{75C84EBA-6BA1-41A2-8E4D-E46CD0C92BC7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9B826E2B-41F4-4164-9899-EE7F84529B66} = {9B826E2B-41F4-4164-9899-EE7F84529B66}
+		{307ED69E-4DF8-41C4-934C-38495FC8900C} = {307ED69E-4DF8-41C4-934C-38495FC8900C}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

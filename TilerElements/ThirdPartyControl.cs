@@ -7,6 +7,6 @@ namespace TilerElements
 {
     static public class ThirdPartyControl
     {
-        public enum CalendarTool {Tiler, Outlook, Google, Facebook };
+        public enum CalendarTool {tiler, outlook, google, facebook };
     }
 }

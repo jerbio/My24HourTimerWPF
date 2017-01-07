@@ -12,6 +12,7 @@ C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\Til
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\Microsoft.Owin.Security.dll
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\Microsoft.Owin.Security.OAuth.dll
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\Newtonsoft.Json.dll
+C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\NodaTime.dll
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\Owin.dll
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\sdk.dll
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\EntityFramework.xml
@@ -25,6 +26,7 @@ C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\Til
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\Microsoft.Owin.Security.Cookies.xml
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\Microsoft.Owin.Security.OAuth.xml
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\Newtonsoft.Json.xml
+C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\NodaTime.xml
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerElements\bin\Debug\sdk.pdb
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerElements\obj\Debug\TilerElements.csprojResolveAssemblyReference.cache
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerElements\obj\Debug\TilerElements.dll

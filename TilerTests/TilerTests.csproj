@@ -39,6 +39,7 @@
       <HintPath>..\packages\GoogleMapsApi.0.59.0\lib\net45\GoogleMapsApi.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.AspNet.Identity.EntityFramework, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
     <Reference Include="My24HourTimerWPF">
       <HintPath>..\My24HourTimerWPF\bin\Debug\My24HourTimerWPF.exe</HintPath>
     </Reference>
@@ -67,6 +68,7 @@
   <ItemGroup>
     <Compile Include="Creation.cs" />
     <Compile Include="LogicTest.cs" />
+    <Compile Include="ProcrastinationTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestSchedule.cs" />
     <Compile Include="TestUtility.cs" />
@@ -75,6 +77,8 @@
     <Compile Include="SleepEvaluation.cs" />
     <Compile Include="MiscTests.cs" />
     <Compile Include="EventUpdate.cs" />
+    <Compile Include="CompletionTest.cs" />
+    <Compile Include="DeletionTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

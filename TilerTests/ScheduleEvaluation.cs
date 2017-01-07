@@ -185,7 +185,7 @@ namespace TilerTests
             List<SubCalendarEvent> subEvents = allCalEvents.SelectMany(obj => obj.AllSubEvents).OrderBy(obj => obj.Start).ToList();
             SubCalendarEvent second = subEvents[1];
             TestSchedule scheduleB = new TestSchedule(currentUser, refNow);
-            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> procrastinatioCompletion =scheduleB.ProcrastinateJustAnEvent(second.Id, TimeSpan.FromHours(10));
+            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> procrastinatioCompletion =scheduleB.ProcrastinateJustAnEvent(second.getId, TimeSpan.FromHours(10));
             scheduleB.UpdateWithDifferentSchedule(procrastinatioCompletion.Item2).ConfigureAwait(false);
             allCalEvents = scheduleB.getAllCalendarEvents().ToList();
             subEvents = allCalEvents.SelectMany(obj => obj.AllSubEvents).OrderBy(obj => obj.Start).ToList();

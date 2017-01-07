@@ -12,6 +12,18 @@ namespace TilerElements
         TilerColor eventColor;
         int Default = 0;//0->Default Calendar Colors,1->Set As Complete,2->subCalendar Event Specific colors,3->Calendar Event Specific colors
         bool CompleteUI;
+        string _Id = Guid.NewGuid().ToString();
+        public string Id
+        {
+            get
+            {
+                return _Id;
+            }
+            set
+            {
+                _Id = value;
+            }
+        }
         public EventDisplay()
         {
             Visible = true;

@@ -284,7 +284,7 @@ namespace TilerElements
             {
                 foreach (SubCalendarEvent MySubCalendarEvent1 in MyCurrentList)
                 {
-                    if (MySubCalendarEvent1.Id == MySubCalendarEvent0.Id)
+                    if (MySubCalendarEvent1.getId == MySubCalendarEvent0.getId)
                     {
                         InListElements.Add(MySubCalendarEvent1);
                     }
@@ -1088,26 +1088,6 @@ namespace TilerElements
             return retValue;
         }
 
-        static public double calculateDistance(List<SubCalendarEvent> allSubCalEvents, Dictionary<string, List<Double>> DistanceMatrix)
-        {
-            List<string> AllIds = allSubCalEvents.Select(obj => obj.SubEvent_ID.getCalendarEventComponent()).ToList();
-            List<string> Allkeys = DistanceMatrix.Keys.ToList();
-            int i = 0;
-            int j = i + 1;
-            double retValue = 0;
-            while (j < allSubCalEvents.Count)
-            {
-                string iIndex = AllIds[i];
-                string jIndex = AllIds[j];
-                int valueIndexofkeyValuePair = Allkeys.IndexOf(jIndex);
-                double increment = DistanceMatrix[AllIds[i]][valueIndexofkeyValuePair];
-
-                retValue += increment;
-                i++; j++;
-            }
-            return retValue;
-        }
-
 
         /*public double calculateDistance(SubCalendarEvent SubCalendarEventA, SubCalendarEvent SubCalendarEventB, ref Dictionary<string, List<Double>> DistanceMatrix)
         { 
@@ -1313,7 +1293,20 @@ namespace TilerElements
             DateTimeOffset retValue = time;
             retValue = retValue.AddSeconds(-time.Second);
             retValue = retValue.AddMilliseconds(-time.Millisecond);
+
+            retValue = new DateTimeOffset(retValue.Year, retValue.Month, retValue.Day, retValue.Hour, retValue.Minute,0, new TimeSpan());
             return retValue;
+        }
+        /// <summary>
+        /// got from http://stackoverflow.com/questions/16100/how-do-i-convert-a-string-to-an-enum-in-c
+        /// Used to parse string to enum
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static T ParseEnum<T>(string value)
+        {
+            return (T)Enum.Parse(typeof(T), value, true);
         }
     }
 }

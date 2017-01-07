@@ -37,7 +37,7 @@ namespace TilerElements
         {
             Parallel.ForEach(SubEventList, eachSubCal =>//(eachSubCal in SubEventList)
             {
-                AllocatedSubEvents.AddOrUpdate(eachSubCal.Id, eachSubCal, (key, value) => eachSubCal);    
+                AllocatedSubEvents.AddOrUpdate(eachSubCal.getId, eachSubCal, (key, value) => eachSubCal);    
             });
 
             foreach(SubCalendarEvent eachSubCal in SubEventList)
@@ -52,7 +52,7 @@ namespace TilerElements
         {
             //Parallel.ForEach(SubEventList, eachSubCal =>//(eachSubCal in SubEventList)
             {
-                AllocatedSubEvents.AddOrUpdate(eachSubCal.Id, eachSubCal, (key, value) => eachSubCal);
+                AllocatedSubEvents.AddOrUpdate(eachSubCal.getId, eachSubCal, (key, value) => eachSubCal);
                 base.AddBusySlots(eachSubCal.ActiveSlot);
             }
             //);
@@ -62,7 +62,7 @@ namespace TilerElements
 
         public void InitializeSubEventList(List<SubCalendarEvent> SubEventList)
         {
-            AllocatedSubEvents = new ConcurrentDictionary<string, SubCalendarEvent>(SubEventList.ToDictionary(obj=>obj.Id,obj=>obj));
+            AllocatedSubEvents = new ConcurrentDictionary<string, SubCalendarEvent>(SubEventList.ToDictionary(obj=>obj.getId,obj=>obj));
             updateOccupancyOfTimeLine();
         }
         public void updateOccupancyOfTimeLine()

@@ -7,7 +7,6 @@ namespace TilerElements
 {
     public class EventID
     {
-        private static int CalendarEvenntLimitIndex = 2;
         string[] LayerID = new string[4] { "0", "7", "0", "0"};
         string s_FullID="";
         int FullID;
@@ -31,20 +30,7 @@ namespace TilerElements
         }
         private EventID(string[] myLayerID)
         {
-
             Initializer(myLayerID);
-
-            /*//string currConcat=sb.ToString();
-            string currConcat = myId;
-            if (string.IsNullOrEmpty(currConcat))
-            {
-                FullID = 0;
-            }
-            else
-            {
-                FullID = Convert.ToInt32(currConcat);
-            }*/
-
         }
 
         void Initializer(string[] myLayerID)
@@ -64,12 +50,12 @@ namespace TilerElements
                     break;
                 case 2:
                     {
-                        LayerID = new string[4] { myLayerID[0], "7", myLayerID[1], "0" };
+                        LayerID = new string[4] { myLayerID[0], myLayerID[1],"0", "0" };
                     }
                     break;
                 case 3:
                     {
-                        LayerID = new string[4] { myLayerID[0], "7", myLayerID[1], myLayerID[2] };
+                        LayerID = new string[4] { myLayerID[0], myLayerID[1], myLayerID[2], "0" };
                     }
                     break;
                 case 4:
@@ -157,13 +143,13 @@ namespace TilerElements
 
         public static EventID generateGoogleAuthenticationID(uint CurrentIndex)
         {
-            EventID retValue = new EventID((int)ThirdPartyControl.CalendarTool.Google + "_" + CurrentIndex + "_0_0");
+            EventID retValue = new EventID((int)ThirdPartyControl.CalendarTool.google + "_" + CurrentIndex + "_0_0");
             return retValue;
         }
 
         public static EventID generateGoogleCalendarEventID(uint CurrentIndex)
         {
-            EventID retValue = new EventID((int)ThirdPartyControl.CalendarTool.Google + "_0_" + CurrentIndex + "_0");
+            EventID retValue = new EventID((int)ThirdPartyControl.CalendarTool.google + "_0_" + CurrentIndex + "_0");
             return retValue;
         }
 
@@ -181,13 +167,13 @@ namespace TilerElements
 
         public static EventID generateFacebookCalendarEventID()
         {
-            EventID retValue = new EventID((int)ThirdPartyControl.CalendarTool.Facebook + "_7_0_0");
+            EventID retValue = new EventID((int)ThirdPartyControl.CalendarTool.facebook + "_7_0_0");
             return retValue;
         }
 
         public static EventID generateOutlookCalendarEventID()
         {
-            EventID retValue = new EventID((int)ThirdPartyControl.CalendarTool.Facebook + "_7_0_0");
+            EventID retValue = new EventID((int)ThirdPartyControl.CalendarTool.facebook + "_7_0_0");
             return retValue;
         }
 

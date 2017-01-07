@@ -92,7 +92,7 @@ namespace TilerElements
             {
                 TimeLine timeLine = daysSortedBystart[i];
                 List<SubCalendarEvent> interferringEvents = OrderexListOfTilerEvents.Where(tilerEvent => tilerEvent.RangeTimeLine.doesTimeLineInterfere(timeLine)).ToList();
-                List<BusyTimeLine> allBusySlots = interferringEvents.Select(tilerEvent => new BusyTimeLine(tilerEvent.Id, tilerEvent.Start, tilerEvent.End)).ToList();
+                List<BusyTimeLine> allBusySlots = interferringEvents.Select(tilerEvent => new BusyTimeLine(tilerEvent.getId, tilerEvent.Start, tilerEvent.End)).ToList();
                 timeLine.AddBusySlots(allBusySlots);
                 foreach (SubCalendarEvent tilerEvent in interferringEvents.Where(tilerEvent => tilerEvent.End < timeLine.End))
                 {
@@ -312,7 +312,7 @@ namespace TilerElements
                             SubCalendarEvent firstSubEvent = OrderedSubEvents[i];
                             SubCalendarEvent secondSubEvent = OrderedSubEvents[j];
                             TimeSpan travelSpan = Location_Elements.getDrivingTimeFromWeb(firstSubEvent.myLocation, secondSubEvent.myLocation, this.TravelMode);
-                            string[] ids = { firstSubEvent.Id, secondSubEvent.Id };
+                            string[] ids = { firstSubEvent.getId, secondSubEvent.getId };
                             string concatId = string.Join(",", ids);
                             TransitingIdsToWebTravelSpan.AddOrUpdate(concatId, travelSpan, ((key, oldValue) => { return travelSpan; }));
                             TimeSpan freeSpotSpan = new TimeSpan();

@@ -7,6 +7,7 @@ namespace TilerElements
 {
     public class NowProfile
     {
+        protected string _Id { get; set; }
         DateTimeOffset TimePreferredForEvent;
         bool Initialized = false;
 
@@ -35,6 +36,10 @@ namespace TilerElements
             }
         }
 
+        virtual public string getId { get {
+                return _Id;
+            }
+        }
         public void reset()
         {
             TimePreferredForEvent = new DateTimeOffset();

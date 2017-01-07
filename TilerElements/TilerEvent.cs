@@ -17,10 +17,10 @@ namespace TilerElements
         protected bool Enabled = true;
         protected bool DeadlineElapsed = false;
         protected bool UserDeleted = false;
-        protected bool RepetitionFlag =false;
         protected Location_Elements LocationInfo;
         protected EventDisplay UiParams = new EventDisplay();
         protected MiscData DataBlob = new MiscData();
+        protected Repetition EventRepetition;
         //protected bool RepetitionFlag;
         protected bool RigidSchedule;
         protected TimeSpan EventDuration;
@@ -28,7 +28,6 @@ namespace TilerElements
         protected TimeSpan EventPreDeadline;
         protected TimeSpan PrepTime;
         protected EventID UniqueID;
-        protected List<string> UserIDs= new List<string>();
         protected int Priority;
         protected bool isRestricted = false;
         protected static DateTimeOffset EventNow = DateTimeOffset.Now;
@@ -37,21 +36,22 @@ namespace TilerElements
         protected NowProfile ProfileOfNow = new NowProfile();
         protected bool ThirdPartyFlag = false;
         protected string ThirdPartyUserIDInfo;
-        protected ThirdPartyControl.CalendarTool ThirdPartyTypeInfo = ThirdPartyControl.CalendarTool.Tiler;
-        protected string CreatorIDInfo;
+        protected ThirdPartyControl.CalendarTool ThirdPartyTypeInfo = ThirdPartyControl.CalendarTool.tiler;
+        protected TilerUser _Creator;
         protected TimeSpan _UsedTime = new TimeSpan();
         protected Classification Semantics= new Classification();
         protected TimeOfDayPreferrence DaySectionPreference;
-        protected List<TilerUser> Users;
-        protected bool SingleUser;
+        protected TilerUserGroup _Users;
+        protected string _TimeZone = "UTC";
+        protected bool isProcrastinateEvent = false;
 
         async public Task InitializeClassification()
         {
             await Semantics.InitializeClassification(_Name.NameValue);
         }
-        public List<string> getAllUserIDs()
+        public TilerUserGroup getAllUsers()
         {
-            return UserIDs.ToList();
+            return _Users;
         }
 
         /// <summary>
@@ -71,6 +71,11 @@ namespace TilerElements
             }
         }
 
+        //virtual protected void setEventId(EventID id)
+        //{
+        //    this.UniqueID = id;
+        //}
+
         public EventDisplay UIParam
         {
             get
@@ -87,11 +92,19 @@ namespace TilerElements
             }
         }
 
-        public bool isEnabled
+        virtual public bool isEnabled
         {
             get
             {
                 return Enabled;
+            }
+        }
+
+        virtual public bool isDeleted
+        {
+            get
+            {
+                return !isEnabled;
             }
         }
 
@@ -119,6 +132,14 @@ namespace TilerElements
             }
         }
 
+
+        public bool isProcrastinateCalendarEvent
+        {
+            get
+            {
+                return isProcrastinateEvent;
+            }
+        }
 
         public  string ThirdPartyID
         {
@@ -152,15 +173,15 @@ namespace TilerElements
             }
         }
 
-        virtual public bool FromRepeat
+        public virtual bool isRepeat
         {
             get
             {
-                return RepetitionFlag ;
+                return EventRepetition.Enable;
             }
         }
 
-         virtual public TimeSpan Preparation
+        virtual public TimeSpan Preparation
          {
              get
              {
@@ -243,11 +264,19 @@ namespace TilerElements
         {
             return DaySectionPreference;
         }
-        public string CreatorID
+        public string CreatorId
         {
             get
             {
-                return CreatorIDInfo;
+                return _Creator.Id;
+            }
+        }
+
+        public TilerUser Creator
+        {
+            get
+            {
+                return _Creator;
             }
         }
         virtual public TimeSpan UsedTime
@@ -263,7 +292,7 @@ namespace TilerElements
             }
         }
 
-        virtual public string Id
+        virtual public string getId
         {
             get
             {
@@ -295,7 +324,7 @@ namespace TilerElements
         }
         public virtual string ToString()
         {
-            return this.Start.ToString() + " - " + this.End.ToString() + "::" + this.Id + "\t\t::" + this.ActiveDuration.ToString();
+            return this.Start.ToString() + " - " + this.End.ToString() + "::" + this.getId + "\t\t::" + this.ActiveDuration.ToString();
         }
 
         virtual public bool Rigid
@@ -316,6 +345,14 @@ namespace TilerElements
             {
                 TimeLine retValue = new TimeLine(this.Start, this.End);
                 return retValue;
+            }
+        }
+
+        virtual public string getTimeZone
+        {
+            get
+            {
+                return _TimeZone;
             }
         }
     }

@@ -15,7 +15,7 @@ namespace TilerTests
         const int _MonthLimit = 3;
         static readonly DateTimeOffset StartOfTime = new DateTimeOffset();
         static readonly DateTimeOffset _Start = DateTimeOffset.UtcNow.AddMonths(-MonthLimit);
-        static readonly Random _Rand = new Random((int)DateTimeOffset.Now.Ticks);
+        static readonly Random _Rand = new Random((int)DateTimeOffset.UtcNow.Ticks);
         static readonly string _UserName = "TestUserTiler";
         static readonly string _Password = "T35tU53r#";
         static TilerUser testUser;

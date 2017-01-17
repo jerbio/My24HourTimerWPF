@@ -657,18 +657,16 @@ namespace My24HourTimerWPF
                 }
 
                 LocationReason locationReason = new LocationReason(Stitched_Revised.Select(subEvent => subEvent.myLocation));
-                DurationReason durationReason = new DurationReason();
-                RestrictedEventReason restrictedReason = new RestrictedEventReason();
                 Stitched_Revised.ForEach(subEvent =>
                 {
                     updateSubeventReason(subEvent, locationReason);
                     if (subEvent.ActiveDuration > evaluatedParams.Item2.Item3)
                     {
-                        updateSubeventReason(subEvent, durationReason);
+                        updateSubeventReason(subEvent, new DurationReason(subEvent.ActiveDuration));
                     }
                     if (subEvent.isEventRestricted)
                     {
-                        updateSubeventReason(subEvent, restrictedReason);
+                        updateSubeventReason(subEvent, new RestrictedEventReason((subEvent as SubCalendarEventRestricted).getRestrictionProfile()));
                     }
                 });
 

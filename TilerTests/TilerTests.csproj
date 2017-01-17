@@ -73,7 +73,7 @@
     <Compile Include="TestSchedule.cs" />
     <Compile Include="TestUtility.cs" />
     <Compile Include="ScheduleEvaluation.cs" />
-    <Compile Include="PathOptimization.cs" />
+    <Compile Include="ScheduleBalance.cs" />
     <Compile Include="SleepEvaluation.cs" />
     <Compile Include="MiscTests.cs" />
     <Compile Include="EventUpdate.cs" />

@@ -315,14 +315,14 @@ namespace TilerElements
         {
             get
             {
-                return EndTime - DateTimeOffset.Now;
+                return EndTime - DateTimeOffset.UtcNow;
             }
         }
         public virtual TimeSpan TimeTillStart
         {
             get
             {
-                return StartTime - DateTimeOffset.Now;
+                return StartTime - DateTimeOffset.UtcNow;
             }
         }
 

@@ -49,7 +49,7 @@ using System.Windows.Forms;
 using System.IO;
 namespace My24HourTimerWPF
 {
-    public class Schedule
+    public class Schedule : IWhy
     {
         
         protected Dictionary<string, CalendarEvent> AllEventDictionary;
@@ -70,8 +70,8 @@ namespace My24HourTimerWPF
         int LatesMainID;
 
         double PercentageOccupancy = 0;
-        //public static DateTimeOffset Now = new DateTimeOffset(2014,4,6,0,0,0);//DateTimeOffset.Now;
-        protected ReferenceNow _Now;// = new ReferenceNow( DateTimeOffset.Now);
+        //public static DateTimeOffset Now = new DateTimeOffset(2014,4,6,0,0,0);//DateTimeOffset.UtcNow;
+        protected ReferenceNow _Now;// = new ReferenceNow( DateTimeOffset.UtcNow);
 
         public ReferenceNow Now
         {
@@ -80,11 +80,12 @@ namespace My24HourTimerWPF
                 return _Now;
             }
         }
-        //Schedule.Now = DateTimeOffset.Now;
+        //Schedule.Now = DateTimeOffset.UtcNow;
         DateTimeOffset ReferenceDayTIime;
         static string stageOfProgram = "";
         int DebugCounter = 0;
 
+#region Constructor
         public Schedule(UserAccount AccountEntry, DateTimeOffset referenceNow)
         {
             myAccount = AccountEntry;
@@ -93,6 +94,32 @@ namespace My24HourTimerWPF
             initializing.Wait();
         }
 
+        #endregion
+
+
+#region IwhyImplementation
+        virtual public IWhy Because()
+        {
+            throw new NotImplementedException("Yet to implement a because functionality for subcalendar event");
+        }
+
+        virtual public IWhy OtherWise()
+        {
+            throw new NotImplementedException("Yet to implement a OtherWise functionality for subcalendar event");
+        }
+
+        virtual public IWhy WhatIf(params Reason[] reasons)
+        {
+            throw new NotImplementedException("Yet to implement a OtherWise functionality for subcalendar event");
+        }
+
+        virtual public IWhy WhatIf(TilerEvent modified, params Reason[] reasons)
+        {
+
+            modified.WhatIf(reasons);
+            return this;
+        }
+#endregion
         async Task triggerNewlyAddedThirdparty()
         {
             if(retrievedThirdParty)
@@ -2984,7 +3011,7 @@ namespace My24HourTimerWPF
             List<SubCalendarEvent> AllRigids =  ForCalculation.Where(obj => obj.Rigid).ToList();
 
             ForCalculation = ForCalculation.Except(AllRigids).ToList();
-            ForCalculation.ForEach(obj => obj.addReasons(new PreservedOrder()));
+            ForCalculation.ForEach(obj => obj.addReasons(new PreservedOrder(ForCalculation.Select(subEvent => subEvent.SubEvent_ID).ToList())));
 
             HashSet<SubCalendarEvent> OrderedPreviousTwentyfourNorigids = new HashSet<SubCalendarEvent>( ForCalculation.OrderBy(obj=>obj.Start));
             FirstTwentyFour.AddBusySlots(AllRigids.Select(obj => obj.ActiveSlot));
@@ -9234,7 +9261,7 @@ namespace My24HourTimerWPF
             {
                 FinalCompleteScheduleDate = MyTimeLine.End;
             }
-            //AllFreeSlots[AllBusySlots.Length-1] = new TimeLine(DateTimeOffset.Now, AllBusySlots[0].Start);
+            //AllFreeSlots[AllBusySlots.Length-1] = new TimeLine(DateTimeOffset.UtcNow, AllBusySlots[0].Start);
             AllFreeSlots[AllFreeSlots.Length - 1] = new TimeLine(AllBusySlots[AllBusySlots.Length - 1].End, FinalCompleteScheduleDate);
             List<TimeLine> SpecificFreeSpots = new List<TimeLine>(0);
             for (int i = 0; i < AllFreeSlots.Length; i++)//Free Spots Are only between two busy Slots. So Index Counter starts from 1 get start of second busy

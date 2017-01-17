@@ -199,6 +199,25 @@ namespace TilerElements
         #endregion
 
         #region Functions
+
+        #region IwhyImplementation
+        override public IWhy Because()
+        {
+            throw new NotImplementedException("Yet to implement a because functionality for subcalendar event");
+        }
+
+        override public IWhy OtherWise()
+        {
+            throw new NotImplementedException("Yet to implement a OtherWise functionality for subcalendar event");
+        }
+
+        override public IWhy WhatIf(params Reason[] reasons)
+        {
+            throw new NotImplementedException("Yet to implement a OtherWise functionality for subcalendar event");
+        }
+
+        #endregion
+
         /// <summary>
         /// Calendarevent Identifies the subeevents that are to be used for the calculation of a schedule. You need to initialize this for calculation of schedule
         /// </summary>
@@ -1422,41 +1441,14 @@ namespace TilerElements
         }
 
         
-
-        public virtual string ThirdPartyID
-        {
-            set
-            {
-                otherPartyID = value;
-            }
-            get
-            {
-                return otherPartyID;
-            }
-        }
-        
         public TimeSpan TimeLeftBeforeDeadline
         {
             get
             {
-                return EndDateTime - DateTimeOffset.Now;
+                return EndDateTime - DateTimeOffset.UtcNow;
             }
         }
 
-        virtual public DateTimeOffset Start
-        {
-            get
-            {
-                return StartDateTime;
-            }
-        }
-        virtual public DateTimeOffset End
-        {
-            get
-            {
-                return EndDateTime;
-            }
-        }
         public int NumberOfSplit
         {
             get
@@ -1464,18 +1456,7 @@ namespace TilerElements
                 return Splits;
             }
         }
-
-        virtual public bool Rigid
-        {
-            set 
-            {
-                RigidSchedule = value;
-            }
-            get
-            {
-                return RigidSchedule;
-            }
-        }
+        
         public virtual bool RepetitionStatus
         {
             get
@@ -1498,17 +1479,6 @@ namespace TilerElements
                 return _AverageTimePerSplit;
             }
         }
-
-        /*
-        public Procrastination ProcrastinationProfile
-        {
-            get 
-            {
-                return ProfileOfProcrastination;
-            }
-        }
-
-        */
         
         override public TimeSpan ActiveDuration
         {

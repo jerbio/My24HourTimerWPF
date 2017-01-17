@@ -18,13 +18,13 @@ namespace TilerTests
         {
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Now;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
             TestSchedule Schedule = new TestSchedule(currentUser, refNow);
             currentUser.DeleteAllCalendarEvents();
         }
 
         /// <summary>
-        /// Function evaluates the addition of a enwEvent to an already  populated schedule
+        /// Function evaluates the addition of a newEvent to an already  populated schedule
         /// The newly added sub event should fall on the same day as events with the same location as the event.
         /// The test is structured in such away that the established schedule has each calendarevent on a given day will all have the same location. .
         /// So if the algorithm is correct it should select a day in which all calendar events have the same loocation as the newly tested event
@@ -38,7 +38,7 @@ namespace TilerTests
             DateTimeOffset newStart = Start;
             UserAccount user = TestUtility.getTestUser();
             user.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Now.Date;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow.Date;
             Schedule mySchedule = new TestSchedule(user, refNow);
             int count = 5;
 
@@ -120,50 +120,32 @@ namespace TilerTests
             //Assert.AreEqual(dayIndex, index);
         }
         /// <summary>
-        /// Test tries to evaluate changess to a schedule to see if the schedule was made for the better or worse
+        /// Test tries to evaluate changes to a schedule to see if the schedule was made for the better or worse
         /// </summary>
         [TestMethod]
         public void scheduleComparisonEvaluation()
         {
             Location_Elements homeLocation = new Location_Elements("2895 Van aken Blvd cleveland OH 44120");
             homeLocation.Validate();
-            //if (homeLocation.isNull)
-            //{
-            //    throw new AssertFailedException("failed to Validate homeLocation");
-            //}
-
             Location_Elements workLocation = new Location_Elements(41.5002762, -81.6839155, "1228 euclid Ave cleveland OH", "Work", false, false);
             workLocation.Validate();
-            //if (workLocation.isNull)
-            //{
-            //    throw new AssertFailedException("failed to Validate workLocation");
-            //}
+            
             Location_Elements gymLocation = new Location_Elements(41.4987461, -81.6884993, "619 Prospect Avenue Cleveland, OH 44115", "Gym", false, false);
             gymLocation.Validate();
-            //if (gymLocation.isNull)
-            //{
-            //    throw new AssertFailedException("failed to Validate gymLocation");
-            //}
+            
 
             Location_Elements churchLocation = new Location_Elements(41.569467, -81.539422, "1465 Dille Rd, Cleveland, OH 44117", "Church", false, false);
             churchLocation.Validate();
-            //if (churchLocation.isNull)
-            //{
-            //    throw new AssertFailedException("failed to Validate churchLocation");
-            //}
-
+            
             Location_Elements shakerLibrary = new Location_Elements(41.4658937, -81.5664832, "16500 Van Aken Blvd, Shaker Heights, OH 44120", "Shake Library", false, false);
             shakerLibrary.Validate();
-            //if (shakerLibrary.isNull)
-            //{
-            //    throw new AssertFailedException("failed to Validate shakerLibrary");
-            //}
+            
 
             List<Location_Elements> locations = new List<Location_Elements>() { homeLocation, homeLocation, workLocation, gymLocation };//, churchLocation };
 
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Now;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
             
             TimeSpan duration = TimeSpan.FromDays(1);
             TimeLine eachTimeLine = new TimeLine(refNow, refNow.Add(duration));
@@ -204,7 +186,7 @@ namespace TilerTests
         {
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Now;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
             Schedule Schedule = new Schedule(currentUser, refNow);
             currentUser.DeleteAllCalendarEvents();
         }
@@ -219,7 +201,7 @@ namespace TilerTests
         {
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Now;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
             refNow = refNow.LocalDateTime;
             TimeSpan activeDuration = TimeSpan.FromHours(1);
             int numberOfDays = 7;
@@ -254,7 +236,7 @@ namespace TilerTests
             foreach (DayTimeLine daytimeLine in daytimeLines)
             {
                 int numberOfSubevent = daytimeLine.getSubEventsInDayTimeLine().Count;
-                Assert.AreEqual(numberOfSubevent, numberOfSubeventPerCalendarEvent);
+                Assert.AreEqual(numberOfSubevent, numberOfSubeventPerCalendarEvent);//This is known to fail
             }
         }
 
@@ -268,7 +250,7 @@ namespace TilerTests
         {
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Now;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
             refNow = refNow.LocalDateTime;
             TimeSpan activeDuration = TimeSpan.FromHours(1);
             int numberOfDays = 7;
@@ -313,7 +295,7 @@ namespace TilerTests
         {
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Now;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
             Schedule Schedule = new Schedule(currentUser, refNow);
             currentUser.DeleteAllCalendarEvents();
         }

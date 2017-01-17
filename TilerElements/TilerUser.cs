@@ -25,7 +25,8 @@ namespace TilerElements
         };
         public string FullName { get; set; }
         public string TimeZone { get; set; } = "UTC";
-        public DateTimeOffset LastChange { get; set; }
+        public DateTimeOffset EndfOfDay { get; set; }
+        public DateTimeOffset LastScheduleModification { get; set; }
         public string ClearAllId { get; set; }
         public string CalendarType { get; set; } = ThirdPartyControl.CalendarTool.tiler.ToString();
         protected string _Id{get;set;}

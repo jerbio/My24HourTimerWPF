@@ -16,7 +16,7 @@ namespace TilerTests
         {
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Now;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
             Schedule Schedule = new Schedule(currentUser, refNow);
             currentUser.DeleteAllCalendarEvents();
         }
@@ -26,7 +26,7 @@ namespace TilerTests
         {
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Now;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
             Schedule Schedule = new Schedule(currentUser, refNow);
             currentUser.DeleteAllCalendarEvents();
         }
@@ -38,7 +38,7 @@ namespace TilerTests
             EventName newName = new EventName( Guid.NewGuid().ToString());
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Now;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
             DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00 pm");
             TestSchedule schedule = new TestSchedule(currentuser, refNow, startOfDay);
             TimeSpan duration = TimeSpan.FromHours(1);
@@ -66,7 +66,7 @@ namespace TilerTests
             EventName newName = new EventName( Guid.NewGuid().ToString());
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Now;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
             DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00 pm");
             TestSchedule schedule = new TestSchedule(currentuser, refNow, startOfDay);
             TimeSpan duration = TimeSpan.FromHours(1);
@@ -94,7 +94,7 @@ namespace TilerTests
             EventName newName = new EventName( Guid.NewGuid().ToString());
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Now;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
             DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00 pm");
             TestSchedule schedule = new TestSchedule(currentuser, refNow, startOfDay);
             TimeSpan duration = TimeSpan.FromHours(1);
@@ -130,7 +130,7 @@ namespace TilerTests
             /// Increasing the split count
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Now;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
             DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00 pm");
             TestSchedule schedule = new TestSchedule(currentuser, refNow, startOfDay);
             TimeSpan duration = TimeSpan.FromHours(1);
@@ -174,7 +174,7 @@ namespace TilerTests
             /// Increasing the split count
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Now;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
             DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00 pm");
             TestSchedule schedule = new TestSchedule(currentuser, refNow, startOfDay);
             TimeSpan duration = TimeSpan.FromHours(1);
@@ -220,7 +220,7 @@ namespace TilerTests
             // increases the deadline
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Now;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
             DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00 pm");
             TestSchedule schedule = new TestSchedule(currentuser, refNow, startOfDay);
             TimeSpan duration = TimeSpan.FromHours(1);
@@ -261,7 +261,7 @@ namespace TilerTests
             // increases the deadline
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Now;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
             DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00 pm");
             TestSchedule schedule = new TestSchedule(currentuser, refNow, startOfDay);
             TimeSpan duration = TimeSpan.FromHours(1);
@@ -302,7 +302,7 @@ namespace TilerTests
             // increases the deadline
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Now;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
             DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00 pm");
             TestSchedule schedule = new TestSchedule(currentuser, refNow, startOfDay);
             TimeSpan duration = TimeSpan.FromHours(1);
@@ -345,7 +345,7 @@ namespace TilerTests
             // increases the range
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Now;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
             DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00 pm");
             TestSchedule schedule = new TestSchedule(currentuser, refNow, startOfDay);
             TimeSpan duration = TimeSpan.FromHours(1);
@@ -391,7 +391,7 @@ namespace TilerTests
             // increases the range
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Now;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
             DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00 pm");
             TestSchedule schedule = new TestSchedule(currentuser, refNow, startOfDay);
             TimeSpan duration = TimeSpan.FromHours(1);
@@ -452,7 +452,7 @@ namespace TilerTests
             // increases the range
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Now;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
             DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00 pm");
             TestSchedule schedule = new TestSchedule(currentuser, refNow, startOfDay);
             TimeSpan duration = TimeSpan.FromHours(1);

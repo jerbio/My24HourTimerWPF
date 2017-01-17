@@ -48,7 +48,7 @@ namespace My24HourTimerWPF
             InitializeComponent();
             //MessageBox.Show("Testing Branch creation");
             DateTimeOffset Start = new DateTimeOffset(2014, 2, 13, 0, 0, 0, new TimeSpan());
-            DateTimeOffset Now = DateTimeOffset.Now;
+            DateTimeOffset Now = DateTimeOffset.UtcNow;
             TimeSpan spent= Now - Start;
             LogInToWagtap();
         }
@@ -102,8 +102,8 @@ namespace My24HourTimerWPF
         {
             string text = textBox1.Text;
             string str2 = textBox5.Text;
-            datePicker1.SelectedDate = new DateTime( DateTimeOffset.Now.ToLocalTime().Ticks);
-            datePicker2.SelectedDate = new DateTime(DateTimeOffset.Now.ToLocalTime().Ticks);
+            datePicker1.SelectedDate = new DateTime( DateTimeOffset.UtcNow.ToLocalTime().Ticks);
+            datePicker2.SelectedDate = new DateTime(DateTimeOffset.UtcNow.ToLocalTime().Ticks);
             DateTimeOffset time = datePicker1.SelectedDate.Value;
             bool flag = checkBox2.IsChecked.Value;
             bool flag2 = checkBox3.IsChecked.Value;
@@ -441,7 +441,7 @@ namespace My24HourTimerWPF
             DateTimeOffset time3 = GetLastTimeStamp("Sleep_Time_M").AddDays(1.0);
             SystemTimeUpdate update = new SystemTimeUpdate(newSystemTime);
             BusyTimeLine NextActivity = MySchedule.NextActivity;
-            DateTimeOffset now = DateTimeOffset.Now;
+            DateTimeOffset now = DateTimeOffset.UtcNow;
             if (NextActivity != null)
             {
                 textBlock2.Text = "Next Activity is : " + MySchedule.getCalendarEvent(NextActivity.TimeLineID).Name;
@@ -533,9 +533,9 @@ namespace My24HourTimerWPF
             string[] TimeElements = CalendarEvent.convertTimeToMilitary(eventStartTime).Split(':');
             DateTimeOffset EnteredDateTime = new DateTimeOffset(eventStartDate.Year, eventStartDate.Month, eventStartDate.Day, Convert.ToInt32(TimeElements[0]), Convert.ToInt32(TimeElements[1]), 0, new TimeSpan());
             //if checks for StartDateTime
-            if (EnteredDateTime < DateTimeOffset.Now)
+            if (EnteredDateTime < DateTimeOffset.UtcNow)
             {
-                //DateTimeOffset Now=DateTimeOffset.Now;
+                //DateTimeOffset Now=DateTimeOffset.UtcNow;
                 //MessageBox.Show("Please Adjust Your Start Date, Its less than the current time:");
                 //return;
             }
@@ -557,7 +557,7 @@ namespace My24HourTimerWPF
             {
                 RigidFlag = true;
             }
-            DateTimeOffset CurrentNow = DateTimeOffset.Now;
+            DateTimeOffset CurrentNow = DateTimeOffset.UtcNow;
             DateTimeOffset RepeatStart = CurrentNow;
             DateTimeOffset RepeatEnd=RepeatStart;
 
@@ -735,9 +735,9 @@ namespace My24HourTimerWPF
             string[] TimeElements = CalendarEvent.convertTimeToMilitary(eventStartTime).Split(':');
             DateTimeOffset EnteredDateTime = new DateTimeOffset(eventStartDate.Year, eventStartDate.Month, eventStartDate.Day, Convert.ToInt32(TimeElements[0]), Convert.ToInt32(TimeElements[1]), 0, new TimeSpan());
             //if checks for StartDateTime
-            if (EnteredDateTime < DateTimeOffset.Now)
+            if (EnteredDateTime < DateTimeOffset.UtcNow)
             {
-                //DateTimeOffset Now=DateTimeOffset.Now;
+                //DateTimeOffset Now=DateTimeOffset.UtcNow;
                 //MessageBox.Show("Please Adjust Your Start Date, Its less than the current time:");
                 //return;
             }
@@ -759,7 +759,7 @@ namespace My24HourTimerWPF
             {
                 RigidFlag = true;
             }
-            DateTimeOffset CurrentNow = DateTimeOffset.Now;
+            DateTimeOffset CurrentNow = DateTimeOffset.UtcNow;
             DateTimeOffset RepeatStart = CurrentNow;
             DateTimeOffset RepeatEnd = RepeatStart;
 
@@ -942,7 +942,7 @@ namespace My24HourTimerWPF
                 }
             }
 
-            DateTimeOffset Hmm = DateTimeOffset.Now;
+            DateTimeOffset Hmm = DateTimeOffset.UtcNow;
             
 
 
@@ -1287,7 +1287,7 @@ namespace My24HourTimerWPF
                 TilerFront.Models.AuthorizedUser AuthorizeUser = new TilerFront.Models.AuthorizedUser() { UserID = "d350ba4d-fe0b-445c-bed6-b6411c2156b3", UserName = "jerbio" };
 
                 UserAccount currentUser = await AuthorizeUser.getUserAccountDebug();
-                //MySchedule = new Schedule(currentUser,DateTimeOffset.Now);
+                //MySchedule = new Schedule(currentUser,DateTimeOffset.UtcNow);
 
                 EventName eventName = new EventName( textBox1.Text);
                 string LocationString = textBox8.Text.Trim();
@@ -1296,7 +1296,7 @@ namespace My24HourTimerWPF
                     eventName += "," + LocationString;
                 }*/
 
-                DateTimeOffset CurrentTimeOfExecution = DateTimeOffset.Now;
+                DateTimeOffset CurrentTimeOfExecution = DateTimeOffset.UtcNow;
                 string eventStartTime = textBox5.Text;
                 string locationInformation = textBox8.Text;
                 DateTimeOffset eventStartDate = (DateTimeOffset)datePicker1.SelectedDate.Value;
@@ -1323,9 +1323,9 @@ namespace My24HourTimerWPF
                 string[] TimeElements = CalendarEvent.convertTimeToMilitary(eventStartTime).Split(':');
                 DateTimeOffset EnteredDateTime = new DateTimeOffset(eventStartDate.Year, eventStartDate.Month, eventStartDate.Day, Convert.ToInt32(TimeElements[0]), Convert.ToInt32(TimeElements[1]), 0, new TimeSpan());
                 //if checks for StartDateTime
-                if (EnteredDateTime < DateTimeOffset.Now)
+                if (EnteredDateTime < DateTimeOffset.UtcNow)
                 {
-                    //DateTimeOffset Now=DateTimeOffset.Now;
+                    //DateTimeOffset Now=DateTimeOffset.UtcNow;
                     //MessageBox.Show("Please Adjust Your Start Date, Its less than the current time:");
                     //return;
                 }
@@ -1347,7 +1347,7 @@ namespace My24HourTimerWPF
                 {
                     RigidFlag = true;
                 }
-                DateTimeOffset CurrentNow = DateTimeOffset.Now;
+                DateTimeOffset CurrentNow = DateTimeOffset.UtcNow;
                 DateTimeOffset RepeatStart = CurrentNow;
                 DateTimeOffset RepeatEnd = RepeatStart;
 
@@ -1363,7 +1363,7 @@ namespace My24HourTimerWPF
                     //RepeatStart = (DateTimeOffset)calendar3.SelectedDate.Value;
                     RepeatStart = DateTimeOffset.Parse(eventStartTime);
                     RepeatEnd = (DateTimeOffset)calendar4.SelectedDate.Value;
-                    //RepeatEnd = (DateTimeOffset.Now).AddDays(7);
+                    //RepeatEnd = (DateTimeOffset.UtcNow).AddDays(7);
                     RepetitionFlag = true;
                                                 //(bool EnableFlag, TimeLine RepetitionRange_Entry, string Frequency, TimeLine EventActualRange, int[] WeekDayData)
                     MyRepetition = new Repetition(RepetitionFlag, new TimeLine(RepeatStart, RepeatEnd), RepeatFrequency, new TimeLine((FullStartTime), (FullEndTime)), selectedDaysOftheweek.ToArray());
@@ -1504,12 +1504,12 @@ namespace My24HourTimerWPF
                 //MessageBox.Show("Ellapsed is " + timer.ElapsedMilliseconds + "ms");
                 
                 tabItem2.IsEnabled = true;
-                datePicker1.SelectedDate = new DateTime(MySchedule.Now.calculationNow.AddDays(0).ToLocalTime().Ticks);// DateTimeOffset.Now.AddDays(0);
-                //datePicker1.SelectedDate = DateTimeOffset.Now.AddDays(0);
+                datePicker1.SelectedDate = new DateTime(MySchedule.Now.calculationNow.AddDays(0).ToLocalTime().Ticks);// DateTimeOffset.UtcNow.AddDays(0);
+                //datePicker1.SelectedDate = DateTimeOffset.UtcNow.AddDays(0);
                 //datePicker1.SelectedDate = new DateTimeOffset(2013, 11, 20, 0, 0, 0);
-                //datePicker2.SelectedDate = DateTimeOffset.Now.AddDays(2);
+                //datePicker2.SelectedDate = DateTimeOffset.UtcNow.AddDays(2);
                 datePicker2.SelectedDate = DateTime.Parse("12/20/2016 4:59:00 AM +00:00");// new DateTime(MySchedule.Now.calculationNow.AddDays(1).ToLocalTime().Ticks);//new DateTimeOffset(2014, 5, 15, 0, 0, 0);
-                calendar4.SelectedDate = new DateTime(DateTimeOffset.Now.AddDays(0).ToLocalTime().Ticks);
+                calendar4.SelectedDate = new DateTime(DateTimeOffset.UtcNow.AddDays(0).ToLocalTime().Ticks);
                 Random myNumber = new Random();
                 int RandomHour = myNumber.Next(0, 24);
                 int RandomMinute = myNumber.Next(0, 60);

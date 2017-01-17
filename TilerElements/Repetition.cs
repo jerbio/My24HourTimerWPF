@@ -19,7 +19,7 @@ namespace TilerElements
         protected TimeLine initializingRange;//stores range for repetition so if assuming event happens on thursday from 9-11pm. The range is from today till november 31. The initializingRange will be 9-11pm
         protected int RepetitionWeekDay =7;
         static DayOfWeek[] Weekdays=new DayOfWeek[7]{DayOfWeek.Sunday,DayOfWeek.Monday,DayOfWeek.Tuesday,DayOfWeek.Wednesday,DayOfWeek.Thursday,DayOfWeek.Friday,DayOfWeek.Saturday};
-        static DateTimeOffset CalculationStop = DateTimeOffset.Now;
+        static DateTimeOffset CalculationStop = DateTimeOffset.UtcNow;
 
         public Repetition()
         {

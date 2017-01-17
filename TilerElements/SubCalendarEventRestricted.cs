@@ -422,6 +422,15 @@ namespace TilerElements
             return retValue;
         }
         //*/
-        #endregion   
+        #endregion
+
+        #region properties
+
+        public RestrictionProfile getRestrictionProfile()
+        {
+            return ProfileOfRestriction;
+        }
+
+        #endregion
     }
 }

@@ -16,7 +16,7 @@ namespace TilerTests
         {
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Now;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
             TestSchedule Schedule = new TestSchedule(currentUser, refNow);
             currentUser.DeleteAllCalendarEvents();
         }
@@ -31,7 +31,7 @@ namespace TilerTests
         {
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Now;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
             TestSchedule Schedule = new TestSchedule(currentUser, refNow);
             ReferenceNow now = Schedule.Now;
             
@@ -55,7 +55,7 @@ namespace TilerTests
         {
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Now;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
             DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00 pm");
             TestSchedule schedule = new TestSchedule(currentuser, refNow, startOfDay);
             ReferenceNow now = schedule.Now;
@@ -96,7 +96,7 @@ namespace TilerTests
         {
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Now;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
             TestSchedule Schedule = new TestSchedule(currentUser, refNow);
             currentUser.DeleteAllCalendarEvents();
         }

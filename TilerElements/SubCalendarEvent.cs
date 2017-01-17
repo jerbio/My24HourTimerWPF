@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 namespace TilerElements
 {
-    public class SubCalendarEvent : TilerEvent,IDefinedRange, IWhy
+    public class SubCalendarEvent : TilerEvent,IDefinedRange
     {
         public static DateTimeOffset InitialPauseTime  = new DateTimeOffset();
         protected BusyTimeLine BusyFrame;
@@ -250,20 +250,14 @@ namespace TilerElements
         {
             ReasonsForCurrentPosition = new Dictionary<TimeSpan, List<Reason>>();
         }
-
-        virtual public IWhy Because()
+        override public IWhy Because()
         {
             throw new NotImplementedException("Yet to implement a because functionality for subcalendar event");
         }
 
-        virtual public IWhy OtherWise()
+        override public IWhy OtherWise()
         {
             throw new NotImplementedException("Yet to implement a OtherWise functionality for subcalendar event");
-        }
-
-        virtual public IWhy WhatIf(DateTimeOffset AssumedTime)
-        {
-            throw new NotImplementedException("Yet to implement a WhatIf functionality for subcalendar event");
         }
 
         virtual public IWhy WhatIfDeadline(DateTimeOffset AssumedTime)
@@ -276,7 +270,7 @@ namespace TilerElements
             throw new NotImplementedException("Yet to implement a WhatIf functionality for subcalendar event");
         }
 
-        virtual public IWhy WhatIf(params Reason[] reasons)
+        override public IWhy WhatIf(params Reason[] reasons)
         {
             throw new NotImplementedException("Yet to implement a WhatIf functionality for subcalendar event");
         }
@@ -304,8 +298,8 @@ namespace TilerElements
         {
             SubCalendarEvent retValue = new SubCalendarEvent();
             retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventId.ToString());
-            retValue.StartDateTime = DateTimeOffset.Now;
-            retValue.EndDateTime = DateTimeOffset.Now;
+            retValue.StartDateTime = DateTimeOffset.UtcNow;
+            retValue.EndDateTime = DateTimeOffset.UtcNow;
             retValue.EventDuration = new TimeSpan(0);
             
             retValue.RigidSchedule= true;

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TilerElements
 {
-    public abstract class TilerEvent
+    public abstract class TilerEvent: IWhy
     {
         public static TimeSpan ZeroTimeSpan = new TimeSpan(0);
         //protected string EventName="";
@@ -30,7 +30,7 @@ namespace TilerElements
         protected EventID UniqueID;
         protected int Priority;
         protected bool isRestricted = false;
-        protected static DateTimeOffset EventNow = DateTimeOffset.Now;
+        protected static DateTimeOffset EventNow = DateTimeOffset.UtcNow;
         protected static TimeSpan CalculationEndSpan = new TimeSpan(180, 0, 0, 0, 0);
         protected Procrastination ProfileOfProcrastination = new Procrastination(new DateTimeOffset(), new TimeSpan());
         protected NowProfile ProfileOfNow = new NowProfile();
@@ -44,6 +44,14 @@ namespace TilerElements
         protected TilerUserGroup _Users;
         protected string _TimeZone = "UTC";
         protected bool isProcrastinateEvent = false;
+
+        #region IwhyImplementation
+        abstract public IWhy Because();
+
+        abstract public IWhy OtherWise();
+
+        abstract public IWhy WhatIf(params Reason[] reasons);
+        #endregion
 
         async public Task InitializeClassification()
         {
@@ -322,7 +330,7 @@ namespace TilerElements
                 return UniqueID;
             }
         }
-        public virtual string ToString()
+        public override string ToString()
         {
             return this.Start.ToString() + " - " + this.End.ToString() + "::" + this.getId + "\t\t::" + this.ActiveDuration.ToString();
         }

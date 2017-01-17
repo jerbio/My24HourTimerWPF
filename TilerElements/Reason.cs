@@ -172,8 +172,14 @@ namespace TilerElements
     [Serializable]
     public class DeadlineApproaching : Reason
     {
-        public DeadlineApproaching()
+        DateTimeOffset Deadline;
+        protected DeadlineApproaching()
         {
+
+        }
+        public DeadlineApproaching(DateTimeOffset deadLine)
+        {
+            this.Deadline = deadLine;
             this._Option = Options.DeadlineApproaching;
         }
     }
@@ -204,8 +210,15 @@ namespace TilerElements
         [Serializable]
     public class PreservedOrder : Reason
     {
-        public PreservedOrder()
+        List<EventID> IdOrders;
+        protected PreservedOrder()
         {
+
+        }
+
+        public PreservedOrder(List<EventID> eventIds)
+        {
+            IdOrders = eventIds.ToList();
             this._Option = Options.PreservedOrder;
         }
     }
@@ -213,8 +226,14 @@ namespace TilerElements
     [Serializable]
     public class DurationReason : Reason
     {
-        public DurationReason()
+        TimeSpan Duration;
+        protected DurationReason()
         {
+
+        }
+        public DurationReason(TimeSpan duration)
+        {
+            this.Duration = duration;
             this._Option = Options.Occupancy;
         }
     }
@@ -222,8 +241,14 @@ namespace TilerElements
     [Serializable]
     public class RestrictedEventReason : Reason
     {
-        public RestrictedEventReason()
+        RestrictionProfile Profile;
+        protected RestrictedEventReason()
         {
+
+        }
+        public RestrictedEventReason(RestrictionProfile restrictionProfile)
+        {
+            Profile = restrictionProfile;
             this._Option = Options.RestrictedEvent;
         }
     }

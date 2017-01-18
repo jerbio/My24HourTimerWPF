@@ -79,6 +79,7 @@
     <Compile Include="EventUpdate.cs" />
     <Compile Include="CompletionTest.cs" />
     <Compile Include="DeletionTest.cs" />
+    <Compile Include="WhatIf.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

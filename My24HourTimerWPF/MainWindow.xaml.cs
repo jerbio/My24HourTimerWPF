@@ -1480,19 +1480,14 @@ namespace My24HourTimerWPF
             //WebApp.Start<Startup>("http://localhost:9000");
 
             TilerFront.Models.LoginViewModel myLogin = new TilerFront.Models.LoginViewModel() { Username = UserNameTextBox.Text, Password = PasswordTextBox.Text, RememberMe = true };
-
             TilerFront.Models.AuthorizedUser AuthorizeUser = new TilerFront.Models.AuthorizedUser(){UserID="d350ba4d-fe0b-445c-bed6-b6411c2156b3",UserName="jerbio"};
+            UserAccount currentUser =await AuthorizeUser.getUserAccountDebug();
 
-            UserAccount currentUser =await AuthorizeUser.getUserAccountDebug();// new UserAccountDebug("18");
-            //await currentUser.batchMigrateXML();
-            
-            
-            //UserAccountDirect currentUser =  new UserAccountDebug("18");
+
+            currentUser.getTilerUser().EndfOfDay = DateTimeOffset.Parse("3:00am");
             await currentUser.Login();
             DateTimeOffset refNow=DateTimeOffset.UtcNow;
-            //refNow = DateTimeOffset.Parse("3:47 am 11/27/2016");
-            //MySchedule = new Schedule(currentUser, refNow);
-
+            refNow = DateTimeOffset.Parse("12:12 am 1/18/2017");
 
             Stopwatch timer = new Stopwatch();
             timer.Start();

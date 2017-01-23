@@ -108,6 +108,7 @@
     <Compile Include="BusyTimeLine.cs" />
     <Compile Include="CalendarEvent.cs" />
     <Compile Include="CalendarEventRestricted.cs" />
+    <Compile Include="ThirdPartyTilerUser.cs" />
     <Compile Include="ProcrastinateCalendarEvent.cs" />
     <Compile Include="ProcrastinateAllSubCalendarEvent.cs" />
     <Compile Include="ConflictProfile.cs" />

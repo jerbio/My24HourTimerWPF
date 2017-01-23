@@ -3198,32 +3198,32 @@ namespace My24HourTimerWPF
         {
             foreach (CalendarEvent eachCalendarEvent in AllEventDictionary.Values)
             {
-                if (eachCalendarEvent.Rigid)
-                {
-                    continue;
-                }
+                //if (eachCalendarEvent.Rigid)
+                //{
+                //    continue;
+                //}
 
-                if (eachCalendarEvent.RepetitionStatus)
-                {
-                    IEnumerable<CalendarEvent> recurringCalevents = eachCalendarEvent.Repeat.RecurringCalendarEvents();
-                    IEnumerable<CalendarEvent> recurringCalevents_EarlerNow= recurringCalevents.Where(obj => obj.End < Now.constNow);
-                    recurringCalevents_EarlerNow.AsParallel().ForAll(obj => obj.Disable());
-                    if (recurringCalevents.Where(obj => obj.isActive).Count() > 0)
-                    {
-                        //eachCalendarEvent.Enable(false);
-                    }
-                    else
-                    {
-                        eachCalendarEvent.Disable(false);
-                    }
-                }
-                else
-                { 
-                    if (eachCalendarEvent.End < Now.constNow)
-                    {
-                        eachCalendarEvent.Disable(false);
-                    }
-                }
+                //if (eachCalendarEvent.RepetitionStatus)
+                //{
+                //    IEnumerable<CalendarEvent> recurringCalevents = eachCalendarEvent.Repeat.RecurringCalendarEvents();
+                //    IEnumerable<CalendarEvent> recurringCalevents_EarlerNow= recurringCalevents.Where(obj => obj.End < Now.constNow);
+                //    recurringCalevents_EarlerNow.AsParallel().ForAll(obj => obj.Disable());
+                //    if (recurringCalevents.Where(obj => obj.isActive).Count() > 0)
+                //    {
+                //        //eachCalendarEvent.Enable(false);
+                //    }
+                //    else
+                //    {
+                //        eachCalendarEvent.Disable(false);
+                //    }
+                //}
+                //else
+                //{ 
+                //    if (eachCalendarEvent.End < Now.constNow)
+                //    {
+                //        eachCalendarEvent.Disable(false);
+                //    }
+                //}
 
                
                 List<DateTimeOffset> AllStratTImes = eachCalendarEvent.ActiveSubEvents.AsParallel().Select(obj => obj.Start).ToList();

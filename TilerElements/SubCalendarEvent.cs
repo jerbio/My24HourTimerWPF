@@ -345,14 +345,6 @@ namespace TilerElements
             return MySubCalendarEventCopy;
         }
 
-        /*
-        virtual public void updateEventSequence()
-        {
-            EventSequence = new TimeLine(this.Start, this.End);
-            EventSequence.AddBusySlots(BusyFrame);
-        }
-        */
-
         public void updateDayIndex(ulong DayIndex)
         {
             this.preferredDayIndex = DayIndex;

@@ -9,17 +9,30 @@ using Microsoft.AspNet.Identity;
 
 namespace TilerElements
 {
-    public class GoogleTilerUser : ThirdPartyTilerUser
+    abstract public class ThirdPartyTilerUser : TilerUser
     {
-        protected GoogleTilerUser()
+        protected ThirdPartyTilerUser()
         {
 
         }
 
-        public GoogleTilerUser(string id)
+        public ThirdPartyTilerUser(string id)
         {
             Id = id;
             CalendarType = ThirdPartyControl.CalendarTool.google.ToString();
+        }
+
+        public override string Id
+        {
+            get
+            {
+                return base.Id;
+            }
+
+            set
+            {
+                _Id = value;
+            }
         }
     }
 }

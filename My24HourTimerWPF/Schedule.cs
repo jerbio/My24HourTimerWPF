@@ -539,32 +539,8 @@ namespace My24HourTimerWPF
                 { MyTotalSubEventBusySlots.Add(MySubCalendarEvent.ActiveSlot); }
             }
 
-            //MyTotalSubEventBusySlots.Add(MyEvent.AllEvents[i].ActiveSlot);
-            /*}
-        }*/
-
-            //BusyTimeLine[] ConcatenatSumOfAllBusySlots = new BusyTimeLine[ArrayOfBusySlotsInRepeat.Length + MyTotalSubEventBusySlots.Count];
-            /*
-            i = 0;
-            for (; i < ArrayOfBusySlotsInRepeat.Length; i++)
-            {
-                ConcatenatSumOfAllBusySlots[i] = ArrayOfBusySlotsInRepeat[i];
-            }
-            i = ArrayOfBusySlotsInRepeat.Length;
-            int LengthOfConcatenatSumOfAllBusySlots = ConcatenatSumOfAllBusySlots.Length;
-            int j = 0;
-            j = i;
-            for (; j < LengthOfConcatenatSumOfAllBusySlots;)
-            {
-                ConcatenatSumOfAllBusySlots[j] = MyTotalSubEventBusySlots[i];
-                i++;
-                j++;
-            }*/
             var Holder = MyTotalSubEventBusySlots.Concat(ArrayOfBusySlotsInRepeat);
             BusyTimeLine[] ConcatenatSumOfAllBusySlots = Holder.ToArray();
-            //ArrayOfBusySlotsInRepeat.CopyTo(ConcatenatSumOfAllBusySlots, 0);
-            //MyTotalSubEventBusySlots.CopyTo(ConcatenatSumOfAllBusySlots, ConcatenatSumOfAllBusySlots.Length);
-            //ArrayOfBusySlotsInRepeat.CopyTo(ConcatenatSumOfAllBusySlots, 0);
             return ConcatenatSumOfAllBusySlots;
         }
 
@@ -3198,34 +3174,6 @@ namespace My24HourTimerWPF
         {
             foreach (CalendarEvent eachCalendarEvent in AllEventDictionary.Values)
             {
-                //if (eachCalendarEvent.Rigid)
-                //{
-                //    continue;
-                //}
-
-                //if (eachCalendarEvent.RepetitionStatus)
-                //{
-                //    IEnumerable<CalendarEvent> recurringCalevents = eachCalendarEvent.Repeat.RecurringCalendarEvents();
-                //    IEnumerable<CalendarEvent> recurringCalevents_EarlerNow= recurringCalevents.Where(obj => obj.End < Now.constNow);
-                //    recurringCalevents_EarlerNow.AsParallel().ForAll(obj => obj.Disable());
-                //    if (recurringCalevents.Where(obj => obj.isActive).Count() > 0)
-                //    {
-                //        //eachCalendarEvent.Enable(false);
-                //    }
-                //    else
-                //    {
-                //        eachCalendarEvent.Disable(false);
-                //    }
-                //}
-                //else
-                //{ 
-                //    if (eachCalendarEvent.End < Now.constNow)
-                //    {
-                //        eachCalendarEvent.Disable(false);
-                //    }
-                //}
-
-               
                 List<DateTimeOffset> AllStratTImes = eachCalendarEvent.ActiveSubEvents.AsParallel().Select(obj => obj.Start).ToList();
                 AllStratTImes.Sort();
                     

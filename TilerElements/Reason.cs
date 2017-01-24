@@ -255,27 +255,27 @@ namespace TilerElements
     [Serializable]
     public class LocationReason : Reason
     {
-        List<Location_Elements> _LocationCluster;
+        List<Location> _LocationCluster;
         public LocationReason()
         {
             this._Option = Options.CloseToCluster;
         }
-        public LocationReason(IEnumerable<Location_Elements> locations)
+        public LocationReason(IEnumerable<Location> locations)
         {
             this._Option = Options.CloseToCluster;
             _LocationCluster = locations.Where(location=>location!=null).Where(location=> !location.isNull).ToList();
         }
 
-        public LocationReason(Location_Elements location)
+        public LocationReason(Location location)
         {
             this._Option = Options.CloseToCluster;
             if (location != null)
             {
-                _LocationCluster = new List<Location_Elements>() { location };
+                _LocationCluster = new List<Location>() { location };
             }
         }
 
-        public List<Location_Elements> LocationCluster
+        public List<Location> LocationCluster
         {
             get
             {

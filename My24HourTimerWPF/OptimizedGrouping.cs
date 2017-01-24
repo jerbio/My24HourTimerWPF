@@ -22,13 +22,13 @@ namespace My24HourTimerWPF
         /// This is a list thaat just contains subevents that have only being optimized for the path. This does not take into consideration their ability to fit within a specific day
         /// </summary>
         List<SubCalendarEvent> PathStitchedSubEventsList;
-        Location_Elements LeftStitch = new Location_Elements();
-        Location_Elements RightStitch = new Location_Elements();
-        Location_Elements DefaultLocation;
+        Location LeftStitch = new Location();
+        Location RightStitch = new Location();
+        Location DefaultLocation;
         TimeSpan TotalDuration;
         OptimizedAverage AverageOfStitched;
 
-        public OptimizedGrouping(TimeOfDayPreferrence.DaySection SectionData, TimeSpan SubeventDurationSum, Location_Elements DefaultLocation)
+        public OptimizedGrouping(TimeOfDayPreferrence.DaySection SectionData, TimeSpan SubeventDurationSum, Location DefaultLocation)
         {
             Section = SectionData;
             AcknowlegdedEvents = new HashSet<SubCalendarEvent>();
@@ -57,27 +57,27 @@ namespace My24HourTimerWPF
             clearPathStitchedEvents();
         }
 
-        public static Dictionary<OptimizedGrouping, Location_Elements> getAverageLocation(IEnumerable<OptimizedGrouping> Groupings)
+        public static Dictionary<OptimizedGrouping, Location> getAverageLocation(IEnumerable<OptimizedGrouping> Groupings)
         {
             List<OptimizedGrouping> OrderedGrouping = Groupings.OrderBy(obj => (int)obj.Section).ToList();
-            Dictionary<OptimizedGrouping, Location_Elements> RetValue = OrderedGrouping.ToDictionary(obj => obj, obj => Location_Elements.AverageGPSLocation(obj.PathStitchedSubEvents.Select(obj1 => obj1.myLocation)));
+            Dictionary<OptimizedGrouping, Location> RetValue = OrderedGrouping.ToDictionary(obj => obj, obj => Location.AverageGPSLocation(obj.PathStitchedSubEvents.Select(obj1 => obj1.Location)));
             return RetValue;
         }
-        public static Dictionary<OptimizedGrouping, Location_Elements> buildStitchers(IEnumerable<OptimizedGrouping> Groupings)
+        public static Dictionary<OptimizedGrouping, Location> buildStitchers(IEnumerable<OptimizedGrouping> Groupings)
         {
-            Dictionary<OptimizedGrouping, Location_Elements> AverageLocation = getAverageLocation(Groupings);
-            List<KeyValuePair<OptimizedGrouping, Location_Elements>> OrderedAvergeLocation = Groupings.Select(obj => new KeyValuePair<OptimizedGrouping, Location_Elements>(obj, AverageLocation[obj])).ToList();
+            Dictionary<OptimizedGrouping, Location> AverageLocation = getAverageLocation(Groupings);
+            List<KeyValuePair<OptimizedGrouping, Location>> OrderedAvergeLocation = Groupings.Select(obj => new KeyValuePair<OptimizedGrouping, Location>(obj, AverageLocation[obj])).ToList();
             for (int i = 0; i < OrderedAvergeLocation.Count; i++)
             {
                 if ((i != 0) && (i != AverageLocation.Count - 1))
                 {
                     if (i == 1)/// go with previous eleement that isn't none. None in this case is currently 0
                     {
-                        KeyValuePair<OptimizedGrouping, Location_Elements> Current = OrderedAvergeLocation[i];
-                        KeyValuePair<OptimizedGrouping, Location_Elements> Previous = Current;
-                        KeyValuePair<OptimizedGrouping, Location_Elements> Next = OrderedAvergeLocation[i + 1];
-                        Current.Key.LeftStitch = Location_Elements.getClosestLocation(Previous.Key.PathStitchedSubEvents.Select(obj => obj.myLocation), Current.Value);
-                        Current.Key.RightStitch = Location_Elements.getClosestLocation(Next.Key.PathStitchedSubEvents.Select(obj => obj.myLocation), Current.Value);
+                        KeyValuePair<OptimizedGrouping, Location> Current = OrderedAvergeLocation[i];
+                        KeyValuePair<OptimizedGrouping, Location> Previous = Current;
+                        KeyValuePair<OptimizedGrouping, Location> Next = OrderedAvergeLocation[i + 1];
+                        Current.Key.LeftStitch = Location.getClosestLocation(Previous.Key.PathStitchedSubEvents.Select(obj => obj.Location), Current.Value);
+                        Current.Key.RightStitch = Location.getClosestLocation(Next.Key.PathStitchedSubEvents.Select(obj => obj.Location), Current.Value);
 
                         if (Current.Key.LeftStitch == null)
                         {
@@ -92,11 +92,11 @@ namespace My24HourTimerWPF
                     {
 
 
-                        KeyValuePair<OptimizedGrouping, Location_Elements> Previous = OrderedAvergeLocation[i - 1];
-                        KeyValuePair<OptimizedGrouping, Location_Elements> Current = OrderedAvergeLocation[i];
-                        KeyValuePair<OptimizedGrouping, Location_Elements> Next = OrderedAvergeLocation[i + 1];
-                        Current.Key.LeftStitch = Location_Elements.getClosestLocation(Previous.Key.PathStitchedSubEvents.Select(obj => obj.myLocation), Current.Value);
-                        Current.Key.RightStitch = Location_Elements.getClosestLocation(Next.Key.PathStitchedSubEvents.Select(obj => obj.myLocation), Current.Value);
+                        KeyValuePair<OptimizedGrouping, Location> Previous = OrderedAvergeLocation[i - 1];
+                        KeyValuePair<OptimizedGrouping, Location> Current = OrderedAvergeLocation[i];
+                        KeyValuePair<OptimizedGrouping, Location> Next = OrderedAvergeLocation[i + 1];
+                        Current.Key.LeftStitch = Location.getClosestLocation(Previous.Key.PathStitchedSubEvents.Select(obj => obj.Location), Current.Value);
+                        Current.Key.RightStitch = Location.getClosestLocation(Next.Key.PathStitchedSubEvents.Select(obj => obj.Location), Current.Value);
 
                         if (Current.Key.LeftStitch == null)
                         {
@@ -113,11 +113,11 @@ namespace My24HourTimerWPF
                     if (i == 0)//none
                     {
 
-                        KeyValuePair<OptimizedGrouping, Location_Elements> Current = OrderedAvergeLocation[i];
-                        KeyValuePair<OptimizedGrouping, Location_Elements> Next = Current;// OrderedAvergeLocation[i + 1];
+                        KeyValuePair<OptimizedGrouping, Location> Current = OrderedAvergeLocation[i];
+                        KeyValuePair<OptimizedGrouping, Location> Next = Current;// OrderedAvergeLocation[i + 1];
                         List<SubCalendarEvent> NextPhaseSubevent = Next.Key.PathStitchedSubEvents.ToList();
                         Current.Key.LeftStitch = Current.Value;
-                        Current.Key.RightStitch = NextPhaseSubevent.Count > 0 ? Location_Elements.getClosestLocation(NextPhaseSubevent.Select(obj => obj.myLocation), Current.Value) : Current.Value;
+                        Current.Key.RightStitch = NextPhaseSubevent.Count > 0 ? Location.getClosestLocation(NextPhaseSubevent.Select(obj => obj.Location), Current.Value) : Current.Value;
 
                         if (Current.Key.LeftStitch == null)
                         {
@@ -133,10 +133,10 @@ namespace My24HourTimerWPF
                     {
                         if (i == AverageLocation.Count - 1)//sleep
                         {
-                            KeyValuePair<OptimizedGrouping, Location_Elements> Previous = OrderedAvergeLocation[i - 1];
-                            KeyValuePair<OptimizedGrouping, Location_Elements> Current = OrderedAvergeLocation[i];
+                            KeyValuePair<OptimizedGrouping, Location> Previous = OrderedAvergeLocation[i - 1];
+                            KeyValuePair<OptimizedGrouping, Location> Current = OrderedAvergeLocation[i];
                             List<SubCalendarEvent> PrevPhaseSubevent = Previous.Key.PathStitchedSubEvents.ToList();
-                            Current.Key.LeftStitch = PrevPhaseSubevent.Count > 0 ? Location_Elements.getClosestLocation(PrevPhaseSubevent.Select(obj => obj.myLocation), Current.Value) : Current.Value;
+                            Current.Key.LeftStitch = PrevPhaseSubevent.Count > 0 ? Location.getClosestLocation(PrevPhaseSubevent.Select(obj => obj.Location), Current.Value) : Current.Value;
                             Current.Key.RightStitch = Current.Value;
 
                             if (Current.Key.LeftStitch == null)
@@ -237,7 +237,7 @@ namespace My24HourTimerWPF
             PathStitchedSubEventsList.Clear();
         }
 
-        public Location_Elements LeftBorder
+        public Location LeftBorder
         {
             get
             {
@@ -245,7 +245,7 @@ namespace My24HourTimerWPF
             }
         }
 
-        public Location_Elements RightBorder
+        public Location RightBorder
         {
             get
             {
@@ -272,7 +272,7 @@ namespace My24HourTimerWPF
         public class OptimizedAverage
         {
             List<SubCalendarEvent> _SubEvents;
-            Location_Elements Location;
+            Location Location;
             TimeSpan Duration;
             TimeLine Range;
             public OptimizedAverage(HashSet<SubCalendarEvent> subEvents)
@@ -282,7 +282,7 @@ namespace My24HourTimerWPF
                     if (subEvents.Count > 0)
                     {
                         _SubEvents = (subEvents).OrderBy(obj => obj.Start).ThenBy(obj => obj.End).ToList(); ;
-                        Location = Location_Elements.AverageGPSLocation(_SubEvents.Select(obj => obj.myLocation));
+                        Location = Location.AverageGPSLocation(_SubEvents.Select(obj => obj.Location));
                         Duration = TimeSpan.FromTicks((long)(_SubEvents.Average(obj => (obj.RangeSpan.Ticks))));
                         DateTimeOffset latestEnd = _SubEvents.Max(obj => obj.End);
                         DateTimeOffset earliestEnd = _SubEvents.Min(obj => obj.Start);
@@ -303,7 +303,7 @@ namespace My24HourTimerWPF
             void nullOrEmptyListIniialization()
             {
                 _SubEvents = new List<SubCalendarEvent>();
-                Location = Location_Elements.AverageGPSLocation(_SubEvents.Select(obj => obj.myLocation));
+                Location = Location.AverageGPSLocation(_SubEvents.Select(obj => obj.Location));
                 Duration = new TimeSpan();
                 Range = new TimeLine();
             }
@@ -316,7 +316,7 @@ namespace My24HourTimerWPF
                 }
             }
 
-            public Location_Elements AverageLocation
+            public Location AverageLocation
             {
                 get
                 {

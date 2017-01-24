@@ -45,7 +45,7 @@ namespace My24HourTimerWPF
             BaseEvent = BaseSubCalendarEvent;
             DateTimeOffset var1 = BaseEvent.getCalendarEventRange.End < BoundaryTimeLine.End ? BaseEvent.getCalendarEventRange.End : BoundaryTimeLine.End;//hack assumes base can fit within boundary
             this.BoundaryTimeLine = new TimeLine(BoundaryTimeLine.Start, var1);
-            DateTimeOffset  ReferenceStartTime = var1 - BaseEvent.ActiveDuration;
+            DateTimeOffset  ReferenceStartTime = var1 - BaseEvent.getActiveDuration;
             BreakOffClump = null;
             ClumpedResults = new Dictionary<SubCalendarEvent, ClumpSubCalendarEvent>();
             int i = 0;
@@ -53,7 +53,7 @@ namespace My24HourTimerWPF
             {
                 List<SubCalendarEvent> ReferenceClump = new List<SubCalendarEvent>();
                 ReferenceClump.Add(BaseSubCalendarEvent);
-                DateTimeOffset TimeLimit = ReferenceStartTime - Appendables[i].ActiveDuration;
+                DateTimeOffset TimeLimit = ReferenceStartTime - Appendables[i].getActiveDuration;
                 bool Zero = (Appendables[i].getCalendarEventRange.Start <= TimeLimit);
                 bool One = (TimeLimit >= BoundaryTimeLine.Start);
                 //bool Two = (BoundaryTimeLine.TimelineSpan>=Appendables[i].EventTimeLine.TimelineSpan);//this is a hack, since the length of SubcalEvent Event TimeLine is the same length of time as its busy time span
@@ -99,7 +99,7 @@ namespace My24HourTimerWPF
                 {
                     
 
-                    ClumpedResults[arg1[j]] = populateClumpedResults(BaseReferenceEndTime, arg1[j], ClumpedResults[arg1[j]], ReferenceStartTime - arg1[j].ActiveDuration, BoundaryTimeLine);
+                    ClumpedResults[arg1[j]] = populateClumpedResults(BaseReferenceEndTime, arg1[j], ClumpedResults[arg1[j]], ReferenceStartTime - arg1[j].getActiveDuration, BoundaryTimeLine);
                 }
 
             }
@@ -108,7 +108,7 @@ namespace My24HourTimerWPF
             {
                 SubCalendarEvent BreakOffSubCalEvent = SubCalEventsOverLapWithBase[0];
                 SubCalEventsOverLapWithBase.Remove(BreakOffSubCalEvent);
-                BreakOffClump = new ClumpSubCalendarEvent(BreakOffSubCalEvent, SubCalEventsOverLapWithBase, new TimeLine((getLeftMostPossibleStartLine(BaseEvent, BoundaryTimeLine) + BaseEvent.ActiveDuration), BoundaryTimeLine.End));
+                BreakOffClump = new ClumpSubCalendarEvent(BreakOffSubCalEvent, SubCalEventsOverLapWithBase, new TimeLine((getLeftMostPossibleStartLine(BaseEvent, BoundaryTimeLine) + BaseEvent.getActiveDuration), BoundaryTimeLine.End));
             }
             List<SubCalendarEvent> Fittable = new List<SubCalendarEvent>();
         }
@@ -145,7 +145,7 @@ namespace My24HourTimerWPF
             {
 
                 //List<SubCalendarEvent> ReferenceClump = new List<SubCalendarEvent>(BaseClump);
-                DateTimeOffset TimeLimit = ReferenceStartTime - Appendables[i].ActiveDuration;
+                DateTimeOffset TimeLimit = ReferenceStartTime - Appendables[i].getActiveDuration;
                 bool Zero = (Appendables[i].getCalendarEventRange.Start <= TimeLimit);
                 bool One = (TimeLimit >= BoundaryTimeLine.Start);
                 //bool Two = (BoundaryTimeLine.TimelineSpan >= Appendables[i].EventTimeLine.TimelineSpan);
@@ -177,7 +177,7 @@ namespace My24HourTimerWPF
             int j = 0;
             for (; j < arg1.Count; j++)
             {
-                ClumpedResults[arg1[j]] = populateClumpedResults(PreCeedingBaseEndtime, arg1[j], ClumpedResults[arg1[j]], ReferenceStartTime - arg1[j].ActiveDuration, BoundaryTimeLine);
+                ClumpedResults[arg1[j]] = populateClumpedResults(PreCeedingBaseEndtime, arg1[j], ClumpedResults[arg1[j]], ReferenceStartTime - arg1[j].getActiveDuration, BoundaryTimeLine);
             }
 
             if (SubCalEventsOverLapWithBase.Count > 0)

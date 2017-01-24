@@ -129,7 +129,7 @@ namespace TilerTests
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(duration);//.Add(duration).Add(duration);
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, true);
-            EventName oldName = testEvent.Name;
+            EventName oldName = testEvent.getName;
             schedule.AddToScheduleAndCommit(testEvent).Wait();
             schedule = new TestSchedule(user, refNow);
             CalendarEvent copyOfTestEvent = schedule.getCalendarEvent(testEvent.getId);
@@ -144,9 +144,9 @@ namespace TilerTests
             schedule.UpdateWithDifferentSchedule(tupleResult.Item2).Wait();
             TestSchedule scheduleReloaded = new TestSchedule(user, refNow);
             CalendarEvent renamedEvent = scheduleReloaded.getCalendarEvent(testEvent.getId);
-            Assert.AreEqual(renamedEvent.Name.NameValue, newName.NameValue);
-            Assert.AreEqual(renamedEvent.ActiveSubEvents.First().Name.NameValue, newName.NameValue);
-            Assert.AreEqual(renamedEvent.Name.NameId, testEvent.Name.NameId);
+            Assert.AreEqual(renamedEvent.getName.NameValue, newName.NameValue);
+            Assert.AreEqual(renamedEvent.ActiveSubEvents.First().getName.NameValue, newName.NameValue);
+            Assert.AreEqual(renamedEvent.getName.NameId, testEvent.getName.NameId);
 
         }
 

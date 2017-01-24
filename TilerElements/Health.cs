@@ -47,7 +47,7 @@ namespace TilerElements
 
         public double evaluateTotalDistance()
         {
-            double retValue = Location_Elements.calculateDistance(orderedByStartThenEndSubEvents.Select(SubEvent => SubEvent.myLocation).ToList());
+            double retValue = Location.calculateDistance(orderedByStartThenEndSubEvents.Select(SubEvent => SubEvent.Location).ToList());
             return retValue;
         }
 
@@ -311,7 +311,7 @@ namespace TilerElements
                             int j = i + 1;
                             SubCalendarEvent firstSubEvent = OrderedSubEvents[i];
                             SubCalendarEvent secondSubEvent = OrderedSubEvents[j];
-                            TimeSpan travelSpan = Location_Elements.getDrivingTimeFromWeb(firstSubEvent.myLocation, secondSubEvent.myLocation, this.TravelMode);
+                            TimeSpan travelSpan = Location.getDrivingTimeFromWeb(firstSubEvent.Location, secondSubEvent.Location, this.TravelMode);
                             string[] ids = { firstSubEvent.getId, secondSubEvent.getId };
                             string concatId = string.Join(",", ids);
                             TransitingIdsToWebTravelSpan.AddOrUpdate(concatId, travelSpan, ((key, oldValue) => { return travelSpan; }));

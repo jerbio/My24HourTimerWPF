@@ -530,7 +530,7 @@ namespace TilerElements
         public static SubCalendarEvent[] getBestPermutation(
             List<SubCalendarEvent> AllEvents,
             //double worstDistance,
-            Tuple<Location_Elements, Location_Elements> BorderElements = null,
+            Tuple<Location, Location> BorderElements = null,
             double worstDistance = double.MinValue
             )
         {
@@ -595,7 +595,7 @@ namespace TilerElements
             //double worstDistance,
             int permutationIndex,
             long permutationMax,
-            Tuple<Location_Elements, Location_Elements> BorderElements = null
+            Tuple<Location, Location> BorderElements = null
             )
         {
             int startingIndex = permutationIndex;
@@ -628,8 +628,8 @@ namespace TilerElements
                     totalDistance = SubCalendarEvent.CalculateDistance(myList, worstDistance);
                     if (BorderElements != null)
                     {
-                        totalDistance += Location_Elements.calculateDistance(BorderElements.Item1, myList.First().myLocation);
-                        totalDistance += Location_Elements.calculateDistance(BorderElements.Item2, myList.Last().myLocation);
+                        totalDistance += Location.calculateDistance(BorderElements.Item1, myList.First().Location);
+                        totalDistance += Location.calculateDistance(BorderElements.Item2, myList.Last().Location);
                     }
                     //Location_Elements.calculateDistance(myList.Select(obj => obj.myLocation).ToList());
                 }
@@ -650,7 +650,7 @@ namespace TilerElements
 
         }
 
-        public static SubCalendarEvent[] getBestPermutation(List<SubCalendarEvent> AllEvents, double worstDistance, Tuple<Location_Elements, Location_Elements> BorderElements = null)
+        public static SubCalendarEvent[] getBestPermutation(List<SubCalendarEvent> AllEvents, double worstDistance, Tuple<Location, Location> BorderElements = null)
         {
             if (AllEvents.Count <= 1)
             {
@@ -694,8 +694,8 @@ namespace TilerElements
                         totalDistance = SubCalendarEvent.CalculateDistance(myList, worstDistance);
                         if (BorderElements != null)
                         {
-                            totalDistance += Location_Elements.calculateDistance(BorderElements.Item1, myList.First().myLocation);
-                            totalDistance += Location_Elements.calculateDistance(BorderElements.Item2, myList.Last().myLocation);
+                            totalDistance += Location.calculateDistance(BorderElements.Item1, myList.First().Location);
+                            totalDistance += Location.calculateDistance(BorderElements.Item2, myList.Last().Location);
                         }
                         //Location_Elements.calculateDistance(myList.Select(obj => obj.myLocation).ToList());
                     }
@@ -729,7 +729,7 @@ namespace TilerElements
             return ret_GoodOrder;
         }
 
-        public static Location_Elements[] getBestPermutation(List<Location_Elements> AllEvents, double worstDistance)
+        public static Location[] getBestPermutation(List<Location> AllEvents, double worstDistance)
         {
             long numberOfpermutations = Factorial(AllEvents.Count);
             int[] init_Array = new int[AllEvents.Count];
@@ -754,7 +754,7 @@ namespace TilerElements
                 {
                     int[] myArray = generatePermutation(init_Array.ToArray(), i, 0, numberOfpermutations, init_Array.Length, 0);
                     double totalDistance = worstDistance;
-                    List<Location_Elements> myList = new List<Location_Elements>();
+                    List<Location> myList = new List<Location>();
                     foreach (int eachInt in myArray)
                     {
                         myList.Add(AllEvents[eachInt]);
@@ -763,7 +763,7 @@ namespace TilerElements
                     {
                         //totalDistance = SubCalendarEvent.CalculateDistance(myList, worstDistance);
 
-                        totalDistance = Location_Elements.calculateDistance(myList);
+                        totalDistance = Location.calculateDistance(myList);
                     }
                     allFactorial[i % lengthOfLoop] = totalDistance;
 
@@ -780,7 +780,7 @@ namespace TilerElements
 
             int[] goodOrder = generatePermutation(init_Array.ToArray(), minIndex, 0, numberOfpermutations, init_Array.Length, 0);
 
-            Location_Elements[] ret_GoodOrder = new Location_Elements[AllEvents.Count];
+            Location[] ret_GoodOrder = new Location[AllEvents.Count];
             for (int j = 0; j < AllEvents.Count; j++)
             {
                 ret_GoodOrder[j] = AllEvents[goodOrder[j]];
@@ -825,13 +825,13 @@ namespace TilerElements
         }
 
 
-        public static SubCalendarEvent getClosestSubCalendarEvent(IEnumerable<SubCalendarEvent> AllSubCalEvents, Location_Elements ReferenceSubEvent)
+        public static SubCalendarEvent getClosestSubCalendarEvent(IEnumerable<SubCalendarEvent> AllSubCalEvents, Location ReferenceSubEvent)
         {
             SubCalendarEvent RetValue = null;
             double shortestDistance = double.MaxValue;
             foreach (SubCalendarEvent eachSubCalendarEvent in AllSubCalEvents)
             {
-                double DistanceSoFar = Location_Elements.calculateDistance(eachSubCalendarEvent.myLocation, ReferenceSubEvent);
+                double DistanceSoFar = Location.calculateDistance(eachSubCalendarEvent.Location, ReferenceSubEvent);
                 if (DistanceSoFar < shortestDistance)
                 {
                     RetValue = eachSubCalendarEvent;
@@ -1083,7 +1083,7 @@ namespace TilerElements
             //retValue=ListOfSubCalEvent.Sum(obj => obj.ActiveDuration);
             foreach (SubCalendarEvent eachSubCalendarEvent in ListOfSubCalEvent)
             {
-                retValue += eachSubCalendarEvent.ActiveDuration;
+                retValue += eachSubCalendarEvent.getActiveDuration;
             }
             return retValue;
         }

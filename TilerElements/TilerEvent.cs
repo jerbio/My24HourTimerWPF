@@ -17,7 +17,7 @@ namespace TilerElements
         protected bool Enabled = true;
         protected bool DeadlineElapsed = false;
         protected bool UserDeleted = false;
-        protected Location_Elements LocationInfo;
+        protected Location LocationInfo;
         protected EventDisplay UiParams = new EventDisplay();
         protected MiscData DataBlob = new MiscData();
         protected Repetition EventRepetition;
@@ -71,7 +71,7 @@ namespace TilerElements
             _Name.updateName(NewName);
         }
 
-        public bool isComplete
+        public bool getIsComplete
         {
             get
             {
@@ -84,7 +84,7 @@ namespace TilerElements
         //    this.UniqueID = id;
         //}
 
-        public EventDisplay UIParam
+        public EventDisplay getUIParam
         {
             get
             {
@@ -96,7 +96,7 @@ namespace TilerElements
         {
             get
             {
-                return ((!isComplete) && (isEnabled));
+                return ((!getIsComplete) && (isEnabled));
             }
         }
 
@@ -108,7 +108,7 @@ namespace TilerElements
             }
         }
 
-        virtual public bool isDeleted
+        virtual public bool getIsDeleted
         {
             get
             {
@@ -141,7 +141,7 @@ namespace TilerElements
         }
 
 
-        public bool isProcrastinateCalendarEvent
+        public bool getIsProcrastinateCalendarEvent
         {
             get
             {
@@ -161,7 +161,7 @@ namespace TilerElements
             }
         }
 
-        virtual public string ThirdPartyUserID
+        virtual public string getThirdPartyUserID
         {
             get
             {
@@ -169,7 +169,7 @@ namespace TilerElements
             }
         }
 
-        virtual public Location_Elements myLocation
+        virtual public Location Location
         {
             set
             {
@@ -181,7 +181,7 @@ namespace TilerElements
             }
         }
 
-        public virtual bool isRepeat
+        public virtual bool getIsRepeat
         {
             get
             {
@@ -189,14 +189,14 @@ namespace TilerElements
             }
         }
 
-        virtual public TimeSpan Preparation
+        virtual public TimeSpan getPreparation
          {
              get
              {
                  return PrepTime;
              }
          }
-         public TimeSpan PreDeadline
+         public TimeSpan getPreDeadline
          {
              get
              {
@@ -204,21 +204,21 @@ namespace TilerElements
              }
          }
 
-         public bool isEventRestricted
+         public bool getIsEventRestricted
          {
              get
              {
                  return isRestricted;
              }
          }
-        public bool isDeadlineElapsed
+        public bool getIsDeadlineElapsed
          {
              get 
              {
                  return DeadlineElapsed;
              }
          }
-        public EventName Name
+        public EventName getName
         {
             get
             {
@@ -226,7 +226,7 @@ namespace TilerElements
             }
         }
 
-        public bool isUserDeleted
+        public bool getIsUserDeleted
         {
             get
             {
@@ -235,7 +235,7 @@ namespace TilerElements
 
         }
 
-        public int EventPriority
+        public int getEventPriority
         {
             get
             {
@@ -243,7 +243,7 @@ namespace TilerElements
             }
         }
 
-        public Procrastination  ProcrastinationInfo
+        public Procrastination  getProcrastinationInfo
         {
             get
             {
@@ -251,7 +251,7 @@ namespace TilerElements
             }
         }
 
-        public NowProfile NowInfo
+        public virtual NowProfile getNowInfo
         {
             get
             {
@@ -272,7 +272,7 @@ namespace TilerElements
         {
             return DaySectionPreference;
         }
-        public string CreatorId
+        public string getCreatorId
         {
             get
             {
@@ -280,7 +280,7 @@ namespace TilerElements
             }
         }
 
-        public TilerUser Creator
+        public TilerUser getCreator
         {
             get
             {
@@ -308,14 +308,14 @@ namespace TilerElements
             }
         }
 
-        virtual public DateTimeOffset Deadline
+        virtual public DateTimeOffset getDeadline
         {
             get {
                 return End;
             }
         }
 
-        virtual public TimeSpan ActiveDuration
+        virtual public TimeSpan getActiveDuration
         {
             get
             {
@@ -323,7 +323,7 @@ namespace TilerElements
             }
         }
 
-        virtual public EventID TilerID
+        virtual public EventID getTilerID
         {
             get
             {
@@ -332,15 +332,11 @@ namespace TilerElements
         }
         public override string ToString()
         {
-            return this.Start.ToString() + " - " + this.End.ToString() + "::" + this.getId + "\t\t::" + this.ActiveDuration.ToString();
+            return this.Start.ToString() + " - " + this.End.ToString() + "::" + this.getId + "\t\t::" + this.getActiveDuration.ToString();
         }
 
-        virtual public bool Rigid
+        virtual public bool getRigid
         {
-            set
-            {
-                RigidSchedule = value;
-            }
             get
             {
                 return RigidSchedule;

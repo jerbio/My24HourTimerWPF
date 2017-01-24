@@ -11,19 +11,19 @@ namespace My24HourTimerWPF
     {
         DayTimeLine DayInfo;
         Dictionary<TimeOfDayPreferrence.DaySection, OptimizedGrouping> AllGroupings = new Dictionary<TimeOfDayPreferrence.DaySection, OptimizedGrouping>();
-        Location_Elements DefaultLocation = new Location_Elements();
+        Location DefaultLocation = new Location();
         Dictionary<SubCalendarEvent, Dictionary<Reason.Options, Reason>> subEventToReason = new Dictionary<SubCalendarEvent, Dictionary<Reason.Options, Reason>>();
         Dictionary<SubCalendarEvent, Dictionary<TimeOfDayPreferrence.DaySection, Dictionary<int, HashSet<int>>>> subEvent_Dict_To_DaySecion = new Dictionary<SubCalendarEvent, Dictionary<TimeOfDayPreferrence.DaySection, Dictionary<int, HashSet<int>>>>();
         /// <summary>
         /// This holds the subevents that cannot fit anywhere within this and also have no partial timefram that works
         /// </summary>
         HashSet<SubCalendarEvent> NotInvolvedIncalculation = new HashSet<SubCalendarEvent>();
-        public OptimizedPath(DayTimeLine dayData, Location_Elements home = null)
+        public OptimizedPath(DayTimeLine dayData, Location home = null)
         {
             initializeSubEvents(dayData);
 
             TimeSpan TotalDuration = SubCalendarEvent.TotalActiveDuration(dayData.getSubEventsInDayTimeLine());
-            DefaultLocation = Location_Elements.AverageGPSLocation(DayInfo.getSubEventsInDayTimeLine().Select(obj => obj.myLocation), false);
+            DefaultLocation = Location.AverageGPSLocation(DayInfo.getSubEventsInDayTimeLine().Select(obj => obj.Location), false);
             if (home == null)
             {
                 home = DefaultLocation.CreateCopy();
@@ -53,7 +53,7 @@ namespace My24HourTimerWPF
                     TimeLine interferringTimeline = subEventToViableTimeLine[subEvent];
                     if (interferringTimeline != null)
                     {
-                        SubCalendarEvent slicedValidSubEvent = new SubCalendarEvent(TilerUser.autoUser, new TilerUserGroup(), subEvent.getTimeZone, subEvent.getId, subEvent.Name, interferringTimeline.Start, interferringTimeline.End, new BusyTimeLine(subEvent.getId, interferringTimeline.Start, interferringTimeline.End), subEvent.Rigid, subEvent.isEnabled, subEvent.UIParam, subEvent.Notes, subEvent.isComplete, subEvent.myLocation, subEvent.getCalendarEventRange, subEvent.Conflicts);
+                        SubCalendarEvent slicedValidSubEvent = new SubCalendarEvent(TilerUser.autoUser, new TilerUserGroup(), subEvent.getTimeZone, subEvent.getId, subEvent.getName, interferringTimeline.Start, interferringTimeline.End, new BusyTimeLine(subEvent.getId, interferringTimeline.Start, interferringTimeline.End), subEvent.getRigid, subEvent.isEnabled, subEvent.getUIParam, subEvent.Notes, subEvent.getIsComplete, subEvent.Location, subEvent.getCalendarEventRange, subEvent.Conflicts);
                         tempSubEvents.Add(slicedValidSubEvent);
                     }
                     else
@@ -72,7 +72,7 @@ namespace My24HourTimerWPF
 
         void assignRigidsToTimeGroupings(IEnumerable<SubCalendarEvent> subEvents, DayTimeLine DayData)
         {
-            IEnumerable<SubCalendarEvent> rigidSubEvents = subEvents.Where(subEvent => subEvent.Rigid);
+            IEnumerable<SubCalendarEvent> rigidSubEvents = subEvents.Where(subEvent => subEvent.getRigid);
             HashSet<OptimizedGrouping> retrievedGroupings = new HashSet<OptimizedGrouping>();
             foreach(SubCalendarEvent subEvent in rigidSubEvents)
             {
@@ -130,8 +130,8 @@ namespace My24HourTimerWPF
                 else
                 {
                     List<SubCalendarEvent> BestOrder = AllSubCalendarEvents.OrderBy(obj => obj.Start).ToList();
-                    List<Location_Elements> BestOrderLocations = BestOrder.Select(obj => obj.myLocation).ToList();
-                    List<SubCalendarEvent> NoPosition = AllSubCalendarEvents.Where(obj => (!obj.Rigid)).Where(obj => (!obj.isOptimized)).Where(obj =>
+                    List<Location> BestOrderLocations = BestOrder.Select(obj => obj.Location).ToList();
+                    List<SubCalendarEvent> NoPosition = AllSubCalendarEvents.Where(obj => (!obj.getRigid)).Where(obj => (!obj.isOptimized)).Where(obj =>
                     {
                         var TimeOfDay = obj.getDaySection().getCurrentDayPreference();
                         //return ((TimeOfDay != TimeOfDayPreferrence.DaySection.Disabled)&&(TimeOfDay!=TimeOfDayPreferrence.DaySection.None));
@@ -150,7 +150,7 @@ namespace My24HourTimerWPF
             {
                 List<SubCalendarEvent> correctlyAssignedevents = DayInfo.getSubEventsInDayTimeLine().Except(disabledSubEvents).OrderBy(obj=>obj.Start).ToList();
 
-                Tuple<Dictionary<TilerEvent, double>, Tuple<Location_Elements, DateTimeOffset, TimeSpan>> evaluatedParams = evalulateParameter(disabledSubEvents, null);
+                Tuple<Dictionary<TilerEvent, double>, Tuple<Location, DateTimeOffset, TimeSpan>> evaluatedParams = evalulateParameter(disabledSubEvents, null);
                 Dictionary<TilerEvent, double> evaluatedEvents = evaluatedParams.Item1;
                 List<KeyValuePair<TilerEvent, double>> subEventsEvaluated = evaluatedEvents.OrderBy(obj => obj.Value).ToList();
 
@@ -282,7 +282,7 @@ namespace My24HourTimerWPF
                             revisedTimeLine = disabledSubEvent.getTimeLineInterferringWithCalEvent(revisedTimeLine).LastOrDefault();
                             if (revisedTimeLine != null)
                             {
-                                disabledSubEvent.shiftEvent(revisedTimeLine.End - disabledSubEvent.ActiveDuration);
+                                disabledSubEvent.shiftEvent(revisedTimeLine.End - disabledSubEvent.getActiveDuration);
                                 //HashSet<SubCalendarEvent> allSubEvents = new HashSet<SubCalendarEvent>(subEventsReadjusted);
                                 //allSubEvents.Remove(disabledSubEvent);
                                 //List<BlobSubCalendarEvent> conflictingSubevent = Utility.getConflictingEvents(allSubEvents);
@@ -311,7 +311,7 @@ namespace My24HourTimerWPF
                             TimeLine revisedOverlappingTImeline = disabledSubEvent.getTimeLineInterferringWithCalEvent(relevantTimeline).FirstOrDefault();
                             if (revisedOverlappingTImeline != null)
                             {
-                                TimeLine centralizedTimeLine = Utility.CentralizeYourSelfWithinRange(revisedOverlappingTImeline, disabledSubEvent.ActiveDuration);
+                                TimeLine centralizedTimeLine = Utility.CentralizeYourSelfWithinRange(revisedOverlappingTImeline, disabledSubEvent.getActiveDuration);
                                 disabledSubEvent.shiftEvent(centralizedTimeLine.Start);
                                 //List<SubCalendarEvent> interferringSubEVentsEvents = subEventsReadjusted.Where(subEvent => subEvent.RangeTimeLine.doesTimeLineInterfere(centralizedTimeLine)).ToList();
 
@@ -353,7 +353,7 @@ namespace My24HourTimerWPF
             return possiblyConflictingSubEvent;
         }
 
-        Tuple<Dictionary<TilerEvent, double>, Tuple<Location_Elements, DateTimeOffset, TimeSpan>> evalulateParameter(IEnumerable<SubCalendarEvent> events, OptimizedGrouping.OptimizedAverage optimizedAverage)
+        Tuple<Dictionary<TilerEvent, double>, Tuple<Location, DateTimeOffset, TimeSpan>> evalulateParameter(IEnumerable<SubCalendarEvent> events, OptimizedGrouping.OptimizedAverage optimizedAverage)
         {
             
             if(events.Count() == 0) // handles scenario where there is not event
@@ -362,30 +362,30 @@ namespace My24HourTimerWPF
             }
             Dictionary<TilerEvent, List<double>> dimensionsPerEvent = new Dictionary<TilerEvent, List<double>>();
             Dictionary<string, uint> fibboIndexes = new Dictionary<string, uint>();
-            Location_Elements avgLocation;
-            if (events.Where(eve => eve.Rigid).Count() > 0)// if there are rigids, let the rigid be the average location
+            Location avgLocation;
+            if (events.Where(eve => eve.getRigid).Count() > 0)// if there are rigids, let the rigid be the average location
             {
-                avgLocation = Location_Elements.AverageGPSLocation(events.Where(eve => eve.Rigid).Select(obj => obj.myLocation));
+                avgLocation = Location.AverageGPSLocation(events.Where(eve => eve.getRigid).Select(obj => obj.Location));
             }
             else
             {
-                avgLocation = Location_Elements.AverageGPSLocation(events.Select(obj => obj.myLocation));
+                avgLocation = Location.AverageGPSLocation(events.Select(obj => obj.Location));
             }
 
             if (optimizedAverage != null)
             {
-                avgLocation = Location_Elements.AverageGPSLocation(new List<Location_Elements> (optimizedAverage?.SubEvents.Select(subevent => subevent.myLocation)));
+                avgLocation = Location.AverageGPSLocation(new List<Location> (optimizedAverage?.SubEvents.Select(subevent => subevent.Location)));
             }
 
 
             foreach (TilerEvent Event in events)
             {
-                double distance = Location_Elements.calculateDistance(Event.myLocation, avgLocation, 100);
+                double distance = Location.calculateDistance(Event.Location, avgLocation, 100);
                 List<double> parameters = new List<double>();
 
                 uint multiplier = 1;
                 uint fiboindex = 1;
-                string calendarID = Event.TilerID.getCalendarEventComponent();
+                string calendarID = Event.getTilerID.getCalendarEventComponent();
 
                 if (fibboIndexes.ContainsKey(calendarID))
                 {
@@ -402,7 +402,7 @@ namespace My24HourTimerWPF
                 dimensionsPerEvent.Add(Event, parameters);
             }
             fibboIndexes = new Dictionary<string, uint>();
-            double sum = (double)events.Sum(obj => (obj.Deadline - Utility.StartOfTime).TotalSeconds);
+            double sum = (double)events.Sum(obj => (obj.getDeadline - Utility.StartOfTime).TotalSeconds);
             double averageRatio = sum / events.Count();
             long AverageTicks = TimeSpan.FromSeconds(averageRatio).Ticks; //(long)events.Average(obj => obj.Deadline.Ticks);
             //long AverageTicks = 0; //(long)events.Average(obj => obj.Deadline.Ticks);
@@ -410,12 +410,12 @@ namespace My24HourTimerWPF
             ///deals with scenarios where the deadline is later or earlier. the earlier the higher up in hierachy.
             foreach (TilerEvent Event in events)
             {
-                double deadlineRatio = (double)Event.Deadline.Ticks / AverageTicks;
+                double deadlineRatio = (double)Event.getDeadline.Ticks / AverageTicks;
                 List<double> parameters = dimensionsPerEvent[Event];
 
                 uint multiplier = 1;
                 uint fiboindex = 1;
-                string calendarID = Event.TilerID.getCalendarEventComponent();
+                string calendarID = Event.getTilerID.getCalendarEventComponent();
 
                 if (fibboIndexes.ContainsKey(calendarID))
                 {
@@ -431,7 +431,7 @@ namespace My24HourTimerWPF
                 parameters.Add(deadlineRatio);
             }
             fibboIndexes = new Dictionary<string, uint>();
-            long AverageDurationTicks = (long)events.Average(obj => obj.ActiveDuration.Ticks);
+            long AverageDurationTicks = (long)events.Average(obj => obj.getActiveDuration.Ticks);
             ///deals with scenarios with duration. The bigger the duration the higher up it is. Hence the more the ticks the ratio is in the for loop
             //foreach (TilerEvent Event in events)
             //{
@@ -461,7 +461,7 @@ namespace My24HourTimerWPF
 
 
             Dictionary<TilerEvent, double> retValueDict = new Dictionary<TilerEvent, double>();
-            List<TilerEvent> subeEVents = dimensionsPerEvent.OrderBy(obj => obj.Key.TilerID.getCalendarEventComponent()).Select(obj => obj.Key).ToList();
+            List<TilerEvent> subeEVents = dimensionsPerEvent.OrderBy(obj => obj.Key.getTilerID.getCalendarEventComponent()).Select(obj => obj.Key).ToList();
             List<List<double>> allCalcs = subeEVents.Select(obj => dimensionsPerEvent[obj]).ToList();
             IList<IList<double>> multidimensionalListOfValues = dimensionsPerEvent.Values.Select(obj => ((IList<double>)obj)).ToList();
             List<double> evalaution = Utility.multiDimensionCalculationNormalize(multidimensionalListOfValues, origin);
@@ -476,8 +476,8 @@ namespace My24HourTimerWPF
                 counter++;
             }
 
-            Tuple<Location_Elements, DateTimeOffset, TimeSpan> retValueTuple = new Tuple<Location_Elements, DateTimeOffset, TimeSpan>(avgLocation, latestDeadline, new TimeSpan(AverageDurationTicks));
-            Tuple<Dictionary<TilerEvent, double>, Tuple<Location_Elements, DateTimeOffset, TimeSpan>> retValue = new Tuple<Dictionary<TilerEvent, double>, Tuple<Location_Elements, DateTimeOffset, TimeSpan>>(retValueDict, retValueTuple);
+            Tuple<Location, DateTimeOffset, TimeSpan> retValueTuple = new Tuple<Location, DateTimeOffset, TimeSpan>(avgLocation, latestDeadline, new TimeSpan(AverageDurationTicks));
+            Tuple<Dictionary<TilerEvent, double>, Tuple<Location, DateTimeOffset, TimeSpan>> retValue = new Tuple<Dictionary<TilerEvent, double>, Tuple<Location, DateTimeOffset, TimeSpan>>(retValueDict, retValueTuple);
             return retValue;
         }
 
@@ -545,15 +545,15 @@ namespace My24HourTimerWPF
             AllEvents = fittable.ToList();
             if (AllEvents.Count > 0)
             {
-                Tuple<Dictionary<TilerEvent, double>, Tuple<Location_Elements, DateTimeOffset, TimeSpan>> evaluatedParams = evalulateParameter(AllEvents, Grouping.GroupAverage);
+                Tuple<Dictionary<TilerEvent, double>, Tuple<Location, DateTimeOffset, TimeSpan>> evaluatedParams = evalulateParameter(AllEvents, Grouping.GroupAverage);
                 Dictionary<TilerEvent, double> evaluatedEvents = evaluatedParams.Item1;
                 List<KeyValuePair<TilerEvent, double>> subEventsEvaluated = evaluatedEvents.OrderBy(obj => obj.Value).ToList();
 
                 IEnumerable<SubCalendarEvent> subEvents = (IEnumerable<SubCalendarEvent>)evaluatedEvents.OrderBy(obj => obj.Value).Select(obj => (SubCalendarEvent)obj.Key);
-                List<String> locations = subEvents.Select(obj => "" + obj.myLocation.XCoordinate + "," + obj.myLocation.YCoordinate).ToList();
+                List<String> locations = subEvents.Select(obj => "" + obj.Location.XCoordinate + "," + obj.Location.YCoordinate).ToList();
                 Subevents = subEvents.Take(5).ToList();
                 //Subevents= Utility.getBestPermutation(Subevents.ToList(), double.MaxValue, new Tuple<Location_Elements, Location_Elements>(Grouping.LeftBorder, Grouping.RightBorder)).ToList();
-                Tuple<Location_Elements, Location_Elements> borderElements = null;
+                Tuple<Location, Location> borderElements = null;
                 //if (!Grouping.LeftBorder.isNull && !Grouping.RightBorder.isNull)
                 //{
                 //    borderElements = new Tuple<Location_Elements, Location_Elements>(Grouping.LeftBorder, Grouping.RightBorder);
@@ -656,15 +656,15 @@ namespace My24HourTimerWPF
                     }
                 }
 
-                LocationReason locationReason = new LocationReason(Stitched_Revised.Select(subEvent => subEvent.myLocation));
+                LocationReason locationReason = new LocationReason(Stitched_Revised.Select(subEvent => subEvent.Location));
                 Stitched_Revised.ForEach(subEvent =>
                 {
                     updateSubeventReason(subEvent, locationReason);
-                    if (subEvent.ActiveDuration > evaluatedParams.Item2.Item3)
+                    if (subEvent.getActiveDuration > evaluatedParams.Item2.Item3)
                     {
-                        updateSubeventReason(subEvent, new DurationReason(subEvent.ActiveDuration));
+                        updateSubeventReason(subEvent, new DurationReason(subEvent.getActiveDuration));
                     }
-                    if (subEvent.isEventRestricted)
+                    if (subEvent.getIsEventRestricted)
                     {
                         updateSubeventReason(subEvent, new RestrictedEventReason((subEvent as SubCalendarEventRestricted).getRestrictionProfile()));
                     }
@@ -783,7 +783,7 @@ namespace My24HourTimerWPF
             }
             //*/
             List<SubCalendarEvent> SubEventsWithNoLocationPreference = AllGroupings[TimeOfDayPreferrence.DaySection.None].getPathStitchedSubevents();
-            List<SubCalendarEvent> rigidSubeevents = DayInfo.getSubEventsInDayTimeLine().Where(obj => obj.Rigid).ToList();
+            List<SubCalendarEvent> rigidSubeevents = DayInfo.getSubEventsInDayTimeLine().Where(obj => obj.getRigid).ToList();
             SubEventsInrespectivepaths.ForEach(subEVent => SubEventsWithNoLocationPreference.Remove(subEVent));
 
             ///*hash set test
@@ -895,7 +895,7 @@ namespace My24HourTimerWPF
             else
             {
                 List<SubCalendarEvent> recursionSubEvents = SubEvents.ToList();
-                List<SubCalendarEvent> NonRigidis = recursionSubEvents.Where(obj => (!obj.Rigid) && (!obj.isOptimized)).OrderBy(obj => obj.ActiveDuration).ToList();
+                List<SubCalendarEvent> NonRigidis = recursionSubEvents.Where(obj => (!obj.getRigid) && (!obj.isOptimized)).OrderBy(obj => obj.getActiveDuration).ToList();
                 SubCalendarEvent UnwantedEvent = NonRigidis[0];
                 //UnwantedEvent.getDaySection().rejectCurrentPreference();
                 recursionSubEvents.Remove(UnwantedEvent);

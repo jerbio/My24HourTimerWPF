@@ -137,7 +137,7 @@
     <Compile Include="EventIDGenerator.cs" />
     <Compile Include="EventTimeLine.cs" />
     <Compile Include="IDefinedRange.cs" />
-    <Compile Include="Location_Elements.cs" />
+    <Compile Include="Location.cs" />
     <Compile Include="MiscData.cs" />
     <Compile Include="mTuple.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

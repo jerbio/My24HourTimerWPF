@@ -15,7 +15,7 @@ using GoogleMapsApi.Entities.Directions.Response;
 
 namespace TilerElements
 {
-    public class Location_Elements
+    public class Location
     {
         public static int LastLocationId = 1;
         public static double MaxLongitude = 181;
@@ -47,7 +47,7 @@ namespace TilerElements
         protected bool DefaultFlag = false;
         protected string LocationID = Guid.NewGuid().ToString();
 
-        public Location_Elements()
+        public Location()
         {
             xValue = defaultXValue;
             yValue = defaultYValue;
@@ -55,7 +55,7 @@ namespace TilerElements
         }
 
 
-        public Location_Elements(double MyxValue, double MyyValue, string Id = "")
+        public Location(double MyxValue, double MyyValue, string Id = "")
         {
             xValue = MyxValue;
             yValue = MyyValue;
@@ -71,7 +71,7 @@ namespace TilerElements
             }
         }
 
-        public Location_Elements(double MyxValue, double MyyValue, string AddressEntry, string AddressDescription, bool isNull, bool isDefaultFlag, string ID = "")
+        public Location(double MyxValue, double MyyValue, string AddressEntry, string AddressDescription, bool isNull, bool isDefaultFlag, string ID = "")
         {
             xValue = MyxValue;
             yValue = MyyValue;
@@ -89,7 +89,7 @@ namespace TilerElements
             DefaultFlag = isDefaultFlag;
         }
 
-        public Location_Elements(string Address, string tag = "", string ID = "")
+        public Location(string Address, string tag = "", string ID = "")
         {
             if (string.IsNullOrEmpty(Address))
             {
@@ -186,9 +186,9 @@ namespace TilerElements
             defaultYValue = yLocation;
         }
 
-        public static Location_Elements getDefaultLocation()
+        public static Location getDefaultLocation()
         {
-            Location_Elements RetValue = new Location_Elements(defaultXValue, defaultYValue);
+            Location RetValue = new Location(defaultXValue, defaultYValue);
             RetValue.DefaultFlag = true;
             RetValue.NullLocation = false;
             return RetValue;
@@ -201,7 +201,7 @@ namespace TilerElements
         /// <param name="second"></param>
         /// <param name="travelMode"></param>
         /// <returns>The timespan it'll take to travel between both points. Note if the timespan ticks is less than 0 then the value could not be evaluated</returns>
-        static public TimeSpan getDrivingTimeFromWeb(Location_Elements first, Location_Elements second, TravelMode travelMode = TravelMode.Driving)
+        static public TimeSpan getDrivingTimeFromWeb(Location first, Location second, TravelMode travelMode = TravelMode.Driving)
         {
             TimeSpan retValue = new TimeSpan(-1);
             if(!first.isNull && !second.isNull)
@@ -233,7 +233,7 @@ namespace TilerElements
         /// <param name="Location24B"></param>
         /// <param name="Worst"></param>
         /// <returns></returns>
-        static public double calculateDistance(Location_Elements Location24A, Location_Elements Location24B, double Worst = double.MaxValue)
+        static public double calculateDistance(Location Location24A, Location Location24B, double Worst = double.MaxValue)
         {
             //note .... this function does not take into consideration the calendar event. So if there are two locations of the same calendarevent they will get scheduled right next to each other
             double maxDividedByTwo = MaxLongitude;
@@ -258,7 +258,7 @@ namespace TilerElements
         }
 
 
-        static public double calculateDistance(List<Location_Elements> ListOfLocations, double worstDistance = -1)
+        static public double calculateDistance(List<Location> ListOfLocations, double worstDistance = -1)
         {
             if(worstDistance == -1)
             {
@@ -296,9 +296,9 @@ namespace TilerElements
 
 
 
-        public Location_Elements CreateCopy()
+        public Location CreateCopy()
         {
-            Location_Elements this_cpy = new Location_Elements();
+            Location this_cpy = new Location();
             this_cpy.TaggedAddress = this.TaggedAddress;
             this_cpy.TaggedDescription = this.TaggedDescription;
             this_cpy.xValue = this.xValue;
@@ -322,10 +322,10 @@ namespace TilerElements
         /// <param name="Locations"></param>
         /// <param name="useDefaultLocation"></param>
         /// <returns></returns>
-        static public Location_Elements AverageGPSLocation(IEnumerable<Location_Elements> Locations, bool useDefaultLocation=true)
+        static public Location AverageGPSLocation(IEnumerable<Location> Locations, bool useDefaultLocation=true)
         {
             Locations = Locations.Where(obj => !obj.isNull).ToList();
-            Location_Elements retValue;
+            Location retValue;
             Locations = Locations.Where(location => !location.isDefault && !location.isNull).ToList();
             if (Locations.Count() > 0)
             {
@@ -358,7 +358,7 @@ namespace TilerElements
                 var centralSquareRoot = Math.Sqrt(x * x + y * y);
                 var centralLatitude = Math.Atan2(z, centralSquareRoot);
 
-                return new Location_Elements(centralLatitude * 180 / Math.PI, centralLongitude * 180 / Math.PI);
+                return new Location(centralLatitude * 180 / Math.PI, centralLongitude * 180 / Math.PI);
             }
             else
             {
@@ -369,7 +369,7 @@ namespace TilerElements
                 }
                 else
                 {
-                    retValue = new Location_Elements();
+                    retValue = new Location();
                 }
 
             }
@@ -387,13 +387,13 @@ namespace TilerElements
             return  xValue + "," + yValue+"\n";
         }
 
-        public static Location_Elements getClosestLocation(IEnumerable<Location_Elements> AllLocations, Location_Elements RefLocation)
+        public static Location getClosestLocation(IEnumerable<Location> AllLocations, Location RefLocation)
         {
-            Location_Elements RetValue = null;
+            Location RetValue = null;
             double shortestDistance = double.MaxValue;
-            foreach (Location_Elements eachLocation in AllLocations)
+            foreach (Location eachLocation in AllLocations)
             {
-                double DistanceSoFar = Location_Elements.calculateDistance(eachLocation, RefLocation);
+                double DistanceSoFar = Location.calculateDistance(eachLocation, RefLocation);
                 if (DistanceSoFar < shortestDistance)
                 {
                     RetValue = eachLocation;

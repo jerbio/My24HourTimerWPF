@@ -61,7 +61,7 @@ namespace TilerTests
             Schedule.markSubEventAsComplete(completedSubEventId).Wait();
             Schedule = new TestSchedule(user, refNow);
             SubCalendarEvent subEvent = Schedule.getSubCalendarEvent(completedSubEventId);
-            Assert.IsTrue(subEvent.isComplete);
+            Assert.IsTrue(subEvent.getIsComplete);
         }
 
 
@@ -85,7 +85,7 @@ namespace TilerTests
             Schedule.markAsCompleteCalendarEventAndReadjust(completedSubEventId).Wait();
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent retrievedCalendarEvent = Schedule.getCalendarEvent(completedSubEventId);
-            Assert.IsTrue(retrievedCalendarEvent.isComplete);
+            Assert.IsTrue(retrievedCalendarEvent.getIsComplete);
         }
 
         [TestMethod]
@@ -126,7 +126,7 @@ namespace TilerTests
             Schedule.markSubEventAsComplete(completedSubEventId).Wait();
             Schedule = new TestSchedule(user, refNow);
             SubCalendarEvent subEvent = Schedule.getSubCalendarEvent(completedSubEventId);
-            Assert.IsTrue(subEvent.isComplete);
+            Assert.IsTrue(subEvent.getIsComplete);
             CalendarEvent calendarEvent = Schedule.getCalendarEvent(completedSubEventId);
             Assert.AreEqual(calendarEvent.CompletionCount, 1);
 
@@ -135,7 +135,7 @@ namespace TilerTests
             Schedule.markSubEventAsComplete(completedSubEventId).Wait();
             Schedule = new TestSchedule(user, refNow);
             subEvent = Schedule.getSubCalendarEvent(completedSubEventId);
-            Assert.IsTrue(subEvent.isComplete);
+            Assert.IsTrue(subEvent.getIsComplete);
             calendarEvent = Schedule.getCalendarEvent(completedSubEventId);
             Assert.AreEqual(calendarEvent.CompletionCount, 1);
 
@@ -194,9 +194,9 @@ namespace TilerTests
             testSubEvent = Schedule.getSubCalendarEvent(testSubEvent.getId);
             testSubEvent0 = Schedule.getSubCalendarEvent(testSubEvent0.getId);
             testSubEvent1 = Schedule.getSubCalendarEvent(testSubEvent1.getId);
-            Assert.IsTrue(testSubEvent.isComplete);
-            Assert.IsTrue(testSubEvent0.isComplete);
-            Assert.IsTrue(testSubEvent1.isComplete);
+            Assert.IsTrue(testSubEvent.getIsComplete);
+            Assert.IsTrue(testSubEvent0.getIsComplete);
+            Assert.IsTrue(testSubEvent1.getIsComplete);
 
             CalendarEvent retrievedCalendarEvent = Schedule.getCalendarEvent(testSubEvent.getId);
             CalendarEvent retrievedCalendarEvent0 = Schedule.getCalendarEvent(testSubEvent0.getId);
@@ -216,9 +216,9 @@ namespace TilerTests
             testSubEvent = Schedule.getSubCalendarEvent(testSubEvent.getId);
             testSubEvent0 = Schedule.getSubCalendarEvent(testSubEvent0.getId);
             testSubEvent1 = Schedule.getSubCalendarEvent(testSubEvent1.getId);
-            Assert.IsTrue(testSubEvent.isComplete);
-            Assert.IsTrue(testSubEvent0.isComplete);
-            Assert.IsTrue(testSubEvent1.isComplete);
+            Assert.IsTrue(testSubEvent.getIsComplete);
+            Assert.IsTrue(testSubEvent0.getIsComplete);
+            Assert.IsTrue(testSubEvent1.getIsComplete);
 
             retrievedCalendarEvent = Schedule.getCalendarEvent(testSubEvent.getId);
             retrievedCalendarEvent0 = Schedule.getCalendarEvent(testSubEvent0.getId);

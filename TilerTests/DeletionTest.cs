@@ -193,9 +193,9 @@ namespace TilerTests
             testSubEvent = Schedule.getSubCalendarEvent(testSubEvent.getId);
             testSubEvent0 = Schedule.getSubCalendarEvent(testSubEvent0.getId);
             testSubEvent1 = Schedule.getSubCalendarEvent(testSubEvent1.getId);
-            Assert.IsTrue(testSubEvent.isDeleted);
-            Assert.IsTrue(testSubEvent0.isDeleted);
-            Assert.IsTrue(testSubEvent1.isDeleted);
+            Assert.IsTrue(testSubEvent.getIsDeleted);
+            Assert.IsTrue(testSubEvent0.getIsDeleted);
+            Assert.IsTrue(testSubEvent1.getIsDeleted);
 
             CalendarEvent retrievedCalendarEvent = Schedule.getCalendarEvent(testSubEvent.getId);
             CalendarEvent retrievedCalendarEvent0 = Schedule.getCalendarEvent(testSubEvent0.getId);
@@ -215,9 +215,9 @@ namespace TilerTests
             testSubEvent = Schedule.getSubCalendarEvent(testSubEvent.getId);
             testSubEvent0 = Schedule.getSubCalendarEvent(testSubEvent0.getId);
             testSubEvent1 = Schedule.getSubCalendarEvent(testSubEvent1.getId);
-            Assert.IsTrue(testSubEvent.isDeleted);
-            Assert.IsTrue(testSubEvent0.isDeleted);
-            Assert.IsTrue(testSubEvent1.isDeleted);
+            Assert.IsTrue(testSubEvent.getIsDeleted);
+            Assert.IsTrue(testSubEvent0.getIsDeleted);
+            Assert.IsTrue(testSubEvent1.getIsDeleted);
 
             retrievedCalendarEvent = Schedule.getCalendarEvent(testSubEvent.getId);
             retrievedCalendarEvent0 = Schedule.getCalendarEvent(testSubEvent0.getId);

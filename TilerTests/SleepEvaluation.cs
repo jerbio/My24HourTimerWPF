@@ -35,7 +35,7 @@ namespace TilerTests
             TestSchedule Schedule = new TestSchedule(currentUser, refNow);
             ReferenceNow now = Schedule.Now;
             
-            Location_Elements location = TestUtility.getLocations()[0];
+            Location location = TestUtility.getLocations()[0];
             List<DayTimeLine> allValidDays = now.getAllDaysForCalc().ToList();
             DayTimeLine dayForCalculaition = allValidDays[1];
             CalendarEvent newCalEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), dayForCalculaition.Start, dayForCalculaition.End, 1, false, location: location);
@@ -60,7 +60,7 @@ namespace TilerTests
             TestSchedule schedule = new TestSchedule(currentuser, refNow, startOfDay);
             ReferenceNow now = schedule.Now;
 
-            Location_Elements location = TestUtility.getLocations()[0];
+            Location location = TestUtility.getLocations()[0];
             List<DayTimeLine> allValidDays = now.getAllDaysForCalc().ToList();
             DayTimeLine dayForCalculation0 = allValidDays[1];
             DayTimeLine dayForCalculation1 = allValidDays[2];

@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 using TilerElements;
 using Microsoft.Owin.Hosting;
 using Microsoft.Owin.Host;
-//using System.Web.Mvc;
+using TilerCore;
 
 
 
@@ -609,14 +609,14 @@ namespace My24HourTimerWPF
             {
                 ScheduleUpdated = new RigidCalendarEvent(
                     //EventID.GenerateCalendarEvent(), 
-                    eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, MyRepetition,  var0, UiData, NoteData, true, CompletedFlag, new TilerLogicUser(MySchedule.getUserAccount().UserID),new TilerUserGroup(), "UTC" , null);
+                    eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, MyRepetition,  var0, UiData, NoteData, true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id),new TilerUserGroup(), "UTC" , null);
             }
             else
             {
                 int splitCount = Convert.ToInt32(eventSplit);
                 ScheduleUpdated = new CalendarEvent(
                     //EventID.GenerateCalendarEvent(), 
-                    eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, splitCount, MyRepetition, var0, UiData, NoteData, null,new NowProfile(), true, CompletedFlag, new TilerLogicUser(MySchedule.getUserAccount().UserID), new TilerUserGroup(), "UTC", null);
+                    eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, splitCount, MyRepetition, var0, UiData, NoteData, null,new NowProfile(), true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), "UTC", null);
             }
             
             
@@ -809,13 +809,13 @@ namespace My24HourTimerWPF
             {
                 ScheduleUpdated = new RigidCalendarEvent(
                     //EventID.GenerateCalendarEvent(), 
-                    eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, MyRepetition, var0, UiData, NoteData, true, CompletedFlag, new TilerLogicUser(MySchedule.getUserAccount().UserID), new TilerUserGroup(), "UTC", null);
+                    eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, MyRepetition, var0, UiData, NoteData, true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), "UTC", null);
             }
             else
             {
                 int splitCount = Convert.ToInt32(eventSplit);
                 ScheduleUpdated = new CalendarEvent(//EventID.GenerateCalendarEvent(), 
-                    eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, splitCount, MyRepetition, var0, UiData, NoteData, null, new NowProfile(), true, CompletedFlag, new TilerLogicUser(MySchedule.getUserAccount().UserID), new TilerUserGroup(), "UTC", null);
+                    eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, splitCount, MyRepetition, var0, UiData, NoteData, null, new NowProfile(), true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), "UTC", null);
             }
             if (RestrictedCheckbox.IsChecked.Value)
             {
@@ -1168,7 +1168,7 @@ namespace My24HourTimerWPF
 
         private void button6_Click(object sender, RoutedEventArgs e)
         {           
-            MySchedule.RemoveAllCalendarEventFromLogAndCalendar();
+            //MySchedule.RemoveAllCalendarEventFromLogAndCalendar();
             MySchedule.EmptyMemory();
         }
 
@@ -1179,8 +1179,8 @@ namespace My24HourTimerWPF
 
         private void button7_Click(object sender, RoutedEventArgs e)
         {
-            MySchedule.removeAllFromOutlook();
-            MySchedule.WriteFullScheduleToLogAndOutlook();
+            //MySchedule.removeAllFromOutlook();
+            //MySchedule.WriteFullScheduleToLogAndOutlook();
         }
 
 
@@ -1286,7 +1286,7 @@ namespace My24HourTimerWPF
 
                 TilerFront.Models.AuthorizedUser AuthorizeUser = new TilerFront.Models.AuthorizedUser() { UserID = "d350ba4d-fe0b-445c-bed6-b6411c2156b3", UserName = "jerbio" };
 
-                UserAccount currentUser = await AuthorizeUser.getUserAccountDebug();
+                TilerFront.UserAccount currentUser = await AuthorizeUser.getUserAccountDebug();
                 //MySchedule = new Schedule(currentUser,DateTimeOffset.UtcNow);
 
                 EventName eventName = new EventName( textBox1.Text);
@@ -1398,13 +1398,13 @@ namespace My24HourTimerWPF
                 if (RigidFlag)
                 {
                     ScheduleUpdated = new RigidCalendarEvent(//EventID.GenerateCalendarEvent(), 
-                        eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, MyRepetition, var0, UiData, NoteData, true, CompletedFlag, new TilerLogicUser(MySchedule.getUserAccount().UserID), new TilerUserGroup(), "UTC", null);
+                        eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, MyRepetition, var0, UiData, NoteData, true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), "UTC", null);
                 }
                 else
                 {
                     int splitCount = Convert.ToInt32(eventSplit);
                     ScheduleUpdated = new CalendarEvent(//EventID.GenerateCalendarEvent(), 
-                        eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, splitCount, MyRepetition, var0, UiData, NoteData, null, new NowProfile(),  true, CompletedFlag, new TilerLogicUser(MySchedule.getUserAccount().UserID), new TilerUserGroup(), "UTC", null);
+                        eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, splitCount, MyRepetition, var0, UiData, NoteData, null, new NowProfile(),  true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), "UTC", null);
                 }
                 ScheduleUpdated.Repeat.PopulateRepetitionParameters(ScheduleUpdated);
                 
@@ -1481,7 +1481,7 @@ namespace My24HourTimerWPF
 
             TilerFront.Models.LoginViewModel myLogin = new TilerFront.Models.LoginViewModel() { Username = UserNameTextBox.Text, Password = PasswordTextBox.Text, RememberMe = true };
             TilerFront.Models.AuthorizedUser AuthorizeUser = new TilerFront.Models.AuthorizedUser(){UserID="d350ba4d-fe0b-445c-bed6-b6411c2156b3",UserName="jerbio"};
-            UserAccount currentUser =await AuthorizeUser.getUserAccountDebug();
+            TilerFront.UserAccount currentUser = await AuthorizeUser.getUserAccountDebug();
 
 
             currentUser.getTilerUser().EndfOfDay = DateTimeOffset.Parse("3:00am");
@@ -1491,9 +1491,12 @@ namespace My24HourTimerWPF
 
             Stopwatch timer = new Stopwatch();
             timer.Start();
-            MySchedule = new Schedule(currentUser, refNow);
+            Dictionary<string, CalendarEvent> allEventDictionary = currentUser.ScheduleData.getAllCalendarFromXml(new TimeLine(refNow.AddDays(-90), refNow.AddDays(90)));
+            Dictionary<string, Location> LocationCache = new Dictionary<string, Location>();
+
+            MySchedule = new Schedule(allEventDictionary, currentUser.getTilerUser().EndfOfDay, LocationCache, refNow, currentUser.getTilerUser());
             
-            if (MySchedule.isScheduleLoadSuccessful)
+            if (true)
             {
                 timer.Stop();
                 //MessageBox.Show("Ellapsed is " + timer.ElapsedMilliseconds + "ms");

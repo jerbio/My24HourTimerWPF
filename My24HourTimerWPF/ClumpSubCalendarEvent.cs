@@ -22,7 +22,7 @@ namespace My24HourTimerWPF
         DateTimeOffset BaseReferenceStartTime;
         public ClumpSubCalendarEvent(List<SubCalendarEvent> Appendables, TimeLine BoundaryTimeLine)
         {
-            Appendables=Appendables.OrderBy(obj => obj.getCalendarEventRange.End).ToList();
+            Appendables=Appendables.OrderBy(obj => obj.getCalculationRange.End).ToList();
             SubCalendarEvent RelativeSubEvent = Appendables[0];
             Appendables.Remove(RelativeSubEvent);
             ClumpSubCalendarEvent myThis = new ClumpSubCalendarEvent(RelativeSubEvent, Appendables, BoundaryTimeLine.CreateCopy());
@@ -43,7 +43,7 @@ namespace My24HourTimerWPF
             SubCalEventsOverLapWithBase = new List<SubCalendarEvent>();
             _Name = new EventName();
             BaseEvent = BaseSubCalendarEvent;
-            DateTimeOffset var1 = BaseEvent.getCalendarEventRange.End < BoundaryTimeLine.End ? BaseEvent.getCalendarEventRange.End : BoundaryTimeLine.End;//hack assumes base can fit within boundary
+            DateTimeOffset var1 = BaseEvent.getCalculationRange.End < BoundaryTimeLine.End ? BaseEvent.getCalculationRange.End : BoundaryTimeLine.End;//hack assumes base can fit within boundary
             this.BoundaryTimeLine = new TimeLine(BoundaryTimeLine.Start, var1);
             DateTimeOffset  ReferenceStartTime = var1 - BaseEvent.ActiveDuration;
             BreakOffClump = null;
@@ -54,7 +54,7 @@ namespace My24HourTimerWPF
                 List<SubCalendarEvent> ReferenceClump = new List<SubCalendarEvent>();
                 ReferenceClump.Add(BaseSubCalendarEvent);
                 DateTimeOffset TimeLimit = ReferenceStartTime - Appendables[i].ActiveDuration;
-                bool Zero = (Appendables[i].getCalendarEventRange.Start <= TimeLimit);
+                bool Zero = (Appendables[i].getCalculationRange.Start <= TimeLimit);
                 bool One = (TimeLimit >= BoundaryTimeLine.Start);
                 //bool Two = (BoundaryTimeLine.TimelineSpan>=Appendables[i].EventTimeLine.TimelineSpan);//this is a hack, since the length of SubcalEvent Event TimeLine is the same length of time as its busy time span
 
@@ -94,7 +94,7 @@ namespace My24HourTimerWPF
             //if(arg1!=null)
             {
                 int j=0;
-                DateTimeOffset BaseReferenceEndTime = BaseEvent.getCalendarEventRange.End > BoundaryTimeLine.End ? BoundaryTimeLine.End : BaseEvent.getCalendarEventRange.End;//End Time for Base to be used as the reference for the current base end time
+                DateTimeOffset BaseReferenceEndTime = BaseEvent.getCalculationRange.End > BoundaryTimeLine.End ? BoundaryTimeLine.End : BaseEvent.getCalculationRange.End;//End Time for Base to be used as the reference for the current base end time
                 for (;j<arg1.Count;j++)
                 {
                     
@@ -146,7 +146,7 @@ namespace My24HourTimerWPF
 
                 //List<SubCalendarEvent> ReferenceClump = new List<SubCalendarEvent>(BaseClump);
                 DateTimeOffset TimeLimit = ReferenceStartTime - Appendables[i].ActiveDuration;
-                bool Zero = (Appendables[i].getCalendarEventRange.Start <= TimeLimit);
+                bool Zero = (Appendables[i].getCalculationRange.Start <= TimeLimit);
                 bool One = (TimeLimit >= BoundaryTimeLine.Start);
                 //bool Two = (BoundaryTimeLine.TimelineSpan >= Appendables[i].EventTimeLine.TimelineSpan);
 
@@ -276,13 +276,13 @@ namespace My24HourTimerWPF
 
         DateTimeOffset getLeftMostPossibleStartLine(SubCalendarEvent Sorted, TimeLine Boundary)
         {
-            if (Boundary.Start >= Sorted.getCalendarEventRange.Start)
+            if (Boundary.Start >= Sorted.getCalculationRange.Start)
             {
                 return Boundary.Start;// new DateTimeOffset(Boundary.Start.Ticks, new TimeSpan());
             }
             else
             {
-                return Sorted.getCalendarEventRange.Start;//new DateTimeOffset(.Ticks, new TimeSpan());
+                return Sorted.getCalculationRange.Start;//new DateTimeOffset(.Ticks, new TimeSpan());
             }
         }
 

@@ -25,6 +25,7 @@ namespace TilerElements
         protected bool OptimizationFlag = false;
         protected List<Reason> TimePositionReasons = new List<Reason>();
         protected DateTimeOffset _LastReasonStartTimeChanged;
+        protected TimeLine CalculationTimeLine = null;
         /// <summary>
         /// This holds the current session reasons. It will updated based on data and calculation optimizations from HistoricalCurrentPosition
         /// </summary>
@@ -136,6 +137,18 @@ namespace TilerElements
             return this.Start.ToString() + " - " + this.End.ToString() + "::" + this.getId + "\t\t::" + this.ActiveDuration.ToString();
         }
 
+        public virtual void updateCalculationEventRange(TimeLine timeLine)
+        {
+            TimeLine interferringTimeLine = this.getCalendarEventRange.InterferringTimeLine(timeLine);
+            if(interferringTimeLine == null)
+            {
+                this.CalculationTimeLine = timeLine;
+            }
+            else
+            {
+                this.CalculationTimeLine = interferringTimeLine;
+            }
+        }
 
         public void disable(CalendarEvent myCalEvent)
         {
@@ -144,7 +157,6 @@ namespace TilerElements
                 this.Enabled = false;
                 myCalEvent.incrementDeleteCount(this.RangeSpan);
             }
-            
         }
 
         internal void disableWithoutUpdatingCalEvent()
@@ -400,13 +412,13 @@ namespace TilerElements
             DateTimeOffset ReferenceEndTime = new DateTimeOffset();
 
             ReferenceStartTime = MyTimeLine.Start;
-            if (this.getCalendarEventRange.Start > MyTimeLine.Start)
+            if (this.getCalculationRange.Start > MyTimeLine.Start)
             {
-                ReferenceStartTime = this.getCalendarEventRange.Start;
+                ReferenceStartTime = this.getCalculationRange.Start;
             }
 
-            ReferenceEndTime = this.getCalendarEventRange.End;
-            if (this.getCalendarEventRange.End > MyTimeLine.End)
+            ReferenceEndTime = this.getCalculationRange.End;
+            if (this.getCalculationRange.End > MyTimeLine.End)
             {
                 ReferenceEndTime = MyTimeLine.End;
             }
@@ -427,7 +439,7 @@ namespace TilerElements
                 return false;
                 //throw new Exception("Oh oh check PinSubEventsToStart Subcalendar is longer than available timeline");
             }
-            if ((ReferenceStartTime > this.getCalendarEventRange.End) || (ReferenceEndTime < this.getCalendarEventRange.Start))
+            if ((ReferenceStartTime > this.getCalculationRange.End) || (ReferenceEndTime < this.getCalculationRange.Start))
             {
                 return false;
                 //throw new Exception("Oh oh Calendar event isn't Timeline range. Check PinSubEventsToEnd :(");
@@ -480,7 +492,7 @@ namespace TilerElements
             if (this.getId == SubEventEntry.getId)
             {
                 this.BusyFrame = SubEventEntry.ActiveSlot;
-                this.CalendarEventRange = SubEventEntry.getCalendarEventRange;
+                this.CalendarEventRange = SubEventEntry.getCalculationRange;
                 this._Name = SubEventEntry.Name;
                 this.EventDuration = SubEventEntry.ActiveDuration;
                 this.Complete = SubEventEntry.isComplete;
@@ -545,7 +557,7 @@ namespace TilerElements
         {
             SubCalendarEvent retValue = new SubCalendarEvent();
             retValue.BusyFrame = this.ActiveSlot.CreateCopy();
-            retValue.CalendarEventRange = this.getCalendarEventRange.CreateCopy();
+            retValue.CalendarEventRange = this.getCalculationRange.CreateCopy();
             retValue._Name = this.Name;
             retValue.EventDuration = this.ActiveDuration;
             retValue.Complete = this.isComplete;
@@ -682,7 +694,7 @@ namespace TilerElements
 
         virtual public bool PinToEnd(TimeLine LimitingTimeLine)
         {
-            DateTimeOffset ReferenceTime = this.getCalendarEventRange.End;
+            DateTimeOffset ReferenceTime = this.getCalculationRange.End;
             if (ReferenceTime > LimitingTimeLine.End)
             {
                 ReferenceTime = LimitingTimeLine.End;
@@ -697,7 +709,7 @@ namespace TilerElements
             DateTimeOffset MyStartTime = ReferenceTime - this.EventDuration;
 
 
-            if ((MyStartTime>=LimitingTimeLine.Start )&&(MyStartTime>=getCalendarEventRange.Start))
+            if ((MyStartTime>=LimitingTimeLine.Start )&&(MyStartTime>=getCalculationRange.Start))
             {
 
                 StartDateTime = MyStartTime;
@@ -751,7 +763,7 @@ namespace TilerElements
                 return true;
             }
             TimeLine UpdatedTimeLine = new TimeLine(this.Start + ChangeInTime, this.End + ChangeInTime);
-            if (!(this.getCalendarEventRange.IsTimeLineWithin(UpdatedTimeLine)))
+            if (!(this.getCalculationRange.IsTimeLineWithin(UpdatedTimeLine)))
             {
                 return false;
             }
@@ -897,7 +909,7 @@ namespace TilerElements
 
          virtual public bool canExistTowardsEndWithoutSpace(TimeLine PossibleTimeLine)
          {
-             TimeLine ParentCalRange = getCalendarEventRange;
+             TimeLine ParentCalRange = getCalculationRange;
              bool retValue = (ParentCalRange.Start <= (PossibleTimeLine.End - ActiveDuration)) && (ParentCalRange.End>=PossibleTimeLine.End)&&(canExistWithinTimeLine(PossibleTimeLine));
 
              return retValue;
@@ -911,7 +923,7 @@ namespace TilerElements
 
          virtual public bool canExistTowardsStartWithoutSpace(TimeLine PossibleTimeLine)
          {
-             TimeLine ParentCalRange = getCalendarEventRange;
+             TimeLine ParentCalRange = getCalculationRange;
              bool retValue = ((PossibleTimeLine.Start + ActiveDuration) <= ParentCalRange.End) && (ParentCalRange.Start <= PossibleTimeLine.Start) && (canExistWithinTimeLine(PossibleTimeLine));
 
              return retValue;
@@ -1072,9 +1084,17 @@ namespace TilerElements
              }
          }
 
-        public TimeLine getCalendarEventRange
+        public TimeLine getCalculationRange
         {
             get 
+            {
+                return CalculationTimeLine ?? (CalculationTimeLine = getCalculationRange); 
+            }
+        }
+
+        public TimeLine getCalendarEventRange
+        {
+            get
             {
                 return CalendarEventRange;
             }

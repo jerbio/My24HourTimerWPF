@@ -37,3 +37,5 @@ Icon
 
 TilerTests\bin\Debug\BigDataLogs
 TilerTests\bin\Debug\WagTapCalLogs
+TilerCore\bin\*
+TilerCore\obj\*

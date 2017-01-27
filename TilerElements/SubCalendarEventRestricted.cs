@@ -319,11 +319,11 @@ namespace TilerElements
         
         public override bool UpdateThis(SubCalendarEvent SubEventEntryData)
         {
-            if ((this.getId == SubEventEntryData.getId) && canExistWithinTimeLine(SubEventEntryData.getCalendarEventRange))
+            if ((this.getId == SubEventEntryData.getId) && canExistWithinTimeLine(SubEventEntryData.getCalculationRange))
             {
                 SubCalendarEventRestricted SubEventEntry = (SubCalendarEventRestricted)SubEventEntryData;
                 this.BusyFrame = SubEventEntry.ActiveSlot;
-                this.CalendarEventRange = SubEventEntry.getCalendarEventRange;
+                this.CalendarEventRange = SubEventEntry.getCalculationRange;
                 this._Name = SubEventEntry.Name;
                 this.EventDuration = SubEventEntry.ActiveDuration;
                 this.Complete = SubEventEntry.isComplete;
@@ -365,7 +365,7 @@ namespace TilerElements
         {
             SubCalendarEventRestricted retValue = new SubCalendarEventRestricted();
             retValue.BusyFrame = this.ActiveSlot;
-            retValue.CalendarEventRange = this.getCalendarEventRange.CreateCopy();
+            retValue.CalendarEventRange = this.getCalculationRange.CreateCopy();
             retValue._Name = this.Name.createCopy();
             retValue.EventDuration = this.ActiveDuration;
             retValue.Complete = this.isComplete;

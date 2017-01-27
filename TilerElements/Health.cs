@@ -21,6 +21,14 @@ namespace TilerElements
         bool alreadyEvaluated = false;
         HealthEvaluation evaluation;
 
+        /// <summary>
+        /// This ge
+        /// </summary>
+        /// <param name="AllEvents">All subcalendar Events needed for the calculation</param>
+        /// <param name="startTime">Time from which to start the schedule evaluation</param>
+        /// <param name="evaluationSpan">timespan for the range of the calculation</param>
+        /// <param name="now">Reference now time to be used as the frame for evaluation</param>
+        /// <param name="travelmode">The mode of travel used for evaluation</param>
         public Health(IEnumerable<SubCalendarEvent> AllEvents, DateTimeOffset startTime, TimeSpan evaluationSpan, ReferenceNow now, TravelMode travelmode = TravelMode.Driving)
         {
             IEnumerable<SubCalendarEvent> SubEvents = AllEvents;

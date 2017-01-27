@@ -5,6 +5,7 @@ using My24HourTimerWPF;
 using TilerElements;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace TilerTests
 {
@@ -43,7 +44,7 @@ namespace TilerTests
         }
 
         [TestMethod]
-        public void WhatIfMondayInsteadOfTuesday()
+        public async Task WhatIfMondayInsteadOfTuesday()
         {
             List<Location_Elements> locations = TestUtility.getLocations();
             int mondayLocationIndex = random.Next(locations.Count);
@@ -76,8 +77,17 @@ namespace TilerTests
             CalendarEvent wednesdayEvent = TestUtility.generateCalendarEvent(durationOfCalEvent, new Repetition(), mondayStart, wednesdayStart.AddDays(1), 1, false, TuesdayLocation);
             Schedule schedule = new Schedule(currentUser, refNow);
             schedule.AddToScheduleAndCommit(wednesdayEvent).Wait();
+            schedule = new TestSchedule(currentUser, refNow);
+            CalendarEvent retrievedWednesdayEvent = schedule.getCalendarEvent(wednesdayEvent.Calendar_EventID);
+            DayOfWeekReason dayOfWeekReason = new DayOfWeekReason(DayOfWeek.Tuesday, refNow);
+            retrievedWednesdayEvent.ActiveSubEvents.First().WhatIf(dayOfWeekReason);
 
-            //schedule.WhatIf()
+            schedule = new Schedule(currentUser, refNow);
+            Health tuesdayHealth = await schedule.WhatIfDifferentDay(tuesdayStart, retrievedWednesdayEvent.ActiveSubEvents.First().SubEvent_ID).ConfigureAwait(false);
+            schedule = new Schedule(currentUser, refNow);
+            Health mondayHealth = await schedule.WhatIfDifferentDay(wednesdayStart.AddDays(-1), retrievedWednesdayEvent.ActiveSubEvents.First().SubEvent_ID).ConfigureAwait(false);
+            double mondayScore = mondayHealth.getScore();
+            double tuesdayScore = tuesdayHealth.getScore();
         }
 
         public DateTimeOffset getNextDateForDayOfWeek(DayOfWeek dayOfeek, DateTimeOffset referenceTime)

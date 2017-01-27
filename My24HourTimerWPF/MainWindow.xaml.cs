@@ -180,7 +180,7 @@ namespace My24HourTimerWPF
             SubCalendarEvent MySubcal= MySchedule.getSubCalendarEvent(EventID);
             CalendarEvent myCalEvent = MySchedule.getCalendarEvent(MySubcal.SubEvent_ID.getCalendarEventID());
 
-            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> result =MySchedule.BundleChangeUpdate(EventID,myCalEvent.Name,MySubcal.Start,MySubcal.End,MySubcal.getCalendarEventRange.Start,EndDate,myCalEvent.NumberOfSplit);
+            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> result =MySchedule.BundleChangeUpdate(EventID,myCalEvent.Name,MySubcal.Start,MySubcal.End,MySubcal.getCalculationRange.Start,EndDate,myCalEvent.NumberOfSplit);
 
             //"BundleChangeUpdate"
             /*

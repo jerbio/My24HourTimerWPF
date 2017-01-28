@@ -58,17 +58,17 @@ namespace TilerCore
         public TimeSpan TwentyFourHourTimeSpan = new TimeSpan(1,0,0,0);
         public TimeSpan OnewWeekTimeSpan = new TimeSpan(7, 0, 0, 0);
         public TimeSpan HourTimeSpan = new TimeSpan(0, 1, 0, 0);
-        Dictionary<ThirdPartyControl.CalendarTool, List<CalendarEvent>> ThirdPartyCalendars = new Dictionary<ThirdPartyControl.CalendarTool, List<CalendarEvent>>();
-        DateTimeOffset StartofDay;
-        bool retrievedThirdParty = false;
+        protected Dictionary<ThirdPartyControl.CalendarTool, List<CalendarEvent>> ThirdPartyCalendars = new Dictionary<ThirdPartyControl.CalendarTool, List<CalendarEvent>>();
+        protected DateTimeOffset StartofDay;
+        protected bool retrievedThirdParty = false;
 
-        bool UseTilerFront = false;
+        protected bool UseTilerFront = false;
         Stopwatch myWatch = new Stopwatch();
-        TilerUser TilerUser;
-        
-        int LatesMainID;
+        protected TilerUser TilerUser;
 
-        double PercentageOccupancy = 0;
+        protected int LatesMainID;
+
+        protected double PercentageOccupancy = 0;
         //public static DateTimeOffset Now = new DateTimeOffset(2014,4,6,0,0,0);//DateTimeOffset.UtcNow;
         protected ReferenceNow _Now;// = new ReferenceNow( DateTimeOffset.UtcNow);
 
@@ -117,24 +117,29 @@ namespace TilerCore
 
 
         #region ToBeDeleted
-        public void RemoveAllCalendarEventFromLogAndCalendar()//MyTemp Function for deleting all calendar events
-        {
-            throw new NotImplementedException();
-        }
+        //public void RemoveAllCalendarEventFromLogAndCalendar()//MyTemp Function for deleting all calendar events
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        async public Task WriteFullScheduleToLogAndOutlook()
-        {
-            throw new NotImplementedException();
-        }
+        //async public Task WriteFullScheduleToLogAndOutlook()
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public void removeAllFromOutlook()
-        {
-            throw new NotImplementedException();
-        }
-        public void WriteFullScheduleToOutlook()
-        {
-            throw new NotImplementedException();
-        }
+        //public void removeAllFromOutlook()
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public void WriteFullScheduleToOutlook()
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        //async virtual public Task UpdateWithDifferentSchedule(Dictionary<string, CalendarEvent> UpdatedSchedule)
+        //{
+        //    throw new NotImplementedException();
+        //}
         #endregion
 
         #region IwhyImplementation
@@ -160,41 +165,6 @@ namespace TilerCore
             return this;
         }
 #endregion
-        async Task triggerNewlyAddedThirdparty()
-        {
-            if(retrievedThirdParty)
-            {
-                TimeLine newSubeEvent = new TimeLine(Now.constNow, Now.constNow.AddMinutes(5));
-                TimeSpan fiveMinSpan= new TimeSpan(1);
-                EventName tempEventName = new EventName("TempEvent");
-                TilerUser user = TilerUser;
-                CalendarEvent TempEvent = new CalendarEvent(
-                    //EventID.GenerateCalendarEvent(), 
-                    tempEventName, newSubeEvent.Start, newSubeEvent.End, fiveMinSpan, new TimeSpan(), new TimeSpan(), 1, new Repetition(),  new Location(), new EventDisplay(), new MiscData(), null, new NowProfile(), true, false, user, new TilerUserGroup(), user.TimeZone, null);
-                AddToSchedule(TempEvent);
-                AllEventDictionary.Remove(TempEvent.Calendar_EventID.getCalendarEventComponent());
-                AllEventDictionary.Remove(TempEvent.Calendar_EventID.ToString());
-                return;
-            }
-
-            throw new Exception("Hey you are yet to retrieve the latest third party schedule");
-        }
-
-        public async Task UpdateScheduleDueToExternalChanges()
-        {
-            TimeLine newSubeEvent = new TimeLine(Now.constNow, Now.constNow.AddMinutes(5));
-            TimeSpan fiveMinSpan = new TimeSpan(1);
-            EventName tempEventName = new EventName("TempEvent");
-            TilerUser user = TilerUser;
-            CalendarEvent TempEvent = new CalendarEvent(
-                //EventID.GenerateCalendarEvent(), 
-                tempEventName, newSubeEvent.Start, newSubeEvent.End, fiveMinSpan, new TimeSpan(), new TimeSpan(), 1, new Repetition(), new Location(), new EventDisplay(), new MiscData(), null, new NowProfile(), true, false, user, new TilerUserGroup(), user.TimeZone, null);
-            AddToSchedule(TempEvent);
-            AllEventDictionary.Remove(TempEvent.Calendar_EventID.getCalendarEventComponent());
-            AllEventDictionary.Remove(TempEvent.Calendar_EventID.ToString());
-            await WriteFullScheduleToLogAndOutlook().ConfigureAwait(false);
-            return;
-        }
 
         public void updateDataSetWithThirdPartyData(Tuple<ThirdPartyControl.CalendarTool,IEnumerable<CalendarEvent>> ThirdPartyData)
         {
@@ -209,22 +179,6 @@ namespace TilerCore
             }
 
             retrievedThirdParty = true;
-        }
-
-        async public Task updateDataSetWithThirdPartyDataAndTriggerNewAddition(Tuple<ThirdPartyControl.CalendarTool,IEnumerable<CalendarEvent>> ThirdPartyData)
-        {
-
-            if (ThirdPartyData!=null)
-            {
-                updateDataSetWithThirdPartyData(ThirdPartyData);
-                await triggerNewlyAddedThirdparty().ConfigureAwait(false);
-                foreach (CalendarEvent ThirdPartyCalData in ThirdPartyData.Item2)
-                {
-                    AllEventDictionary.Remove(ThirdPartyCalData.Calendar_EventID.getCalendarEventComponent());
-                }
-            }
-            retrievedThirdParty = true;
-            await WriteFullScheduleToLogAndOutlook().ConfigureAwait(false);
         }
 
         protected void initializeThirdPartyCalendars()
@@ -591,7 +545,7 @@ namespace TilerCore
             }
 
             CalEvent.PauseSubEvent(EventId, Now.constNow, CurrentPausedEventId);
-            await UpdateWithDifferentSchedule(AllEventDictionary);
+            //await UpdateWithDifferentSchedule(AllEventDictionary);
             CustomErrors RetValue = null;
             return RetValue;
         }
@@ -648,7 +602,7 @@ namespace TilerCore
                     SubEvent.Enable(CalEvent);
                     TimeSpan timeDiff = (unDisabled.Start - SubEvent.Start);
                     SubEvent.shiftEvent(timeDiff);
-                    await UpdateWithDifferentSchedule(AllEventDictionary);
+                    //await UpdateWithDifferentSchedule(AllEventDictionary);
                     RetValue = null;
                 }
 
@@ -690,7 +644,7 @@ namespace TilerCore
 
 
             AllEventDictionary.Remove(CalendarEventTOBeRemoved.getId);//removes the false calendar event
-            await UpdateWithDifferentSchedule(AllEventDictionary).ConfigureAwait(false);
+//            await UpdateWithDifferentSchedule(AllEventDictionary).ConfigureAwait(false);
             return retValue.Error;
         }
 
@@ -724,7 +678,7 @@ namespace TilerCore
 
 
             AllEventDictionary.Remove(CalendarEventTOBeRemoved.getId);//removes the false calendar event
-            await UpdateWithDifferentSchedule(AllEventDictionary).ConfigureAwait(false);
+            //await UpdateWithDifferentSchedule(AllEventDictionary).ConfigureAwait(false);
             return retValue.Error;
         }
 
@@ -781,10 +735,6 @@ namespace TilerCore
             ScheduleUpdated = EvaluateTotalTimeLineAndAssignValidTimeSpots(ScheduleUpdated, NotDOneYet);
 
             AllEventDictionary.Remove(ScheduleUpdated.getId);//removes the false calendar event
-
-
-            UpdateWithDifferentSchedule(AllEventDictionary);
-
         }
 
         /// <summary>
@@ -797,7 +747,6 @@ namespace TilerCore
             CalendarEvent referenceCalendarEventWithSubEvent = getCalendarEvent(EventID);
             SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
             ReferenceSubEvent.SetCompletionStatus(true, referenceCalendarEventWithSubEvent);
-            await UpdateWithDifferentSchedule(AllEventDictionary).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -812,7 +761,6 @@ namespace TilerCore
                 SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
                 ReferenceSubEvent.SetCompletionStatus(true, referenceCalendarEventWithSubEvent);
             }
-            await UpdateWithDifferentSchedule(AllEventDictionary).ConfigureAwait(false);
         }
 
 
@@ -881,8 +829,6 @@ namespace TilerCore
 
 
             AllEventDictionary.Remove(ScheduleUpdated.getId);//removes the false calendar event
-
-            await UpdateWithDifferentSchedule(AllEventDictionary).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -894,7 +840,6 @@ namespace TilerCore
             CalendarEvent referenceCalendarEventWithSubEvent = getCalendarEvent(EventID);
             SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
             ReferenceSubEvent.disable(referenceCalendarEventWithSubEvent);
-            await UpdateWithDifferentSchedule(AllEventDictionary);
         }
 
         /// <summary>
@@ -909,7 +854,6 @@ namespace TilerCore
                 SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(eachString);
                 ReferenceSubEvent.disable(referenceCalendarEventWithSubEvent);
             }
-            await UpdateWithDifferentSchedule(AllEventDictionary).ConfigureAwait(false);
         }
 
         public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ProcrastinateAll(TimeSpan DelaySpan, string NameOfEvent = "BLOCKED OUT", string timeZone = "UTC")
@@ -938,17 +882,6 @@ namespace TilerCore
                 retValue.Item2.Add(NewEvent.Calendar_EventID.getCalendarEventComponent(), NewEvent);
             }
             return retValue;
-        }
-
-
-
-        async public Task UpdateWithDifferentSchedule(Dictionary<string, CalendarEvent> UpdatedSchedule)
-        {
-            //RemoveAllCalendarEventFromLogAndCalendar();
-            removeAllFromOutlook();
-            AllEventDictionary = UpdatedSchedule;
-            await WriteFullScheduleToLogAndOutlook();
-            CompleteSchedule = getTimeLine();
         }
 
 
@@ -1117,62 +1050,6 @@ namespace TilerCore
             return NewEvent.Error;
         }
 
-        async public Task<CustomErrors> AddToScheduleAndCommit(CalendarEvent NewEvent)
-        {
-#if enableTimer
-            myWatch.Start();
-#endif
-            HashSet<SubCalendarEvent> NotdoneYet = new HashSet<SubCalendarEvent>();// getNoneDoneYetBetweenNowAndReerenceStartTIme();
-            if (!NewEvent.getRigid)
-            {
-                NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, NotdoneYet);
-            }
-            else
-            {
-                NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, NotdoneYet, null, 1);
-            }
-
-
-            ///
-
-            if (NewEvent == null)//checks if event was assigned and ID ehich means it was successfully able to find a spot
-            {
-
-                return NewEvent.Error;
-            }
-
-            if (NewEvent.getId == "" || NewEvent == null)//checks if event was assigned and ID ehich means it was successfully able to find a spot
-            {
-                return NewEvent.Error;
-            }
-
-
-            if (NewEvent.Error!=null)
-            {
-                LogStatus(NewEvent, "Adding New Event");
-            }
-            removeAllFromOutlook();
-            //RemoveAllCalendarEventFromLogAndCalendar();
-            try
-            {
-                AllEventDictionary.Add(NewEvent.Calendar_EventID.getCalendarEventComponent(), NewEvent);
-            }
-            catch
-            {
-                AllEventDictionary[NewEvent.getId] = NewEvent;
-            }
-
-
-            await WriteFullScheduleToLogAndOutlook().ConfigureAwait(false);
-
-            CompleteSchedule = getTimeLine();
-
-
-
-
-            return NewEvent.Error;
-        }
-
         /// <summary>
         /// FUnction atttempts to get the best next event for the current user on major factors affecting schedule. e.g Based on location wweather, time of day and oth
         /// </summary>
@@ -1192,7 +1069,6 @@ namespace TilerCore
             NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, new HashSet<SubCalendarEvent>(), null, 1,true, false);
             CustomErrors RetValue = NewEvent.Error;
             AllEventDictionary.Remove(NewEvent.Calendar_EventID.getCalendarEventComponent());
-            await WriteFullScheduleToLogAndOutlook().ConfigureAwait(false);
             return RetValue;
         }
 
@@ -3099,30 +2975,6 @@ namespace TilerCore
 
             //triggerTimer();
             return retValue;
-        }
-
-
-        void CleanUpForUI()
-        {
-            foreach (CalendarEvent eachCalendarEvent in AllEventDictionary.Values)
-            {
-                List<DateTimeOffset> AllStratTImes = eachCalendarEvent.ActiveSubEvents.AsParallel().Select(obj => obj.Start).ToList();
-                AllStratTImes.Sort();
-                    
-                List<SubCalendarEvent> OrderedSubEvent = eachCalendarEvent.ActiveSubEvents.OrderBy(obj => obj.SubEvent_ID.getSubCalendarEventID()).ToList();
-                    
-
-                Parallel.For(0,OrderedSubEvent.Count,i=>
-                {
-                    SubCalendarEvent SubEvent = OrderedSubEvent[i];
-                    DateTimeOffset TIme = AllStratTImes[i];
-                    SubEvent.shiftEvent(TIme - SubEvent.Start);
-                });
-                
-                //IEnumerable<SubCalendarEvent> AllShifted = AllStratTImes.AsParallel().Zip(OrderedSubEvent.AsParallel(), (TIme, SubEvent) => { SubEvent.shiftEvent(TIme - SubEvent.Start); return SubEvent; });
-            }
-            return;
-
         }
 
         List<TimeLine> reorderFreeSpotBasedOnTimeSpanAndEndtime(IEnumerable<TimeLine> AllTImeLines)

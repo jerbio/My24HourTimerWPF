@@ -154,7 +154,7 @@ namespace TilerTests
             HashSet<EventID> EventIDs = new HashSet<EventID>();
             for (int i =0;i<4;i++)
             {
-                Schedule Schedule = new TestSchedule(currentUser, refNow);
+                TestSchedule Schedule = new TestSchedule(currentUser, refNow);
                 CalendarEvent testEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), eachTimeLine.Start,i == 0 ? eachTimeLine.End.AddHours(-12) : eachTimeLine.End, 1, false, locations[i]);
                 Schedule.AddToScheduleAndCommit(testEvent).Wait();
                 hashEventIDs.Add(testEvent.Calendar_EventID);
@@ -220,6 +220,7 @@ namespace TilerTests
                 schedule.AddToScheduleAndCommit(calEvent).Wait();
                 schedule = new TestSchedule(currentUser, refNow, refNow);
                 schedule.FindMeSomethingToDo(location).Wait();
+                schedule.WriteFullScheduleToLogAndOutlook().Wait();
                 schedule = new TestSchedule(currentUser, refNow, refNow);
             }
 
@@ -270,6 +271,7 @@ namespace TilerTests
                 schedule.AddToScheduleAndCommit(calEvent).Wait();
                 schedule = new TestSchedule(currentUser, refNow, refNow);
                 schedule.FindMeSomethingToDo(location).Wait();
+                schedule.WriteFullScheduleToLogAndOutlook().Wait();
                 schedule = new TestSchedule(currentUser, refNow, refNow);
             }
 

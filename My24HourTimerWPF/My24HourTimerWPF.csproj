@@ -167,6 +167,7 @@
     <Compile Include="Authentication.cs" />
     <Compile Include="BatchGeocoding.cs" />
     <Compile Include="ClumpSubCalendarEvent.cs" />
+    <Compile Include="WPF_Schedule.cs" />
     <Fakes Include="Fakes\Microsoft.Owin.Hosting.fakes" />
     <None Include="packages.config" />
     <Compile Include="MainWindow.xaml.cs">

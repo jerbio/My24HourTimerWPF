@@ -20,14 +20,14 @@ namespace TilerTests
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            Schedule Schedule = new TestSchedule(currentUser, refNow);
+            TestSchedule Schedule = new TestSchedule(currentUser, refNow);
             currentUser.DeleteAllCalendarEvents();
         }
 
         [TestMethod]
         public void procrastinateSingle()
         {
-            Schedule Schedule;
+            TestSchedule Schedule;
             UserAccount user = TestUtility.getTestUser();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
@@ -59,7 +59,7 @@ namespace TilerTests
         [TestMethod]
         public void procrastinateSingleEventAroundMultipleEvents()
         {
-            Schedule Schedule;
+            TestSchedule Schedule;
             UserAccount user = TestUtility.getTestUser();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
@@ -111,7 +111,7 @@ namespace TilerTests
         [TestMethod]
         public void procrastinateSinglePastDeadline()
         {
-            Schedule Schedule;
+            TestSchedule Schedule;
             UserAccount user = TestUtility.getTestUser();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
@@ -131,7 +131,7 @@ namespace TilerTests
         [TestMethod]
         public void procrastinateAll()
         {
-            Schedule Schedule;
+            TestSchedule Schedule;
             UserAccount user = TestUtility.getTestUser();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
@@ -258,7 +258,7 @@ namespace TilerTests
         [TestMethod]
         public void scheduleModificationWithProcrastinateAll()
         {
-            Schedule Schedule;
+            DB_Schedule Schedule;
             UserAccount user = TestUtility.getTestUser();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
@@ -292,6 +292,7 @@ namespace TilerTests
             Schedule.AddToScheduleAndCommit(testEvent1).Wait();
             Schedule = new TestSchedule(user, refNow.AddHours(5));
             Schedule.FindMeSomethingToDo(new Location()).Wait();
+            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
         }
 
         [ClassInitialize]

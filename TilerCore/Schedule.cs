@@ -83,6 +83,11 @@ namespace TilerCore
         int DebugCounter = 0;
 
         #region Constructor
+        protected Schedule()
+        {
+
+        }
+
         public Schedule(Dictionary<string, CalendarEvent> allEventDictionary, DateTimeOffset starOfDay, Dictionary<string, Location> locations,  DateTimeOffset referenceNow, TilerUser user)
         {
             AllEventDictionary = allEventDictionary;

@@ -44,6 +44,9 @@
       <HintPath>..\My24HourTimerWPF\bin\Debug\My24HourTimerWPF.exe</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="TilerCore">
+      <HintPath>..\TilerCore\bin\Debug\TilerCore.dll</HintPath>
+    </Reference>
     <Reference Include="TilerElements">
       <HintPath>..\TilerElements\bin\Debug\TilerElements.dll</HintPath>
     </Reference>

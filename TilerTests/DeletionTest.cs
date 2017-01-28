@@ -45,7 +45,7 @@ namespace TilerTests
         [TestMethod]
         public void DeleteSubEvent()
         {
-            Schedule Schedule;
+            DB_Schedule Schedule;
             UserAccount user = TestUtility.getTestUser();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
@@ -60,6 +60,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             string deletedSubEventId = testEvent.AllSubEvents[0].getId;
             Schedule.deleteSubCalendarEvent(deletedSubEventId).Wait();
+            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
             Schedule = new TestSchedule(user, refNow);
             SubCalendarEvent subEvent = Schedule.getSubCalendarEvent(deletedSubEventId);
             Assert.IsFalse(subEvent.isEnabled);
@@ -68,7 +69,7 @@ namespace TilerTests
         [TestMethod]
         public void DeleteCalendarEvent()
         {
-            Schedule Schedule;
+            DB_Schedule Schedule;
             UserAccount user = TestUtility.getTestUser();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
@@ -78,11 +79,14 @@ namespace TilerTests
             DateTimeOffset end = refNow.AddHours(7);
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 2, false);
-            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            Schedule.AddToSchedule(testEvent);
+            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
+
 
             Schedule = new TestSchedule(user, refNow);
             string deletedSubEventId = testEvent.AllSubEvents[0].getId;
             Schedule.deleteCalendarEventAndReadjust(deletedSubEventId).Wait();
+            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
 
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent retrievedCalendarEvent = Schedule.getCalendarEvent(deletedSubEventId);
@@ -92,7 +96,7 @@ namespace TilerTests
         [TestMethod]
         public void DeleteSubEventCount()
         {
-            Schedule Schedule;
+            DB_Schedule Schedule;
             UserAccount user = TestUtility.getTestUser();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
@@ -125,6 +129,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             string deletedSubEventId = testEvent.AllSubEvents[0].getId;
             Schedule.deleteSubCalendarEvent(deletedSubEventId).Wait();
+            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
             Schedule = new TestSchedule(user, refNow);
             SubCalendarEvent subEvent = Schedule.getSubCalendarEvent(deletedSubEventId);
             Assert.IsFalse(subEvent.isEnabled);
@@ -134,6 +139,7 @@ namespace TilerTests
             // Running deletion on the same subEvent, we should get the same deletion count
             Schedule = new TestSchedule(user, refNow);
             Schedule.deleteSubCalendarEvent(deletedSubEventId).Wait();
+            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
             Schedule = new TestSchedule(user, refNow);
             subEvent = Schedule.getSubCalendarEvent(deletedSubEventId);
             Assert.IsFalse(subEvent.isEnabled);
@@ -145,7 +151,7 @@ namespace TilerTests
         [TestMethod]
         public void DeleteSubEventMultiple()
         {
-            Schedule Schedule;
+            DB_Schedule Schedule;
             UserAccount user = TestUtility.getTestUser();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
@@ -178,17 +184,19 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             string deletedSubEventId = testEvent.AllSubEvents[0].getId;
             Schedule.deleteSubCalendarEvent(deletedSubEventId).Wait();
+            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
             Schedule = new TestSchedule(user, refNow);
             SubCalendarEvent testSubEvent = testEvent.ActiveSubEvents[0];
             SubCalendarEvent testSubEvent0 = testEvent0.ActiveSubEvents[0];
             SubCalendarEvent testSubEvent1 = testEvent1.ActiveSubEvents[0];
             Schedule = new TestSchedule(user, refNow);
             Schedule.deleteSubCalendarEventAndReadjust(testSubEvent.getId).Wait();
+            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
             testSubEvent = Schedule.getSubCalendarEvent(testSubEvent.getId);
             List<EventID> subEventIds = new List<EventID>() { testSubEvent.SubEvent_ID, testSubEvent0.SubEvent_ID, testSubEvent1.SubEvent_ID };
             Schedule = new TestSchedule(user, refNow);
             Schedule.deleteSubCalendarEvents(subEventIds.Select(subeventid => subeventid.ToString())).Wait();
-
+            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
 
             Schedule = new TestSchedule(user, refNow);
             testSubEvent = Schedule.getSubCalendarEvent(testSubEvent.getId);
@@ -210,7 +218,7 @@ namespace TilerTests
             /// Re running just to prevent duplicate additions
             Schedule = new TestSchedule(user, refNow);
             Schedule.deleteSubCalendarEvents(subEventIds.Select(subeventid => subeventid.ToString())).Wait();
-
+            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
 
             Schedule = new TestSchedule(user, refNow);
             testSubEvent = Schedule.getSubCalendarEvent(testSubEvent.getId);

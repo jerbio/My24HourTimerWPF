@@ -27,7 +27,7 @@ using TilerElements;
 using Microsoft.Owin.Hosting;
 using Microsoft.Owin.Host;
 using TilerCore;
-
+using TilerFront;
 
 
 //using Microsoft.Office.Interop.Outlook;
@@ -41,7 +41,7 @@ namespace My24HourTimerWPF
 
     public partial class MainWindow : Window
     {
-        Schedule MySchedule;
+        DB_Schedule MySchedule;
         static public uint LastID;
         public MainWindow()
         {
@@ -675,8 +675,8 @@ namespace My24HourTimerWPF
             Stopwatch snugarrayTester = new Stopwatch();
             snugarrayTester.Start();
             ///*
-            Task<CustomErrors> addToScheduleTask = MySchedule.AddToScheduleAndCommit(ScheduleUpdated);
-            CustomErrors ScheduleUpdateMessage = await addToScheduleTask.ConfigureAwait(false);
+            CustomErrors ScheduleUpdateMessage = MySchedule.AddToSchedule(ScheduleUpdated);
+            await MySchedule.WriteFullScheduleToLogAndOutlook().ConfigureAwait(false);
              //*/
 
             //CustomErrors ScheduleUpdateMessage = MySchedule.AddToSchedule(ScheduleUpdated);
@@ -1234,6 +1234,7 @@ namespace My24HourTimerWPF
             string EventID = textBox9.Text.Trim();
             //MySchedule.markAsCompleteCalendarEventAndReadjust(EventID);
             MySchedule.markSubEventAsCompleteCalendarEventAndReadjust(EventID);
+            MySchedule.WriteFullScheduleToLogAndOutlook();
         }
 
         async private void NowButtonClick(object sender, RoutedEventArgs e)
@@ -1494,7 +1495,7 @@ namespace My24HourTimerWPF
             Dictionary<string, CalendarEvent> allEventDictionary = currentUser.ScheduleData.getAllCalendarFromXml(new TimeLine(refNow.AddDays(-90), refNow.AddDays(90)));
             Dictionary<string, Location> LocationCache = new Dictionary<string, Location>();
 
-            MySchedule = new Schedule(allEventDictionary, currentUser.getTilerUser().EndfOfDay, LocationCache, refNow, currentUser.getTilerUser());
+            MySchedule = new WPF_Schedule(allEventDictionary, currentUser.getTilerUser().EndfOfDay, LocationCache, refNow, currentUser.getTilerUser());
             
             if (true)
             {
@@ -1605,6 +1606,7 @@ namespace My24HourTimerWPF
         {
             Location locationdata = new Location();
             MySchedule.FindMeSomethingToDo(locationdata).Wait();
+            MySchedule.WriteFullScheduleToLogAndOutlook().Wait();
         }
     }
 

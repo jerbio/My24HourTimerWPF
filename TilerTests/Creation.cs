@@ -13,7 +13,7 @@ namespace TilerTests
     [TestClass]
     public class Creation
     {
-        Schedule Schedule;
+        TestSchedule Schedule;
         static DateTimeOffset refNow = DateTimeOffset.UtcNow;
         CalendarEvent CalendarEvent1;
         CalendarEvent CalendarEvent2;
@@ -80,7 +80,7 @@ namespace TilerTests
             UserAccount user = TestUtility.getTestUser();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            Schedule schedule = new TestSchedule(user, refNow);
+            TestSchedule schedule = new TestSchedule(user, refNow);
             TimeSpan duration = TimeSpan.FromHours(1);
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(duration);
@@ -98,7 +98,7 @@ namespace TilerTests
             UserAccount user = TestUtility.getTestUser();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            Schedule schedule = new TestSchedule(user, refNow);
+            TestSchedule schedule = new TestSchedule(user, refNow);
             TimeSpan duration = TimeSpan.FromHours(1);
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(duration);
@@ -125,7 +125,7 @@ namespace TilerTests
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
             refNow = new DateTimeOffset(refNow.Year, refNow.Month, refNow.Day, refNow.Hour, refNow.Minute, refNow.Second, new TimeSpan());
-            Schedule schedule = new TestSchedule(user, refNow);
+            TestSchedule schedule = new TestSchedule(user, refNow);
             TimeSpan duration = TimeSpan.FromHours(1);
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(duration);//.Add(duration).Add(duration);

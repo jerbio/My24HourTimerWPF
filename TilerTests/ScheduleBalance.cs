@@ -45,7 +45,7 @@ namespace TilerTests
             currentUser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
             refNow = new DateTimeOffset(refNow.Year, refNow.Month, refNow.Day, 8, 0, 0, new TimeSpan());
-            Schedule schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
+            TestSchedule schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
             TimeLine encompassingTimeline = new TimeLine(refNow, refNow.AddHours(8));
 
 
@@ -104,7 +104,7 @@ namespace TilerTests
             currentUser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
             refNow = new DateTimeOffset(refNow.Year, refNow.Month, refNow.Day, 8, 0, 0, new TimeSpan());
-            Schedule schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
+            TestSchedule schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
             TimeLine encompassingTimeline = new TimeLine(refNow, refNow.AddHours(8));
 
             
@@ -169,6 +169,7 @@ namespace TilerTests
             Schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
             var resultOfShuffle = Schedule.FindMeSomethingToDo(new Location());
             resultOfShuffle.Wait();
+            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
             Schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
             SubCalendarEvent subEvent = allSubEvents.Single(meSubEvent => meSubEvent.getId == hugeRigid.AllSubEvents.First().getId);
             int calidIndex = allSubEvents.Count / 2;

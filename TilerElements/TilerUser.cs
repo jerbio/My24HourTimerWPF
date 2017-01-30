@@ -34,7 +34,7 @@ namespace TilerElements
         {
             get
             {
-                return base.Id;
+                return _Id;
             }
 
             set
@@ -42,7 +42,7 @@ namespace TilerElements
                 Guid idAsGuid;
                 if(Guid.TryParse(value, out idAsGuid))
                 {
-                    base.Id = idAsGuid.ToString();
+                    _Id = idAsGuid.ToString();
                 }
                 else
                 {

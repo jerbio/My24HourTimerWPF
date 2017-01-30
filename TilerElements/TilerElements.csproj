@@ -108,6 +108,8 @@
     <Compile Include="BusyTimeLine.cs" />
     <Compile Include="CalendarEvent.cs" />
     <Compile Include="CalendarEventRestricted.cs" />
+    <Compile Include="TempTilerEventChanges.cs" />
+    <Compile Include="ThirdPartyTilerUser.cs" />
     <Compile Include="ProcrastinateCalendarEvent.cs" />
     <Compile Include="ProcrastinateAllSubCalendarEvent.cs" />
     <Compile Include="ConflictProfile.cs" />
@@ -136,7 +138,7 @@
     <Compile Include="EventIDGenerator.cs" />
     <Compile Include="EventTimeLine.cs" />
     <Compile Include="IDefinedRange.cs" />
-    <Compile Include="Location_Elements.cs" />
+    <Compile Include="Location.cs" />
     <Compile Include="MiscData.cs" />
     <Compile Include="mTuple.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

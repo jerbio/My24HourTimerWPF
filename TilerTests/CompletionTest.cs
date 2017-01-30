@@ -5,7 +5,7 @@ using My24HourTimerWPF;
 using TilerElements;
 using System.Collections.Generic;
 using System.Linq;
-
+using TilerCore;
 namespace TilerTests
 {
     [TestClass]
@@ -17,7 +17,7 @@ namespace TilerTests
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            Schedule Schedule = new Schedule(currentUser, refNow);
+            Schedule Schedule = new TestSchedule(currentUser, refNow);
             currentUser.DeleteAllCalendarEvents();
         }
 
@@ -27,7 +27,7 @@ namespace TilerTests
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            Schedule Schedule = new Schedule(currentUser, refNow);
+            Schedule Schedule = new TestSchedule(currentUser, refNow);
             currentUser.DeleteAllCalendarEvents();
         }
 
@@ -37,14 +37,14 @@ namespace TilerTests
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            Schedule Schedule = new Schedule(currentUser, refNow);
+            Schedule Schedule = new TestSchedule(currentUser, refNow);
             currentUser.DeleteAllCalendarEvents();
         }
 
         [TestMethod]
         public void CompleteSubEvent()
         {
-            Schedule Schedule;
+            DB_Schedule Schedule;
             UserAccount user = TestUtility.getTestUser();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
@@ -59,16 +59,17 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             string completedSubEventId = testEvent.AllSubEvents[0].getId;
             Schedule.markSubEventAsComplete(completedSubEventId).Wait();
+            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
             Schedule = new TestSchedule(user, refNow);
             SubCalendarEvent subEvent = Schedule.getSubCalendarEvent(completedSubEventId);
-            Assert.IsTrue(subEvent.isComplete);
+            Assert.IsTrue(subEvent.getIsComplete);
         }
 
 
         [TestMethod]
         public void CompleteCalendarEvent()
         {
-            Schedule Schedule;
+            DB_Schedule Schedule;
             UserAccount user = TestUtility.getTestUser();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
@@ -83,15 +84,16 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             string completedSubEventId = testEvent.AllSubEvents[0].getId;
             Schedule.markAsCompleteCalendarEventAndReadjust(completedSubEventId).Wait();
+            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent retrievedCalendarEvent = Schedule.getCalendarEvent(completedSubEventId);
-            Assert.IsTrue(retrievedCalendarEvent.isComplete);
+            Assert.IsTrue(retrievedCalendarEvent.getIsComplete);
         }
 
         [TestMethod]
         public void CompleteSubEventCount()
         {
-            Schedule Schedule;
+            DB_Schedule Schedule;
             UserAccount user = TestUtility.getTestUser();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
@@ -124,18 +126,20 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             string completedSubEventId = testEvent.AllSubEvents[0].getId;
             Schedule.markSubEventAsComplete(completedSubEventId).Wait();
+            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
             Schedule = new TestSchedule(user, refNow);
             SubCalendarEvent subEvent = Schedule.getSubCalendarEvent(completedSubEventId);
-            Assert.IsTrue(subEvent.isComplete);
+            Assert.IsTrue(subEvent.getIsComplete);
             CalendarEvent calendarEvent = Schedule.getCalendarEvent(completedSubEventId);
             Assert.AreEqual(calendarEvent.CompletionCount, 1);
 
             // Running completion on the same subEvent, we should get the same completion count
             Schedule = new TestSchedule(user, refNow);
             Schedule.markSubEventAsComplete(completedSubEventId).Wait();
+            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
             Schedule = new TestSchedule(user, refNow);
             subEvent = Schedule.getSubCalendarEvent(completedSubEventId);
-            Assert.IsTrue(subEvent.isComplete);
+            Assert.IsTrue(subEvent.getIsComplete);
             calendarEvent = Schedule.getCalendarEvent(completedSubEventId);
             Assert.AreEqual(calendarEvent.CompletionCount, 1);
 
@@ -145,7 +149,7 @@ namespace TilerTests
         [TestMethod]
         public void CompleteSubEventMultiple()
         {
-            Schedule Schedule;
+            DB_Schedule Schedule;
             UserAccount user = TestUtility.getTestUser();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
@@ -176,6 +180,7 @@ namespace TilerTests
             CalendarEvent testEvent1 = TestUtility.generateCalendarEvent(duration1, new Repetition(), start1, end1, numberOfSubEvent, false);
             Schedule.AddToScheduleAndCommit(testEvent1).Wait();
             Schedule = new TestSchedule(user, refNow);
+            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
             string completedSubEventId = testEvent.AllSubEvents[0].getId;
             Schedule.markSubEventAsComplete(completedSubEventId).Wait();
             Schedule = new TestSchedule(user, refNow);
@@ -184,19 +189,20 @@ namespace TilerTests
             SubCalendarEvent testSubEvent1 = testEvent1.ActiveSubEvents[0];
             Schedule = new TestSchedule(user, refNow);
             Schedule.markAsCompleteCalendarEventAndReadjust(testSubEvent.getId).Wait();
+            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
             testSubEvent = Schedule.getSubCalendarEvent(testSubEvent.getId);
             List<EventID> subEventIds = new List<EventID>() { testSubEvent.SubEvent_ID, testSubEvent0.SubEvent_ID, testSubEvent1.SubEvent_ID };
             Schedule = new TestSchedule(user, refNow);
             Schedule.markSubEventsAsComplete(subEventIds.Select(subeventid=> subeventid.ToString())).Wait();
-
+            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
 
             Schedule = new TestSchedule(user, refNow);
             testSubEvent = Schedule.getSubCalendarEvent(testSubEvent.getId);
             testSubEvent0 = Schedule.getSubCalendarEvent(testSubEvent0.getId);
             testSubEvent1 = Schedule.getSubCalendarEvent(testSubEvent1.getId);
-            Assert.IsTrue(testSubEvent.isComplete);
-            Assert.IsTrue(testSubEvent0.isComplete);
-            Assert.IsTrue(testSubEvent1.isComplete);
+            Assert.IsTrue(testSubEvent.getIsComplete);
+            Assert.IsTrue(testSubEvent0.getIsComplete);
+            Assert.IsTrue(testSubEvent1.getIsComplete);
 
             CalendarEvent retrievedCalendarEvent = Schedule.getCalendarEvent(testSubEvent.getId);
             CalendarEvent retrievedCalendarEvent0 = Schedule.getCalendarEvent(testSubEvent0.getId);
@@ -210,15 +216,15 @@ namespace TilerTests
             /// Re running just to prevent duplicate additions
             Schedule = new TestSchedule(user, refNow);
             Schedule.markSubEventsAsComplete(subEventIds.Select(subeventid => subeventid.ToString())).Wait();
-
+            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
 
             Schedule = new TestSchedule(user, refNow);
             testSubEvent = Schedule.getSubCalendarEvent(testSubEvent.getId);
             testSubEvent0 = Schedule.getSubCalendarEvent(testSubEvent0.getId);
             testSubEvent1 = Schedule.getSubCalendarEvent(testSubEvent1.getId);
-            Assert.IsTrue(testSubEvent.isComplete);
-            Assert.IsTrue(testSubEvent0.isComplete);
-            Assert.IsTrue(testSubEvent1.isComplete);
+            Assert.IsTrue(testSubEvent.getIsComplete);
+            Assert.IsTrue(testSubEvent0.getIsComplete);
+            Assert.IsTrue(testSubEvent1.getIsComplete);
 
             retrievedCalendarEvent = Schedule.getCalendarEvent(testSubEvent.getId);
             retrievedCalendarEvent0 = Schedule.getCalendarEvent(testSubEvent0.getId);

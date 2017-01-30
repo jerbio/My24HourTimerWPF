@@ -10,13 +10,14 @@ using GoogleMapsApi.Entities.Directions.Request;
 
 namespace TilerTests
 {
-    class TestSchedule : Schedule
+    class TestSchedule : DB_Schedule
     {
         protected DateTimeOffset StartOfDay;
         public TestSchedule(UserAccount AccountEntry, DateTimeOffset referenceNow, DateTimeOffset startOfDay) : base(AccountEntry, referenceNow)
         {
             StartOfDay = startOfDay;
             Initialize(referenceNow, StartOfDay).Wait();
+            myAccount = AccountEntry;
         }
         public TestSchedule(UserAccount AccountEntry, DateTimeOffset referenceNow) : base(AccountEntry, referenceNow)
         {}

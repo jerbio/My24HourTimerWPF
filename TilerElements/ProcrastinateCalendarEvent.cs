@@ -9,7 +9,7 @@ namespace TilerElements
     public class ProcrastinateCalendarEvent : RigidCalendarEvent
     {
         protected ProcrastinateCalendarEvent(EventID eventId, 
-            EventName NameEntry, DateTimeOffset StartData, DateTimeOffset EndData, TimeSpan EventDuration, TimeSpan eventPrepTime, TimeSpan PreDeadlineTimeSpan, Repetition EventRepetitionEntry, Location_Elements EventLocation, EventDisplay UiData, MiscData NoteData, bool EnabledEventFlag, bool CompletionFlag, TilerUser creator, TilerUserGroup users, string timeZone, int splitCount) : base(
+            EventName NameEntry, DateTimeOffset StartData, DateTimeOffset EndData, TimeSpan EventDuration, TimeSpan eventPrepTime, TimeSpan PreDeadlineTimeSpan, Repetition EventRepetitionEntry, Location EventLocation, EventDisplay UiData, MiscData NoteData, bool EnabledEventFlag, bool CompletionFlag, TilerUser creator, TilerUserGroup users, string timeZone, int splitCount) : base(
                 //eventId, 
                 NameEntry, StartData, EndData, EventDuration, eventPrepTime, PreDeadlineTimeSpan, EventRepetitionEntry, EventLocation, UiData, NoteData, EnabledEventFlag, CompletionFlag, creator, users, timeZone, eventId, false)
         {
@@ -31,7 +31,7 @@ namespace TilerElements
             for (int i = 0; i < Splits; i++)
             {
                 TimeLine procrastinationTimeLine = new TimeLine(StartDateTime, EndDateTime);
-                SubCalendarEvent newSubCalEvent = new ProcrastinateAllSubCalendarEvent(Creator, _Users, _TimeZone, procrastinationTimeLine, this.UniqueID, this.LocationInfo, this);
+                SubCalendarEvent newSubCalEvent = new ProcrastinateAllSubCalendarEvent(getCreator, _Users, _TimeZone, procrastinationTimeLine, this.UniqueID, this.LocationInfo, this);
                 SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
             }
         }
@@ -95,7 +95,7 @@ public static CalendarEvent generateProcrastinateAll(DateTimeOffset referenceNow
             {
                 procrastinateAll = new ProcrastinateCalendarEvent(
                 clearAllEventsId, 
-                blockName, eventStartTime, eventEndTime, DelaySpan, new TimeSpan(0), new TimeSpan(0), new Repetition(), new Location_Elements(), new EventDisplay(), new MiscData(), true, false, user, new TilerUserGroup(), timeZone, 1);
+                blockName, eventStartTime, eventEndTime, DelaySpan, new TimeSpan(0), new TimeSpan(0), new Repetition(), new Location(), new EventDisplay(), new MiscData(), true, false, user, new TilerUserGroup(), timeZone, 1);
             }
             else
             {

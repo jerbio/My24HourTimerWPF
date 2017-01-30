@@ -26,7 +26,8 @@ $RECYCLE.BIN/
 .LSOverride
 
 # Icon must ends with two \r.
-Icon
+Icon
+
 
 # Thumbnails
 ._*
@@ -35,5 +36,11 @@ Icon
 .Spotlight-V100
 .Trashes
 
-TilerTests\bin\Debug\BigDataLogs
-TilerTests\bin\Debug\WagTapCalLogs
+TilerTests/bin/Debug/BigDataLogs
+TilerTests/bin/Debug/WagTapCalLogs
+TilerCore/bin/*
+TilerCore/obj/*
+packages/
+TilerTests/bin/*
+TilerElements/bin/*
+TilerTests/bin/

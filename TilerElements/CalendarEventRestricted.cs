@@ -15,7 +15,7 @@ namespace TilerElements
         ;
         }
 
-        public CalendarEventRestricted(EventName Name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, Location_Elements Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventID eventId, EventDisplay UiSettings = null, MiscData NoteData=null)
+        public CalendarEventRestricted(EventName Name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, Location Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventID eventId, EventDisplay UiSettings = null, MiscData NoteData=null)
         {
            _Name =  Name;
             StartDateTime = Start;
@@ -46,7 +46,7 @@ namespace TilerElements
 
 
 
-        public CalendarEventRestricted(TilerUser creator, TilerUserGroup userGroup, string timeZone, EventName Name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, Location_Elements Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventID eventId, EventDisplay UiSettings = null, MiscData NoteData = null)
+        public CalendarEventRestricted(TilerUser creator, TilerUserGroup userGroup, string timeZone, EventName Name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, Location Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventID eventId, EventDisplay UiSettings = null, MiscData NoteData = null)
         {
             _Name = Name;
             StartDateTime = Start;
@@ -79,7 +79,7 @@ namespace TilerElements
             InstantiateSubEvents();
         }
 
-        static public CalendarEventRestricted InstantiateRepeatedCandidate(EventName Name, DateTimeOffset Start, DateTimeOffset End, EventID CalendarEventID, RestrictionProfile restrictionProfile, TimeSpan Duration, int division, Location_Elements Location,EventDisplay UiSettings,bool RigidFlag,TimeSpan preparation, string thirdPartyID)
+        static public CalendarEventRestricted InstantiateRepeatedCandidate(EventName Name, DateTimeOffset Start, DateTimeOffset End, EventID CalendarEventID, RestrictionProfile restrictionProfile, TimeSpan Duration, int division, Location Location,EventDisplay UiSettings,bool RigidFlag,TimeSpan preparation, string thirdPartyID)
         { 
             CalendarEventRestricted retValue = new CalendarEventRestricted();
             retValue .UniqueID = EventID.GenerateRepeatCalendarEvent(CalendarEventID.ToString());
@@ -169,7 +169,7 @@ namespace TilerElements
             {
                 DateTimeOffset SubStart = eachStart.Start;
                 DateTimeOffset SubEnd = SubStart.Add(_AverageTimePerSplit);
-                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(this.Creator, this._Users, UniqueID.ToString(), this.Name, SubStart, SubEnd, ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), RigidSchedule, PrepTime, EventPreDeadline, LocationInfo, UiParams, DataBlob, Priority, DeadlineElapsed, ThirdPartyID);
+                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(this.getCreator, this._Users, UniqueID.ToString(), this.getName, SubStart, SubEnd, ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), RigidSchedule, PrepTime, EventPreDeadline, LocationInfo, UiParams, DataBlob, Priority, DeadlineElapsed, ThirdPartyID);
                 SubEvents.Add(newEvent.SubEvent_ID, newEvent);
             }
         }
@@ -184,29 +184,29 @@ namespace TilerElements
         protected override CalendarEvent getCalculationCopy()
         {
             CalendarEventRestricted RetValue = new CalendarEventRestricted();
-            RetValue.EventDuration = this.ActiveDuration;
-            RetValue._Name = this.Name.createCopy();
+            RetValue.EventDuration = this.getActiveDuration;
+            RetValue._Name = this.getName.createCopy();
             RetValue.StartDateTime = this.Start;
             RetValue.EndDateTime = this.End;
-            RetValue.EventPreDeadline = this.PreDeadline;
-            RetValue.PrepTime = this.Preparation;
-            RetValue.Priority = this.EventPriority;
+            RetValue.EventPreDeadline = this.getPreDeadline;
+            RetValue.PrepTime = this.getPreparation;
+            RetValue.Priority = this.getEventPriority;
             RetValue.EventRepetition = this.Repeat;// EventRepetition != this.null ? EventRepetition.CreateCopy() : EventRepetition;
-            RetValue.Complete = this.isComplete;
-            RetValue.RigidSchedule = this.Rigid;//hack
+            RetValue.Complete = this.getIsComplete;
+            RetValue.RigidSchedule = this.getRigid;//hack
             RetValue.Splits = this.NumberOfSplit;
             RetValue._AverageTimePerSplit = this.AverageTimeSpanPerSubEvent;
             RetValue.UniqueID = EventID.GenerateCalendarEvent();
             //RetValue.EventSequence = this.EventSequence;
             RetValue.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
-            RetValue.UiParams = this.UIParam.createCopy();
+            RetValue.UiParams = this.getUIParam.createCopy();
             RetValue.DataBlob = this.Notes;
             RetValue.Enabled = this.isEnabled;
-            RetValue.isRestricted = this.isEventRestricted;
+            RetValue.isRestricted = this.getIsEventRestricted;
             RetValue.LocationInfo = this.myLocation;//hack you might need to make copy
-            RetValue.ProfileOfProcrastination = this.ProcrastinationInfo.CreateCopy();
-            RetValue.DeadlineElapsed = this.isDeadlineElapsed;
-            RetValue.UserDeleted = this.isUserDeleted;
+            RetValue.ProfileOfProcrastination = this.getProcrastinationInfo.CreateCopy();
+            RetValue.DeadlineElapsed = this.getIsDeadlineElapsed;
+            RetValue.UserDeleted = this.getIsUserDeleted;
             RetValue.CompletedCount = this.CompletionCount;
             RetValue.DeletedCount = this.DeletionCount;
             RetValue.ProfileOfProcrastination = this.ProfileOfProcrastination.CreateCopy();
@@ -227,11 +227,11 @@ namespace TilerElements
             {
                 DateTimeOffset SubStart = eachStart.Start;
                 DateTimeOffset SubEnd = SubStart.Add(_AverageTimePerSplit);
-                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(this.Creator, this._Users, UniqueID.ToString(), this.Name, SubStart, SubEnd, ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), RigidSchedule, PrepTime, EventPreDeadline, LocationInfo, UiParams, DataBlob, Priority, DeadlineElapsed, ThirdPartyID);
+                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(this.getCreator, this._Users, UniqueID.ToString(), this.getName, SubStart, SubEnd, ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), RigidSchedule, PrepTime, EventPreDeadline, LocationInfo, UiParams, DataBlob, Priority, DeadlineElapsed, ThirdPartyID);
                 SubEvents.Add(newEvent.SubEvent_ID, newEvent);
             }
             Splits += (int)delta;
-            EventDuration = TimeSpan.FromTicks(SubEvents.Values.Sum(subEvent => subEvent.ActiveDuration.Ticks));
+            EventDuration = TimeSpan.FromTicks(SubEvents.Values.Sum(subEvent => subEvent.getActiveDuration.Ticks));
         }
 
         public override void UpdateThis(CalendarEvent CalendarEventEntry)

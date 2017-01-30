@@ -10,7 +10,7 @@ namespace TilerElements
         protected TimeLine HardCalendarEventRange;//this does not include the restriction
         protected RestrictionProfile ProfileOfRestriction;
         #region Constructor
-        public SubCalendarEventRestricted(TilerUser creator, TilerUserGroup users,  string CalEventID, EventName name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile constrictionProgile, TimeLine HardCalEventTimeRange, bool isEnabled, bool isComplete, ConflictProfile conflictingEvents, bool RigidFlag,TimeSpan PrepTimeData ,TimeSpan PreDeadline, Location_Elements Locationdata, EventDisplay UiData, MiscData Notes, int Priority = 0, bool isDeadlineElapsed = false, string thirdPartyID = "", ConflictProfile conflicts = null )
+        public SubCalendarEventRestricted(TilerUser creator, TilerUserGroup users,  string CalEventID, EventName name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile constrictionProgile, TimeLine HardCalEventTimeRange, bool isEnabled, bool isComplete, ConflictProfile conflictingEvents, bool RigidFlag,TimeSpan PrepTimeData ,TimeSpan PreDeadline, Location Locationdata, EventDisplay UiData, MiscData Notes, int Priority = 0, bool isDeadlineElapsed = false, string thirdPartyID = "", ConflictProfile conflicts = null )
         { 
             isRestricted =true;
             StartDateTime = Start;
@@ -73,7 +73,7 @@ namespace TilerElements
             {
                 return false;
             }
-            List<TimeLine> allPossibleTimelines = ProfileOfRestriction.getAllNonPartialTimeFrames(LimitingTimeLine).Where(obj => obj.TimelineSpan >= ActiveDuration).OrderByDescending(obj => obj.End).ToList();
+            List<TimeLine> allPossibleTimelines = ProfileOfRestriction.getAllNonPartialTimeFrames(LimitingTimeLine).Where(obj => obj.TimelineSpan >= getActiveDuration).OrderByDescending(obj => obj.End).ToList();
             if (allPossibleTimelines.Count > 0)
             {
                 LimitingTimeLine = LimitingTimeLine.InterferringTimeLine( allPossibleTimelines[0]);
@@ -88,7 +88,7 @@ namespace TilerElements
             }
 
             TimeLine RestrictedLimitingFrame = ProfileOfRestriction.getLatestActiveTimeFrameBeforeEnd(LimitingTimeLine);
-            if(RestrictedLimitingFrame.TimelineSpan<ActiveDuration)
+            if(RestrictedLimitingFrame.TimelineSpan<getActiveDuration)
             {
                 RestrictedLimitingFrame = ProfileOfRestriction.getLatestFullFrame(LimitingTimeLine);
             }
@@ -103,7 +103,7 @@ namespace TilerElements
             {
                 return false;
             }
-            List<TimeLine> allPossibleTimelines = ProfileOfRestriction.getAllNonPartialTimeFrames(MyTimeLine).Where(obj=>obj.TimelineSpan>=ActiveDuration).OrderBy(obj=>obj.Start).ToList();
+            List<TimeLine> allPossibleTimelines = ProfileOfRestriction.getAllNonPartialTimeFrames(MyTimeLine).Where(obj=>obj.TimelineSpan>=getActiveDuration).OrderBy(obj=>obj.Start).ToList();
 
             if (allPossibleTimelines.Count > 0)
             {
@@ -121,7 +121,7 @@ namespace TilerElements
             
 
             TimeLine RestrictedLimitingFrame = ProfileOfRestriction.getEarliestActiveFrameAfterBeginning(MyTimeLine);
-            if (RestrictedLimitingFrame.TimelineSpan < ActiveDuration)
+            if (RestrictedLimitingFrame.TimelineSpan < getActiveDuration)
             {
                 RestrictedLimitingFrame = ProfileOfRestriction.getEarliestFullframe(MyTimeLine);
             }
@@ -188,7 +188,7 @@ namespace TilerElements
             copy.Enabled = this.Enabled;
             copy.EndDateTime = this.EndDateTime;
             copy.EventDuration = this.EventDuration;
-            copy._Name = this.Name.createCopy();
+            copy._Name = this.getName.createCopy();
             copy.EventPreDeadline = this.EventPreDeadline;
             copy.EventScore = this.EventScore;
             copy.HardCalendarEventRange = this.HardCalendarEventRange.CreateCopy();
@@ -224,7 +224,7 @@ namespace TilerElements
             return copy;
         }
 
-        public override Tuple<TimeLine, double> evaluateAgainstOptimizationParameters(Location_Elements refLocation, TimeLine DayTimeLine)
+        public override Tuple<TimeLine, double> evaluateAgainstOptimizationParameters(Location refLocation, TimeLine DayTimeLine)
         {
             return base.evaluateAgainstOptimizationParameters(refLocation, DayTimeLine);
         }
@@ -278,7 +278,7 @@ namespace TilerElements
 
         public override bool PinToPossibleLimit(TimeLine referenceTimeLine)
         {
-            List<TimeLine> AllPossibleTimeLines = ProfileOfRestriction.getAllNonPartialTimeFrames(referenceTimeLine).   Where(obj => obj.TimelineSpan >= this.ActiveDuration).OrderByDescending (obj=>obj.End). ToList();
+            List<TimeLine> AllPossibleTimeLines = ProfileOfRestriction.getAllNonPartialTimeFrames(referenceTimeLine).   Where(obj => obj.TimelineSpan >= this.getActiveDuration).OrderByDescending (obj=>obj.End). ToList();
             if (AllPossibleTimeLines.Count > 0)
             {
                 return base.PinToEnd(AllPossibleTimeLines[0]);
@@ -323,31 +323,31 @@ namespace TilerElements
             {
                 SubCalendarEventRestricted SubEventEntry = (SubCalendarEventRestricted)SubEventEntryData;
                 this.BusyFrame = SubEventEntry.ActiveSlot;
-                this.CalendarEventRange = SubEventEntry.getCalculationRange;
-                this._Name = SubEventEntry.Name;
-                this.EventDuration = SubEventEntry.ActiveDuration;
-                this.Complete = SubEventEntry.isComplete;
+                this.CalendarEventRange = SubEventEntry.getCalendarEventRange;
+                this._Name = SubEventEntry.getName;
+                this.EventDuration = SubEventEntry.getActiveDuration;
+                this.Complete = SubEventEntry.getIsComplete;
                 this.ConflictingEvents = SubEventEntry.Conflicts;
                 this.DataBlob = SubEventEntry.Notes;
-                this.DeadlineElapsed = SubEventEntry.isDeadlineElapsed;
+                this.DeadlineElapsed = SubEventEntry.getIsDeadlineElapsed;
                 this.Enabled = SubEventEntry.isEnabled;
                 this.EndDateTime = SubEventEntry.End;
-                this.EventPreDeadline = SubEventEntry.PreDeadline;
+                this.EventPreDeadline = SubEventEntry.getPreDeadline;
                 this.EventScore = SubEventEntry.Score;
                 //this.isRestricted = true;
-                this.LocationInfo = SubEventEntry.myLocation;
+                this.LocationInfo = SubEventEntry.Location;
                 this.OldPreferredIndex = SubEventEntry.OldUniversalIndex;
                 this.otherPartyID = SubEventEntry.ThirdPartyID;
                 this.preferredDayIndex = SubEventEntry.UniversalDayIndex;
-                this.PrepTime = SubEventEntry.Preparation;
-                this.Priority = SubEventEntry.EventPriority;
+                this.PrepTime = SubEventEntry.getPreparation;
+                this.Priority = SubEventEntry.getEventPriority;
                 this.ProfileOfNow = SubEventEntry.ProfileOfNow;
                 this.ProfileOfProcrastination = SubEventEntry.ProfileOfProcrastination;
                 //this.RigidSchedule = this.rig
                 this.StartDateTime = SubEventEntry.Start;
-                this.UiParams = SubEventEntry.UIParam;
+                this.UiParams = SubEventEntry.getUIParam;
                 this.UniqueID = SubEventEntry.SubEvent_ID;
-                this.UserDeleted = SubEventEntry.isUserDeleted;
+                this.UserDeleted = SubEventEntry.getIsUserDeleted;
                 this._Users = SubEventEntry.getAllUsers();
                 this.Vestige = SubEventEntry.isVestige;
                 this.otherPartyID = SubEventEntry.otherPartyID;
@@ -365,31 +365,31 @@ namespace TilerElements
         {
             SubCalendarEventRestricted retValue = new SubCalendarEventRestricted();
             retValue.BusyFrame = this.ActiveSlot;
-            retValue.CalendarEventRange = this.getCalculationRange.CreateCopy();
-            retValue._Name = this.Name.createCopy();
-            retValue.EventDuration = this.ActiveDuration;
-            retValue.Complete = this.isComplete;
+            retValue.CalendarEventRange = this.getCalendarEventRange.CreateCopy();
+            retValue._Name = this.getName.createCopy();
+            retValue.EventDuration = this.getActiveDuration;
+            retValue.Complete = this.getIsComplete;
             retValue.ConflictingEvents = this.Conflicts;
             retValue.DataBlob = this.Notes;
-            retValue.DeadlineElapsed = this.isDeadlineElapsed;
+            retValue.DeadlineElapsed = this.getIsDeadlineElapsed;
             retValue.Enabled = this.isEnabled;
             retValue.EndDateTime = this.End;
-            retValue.EventPreDeadline = this.PreDeadline;
+            retValue.EventPreDeadline = this.getPreDeadline;
             retValue.EventScore = this.Score;
-            retValue.isRestricted = this.isEventRestricted;
-            retValue.LocationInfo = this.myLocation;
+            retValue.isRestricted = this.getIsEventRestricted;
+            retValue.LocationInfo = this.Location;
             retValue.OldPreferredIndex = this.OldUniversalIndex;
             retValue.otherPartyID = this.ThirdPartyID;
             retValue.preferredDayIndex = this.UniversalDayIndex;
-            retValue.PrepTime = this.Preparation;
-            retValue.Priority = this.EventPriority;
+            retValue.PrepTime = this.getPreparation;
+            retValue.Priority = this.getEventPriority;
             retValue.ProfileOfNow = this.ProfileOfNow.CreateCopy();
             retValue.ProfileOfProcrastination = this.ProfileOfProcrastination.CreateCopy();
-            retValue.RigidSchedule = this.Rigid;
+            retValue.RigidSchedule = this.getRigid;
             retValue.StartDateTime = this.Start;
-            retValue.UiParams = this.UIParam;
+            retValue.UiParams = this.getUIParam;
             retValue.UniqueID = this.SubEvent_ID;
-            retValue.UserDeleted = this.isUserDeleted;
+            retValue.UserDeleted = this.getIsUserDeleted;
             retValue._Users = this.getAllUsers();
             retValue.Vestige = this.isVestige;
             retValue.otherPartyID = this.otherPartyID;

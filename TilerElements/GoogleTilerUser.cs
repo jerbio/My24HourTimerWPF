@@ -9,7 +9,7 @@ using Microsoft.AspNet.Identity;
 
 namespace TilerElements
 {
-    public class GoogleTilerUser : TilerUser
+    public class GoogleTilerUser : ThirdPartyTilerUser
     {
         protected GoogleTilerUser()
         {

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using TilerFront;
 using My24HourTimerWPF;
 using TilerElements;
+using TilerCore;
 
 namespace TilerTests
 {
@@ -19,14 +20,14 @@ namespace TilerTests
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            Schedule Schedule = new Schedule(currentUser, refNow);
+            TestSchedule Schedule = new TestSchedule(currentUser, refNow);
             currentUser.DeleteAllCalendarEvents();
         }
 
         [TestMethod]
         public void procrastinateSingle()
         {
-            Schedule Schedule;
+            TestSchedule Schedule;
             UserAccount user = TestUtility.getTestUser();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
@@ -50,7 +51,7 @@ namespace TilerTests
             CalendarEvent testEventCopy = Schedule.getCalendarEvent(testEvent.getId);
             DateTimeOffset latestTime = refNow.Add(procrastinationSpan);
             Assert.IsTrue(testEventCopy.ActiveSubEvents.First().Start >= latestTime);
-            Assert.IsTrue(testEventCopy.ProcrastinationInfo.PreferredStartTime >= latestTime);
+            Assert.IsTrue(testEventCopy.getProcrastinationInfo.PreferredStartTime >= latestTime);
         }
 
 
@@ -58,7 +59,7 @@ namespace TilerTests
         [TestMethod]
         public void procrastinateSingleEventAroundMultipleEvents()
         {
-            Schedule Schedule;
+            TestSchedule Schedule;
             UserAccount user = TestUtility.getTestUser();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
@@ -110,7 +111,7 @@ namespace TilerTests
         [TestMethod]
         public void procrastinateSinglePastDeadline()
         {
-            Schedule Schedule;
+            TestSchedule Schedule;
             UserAccount user = TestUtility.getTestUser();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
@@ -130,7 +131,7 @@ namespace TilerTests
         [TestMethod]
         public void procrastinateAll()
         {
-            Schedule Schedule;
+            TestSchedule Schedule;
             UserAccount user = TestUtility.getTestUser();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
@@ -191,7 +192,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             procrastinationEvent = Schedule.getCalendarEvent(user.getTilerUser().getClearAllEventsId());
             SubCalendarEvent firstClearedBlock = procrastinationEvent.ActiveSubEvents.OrderBy(obj => obj.Start).First();
-            procrassinateResult = Schedule.BundleChangeUpdate(firstClearedBlock.getId, procrastinationEvent.Name, startOfProcrastinateAll, newEndOfProcrastinateAll, startOfProcrastinateAll, newEndOfProcrastinateAll, procrastinationEvent.NumberOfSplit);
+            procrassinateResult = Schedule.BundleChangeUpdate(firstClearedBlock.getId, procrastinationEvent.getName, startOfProcrastinateAll, newEndOfProcrastinateAll, startOfProcrastinateAll, newEndOfProcrastinateAll, procrastinationEvent.NumberOfSplit);
             Assert.IsNull(procrassinateResult.Item1);
             Schedule.UpdateWithDifferentSchedule(procrassinateResult.Item2).Wait();
             Schedule = new TestSchedule(user, refNow0);
@@ -235,7 +236,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             procrastinationEvent = Schedule.getCalendarEvent(user.getTilerUser().getClearAllEventsId());
             firstClearedBlock = procrastinationEvent.ActiveSubEvents.OrderBy(obj => obj.Start).First();
-            procrassinateResult = Schedule.BundleChangeUpdate(firstClearedBlock.getId, procrastinationEvent.Name, startOfProcrastinateAll, newEndOfProcrastinateAll, startOfProcrastinateAll, newEndOfProcrastinateAll, procrastinationEvent.NumberOfSplit);
+            procrassinateResult = Schedule.BundleChangeUpdate(firstClearedBlock.getId, procrastinationEvent.getName, startOfProcrastinateAll, newEndOfProcrastinateAll, startOfProcrastinateAll, newEndOfProcrastinateAll, procrastinationEvent.NumberOfSplit);
             Assert.IsNull(procrassinateResult.Item1);
             Schedule.UpdateWithDifferentSchedule(procrassinateResult.Item2).Wait();
             Schedule = new TestSchedule(user, refNow0);
@@ -257,7 +258,7 @@ namespace TilerTests
         [TestMethod]
         public void scheduleModificationWithProcrastinateAll()
         {
-            Schedule Schedule;
+            DB_Schedule Schedule;
             UserAccount user = TestUtility.getTestUser();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
@@ -290,7 +291,8 @@ namespace TilerTests
             CalendarEvent testEvent1 = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end.AddDays(1), 2, false);
             Schedule.AddToScheduleAndCommit(testEvent1).Wait();
             Schedule = new TestSchedule(user, refNow.AddHours(5));
-            Schedule.FindMeSomethingToDo(new Location_Elements()).Wait();
+            Schedule.FindMeSomethingToDo(new Location()).Wait();
+            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
         }
 
         [ClassInitialize]
@@ -299,7 +301,7 @@ namespace TilerTests
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            Schedule Schedule = new Schedule(currentUser, refNow);
+            Schedule Schedule = new TestSchedule(currentUser, refNow);
             currentUser.DeleteAllCalendarEvents();
         }
 
@@ -309,7 +311,7 @@ namespace TilerTests
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            Schedule Schedule = new Schedule(currentUser, refNow);
+            Schedule Schedule = new TestSchedule(currentUser, refNow);
             currentUser.DeleteAllCalendarEvents();
         }
     }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TilerFront;
 using TilerElements;
-using My24HourTimerWPF;
+using TilerCore;
 
 namespace TilerTests
 {
@@ -26,7 +26,7 @@ namespace TilerTests
             UserAccount user = TestUtility.getTestUser();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            Schedule mySchedule = new Schedule(user, refNow);
+            Schedule mySchedule = new TestSchedule(user, refNow);
             int count = 5;
             List<CalendarEvent> allEvents = new List<CalendarEvent>();
             for(int i=0; i<count; i++)
@@ -48,7 +48,7 @@ namespace TilerTests
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            Schedule Schedule = new Schedule(currentUser, refNow);
+            Schedule Schedule = new TestSchedule(currentUser, refNow);
             currentUser.DeleteAllCalendarEvents();
         }
     }

@@ -5,6 +5,7 @@ using My24HourTimerWPF;
 using TilerElements;
 using System.Collections.Generic;
 using System.Linq;
+using TilerCore;
 
 namespace TilerTests
 {
@@ -20,7 +21,7 @@ namespace TilerTests
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            Schedule schedule = new Schedule(currentUser, refNow);
+            Schedule schedule = new TestSchedule(currentUser, refNow);
             currentUser.DeleteAllCalendarEvents();
         }
 
@@ -33,18 +34,18 @@ namespace TilerTests
         [TestMethod]
         public void TightScheduleNoUnnecessaryConflict()
         {
-            Location_Elements homeLocation = new Location_Elements("2895 Van aken Blvd cleveland OH 44120");
-            Location_Elements workLocation = new Location_Elements(41.5002762, -81.6839155, "1228 euclid Ave cleveland OH","Work",false,false);
-            Location_Elements gymLocation = new Location_Elements(41.4987461 , -81.6884993, "619 Prospect Avenue Cleveland, OH 44115", "Gym", false, false);
-            Location_Elements churchLocation = new Location_Elements(41.569467, -81.539422, "1465 Dille Rd, Cleveland, OH 44117", "Church", false, false);
-            Location_Elements shakerLibrary = new Location_Elements(41.4658937, -81.5664832, "16500 Van Aken Blvd, Shaker Heights, OH 44120", "Shake Library", false, false);
+            Location homeLocation = new Location("2895 Van aken Blvd cleveland OH 44120");
+            Location workLocation = new Location(41.5002762, -81.6839155, "1228 euclid Ave cleveland OH","Work",false,false);
+            Location gymLocation = new Location(41.4987461 , -81.6884993, "619 Prospect Avenue Cleveland, OH 44115", "Gym", false, false);
+            Location churchLocation = new Location(41.569467, -81.539422, "1465 Dille Rd, Cleveland, OH 44117", "Church", false, false);
+            Location shakerLibrary = new Location(41.4658937, -81.5664832, "16500 Van Aken Blvd, Shaker Heights, OH 44120", "Shake Library", false, false);
 
-            List<Location_Elements> locations = new List<Location_Elements>() { homeLocation, workLocation, gymLocation, churchLocation };
+            List<Location> locations = new List<Location>() { homeLocation, workLocation, gymLocation, churchLocation };
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
             refNow = new DateTimeOffset(refNow.Year, refNow.Month, refNow.Day, 8, 0, 0, new TimeSpan());
-            Schedule schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
+            TestSchedule schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
             TimeLine encompassingTimeline = new TimeLine(refNow, refNow.AddHours(8));
 
 
@@ -92,18 +93,18 @@ namespace TilerTests
         [TestMethod]
         public void TightSchedule_SufficienSpanOverall_InsufficientEachDay()
         {
-            Location_Elements homeLocation = new Location_Elements("2895 Van aken Blvd cleveland OH 44120");
-            Location_Elements workLocation = new Location_Elements(41.5002762, -81.6839155, "1228 euclid Ave cleveland OH", "Work", false, false);
-            Location_Elements gymLocation = new Location_Elements(41.4987461, -81.6884993, "619 Prospect Avenue Cleveland, OH 44115", "Gym", false, false);
-            Location_Elements churchLocation = new Location_Elements(41.569467, -81.539422, "1465 Dille Rd, Cleveland, OH 44117", "Church", false, false);
-            Location_Elements shakerLibrary = new Location_Elements(41.4658937, -81.5664832, "16500 Van Aken Blvd, Shaker Heights, OH 44120", "Shake Library", false, false);
+            Location homeLocation = new Location("2895 Van aken Blvd cleveland OH 44120");
+            Location workLocation = new Location(41.5002762, -81.6839155, "1228 euclid Ave cleveland OH", "Work", false, false);
+            Location gymLocation = new Location(41.4987461, -81.6884993, "619 Prospect Avenue Cleveland, OH 44115", "Gym", false, false);
+            Location churchLocation = new Location(41.569467, -81.539422, "1465 Dille Rd, Cleveland, OH 44117", "Church", false, false);
+            Location shakerLibrary = new Location(41.4658937, -81.5664832, "16500 Van Aken Blvd, Shaker Heights, OH 44120", "Shake Library", false, false);
 
-            List<Location_Elements> locations = new List<Location_Elements>() { homeLocation, workLocation, gymLocation, churchLocation };
+            List<Location> locations = new List<Location>() { homeLocation, workLocation, gymLocation, churchLocation };
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
             refNow = new DateTimeOffset(refNow.Year, refNow.Month, refNow.Day, 8, 0, 0, new TimeSpan());
-            Schedule schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
+            TestSchedule schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
             TimeLine encompassingTimeline = new TimeLine(refNow, refNow.AddHours(8));
 
             
@@ -151,7 +152,7 @@ namespace TilerTests
         [TestMethod]
         public void scheduleAroundRigidEvents()
         {
-            List<Location_Elements> locations = TestUtility.getLocations();
+            List<Location> locations = TestUtility.getLocations();
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.Parse("12:00AM");
@@ -166,8 +167,9 @@ namespace TilerTests
             Schedule.AddToScheduleAndCommit(randomSubEvents).Wait();
             List<SubCalendarEvent> allSubEvents = Schedule.getAllCalendarEvents().SelectMany(calEvent => calEvent.AllSubEvents).OrderBy(meSubEvent => meSubEvent.Start).ToList();
             Schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
-            var resultOfShuffle = Schedule.FindMeSomethingToDo(new Location_Elements());
+            var resultOfShuffle = Schedule.FindMeSomethingToDo(new Location());
             resultOfShuffle.Wait();
+            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
             Schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
             SubCalendarEvent subEvent = allSubEvents.Single(meSubEvent => meSubEvent.getId == hugeRigid.AllSubEvents.First().getId);
             int calidIndex = allSubEvents.Count / 2;
@@ -181,7 +183,7 @@ namespace TilerTests
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            Schedule Schedule = new Schedule(currentUser, refNow);
+            Schedule Schedule = new TestSchedule(currentUser, refNow);
             currentUser.DeleteAllCalendarEvents();
         }
 
@@ -191,7 +193,7 @@ namespace TilerTests
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            Schedule Schedule = new Schedule(currentUser, refNow);
+            Schedule Schedule = new TestSchedule(currentUser, refNow);
             currentUser.DeleteAllCalendarEvents();
         }
 

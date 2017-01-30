@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
 using GoogleMapsApi.Entities.Directions.Request;
+using TilerCore;
 
 namespace TilerTests
 {
@@ -43,34 +44,34 @@ namespace TilerTests
             int count = 5;
 
             List<CalendarEvent> allEvents = new List<CalendarEvent>();
-            Location_Elements homeLocation = new Location_Elements("2895 Van aken Blvd cleveland OH 44120");
+            Location homeLocation = new Location("2895 Van aken Blvd cleveland OH 44120");
             homeLocation.Validate();
             if (homeLocation.isNull)
             {
                 throw new AssertFailedException("failed to Validate homeLocation");
             }
 
-            Location_Elements workLocation = new Location_Elements("1228 euclid Ave cleveland OH");
+            Location workLocation = new Location("1228 euclid Ave cleveland OH");
             workLocation.Validate();
             if (workLocation.isNull)
             {
                 throw new AssertFailedException("failed to Validate workLocation");
             }
-            Location_Elements gymLocation = new Location_Elements("619 Prospect Avenue Cleveland, OH 44115");
+            Location gymLocation = new Location("619 Prospect Avenue Cleveland, OH 44115");
             gymLocation.Validate();
             if (gymLocation.isNull)
             {
                 throw new AssertFailedException("failed to Validate gymLocation");
             }
 
-            Location_Elements churchLocation = new Location_Elements("1465 Dille Rd, Cleveland, OH 44117");
+            Location churchLocation = new Location("1465 Dille Rd, Cleveland, OH 44117");
             churchLocation.Validate();
             if (churchLocation.isNull)
             {
                 throw new AssertFailedException("failed to Validate churchLocation");
             }
 
-            Location_Elements shakerLibrary = new Location_Elements("16500 Van Aken Blvd, Shaker Heights, OH 44120");
+            Location shakerLibrary = new Location("16500 Van Aken Blvd, Shaker Heights, OH 44120");
             shakerLibrary.Validate();
             if (shakerLibrary.isNull)
             {
@@ -79,16 +80,16 @@ namespace TilerTests
 
 
 
-            List<Location_Elements> locations = new List<Location_Elements>() { homeLocation, workLocation, gymLocation, churchLocation};
+            List<Location> locations = new List<Location>() { homeLocation, workLocation, gymLocation, churchLocation};
             int index = new Random().Next(locations.Count);
-            Location_Elements randomLocation = locations[index];
+            Location randomLocation = locations[index];
             DateTimeOffset lastTime = new DateTimeOffset();
             //for loop establishes the schedule with different days
             for (int j = 0; j < count; j++)
             {
                 for (int i = 0; i < count; i++)
                 {
-                    Location_Elements location = locations[j % locations.Count];
+                    Location location = locations[j % locations.Count];
                     CalendarEvent calendarEvent = TestUtility.generateCalendarEvent(durationOfEvents, new TilerElements.Repetition(), newStart, newStart.AddDays(1), 1, false, location);
                     lastTime = calendarEvent.End;
                     allEvents.Add(calendarEvent);
@@ -125,23 +126,23 @@ namespace TilerTests
         [TestMethod]
         public void scheduleComparisonEvaluation()
         {
-            Location_Elements homeLocation = new Location_Elements("2895 Van aken Blvd cleveland OH 44120");
+            Location homeLocation = new Location("2895 Van aken Blvd cleveland OH 44120");
             homeLocation.Validate();
-            Location_Elements workLocation = new Location_Elements(41.5002762, -81.6839155, "1228 euclid Ave cleveland OH", "Work", false, false);
+            Location workLocation = new Location(41.5002762, -81.6839155, "1228 euclid Ave cleveland OH", "Work", false, false);
             workLocation.Validate();
             
-            Location_Elements gymLocation = new Location_Elements(41.4987461, -81.6884993, "619 Prospect Avenue Cleveland, OH 44115", "Gym", false, false);
+            Location gymLocation = new Location(41.4987461, -81.6884993, "619 Prospect Avenue Cleveland, OH 44115", "Gym", false, false);
             gymLocation.Validate();
             
 
-            Location_Elements churchLocation = new Location_Elements(41.569467, -81.539422, "1465 Dille Rd, Cleveland, OH 44117", "Church", false, false);
+            Location churchLocation = new Location(41.569467, -81.539422, "1465 Dille Rd, Cleveland, OH 44117", "Church", false, false);
             churchLocation.Validate();
             
-            Location_Elements shakerLibrary = new Location_Elements(41.4658937, -81.5664832, "16500 Van Aken Blvd, Shaker Heights, OH 44120", "Shake Library", false, false);
+            Location shakerLibrary = new Location(41.4658937, -81.5664832, "16500 Van Aken Blvd, Shaker Heights, OH 44120", "Shake Library", false, false);
             shakerLibrary.Validate();
             
 
-            List<Location_Elements> locations = new List<Location_Elements>() { homeLocation, homeLocation, workLocation, gymLocation };//, churchLocation };
+            List<Location> locations = new List<Location>() { homeLocation, homeLocation, workLocation, gymLocation };//, churchLocation };
 
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
@@ -153,7 +154,7 @@ namespace TilerTests
             HashSet<EventID> EventIDs = new HashSet<EventID>();
             for (int i =0;i<4;i++)
             {
-                Schedule Schedule = new TestSchedule(currentUser, refNow);
+                TestSchedule Schedule = new TestSchedule(currentUser, refNow);
                 CalendarEvent testEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), eachTimeLine.Start,i == 0 ? eachTimeLine.End.AddHours(-12) : eachTimeLine.End, 1, false, locations[i]);
                 Schedule.AddToScheduleAndCommit(testEvent).Wait();
                 hashEventIDs.Add(testEvent.Calendar_EventID);
@@ -187,7 +188,7 @@ namespace TilerTests
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            Schedule Schedule = new Schedule(currentUser, refNow);
+            Schedule Schedule = new TestSchedule(currentUser, refNow);
             currentUser.DeleteAllCalendarEvents();
         }
 
@@ -210,7 +211,7 @@ namespace TilerTests
             int numberOfSubeventPerCalendarEvent = 1;
             int numberOfCalendarEvent = 7;
             List<CalendarEvent> allCalendarevents = new List<CalendarEvent>();
-            Location_Elements location = TestUtility.getLocations()[0];
+            Location location = TestUtility.getLocations()[0];
             TestSchedule schedule = new TestSchedule(currentUser, refNow, refNow);
             for (int i = 0; i < numberOfCalendarEvent; i++)
             {
@@ -219,6 +220,7 @@ namespace TilerTests
                 schedule.AddToScheduleAndCommit(calEvent).Wait();
                 schedule = new TestSchedule(currentUser, refNow, refNow);
                 schedule.FindMeSomethingToDo(location).Wait();
+                schedule.WriteFullScheduleToLogAndOutlook().Wait();
                 schedule = new TestSchedule(currentUser, refNow, refNow);
             }
 
@@ -260,7 +262,7 @@ namespace TilerTests
             int numberOfSubevents = 7;
             int numberOfSubeventPerCalendarEvent = 7;
             List<CalendarEvent> allCalendarevents = new List<CalendarEvent>();
-            Location_Elements location = TestUtility.getLocations()[0];
+            Location location = TestUtility.getLocations()[0];
             TestSchedule schedule = new TestSchedule(currentUser, refNow, refNow);
             for (int i = 0; i < numberOfCalendarEvent; i++)
             {
@@ -269,6 +271,7 @@ namespace TilerTests
                 schedule.AddToScheduleAndCommit(calEvent).Wait();
                 schedule = new TestSchedule(currentUser, refNow, refNow);
                 schedule.FindMeSomethingToDo(location).Wait();
+                schedule.WriteFullScheduleToLogAndOutlook().Wait();
                 schedule = new TestSchedule(currentUser, refNow, refNow);
             }
 
@@ -296,7 +299,7 @@ namespace TilerTests
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            Schedule Schedule = new Schedule(currentUser, refNow);
+            Schedule Schedule = new TestSchedule(currentUser, refNow);
             currentUser.DeleteAllCalendarEvents();
         }
     }

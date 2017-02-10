@@ -1626,7 +1626,6 @@ namespace TilerCore
                     }
                     break;
             }
-            
 
             Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> retValue = new Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>>(CalculationTImeLine, SubEventsForCalculation, retCustomErrors, interferringWithNow);
             return retValue;
@@ -1666,22 +1665,35 @@ namespace TilerCore
              * The function tries to select all elemnents that interfer with the time frame. It assumes IniTImeLine is wide enough. It does not try to recalulate. If an element cannot exist within the timeline it simply removed from the calculation to ensure some correctness
              * */
             DateTimeOffset NowTIme = Now.constNow;
-            List<SubCalendarEvent> AllSubEvents = getInterferringSubEvents(IniTImeLine, InitializingCalEvents).AsParallel().Where(obj => obj.getCalendarEventRange.End > NowTIme).ToList();
-            DateTimeOffset LatestDate, EarliestDate;//both variables will be used to reevaluae IniTImeLine
-
-            TimeLine SavedInitimeLine = IniTImeLine.CreateCopy();
-            TimeSpan iniSpan = IniTImeLine.TimelineSpan;
-
-            
-
-            List<SubCalendarEvent> AllSubEventsThatCrossInitTimeLine = AllSubEvents.Where(obj => obj.getCalendarEventRange.End > SavedInitimeLine.End).Where(obj => obj.IsDateTimeWithin(IniTImeLine.End)).OrderByDescending(obj => obj.getCalendarEventRange.End).ToList();
-            if (AllSubEventsThatCrossInitTimeLine.Count > 0)
+            HashSet<SubCalendarEvent> subEventsInSet = new HashSet<SubCalendarEvent>(getInterferringSubEvents(IniTImeLine, InitializingCalEvents).AsParallel().Where(obj => obj.getCalendarEventRange.End > NowTIme));
+            ConcurrentBag<SubCalendarEvent> subEvents = new ConcurrentBag<SubCalendarEvent>();
+            subEventsInSet.AsParallel().ForAll((subEvent) =>
             {
-                List<SubCalendarEvent> UnUsables = AllSubEventsThatCrossInitTimeLine.AsParallel().Where(obj => !obj.canExistWithinTimeLine(CalculationTImeLine)).ToList();
-                AllSubEvents = AllSubEvents.Except(UnUsables).ToList();
-            }
+                if (subEvent.getRigid)
+                {
+                    if (subEvent.RangeTimeLine.doesTimeLineInterfere(CalculationTImeLine))
+                    {
+                        subEvents.Add(subEvent);
+                    }
+                }
+                else
+                {
+                    if(!subEvent.getIsEventRestricted)
+                    {
+                        subEvents.Add(subEvent);
+                    }
+                    else
+                    {
+                        if (subEvent.getCalendarEventRange.doesTimeLineInterfere(CalculationTImeLine))
+                        {
+                            subEvents.Add(subEvent);
+                        }
+                    }
+                }
+            });
 
-            return AllSubEvents;
+            List<SubCalendarEvent> retValue = subEvents.ToList();
+            return retValue;
         }
 
 

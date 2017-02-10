@@ -73,7 +73,7 @@ namespace TilerTests
                 eachSchedule.AddToScheduleAndCommit(calEvent).Wait();
             }
 
-            DateTimeOffset wednesdayStart = getNextDateForDayOfWeek(DayOfWeek.Wednesday, refNow);
+            DateTimeOffset wednesdayStart = mondayStart.AddDays(2);// getNextDateForDayOfWeek(DayOfWeek.Wednesday, refNow);
             CalendarEvent wednesdayEvent = TestUtility.generateCalendarEvent(durationOfCalEvent, new Repetition(), mondayStart, wednesdayStart.AddDays(1), 1, false, TuesdayLocation);
             DB_Schedule schedule = new DB_Schedule(currentUser, refNow);
             schedule.AddToScheduleAndCommit(wednesdayEvent).Wait();
@@ -85,9 +85,10 @@ namespace TilerTests
             schedule = new DB_Schedule(currentUser, refNow);
             Health tuesdayHealth = await schedule.WhatIfDifferentDay(tuesdayStart, retrievedWednesdayEvent.ActiveSubEvents.First().SubEvent_ID).ConfigureAwait(false);
             schedule = new DB_Schedule(currentUser, refNow);
-            Health mondayHealth = await schedule.WhatIfDifferentDay(wednesdayStart.AddDays(-1), retrievedWednesdayEvent.ActiveSubEvents.First().SubEvent_ID).ConfigureAwait(false);
+            Health mondayHealth = await schedule.WhatIfDifferentDay(wednesdayStart.AddDays(-2), retrievedWednesdayEvent.ActiveSubEvents.First().SubEvent_ID).ConfigureAwait(false);
             double mondayScore = mondayHealth.getScore();
             double tuesdayScore = tuesdayHealth.getScore();
+            Assert.IsTrue(tuesdayScore < mondayScore);
         }
 
         public DateTimeOffset getNextDateForDayOfWeek(DayOfWeek dayOfeek, DateTimeOffset referenceTime)

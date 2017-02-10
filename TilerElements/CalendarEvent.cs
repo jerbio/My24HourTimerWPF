@@ -71,6 +71,11 @@ namespace TilerElements
             MiscData miscData, bool isEnabled, bool completeflag, NowProfile nowProfile, Procrastination procrastinationProfile, 
             Location location, TilerUser creator, TilerUserGroup otherUsers, bool userDeleted, DateTimeOffset timeOfCreation, string timeZoneOrigin)
         {
+            if (end < start)
+            {
+                throw new Exception("Calendar Event cannot have an end time earlier than the start time");
+            }
+
             this.StartDateTime = start;
             this.EndDateTime = end;
             this.Splits = split;
@@ -236,12 +241,15 @@ namespace TilerElements
             calEvent.EventRepetition = new Repetition(true, timeLine, Repetition.Frequency.YEARLY, timeLine);
             calEvent.EventRepetition.PopulateRepetitionParameters(calEvent);
             CalendarEvent calEventCpy = calEvent.Repeat.RecurringCalendarEvents().Single();// using ssingle because this must always return a single calendarevent. Because we generated a repeat event which should only have one calendar event;
-            SubCalendarEvent subEventCopy = subEvent.createCopy(EventID.GenerateSubCalendarEvent(calEventCpy.Calendar_EventID));
-            calEventCpy.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
+            SubCalendarEvent subEventCopy = calEventCpy.AllSubEvents.First();
+            SubCalendarEvent duplicateOfOriginal = subEvent.createCopy(subEventCopy.SubEvent_ID);
+            
+            subEventCopy.UpdateThis(duplicateOfOriginal);
+            //calEventCpy.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
             calEventCpy.StartDateTime = timeLine.Start;
             calEventCpy.EndDateTime= timeLine.End;
             subEventCopy.updateCalculationEventRange(timeLine);
-            calEventCpy.SubEvents.Add(subEventCopy.SubEvent_ID, subEventCopy);
+            //calEventCpy.SubEvents.Add(subEventCopy.SubEvent_ID, subEventCopy);
             subEvent.TempChanges.allChanges.Add(subEvent);
             subEvent.TempChanges.allChanges.Add(subEventCopy);
             calEvent.TempChanges.allChanges.Add(subEvent);

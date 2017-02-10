@@ -41,6 +41,10 @@ namespace TilerElements
 
         public SubCalendarEvent(TilerUser Creator, TilerUserGroup users, string timeZone, TimeSpan Event_Duration, EventName name, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, bool Enabled, EventDisplay UiParam,MiscData Notes,bool completeFlag, Location EventLocation =null, TimeLine calendarEventRange = null, ConflictProfile conflicts=null)
         {
+            if (EventDeadline < EventStart)
+            {
+                throw new Exception("SubCalendar Event cannot have an end time earlier than the start time");
+            }
             _Name = name;
             _Creator = Creator;
             _Users = users;
@@ -74,6 +78,10 @@ namespace TilerElements
 
         public SubCalendarEvent(TilerUser Creator, TilerUserGroup users, string timeZone, string MySubEventID, EventName name, BusyTimeLine MyBusylot, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location EventLocation = null, TimeLine calendarEventRange = null, ConflictProfile conflicts = null)
         {
+            if (EventDeadline < EventStart)
+            {
+                throw new Exception("SubCalendar Event cannot have an end time earlier than the start time");
+            }
             _TimeZone = timeZone;
             _Name = name;
             _Creator = Creator;
@@ -105,6 +113,10 @@ namespace TilerElements
 
         public SubCalendarEvent(TilerUser Creator, TilerUserGroup users, string timeZone, string MySubEventID, EventName name, DateTimeOffset EventStart, DateTimeOffset EventDeadline, BusyTimeLine SubEventBusy, bool Rigid, bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location EventLocation = null, TimeLine calendarEventRange = null, ConflictProfile conflicts = null)
         {
+            if (EventDeadline < EventStart)
+            {
+                throw new Exception("SubCalendar Event cannot have an end time earlier than the start time");
+            }
             _TimeZone = timeZone;
             _Name = name;
             _Creator = Creator;

@@ -16,10 +16,11 @@ namespace TilerElements
         public TimeSpan EvaluationSpan = new TimeSpan(7, 0, 0, 0, 0);
         public TimeLine CalculationTimeline;
         ReferenceNow Now;
-        List<SubCalendarEvent> orderedByStartThenEndSubEvents = new List<SubCalendarEvent>();
-        GoogleMapsApi.Entities.Directions.Request.TravelMode TravelMode;
+        List<SubCalendarEvent> _orderedByStartThenEndSubEvents = new List<SubCalendarEvent>();
+        GoogleMapsApi.Entities.Directions.Request.TravelMode _TravelMode;
         bool alreadyEvaluated = false;
         HealthEvaluation evaluation;
+        Location _HomeLocation;
 
         /// <summary>
         /// This ge
@@ -29,18 +30,19 @@ namespace TilerElements
         /// <param name="evaluationSpan">timespan for the range of the calculation</param>
         /// <param name="now">Reference now time to be used as the frame for evaluation</param>
         /// <param name="travelmode">The mode of travel used for evaluation</param>
-        public Health(IEnumerable<SubCalendarEvent> AllEvents, DateTimeOffset startTime, TimeSpan evaluationSpan, ReferenceNow now, TravelMode travelmode = TravelMode.Driving)
+        public Health(IEnumerable<SubCalendarEvent> AllEvents, DateTimeOffset startTime, TimeSpan evaluationSpan, ReferenceNow now, Location homeLocation, TravelMode travelmode = TravelMode.Driving)
         {
+            _HomeLocation = homeLocation ?? Location.getDefaultLocation();
             IEnumerable<SubCalendarEvent> SubEvents = AllEvents;
             CalculationTimeline = new TimeLine(startTime, startTime.Add(EvaluationSpan));
-            orderedByStartThenEndSubEvents = SubEvents.Where(SubEvent => SubEvent.RangeTimeLine.InterferringTimeLine(CalculationTimeline) != null).OrderBy(obj => obj.Start).ThenByDescending(tilerEvent => tilerEvent.End).ToList();
+            _orderedByStartThenEndSubEvents = SubEvents.Where(SubEvent => SubEvent.RangeTimeLine.InterferringTimeLine(CalculationTimeline) != null).OrderBy(obj => obj.Start).ThenByDescending(tilerEvent => tilerEvent.End).ToList();
             EvaluationSpan = evaluationSpan;
             Now = now;
-            this.TravelMode = travelmode;
+            this._TravelMode = travelmode;
         }
 
 
-        public Health(IEnumerable<CalendarEvent> AllEvents, DateTimeOffset startTime, TimeSpan evaluationSpan, ReferenceNow refNow, TravelMode travelMode = TravelMode.Driving) : this(AllEvents.SelectMany(CalEvent => CalEvent.ActiveSubEvents), startTime, evaluationSpan, refNow, travelMode)
+        public Health(IEnumerable<CalendarEvent> AllEvents, DateTimeOffset startTime, TimeSpan evaluationSpan, ReferenceNow refNow, Location homeLocation, TravelMode travelMode = TravelMode.Driving) : this(AllEvents.SelectMany(CalEvent => CalEvent.ActiveSubEvents), startTime, evaluationSpan, refNow, homeLocation, travelMode)
         {
         }
 
@@ -53,22 +55,49 @@ namespace TilerElements
             return retValue;
         }
 
-        public double evaluateTotalDistance()
+        public double evaluateTotalDistance(bool includeReturnHome = true)
         {
-            double retValue = Location.calculateDistance(orderedByStartThenEndSubEvents.Select(SubEvent => SubEvent.Location).ToList());
+            double retValue = 0;
+            
+            if (includeReturnHome)
+            {
+                int dayIndex = Now.getDayIndexComputationBound(_orderedByStartThenEndSubEvents[0].Start);
+                SubCalendarEvent previousSubCalendarEvent = _orderedByStartThenEndSubEvents[0];
+                for(int index=1; index < _orderedByStartThenEndSubEvents.Count; index++)
+                {
+                    SubCalendarEvent currentSubEvent = _orderedByStartThenEndSubEvents[index];
+                    int currentDayIndex = Now.getDayIndexComputationBound(currentSubEvent.Start);
+                    if (currentDayIndex != dayIndex)
+                    {
+                        retValue += Location.calculateDistance(previousSubCalendarEvent.Location, _HomeLocation);
+                        retValue += Location.calculateDistance(_HomeLocation, currentSubEvent.Location);
+                        dayIndex = currentDayIndex;// currentSubEvent.UniversalDayIndex;
+                    }
+                    else
+                    {
+                        retValue += Location.calculateDistance(previousSubCalendarEvent.Location, currentSubEvent.Location);
+                    }
+                    previousSubCalendarEvent = currentSubEvent;
+                }
+            }
+            else
+            {
+                retValue = Location.calculateDistance(_orderedByStartThenEndSubEvents.Select(SubEvent => SubEvent.Location).ToList());
+            }
+            
             return retValue;
         }
 
         public double evaluatePositioning()
         {
             double retValue = 0;
-            if(orderedByStartThenEndSubEvents.Count > 0)
+            if(_orderedByStartThenEndSubEvents.Count > 0)
             {
-                EventID lastId = orderedByStartThenEndSubEvents[0].SubEvent_ID;
+                EventID lastId = _orderedByStartThenEndSubEvents[0].SubEvent_ID;
                 int indexCounter = 0;
-                for (int i = 1; i < orderedByStartThenEndSubEvents.Count; i++)
+                for (int i = 1; i < _orderedByStartThenEndSubEvents.Count; i++)
                 {
-                    SubCalendarEvent SubEvent = orderedByStartThenEndSubEvents[i];
+                    SubCalendarEvent SubEvent = _orderedByStartThenEndSubEvents[i];
                     EventID iterationId = SubEvent.SubEvent_ID;
                     if (iterationId.getCalendarEventComponent() .Equals(lastId.getCalendarEventComponent()))
                     {
@@ -87,13 +116,13 @@ namespace TilerElements
 
         public List<BlobSubCalendarEvent> evaluateConflicts()
         {
-            List<BlobSubCalendarEvent> conflictingEvents = Utility.getConflictingEvents(orderedByStartThenEndSubEvents);
+            List<BlobSubCalendarEvent> conflictingEvents = Utility.getConflictingEvents(_orderedByStartThenEndSubEvents);
             return conflictingEvents;
         }
 
         Dictionary<TimeLine, TimeLine> evaluateSleepSchedule(IEnumerable<DayTimeLine> dayTimeLines)
         {
-            List<SubCalendarEvent> OrderexListOfTilerEvents = this.orderedByStartThenEndSubEvents.ToList();
+            List<SubCalendarEvent> OrderexListOfTilerEvents = this._orderedByStartThenEndSubEvents.ToList();
             List<TimeLine> daysSortedBystart = dayTimeLines.OrderBy(obj => obj.Start).Select(daytimeLine => daytimeLine.getJustTimeLine()).ToList();
             Dictionary<TimeLine, TimeLine> retValue = new Dictionary<TimeLine, TimeLine>();
             for (int i = 0; i < daysSortedBystart.Count; i++)
@@ -129,6 +158,7 @@ namespace TilerElements
             return retValue;
         }
 
+#region properties
         public Double TotalDistance
         {
             get
@@ -164,6 +194,24 @@ namespace TilerElements
                 return validTimeLines;
             }
         }
+
+        public List<SubCalendarEvent> orderedByStartThenEndSubEvents
+        {
+            get
+            {
+                return _orderedByStartThenEndSubEvents;
+            }
+        }
+
+        public TravelMode TravelMode
+        {
+            get
+            {
+                return this._TravelMode;
+            }
+        }
+#endregion
+
 
         public class HealthComparison
         {
@@ -257,147 +305,7 @@ namespace TilerElements
             }
         }
 
-        class TravelTime
-        {
-            List<SubCalendarEvent> OrderedSubEvents;
-            Dictionary<EventID, SubCalendarEvent> EventIdToSubEvent;
-            TimeLine EventSequence;
-            TravelMode TravelMode;
-            bool alreadyEvaluated = false;
 
-            /// <summary>
-            /// Dictionary holds subevent Ids to free timeline. If the Id doesnt exist then it should then a freespot greater than zero ticks was not found
-            /// </summary>
-            /// <param name="transitingIdsToFreespot"></param>
-            Dictionary<string, TimeLineWithEdgeElements> TransitingIdsToFreespot;
-            ConcurrentDictionary<string, TimeSpan> TransitingIdsToWebTravelSpan;
-            ConcurrentDictionary<string, TimeSpan> TransitingIdsToSuccess;
-            public TravelTime(IEnumerable<SubCalendarEvent> subEvents, TravelMode travelMode = TravelMode.Driving)
-            {
-                TravelMode = travelMode;
-                if (subEvents.Count()>0)
-                {
-                    OrderedSubEvents = subEvents.OrderBy(subEvent => subEvent.Start).ThenBy(subEvent => subEvent.End).ToList();
-                    EventSequence = new TimeLine(OrderedSubEvents.First().Start, OrderedSubEvents.Last().End);
-                    EventSequence.AddBusySlots(OrderedSubEvents.Select(subEvent => subEvent.ActiveSlot));
-                    EventIdToSubEvent = OrderedSubEvents.ToDictionary(subEvent => subEvent.SubEvent_ID, subEvent => subEvent);
-                    TransitingIdsToWebTravelSpan = new ConcurrentDictionary<string, TimeSpan>();
-                    TransitingIdsToSuccess = new ConcurrentDictionary<string, TimeSpan>();
-                    if (EventSequence.OccupiedSlots.Length> 1)
-                    {
-                        TransitingIdsToFreespot = new Dictionary<string, TimeLineWithEdgeElements>();
-                        TimeLineWithEdgeElements[] timeLineWithEdge = EventSequence.getAllFreeSlotsWithEdges();
-                        for(int i=0; i< timeLineWithEdge.Length; i++)
-                        {
-                            TimeLineWithEdgeElements freeSpotWithEdge = timeLineWithEdge[i];
-                            string[] ids = { freeSpotWithEdge.BeginningEventId, freeSpotWithEdge.EndingEventId };
-                            TransitingIdsToFreespot.Add(string.Join(",", ids), freeSpotWithEdge);
-                        }
-                    }
-                    
-                }
-                else
-                {
-                    OrderedSubEvents = new List<SubCalendarEvent>();
-                    EventSequence = new TimeLine();
-                    EventIdToSubEvent = new Dictionary<EventID, SubCalendarEvent>();
-                    TransitingIdsToFreespot = new Dictionary<string, TimeLineWithEdgeElements>();
-                    TransitingIdsToWebTravelSpan = new ConcurrentDictionary<string, TimeSpan>();
-                    TransitingIdsToSuccess = new ConcurrentDictionary<string, TimeSpan>();
-                } 
-            }
-
-            async public Task evaluate(bool forceReEvaluation = false)
-            {
-                if (forceReEvaluation || !alreadyEvaluated)
-                {
-                    if (EventSequence.OccupiedSlots.Length > 1)
-                    {
-                        Parallel.For(0, EventSequence.OccupiedSlots.Length - 1, (i) =>
-                        //for (int i = 0; i< EventSequence.OccupiedSlots.Length-1; i++)
-                        {
-                            int j = i + 1;
-                            SubCalendarEvent firstSubEvent = OrderedSubEvents[i];
-                            SubCalendarEvent secondSubEvent = OrderedSubEvents[j];
-                            TimeSpan travelSpan = Location.getDrivingTimeFromWeb(firstSubEvent.Location, secondSubEvent.Location, this.TravelMode);
-                            string[] ids = { firstSubEvent.getId, secondSubEvent.getId };
-                            string concatId = string.Join(",", ids);
-                            TransitingIdsToWebTravelSpan.AddOrUpdate(concatId, travelSpan, ((key, oldValue) => { return travelSpan; }));
-                            TimeSpan freeSpotSpan = new TimeSpan();
-                            if (TransitingIdsToFreespot.ContainsKey(concatId))
-                            {
-                                freeSpotSpan = TransitingIdsToFreespot[concatId].TimelineSpan;
-                            }
-                            TimeSpan differenceSpan = (freeSpotSpan - travelSpan);
-                            TransitingIdsToSuccess.AddOrUpdate(concatId, differenceSpan, ((key, oldValue) => { return differenceSpan; }));
-                        }
-                        );
-                    }
-                    alreadyEvaluated = true;
-                }
-                
-            }
-
-            public Dictionary<string, TimeSpan> result()
-            {
-                Dictionary<string, TimeSpan> retValue = TransitingIdsToSuccess.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-                return retValue;
-            }
-        }
-
-        /// <summary>
-        /// Class is simply to provide a way to hold the result of an evaluated schedule. It is not meant to be used outside this Class. 
-        /// </summary>
-        class HealthEvaluation
-        {
-            Health ScheduleHealth;
-            List<BlobSubCalendarEvent> _ConflictingEvents { get; set; }
-            double _TotalDistance { get; set; }
-            double _PositioningScore { get; set; }
-            List<TimeSpan> _SleepSchedule { get; set; }
-            TravelTime _TravelTimeAnalysis { get; set; }
-            public HealthEvaluation (Health health)
-            {
-                this.ScheduleHealth = health;
-            }
-            
-            public async Task evaluate(TimeLine timeLine)
-            {
-                this._ConflictingEvents = this.ScheduleHealth.evaluateConflicts();
-                this._TotalDistance = this.ScheduleHealth.TotalDistance;
-                this._PositioningScore = this.ScheduleHealth.evaluatePositioning();
-                this._SleepSchedule = this.ScheduleHealth.SleepTimeLines.Select(sleepTimeLine => sleepTimeLine.TimelineSpan).ToList();
-                this._TravelTimeAnalysis = new TravelTime(this.ScheduleHealth.orderedByStartThenEndSubEvents, this.ScheduleHealth.TravelMode);
-            }
-
-            
-            public List<BlobSubCalendarEvent> ConflictingEvents {
-                get {
-                    return _ConflictingEvents;
-                }
-            }
-            public double TotalDistance {
-                get {
-                    return _TotalDistance;
-                }
-            }
-            public double PositioningScore {
-                get {
-                    return _PositioningScore;
-                }
-            }
-            public List<TimeSpan> SleepSchedule {
-                get {
-                    return _SleepSchedule;
-                }
-            }
-            public TravelTime TravelTimeAnalysis {
-                get
-                {
-                    return _TravelTimeAnalysis;
-                }
-            }
-        }
-
+        
     }
 }

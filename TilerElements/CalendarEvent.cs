@@ -238,7 +238,7 @@ namespace TilerElements
             
             
             subEvent.TempChanges.allChanges.Add(subEvent);
-            calEvent.EventRepetition = new Repetition(true, timeLine, Repetition.Frequency.YEARLY, timeLine);
+            calEvent.EventRepetition = new Repetition(true, timeLine, Repetition.Frequency.YEARLY, subEvent.RangeTimeLine);
             calEvent.EventRepetition.PopulateRepetitionParameters(calEvent);
             CalendarEvent calEventCpy = calEvent.Repeat.RecurringCalendarEvents().Single();// using ssingle because this must always return a single calendarevent. Because we generated a repeat event which should only have one calendar event;
             SubCalendarEvent subEventCopy = calEventCpy.AllSubEvents.First();

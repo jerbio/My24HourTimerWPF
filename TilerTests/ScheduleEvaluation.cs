@@ -110,7 +110,7 @@ namespace TilerTests
             mySchedule = new TestSchedule(calendarEvents.Select(obj=>obj.createCopy()), user, refNow);
             mySchedule.AddToSchedule(testCalEvent);
             newStart = newStart.AddDays(1);
-            Health scheduleHealth = new Health(mySchedule.getAllCalendarEvents(), encompassingTimeline.Start, encompassingTimeline.TimelineSpan, mySchedule.Now);
+            Health scheduleHealth = new Health(mySchedule.getAllCalendarEvents(), encompassingTimeline.Start, encompassingTimeline.TimelineSpan, mySchedule.Now, mySchedule.getHomeLocation);
             
             SubCalendarEvent firstSubEvent = calendarEvents.First().ActiveSubEvents.First();
 

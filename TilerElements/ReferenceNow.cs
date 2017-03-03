@@ -139,9 +139,35 @@ namespace TilerElements
             return CalculationNow;
         }
 
+        /// <summary>
+        /// Function returns the index relative to the starting of the computation bound. Note, this does not return a universal index. If you ant a universal index then you should call getDayIndexFromStartOfTime
+        /// Also this takes into account the start of the day
+        /// </summary>
+        /// <param name="myDay"></param>
+        /// <returns></returns>
         public int getDayIndexComputationBound(DateTimeOffset myDay)
         {
-            int retValue = (int)(myDay - ComputationBound.Start).TotalDays;
+            int beginIndex = (int)(myDay - ComputationBound.Start).TotalDays;
+            //return beginIndex;
+            int retValue = 0;
+            int counter = 0;
+            bool foundDay = false;
+            for(counter =0; counter< 3;counter++)
+            {
+                beginIndex += counter;
+                if (AllDays[beginIndex].IsDateTimeWithin(myDay))
+                {
+                    retValue = beginIndex;
+                    foundDay = true;
+                }
+            }
+
+
+            if (!foundDay)
+            {
+                throw new Exception("Something isn't right, could not find a day withing the three day limit of calculation");
+            }
+
             return retValue;
         }
 
@@ -163,16 +189,6 @@ namespace TilerElements
             return retValue;
         }
 
-        /// <summary>
-        /// Function returns the index relative to the starting of the computation bound. Note, this does not return a universal index. If you ant a universal index then you should call getDayIndexFromStartOfTime
-        /// </summary>
-        /// <param name="myDay"></param>
-        /// <returns></returns>
-        virtual public ulong getDayIndexByTime(DateTimeOffset myDay)
-        {
-            ulong retValue = (ulong)((myDay - ComputationBound.Start).TotalDays);
-            return retValue;
-        }
         public DateTimeOffset constNow
         {
             get

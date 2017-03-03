@@ -80,6 +80,21 @@ namespace TilerCore
                 return _Now;
             }
         }
+
+        public Location getHomeLocation {
+            get
+            {
+                Location home = null;
+                if (Locations.ContainsKey("home"))
+                {
+                    home = Locations["home"];
+                    return home;
+                } else
+                {
+                    return Location.getDefaultLocation();
+                }
+            }
+        }
         static string stageOfProgram = "";
         int DebugCounter = 0;
 
@@ -183,7 +198,7 @@ namespace TilerCore
             await this.FindMeSomethingToDo(CurrentLocation, CurrentTimeZone).ConfigureAwait(false);
             calEvent.ReverseWhatIf(tilerChanges);
             //virtual public void ReverseWhatIf(TempTilerEventChanges toBeReverted)
-            Health scheduleHealth = new Health(getAllCalendarEvents(), Now.ComputationRange.Start, Now.ComputationRange.TimelineSpan, Now);
+            Health scheduleHealth = new Health(getAllCalendarEvents(), Now.ComputationRange.Start, Now.ComputationRange.TimelineSpan, Now, this.getHomeLocation);
             return scheduleHealth;
         }
 #endregion
@@ -2630,7 +2645,7 @@ namespace TilerCore
             //    Console.WriteLine(element.myLocation.justLongLatString());
             //}
             double distanceCovered = Location.calculateDistance(TotalActiveEvents.OrderBy(SubEvent=> SubEvent.Start).Select(SubEvent => SubEvent.Location).ToList(),0);
-            Health scheduleHealth = new Health(TotalActiveEvents, Now.calculationNow, new TimeSpan(7,0,0,0), Now);
+            Health scheduleHealth = new Health(TotalActiveEvents, Now.calculationNow, new TimeSpan(7,0,0,0), Now,this.getHomeLocation);
 
             //Console.WriteLine("Distance covered is {0}, Optimize is set to {1}\n Health Score is {2}", distanceCovered, Optimize, scheduleHealth.getScore());
             

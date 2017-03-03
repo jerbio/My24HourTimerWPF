@@ -44,7 +44,7 @@ namespace TilerTests
         }
 
         [TestMethod]
-        public async Task WhatIfMondayInsteadOfTuesday()
+        public async Task WhatIfMondayInsteadOfTuesdayLocation()
         {
             List<Location> locations = TestUtility.getLocations();
             int mondayLocationIndex = random.Next(locations.Count);
@@ -86,8 +86,68 @@ namespace TilerTests
             Health tuesdayHealth = await schedule.WhatIfDifferentDay(tuesdayStart, retrievedWednesdayEvent.ActiveSubEvents.First().SubEvent_ID).ConfigureAwait(false);
             schedule = new DB_Schedule(currentUser, refNow);
             Health mondayHealth = await schedule.WhatIfDifferentDay(wednesdayStart.AddDays(-2), retrievedWednesdayEvent.ActiveSubEvents.First().SubEvent_ID).ConfigureAwait(false);
+            HealthEvaluation mondayEvaluation = new HealthEvaluation(mondayHealth);
+            HealthEvaluation tuesdayEvaluation= new HealthEvaluation(tuesdayHealth);
+
             double mondayScore = mondayHealth.getScore();
             double tuesdayScore = tuesdayHealth.getScore();
+            
+            Assert.IsTrue(tuesdayScore < mondayScore);
+        }
+
+
+        [TestMethod]
+        public async Task WhatIfMondayInsteadOfTuesdayConflict()
+        {
+
+            // throw new Exception("Code is buggy, still thinking of how to shift the rigid event to the new day, might need to implement custom code for rigids");
+            List<Location> locations = TestUtility.getLocations();
+            int mondayLocationIndex = random.Next(locations.Count);
+            Location desiredLocation = locations[mondayLocationIndex];
+            List<CalendarEvent> mondayEvents = new List<CalendarEvent>();
+            List<CalendarEvent> tuesdayEvents = new List<CalendarEvent>();
+            TimeSpan durationOfCalEvent = TimeSpan.FromHours(1);
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            DateTimeOffset mondayStart = getNextDateForDayOfWeek(DayOfWeek.Monday, refNow);
+            DateTimeOffset tuesdayStart = mondayStart.AddDays(1);
+            DateTimeOffset mondayStartCopy = mondayStart;
+            DateTimeOffset tuesdayStartCopy = tuesdayStart;
+            int numberOfEvents = 5;
+            for (int i = 0; i < numberOfEvents; i++)
+            {
+                CalendarEvent mondayEvent = TestUtility.generateCalendarEvent(durationOfCalEvent, new Repetition(), mondayStartCopy, mondayStartCopy.AddHours(1), 1, true, desiredLocation);
+                CalendarEvent tuesdayEvent = TestUtility.generateCalendarEvent(durationOfCalEvent, new Repetition(), tuesdayStartCopy, tuesdayStartCopy.AddHours(1), 1, true, desiredLocation);
+                mondayStartCopy = mondayStartCopy.AddHours(1);
+                tuesdayStartCopy = tuesdayStartCopy.AddHours(1);
+                mondayEvents.Add(mondayEvent);
+                tuesdayEvents.Add(tuesdayEvent);
+            }
+            List<CalendarEvent> allCalendarEvents = mondayEvents.Concat(tuesdayEvents).ToList();
+            UserAccount currentUser = TestUtility.getTestUser();
+            currentUser.Login().Wait();
+            foreach (CalendarEvent calEvent in allCalendarEvents)
+            {
+                DB_Schedule eachSchedule = new DB_Schedule(currentUser, refNow);
+                eachSchedule.AddToScheduleAndCommit(calEvent).Wait();
+            }
+
+            DateTimeOffset wednesdayStart = mondayStart.AddDays(2);
+            CalendarEvent wednesdayEvent = TestUtility.generateCalendarEvent(durationOfCalEvent, new Repetition(), mondayStart, wednesdayStart.AddHours(1), 1, true, desiredLocation);
+            DB_Schedule schedule = new DB_Schedule(currentUser, refNow);
+            schedule.AddToScheduleAndCommit(wednesdayEvent).Wait();
+            schedule = new TestSchedule(currentUser, refNow);
+            CalendarEvent retrievedWednesdayEvent = schedule.getCalendarEvent(wednesdayEvent.Calendar_EventID);
+
+            schedule = new DB_Schedule(currentUser, refNow);
+            Health tuesdayHealth = await schedule.WhatIfDifferentDay(tuesdayStart, retrievedWednesdayEvent.ActiveSubEvents.First().SubEvent_ID).ConfigureAwait(false);
+            schedule = new DB_Schedule(currentUser, refNow);
+            Health mondayHealth = await schedule.WhatIfDifferentDay(wednesdayStart.AddDays(-2), retrievedWednesdayEvent.ActiveSubEvents.First().SubEvent_ID).ConfigureAwait(false);
+            HealthEvaluation mondayEvaluation = new HealthEvaluation(mondayHealth);
+            HealthEvaluation tuesdayEvaluation = new HealthEvaluation(tuesdayHealth);
+
+            double mondayScore = mondayHealth.getScore();
+            double tuesdayScore = tuesdayHealth.getScore();
+
             Assert.IsTrue(tuesdayScore < mondayScore);
         }
 

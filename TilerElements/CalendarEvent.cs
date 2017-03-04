@@ -249,6 +249,17 @@ namespace TilerElements
             calEventCpy.StartDateTime = timeLine.Start;
             calEventCpy.EndDateTime= timeLine.End;
             subEventCopy.updateCalculationEventRange(timeLine);
+            if (subEventCopy.getRigid)/// this is optimized for this use case
+            {
+                DateTimeOffset dayStart = timeLine.Start;
+                DateTimeOffset preferredStart = new DateTimeOffset(dayStart.Year, dayStart.Month, dayStart.Day, subEventCopy.Start.Hour, subEventCopy.Start.Minute, subEventCopy.Start.Second, new TimeSpan());
+                if(preferredStart < dayStart)
+                {
+                    preferredStart=preferredStart.AddDays(1);
+                }
+                subEventCopy.shiftEvent(preferredStart, true);
+            }
+            
             //calEventCpy.SubEvents.Add(subEventCopy.SubEvent_ID, subEventCopy);
             subEvent.TempChanges.allChanges.Add(subEvent);
             subEvent.TempChanges.allChanges.Add(subEventCopy);

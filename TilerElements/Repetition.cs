@@ -134,10 +134,13 @@ namespace TilerElements
                 return;
             }
 
-            
-            
-            DateTimeOffset EachRepeatCalendarStart = initializingRange.Start;//Start DateTimeOffset Object for each recurring Calendar Event
-            DateTimeOffset EachRepeatCalendarEnd = initializingRange.End > MyParentEvent.End ? MyParentEvent.End : initializingRange.End;//End DateTimeOffset Object for each recurring Calendar Event
+
+            RestrictionProfile restrictionProfile = new RestrictionProfile(initializingRange.Start, initializingRange.End - initializingRange.Start);
+            TimeLineRestricted segmentedTimeLine = new TimeLineRestricted(RepetitionRange.Start, RepetitionRange.End, restrictionProfile);
+            TimeLine firstRepeatSequenct = segmentedTimeLine.getTimeFrames().First();
+
+            DateTimeOffset EachRepeatCalendarStart = firstRepeatSequenct.Start;//Start DateTimeOffset Object for each recurring Calendar Event
+            DateTimeOffset EachRepeatCalendarEnd = firstRepeatSequenct.End;
 
             EventID MyEventCalendarID = EventID.GenerateRepeatCalendarEvent(MyParentEvent.getId);
             CalendarEvent MyRepeatCalendarEvent;
@@ -192,10 +195,12 @@ namespace TilerElements
                 return;
             }
 
+            RestrictionProfile restrictionProfile = new RestrictionProfile(initializingRange.Start, initializingRange.End - initializingRange.Start);
+            TimeLineRestricted segmentedTimeLine = new TimeLineRestricted(RepetitionRange.Start, RepetitionRange.End, restrictionProfile);
+            TimeLine firstRepeatSequenct = segmentedTimeLine.getTimeFrames().First();
 
-
-            DateTimeOffset EachRepeatCalendarStart = initializingRange.Start;//Start DateTimeOffset Object for each recurring Calendar Event
-            DateTimeOffset EachRepeatCalendarEnd = initializingRange.End > MyParentEvent.End ? MyParentEvent.End : initializingRange.End;//End DateTimeOffset Object for each recurring Calendar Event
+            DateTimeOffset EachRepeatCalendarStart = firstRepeatSequenct.Start;//Start DateTimeOffset Object for each recurring Calendar Event
+            DateTimeOffset EachRepeatCalendarEnd = firstRepeatSequenct.End;
 
             EventID MyEventCalendarID = EventID.GenerateRepeatCalendarEvent(MyParentEvent.getId);
             CalendarEventRestricted MyRepeatCalendarEvent = CalendarEventRestricted.InstantiateRepeatedCandidate(MyParentEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd,MyParentEvent.Calendar_EventID,MyParentEvent.RetrictionInfo, MyParentEvent.getActiveDuration,MyParentEvent.NumberOfSplit,MyParentEvent.myLocation,MyParentEvent.getUIParam,MyParentEvent.getRigid,MyParentEvent.getPreparation,MyParentEvent.ThirdPartyID);// MyParentEvent.Preparation, MyParentEvent.Rigid, new Repetition(), MyParentEvent.Rigid ? 1 : MyParentEvent.NumberOfSplit, MyParentEvent.myLocation, MyParentEvent.isEnabled, MyParentEvent.UIParam, MyParentEvent.Notes, MyParentEvent.isComplete);

@@ -42,7 +42,12 @@ namespace TilerTests
             DB_Schedule Schedule = new DB_Schedule(currentUser, refNow);
             currentUser.DeleteAllCalendarEvents();
         }
-
+        /// <summary>
+        /// This test runs a what if scenario on the schedule, by moving an event to a different time.
+        /// This test works by building two different schedules. Then adding a test event to be constrained to different days. 
+        /// The day with events that are clustered close to the newly event is determined to be the better day
+        /// </summary>
+        /// <returns></returns>
         [TestMethod]
         public async Task WhatIfMondayInsteadOfTuesdayLocation()
         {
@@ -79,8 +84,6 @@ namespace TilerTests
             schedule.AddToScheduleAndCommit(wednesdayEvent).Wait();
             schedule = new TestSchedule(currentUser, refNow);
             CalendarEvent retrievedWednesdayEvent = schedule.getCalendarEvent(wednesdayEvent.Calendar_EventID);
-            //DayOfWeekReason dayOfWeekReason = new DayOfWeekReason(DayOfWeek.Tuesday, refNow);
-            //retrievedWednesdayEvent.ActiveSubEvents.First().WhatIf(dayOfWeekReason);
 
             schedule = new DB_Schedule(currentUser, refNow);
             Health tuesdayHealth = await schedule.WhatIfDifferentDay(tuesdayStart, retrievedWednesdayEvent.ActiveSubEvents.First().SubEvent_ID).ConfigureAwait(false);
@@ -95,12 +98,14 @@ namespace TilerTests
             Assert.IsTrue(tuesdayScore < mondayScore);
         }
 
-
+        /// <summary>
+        /// This test runs a what if scenario on the schedule, by checking if moving the event to a different time will cause it to have an unfavorable schedule. 
+        /// This test is targeted at modifying the schedule such that there is a conflict. A conflicting schedule should be less favorable than one that doesnt conflict
+        /// </summary>
+        /// <returns></returns>
         [TestMethod]
         public async Task WhatIfMondayInsteadOfTuesdayConflict()
         {
-
-            // throw new Exception("Code is buggy, still thinking of how to shift the rigid event to the new day, might need to implement custom code for rigids");
             List<Location> locations = TestUtility.getLocations();
             int mondayLocationIndex = random.Next(locations.Count);
             Location desiredLocation = locations[mondayLocationIndex];

@@ -92,6 +92,8 @@ namespace TilerCore
         {
             AllEventDictionary = allEventDictionary;
             TilerUser = user;
+            _Now = new ReferenceNow(referenceNow, starOfDay);
+            this.Locations = locations;
         }
 
 

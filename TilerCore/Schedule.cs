@@ -316,7 +316,7 @@ namespace TilerCore
         }
 
 
-        public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> BundleChangeUpdate(string SubEventID, EventName NewName, DateTimeOffset SubeventStart, DateTimeOffset SubeventEnd, DateTimeOffset TimeLineStart, DateTimeOffset TimeLineEnd, int SplitCount)//, Time)
+        public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> BundleChangeUpdate(string SubEventID, EventName NewName, DateTimeOffset SubeventStart, DateTimeOffset SubeventEnd, DateTimeOffset TimeLineStart, DateTimeOffset TimeLineEnd, int SplitCount)
         {
             EventID myEventID = new EventID(SubEventID);
             SubCalendarEvent mySubCalEvent = getSubCalendarEvent(SubEventID);
@@ -1679,14 +1679,6 @@ namespace TilerCore
         {
             List<SubCalendarEvent>InterFerringEvents= AllSubevents.Where(obj => obj.Start < nowTime).Where(obj => obj.IsDateTimeWithin(nowTime)).ToList();
             mTuple<List<SubCalendarEvent>, DateTimeOffset> retValue = new mTuple<List<SubCalendarEvent>, DateTimeOffset>(InterFerringEvents, nowTime);
-            //if (InterFerringEvents.Count > 0)
-            //{ 
-            //     nowTime =InterFerringEvents.Max(obj => obj.End);
-            //     AllSubevents = AllSubevents.Except(InterFerringEvents).ToList();
-            //     mTuple<List<SubCalendarEvent>, DateTimeOffset> retValueUpdated = getElementsThatInterferWithNow(AllSubevents, nowTime);
-            //     retValue.Item1.AddRange(retValueUpdated.Item1);
-            //     retValue.Item2 = retValueUpdated.Item2;
-            //}
             return retValue;
         }
 

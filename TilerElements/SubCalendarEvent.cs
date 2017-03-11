@@ -366,6 +366,11 @@ namespace TilerElements
             MySubCalendarEventCopy.OptimizationFlag = this.OptimizationFlag;
             MySubCalendarEventCopy._LastReasonStartTimeChanged = this._LastReasonStartTimeChanged;
             MySubCalendarEventCopy.DaySectionPreference = this.DaySectionPreference;
+            if(this.CalculationTimeLine != null)
+            {
+                MySubCalendarEventCopy.CalculationTimeLine = this.CalculationTimeLine.CreateCopy();
+            }
+            
             return MySubCalendarEventCopy;
         }
 
@@ -934,10 +939,14 @@ namespace TilerElements
 
          }
 
-        internal void changeTimeLineRange(TimeLine newTimeLine)
-         {
-             CalendarEventRange = newTimeLine.CreateCopy();
-         }
+        internal void changeTimeLineRange(TimeLine newTimeLine, bool resetCalculationTimeLine = true)
+        {
+            CalendarEventRange = newTimeLine.CreateCopy();
+            if(resetCalculationTimeLine)
+            {
+                CalculationTimeLine = null;
+            }
+        }
 
          public void updateUnusables(ulong unwantedIndex)
          {

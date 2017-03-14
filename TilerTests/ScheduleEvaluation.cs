@@ -110,7 +110,7 @@ namespace TilerTests
             mySchedule = new TestSchedule(calendarEvents.Select(obj=>obj.createCopy()), user, refNow);
             mySchedule.AddToSchedule(testCalEvent);
             newStart = newStart.AddDays(1);
-            Health scheduleHealth = new Health(mySchedule.getAllCalendarEvents(), encompassingTimeline.Start, encompassingTimeline.TimelineSpan, mySchedule.Now);
+            Health scheduleHealth = new Health(mySchedule.getAllCalendarEvents(), encompassingTimeline.Start, encompassingTimeline.TimelineSpan, mySchedule.Now, mySchedule.getHomeLocation);
             
             SubCalendarEvent firstSubEvent = calendarEvents.First().ActiveSubEvents.First();
 
@@ -170,6 +170,7 @@ namespace TilerTests
             TestSchedule scheduleB = new TestSchedule(currentUser, refNow);
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> procrastinatioCompletion =scheduleB.ProcrastinateJustAnEvent(second.getId, TimeSpan.FromHours(10));
             scheduleB.UpdateWithDifferentSchedule(procrastinatioCompletion.Item2).ConfigureAwait(false);
+            scheduleB = new TestSchedule(currentUser, refNow);
             allCalEvents = scheduleB.getAllCalendarEvents().ToList();
             subEvents = allCalEvents.SelectMany(obj => obj.AllSubEvents).OrderBy(obj => obj.Start).ToList();
 

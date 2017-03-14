@@ -65,7 +65,7 @@ namespace TilerTests
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(duration);
             TimeLine repetitionRange = new TimeLine(start, start.AddDays(14));
-            Repetition repetition = new Repetition(true, repetitionRange, "daily", new TimeLine(start, end));
+            Repetition repetition = new Repetition(true, repetitionRange, Repetition.Frequency.DAILY, new TimeLine(start, end));
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, repetition, start, end, 1, true);
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
             CalendarEvent newlyaddedevent = Schedule.getCalendarEvent(testEvent.Calendar_EventID);

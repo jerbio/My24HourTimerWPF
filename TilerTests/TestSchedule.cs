@@ -35,7 +35,7 @@ namespace TilerTests
 
         public Health getScheduleQuality(TimeLine timeLine, ReferenceNow refNow)
         {
-            Health retValue = new Health(this.getAllCalendarEvents(), timeLine.Start, timeLine.TimelineSpan, refNow);
+            Health retValue = new Health(this.getAllCalendarEvents(), timeLine.Start, timeLine.TimelineSpan, refNow, this.getHomeLocation);
             return retValue;
         }
 

@@ -179,7 +179,6 @@ namespace My24HourTimerWPF
             string EventID = textBox9.Text;
             SubCalendarEvent MySubcal= MySchedule.getSubCalendarEvent(EventID);
             CalendarEvent myCalEvent = MySchedule.getCalendarEvent(MySubcal.SubEvent_ID.getCalendarEventID());
-
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> result =MySchedule.BundleChangeUpdate(EventID,myCalEvent.getName,MySubcal.Start,MySubcal.End,MySubcal.getCalendarEventRange.Start,EndDate,myCalEvent.NumberOfSplit);
 
             //"BundleChangeUpdate"
@@ -573,7 +572,7 @@ namespace My24HourTimerWPF
                 RepeatStart = DateTimeOffset.Parse(eventStartTime);
                 RepeatEnd = (DateTimeOffset)calendar4.SelectedDate.Value;
                 RepetitionFlag = true;
-                MyRepetition = new Repetition(RepetitionFlag, new TimeLine(RepeatStart, RepeatEnd), RepeatFrequency, new TimeLine((FullStartTime), (FullEndTime)), selectedDaysOftheweek.ToArray());
+                MyRepetition = new Repetition(RepetitionFlag, new TimeLine(RepeatStart, RepeatEnd), Utility.ParseEnum<Repetition.Frequency>(RepeatFrequency.ToUpper()), new TimeLine((FullStartTime), (FullEndTime)), selectedDaysOftheweek.ToArray());
                 //eventStartDate = RepeatStart;
                 eventEndDate = RepeatEnd;
             }
@@ -775,7 +774,7 @@ namespace My24HourTimerWPF
                 RepeatStart = DateTimeOffset.Parse(eventStartTime);
                 RepeatEnd = (DateTimeOffset)calendar4.SelectedDate.Value;
                 RepetitionFlag = true;
-                MyRepetition = new Repetition(RepetitionFlag, new TimeLine(RepeatStart, RepeatEnd), RepeatFrequency, new TimeLine((FullStartTime), (FullEndTime)), selectedDaysOftheweek.ToArray());
+                MyRepetition = new Repetition(RepetitionFlag, new TimeLine(RepeatStart, RepeatEnd), Utility.ParseEnum<Repetition.Frequency>(RepeatFrequency.ToUpper()), new TimeLine((FullStartTime), (FullEndTime)), selectedDaysOftheweek.ToArray());
                 //eventStartDate = RepeatStart;
                 eventEndDate = RepeatEnd;
             }
@@ -1367,7 +1366,7 @@ namespace My24HourTimerWPF
                     //RepeatEnd = (DateTimeOffset.UtcNow).AddDays(7);
                     RepetitionFlag = true;
                                                 //(bool EnableFlag, TimeLine RepetitionRange_Entry, string Frequency, TimeLine EventActualRange, int[] WeekDayData)
-                    MyRepetition = new Repetition(RepetitionFlag, new TimeLine(RepeatStart, RepeatEnd), RepeatFrequency, new TimeLine((FullStartTime), (FullEndTime)), selectedDaysOftheweek.ToArray());
+                    MyRepetition = new Repetition(RepetitionFlag, new TimeLine(RepeatStart, RepeatEnd), Utility.ParseEnum<Repetition.Frequency>(RepeatFrequency.ToUpper()), new TimeLine((FullStartTime), (FullEndTime)), selectedDaysOftheweek.ToArray());
 
                     //eventStartDate = RepeatStart;
                     eventEndDate = RepeatStart;
@@ -1504,9 +1503,6 @@ namespace My24HourTimerWPF
                 
                 tabItem2.IsEnabled = true;
                 datePicker1.SelectedDate = new DateTime(MySchedule.Now.calculationNow.AddDays(0).ToLocalTime().Ticks);// DateTimeOffset.UtcNow.AddDays(0);
-                //datePicker1.SelectedDate = DateTimeOffset.UtcNow.AddDays(0);
-                //datePicker1.SelectedDate = new DateTimeOffset(2013, 11, 20, 0, 0, 0);
-                //datePicker2.SelectedDate = DateTimeOffset.UtcNow.AddDays(2);
                 datePicker2.SelectedDate = DateTime.Parse("12/20/2016 4:59:00 AM +00:00");// new DateTime(MySchedule.Now.calculationNow.AddDays(1).ToLocalTime().Ticks);//new DateTimeOffset(2014, 5, 15, 0, 0, 0);
                 calendar4.SelectedDate = new DateTime(DateTimeOffset.UtcNow.AddDays(0).ToLocalTime().Ticks);
                 Random myNumber = new Random();

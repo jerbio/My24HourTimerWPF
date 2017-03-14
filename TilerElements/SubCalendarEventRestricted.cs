@@ -319,7 +319,7 @@ namespace TilerElements
         
         public override bool UpdateThis(SubCalendarEvent SubEventEntryData)
         {
-            if ((this.getId == SubEventEntryData.getId) && canExistWithinTimeLine(SubEventEntryData.getCalendarEventRange))
+            if ((this.getId == SubEventEntryData.getId) && canExistWithinTimeLine(SubEventEntryData.getCalculationRange))
             {
                 SubCalendarEventRestricted SubEventEntry = (SubCalendarEventRestricted)SubEventEntryData;
                 this.BusyFrame = SubEventEntry.ActiveSlot;

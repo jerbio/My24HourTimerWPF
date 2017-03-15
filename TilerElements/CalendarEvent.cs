@@ -29,7 +29,6 @@ namespace TilerElements
         Dictionary<ulong, DayTimeLine> CalculationLimitation;
         Dictionary<ulong, DayTimeLine> FreeDaysLimitation;
 
-
         #region Constructor
         public CalendarEvent()
         {
@@ -72,6 +71,11 @@ namespace TilerElements
             MiscData miscData, bool isEnabled, bool completeflag, NowProfile nowProfile, Procrastination procrastinationProfile, 
             Location location, TilerUser creator, TilerUserGroup otherUsers, bool userDeleted, DateTimeOffset timeOfCreation, string timeZoneOrigin)
         {
+            if (end < start)
+            {
+                throw new Exception("Calendar Event cannot have an end time earlier than the start time");
+            }
+
             this.StartDateTime = start;
             this.EndDateTime = end;
             this.Splits = split;
@@ -216,6 +220,66 @@ namespace TilerElements
             throw new NotImplementedException("Yet to implement a OtherWise functionality for subcalendar event");
         }
 
+        virtual public TempTilerEventChanges prepForWhatIfDifferentDay(TimeLine timeLine, EventID eventId)
+        {
+            CalendarEvent calEvent;
+            TempTilerEventChanges retvalue = new TempTilerEventChanges();
+            if (getIsRepeat)
+            {
+                calEvent = Repeat.getCalendarEvent(eventId.ToString());
+            } else
+            {
+                calEvent = this;
+            }
+
+            SubCalendarEvent subEvent = getSubEvent(eventId);
+            subEvent.TempChanges.allChanges.Add(subEvent);
+            //calEventCpy = calEvent.createCopy(EventID.GenerateRepeatCalendarEvent( calEvent.Calendar_EventID.ToString()));
+            
+            
+            subEvent.TempChanges.allChanges.Add(subEvent);
+            calEvent.EventRepetition = new Repetition(true, timeLine, Repetition.Frequency.YEARLY, subEvent.RangeTimeLine);
+            calEvent.EventRepetition.PopulateRepetitionParameters(calEvent);
+            CalendarEvent calEventCpy = calEvent.Repeat.RecurringCalendarEvents().Single();// using ssingle because this must always return a single calendarevent. Because we generated a repeat event which should only have one calendar event;
+            SubCalendarEvent subEventCopy = calEventCpy.AllSubEvents.First();
+            SubCalendarEvent duplicateOfOriginal = subEvent.createCopy(subEventCopy.SubEvent_ID);
+            
+            subEventCopy.UpdateThis(duplicateOfOriginal);
+            //calEventCpy.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
+            calEventCpy.StartDateTime = timeLine.Start;
+            calEventCpy.EndDateTime= timeLine.End;
+            subEventCopy.updateCalculationEventRange(timeLine);
+            if (subEventCopy.getRigid)/// this is optimized for this use case
+            {
+                DateTimeOffset dayStart = timeLine.Start;
+                DateTimeOffset preferredStart = new DateTimeOffset(dayStart.Year, dayStart.Month, dayStart.Day, subEventCopy.Start.Hour, subEventCopy.Start.Minute, subEventCopy.Start.Second, new TimeSpan());
+                if(preferredStart < dayStart)
+                {
+                    preferredStart=preferredStart.AddDays(1);
+                }
+                subEventCopy.shiftEvent(preferredStart, true);
+            }
+            
+            //calEventCpy.SubEvents.Add(subEventCopy.SubEvent_ID, subEventCopy);
+            subEvent.TempChanges.allChanges.Add(subEvent);
+            subEvent.TempChanges.allChanges.Add(subEventCopy);
+            calEvent.TempChanges.allChanges.Add(subEvent);
+            calEvent.TempChanges.allChanges.Add(subEventCopy);
+            retvalue.allChanges.Add(calEvent);
+            subEvent.disable(calEvent);
+            return retvalue;
+        }
+
+
+        virtual public void ReverseWhatIf(TempTilerEventChanges toBeReverted)
+        {
+            CalendarEvent calEvent = toBeReverted.allChanges[0] as CalendarEvent;
+            calEvent.EventRepetition = new Repetition();
+            SubCalendarEvent subEventIni = calEvent.TempChanges.allChanges[0] as SubCalendarEvent;
+            SubCalendarEvent subEventCopy = calEvent.TempChanges.allChanges[1] as SubCalendarEvent;
+            subEventIni.Enable(calEvent);
+            subEventIni.shiftEvent(subEventCopy.Start);
+        }
         #endregion
 
         /// <summary>

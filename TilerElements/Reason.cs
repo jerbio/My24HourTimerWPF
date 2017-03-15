@@ -16,6 +16,7 @@ namespace TilerElements
     [XmlInclude(typeof(DurationReason))]
     [XmlInclude(typeof(RestrictedEventReason))]
     [XmlInclude(typeof(NoReason))]
+    [XmlInclude(typeof(DayOfWeekReason))]
 
     [Serializable]
     public abstract class Reason
@@ -78,7 +79,9 @@ namespace TilerElements
             [XmlEnum(Name = "SetAsNow")]
             SetAsNow,
             [XmlEnum(Name = "RestrictedEvent")]
-            RestrictedEvent
+            RestrictedEvent,
+            [XmlEnum(Name = "DayOfWeek")]
+            DayOfWeek
         }
         protected Options _Option;
 
@@ -104,6 +107,52 @@ namespace TilerElements
     }
 
     [Serializable]
+    public class DayOfWeekReason : Reason
+    {
+        DayOfWeek WeekDay;
+        DateTimeOffset DesiredDate;
+        DateTimeOffset ReferenceTime;
+
+        protected DayOfWeekReason()
+        {
+            this._Option = Options.DayOfWeek;
+        }
+        public DayOfWeekReason(DayOfWeek dayOfWeek, DateTimeOffset referenceDate):this()
+        {
+            ReferenceTime = referenceDate;
+            WeekDay = dayOfWeek;
+            this.DesiredDate = getNextDateForDayOfWeek(dayOfWeek, referenceDate);
+        }
+
+        public SubCalendarEvent modifyEvent(SubCalendarEvent subEvent, DateTimeOffset date)
+        {
+            subEvent.shiftEvent(date, true);
+            SubCalendarEvent retValue = subEvent;
+            return retValue;
+        }
+
+        protected DateTimeOffset getNextDateForDayOfWeek(DayOfWeek dayOfeek, DateTimeOffset referenceTime)
+        {
+            DateTimeOffset retValue;
+
+            if (referenceTime.DayOfWeek != dayOfeek)
+            {
+                int dayCount = ((int)referenceTime.DayOfWeek + 7);
+                int dayDiff = dayCount - (int)dayOfeek;
+                retValue = referenceTime.AddDays(dayDiff);
+            }
+            else
+            {
+                retValue = referenceTime;
+                retValue = retValue.LocalDateTime;
+            }
+
+            return retValue;
+
+        }
+    }
+
+[Serializable]
     public class WeatherReason : Reason
     {
         public enum Bounds

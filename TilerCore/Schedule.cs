@@ -2411,7 +2411,7 @@ namespace TilerCore
 
                 Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> subEventssToTimelines = Utility.subEventToMaxSpaceAvailable(RefTimeLine, orderedByStartSubEvents);
                 List<KeyValuePair<SubCalendarEvent, mTuple<TimeLine, TimeLine>>> kvpSubEventssToTimelines = subEventssToTimelines.ToList();
-                Dictionary<SubCalendarEvent, List<double>> subEventToDimensions = kvpSubEventssToTimelines.ToDictionary(kvp => kvp.Key, kvp => getTimeLineSpaceAndTimeLineStart(RefTimeLine.Start, kvp.Value.Item1));
+                Dictionary<SubCalendarEvent, List<double>> subEventToDimensions = kvpSubEventssToTimelines.ToDictionary(kvp => kvp.Key, kvp => getTimeLineSpaceAndTimeLineStart(RefTimeLine.End, kvp.Value.Item1));
                 List<KeyValuePair<SubCalendarEvent, List<double>>> kvpSubEventToDimensions = subEventToDimensions.ToList();
                 List<double> result= Utility.multiDimensionCalculation((kvpSubEventToDimensions.Select(obj => (IList<double>)obj.Value).ToList()));
                 int maxIndex = result.MaxIndex();
@@ -2446,11 +2446,17 @@ namespace TilerCore
 
         }
 
-        
+        /// <summary>
+        /// To be used with multidimensional calculation for sleep.
+        /// We need to get the largest sleep span possible with the event with earliest possible start time
+        /// </summary>
+        /// <param name="endOfDay">The end of the day of a given time frame</param>
+        /// <param name="timeLine"></param>
+        /// <returns></returns>
         List<double> getTimeLineSpaceAndTimeLineStart(DateTimeOffset endOfDay, TimeLine timeLine)
         {
-            double span = timeLine.TimelineSpan.TotalHours;
-            double startTIme = (endOfDay - timeLine.Start).TotalHours;
+            double span = timeLine.TimelineSpan.TotalHours;// Wider the span the more likly it can allow more 'sleep-time'
+            double startTIme = (endOfDay - timeLine.Start).TotalHours;/// the larger the span the earlier the event can possibly be
             List<double> retValue = new List<double>() { span, startTIme };
             return retValue;
         }

@@ -91,6 +91,38 @@ namespace TilerTests
             Assert.IsTrue(assertValue);
         }
 
+        /// <summary>
+        /// Test creates eight one hour event and schedules them for the same day. There is enough time for an eigh hour sleep time. test will validate that it occurs
+        /// </summary>
+        [TestMethod]
+        public void sleepTestMethod3()
+        {
+            UserAccount currentUser = TestUtility.getTestUser();
+            currentUser.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            TestSchedule Schedule = new TestSchedule(currentUser, refNow);
+            ReferenceNow now = Schedule.Now;
+
+            Location location = TestUtility.getLocations()[0];
+            List<DayTimeLine> allValidDays = now.getAllDaysForCalc().ToList();
+            DayTimeLine dayForCalculaition = allValidDays[1];
+            for (int i =0; i < 8; i++)
+            {
+                Schedule = new TestSchedule(currentUser, refNow);
+                CalendarEvent newCalEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), dayForCalculaition.Start, dayForCalculaition.End, 1, false, location: location);
+                Schedule.AddToScheduleAndCommit(newCalEvent, true).Wait();
+            }
+            Schedule = new TestSchedule(currentUser, refNow);
+            List<SubCalendarEvent> allSubEvents = Schedule.getAllCalendarEvents().SelectMany(calEvent=> calEvent.AllSubEvents).OrderBy(aSubEvent => aSubEvent.Start).ToList();
+            dayForCalculaition = now.getAllDaysForCalc().ToList()[1];
+            TimeSpan atLeastSleepSpan = TimeSpan.FromHours(8);
+            SubCalendarEvent subEvent = allSubEvents.First();
+            TimeSpan sleepSpan = subEvent.Start - dayForCalculaition.Start;
+
+            bool assertValue = atLeastSleepSpan <= sleepSpan;
+            Assert.IsTrue(assertValue);
+        }
+
         [TestCleanup]
         public void eachTestCleanUp()
         {

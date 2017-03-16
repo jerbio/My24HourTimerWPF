@@ -14,5 +14,10 @@ namespace My24HourTimerWPF
         {
 
         }
+
+        internal WPF_Schedule(Dictionary<string, CalendarEvent> allEventDictionary, DateTimeOffset starOfDay, Dictionary<string, Location> locations, DateTimeOffset referenceNow, UserAccount user) : base(allEventDictionary, starOfDay, locations, referenceNow, user)
+        {
+
+        }
     }
 }

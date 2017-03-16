@@ -27,6 +27,12 @@ namespace TilerTests
             AllEventDictionary =  calendarEvents.ToDictionary(calEvent => calEvent.Calendar_EventID.getCalendarEventComponent(), calEvent => calEvent);
         }
 
+        public override Task<CustomErrors> AddToScheduleAndCommit(CalendarEvent NewEvent, bool optimizeSchedule = false)
+        {
+            return base.AddToScheduleAndCommit(NewEvent, optimizeSchedule);
+        }
+
+
         public Health getScheduleQuality(TimeLine timeLine)
         {
             Health retValue = this.getScheduleQuality(timeLine, this.Now);

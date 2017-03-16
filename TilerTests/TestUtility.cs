@@ -155,7 +155,7 @@ namespace TilerTests
                     {
                         if (validFrame.TimelineSpan >= duration)
                         {
-                            retValue.Add(validFrame);
+                            retValue.Add(timeLine);
                         }
                     }
                 }

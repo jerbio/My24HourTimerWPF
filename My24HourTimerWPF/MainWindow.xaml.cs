@@ -1487,14 +1487,14 @@ namespace My24HourTimerWPF
             currentUser.getTilerUser().EndfOfDay = DateTimeOffset.Parse("3:00am");
             await currentUser.Login();
             DateTimeOffset refNow=DateTimeOffset.UtcNow;
-            refNow = DateTimeOffset.Parse("12:12 am 1/18/2017");
+            //refNow = DateTimeOffset.Parse("12:12 am 1/18/2017");
 
             Stopwatch timer = new Stopwatch();
             timer.Start();
             Dictionary<string, CalendarEvent> allEventDictionary = currentUser.ScheduleData.getAllCalendarFromXml(new TimeLine(refNow.AddDays(-90), refNow.AddDays(90)));
             Dictionary<string, Location> LocationCache = new Dictionary<string, Location>();
 
-            MySchedule = new WPF_Schedule(allEventDictionary, currentUser.getTilerUser().EndfOfDay, LocationCache, refNow, currentUser.getTilerUser());
+            MySchedule = new WPF_Schedule(allEventDictionary, currentUser.getTilerUser().EndfOfDay, LocationCache, refNow, currentUser);
             
             if (true)
             {

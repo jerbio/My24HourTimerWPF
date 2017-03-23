@@ -15,7 +15,7 @@ namespace TilerElements
         ;
         }
 
-        public CalendarEventRestricted(EventName Name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, Location Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventID eventId, EventDisplay UiSettings = null, MiscData NoteData=null)
+        public CalendarEventRestricted(EventName Name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, Location Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventID eventId, EventDisplay UiSettings = null, MiscData NoteData=null, string timeZone = null)
         {
            _Name =  Name;
             StartDateTime = Start;
@@ -42,6 +42,7 @@ namespace TilerElements
             isRestricted = true;
             ProfileOfNow = new NowProfile();
             InstantiateSubEvents();
+            this._TimeZone = timeZone;
         }
 
 

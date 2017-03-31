@@ -294,6 +294,30 @@ namespace TilerTests
             }
         }
 
+        [TestMethod]
+        public void scheduleBalanceSleepAllocation()
+        {
+            UserAccount currentUser = TestUtility.getTestUser();
+            currentUser.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.Parse("9:00pm");
+            DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00pm");
+            TestSchedule schedule = new TestSchedule(currentUser, refNow, startOfDay);
+            DateTimeOffset startTimeOfHugeRigid = startOfDay.AddHours(10);
+            CalendarEvent bigHugeRigidEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(8), new Repetition(), startTimeOfHugeRigid, startTimeOfHugeRigid.AddHours(8));
+            schedule.AddToScheduleAndCommit(bigHugeRigidEvent).Wait();
+            schedule = new TestSchedule(currentUser, refNow, startOfDay);
+            CalendarEvent nonRigids = TestUtility.generateCalendarEvent(TimeSpan.FromHours(8), new Repetition(), startOfDay, startOfDay.AddDays(1),8);
+            schedule.AddToScheduleAndCommit(nonRigids).Wait();
+            schedule = new TestSchedule(currentUser, refNow, startOfDay);
+            Location location = TestUtility.getLocations()[0];
+            schedule.FindMeSomethingToDo(location).Wait();
+            TimeSpan eightHourSpan = TimeSpan.FromHours(8);
+            List<SubCalendarEvent> subEveents = schedule.getAllCalendarEvents().SelectMany(calEvent => calEvent.AllSubEvents).OrderBy(obj => obj.Start).ToList();
+            SubCalendarEvent subEvent = subEveents.First();
+            TimeSpan spanOfEvents = (subEvent.Start - startOfDay);
+            Assert.IsTrue(spanOfEvents >= eightHourSpan);
+        }
+
         [ClassCleanup]
         public static void cleanUpTest()
         {

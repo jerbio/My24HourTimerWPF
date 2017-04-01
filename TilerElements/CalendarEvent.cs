@@ -185,7 +185,7 @@ namespace TilerElements
             this.UiParams = MyUpdated.getUIParam;
             this.DataBlob = MyUpdated.Notes;
             this.isRestricted = MyUpdated.getIsEventRestricted;
-            this.LocationInfo = MyUpdated.myLocation;//hack you might need to make copy
+            this.LocationInfo = MyUpdated.Location;//hack you might need to make copy
             this.ProfileOfProcrastination = MyUpdated.getProcrastinationInfo;
             this.DeadlineElapsed = MyUpdated.getIsDeadlineElapsed;
             this.UserDeleted = MyUpdated.getIsUserDeleted;
@@ -1237,7 +1237,7 @@ namespace TilerElements
             RetValue.DataBlob = this.Notes;
             RetValue.Enabled = this.isEnabled;
             RetValue.isRestricted = this.getIsEventRestricted;
-            RetValue.LocationInfo = this.myLocation;//hack you might need to make copy
+            RetValue.LocationInfo = this.Location;//hack you might need to make copy
             RetValue.ProfileOfProcrastination = this.getProcrastinationInfo.CreateCopy();
             RetValue.DeadlineElapsed = this.getIsDeadlineElapsed;
             RetValue.UserDeleted = this.getIsUserDeleted;
@@ -1594,18 +1594,6 @@ namespace TilerElements
                 }
 
                 return SubEvents.Values.Where(obj=>obj!=null).ToArray();
-            }
-        }
-
-        virtual public Location myLocation
-        {
-            set
-            {
-                LocationInfo=value;
-            }
-            get
-            {
-                return LocationInfo;
             }
         }
 

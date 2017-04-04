@@ -1167,7 +1167,7 @@ namespace My24HourTimerWPF
 
         private void button6_Click(object sender, RoutedEventArgs e)
         {           
-            //MySchedule.RemoveAllCalendarEventFromLogAndCalendar();
+            MySchedule.RemoveAllCalendarEventFromLogAndCalendar();
             MySchedule.EmptyMemory();
         }
 
@@ -1178,15 +1178,15 @@ namespace My24HourTimerWPF
 
         private void button7_Click(object sender, RoutedEventArgs e)
         {
-            //MySchedule.removeAllFromOutlook();
-            //MySchedule.WriteFullScheduleToLogAndOutlook();
+            MySchedule.removeAllFromOutlook();
+            MySchedule.WriteFullScheduleToLogAndOutlook();
         }
 
 
         private void delete(object sender, RoutedEventArgs e)
         {
             string EventID = textBox9.Text;
-            MySchedule.deleteSubCalendarEventAndReadjust(EventID);
+            MySchedule.deleteSubCalendarEventAndReadjust(EventID).Wait();
         }
 
         async private void button8_Click(object sender, RoutedEventArgs e)
@@ -1484,10 +1484,10 @@ namespace My24HourTimerWPF
             TilerFront.UserAccount currentUser = await AuthorizeUser.getUserAccountDebug();
 
 
-            currentUser.getTilerUser().EndfOfDay = DateTimeOffset.Parse("3:00am");
+            currentUser.getTilerUser().EndfOfDay = DateTimeOffset.Parse("2:00am");
             await currentUser.Login();
             DateTimeOffset refNow=DateTimeOffset.UtcNow;
-            //refNow = DateTimeOffset.Parse("12:12 am 1/18/2017");
+            refNow = DateTimeOffset.Parse("4:53 am 3/25/2017");
 
             Stopwatch timer = new Stopwatch();
             timer.Start();

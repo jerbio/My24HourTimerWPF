@@ -10,6 +10,7 @@ namespace TilerElements
     {
         protected string _Name = "";
         protected string _Id = Guid.NewGuid().ToString();
+        protected Classification _claasification;
         public EventName(string name = "")
         {
             _Name = name;
@@ -35,6 +36,17 @@ namespace TilerElements
         {
             _Name = name;
         }
+
+        public virtual async Task AnalyzeName()
+        {
+            if (_claasification == null)
+            {
+                _claasification = new Classification();
+            }
+            await _claasification.InitializeClassification(this._Name);
+            return;
+        }
+
 
         public EventName createCopy(string id = null)
         {

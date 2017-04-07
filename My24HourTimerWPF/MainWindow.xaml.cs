@@ -497,13 +497,6 @@ namespace My24HourTimerWPF
             
             EventName eventName = new EventName( textBox1.Text);
             string LocationString  = textBox8.Text.Trim();
-            /*if (LocationString != "")
-            {
-                eventName += "," + LocationString;
-            }*/
-
-
-
 
             DateTimeOffset CurrentTimeOfExecution = MySchedule.Now.calculationNow;
             string eventStartTime = textBox5.Text;
@@ -1503,7 +1496,7 @@ namespace My24HourTimerWPF
                 
                 tabItem2.IsEnabled = true;
                 datePicker1.SelectedDate = new DateTime(MySchedule.Now.calculationNow.AddDays(0).ToLocalTime().Ticks);// DateTimeOffset.UtcNow.AddDays(0);
-                datePicker2.SelectedDate = DateTime.Parse("12/20/2016 4:59:00 AM +00:00");// new DateTime(MySchedule.Now.calculationNow.AddDays(1).ToLocalTime().Ticks);//new DateTimeOffset(2014, 5, 15, 0, 0, 0);
+                datePicker2.SelectedDate = new DateTime(MySchedule.Now.calculationNow.AddDays(1).ToLocalTime().Ticks);// DateTimeOffset.UtcNow.AddDays(0);
                 calendar4.SelectedDate = new DateTime(DateTimeOffset.UtcNow.AddDays(0).ToLocalTime().Ticks);
                 Random myNumber = new Random();
                 int RandomHour = myNumber.Next(0, 24);

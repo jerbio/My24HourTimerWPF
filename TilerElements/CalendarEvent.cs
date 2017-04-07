@@ -1705,16 +1705,14 @@ namespace TilerElements
                 return DataBlob;
             }
         }
-
-        /*
-        virtual public NowProfile NowProfile
+        virtual public Location myLocation
         {
             get
             {
-                return ProfileOfNow;
+                return Location;
             }
         }
-        */
+
 
         #endregion
 

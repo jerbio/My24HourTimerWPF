@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using AlchemyAPI;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
+using System.Xml;
 
 namespace TilerElements
 {
@@ -39,24 +41,21 @@ namespace TilerElements
         {
             AlchemyAPI.AlchemyAPI AlchemyObj = new AlchemyAPI.AlchemyAPI();
             AlchemyObj.SetAPIKey("c73e93af01a6cb7728a6b90887c266a8881b7665");
-            string xml = "";
+            string textTaxonomy = "";
+            string sentimentAnalysis = "";
+            XmlDocument textTaxonomyDoc = new XmlDocument();
+            XmlDocument textSetimentDoc = new XmlDocument();
             try
             {
-                xml = AlchemyObj.TextGetRankedTaxonomy(NameOfEvent);
+                textTaxonomy = AlchemyObj.TextGetRankedTaxonomy(NameOfEvent);
+                sentimentAnalysis = AlchemyObj.TextGetTextSentiment(NameOfEvent);
+                textTaxonomyDoc.LoadXml(textTaxonomy);
+                textSetimentDoc.LoadXml(sentimentAnalysis);
             }
             catch
             {
 
             }
-            if(string.IsNullOrEmpty(xml))
-            {
-
-            }
-            else
-            {
-
-            }
-            //Console.WriteLine(xml);
         }
     }
 

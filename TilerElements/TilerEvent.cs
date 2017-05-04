@@ -273,6 +273,11 @@ namespace TilerElements
         {
             return DaySectionPreference;
         }
+
+        public void evaluateDayPreference(List<OptimizedGrouping> groupings)
+        {
+
+        }
         public string getCreatorId
         {
             get

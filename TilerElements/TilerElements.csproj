@@ -109,6 +109,7 @@
     <Compile Include="CalendarEvent.cs" />
     <Compile Include="CalendarEventRestricted.cs" />
     <Compile Include="HealthEvaluation.cs" />
+    <Compile Include="OptimizedGrouping.cs" />
     <Compile Include="TempTilerEventChanges.cs" />
     <Compile Include="ThirdPartyTilerUser.cs" />
     <Compile Include="ProcrastinateCalendarEvent.cs" />

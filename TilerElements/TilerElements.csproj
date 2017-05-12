@@ -154,6 +154,7 @@
     <Compile Include="TimeLine.cs" />
     <Compile Include="TimeLineRestricted.cs" />
     <Compile Include="TimeLineWithEdgeElements.cs" />
+    <Compile Include="TimelineWithSubcalendarEvents.cs" />
     <Compile Include="TimeOfDayPreferrence.cs" />
     <Compile Include="TimeSpanWithID.cs" />
     <Compile Include="TravelTime.cs" />

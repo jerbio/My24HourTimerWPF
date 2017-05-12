@@ -294,19 +294,27 @@ namespace TilerTests
             }
         }
 
+        /// <summary>
+        /// Test tries to make sure that schedules are weighted based on the different timesections.
+        /// it tries to verify that just because there is a huge block of rigid none rigid events are NOT unusually scheduled around it. 
+        /// The test creates a huge rigid event (eight hours 8:00am - 4:00pm) that cuts from the morning time section into the afternoon section, and then creates eight 2 hour non rigids. Ideally this should result in the eight hours been spread between afternoon and evening as opposed to the morning.
+        /// The test will fail if there isn't enough sleep time(eight hours)
+        /// </summary>
         [TestMethod]
         public void scheduleBalanceSleepAllocation()
         {
+            Location defaultLocation = TestUtility.getLocations()[1];
+            Location defaultLocation0 = TestUtility.getLocations()[2];
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.Parse("9:00pm");
             DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00pm");
             TestSchedule schedule = new TestSchedule(currentUser, refNow, startOfDay);
             DateTimeOffset startTimeOfHugeRigid = startOfDay.AddHours(10);
-            CalendarEvent bigHugeRigidEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(8), new Repetition(), startTimeOfHugeRigid, startTimeOfHugeRigid.AddHours(8));
+            CalendarEvent bigHugeRigidEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(8), new Repetition(), startTimeOfHugeRigid, startTimeOfHugeRigid.AddHours(8),rigidFlags:true, location: defaultLocation0);
             schedule.AddToScheduleAndCommit(bigHugeRigidEvent).Wait();
             schedule = new TestSchedule(currentUser, refNow, startOfDay);
-            CalendarEvent nonRigids = TestUtility.generateCalendarEvent(TimeSpan.FromHours(8), new Repetition(), startOfDay, startOfDay.AddDays(1),8);
+            CalendarEvent nonRigids = TestUtility.generateCalendarEvent(TimeSpan.FromHours(8), new Repetition(), startOfDay, startOfDay.AddDays(1),8,false, defaultLocation);
             schedule.AddToScheduleAndCommit(nonRigids).Wait();
             schedule = new TestSchedule(currentUser, refNow, startOfDay);
             Location location = TestUtility.getLocations()[0];

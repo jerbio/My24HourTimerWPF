@@ -7780,59 +7780,6 @@ namespace TilerCore
 
         int LargestTimeIndex = -1;
 
-        int checkSumOfTimeEvent(List<List<SubCalendarEvent>> MySubCalEventInTimeLine)//hack for optimization
-        {
-            int Sum = 0;
-            foreach (List<SubCalendarEvent> EachTimeLineSubeventList in MySubCalEventInTimeLine)
-            {
-                Sum += EachTimeLineSubeventList.Count;
-            }
-            return Sum;
-        }
-
-        List<List<SubCalendarEvent>> SerializeListOfMatchingSubcalendarEvents(List<List<List<SubCalendarEvent>>> MyListofListOfListOfSubcalendar)
-        {
-
-            int MyCounterBreaker = 0;
-            List<List<SubCalendarEvent>> MyTotalCompilation = new System.Collections.Generic.List<System.Collections.Generic.List<SubCalendarEvent>>();
-            foreach (List<List<SubCalendarEvent>> MyListOfList in MyListofListOfListOfSubcalendar)
-            {
-
-                //++MyCounterBreaker;
-                // if (MyCounterBreaker > 200)//estimate how long it'll take to lose memory then optimize for that
-                {
-                    //break;
-                }
-                var MyHolder = MyTotalCompilation.Concat(SpreadOutList.GenerateListOfSubCalendarEvent(MyListOfList));
-                MyTotalCompilation = MyHolder.ToList();
-                //MyTotalCompilation.Add(SpreadOutList.GenerateListOfSubCalendarEvent(MyListOfList))
-            }
-
-
-
-            return MyTotalCompilation;
-        }
-
-
-
-
-
-        bool isSubCalendarEventInList(SubCalendarEvent SubCalendarEventToCheck, List<SubCalendarEvent> MyCurrentList)
-        {
-            foreach (SubCalendarEvent MySubCalendarEvent in MyCurrentList)
-            {
-                if (SubCalendarEventToCheck.getId == MySubCalendarEvent.getId)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-
-
-
-
         private CalendarEvent[] getPertinentCalendarEvents(CalendarEvent[] PossibleCalendarEvents, TimeLine VerifiableSpace)
         {
             List<CalendarEvent> MyPertinentCalendarList = new List<CalendarEvent>();
@@ -7847,32 +7794,7 @@ namespace TilerCore
             }
             return MyPertinentCalendarList.ToArray();
         }
-        /*
-        TimeLine CreateTimeLineWithSubCalendarEventsStackedNextToEachOtherWithinRestrictiveCalendarEvent(Dictionary<CalendarEvent, List<SubCalendarEvent>> DictionaryCalendarEventAndJustInterferringSubCalendar)
-        {
-            /*
-             * Name: Jerome Biotidara
-             * Description: This function is called when a timeline in which the Calendar events have subcalendar events are set to their last possible assignable position.
-             * e.g CalendarEvent1 with Time Line (12:00Am 1/1/2013 and 12:00AM 1/3/2013) and a busy time slot of 7 hours and 2 subcalendar events. 
-             * The expected final result will be SubEvent[0]=>5:00pm 1/2/2013 SubEvent[0]=>8:30pm 1/2/2013
-             * Note this is only called with a dicitionary this is because thois is supposed to be called in a case wehere we have to optimize the assignation of the subevents
-             
-            TimeLine MyTimeLine = new TimeLine();
-            List<CalendarEvent> MyDeadlineSortedListOfCalendarEvents = DictionaryCalendarEventAndJustInterferringSubCalendar.Keys.OrderBy(obj => obj.End).ToList();// QuickSortCalendarEventFunctionFromEnd(DictionaryCalendarEventAndJustInterferringSubCalendar.Keys.ToList(), 0, (DictionaryCalendarEventAndJustInterferringSubCalendar.Keys.Count - 1), (DictionaryCalendarEventAndJustInterferringSubCalendar.Keys.Count / 2));
-
-            return new TimeLine();
-        }*/
-
-
-
-
-
-
-
-
-
-
-        
+       
 
         List<List<List<SubCalendarEvent>>> BuildListMatchingTimelineAndSubCalendarEvent(List<List<TimeSpan>> ListOfSnugPossibilities, List<SubCalendarEvent> ListOfSubCalendarEvents)
         {

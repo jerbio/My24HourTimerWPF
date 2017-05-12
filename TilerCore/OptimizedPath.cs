@@ -29,11 +29,11 @@ namespace TilerCore
                 home = DefaultLocation.CreateCopy();
             }
 
-            AllGroupings.Add(TimeOfDayPreferrence.DaySection.Morning, new OptimizedGrouping(TimeOfDayPreferrence.DaySection.Morning, TotalDuration, DefaultLocation.CreateCopy()));
-            AllGroupings.Add(TimeOfDayPreferrence.DaySection.Afternoon, new OptimizedGrouping(TimeOfDayPreferrence.DaySection.Afternoon, TotalDuration, DefaultLocation.CreateCopy()));
-            AllGroupings.Add(TimeOfDayPreferrence.DaySection.Evening, new OptimizedGrouping(TimeOfDayPreferrence.DaySection.Evening, TotalDuration, DefaultLocation.CreateCopy()));
-            AllGroupings.Add(TimeOfDayPreferrence.DaySection.Sleep, new OptimizedGrouping(TimeOfDayPreferrence.DaySection.Sleep, TotalDuration, home));
-            AllGroupings.Add(TimeOfDayPreferrence.DaySection.None, new OptimizedGrouping(TimeOfDayPreferrence.DaySection.None, TotalDuration, DefaultLocation.CreateCopy()));
+            Dictionary<TimeOfDayPreferrence.DaySection, TimeLine> timeSections = TimeOfDayPreferrence.splitIntoDaySections(dayData);
+            List<TimeOfDayPreferrence.SingleTimeOfDayPreference> singleTimeOfDayPreferences = timeSections.Select(kvp => new TimeOfDayPreferrence.SingleTimeOfDayPreference(kvp.Key, new TimelineWithSubcalendarEvents(kvp.Value.Start, kvp.Value.End, null))).ToList();
+            TimeOfDayPreferrence.SingleTimeOfDayPreference sleepPreference = singleTimeOfDayPreferences.Single(obj => obj.DaySection == TimeOfDayPreferrence.DaySection.Sleep);
+            AllGroupings = singleTimeOfDayPreferences.Where(obj => obj != sleepPreference).ToDictionary(obj => obj.DaySection, obj => new OptimizedGrouping(obj, TotalDuration, DefaultLocation.CreateCopy()));
+            AllGroupings.Add(sleepPreference.DaySection, new OptimizedGrouping(sleepPreference, TotalDuration, home));
             assignRigidsToTimeGroupings(DayInfo.getSubEventsInDayTimeLine(), DayInfo);
         }
 
@@ -101,7 +101,6 @@ namespace TilerCore
                 subEventToReason = DayInfo.getSubEventsInDayTimeLine().ToDictionary(subEvent => subEvent, subEVent => new Dictionary<Reason.Options, Reason>());
                 List<SubCalendarEvent> AllSubCalendarEvents = DayInfo.getSubEventsInDayTimeLine();
                 List<SubCalendarEvent> CurrentlyValid = AllSubCalendarEvents
-                    //.Where(obj => (!obj.Rigid))
                     .Where(obj => (!obj.isOptimized)).Where(obj =>
                     {
                         var TimeOfDay = obj.getDaySection().getCurrentDayPreference();
@@ -120,10 +119,6 @@ namespace TilerCore
                             OptimizeGrouping(AllGroupings[eachIGrouping.Key], SubEventRegrouping[eachIGrouping.Key], DayInfo);
                         }
                     }
-
-
-
-                    //AllGroupings.SelectMany(obj => obj.Value.getPathStitchedSubevents());
                     OptimizedGrouping.buildStitchers(AllGroupings.Select(obj => obj.Value));
                     StitchAllGroupings();
                 }
@@ -168,7 +163,6 @@ namespace TilerCore
                 }
             }
         }
-
 
         public List<SubCalendarEvent> getSubevents()
         {
@@ -256,17 +250,6 @@ namespace TilerCore
                         if (revisedTimeLine != null)
                         {
                             disabledSubEvent.shiftEvent(revisedTimeLine.Start);
-                            //HashSet<SubCalendarEvent> allSubEvents = new HashSet<SubCalendarEvent>(subEventsReadjusted);
-                            //allSubEvents.Remove(disabledSubEvent);
-                            //List<BlobSubCalendarEvent> conflictingSubevent = Utility.getConflictingEvents(allSubEvents);
-                            //foreach (SubCalendarEvent subEvent in conflictingSubevent.SelectMany(blob => blob.getSubCalendarEventsInBlob()))
-                            //{
-                            //    allSubEvents.Remove(subEvent);
-                            //}
-
-                            //List<SubCalendarEvent> realignedSubEvents = allSubEvents.Concat(conflictingSubevent).ToList();
-                            //subEventsReadjusted = realignedSubEvents.OrderBy(obj => obj.Start).ToList();
-
                             subEventsReadjusted = ConvertInterFerringEventsToBlobAndsubEvent(subEventsReadjusted);//
                         }
                         else
@@ -283,17 +266,6 @@ namespace TilerCore
                             if (revisedTimeLine != null)
                             {
                                 disabledSubEvent.shiftEvent(revisedTimeLine.End - disabledSubEvent.getActiveDuration);
-                                //HashSet<SubCalendarEvent> allSubEvents = new HashSet<SubCalendarEvent>(subEventsReadjusted);
-                                //allSubEvents.Remove(disabledSubEvent);
-                                //List<BlobSubCalendarEvent> conflictingSubevent = Utility.getConflictingEvents(allSubEvents);
-                                //foreach (SubCalendarEvent subEvent in conflictingSubevent.SelectMany(blob => blob.getSubCalendarEventsInBlob()))
-                                //{
-                                //    allSubEvents.Remove(subEvent);
-                                //}
-
-                                //List<SubCalendarEvent> realignedSubEvents = allSubEvents.Concat(conflictingSubevent).ToList();
-                                //subEventsReadjusted = realignedSubEvents.OrderBy(obj => obj.Start).ToList();
-
                                 subEventsReadjusted = ConvertInterFerringEventsToBlobAndsubEvent(subEventsReadjusted);
                             }
                             else
@@ -313,15 +285,6 @@ namespace TilerCore
                             {
                                 TimeLine centralizedTimeLine = Utility.CentralizeYourSelfWithinRange(revisedOverlappingTImeline, disabledSubEvent.getActiveDuration);
                                 disabledSubEvent.shiftEvent(centralizedTimeLine.Start);
-                                //List<SubCalendarEvent> interferringSubEVentsEvents = subEventsReadjusted.Where(subEvent => subEvent.RangeTimeLine.doesTimeLineInterfere(centralizedTimeLine)).ToList();
-
-                                //BlobSubCalendarEvent bloberrized = new BlobSubCalendarEvent(interferringSubEVentsEvents);
-                                //int firstRemovedElement = subEventsReadjusted.IndexOf(interferringSubEVentsEvents[0]);
-                                //subEventsReadjusted.RemoveRange(firstRemovedElement, interferringSubEVentsEvents.Count);
-
-
-                                //subEventsReadjusted.Insert(firstRemovedElement, bloberrized);
-
                                 subEventsReadjusted = ConvertInterFerringEventsToBlobAndsubEvent(subEventsReadjusted);
                             }
                         }
@@ -404,8 +367,7 @@ namespace TilerCore
             fibboIndexes = new Dictionary<string, uint>();
             double sum = (double)events.Sum(obj => (obj.getDeadline - Utility.StartOfTime).TotalSeconds);
             double averageRatio = sum / events.Count();
-            long AverageTicks = TimeSpan.FromSeconds(averageRatio).Ticks; //(long)events.Average(obj => obj.Deadline.Ticks);
-            //long AverageTicks = 0; //(long)events.Average(obj => obj.Deadline.Ticks);
+            long AverageTicks = TimeSpan.FromSeconds(averageRatio).Ticks;
             DateTimeOffset latestDeadline = new DateTimeOffset(AverageTicks, new TimeSpan());
             ///deals with scenarios where the deadline is later or earlier. the earlier the higher up in hierachy.
             foreach (TilerEvent Event in events)
@@ -433,29 +395,6 @@ namespace TilerCore
             fibboIndexes = new Dictionary<string, uint>();
             long AverageDurationTicks = (long)events.Average(obj => obj.getActiveDuration.Ticks);
             ///deals with scenarios with duration. The bigger the duration the higher up it is. Hence the more the ticks the ratio is in the for loop
-            //foreach (TilerEvent Event in events)
-            //{
-            //    double durationRatio = (double)AverageDurationTicks / Event.ActiveDuration.Ticks;
-            //    List<double> parameters = dimensionsPerEvent[Event];
-
-            //    uint multiplier = 1;
-            //    uint fiboindex = 1;
-            //    string calendarID = Event.TilerID.getCalendarEventComponent();
-
-            //    if (fibboIndexes.ContainsKey(calendarID))
-            //    {
-            //        fiboindex = fibboIndexes[calendarID];
-            //        fibboIndexes[calendarID] = fiboindex + 1;
-            //        multiplier = Utility.getFibonnacciNumber(fiboindex);
-            //    }
-            //    else
-            //    {
-            //        fibboIndexes.Add(calendarID, 1);
-            //    }
-            //    durationRatio *= multiplier;
-            //    parameters.Add(durationRatio);
-            //}
-
 
             List<double> origin = new List<double>() { 0, 0 };//, 0};
 
@@ -672,8 +611,6 @@ namespace TilerCore
 
 
                 Grouping.setPathStitchedEvents(Stitched_Revised);
-                //Grouping.setPathStitchedEvents(Subevents);
-                //Grouping.updateSubEvents(Acknowledged_Revised);
             }
 
         }
@@ -915,8 +852,11 @@ namespace TilerCore
 
         ILookup<TimeOfDayPreferrence.DaySection, SubCalendarEvent> groupEvents(IEnumerable<SubCalendarEvent> SubEvents, DayTimeLine dayInfo)
         {
-            //SubEvents.AsParallel().ForAll(obj => obj.InitializeDayPreference(dayInfo));
-            ILookup<TimeOfDayPreferrence.DaySection, SubCalendarEvent> RetValue = SubEvents.ToLookup(obj => obj.getDaySection().getCurrentDayPreference(), obj => obj);
+            Dictionary<TimelineWithSubcalendarEvents, TimeOfDayPreferrence.DaySection> AllGroupingsReversed = AllGroupings.Where(kvp => kvp.Key != TimeOfDayPreferrence.DaySection.None).ToDictionary(kvp => kvp.Value.GroupAverage.TimeLine, kvp => kvp.Key);
+            List<TimelineWithSubcalendarEvents> timeLines = AllGroupings.Where(kvp => kvp.Key != TimeOfDayPreferrence.DaySection.None).Select(groupings => groupings.Value.GroupAverage.TimeLine).ToList();
+            SpreadOutInTimeLine spreadOutSubEvents = new SpreadOutInTimeLine(timeLines, SubEvents);
+            //ILookup<TimeOfDayPreferrence.DaySection, SubCalendarEvent> RetValue = SubEvents.ToLookup(obj => obj.getDaySection().getCurrentDayPreference(), obj => obj);
+            ILookup<TimeOfDayPreferrence.DaySection, SubCalendarEvent> RetValue = SubEvents.ToLookup(obj => AllGroupingsReversed[spreadOutSubEvents.evaluateTimeLineToSubEvent(obj)], obj => obj);
             return RetValue;
         }
 

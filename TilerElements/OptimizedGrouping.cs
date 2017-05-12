@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TilerElements;
 
-namespace TilerCore
+namespace TilerElements
 {
     public class OptimizedGrouping
     {
-        TimeOfDayPreferrence.SingleTimeOfDayPreference Section;
+        TimeOfDayPreferrence.DaySection Section;
         /// <summary>
         /// these events that have being verified to be able to fit within the daytimeline, after evaluating their path optimized. THis have been fully stiuck to the end.Note this is not an ordered  set;
         /// </summary>
@@ -28,7 +27,7 @@ namespace TilerCore
         TimeSpan TotalDuration;
         OptimizedAverage AverageOfStitched;
 
-        public OptimizedGrouping(TimeOfDayPreferrence.SingleTimeOfDayPreference SectionData, TimeSpan SubeventDurationSum, Location DefaultLocation)
+        public OptimizedGrouping(TimeOfDayPreferrence.DaySection SectionData, TimeSpan SubeventDurationSum, Location DefaultLocation)
         {
             Section = SectionData;
             AcknowlegdedEvents = new HashSet<SubCalendarEvent>();
@@ -36,7 +35,6 @@ namespace TilerCore
             PathStitchedSubEventsList = new List<SubCalendarEvent>();
             TotalDuration = SubeventDurationSum;
             this.DefaultLocation = DefaultLocation;
-            AverageOfStitched = new OptimizedAverage(new HashSet<SubCalendarEvent>(), SectionData.Timeline);
         }
 
 
@@ -49,7 +47,7 @@ namespace TilerCore
                 SubCalendarEvent.setAsOptimized();
             }
 
-            AverageOfStitched = new OptimizedAverage(AcknowlegdedEvents, Section.Timeline);
+            AverageOfStitched = new OptimizedAverage(AcknowlegdedEvents);
         }
 
         public void movePathStitchedToAcknowledged()
@@ -60,7 +58,7 @@ namespace TilerCore
 
         public static Dictionary<OptimizedGrouping, Location> getAverageLocation(IEnumerable<OptimizedGrouping> Groupings)
         {
-            List<OptimizedGrouping> OrderedGrouping = Groupings.OrderBy(obj => (int)obj.Section.DaySection).ToList();
+            List<OptimizedGrouping> OrderedGrouping = Groupings.OrderBy(obj => (int)obj.Section).ToList();
             Dictionary<OptimizedGrouping, Location> RetValue = OrderedGrouping.ToDictionary(obj => obj, obj => Location.AverageGPSLocation(obj.PathStitchedSubEvents.Select(obj1 => obj1.Location)));
             return RetValue;
         }
@@ -221,7 +219,7 @@ namespace TilerCore
         public void removeFromAcknwledged(SubCalendarEvent SubEvent)
         {
             AcknowlegdedEvents.Remove(SubEvent);
-            AverageOfStitched = new OptimizedAverage(AcknowlegdedEvents, Section.Timeline);
+            AverageOfStitched = new OptimizedAverage(AcknowlegdedEvents);
             PathStitchedSubEventsList.Remove(SubEvent);
         }
 
@@ -258,7 +256,7 @@ namespace TilerCore
         {
             get
             {
-                return Section.DaySection;
+                return Section;
             }
         }
 
@@ -273,15 +271,18 @@ namespace TilerCore
         public class OptimizedAverage
         {
             List<SubCalendarEvent> _SubEvents;
-            TimelineWithSubcalendarEvents timeLine;
-            TimeLine Range;// This is the beginning of the earliest subevent and subevent with the latest end time
-            public OptimizedAverage(HashSet<SubCalendarEvent> subEvents, TimeLine estimatedRange)
+            Location Location;
+            TimeSpan Duration;
+            TimeLine Range;
+            public OptimizedAverage(HashSet<SubCalendarEvent> subEvents)
             {
                 if (subEvents != null)
                 {
                     if (subEvents.Count > 0)
                     {
-                        _SubEvents = (subEvents).OrderBy(obj => obj.Start).ThenBy(obj => obj.End).ToList();
+                        _SubEvents = (subEvents).OrderBy(obj => obj.Start).ThenBy(obj => obj.End).ToList(); ;
+                        Location = Location.AverageGPSLocation(_SubEvents.Select(obj => obj.Location));
+                        Duration = TimeSpan.FromTicks((long)(_SubEvents.Average(obj => (obj.RangeSpan.Ticks))));
                         DateTimeOffset latestEnd = _SubEvents.Max(obj => obj.End);
                         DateTimeOffset earliestEnd = _SubEvents.Min(obj => obj.Start);
                         Range = new TimeLine(earliestEnd, latestEnd);
@@ -295,17 +296,14 @@ namespace TilerCore
                 {
                     nullOrEmptyListIniialization();
                 }
-
-                if (estimatedRange != null)
-                {
-                    timeLine = new TimelineWithSubcalendarEvents(estimatedRange.Start, estimatedRange.End, subEvents);
-                }
+                
             }
 
             void nullOrEmptyListIniialization()
             {
                 _SubEvents = new List<SubCalendarEvent>();
-                timeLine = new TimelineWithSubcalendarEvents();
+                Location = Location.AverageGPSLocation(_SubEvents.Select(obj => obj.Location));
+                Duration = new TimeSpan();
                 Range = new TimeLine();
             }
 
@@ -317,19 +315,19 @@ namespace TilerCore
                 }
             }
 
+            public Location AverageLocation
+            {
+                get
+                {
+                    return Location.CreateCopy();
+                }
+            }
+
             public TimeSpan AverageDuration 
             {
                 get
                 {
-                    return timeLine.TotalActiveSpan;
-                }
-            }
-
-            public TimelineWithSubcalendarEvents TimeLine
-            {
-                get
-                {
-                    return (TimelineWithSubcalendarEvents)timeLine;
+                    return Duration;
                 }
             }
 

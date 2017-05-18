@@ -1484,7 +1484,7 @@ namespace My24HourTimerWPF
             TilerFront.UserAccount currentUser = await AuthorizeUser.getUserAccountDebug();
 
 
-            currentUser.getTilerUser().EndfOfDay = DateTimeOffset.Parse("3:00am");
+            currentUser.getTilerUser().EndfOfDay = DateTimeOffset.Parse("10:00pm");
             await currentUser.Login();
             DateTimeOffset refNow=DateTimeOffset.UtcNow;
             //refNow = DateTimeOffset.Parse("12:12 am 1/18/2017");

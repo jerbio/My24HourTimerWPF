@@ -274,10 +274,59 @@ namespace TilerElements
             return DaySectionPreference;
         }
 
-        public void evaluateDayPreference(List<OptimizedGrouping> groupings)
+        public List<OptimizedGrouping> evaluateDayPreference(IList<OptimizedGrouping> groupings)
         {
-
+            Dictionary<TimelineWithSubcalendarEvents, OptimizedGrouping> TimelinesDict = groupings.ToDictionary(grouping => grouping.GroupAverage.TimeLine, grouping => grouping);
+            Dictionary<TimeOfDayPreferrence.DaySection, OptimizedGrouping> TimeOfDayToGroup = groupings.ToDictionary(grouping => grouping.DaySector, grouping => grouping);
+            List<TimelineWithSubcalendarEvents> Timelines = orderBasedOnProductivity(TimeOfDayToGroup);
+            List<IList<double>> multiDimensionalClaculation = new List<IList<double>>();
+            foreach (TimelineWithSubcalendarEvents timeline in Timelines)
+            {
+                double distance = Location.calculateDistance(timeline.averageLocation, this.Location);
+                double tickRatio = (double)this.getActiveDuration.Ticks / timeline.TotalFreeSpotAvailable.Ticks;
+                double occupancy = (double)timeline.Occupancy;
+                IList<double> dimensionsPerDay = new List<double>() { distance, tickRatio, occupancy };
+                multiDimensionalClaculation.Add(dimensionsPerDay);
+            }
+            List<double> foundIndexes = Utility.multiDimensionCalculationNormalize(multiDimensionalClaculation);
+            List<Tuple<double, OptimizedGrouping>> indexToGrouping = foundIndexes.Select((score, index) => { return new Tuple<double, OptimizedGrouping>(score, TimelinesDict[Timelines[index]]);}).OrderBy(tuple => tuple.Item1).ToList();
+            int bestIndex = foundIndexes.MinIndex();
+            List<OptimizedGrouping> retValue = indexToGrouping.Select(tuple => tuple.Item2).ToList();
+            return retValue;
         }
+
+        /// <summary>
+        /// Function tries to order the timelines in a manner that is most likely desired by a user for a user.
+        /// </summary>
+        /// <param name="timeLines"></param>
+        /// <returns></returns>
+        protected List<TimelineWithSubcalendarEvents> orderBasedOnProductivity(Dictionary<TimeOfDayPreferrence.DaySection, OptimizedGrouping> AllGroupings)
+        {
+            //TODO need to use machine learning to order the timelines right now the implemenation simple favors a morning schedule
+            List<TimeOfDayPreferrence.DaySection> daySectionsPreferredOrder = (new List<TimeOfDayPreferrence.DaySection>() { TimeOfDayPreferrence.DaySection.Morning, TimeOfDayPreferrence.DaySection.Afternoon, TimeOfDayPreferrence.DaySection.Evening, TimeOfDayPreferrence.DaySection.Sleep }).Where(section  => AllGroupings.ContainsKey( section)).ToList();
+            List<TimelineWithSubcalendarEvents> retValue = daySectionsPreferredOrder.Select(timeOfDay => AllGroupings[timeOfDay].GroupAverage.TimeLine).ToList();
+            return retValue;
+        }
+
+        public void updateDayPreference(List<OptimizedGrouping> groupings)
+        {
+            Dictionary<TimeOfDayPreferrence.DaySection, OptimizedGrouping> sectionTOGrouping = groupings.ToDictionary(group => group.DaySector, group => group);
+            List<TimeOfDayPreferrence.DaySection> daySections = DaySectionPreference.getPreferenceOrder();
+            List<OptimizedGrouping> validGroupings = new List<OptimizedGrouping>();
+            foreach(TimeOfDayPreferrence.DaySection section in daySections)
+            {
+                if (sectionTOGrouping.ContainsKey(section))
+                {
+                    validGroupings.Add(sectionTOGrouping[section]);
+                }
+            }
+            if(validGroupings.Count > 0)
+            {
+                List<OptimizedGrouping> updatedGroupingOrder = evaluateDayPreference(validGroupings);
+                DaySectionPreference.setPreferenceOrder(updatedGroupingOrder.Select(group => group.DaySector).ToList());
+            }
+        }
+
         public string getCreatorId
         {
             get

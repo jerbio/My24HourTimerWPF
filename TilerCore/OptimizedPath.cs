@@ -845,21 +845,19 @@ namespace TilerCore
             return retValue;
         }
 
-        void ResolveRejects()
-        {
-
-        }
-
         ILookup<TimeOfDayPreferrence.DaySection, SubCalendarEvent> groupEvents(IEnumerable<SubCalendarEvent> SubEvents, DayTimeLine dayInfo)
         {
-            Dictionary<TimelineWithSubcalendarEvents, TimeOfDayPreferrence.DaySection> AllGroupingsReversed = AllGroupings.Where(kvp => kvp.Key != TimeOfDayPreferrence.DaySection.None).ToDictionary(kvp => kvp.Value.GroupAverage.TimeLine, kvp => kvp.Key);
-            List<TimelineWithSubcalendarEvents> timeLines = AllGroupings.Where(kvp => kvp.Key != TimeOfDayPreferrence.DaySection.None).Select(groupings => groupings.Value.GroupAverage.TimeLine).ToList();
-            SpreadOutInTimeLine spreadOutSubEvents = new SpreadOutInTimeLine(timeLines, SubEvents);
-            //ILookup<TimeOfDayPreferrence.DaySection, SubCalendarEvent> RetValue = SubEvents.ToLookup(obj => obj.getDaySection().getCurrentDayPreference(), obj => obj);
-            ILookup<TimeOfDayPreferrence.DaySection, SubCalendarEvent> RetValue = SubEvents.ToLookup(obj => AllGroupingsReversed[spreadOutSubEvents.evaluateTimeLineToSubEvent(obj)], obj => obj);
+            foreach (SubCalendarEvent subevent in SubEvents)
+            {
+                subevent.updateDayPreference(AllGroupings.Select(group => group.Value).ToList());
+            }
+
+            //Dictionary<TimelineWithSubcalendarEvents, TimeOfDayPreferrence.DaySection> AllGroupingsReversed = AllGroupings.Where(kvp => kvp.Key != TimeOfDayPreferrence.DaySection.None).ToDictionary(kvp => kvp.Value.GroupAverage.TimeLine, kvp => kvp.Key);
+            //Dictionary<SubCalendarEvent, List<TimelineWithSubcalendarEvents>> timelinesForSubEvent = SubEvents.ToDictionary(subEvent=> subEvent, subEvent => subEvent.evaluateDayPreference() AllGroupings[subEvent.])
+            //List<TimelineWithSubcalendarEvents> timeLines = orderBasedOnProductivity(AllGroupings);
+            //SpreadOutInTimeLine spreadOutSubEvents = new SpreadOutInTimeLine(timeLines, SubEvents);
+            ILookup<TimeOfDayPreferrence.DaySection, SubCalendarEvent> RetValue = SubEvents.ToLookup(obj => obj.getDaySection().getCurrentDayPreference(), obj => obj);
             return RetValue;
         }
-
-
     }
 }

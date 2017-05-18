@@ -198,9 +198,8 @@ namespace TilerCore
                 CurrentTimeZone = "UTC";
             }
             await this.FindMeSomethingToDo(CurrentLocation, CurrentTimeZone).ConfigureAwait(false);
-            calEvent.ReverseWhatIf(tilerChanges);
-            //virtual public void ReverseWhatIf(TempTilerEventChanges toBeReverted)
             Health scheduleHealth = new Health(getAllCalendarEvents(), Now.ComputationRange.Start, Now.ComputationRange.TimelineSpan, Now, this.getHomeLocation);
+            calEvent.ReverseWhatIf(tilerChanges);
             return scheduleHealth;
         }
 #endregion

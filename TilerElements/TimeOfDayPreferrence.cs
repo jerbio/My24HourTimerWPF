@@ -8,15 +8,15 @@ namespace TilerElements
 {
     public class TimeOfDayPreferrence
     {
-        public enum DaySection { Morning, Afternoon, Evening, Sleep, None, Disabled }
+        public enum DaySection { Sleep, Morning, Afternoon, Evening, None, Disabled }
         protected DateTimeOffset tImeLineStart;
         protected TimeLine fullDayTImeLine;
         List<Tuple<int, DaySection, bool, TimeLine>> PreferenceOrder;
         List<Tuple<int, DaySection, bool, TimeLine>> DefaultOrder = new List<Tuple<int, DaySection, bool, TimeLine>>(new[] {
-                new Tuple<int, DaySection, bool, TimeLine>(1, DaySection.Morning, false, new TimeLine()),
-                new Tuple<int, DaySection, bool, TimeLine>(2, DaySection.Afternoon, false, new TimeLine()),
-                new Tuple<int, DaySection, bool, TimeLine>(3, DaySection.Evening, false, new TimeLine()),
-                new Tuple<int, DaySection, bool, TimeLine>(4, DaySection.Sleep , false, new TimeLine()),
+                new Tuple<int, DaySection, bool, TimeLine>(1, DaySection.Sleep , false, new TimeLine()),
+                new Tuple<int, DaySection, bool, TimeLine>(2, DaySection.Morning, false, new TimeLine()),
+                new Tuple<int, DaySection, bool, TimeLine>(3, DaySection.Afternoon, false, new TimeLine()),
+                new Tuple<int, DaySection, bool, TimeLine>(4, DaySection.Evening, false, new TimeLine()),
             new Tuple<int, DaySection, bool, TimeLine>(5, DaySection.None, false, new TimeLine())
             });
 
@@ -35,10 +35,10 @@ namespace TilerElements
             fullDayTImeLine = timeLine.CreateCopy();
             TimeSpan spanPerSection = TimeSpan.FromTicks(timeLine.TimelineSpan.Ticks/4);
             PreferenceOrder = new List<Tuple<int, DaySection, bool, TimeLine>>(new[] {
-                new Tuple<int, DaySection, bool, TimeLine>(1, DaySection.Morning, false, new TimeLine(timeLine.Start.Add(spanPerSection), timeLine.Start.AddTicks(2*spanPerSection.Ticks).AddTicks(-1))),
-                new Tuple<int, DaySection, bool, TimeLine>(2, DaySection.Afternoon,  false, new TimeLine(timeLine.Start.AddTicks(2*spanPerSection.Ticks), timeLine.Start.AddTicks(3*spanPerSection.Ticks).AddTicks(-1))),
-                new Tuple<int, DaySection, bool, TimeLine>(3, DaySection.Evening,false, new TimeLine(timeLine.Start.AddTicks(3*spanPerSection.Ticks), timeLine.Start.AddTicks(4*spanPerSection.Ticks).AddTicks(-1))),
-                new Tuple<int, DaySection, bool, TimeLine>(4, DaySection.Sleep , false, new TimeLine(timeLine.Start, timeLine.Start.Add(spanPerSection).AddTicks(-1))),
+                new Tuple<int, DaySection, bool, TimeLine>(1, DaySection.Sleep , false, new TimeLine(timeLine.Start, timeLine.Start.Add(spanPerSection).AddTicks(-1))),
+                new Tuple<int, DaySection, bool, TimeLine>(2, DaySection.Morning, false, new TimeLine(timeLine.Start.Add(spanPerSection), timeLine.Start.AddTicks(2*spanPerSection.Ticks).AddTicks(-1))),
+                new Tuple<int, DaySection, bool, TimeLine>(3, DaySection.Afternoon,  false, new TimeLine(timeLine.Start.AddTicks(2*spanPerSection.Ticks), timeLine.Start.AddTicks(3*spanPerSection.Ticks).AddTicks(-1))),
+                new Tuple<int, DaySection, bool, TimeLine>(4, DaySection.Evening,false, new TimeLine(timeLine.Start.AddTicks(3*spanPerSection.Ticks), timeLine.Start.AddTicks(4*spanPerSection.Ticks).AddTicks(-1))),
                 new Tuple<int, DaySection, bool, TimeLine>(5, DaySection.None, false, new TimeLine(timeLine.Start, timeLine.Start.AddDays(1).AddTicks(-1))),
             });
         }
@@ -85,6 +85,27 @@ namespace TilerElements
             {
                 return DaySection.Disabled;
             }
+        }
+
+        public List<DaySection> getPreferenceOrder()
+        {
+            List<DaySection> retValue;
+            if (PreferenceOrder.Count > 0)
+            {
+                retValue = PreferenceOrder.Select(prefOrder => prefOrder.Item2).ToList();
+            }
+            else
+            {
+                retValue = new List<DaySection>() { DaySection.Disabled };
+            }
+            return retValue;
+        }
+
+        public void setPreferenceOrder(IList<DaySection> orderedPreferences)
+        {
+            Dictionary<DaySection, Tuple<int, DaySection, bool, TimeLine>> dictOfPrefOrder = PreferenceOrder.ToDictionary(prefOder => prefOder.Item2, prefOder => prefOder);
+            List<Tuple<int, DaySection, bool, TimeLine>> newPreferenceOrder = orderedPreferences.Select(daySection => dictOfPrefOrder[daySection]).ToList();
+            PreferenceOrder = newPreferenceOrder;
         }
 
         public void setCurrentdayPreference(DaySection preferredSection)

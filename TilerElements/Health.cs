@@ -51,7 +51,7 @@ namespace TilerElements
             double totalDistance = evaluateTotalDistance();
             double positioningScore = evaluatePositioning();
             double conflictScore = evaluateConflicts().Sum(blob => blob.getSubCalendarEventsInBlob().Count());
-            double retValue = Utility.CalcuateResultant(totalDistance, positioningScore);
+            double retValue = Utility.CalcuateResultant(totalDistance, positioningScore, conflictScore);
             return retValue;
         }
 

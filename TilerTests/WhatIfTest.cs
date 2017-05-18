@@ -116,7 +116,7 @@ namespace TilerTests
             DateTimeOffset mondayStart = getNextDateForDayOfWeek(DayOfWeek.Monday, refNow);
             DateTimeOffset tuesdayStart = mondayStart.AddDays(1);
             DateTimeOffset mondayStartCopy = mondayStart;
-            DateTimeOffset tuesdayStartCopy = tuesdayStart;
+            DateTimeOffset tuesdayStartCopy = tuesdayStart.AddHours(6);
             int numberOfEvents = 5;
             for (int i = 0; i < numberOfEvents; i++)
             {

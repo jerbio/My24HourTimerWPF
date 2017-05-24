@@ -45,7 +45,7 @@ namespace TilerElements
         /// is the current object the default location, which will initially boulder co, before recalculation based on user locations
         /// </summary>
         protected bool DefaultFlag = false;
-        protected string LocationID = Guid.NewGuid().ToString();
+        protected string _Id = Guid.NewGuid().ToString();
 
         public Location()
         {
@@ -66,7 +66,7 @@ namespace TilerElements
                 bool IdParseSuccess = Guid.TryParse(Id, out validId);
                 if (IdParseSuccess)
                 {
-                    LocationID = Id;
+                    _Id = Id;
                 }
             }
         }
@@ -80,11 +80,11 @@ namespace TilerElements
             NullLocation = isNull;
             if (string.IsNullOrEmpty(ID))
             {
-                LocationID = Guid.NewGuid().ToString();
+                _Id = Guid.NewGuid().ToString();
             }
             else
             {
-                LocationID = ID;
+                _Id = ID;
             }
             DefaultFlag = isDefaultFlag;
         }
@@ -109,11 +109,11 @@ namespace TilerElements
             TaggedDescription = tag;
             if (string.IsNullOrEmpty(ID))
             {
-                LocationID = Guid.NewGuid().ToString();
+                _Id = Guid.NewGuid().ToString();
             }
             else
             {
-                LocationID = ID;
+                _Id = ID;
             }
         }
 
@@ -312,7 +312,7 @@ namespace TilerElements
             this_cpy.xValue = this.xValue;
             this_cpy.yValue = this.yValue;
             this_cpy.NullLocation = this.NullLocation;
-            this_cpy.LocationID = this.LocationID;
+            this_cpy._Id = this._Id;
             return this_cpy;
         }
 
@@ -419,6 +419,10 @@ namespace TilerElements
 
         public string Description
         {
+            set
+            {
+                TaggedDescription = value;
+            }
             get
             {
                 return TaggedDescription;
@@ -427,6 +431,10 @@ namespace TilerElements
 
         public string Address
         {
+            set
+            {
+                TaggedAddress = value;
+            }
             get
             {
                 return TaggedAddress;
@@ -435,6 +443,10 @@ namespace TilerElements
 
         public double XCoordinate
         {
+            set
+            {
+                xValue = value;
+            }
             get
             { return xValue; }
 
@@ -443,6 +455,10 @@ namespace TilerElements
 
         public double YCoordinate
         {
+            set
+            {
+                yValue = value;
+            }
             get
             {
                 return yValue;
@@ -451,6 +467,10 @@ namespace TilerElements
 
         public bool isNull
         {
+            set
+            {
+                isNull = value;
+            }
             get
             {
                 return NullLocation;
@@ -459,17 +479,25 @@ namespace TilerElements
 
         public bool isDefault
         {
+            set
+            {
+                DefaultFlag = value;
+            }
             get
             {
                 return DefaultFlag;
             }
         }
 
-        public string ID
+        public string Id
         {
             get
             {
-                return LocationID;
+                return _Id;
+            }
+            set
+            {
+                _Id = value;
             }
         }
         #endregion

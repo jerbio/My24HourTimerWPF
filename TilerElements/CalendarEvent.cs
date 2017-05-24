@@ -513,9 +513,6 @@ namespace TilerElements
                     
                 }
             }
-
-
-            UiParams.setCompleteUI(CompletionStatus);
         }
         
         /// <summary>

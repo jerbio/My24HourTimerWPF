@@ -7,12 +7,13 @@ namespace TilerElements
 {
     public struct TilerColor
     {
+        string _Id;
         int Red;
         int Blue;
         int Green;
         double Opacity;
         int ColorSelection;
-        
+
         public TilerColor(int RedColor = 255, int BlueColor = 255, int GreenColor = 255, double Opacity=1, int Selection=-1)
         {
             Red = RedColor;
@@ -121,6 +122,18 @@ namespace TilerElements
             get
             {
                 return ColorSelection;
+            }
+        }
+
+        public string Id
+        {
+            get
+            {
+                return _Id;
+            }
+            set
+            {
+                _Id = value;
             }
         }
         #endregion

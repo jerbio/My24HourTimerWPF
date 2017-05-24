@@ -896,8 +896,6 @@ namespace TilerCore
 
         public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ProcrastinateAll(TimeSpan DelaySpan, string NameOfEvent = "BLOCKED OUT", string timeZone = "UTC")
         {
-            EventDisplay ProcrastinateDisplay = new EventDisplay(true, new TilerColor(), 2);
-
             EventName blockName = new EventName(NameOfEvent);
             TilerUser user = this.User;
             ProcrastinateCalendarEvent procratinateAll = getProcrastinateAllEvent();

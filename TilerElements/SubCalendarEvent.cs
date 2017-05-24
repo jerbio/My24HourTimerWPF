@@ -243,7 +243,6 @@ namespace TilerElements
                     nonComplete(myCalendarEvent);
                 }
             }
-            UiParams.setCompleteUI(Complete);
         }
 
 

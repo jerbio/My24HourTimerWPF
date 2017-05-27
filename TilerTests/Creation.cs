@@ -75,6 +75,43 @@ namespace TilerTests
         }
 
         [TestMethod]
+        public void TestCreationOfWeekdayRepeatRigid()
+        {
+            UserAccount user = TestUtility.getTestUser();
+            user.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            Schedule = new TestSchedule(user, refNow);
+            TimeSpan duration = TimeSpan.FromHours(1);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.Add(duration);
+            TimeLine repetitionRange = new TimeLine(start, start.AddDays(14));
+            int numberOfDays = 5;
+            List<DayOfWeek> weekDays = new List<DayOfWeek>();
+            for(int index = (int)start.DayOfWeek, counter =0; counter < numberOfDays; index++, counter++)
+            {
+                int currentDayIndex = index % 7;
+                DayOfWeek dayOfWeek = (DayOfWeek)currentDayIndex;
+                weekDays.Add(dayOfWeek);
+            }
+            List<int> weekDaysAsInt = weekDays.Select(obj => (int)obj).ToList();
+            DayOfWeek startingWeekDay = start.DayOfWeek;
+            Repetition repetition = new Repetition(true, repetitionRange, Repetition.Frequency.WEEKLY, new TimeLine(start, end), weekDaysAsInt.ToArray());
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, repetition, start, end, 1, true);
+            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            CalendarEvent newlyaddedevent = Schedule.getCalendarEvent(testEvent.Calendar_EventID);
+            Assert.AreEqual(testEvent.getId, newlyaddedevent.getId);
+            CalendarEvent newlyaddedevent0 = Schedule.getCalendarEvent(newlyaddedevent.ActiveSubEvents.First().SubEvent_ID.getIDUpToRepeatCalendarEvent());
+            List<SubCalendarEvent> subEvents = newlyaddedevent0.AllSubEvents.OrderBy(subEvent => subEvent.Start).ToList();
+            for(int index = 0; index < subEvents.Count; index++)
+            {
+                int currentDayIndex = index % weekDays.Count;
+                DayOfWeek dayOfWeek = weekDays[currentDayIndex];
+                Assert.AreEqual(subEvents[index].Start.DayOfWeek, dayOfWeek);
+            }
+            Assert.AreEqual(newlyaddedevent.Calendar_EventID.getCalendarEventComponent(), newlyaddedevent0.Calendar_EventID.getCalendarEventComponent());
+        }
+
+        [TestMethod]
         public void testPersistedCalendarEvent()
         {
             UserAccount user = TestUtility.getTestUser();

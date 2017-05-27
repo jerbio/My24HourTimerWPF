@@ -238,7 +238,7 @@ namespace TilerTests
 
             foreach (DayTimeLine daytimeLine in daytimeLines)
             {
-                int numberOfSubevent = daytimeLine.getSubEventsInDayTimeLine().Count;
+                int numberOfSubevent = daytimeLine.getSubEventsInTimeLine().Count;
                 Assert.AreEqual(numberOfSubevent, numberOfSubeventPerCalendarEvent);//This is known to fail
             }
         }
@@ -289,7 +289,7 @@ namespace TilerTests
 
             foreach (DayTimeLine daytimeLine in daytimeLines)
             {
-                int numberOfSubevent = daytimeLine.getSubEventsInDayTimeLine().Count;
+                int numberOfSubevent = daytimeLine.getSubEventsInTimeLine().Count;
                 Assert.AreEqual(numberOfSubevent, numberOfSubeventPerCalendarEvent);
             }
         }

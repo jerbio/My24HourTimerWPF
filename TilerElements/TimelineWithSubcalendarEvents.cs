@@ -93,7 +93,7 @@ namespace TilerElements
             _averageLocation = Location.AverageGPSLocation(AllocatedSubEvents.Values.Select(subEvent => subEvent.Location));
         }
 
-        public virtual List<SubCalendarEvent> getSubEventsInDayTimeLine()
+        public virtual List<SubCalendarEvent> getSubEventsInTimeLine()
         {
             List<SubCalendarEvent> retValue = AllocatedSubEvents.Values.ToList();
             return retValue;

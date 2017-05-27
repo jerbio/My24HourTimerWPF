@@ -459,7 +459,7 @@ namespace TilerCore
         public List<SubCalendarEvent> getSubweventsForDay(DateTimeOffset time)
         {
             DayTimeLine daytimeLine = Now.getDayTimeLineByTime(time);
-            List<SubCalendarEvent> retValue = daytimeLine.getSubEventsInDayTimeLine();
+            List<SubCalendarEvent> retValue = daytimeLine.getSubEventsInTimeLine();
             return retValue;
         }
 
@@ -2374,12 +2374,12 @@ namespace TilerCore
             }
             foreach (DayTimeLine EachDay in AllDayTimeLine)
             {
-                HashSet<string> ids = new HashSet<string>(EachDay.getSubEventsInDayTimeLine().Select(subEvent => subEvent.getId));
+                HashSet<string> ids = new HashSet<string>(EachDay.getSubEventsInTimeLine().Select(subEvent => subEvent.getId));
                 OptimizedPath dayPath = new OptimizedPath(EachDay, home);
                 dayToOPtimization.AddOrUpdate(EachDay, dayPath, ((key, oldValue) => { return dayPath; }));
                 dayPath.OptimizePath();
                 optimizeDay(EachDay, dayPath.getSubevents());
-                List<SubCalendarEvent> optimizedForDay = EachDay.getSubEventsInDayTimeLine().OrderBy(obj => obj.Start).ToList();
+                List<SubCalendarEvent> optimizedForDay = EachDay.getSubEventsInTimeLine().OrderBy(obj => obj.Start).ToList();
                 
 
             }
@@ -2726,7 +2726,7 @@ namespace TilerCore
         List<SubCalendarEvent> processTwentyFourHours(DayTimeLine myDayTimeLine, List<SubCalendarEvent> AllSubEvents)//,List<BusyTimeLine>BusySlots)
         {
             ++CountCall;
-            List<SubCalendarEvent> AllreadyAssigned = myDayTimeLine.getSubEventsInDayTimeLine();
+            List<SubCalendarEvent> AllreadyAssigned = myDayTimeLine.getSubEventsInTimeLine();
             List<SubCalendarEvent> AllRigids = AllSubEvents.Concat(AllreadyAssigned).Where(obj => obj.getRigid).ToList();
             
             List<SubCalendarEvent> Movables = AllSubEvents.Except(AllRigids ).ToList();
@@ -2734,7 +2734,7 @@ namespace TilerCore
             {
                 return AllRigids;
             }
-            Location AvgLocation = Location.AverageGPSLocation((AllRigids.Concat(myDayTimeLine.getSubEventsInDayTimeLine())).Select(obj => obj.Location));
+            Location AvgLocation = Location.AverageGPSLocation((AllRigids.Concat(myDayTimeLine.getSubEventsInTimeLine())).Select(obj => obj.Location));
             SubCalendarEvent.resetScores(AllSubEvents);
             /*
             TimeLine timeLineForCalc = new TimeLine(myDayTimeLine.Start, myDayTimeLine.End);
@@ -2767,7 +2767,7 @@ namespace TilerCore
             Movables = Movables.Except(Reassigned).ToList();
             myDayTimeLine.AddToSubEventList(Reassigned);
 
-            HashSet<SubCalendarEvent> ReassignedHashDayTime = new HashSet<SubCalendarEvent>(myDayTimeLine.getSubEventsInDayTimeLine());
+            HashSet<SubCalendarEvent> ReassignedHashDayTime = new HashSet<SubCalendarEvent>(myDayTimeLine.getSubEventsInTimeLine());
             HashSet<SubCalendarEvent> diff = new HashSet<SubCalendarEvent>(ReassignedHashDayTime.Except(ReassignedHash));
             SubCalendarEvent.updateDayIndex(myDayTimeLine.UniversalIndex, Reassigned.Concat(AllRigids));
             return Reassigned;

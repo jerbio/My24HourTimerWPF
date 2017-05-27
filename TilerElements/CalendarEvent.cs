@@ -238,7 +238,10 @@ namespace TilerElements
             
             
             subEvent.TempChanges.allChanges.Add(subEvent);
-            calEvent.EventRepetition = new Repetition(true, timeLine, Repetition.Frequency.YEARLY, subEvent.RangeTimeLine);
+            TimeLine subEventActiveTime = subEvent.RangeTimeLine;
+            TimeSpan dayDiffSpan = timeLine.Start.Date - subEventActiveTime.Start.Date;
+            TimeLine subEvenRangeReadjustedToexpectedTimeLine = new TimeLine(subEventActiveTime.Start.Add(dayDiffSpan), subEventActiveTime.End.Add(dayDiffSpan));
+            calEvent.EventRepetition = new Repetition(true, timeLine, Repetition.Frequency.YEARLY, subEvenRangeReadjustedToexpectedTimeLine);
             calEvent.EventRepetition.PopulateRepetitionParameters(calEvent);
             CalendarEvent calEventCpy = calEvent.Repeat.RecurringCalendarEvents().Single();// using ssingle because this must always return a single calendarevent. Because we generated a repeat event which should only have one calendar event;
             SubCalendarEvent subEventCopy = calEventCpy.AllSubEvents.First();
@@ -278,7 +281,7 @@ namespace TilerElements
             SubCalendarEvent subEventIni = calEvent.TempChanges.allChanges[0] as SubCalendarEvent;
             SubCalendarEvent subEventCopy = calEvent.TempChanges.allChanges[1] as SubCalendarEvent;
             subEventIni.Enable(calEvent);
-            subEventIni.shiftEvent(subEventCopy.Start);
+            //subEventIni.shiftEvent(subEventCopy.Start);
         }
         #endregion
 
@@ -1161,7 +1164,7 @@ namespace TilerElements
                 AllFreeDayTIme.AsParallel().ForAll(obj => { obj.updateOccupancyOfTimeLine(); });
             }
 
-            List<DayTimeLine> retValue = AllFreeDayTIme.Where(obj => obj.TotalFreeSpace > _AverageTimePerSplit).ToList();
+            List<DayTimeLine> retValue = AllFreeDayTIme.Where(obj => obj.TotalFreeSpotAvailable > _AverageTimePerSplit).ToList();
             return retValue;
         }
 
@@ -1187,7 +1190,7 @@ namespace TilerElements
                 AllFreeDayTIme.AsParallel().ForAll(obj => { obj.updateOccupancyOfTimeLine(); });
             }
 
-            List<DayTimeLine> retValue = AllFreeDayTIme.Where(obj => obj.TotalFreeSpace > _AverageTimePerSplit).ToList();
+            List<DayTimeLine> retValue = AllFreeDayTIme.Where(obj => obj.TotalFreeSpotAvailable > _AverageTimePerSplit).ToList();
             return retValue;
         }
 
@@ -1384,7 +1387,7 @@ namespace TilerElements
 
         public void removeDayTimeLinesWithInsufficientSpace()
         {
-            List<DayTimeLine> DaysWithInSufficientSpace=CalculationLimitation.Values.Where(obj => obj.TotalFreeSpace < _AverageTimePerSplit).ToList();
+            List<DayTimeLine> DaysWithInSufficientSpace=CalculationLimitation.Values.Where(obj => obj.TotalFreeSpotAvailable < _AverageTimePerSplit).ToList();
             DaysWithInSufficientSpace.ForEach(obj => CalculationLimitation.Remove(obj.UniversalIndex));
             DaysWithInSufficientSpace.ForEach(obj => FreeDaysLimitation.Remove(obj.UniversalIndex));
 

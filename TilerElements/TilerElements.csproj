@@ -109,6 +109,7 @@
     <Compile Include="CalendarEvent.cs" />
     <Compile Include="CalendarEventRestricted.cs" />
     <Compile Include="HealthEvaluation.cs" />
+    <Compile Include="OptimizedGrouping.cs" />
     <Compile Include="TempTilerEventChanges.cs" />
     <Compile Include="ThirdPartyTilerUser.cs" />
     <Compile Include="ProcrastinateCalendarEvent.cs" />
@@ -153,6 +154,7 @@
     <Compile Include="TimeLine.cs" />
     <Compile Include="TimeLineRestricted.cs" />
     <Compile Include="TimeLineWithEdgeElements.cs" />
+    <Compile Include="TimelineWithSubcalendarEvents.cs" />
     <Compile Include="TimeOfDayPreferrence.cs" />
     <Compile Include="TimeSpanWithID.cs" />
     <Compile Include="TravelTime.cs" />

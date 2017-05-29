@@ -1472,10 +1472,6 @@ namespace My24HourTimerWPF
 
         private async void LogInToWagtap()
         {
-            //string LogLocation = "";
-            //LogLocation = @"C:\Users\OluJerome\Documents\Visual Studio 2010\Projects\LearnCuDAVS2010\LearnCUDAConsoleApplication\WagTapCalLogs\";
-            //Tiler.LogControl.UpdateLogLocation(LogLocation);
-            
             //WebApp.Start<Startup>("http://localhost:9000");
 
             TilerFront.Models.LoginViewModel myLogin = new TilerFront.Models.LoginViewModel() { Username = UserNameTextBox.Text, Password = PasswordTextBox.Text, RememberMe = true };

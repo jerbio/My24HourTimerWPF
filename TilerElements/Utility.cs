@@ -141,7 +141,6 @@ namespace TilerElements
                 }
             }
             List<double> retValue = summingArray.Select(obj => obj / collection.Count).ToList();
-
             return retValue;
         }
 

@@ -29,6 +29,10 @@ namespace TilerElements
             CopyTimeLine.OccupancyOfTImeLine = this.OccupancyOfTImeLine;
             return CopyTimeLine;
         }
+        public override void updateOccupancyOfTimeLine()
+        {
+            base.updateOccupancyOfTimeLine();
+        }
         #endregion
 
         #region Properties

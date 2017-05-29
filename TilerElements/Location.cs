@@ -245,7 +245,7 @@ namespace TilerElements
         {
             //note .... this function does not take into consideration the calendar event. So if there are two locations of the same calendarevent they will get scheduled right next to each other
             double maxDividedByTwo = MaxLongitude;
-            if ((Location24A.xValue >= 180) || (Location24B.xValue > 180) || (Location24A.isNull) || (Location24B.isNull))// || (Location24A.isDefault) || (Location24B.isDefault))
+            if ((Location24A.xValue >= 180) || (Location24B.xValue > 180) || (Location24A.isNull) || (Location24B.isNull) || (Location24A.isDefault) || (Location24B.isDefault))
             {
                 return Worst;
             }

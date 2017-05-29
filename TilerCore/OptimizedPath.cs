@@ -852,10 +852,6 @@ namespace TilerCore
                 subevent.updateDayPreference(AllGroupings.Select(group => group.Value).ToList());
             }
 
-            //Dictionary<TimelineWithSubcalendarEvents, TimeOfDayPreferrence.DaySection> AllGroupingsReversed = AllGroupings.Where(kvp => kvp.Key != TimeOfDayPreferrence.DaySection.None).ToDictionary(kvp => kvp.Value.GroupAverage.TimeLine, kvp => kvp.Key);
-            //Dictionary<SubCalendarEvent, List<TimelineWithSubcalendarEvents>> timelinesForSubEvent = SubEvents.ToDictionary(subEvent=> subEvent, subEvent => subEvent.evaluateDayPreference() AllGroupings[subEvent.])
-            //List<TimelineWithSubcalendarEvents> timeLines = orderBasedOnProductivity(AllGroupings);
-            //SpreadOutInTimeLine spreadOutSubEvents = new SpreadOutInTimeLine(timeLines, SubEvents);
             ILookup<TimeOfDayPreferrence.DaySection, SubCalendarEvent> RetValue = SubEvents.ToLookup(obj => obj.getDaySection().getCurrentDayPreference(), obj => obj);
             return RetValue;
         }

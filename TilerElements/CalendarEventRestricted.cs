@@ -251,6 +251,15 @@ namespace TilerElements
             throw new Exception("Invalid Calendar ID used in Update Calendar Event");
         }
 
-
+        public override List<TimeLine> getInterferringWithTimeLine(TimeLine timeLine)
+        {
+            List<TimeLine> nonPartialFrames = ProfileOfRestriction.getAllNonPartialTimeFrames(timeLine);
+            TimeLine earliestFrame = ProfileOfRestriction.getEarliestActiveFrameAfterBeginning(timeLine);
+            TimeLine latestFrame = ProfileOfRestriction.getLatestActiveTimeFrameBeforeEnd(timeLine);
+            nonPartialFrames = nonPartialFrames.Where(objTimeLine => objTimeLine.Start != earliestFrame.Start && objTimeLine.End != latestFrame.End ).ToList();
+            nonPartialFrames.Insert(0, earliestFrame);
+            nonPartialFrames.Add(latestFrame);
+            return nonPartialFrames;
+        }
     }
 }

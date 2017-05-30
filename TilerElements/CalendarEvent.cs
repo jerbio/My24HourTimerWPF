@@ -835,7 +835,7 @@ namespace TilerElements
                     List<TimeLine> interferringTImeLines = getInterferringWithTimeLine(timeline);
                     TimeSpan totalInterferringSpan = TimeSpan.FromTicks(interferringTImeLines.Sum(objTimeLine => objTimeLine.TimelineSpan.Ticks));
                     double distance = Location.calculateDistance(timeline.averageLocation, this.Location, 0);
-                    double tickRatio = (double)this.getActiveDuration.Ticks / timeline.TotalFreeSpotAvailable.Ticks;
+                    double tickRatio = (double)this.getActiveDuration.Ticks / totalInterferringSpan.Ticks;
                     double occupancy = (double)timeline.Occupancy;
                     double availableSpanRatio = (double)totalInterferringSpan.Ticks / totalAvailableSpan.Ticks;
                     IList<double> dimensionsPerDay = new List<double>() { distance, tickRatio, occupancy };

@@ -2581,7 +2581,7 @@ namespace TilerCore
 
                         if (DaysToUse.Count > 0)
                         {
-                            List<Tuple<ulong, SubCalendarEvent>> AllEvents = EvaluateEachDayIndexForEvent(UndesignatedEvents, DaysToUse);
+                            List<Tuple<ulong, SubCalendarEvent>> AllEvents = EvaluateEachDayIndexForEvent(UndesignatedEvents, DaysToUse, eachCal);
                             Parallel.ForEach(AllEvents, eachTuple =>
                             {
                                 BagPerDay[(int)(eachTuple.Item1 - DayIndex)].Add(eachTuple.Item2);
@@ -2827,7 +2827,7 @@ namespace TilerCore
         /// <param name="AllSubEvents"></param>
         /// <param name="AllDays"></param>
         /// <returns></returns>
-        List<Tuple<ulong,SubCalendarEvent>>EvaluateEachDayIndexForEvent(List<SubCalendarEvent> AllSubEvents, List<DayTimeLine>AllDays )
+        List<Tuple<ulong,SubCalendarEvent>>EvaluateEachDayIndexForEvent(List<SubCalendarEvent> AllSubEvents, List<DayTimeLine>AllDays, CalendarEvent calEvent)
         {
             
             List<Tuple<ulong,SubCalendarEvent>> retValue = new List<Tuple<ulong,SubCalendarEvent>>();
@@ -2837,8 +2837,6 @@ namespace TilerCore
                 ulong PreferrdDayIndex = ReferenceNow.getDayIndexFromStartOfTime(procrastinationProfile.PreferredStartTime);
 
                 List<mTuple<bool, DayTimeLine>> OptimizedDayTimeLine = AllDays.Select(obj => new mTuple<bool, DayTimeLine>(((long)(obj.UniversalIndex - PreferrdDayIndex) >= 0), obj)).ToList();//this line orders Daytimeline by  if they are after the procrastination day.
-
-                CalendarEvent calEvent = getCalendarEvent(AllSubEvents.First().SubEvent_ID.getCalendarEventComponent());
                 List<double> timeLineScores = calEvent.EvaluateTimeLines(OptimizedDayTimeLine.Select(timeLine => (TimelineWithSubcalendarEvents)timeLine.Item2).ToList());
                 List<Tuple<int, double, DayTimeLine>> dayIndexToTImeLinw = timeLineScores.Select((score, index) => { return new Tuple<int, double, DayTimeLine>(index, score, OptimizedDayTimeLine[index].Item2); }).ToList();
 

@@ -22,8 +22,8 @@ namespace TilerCore
         {
             initializeSubEvents(dayData);
 
-            TimeSpan TotalDuration = SubCalendarEvent.TotalActiveDuration(dayData.getSubEventsInDayTimeLine());
-            DefaultLocation = Location.AverageGPSLocation(DayInfo.getSubEventsInDayTimeLine().Select(obj => obj.Location), false);
+            TimeSpan TotalDuration = SubCalendarEvent.TotalActiveDuration(dayData.getSubEventsInTimeLine());
+            DefaultLocation = Location.AverageGPSLocation(DayInfo.getSubEventsInTimeLine().Select(obj => obj.Location), false);
             if (home == null)
             {
                 home = DefaultLocation.CreateCopy();
@@ -34,18 +34,18 @@ namespace TilerCore
             TimeOfDayPreferrence.SingleTimeOfDayPreference sleepPreference = singleTimeOfDayPreferences.Single(obj => obj.DaySection == TimeOfDayPreferrence.DaySection.Sleep);
             AllGroupings = singleTimeOfDayPreferences.Where(obj => obj != sleepPreference).ToDictionary(obj => obj.DaySection, obj => new OptimizedGrouping(obj, TotalDuration, DefaultLocation.CreateCopy()));
             AllGroupings.Add(sleepPreference.DaySection, new OptimizedGrouping(sleepPreference, TotalDuration, home));
-            assignRigidsToTimeGroupings(DayInfo.getSubEventsInDayTimeLine(), DayInfo);
+            assignRigidsToTimeGroupings(DayInfo.getSubEventsInTimeLine(), DayInfo);
         }
 
         void initializeSubEvents(DayTimeLine DayData)
         {
-            List<SubCalendarEvent> subEventsForCalculation = DayData.getSubEventsInDayTimeLine();
+            List<SubCalendarEvent> subEventsForCalculation = DayData.getSubEventsInTimeLine();
 
-            List<SubCalendarEvent> subEventsThatCannotExist = DayData.getSubEventsInDayTimeLine().Where(subEvent => !subEvent.canExistWithinTimeLine(DayData)).ToList();
+            List<SubCalendarEvent> subEventsThatCannotExist = DayData.getSubEventsInTimeLine().Where(subEvent => !subEvent.canExistWithinTimeLine(DayData)).ToList();
             if (subEventsThatCannotExist.Count > 0)
             {
                 Dictionary<SubCalendarEvent, TimeLine> subEventToViableTimeLine = subEventsThatCannotExist.ToDictionary(SubEvent => SubEvent, SubEvent => DayData.InterferringTimeLine(SubEvent.RangeTimeLine));
-                HashSet<SubCalendarEvent> allSubEvents = new HashSet<SubCalendarEvent>(DayData.getSubEventsInDayTimeLine());
+                HashSet<SubCalendarEvent> allSubEvents = new HashSet<SubCalendarEvent>(DayData.getSubEventsInTimeLine());
                 HashSet<SubCalendarEvent> tempSubEvents = new HashSet<SubCalendarEvent>();
                 foreach (SubCalendarEvent subEvent in subEventToViableTimeLine.Keys)
                 {
@@ -90,7 +90,7 @@ namespace TilerCore
 
         public void OptimizePath()
         {
-            foreach (SubCalendarEvent subEvent in DayInfo.getSubEventsInDayTimeLine())
+            foreach (SubCalendarEvent subEvent in DayInfo.getSubEventsInTimeLine())
             {
                 subEvent.InitializeDayPreference(DayInfo);
                 subEvent_Dict_To_DaySecion.Add(subEvent, new Dictionary<TimeOfDayPreferrence.DaySection, Dictionary<int, HashSet<int>>>());
@@ -98,8 +98,8 @@ namespace TilerCore
 
             while (true)
             {
-                subEventToReason = DayInfo.getSubEventsInDayTimeLine().ToDictionary(subEvent => subEvent, subEVent => new Dictionary<Reason.Options, Reason>());
-                List<SubCalendarEvent> AllSubCalendarEvents = DayInfo.getSubEventsInDayTimeLine();
+                subEventToReason = DayInfo.getSubEventsInTimeLine().ToDictionary(subEvent => subEvent, subEVent => new Dictionary<Reason.Options, Reason>());
+                List<SubCalendarEvent> AllSubCalendarEvents = DayInfo.getSubEventsInTimeLine();
                 List<SubCalendarEvent> CurrentlyValid = AllSubCalendarEvents
                     .Where(obj => (!obj.isOptimized)).Where(obj =>
                     {
@@ -140,10 +140,10 @@ namespace TilerCore
 
         void optimizeDisabledEvents()
         {
-            List<SubCalendarEvent> disabledSubEvents = DayInfo.getSubEventsInDayTimeLine().Where(subEvent => subEvent.getDaySection().getCurrentDayPreference() == TimeOfDayPreferrence.DaySection.Disabled).ToList();
+            List<SubCalendarEvent> disabledSubEvents = DayInfo.getSubEventsInTimeLine().Where(subEvent => subEvent.getDaySection().getCurrentDayPreference() == TimeOfDayPreferrence.DaySection.Disabled).ToList();
             if (disabledSubEvents.Count > 0)
             {
-                List<SubCalendarEvent> correctlyAssignedevents = DayInfo.getSubEventsInDayTimeLine().Except(disabledSubEvents).OrderBy(obj=>obj.Start).ToList();
+                List<SubCalendarEvent> correctlyAssignedevents = DayInfo.getSubEventsInTimeLine().Except(disabledSubEvents).OrderBy(obj=>obj.Start).ToList();
 
                 Tuple<Dictionary<TilerEvent, double>, Tuple<Location, DateTimeOffset, TimeSpan>> evaluatedParams = evalulateParameter(disabledSubEvents, null);
                 Dictionary<TilerEvent, double> evaluatedEvents = evaluatedParams.Item1;
@@ -720,7 +720,7 @@ namespace TilerCore
             }
             //*/
             List<SubCalendarEvent> SubEventsWithNoLocationPreference = AllGroupings[TimeOfDayPreferrence.DaySection.None].getPathStitchedSubevents();
-            List<SubCalendarEvent> rigidSubeevents = DayInfo.getSubEventsInDayTimeLine().Where(obj => obj.getRigid).ToList();
+            List<SubCalendarEvent> rigidSubeevents = DayInfo.getSubEventsInTimeLine().Where(obj => obj.getRigid).ToList();
             SubEventsInrespectivepaths.ForEach(subEVent => SubEventsWithNoLocationPreference.Remove(subEVent));
 
             ///*hash set test
@@ -852,10 +852,6 @@ namespace TilerCore
                 subevent.updateDayPreference(AllGroupings.Select(group => group.Value).ToList());
             }
 
-            //Dictionary<TimelineWithSubcalendarEvents, TimeOfDayPreferrence.DaySection> AllGroupingsReversed = AllGroupings.Where(kvp => kvp.Key != TimeOfDayPreferrence.DaySection.None).ToDictionary(kvp => kvp.Value.GroupAverage.TimeLine, kvp => kvp.Key);
-            //Dictionary<SubCalendarEvent, List<TimelineWithSubcalendarEvents>> timelinesForSubEvent = SubEvents.ToDictionary(subEvent=> subEvent, subEvent => subEvent.evaluateDayPreference() AllGroupings[subEvent.])
-            //List<TimelineWithSubcalendarEvents> timeLines = orderBasedOnProductivity(AllGroupings);
-            //SpreadOutInTimeLine spreadOutSubEvents = new SpreadOutInTimeLine(timeLines, SubEvents);
             ILookup<TimeOfDayPreferrence.DaySection, SubCalendarEvent> RetValue = SubEvents.ToLookup(obj => obj.getDaySection().getCurrentDayPreference(), obj => obj);
             return RetValue;
         }

@@ -21,6 +21,7 @@ namespace TilerElements
             Green = GreenColor;
             this.Opacity = Opacity;
             ColorSelection = Selection;
+            _Id = Guid.NewGuid().ToString();
         }
         
         #region Functions

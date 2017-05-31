@@ -279,8 +279,17 @@ namespace TilerElements
             Dictionary<TimelineWithSubcalendarEvents, OptimizedGrouping> TimelinesDict = groupings.ToDictionary(grouping => grouping.GroupAverage.TimeLine, grouping => grouping);
             Dictionary<TimeOfDayPreferrence.DaySection, OptimizedGrouping> TimeOfDayToGroup = groupings.ToDictionary(grouping => grouping.DaySector, grouping => grouping);
             List<TimelineWithSubcalendarEvents> Timelines = orderBasedOnProductivity(TimeOfDayToGroup);
+            List<double> foundIndexes = EvaluateTimeLines(Timelines);//
+            List<Tuple<double, OptimizedGrouping>> indexToGrouping = foundIndexes.Select((score, index) => { return new Tuple<double, OptimizedGrouping>(score, TimelinesDict[Timelines[index]]);}).OrderBy(tuple => tuple.Item1).ToList();
+            int bestIndex = foundIndexes.MinIndex();
+            List<OptimizedGrouping> retValue = indexToGrouping.Select(tuple => tuple.Item2).ToList();
+            return retValue;
+        }
+
+        public virtual List<double> EvaluateTimeLines (List<TimelineWithSubcalendarEvents> timeLines)
+        {
             List<IList<double>> multiDimensionalClaculation = new List<IList<double>>();
-            foreach (TimelineWithSubcalendarEvents timeline in Timelines)
+            foreach (TimelineWithSubcalendarEvents timeline in timeLines)
             {
                 double distance = Location.calculateDistance(timeline.averageLocation, this.Location);
                 double tickRatio = (double)this.getActiveDuration.Ticks / timeline.TotalFreeSpotAvailable.Ticks;
@@ -289,10 +298,7 @@ namespace TilerElements
                 multiDimensionalClaculation.Add(dimensionsPerDay);
             }
             List<double> foundIndexes = Utility.multiDimensionCalculationNormalize(multiDimensionalClaculation);
-            List<Tuple<double, OptimizedGrouping>> indexToGrouping = foundIndexes.Select((score, index) => { return new Tuple<double, OptimizedGrouping>(score, TimelinesDict[Timelines[index]]);}).OrderBy(tuple => tuple.Item1).ToList();
-            int bestIndex = foundIndexes.MinIndex();
-            List<OptimizedGrouping> retValue = indexToGrouping.Select(tuple => tuple.Item2).ToList();
-            return retValue;
+            return foundIndexes;
         }
 
         /// <summary>

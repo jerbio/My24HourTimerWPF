@@ -85,7 +85,6 @@ namespace My24HourTimerWPF
         }
 
         DateTimeOffset FinalDate=new DateTimeOffset();
-        private TimeSpan TimeLeft = new TimeSpan();
         private TimeSpan TimeTo24HourLeft = new TimeSpan();
         string SleepWakeString = "Sleep_Time_N";
         private void button5_Click(object sender, RoutedEventArgs e)
@@ -1167,7 +1166,7 @@ namespace My24HourTimerWPF
 
         private void button6_Click(object sender, RoutedEventArgs e)
         {           
-            //MySchedule.RemoveAllCalendarEventFromLogAndCalendar();
+            MySchedule.RemoveAllCalendarEventFromLogAndCalendar();
             MySchedule.EmptyMemory();
         }
 
@@ -1178,15 +1177,15 @@ namespace My24HourTimerWPF
 
         private void button7_Click(object sender, RoutedEventArgs e)
         {
-            //MySchedule.removeAllFromOutlook();
-            //MySchedule.WriteFullScheduleToLogAndOutlook();
+            MySchedule.removeAllFromOutlook();
+            MySchedule.WriteFullScheduleToLogAndOutlook();
         }
 
 
         private void delete(object sender, RoutedEventArgs e)
         {
             string EventID = textBox9.Text;
-            MySchedule.deleteSubCalendarEventAndReadjust(EventID);
+            MySchedule.deleteSubCalendarEventAndReadjust(EventID).Wait();
         }
 
         async private void button8_Click(object sender, RoutedEventArgs e)
@@ -1473,10 +1472,6 @@ namespace My24HourTimerWPF
 
         private async void LogInToWagtap()
         {
-            //string LogLocation = "";
-            //LogLocation = @"C:\Users\OluJerome\Documents\Visual Studio 2010\Projects\LearnCuDAVS2010\LearnCUDAConsoleApplication\WagTapCalLogs\";
-            //Tiler.LogControl.UpdateLogLocation(LogLocation);
-            
             //WebApp.Start<Startup>("http://localhost:9000");
 
             TilerFront.Models.LoginViewModel myLogin = new TilerFront.Models.LoginViewModel() { Username = UserNameTextBox.Text, Password = PasswordTextBox.Text, RememberMe = true };
@@ -1484,10 +1479,10 @@ namespace My24HourTimerWPF
             TilerFront.UserAccount currentUser = await AuthorizeUser.getUserAccountDebug();
 
 
-            currentUser.getTilerUser().EndfOfDay = DateTimeOffset.Parse("10:00pm");
+            currentUser.getTilerUser().EndfOfDay = DateTimeOffset.Parse("2:00am");
             await currentUser.Login();
             DateTimeOffset refNow=DateTimeOffset.UtcNow;
-            //refNow = DateTimeOffset.Parse("12:12 am 1/18/2017");
+            refNow = DateTimeOffset.Parse("4:53 am 3/25/2017");
 
             Stopwatch timer = new Stopwatch();
             timer.Start();
@@ -1499,8 +1494,6 @@ namespace My24HourTimerWPF
             if (true)
             {
                 timer.Stop();
-                //MessageBox.Show("Ellapsed is " + timer.ElapsedMilliseconds + "ms");
-                
                 tabItem2.IsEnabled = true;
                 datePicker1.SelectedDate = new DateTime(MySchedule.Now.calculationNow.AddDays(0).ToLocalTime().Ticks);// DateTimeOffset.UtcNow.AddDays(0);
                 datePicker2.SelectedDate = new DateTime(MySchedule.Now.calculationNow.AddHours(1).ToLocalTime().Ticks);// DateTimeOffset.UtcNow.AddDays(0);

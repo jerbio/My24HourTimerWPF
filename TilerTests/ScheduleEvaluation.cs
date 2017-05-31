@@ -152,7 +152,7 @@ namespace TilerTests
             TimeLine eachTimeLine = new TimeLine(refNow, refNow.Add(duration));
             HashSet<EventID> hashEventIDs = new HashSet<EventID>();
             HashSet<EventID> EventIDs = new HashSet<EventID>();
-            for (int i =0;i<4;i++)
+            for (int i =0;i< locations.Count; i++)
             {
                 TestSchedule Schedule = new TestSchedule(currentUser, refNow);
                 CalendarEvent testEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), eachTimeLine.Start,i == 0 ? eachTimeLine.End.AddHours(-12) : eachTimeLine.End, 1, false, locations[i]);
@@ -238,7 +238,7 @@ namespace TilerTests
 
             foreach (DayTimeLine daytimeLine in daytimeLines)
             {
-                int numberOfSubevent = daytimeLine.getSubEventsInDayTimeLine().Count;
+                int numberOfSubevent = daytimeLine.getSubEventsInTimeLine().Count;
                 Assert.AreEqual(numberOfSubevent, numberOfSubeventPerCalendarEvent);//This is known to fail
             }
         }
@@ -289,7 +289,7 @@ namespace TilerTests
 
             foreach (DayTimeLine daytimeLine in daytimeLines)
             {
-                int numberOfSubevent = daytimeLine.getSubEventsInDayTimeLine().Count;
+                int numberOfSubevent = daytimeLine.getSubEventsInTimeLine().Count;
                 Assert.AreEqual(numberOfSubevent, numberOfSubeventPerCalendarEvent);
             }
         }

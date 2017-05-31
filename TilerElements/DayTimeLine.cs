@@ -21,7 +21,6 @@ namespace TilerElements
             this.BoundDayIndex = BoundedIndex;
         }
         #endregion
-
         #region functions
         override public TimeLine CreateCopy()
         {
@@ -29,6 +28,10 @@ namespace TilerElements
             CopyTimeLine.AllocatedSubEvents = new ConcurrentDictionary<string, SubCalendarEvent>(AllocatedSubEvents);
             CopyTimeLine.OccupancyOfTImeLine = this.OccupancyOfTImeLine;
             return CopyTimeLine;
+        }
+        public override void updateOccupancyOfTimeLine()
+        {
+            base.updateOccupancyOfTimeLine();
         }
         #endregion
 

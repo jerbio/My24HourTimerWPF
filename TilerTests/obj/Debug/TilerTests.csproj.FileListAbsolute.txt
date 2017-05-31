@@ -13,6 +13,7 @@ C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\Til
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerTests\bin\Debug\Google.Apis.Auth.dll
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerTests\bin\Debug\System.Web.Mvc.dll
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerTests\bin\Debug\System.Web.Optimization.dll
+C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerTests\bin\Debug\SendGrid.dll
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerTests\bin\Debug\Microsoft.AspNet.Identity.Owin.dll
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerTests\bin\Debug\Microsoft.Owin.Security.dll
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerTests\bin\Debug\Owin.dll
@@ -36,6 +37,7 @@ C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\Til
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerTests\bin\Debug\System.Web.WebPages.Razor.dll
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerTests\bin\Debug\System.Web.WebPages.dll
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerTests\bin\Debug\Microsoft.Web.Infrastructure.dll
+C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerTests\bin\Debug\SendGrid.CSharp.HTTP.Client.dll
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerTests\bin\Debug\System.Web.WebPages.Deployment.dll
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerTests\bin\Debug\GoogleMapsApi.xml
 C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerTests\bin\Debug\My24HourTimerWPF.pdb

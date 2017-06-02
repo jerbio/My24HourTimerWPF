@@ -3,16 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NodaTime;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TilerElements
 {
     public class Repetition
     {
-
+        protected string _Id = Guid.NewGuid().ToString();
+        protected string _ParentRepetitionId;
+        protected string _LocationId;
         protected Frequency RepetitionFrequency;
         protected TimeLine RepetitionRange;//stores range for repetition so if assuming event happens on thursday from 9-11pm. The range is from today till november 31. The RepetitionRange will be today till November 31
         protected bool EnableRepeat;
-        protected CalendarEvent[] RepeatingEvents;
+        protected ICollection<CalendarEvent> _RepeatingEvents;
         protected Dictionary<string, CalendarEvent> DictionaryOfIDAndCalendarEvents;
         protected Dictionary<int, Repetition> DictionaryOfWeekDayToRepetition = new Dictionary<int,Repetition>();
         protected Location RepeatLocation;
@@ -21,13 +24,40 @@ namespace TilerElements
         static DayOfWeek[] Weekdays=new DayOfWeek[7]{DayOfWeek.Sunday,DayOfWeek.Monday,DayOfWeek.Tuesday,DayOfWeek.Wednesday,DayOfWeek.Thursday,DayOfWeek.Friday,DayOfWeek.Saturday};
         static DateTimeOffset CalculationStop = DateTimeOffset.UtcNow;
         public enum Frequency {DAILY, WEEKLY, MONTHLY, YEARLY, BIWEEKLY, NONE };
+        [ForeignKey("Id")]
+        public CalendarEvent ParentEvent { get; set; }
 
+        virtual public string Id
+        {
+            set
+            {
+                _Id = value;
+            }
+            get
+            {
+                return _Id;
+            }
+        }
+        [ForeignKey("ParentRepetitionId")]
+        public Repetition ParentRepetition { get; set; }
+
+        virtual public string ParentRepetitionId
+        {
+            set
+            {
+                _ParentRepetitionId = value;
+            }
+            get
+            {
+                return _ParentRepetitionId;
+            }
+        }
         public Repetition()
         {
             RepetitionFrequency = Frequency.NONE;
             RepetitionRange = new TimeLine();
             EnableRepeat = false;
-            RepeatingEvents = new CalendarEvent[0];
+            _RepeatingEvents = new CalendarEvent[0];
             RepeatLocation = new Location();
             initializingRange = new TimeLine();
             DictionaryOfIDAndCalendarEvents = new System.Collections.Generic.Dictionary<string, CalendarEvent>();
@@ -69,7 +99,7 @@ namespace TilerElements
                 DictionaryOfIDAndCalendarEvents.Add(MyRepeatCalendarEvent.getId, MyRepeatCalendarEvent);
             }
 
-            RepeatingEvents = DictionaryOfIDAndCalendarEvents.Values.ToArray();
+            _RepeatingEvents = DictionaryOfIDAndCalendarEvents.Values.ToArray();
             RepetitionFrequency = Utility.ParseEnum<Frequency>(ReadFromFileFrequency.ToUpper());
             RepetitionRange = ReadFromFileRepetitionRange_Entry;
             if (ReadFromFileRecurringListOfCalendarEvents.Length > 0)
@@ -90,7 +120,7 @@ namespace TilerElements
             }
             
 
-            RepeatingEvents = DictionaryOfIDAndCalendarEvents.Values.ToArray();
+            _RepeatingEvents = DictionaryOfIDAndCalendarEvents.Values.ToArray();
             RepetitionFrequency = Utility.ParseEnum<Frequency>(ReadFromFileFrequency.ToUpper());
             RepetitionRange = ReadFromFileRepetitionRange_Entry;
             if (repetition_Weekday.Length > 0)
@@ -133,7 +163,7 @@ namespace TilerElements
                 }
                 return;
             }
-
+            this.ParentEvent = MyParentEvent;
 
             RestrictionProfile restrictionProfile = new RestrictionProfile(initializingRange.Start, initializingRange.End - initializingRange.Start);
             TimeLineRestricted segmentedTimeLine = new TimeLineRestricted(RepetitionRange.Start, RepetitionRange.End, restrictionProfile);
@@ -175,7 +205,7 @@ namespace TilerElements
 
                 MyRepeatCalendarEvent.myLocation = MyParentEvent.myLocation;
             }
-            RepeatingEvents = DictionaryOfIDAndCalendarEvents.Values.ToArray();
+            _RepeatingEvents = DictionaryOfIDAndCalendarEvents.Values.ToArray();
         }
 
 
@@ -220,7 +250,7 @@ namespace TilerElements
 
                 MyRepeatCalendarEvent.myLocation = MyParentEvent.myLocation;
             }
-            RepeatingEvents = DictionaryOfIDAndCalendarEvents.Values.ToArray();
+            _RepeatingEvents = DictionaryOfIDAndCalendarEvents.Values.ToArray();
         }
         
 
@@ -251,7 +281,7 @@ namespace TilerElements
 
             Repetition repetitionData = new Repetition(MyParentEvent.isEnabled, repetitionTimeline, this.getFrequency, ActiveTimeline,7);
 
-
+            this.ParentEvent = MyParentEvent;
             this.initializingRange = ActiveTimeline;
             this.RepetitionRange = repetitionTimeline;
             EventID MyEventCalendarID = EventID.GenerateRepeatDayCalendarEvent(MyParentEvent.getId, WeekDay);
@@ -322,13 +352,6 @@ namespace TilerElements
         }
 
 
-        /*public Repetition(bool EnableFlag, DateTimeOffset StartTime, TimeSpan Frequency)
-        {
-            Start = StartTime;
-            RepetitionFrequency = Frequency;
-            EnableRepeat = EnableFlag;
-        }*/
-
         public bool isExtraLayers()
         {
             return DictionaryOfWeekDayToRepetition.Count > 0;
@@ -340,6 +363,7 @@ namespace TilerElements
             return retValue;
         }
 
+#region properties
         public bool Enable
         {
             get
@@ -392,6 +416,63 @@ namespace TilerElements
             }
         }
 
+        public ICollection<CalendarEvent> RepeatingEvents
+        {
+            get
+            {
+                return _RepeatingEvents ?? (_RepeatingEvents = new List<CalendarEvent>());
+            }
+            set
+            {
+                _RepeatingEvents = value;
+                DictionaryOfIDAndCalendarEvents = _RepeatingEvents.ToDictionary(calEvent => calEvent.getId, calEvent => calEvent);
+            }
+        }
+
+        public ICollection<Repetition> SubRepetitions
+        {
+            set
+            {
+                if (value != null)
+                {
+                    DictionaryOfWeekDayToRepetition = value.ToDictionary(repetitionObj => repetitionObj.weekDay, repetitionObj => repetitionObj);
+                }
+                else
+                {
+                    DictionaryOfWeekDayToRepetition = null;
+                }
+                
+            }
+            get
+            {
+                return this.DictionaryOfWeekDayToRepetition.Count > 0? this.DictionaryOfWeekDayToRepetition.Values : null;
+            }
+        }
+        public string LocationId
+        {
+            get
+            {
+                return _LocationId;
+            }
+            set
+            {
+                _LocationId = value;
+            }
+        }
+        [ForeignKey("LocationId")]
+        public Location Location
+        {
+            get
+            {
+                return RepeatLocation;
+            }
+            set
+            {
+                RepeatLocation = value;
+            }
+        }
+#endregion
+
         public CalendarEvent[] RecurringCalendarEvents()
         {
             CalendarEvent[] retValue = null;
@@ -406,17 +487,17 @@ namespace TilerElements
             }
             return retValue;
         }
-
+       
         public Repetition CreateCopy()
         {
             Repetition repetition_cpy = new Repetition();
-            if (this.RepeatingEvents.Length < 1)
+            if (this._RepeatingEvents.Count < 1)
             {
                 return repetition_cpy;
             }
             repetition_cpy.RepetitionFrequency = this.RepetitionFrequency;
             repetition_cpy.RepetitionRange = this.RepetitionRange.CreateCopy();
-            repetition_cpy.RepeatingEvents = RepeatingEvents.AsParallel().Select(obj => obj.createCopy()).ToArray();
+            repetition_cpy._RepeatingEvents = _RepeatingEvents.AsParallel().Select(obj => obj.createCopy()).ToArray();
             repetition_cpy.RepeatLocation = RepeatLocation.CreateCopy();
             repetition_cpy.EnableRepeat = EnableRepeat;
             repetition_cpy.RepetitionWeekDay = RepetitionWeekDay;
@@ -424,10 +505,5 @@ namespace TilerElements
             repetition_cpy.DictionaryOfWeekDayToRepetition = DictionaryOfWeekDayToRepetition.AsParallel().ToDictionary(obj => obj.Key, obj1 => obj1.Value.CreateCopy());
             return repetition_cpy;
         }
-
-        
-
-    }
-    
-   
+    }  
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 
@@ -11,10 +12,9 @@ namespace TilerElements
     public class Procrastination
     {
         protected string _Id { get; set; }
-        protected DateTimeOffset FromTime;//Time from which an event was procrastinated
-        //TimeSpan Duration;//Span of procrastination
-        protected DateTimeOffset BeginTIme;//Next time for a possible calculation of a new schedule
-        protected int SectionOfDay;// stores the section of day from which it was procrastinated
+        protected DateTimeOffset _FromTime;//Time from which an event was procrastinated
+        protected DateTimeOffset _BeginTIme;//Next time for a possible calculation of a new schedule
+        protected int _SectionOfDay;// stores the section of day from which it was procrastinated
 
         protected Procrastination()
         { 
@@ -23,23 +23,22 @@ namespace TilerElements
 
         public Procrastination(DateTimeOffset From, TimeSpan Span)
         {
-            FromTime = From;
-            //Duration = Span;
-            BeginTIme = FromTime.Add(Span);
+            _FromTime = From;
+            _BeginTIme = _FromTime.Add(Span);
         }
 
 
         public void reset()
         {
-            FromTime = new DateTimeOffset();
-            BeginTIme = new DateTimeOffset();
+            _FromTime = new DateTimeOffset();
+            _BeginTIme = new DateTimeOffset();
         }
 
         public DateTimeOffset PreferredStartTime
         {
             get
             {
-                return BeginTIme;
+                return _BeginTIme;
             }
         }
 
@@ -47,12 +46,18 @@ namespace TilerElements
         {
             get
             {
-                return FromTime;
+                return _FromTime;
             }
         }
+        [ForeignKey("Id")]
+        public CalendarEvent Event { get; set; }
 
-        virtual public string getId
+        virtual public string Id
         {
+            set
+            {
+                _Id = value;
+            }
             get
             {
                 return _Id;
@@ -63,7 +68,7 @@ namespace TilerElements
         { 
             get
             {
-                return FromTime.DayOfWeek;
+                return _FromTime.DayOfWeek;
             }
         }
 
@@ -71,7 +76,7 @@ namespace TilerElements
         {
             get
             {
-                return SectionOfDay;
+                return _SectionOfDay;
             }
         }
 
@@ -79,7 +84,7 @@ namespace TilerElements
         {
             get 
             {
-                return ReferenceNow.getDayIndexFromStartOfTime(FromTime);
+                return ReferenceNow.getDayIndexFromStartOfTime(_FromTime);
             }
         }
 
@@ -87,16 +92,16 @@ namespace TilerElements
         {
             get
             {
-                return ReferenceNow.getDayIndexFromStartOfTime(BeginTIme);
+                return ReferenceNow.getDayIndexFromStartOfTime(_BeginTIme);
             }
         }
 
         public Procrastination CreateCopy(string id = "")
         {
-            Procrastination retValue = new Procrastination(this.FromTime,BeginTIme-FromTime);
+            Procrastination retValue = new Procrastination(this._FromTime,_BeginTIme-_FromTime);
             if(string.IsNullOrEmpty(id))
             {
-                retValue._Id = this.getId;
+                retValue._Id = this.Id;
             }
             else
             {
@@ -105,6 +110,38 @@ namespace TilerElements
             
             return retValue ;
         }
-
+        public DateTimeOffset FromTime
+        {
+            set
+            {
+                _FromTime = value;
+            }
+            get
+            {
+                return _FromTime;
+            }
+        }
+        public DateTimeOffset BeginTIme
+        {
+            set
+            {
+                _BeginTIme = value;
+            }
+            get
+            {
+                return _BeginTIme;
+            }
+        }
+        public int SectionOfDay
+        {
+            set
+            {
+                _SectionOfDay = value;
+            }
+            get
+            {
+                return SectionOfDay;
+            }
+        }
     }
 }

@@ -316,14 +316,6 @@ namespace TilerElements
             return this_cpy;
         }
 
-        public Location_struct toStruct()
-        {
-            Location_struct retValue = new Location_struct();
-            retValue.xValue = (float)xValue;
-            retValue.yValue = (float)yValue;
-            return retValue;
-        }
-
         /// <summary>
         /// function returns the average location of several gps locations. Essentially, it'lll try to find the center of the various GPS locations. If there is a null or unfounded location, it is not included in the average calculation.
         /// </summary>
@@ -502,18 +494,4 @@ namespace TilerElements
         }
         #endregion
     }
-}
-
-
-public struct Location_struct
-{
-    public float xValue;
-    public float yValue;
-    public int Number;
-    /*
-    public override string ToString()
-    {
-        return yValue + "," + xValue;
-    }
-    */
 }

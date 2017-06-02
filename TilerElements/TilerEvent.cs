@@ -420,5 +420,17 @@ namespace TilerElements
                 return _TimeZone;
             }
         }
+
+        virtual public string Id
+        {
+            get
+            {
+                return this.UniqueID.ToString();
+            }
+            set
+            {
+                this.UniqueID = new EventID(value);
+            }
+        }
     }
 }

@@ -13,6 +13,7 @@ namespace TilerElements
         int Green;
         double Opacity;
         int ColorSelection;
+        string HexColor;
 
         public TilerColor(int RedColor = 255, int BlueColor = 255, int GreenColor = 255, double Opacity=1, int Selection=-1)
         {
@@ -22,6 +23,25 @@ namespace TilerElements
             this.Opacity = Opacity;
             ColorSelection = Selection;
             _Id = Guid.NewGuid().ToString();
+            string r = Red.ToString("X");
+            string g = Green.ToString("X");
+            string b = Blue.ToString("X");
+            if (r.Length == 1)
+            {
+                r = "0" + r;
+            }
+
+            if (g.Length == 1)
+            {
+                g = "0" + g;
+            }
+
+            if (b.Length == 1)
+            {
+                b = "0" + b;
+            }
+            HexColor = '#' + r + g + b;
+            updateHexColor();
         }
         
         #region Functions
@@ -32,8 +52,30 @@ namespace TilerElements
             retValue.Blue = Blue;
             retValue.Green = Green;
             retValue.Opacity = Opacity;
-
+            retValue.HexColor = HexColor;
             return retValue;
+        }
+
+        public void updateHexColor()
+        {
+            string r = Red.ToString("X");
+            string g = Green.ToString("X");
+            string b = Blue.ToString("X");
+            if (r.Length == 1)
+            {
+                r = "0" + r;
+            }
+
+            if (g.Length == 1)
+            {
+                g = "0" + g;
+            }
+
+            if (b.Length == 1)
+            {
+                b = "0" + b;
+            }
+            HexColor = '#'+r + g + b;
         }
         #endregion
 
@@ -52,6 +94,7 @@ namespace TilerElements
                 {
                     Red = 255;
                 }
+                updateHexColor();
             }
             get
             {
@@ -70,6 +113,7 @@ namespace TilerElements
                 {
                     Green=255;
                 }
+                updateHexColor();
             } 
             get
             {
@@ -89,6 +133,7 @@ namespace TilerElements
                 {
                     Blue = 255;
                 }
+                updateHexColor();
             }
             get
             {

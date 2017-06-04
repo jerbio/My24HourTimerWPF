@@ -72,6 +72,7 @@ namespace TilerCore
         protected double PercentageOccupancy = 0;
         //public static DateTimeOffset Now = new DateTimeOffset(2014,4,6,0,0,0);//DateTimeOffset.UtcNow;
         protected ReferenceNow _Now;// = new ReferenceNow( DateTimeOffset.UtcNow);
+        protected HashSet<SubCalendarEvent> ConflictinSubEvents = new HashSet<SubCalendarEvent>();
 
         public ReferenceNow Now
         {
@@ -135,32 +136,9 @@ namespace TilerCore
 
 
         #region ToBeDeleted
-        //public void RemoveAllCalendarEventFromLogAndCalendar()//MyTemp Function for deleting all calendar events
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //async public Task WriteFullScheduleToLogAndOutlook()
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public void removeAllFromOutlook()
-        //{
-        //    throw new NotImplementedException();
-        //}
-        //public void WriteFullScheduleToOutlook()
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //async virtual public Task UpdateWithDifferentSchedule(Dictionary<string, CalendarEvent> UpdatedSchedule)
-        //{
-        //    throw new NotImplementedException();
-        //}
         #endregion
 
-        #region IwhyImplementation
+#region IwhyImplementation
         virtual public IWhy Because()
         {
             throw new NotImplementedException("Yet to implement a because functionality for subcalendar event");
@@ -242,8 +220,6 @@ namespace TilerCore
         {
             EventID userEvent = new EventID(EventID);
             return getCalendarEvent(userEvent);
-            
-            
         }
 
         public CalendarEvent getCalendarEvent(EventID myEventID)
@@ -1964,7 +1940,13 @@ namespace TilerCore
         /// <param name="OptimizeFirstTwentyFour"></param>
         /// <param name="preserveFirstTwentyFourHours"></param>
         /// <returns></returns>
-        CalendarEvent ReArrangeTimeLineWithinWithinCalendaEventRangeUpdated(CalendarEvent MyCalendarEvent, List<CalendarEvent> NoneCommitedCalendarEventsEvents, int InterferringWithNowFlag, HashSet<SubCalendarEvent> NotDoneYet, bool OptimizeFirstTwentyFour = true, bool preserveFirstTwentyFourHours = true)// this looks at the timeline of the calendar event and then tries to rearrange all subevents within the range to suit final output. Such that there will be sufficient time space for each subevent
+        CalendarEvent ReArrangeTimeLineWithinWithinCalendaEventRangeUpdated(
+            CalendarEvent MyCalendarEvent, 
+            List<CalendarEvent> NoneCommitedCalendarEventsEvents, 
+            int InterferringWithNowFlag, 
+            HashSet<SubCalendarEvent> NotDoneYet, 
+            bool OptimizeFirstTwentyFour = true, 
+            bool preserveFirstTwentyFourHours = true)// this looks at the timeline of the calendar event and then tries to rearrange all subevents within the range to suit final output. Such that there will be sufficient time space for each subevent
         {
             /*
                 Name{: Jerome Biotidara
@@ -2460,14 +2442,21 @@ namespace TilerCore
             return retValue;
         }
         
+        void resolveConflicts(IList<SubCalendarEvent> orderedListOFAlreadyAssignedSubEvents)
+        {
+            if(ConflictinSubEvents.Count > 0)
+            {
+                stitchUnRestrictedSubCalendarEvent();
+            }
+        }
+
         ulong ParallelizeCallsToDay(List<CalendarEvent> AllCalEvents,List<SubCalendarEvent> TotalActiveEvents, DayTimeLine[] AllDayTImeLine ,bool Optimize=true, bool preserveFirttwentyFourHours=true)
         {
             int TotalDays = (int)AllDayTImeLine.Length;
             Now.getAllDaysForCalc();
             ulong DayIndex = Now.consttDayIndex;
             ConcurrentBag< SubCalendarEvent>[] BagPerDay = new ConcurrentBag< SubCalendarEvent>[TotalDays];
-
-
+            TotalActiveEvents.ForEach((subEvent) => ConflictinSubEvents.Add(subEvent));
             AllCalEvents.AsParallel().ForAll(obj => { obj.resetDesignationAllActiveEventsInCalculables(); obj.InitialCalculationLookupDays(AllDayTImeLine); });
             ILookup<ulong, SubCalendarEvent> SetForFirstDay = (new List<SubCalendarEvent>()).ToLookup(obj => (ulong)0, obj => obj);
             preserveFirttwentyFourHours = false;
@@ -2623,7 +2612,6 @@ namespace TilerCore
             int optimizedDayLimit = 10;
             IDictionary<DayTimeLine, OptimizedPath> dayToOptimization = null;
             List<DayTimeLine> OptimizedDays = AllDayTImeLine.Take(optimizedDayLimit).ToList();
-            //Optimize = false;
             if (Optimize)
             {
                 ulong FirstIndex = AllDayTImeLine[0].UniversalIndex;
@@ -2632,6 +2620,11 @@ namespace TilerCore
                     ILookup<ulong, SubCalendarEvent> DayToSubEvent = AllRigids.ToLookup(obj => obj.UniversalDayIndex, obj => obj);
                     foreach(IGrouping<ulong,SubCalendarEvent>eachGrouping in DayToSubEvent)
                     {
+                        IEnumerable<SubCalendarEvent> subEvents = DayToSubEvent[eachGrouping.Key];
+                        foreach(SubCalendarEvent subEvent in subEvents)
+                        {
+                            ConflictinSubEvents.Remove(subEvent);
+                        }
                         int currentIndex = (int)(eachGrouping.Key - FirstIndex);
                         AllDayTImeLine[currentIndex].AddToSubEventList(DayToSubEvent[eachGrouping.Key]);
                     }
@@ -2644,6 +2637,7 @@ namespace TilerCore
                     throw E;
                 } 
             }
+            TimeLine computationRange = Now.ComputationRange;
             List<BlobSubCalendarEvent> afterPathOptimizationConflictingEvetns = Utility.getConflictingEvents(TotalActiveEvents.OrderBy(obj => obj.Start).ToList());
             List<SubCalendarEvent> ordereByStartTime = TotalActiveEvents.OrderBy(SubEvent => SubEvent.Start).ToList();
             double distanceCovered = Location.calculateDistance(ordereByStartTime.Select(SubEvent => SubEvent.Location).ToList(),0);

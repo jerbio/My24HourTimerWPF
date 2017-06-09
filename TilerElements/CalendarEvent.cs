@@ -320,6 +320,7 @@ namespace TilerElements
         public void updateProcrastinate(Procrastination ProcrastinationTime)
         {
             ProfileOfProcrastination = ProcrastinationTime;
+            ProcrastinationTime.AssociatedEvent = this;
             ProfileOfNow.reset();
         }
         //*/
@@ -385,6 +386,7 @@ namespace TilerElements
         public void UpdateNowProfile(NowProfile ProfileNowData)
         {
             ProfileOfNow = ProfileNowData;
+            ProfileOfNow.AssociatedEvent = this;
             ProfileOfProcrastination.reset();
         }
 

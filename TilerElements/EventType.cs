@@ -4,21 +4,24 @@ using System.Linq;
 using System.Text;
 using AlchemyAPI;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TilerElements
 {
     public class Classification
     {
-        Vicinity Placement = Vicinity.None;
-        EnergyDifferential Succubus = EnergyDifferential.None;
-        Leisure LeisureType = Leisure.None;
-        bool Initialized = true;
+        Vicinity _Placement = Vicinity.None;
+        EnergyDifferential _Succubus = EnergyDifferential.None;
+        Leisure _LeisureType = Leisure.None;
+        bool _Initialized = true;
+        protected string _Id { get; set; }
+        protected TilerEvent _AssociatedEvent { get; set; }
         public Classification(Vicinity LocationPlacement, EnergyDifferential StrengthDelta, Leisure RelaxationData, bool InitializedData)
         {
-            LeisureType = RelaxationData;
-            Succubus = StrengthDelta;
-            Placement = LocationPlacement;
-            Initialized = InitializedData;
+            _LeisureType = RelaxationData;
+            _Succubus = StrengthDelta;
+            _Placement = LocationPlacement;
+            _Initialized = InitializedData;
         }
 
         public Classification()
@@ -28,10 +31,11 @@ namespace TilerElements
         public Classification createCopy()
         {
             Classification RetValue = new Classification();
-            RetValue.Initialized = this.Initialized;
-            RetValue.LeisureType = this.LeisureType;
-            RetValue.Placement = this.Placement;
-            RetValue.Succubus = this.Succubus;
+            RetValue._Initialized = this._Initialized;
+            RetValue._LeisureType = this._LeisureType;
+            RetValue._Placement = this._Placement;
+            RetValue._Succubus = this._Succubus;
+            RetValue.Id = this.Id;
             return RetValue;
         }
         
@@ -58,6 +62,82 @@ namespace TilerElements
             }
             //Console.WriteLine(xml);
         }
+        #region Properties
+
+        public bool Initialized
+        {
+            get
+            {
+                return _Initialized;
+            }
+            set
+            {
+                _Initialized = value;
+            }
+        }
+
+        public string Id
+        {
+            get
+            {
+                return _Id;
+            }
+            set
+            {
+                _Id = value;
+            }
+        }
+
+        [ForeignKey("Id")]
+        public TilerEvent AssociatedEvent
+        {
+            get
+            {
+                return _AssociatedEvent;
+            }
+            set
+            {
+                _AssociatedEvent = value;
+            }
+        }
+
+        public string Placement
+        {
+            get
+            {
+                return _Placement.ToString();
+            }
+            set
+            {
+                Enum.TryParse(value, out _Placement);
+            }
+        }
+
+        public string Succubus
+        {
+            get
+            {
+                return _Succubus.ToString();
+            }
+            set
+            {
+                Enum.TryParse(value, out _Succubus);
+            }
+        }
+
+        public string LeisureType
+        {
+            get
+            {
+                return _LeisureType.ToString();
+            }
+            set
+            {
+                Enum.TryParse(value, out _LeisureType);
+            }
+        }
+        #endregion
+
     }
 
     public enum Vicinity { Indoor, None, Outdoor }

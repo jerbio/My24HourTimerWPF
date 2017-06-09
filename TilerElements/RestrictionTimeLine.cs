@@ -101,6 +101,10 @@ namespace TilerElements
         #region Properties
         public DateTimeOffset Start
         {
+            set
+            {
+                StartTimeOfDay = value;
+            }
             get 
             {
                 return StartTimeOfDay;
@@ -109,6 +113,10 @@ namespace TilerElements
 
         public TimeSpan Span
         {
+            set
+            {
+                Span = value;
+            }
             get
             {
                 return RangeTimeSpan;
@@ -117,6 +125,10 @@ namespace TilerElements
 
         public DateTimeOffset End
         {
+            set
+            {
+                End = value;
+            }
             get
             {
                 return EndTimeOfDay;

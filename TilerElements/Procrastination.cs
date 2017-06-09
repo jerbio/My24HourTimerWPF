@@ -12,6 +12,7 @@ namespace TilerElements
     public class Procrastination
     {
         protected string _Id { get; set; }
+        protected TilerEvent _AssociatedEvent { get; set; }
         protected DateTimeOffset _FromTime;//Time from which an event was procrastinated
         protected DateTimeOffset _BeginTIme;//Next time for a possible calculation of a new schedule
         protected int _SectionOfDay;// stores the section of day from which it was procrastinated
@@ -49,18 +50,28 @@ namespace TilerElements
                 return _FromTime;
             }
         }
-        [ForeignKey("Id")]
-        public CalendarEvent Event { get; set; }
-
-        virtual public string Id
+        public string Id
         {
+            get
+            {
+                return _Id;
+            }
             set
             {
                 _Id = value;
             }
+        }
+
+        [ForeignKey("Id")]
+        public TilerEvent AssociatedEvent
+        {
             get
             {
-                return _Id;
+                return _AssociatedEvent;
+            }
+            set
+            {
+                _AssociatedEvent = value;
             }
         }
 

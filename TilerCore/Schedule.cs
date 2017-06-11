@@ -2442,13 +2442,13 @@ namespace TilerCore
             return retValue;
         }
         
-        void resolveConflicts(IList<SubCalendarEvent> orderedListOFAlreadyAssignedSubEvents)
-        {
-            if(ConflictinSubEvents.Count > 0)
-            {
-                stitchUnRestrictedSubCalendarEvent();
-            }
-        }
+        //void resolveConflicts(IList<SubCalendarEvent> orderedListOFAlreadyAssignedSubEvents)
+        //{
+        //    if(ConflictinSubEvents.Count > 0)
+        //    {
+        //        stitchUnRestrictedSubCalendarEvent();
+        //    }
+        //}
 
         ulong ParallelizeCallsToDay(List<CalendarEvent> AllCalEvents,List<SubCalendarEvent> TotalActiveEvents, DayTimeLine[] AllDayTImeLine ,bool Optimize=true, bool preserveFirttwentyFourHours=true)
         {

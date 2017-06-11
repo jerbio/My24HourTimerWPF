@@ -36,11 +36,12 @@ Icon
 .Spotlight-V100
 .Trashes
 
-TilerTests/bin/Debug/BigDataLogs
-TilerTests/bin/Debug/WagTapCalLogs
 TilerCore/bin/*
 TilerCore/obj/*
 packages/
-TilerTests/bin/*
 TilerElements/bin/*
-TilerTests/bin/
+TilerTests/bin/Debug/BigDataLogs/*
+TilerTests/bin/Debug/*.xml
+TilerTests/bin/Debug/*.dll
+TilerTests/bin/Debug/*.pdb
+TilerTests/bin/Debug/*.exe

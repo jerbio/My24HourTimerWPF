@@ -1,0 +1,6 @@
+# Ignore everything in this directory
+WagTapCalLogs\065febec-d1fe-4c8b-bd32-548613d4479f.xml
+WagTapCalLogs\BeforeInsertionFixingStiticRestricted*
+Copy_*
+# Except this file
+!.gitignore

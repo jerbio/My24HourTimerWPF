@@ -83,29 +83,6 @@ namespace TilerTests
 
 
         /// <summary>
-        /// Test tries to test the efficacy of the conflict resolution funtion. Essentially it creates two calendar events, calA and calB.
-        /// calA and calB have timelines such that, for calA and calB cannot be scheduled on the same day. calB subevents need to scheduled for a later day, if not calA subevents will conflict with calB subevents.
-        /// </summary>
-        [TestMethod]
-        public void conflictResolution()
-        {
-            Location homeLocation = TestUtility.getLocations()[0];
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("2:00am");
-            UserAccount currentUser = TestUtility.getTestUser(userId: "499a0ab4-81d7-42df-a476-44fc4348e94b");
-            currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Parse("04/18/2017 10:41pm");
-            refNow = new DateTimeOffset(refNow.Year, refNow.Month, refNow.Day, 8, 0, 0, new TimeSpan());
-            TestSchedule schedule = new TestSchedule(currentUser, refNow, startOfDay);
-            var resultOfShuffle = schedule.FindMeSomethingToDo(homeLocation);
-            resultOfShuffle.Wait();
-            schedule.WriteFullScheduleToLogAndOutlook().Wait();
-            TimeLine timeLine = new TimeLine(refNow.AddDays(-1), refNow.AddDays(7));
-            List<SubCalendarEvent>subEvents = schedule.getAllCalendarEvents().Where(calEvent=> calEvent.isActive).SelectMany(calEvent => calEvent.ActiveSubEvents).Where(subEvent => subEvent.ActiveSlot.doesTimeLineInterfere(timeLine)).ToList();
-            List<BlobSubCalendarEvent> conflictingSubEvents = Utility.getConflictingEvents(subEvents);
-            Assert.AreEqual(conflictingSubEvents.Count, 0);
-        }
-
-        /// <summary>
         /// Test creates a combination of rigid and non rigid evvents that the sum of their duration adds up to eight hours. 
         /// Test creates a rigid event and then tries to add the other non-rigid events. The none rigids have a timeline that starts at the smetime as the rigid, but ends eight hours after
         /// The non rigids hould be aable to fit, without a conflict. The non rigids have a span of at least 1 hour

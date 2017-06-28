@@ -83,23 +83,25 @@ namespace TilerTests
 
 
         /// <summary>
-        /// Test tries to test the efficacy of the conflict resolution funtion. Essentially it creates two calendar events, calA and calB.
-        /// calA and calB have timelines such that, for calA and calB cannot be scheduled on the same day. calB subevents need to scheduled for a later day, if not calA subevents will conflict with calB subevents.
+        /// Current UTC time is 12:15 AM, Friday, June 2, 2017
+        /// End of day is 10:00pm
+        /// There is a conflict between the subevents 6413191_7_0_6413193 "Path optimization - implement optimization about beginning from home" and 6417040_7_0_6926266 "Event name analysis". 
+        /// I tried shuffling and this doesnt resolve the issue. Even though event name analysis can be scheduled for a later date.
+        /// Also WTF is 6418068_7_0_6909066('Spin up alternate tiler server for dbchanges') still doing there.It's deadline is sometime on the 16th
         /// </summary>
         [TestMethod]
-        public void conflictResolution()
+        public void conflictResolution0()
         {
             Location homeLocation = TestUtility.getLocations()[0];
             DateTimeOffset startOfDay = DateTimeOffset.Parse("2:00am");
-            UserAccount currentUser = TestUtility.getTestUser(userId: "499a0ab4-81d7-42df-a476-44fc4348e94b");
+            UserAccount currentUser = TestUtility.getTestUser(userId: "982935bc-f5bc-4d5e-a372-7a5d5e40cfa0");
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Parse("04/18/2017 10:41pm");
-            refNow = new DateTimeOffset(refNow.Year, refNow.Month, refNow.Day, 8, 0, 0, new TimeSpan());
+            DateTimeOffset refNow = DateTimeOffset.Parse("06/02/2017 12:15am");
             TestSchedule schedule = new TestSchedule(currentUser, refNow, startOfDay);
             var resultOfShuffle = schedule.FindMeSomethingToDo(homeLocation);
             resultOfShuffle.Wait();
             schedule.WriteFullScheduleToLogAndOutlook().Wait();
-            TimeLine timeLine = new TimeLine(refNow.AddDays(-1), refNow.AddDays(7));
+            TimeLine timeLine = new TimeLine(refNow.AddDays(0), refNow.AddDays(7));
             List<SubCalendarEvent>subEvents = schedule.getAllCalendarEvents().Where(calEvent=> calEvent.isActive).SelectMany(calEvent => calEvent.ActiveSubEvents).Where(subEvent => subEvent.ActiveSlot.doesTimeLineInterfere(timeLine)).ToList();
             List<BlobSubCalendarEvent> conflictingSubEvents = Utility.getConflictingEvents(subEvents);
             Assert.AreEqual(conflictingSubEvents.Count, 0);

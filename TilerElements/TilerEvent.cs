@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,7 +11,6 @@ namespace TilerElements
     {
         public static TimeSpan ZeroTimeSpan = new TimeSpan(0);
         //protected string EventName="";
-        protected EventName _Name;
         protected DateTimeOffset StartDateTime;
         protected DateTimeOffset EndDateTime;
         protected bool Complete = false;
@@ -45,6 +45,23 @@ namespace TilerElements
         protected string _TimeZone = "UTC";
         protected bool isProcrastinateEvent = false;
         internal TempTilerEventChanges TempChanges = new TempTilerEventChanges();
+        protected EventName _Name;
+
+        #region dataModelProperties
+        public string nameId { get; set; }
+        [ForeignKey("nameId")]
+        public EventName Name {
+            get
+            {
+                return _Name;
+            }
+            set
+            {
+                _Name = value;
+            }
+        }
+
+        #endregion
 
         #region IwhyImplementation
         abstract public IWhy Because();
@@ -79,11 +96,6 @@ namespace TilerElements
                 return Complete;
             }
         }
-
-        //virtual protected void setEventId(EventID id)
-        //{
-        //    this.UniqueID = id;
-        //}
 
         public EventDisplay getUIParam
         {

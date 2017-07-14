@@ -10,7 +10,7 @@ namespace TilerElements
     {
         public ProcrastinateAllSubCalendarEvent(TilerUser user, TilerUserGroup group, string timeZone, TimeLine timeLine, EventID calendarEventId, Location location, ProcrastinateCalendarEvent calendarEvent):base()
         {
-            this._Name = calendarEvent.getName;
+            this.Name = calendarEvent.getName;
             this.LocationInfo = location;
             this._TimeZone = timeZone;
             this.StartDateTime = timeLine.Start;

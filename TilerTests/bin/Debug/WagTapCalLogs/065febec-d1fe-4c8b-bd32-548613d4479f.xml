@@ -1,8 +1,884 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ScheduleLog>
-  <LastIDCounter>7155433</LastIDCounter>
+  <LastIDCounter>7157067</LastIDCounter>
   <referenceDay>3/5/2015 12:30:00 PM +00:00</referenceDay>
   <EventSchedules>
+    <EventSchedule>
+      <Recurrence />
+      <TimeZone>UTC</TimeZone>
+      <isProcrastinateEvent>False</isProcrastinateEvent>
+      <ProcrastinationProfile>
+        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
+        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
+        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
+      </ProcrastinationProfile>
+      <NowProfile>
+        <Initialized>False</Initialized>
+        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
+      </NowProfile>
+      <Restricted>False</Restricted>
+      <MiscData>
+        <TypeSelection>0</TypeSelection>
+        <UserNote />
+      </MiscData>
+      <UIParams>
+        <Type>0</Type>
+        <Color>
+          <UserSelection>-1</UserSelection>
+          <Blue>127</Blue>
+          <Green>127</Green>
+          <Red>127</Red>
+          <Opacity>1</Opacity>
+        </Color>
+        <Visible>True</Visible>
+      </UIParams>
+      <Location>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Home</Description>
+        <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+        <YCoordinate>-81.585446</YCoordinate>
+        <XCoordinate>41.480352</XCoordinate>
+      </Location>
+      <Enabled>True</Enabled>
+      <ID>7157068_7_0_0</ID>
+      <NameId>04f0f8cc-e799-4262-9142-7f94f5cea45d</NameId>
+      <Name>TestCalendarEvent-d93171ed-4d8a-4612-90ce-0254984b76a2</Name>
+      <StartTime>7/13/2017 2:00:00 PM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <DeletionCount>0</DeletionCount>
+      <CompletionCount>0</CompletionCount>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>7/18/2017 2:00:00 PM</Deadline>
+      <Split>1</Split>
+      <Duration>02:00:00</Duration>
+      <RigidFlag>False</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons>
+            <Reason xsi:type="BestFitReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>BestFit</Option>
+              <UsedUp>PT0S</UsedUp>
+              <Available>P1D</Available>
+              <CurrentUse>PT2H</CurrentUse>
+            </Reason>
+          </TimePositionReasons>
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+            <Visible>True</Visible>
+          </UIParams>
+          <Location>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Home</Description>
+            <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+            <YCoordinate>-81.585446</YCoordinate>
+            <XCoordinate>41.480352</XCoordinate>
+          </Location>
+          <NameId>04f0f8cc-e799-4262-9142-7f94f5cea45d</NameId>
+          <Name>TestCalendarEvent-d93171ed-4d8a-4612-90ce-0254984b76a2</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>7157068_7_0_7157069</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>7/14/2017 10:00:00 AM</ActiveStartTime>
+          <ActiveEndTime>7/14/2017 12:00:00 PM</ActiveEndTime>
+          <Duration>02:00:00</Duration>
+          <StartTime>7/14/2017 10:00:00 AM</StartTime>
+          <EndTime>7/14/2017 12:00:00 PM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
+    <EventSchedule>
+      <Recurrence />
+      <TimeZone>UTC</TimeZone>
+      <isProcrastinateEvent>False</isProcrastinateEvent>
+      <ProcrastinationProfile>
+        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
+        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
+        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
+      </ProcrastinationProfile>
+      <NowProfile>
+        <Initialized>False</Initialized>
+        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
+      </NowProfile>
+      <Restricted>False</Restricted>
+      <MiscData>
+        <TypeSelection>0</TypeSelection>
+        <UserNote />
+      </MiscData>
+      <UIParams>
+        <Type>0</Type>
+        <Color>
+          <UserSelection>-1</UserSelection>
+          <Blue>127</Blue>
+          <Green>127</Green>
+          <Red>127</Red>
+          <Opacity>1</Opacity>
+        </Color>
+        <Visible>True</Visible>
+      </UIParams>
+      <Location>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Home</Description>
+        <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+        <YCoordinate>-81.585446</YCoordinate>
+        <XCoordinate>41.480352</XCoordinate>
+      </Location>
+      <Enabled>True</Enabled>
+      <ID>7157070_7_0_0</ID>
+      <NameId>62a80eaf-544b-4045-bdfb-14ff17fe91da</NameId>
+      <Name>TestCalendarEvent-618f6f0f-01b0-48ad-9f2d-178ee6cf20d5</Name>
+      <StartTime>7/13/2017 2:00:00 PM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <DeletionCount>0</DeletionCount>
+      <CompletionCount>0</CompletionCount>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>7/14/2017 3:00:00 PM</Deadline>
+      <Split>1</Split>
+      <Duration>01:00:00</Duration>
+      <RigidFlag>True</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+            <Visible>True</Visible>
+          </UIParams>
+          <Location>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Home</Description>
+            <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+            <YCoordinate>-81.585446</YCoordinate>
+            <XCoordinate>41.480352</XCoordinate>
+          </Location>
+          <NameId>62a80eaf-544b-4045-bdfb-14ff17fe91da</NameId>
+          <Name>TestCalendarEvent-618f6f0f-01b0-48ad-9f2d-178ee6cf20d5</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>7157070_7_0_7157071</ID>
+          <Rigid>True</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>7/14/2017 2:00:00 PM</ActiveStartTime>
+          <ActiveEndTime>7/14/2017 3:00:00 PM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>7/14/2017 2:00:00 PM</StartTime>
+          <EndTime>7/14/2017 3:00:00 PM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
+    <EventSchedule>
+      <Recurrence />
+      <TimeZone>UTC</TimeZone>
+      <isProcrastinateEvent>False</isProcrastinateEvent>
+      <ProcrastinationProfile>
+        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
+        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
+        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
+      </ProcrastinationProfile>
+      <NowProfile>
+        <Initialized>False</Initialized>
+        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
+      </NowProfile>
+      <Restricted>False</Restricted>
+      <MiscData>
+        <TypeSelection>0</TypeSelection>
+        <UserNote />
+      </MiscData>
+      <UIParams>
+        <Type>0</Type>
+        <Color>
+          <UserSelection>-1</UserSelection>
+          <Blue>127</Blue>
+          <Green>127</Green>
+          <Red>127</Red>
+          <Opacity>1</Opacity>
+        </Color>
+        <Visible>True</Visible>
+      </UIParams>
+      <Location>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Home</Description>
+        <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+        <YCoordinate>-81.585446</YCoordinate>
+        <XCoordinate>41.480352</XCoordinate>
+      </Location>
+      <Enabled>True</Enabled>
+      <ID>7157072_7_0_0</ID>
+      <NameId>ac9ec4ba-a260-491c-ba7e-442da0912898</NameId>
+      <Name>TestCalendarEvent-a603b968-ec55-4bfe-b334-932c9ab47b2c</Name>
+      <StartTime>7/13/2017 2:00:00 PM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <DeletionCount>0</DeletionCount>
+      <CompletionCount>0</CompletionCount>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>7/18/2017 2:00:00 PM</Deadline>
+      <Split>1</Split>
+      <Duration>02:00:00</Duration>
+      <RigidFlag>False</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons>
+            <Reason xsi:type="BestFitReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>BestFit</Option>
+              <UsedUp>PT0S</UsedUp>
+              <Available>P1D</Available>
+              <CurrentUse>PT2H</CurrentUse>
+            </Reason>
+          </TimePositionReasons>
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+            <Visible>True</Visible>
+          </UIParams>
+          <Location>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Home</Description>
+            <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+            <YCoordinate>-81.585446</YCoordinate>
+            <XCoordinate>41.480352</XCoordinate>
+          </Location>
+          <NameId>ac9ec4ba-a260-491c-ba7e-442da0912898</NameId>
+          <Name>TestCalendarEvent-a603b968-ec55-4bfe-b334-932c9ab47b2c</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>7157072_7_0_7157073</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>7/14/2017 6:00:00 AM</ActiveStartTime>
+          <ActiveEndTime>7/14/2017 8:00:00 AM</ActiveEndTime>
+          <Duration>02:00:00</Duration>
+          <StartTime>7/14/2017 6:00:00 AM</StartTime>
+          <EndTime>7/14/2017 8:00:00 AM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
+    <EventSchedule>
+      <Recurrence />
+      <TimeZone>UTC</TimeZone>
+      <isProcrastinateEvent>False</isProcrastinateEvent>
+      <ProcrastinationProfile>
+        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
+        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
+        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
+      </ProcrastinationProfile>
+      <NowProfile>
+        <Initialized>False</Initialized>
+        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
+      </NowProfile>
+      <Restricted>False</Restricted>
+      <MiscData>
+        <TypeSelection>0</TypeSelection>
+        <UserNote />
+      </MiscData>
+      <UIParams>
+        <Type>0</Type>
+        <Color>
+          <UserSelection>-1</UserSelection>
+          <Blue>127</Blue>
+          <Green>127</Green>
+          <Red>127</Red>
+          <Opacity>1</Opacity>
+        </Color>
+        <Visible>True</Visible>
+      </UIParams>
+      <Location>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Home</Description>
+        <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+        <YCoordinate>-81.585446</YCoordinate>
+        <XCoordinate>41.480352</XCoordinate>
+      </Location>
+      <Enabled>True</Enabled>
+      <ID>7157074_7_0_0</ID>
+      <NameId>03d52f35-614f-4635-b1a7-0905b370ec6b</NameId>
+      <Name>TestCalendarEvent-41de77c2-7eb6-4dcd-9577-a9d75133e3d1</Name>
+      <StartTime>7/14/2017 2:00:00 PM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <DeletionCount>0</DeletionCount>
+      <CompletionCount>0</CompletionCount>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>7/15/2017 3:00:00 PM</Deadline>
+      <Split>1</Split>
+      <Duration>01:00:00</Duration>
+      <RigidFlag>True</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+            <Visible>True</Visible>
+          </UIParams>
+          <Location>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Home</Description>
+            <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+            <YCoordinate>-81.585446</YCoordinate>
+            <XCoordinate>41.480352</XCoordinate>
+          </Location>
+          <NameId>03d52f35-614f-4635-b1a7-0905b370ec6b</NameId>
+          <Name>TestCalendarEvent-41de77c2-7eb6-4dcd-9577-a9d75133e3d1</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>7157074_7_0_7157075</ID>
+          <Rigid>True</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>7/15/2017 2:00:00 PM</ActiveStartTime>
+          <ActiveEndTime>7/15/2017 3:00:00 PM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>7/15/2017 2:00:00 PM</StartTime>
+          <EndTime>7/15/2017 3:00:00 PM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
+    <EventSchedule>
+      <Recurrence />
+      <TimeZone>UTC</TimeZone>
+      <isProcrastinateEvent>False</isProcrastinateEvent>
+      <ProcrastinationProfile>
+        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
+        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
+        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
+      </ProcrastinationProfile>
+      <NowProfile>
+        <Initialized>False</Initialized>
+        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
+      </NowProfile>
+      <Restricted>False</Restricted>
+      <MiscData>
+        <TypeSelection>0</TypeSelection>
+        <UserNote />
+      </MiscData>
+      <UIParams>
+        <Type>0</Type>
+        <Color>
+          <UserSelection>-1</UserSelection>
+          <Blue>127</Blue>
+          <Green>127</Green>
+          <Red>127</Red>
+          <Opacity>1</Opacity>
+        </Color>
+        <Visible>True</Visible>
+      </UIParams>
+      <Location>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Home</Description>
+        <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+        <YCoordinate>-81.585446</YCoordinate>
+        <XCoordinate>41.480352</XCoordinate>
+      </Location>
+      <Enabled>True</Enabled>
+      <ID>7157076_7_0_0</ID>
+      <NameId>facf3353-6ea5-4bee-a7c4-25e076b007b8</NameId>
+      <Name>TestCalendarEvent-6b961a80-37e6-4cb3-82aa-fdcbc8707376</Name>
+      <StartTime>7/13/2017 2:00:00 PM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <DeletionCount>0</DeletionCount>
+      <CompletionCount>0</CompletionCount>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>7/18/2017 2:00:00 PM</Deadline>
+      <Split>1</Split>
+      <Duration>02:00:00</Duration>
+      <RigidFlag>False</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons>
+            <Reason xsi:type="BestFitReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>BestFit</Option>
+              <UsedUp>PT0S</UsedUp>
+              <Available>P1D</Available>
+              <CurrentUse>PT2H</CurrentUse>
+            </Reason>
+          </TimePositionReasons>
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+            <Visible>True</Visible>
+          </UIParams>
+          <Location>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Home</Description>
+            <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+            <YCoordinate>-81.585446</YCoordinate>
+            <XCoordinate>41.480352</XCoordinate>
+          </Location>
+          <NameId>facf3353-6ea5-4bee-a7c4-25e076b007b8</NameId>
+          <Name>TestCalendarEvent-6b961a80-37e6-4cb3-82aa-fdcbc8707376</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>7157076_7_0_7157077</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>7/14/2017 8:00:00 AM</ActiveStartTime>
+          <ActiveEndTime>7/14/2017 10:00:00 AM</ActiveEndTime>
+          <Duration>02:00:00</Duration>
+          <StartTime>7/14/2017 8:00:00 AM</StartTime>
+          <EndTime>7/14/2017 10:00:00 AM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
+    <EventSchedule>
+      <Recurrence />
+      <TimeZone>UTC</TimeZone>
+      <isProcrastinateEvent>False</isProcrastinateEvent>
+      <ProcrastinationProfile>
+        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
+        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
+        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
+      </ProcrastinationProfile>
+      <NowProfile>
+        <Initialized>False</Initialized>
+        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
+      </NowProfile>
+      <Restricted>False</Restricted>
+      <MiscData>
+        <TypeSelection>0</TypeSelection>
+        <UserNote />
+      </MiscData>
+      <UIParams>
+        <Type>0</Type>
+        <Color>
+          <UserSelection>-1</UserSelection>
+          <Blue>127</Blue>
+          <Green>127</Green>
+          <Red>127</Red>
+          <Opacity>1</Opacity>
+        </Color>
+        <Visible>True</Visible>
+      </UIParams>
+      <Location>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Home</Description>
+        <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+        <YCoordinate>-81.585446</YCoordinate>
+        <XCoordinate>41.480352</XCoordinate>
+      </Location>
+      <Enabled>True</Enabled>
+      <ID>7157078_7_0_0</ID>
+      <NameId>1dc41408-7fef-4821-96ab-8f63b9eb4566</NameId>
+      <Name>TestCalendarEvent-c81fd69f-d565-41e6-9ba1-55dec8c9dbf9</Name>
+      <StartTime>7/15/2017 2:00:00 PM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <DeletionCount>0</DeletionCount>
+      <CompletionCount>0</CompletionCount>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>7/16/2017 3:00:00 PM</Deadline>
+      <Split>1</Split>
+      <Duration>01:00:00</Duration>
+      <RigidFlag>True</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+            <Visible>True</Visible>
+          </UIParams>
+          <Location>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Home</Description>
+            <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+            <YCoordinate>-81.585446</YCoordinate>
+            <XCoordinate>41.480352</XCoordinate>
+          </Location>
+          <NameId>1dc41408-7fef-4821-96ab-8f63b9eb4566</NameId>
+          <Name>TestCalendarEvent-c81fd69f-d565-41e6-9ba1-55dec8c9dbf9</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>7157078_7_0_7157079</ID>
+          <Rigid>True</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>7/16/2017 2:00:00 PM</ActiveStartTime>
+          <ActiveEndTime>7/16/2017 3:00:00 PM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>7/16/2017 2:00:00 PM</StartTime>
+          <EndTime>7/16/2017 3:00:00 PM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
+    <EventSchedule>
+      <Recurrence />
+      <TimeZone>UTC</TimeZone>
+      <isProcrastinateEvent>False</isProcrastinateEvent>
+      <ProcrastinationProfile>
+        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
+        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
+        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
+      </ProcrastinationProfile>
+      <NowProfile>
+        <Initialized>False</Initialized>
+        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
+      </NowProfile>
+      <Restricted>False</Restricted>
+      <MiscData>
+        <TypeSelection>0</TypeSelection>
+        <UserNote />
+      </MiscData>
+      <UIParams>
+        <Type>0</Type>
+        <Color>
+          <UserSelection>-1</UserSelection>
+          <Blue>127</Blue>
+          <Green>127</Green>
+          <Red>127</Red>
+          <Opacity>1</Opacity>
+        </Color>
+        <Visible>True</Visible>
+      </UIParams>
+      <Location>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Home</Description>
+        <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+        <YCoordinate>-81.585446</YCoordinate>
+        <XCoordinate>41.480352</XCoordinate>
+      </Location>
+      <Enabled>True</Enabled>
+      <ID>7157080_7_0_0</ID>
+      <NameId>83059643-7d7f-4fc4-b3cb-5756fafaba27</NameId>
+      <Name>TestCalendarEvent-f07d51b7-5a30-4a2a-b5d3-f45bf69b2035</Name>
+      <StartTime>7/13/2017 2:00:00 PM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <DeletionCount>0</DeletionCount>
+      <CompletionCount>0</CompletionCount>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>7/18/2017 2:00:00 PM</Deadline>
+      <Split>1</Split>
+      <Duration>02:00:00</Duration>
+      <RigidFlag>False</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons>
+            <Reason xsi:type="BestFitReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>BestFit</Option>
+              <UsedUp>PT0S</UsedUp>
+              <Available>P1D</Available>
+              <CurrentUse>PT2H</CurrentUse>
+            </Reason>
+          </TimePositionReasons>
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+            <Visible>True</Visible>
+          </UIParams>
+          <Location>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Home</Description>
+            <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+            <YCoordinate>-81.585446</YCoordinate>
+            <XCoordinate>41.480352</XCoordinate>
+          </Location>
+          <NameId>83059643-7d7f-4fc4-b3cb-5756fafaba27</NameId>
+          <Name>TestCalendarEvent-f07d51b7-5a30-4a2a-b5d3-f45bf69b2035</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>7157080_7_0_7157081</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>7/14/2017 12:00:00 PM</ActiveStartTime>
+          <ActiveEndTime>7/14/2017 2:00:00 PM</ActiveEndTime>
+          <Duration>02:00:00</Duration>
+          <StartTime>7/14/2017 12:00:00 PM</StartTime>
+          <EndTime>7/14/2017 2:00:00 PM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
+    <EventSchedule>
+      <Recurrence />
+      <TimeZone>UTC</TimeZone>
+      <isProcrastinateEvent>False</isProcrastinateEvent>
+      <ProcrastinationProfile>
+        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
+        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
+        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
+      </ProcrastinationProfile>
+      <NowProfile>
+        <Initialized>False</Initialized>
+        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
+      </NowProfile>
+      <Restricted>False</Restricted>
+      <MiscData>
+        <TypeSelection>0</TypeSelection>
+        <UserNote />
+      </MiscData>
+      <UIParams>
+        <Type>0</Type>
+        <Color>
+          <UserSelection>-1</UserSelection>
+          <Blue>127</Blue>
+          <Green>127</Green>
+          <Red>127</Red>
+          <Opacity>1</Opacity>
+        </Color>
+        <Visible>True</Visible>
+      </UIParams>
+      <Location>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Home</Description>
+        <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+        <YCoordinate>-81.585446</YCoordinate>
+        <XCoordinate>41.480352</XCoordinate>
+      </Location>
+      <Enabled>True</Enabled>
+      <ID>7157082_7_0_0</ID>
+      <NameId>19f9550f-b92a-4f76-8b6c-05eb5da09903</NameId>
+      <Name>TestCalendarEvent-68c0b3af-f43a-4184-aa6a-c087f217b572</Name>
+      <StartTime>7/16/2017 2:00:00 PM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <DeletionCount>0</DeletionCount>
+      <CompletionCount>0</CompletionCount>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>7/17/2017 3:00:00 PM</Deadline>
+      <Split>1</Split>
+      <Duration>01:00:00</Duration>
+      <RigidFlag>True</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+            <Visible>True</Visible>
+          </UIParams>
+          <Location>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Home</Description>
+            <Address>2895 van aken blvd, cleveland, oh 44120, usa</Address>
+            <YCoordinate>-81.585446</YCoordinate>
+            <XCoordinate>41.480352</XCoordinate>
+          </Location>
+          <NameId>19f9550f-b92a-4f76-8b6c-05eb5da09903</NameId>
+          <Name>TestCalendarEvent-68c0b3af-f43a-4184-aa6a-c087f217b572</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>7157082_7_0_7157083</ID>
+          <Rigid>True</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>7/17/2017 2:00:00 PM</ActiveStartTime>
+          <ActiveEndTime>7/17/2017 3:00:00 PM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>7/17/2017 2:00:00 PM</StartTime>
+          <EndTime>7/17/2017 3:00:00 PM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
   </EventSchedules>
   <LocationCache>
     <Locations>

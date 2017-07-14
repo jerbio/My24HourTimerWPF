@@ -201,6 +201,55 @@ namespace TilerTests
             Assert.AreEqual(index, 3);/// This is known to fail
         }
 
+        [TestMethod]
+        public void noDayShiftWhenNothingOfConsequenceOccurs()
+        {
+            List<Location> locations = TestUtility.getLocations();
+            UserAccount currentUser = TestUtility.getTestUser();
+            currentUser.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.Parse("12:00AM");
+            DateTimeOffset start = DateTimeOffset.Parse("2:00PM");
+            TimeSpan twoHourDuration = TimeSpan.FromHours(2);
+            TimeSpan oneHourDuration = TimeSpan.FromHours(1);
+            DateTimeOffset end = start.AddDays(1);
+            List<CalendarEvent> allCalEvents = new List<CalendarEvent>();
+            for(int count=0; count< 4; count++)
+            {
+                CalendarEvent twoHourCalEvent = TestUtility.generateCalendarEvent(twoHourDuration, new Repetition(), start, end.AddDays(4), 1, false, locations[0]);
+                allCalEvents.Add(twoHourCalEvent);
+                DateTimeOffset rigidStart = start.AddDays(count);
+                DateTimeOffset rigidEnd = end.AddDays(count).Add(oneHourDuration);
+                CalendarEvent oneHourRigidCalEvent = TestUtility.generateCalendarEvent(oneHourDuration, new Repetition(), rigidStart, rigidEnd, 1, true, locations[0]);
+                allCalEvents.Add(oneHourRigidCalEvent);
+            }
+            TestSchedule iniSschedule = new TestSchedule(currentUser, refNow, start);
+            allCalEvents.ForEach((calEvent) => {
+                iniSschedule = new TestSchedule(currentUser, refNow, start);
+                iniSschedule.AddToScheduleAndCommit(calEvent).Wait();
+            });
+
+            var resultOfShuffle = iniSschedule.FindMeSomethingToDo(new Location());
+            resultOfShuffle.Wait();
+            iniSschedule.WriteFullScheduleToLogAndOutlook().Wait();
+
+            TestSchedule schedule = new TestSchedule(currentUser, refNow, start);
+            List<string> subEventIdsIni = schedule.getAllCalendarEvents().SelectMany(calEvent => calEvent.ActiveSubEvents).OrderBy(subEvent => subEvent.Start).Select(subEvent => subEvent.getId).ToList();
+            string stringConcatIni = String.Join(",", subEventIdsIni);
+            CalendarEvent toBeExtended = allCalEvents[3];
+            schedule = new TestSchedule(currentUser, refNow, start);
+            var scheduleUpdated = schedule.BundleChangeUpdate(toBeExtended.ActiveSubEvents.First().getId, toBeExtended.getName, toBeExtended.Start, toBeExtended.End.AddHours(1), toBeExtended.ActiveSubEvents.First().Start, toBeExtended.End.AddHours(1), 1);
+            schedule = new TestSchedule(currentUser, refNow, start);
+            schedule.UpdateWithDifferentSchedule(scheduleUpdated.Item2).Wait();
+
+            resultOfShuffle = schedule.FindMeSomethingToDo(new Location());
+            resultOfShuffle.Wait();
+            schedule.WriteFullScheduleToLogAndOutlook().Wait();
+
+            List<string> subEventIdsAfter = schedule.getAllCalendarEvents().SelectMany(calEvent => calEvent.ActiveSubEvents).OrderBy(subEvent => subEvent.Start).Select(subEvent => subEvent.getId).ToList();
+            string stringConcatAfter= String.Join(",", subEventIdsAfter);
+            Assert.AreEqual(stringConcatIni, stringConcatAfter);
+        }
+
         [TestInitialize]
         public void cleanUpLog()
         {

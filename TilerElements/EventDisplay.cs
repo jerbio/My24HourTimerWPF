@@ -11,7 +11,7 @@ namespace TilerElements
     {
         bool Visible;
         TilerColor eventColor;
-        int Default = 0;//0->Default Calendar Colors,1->Set As Complete,2->subCalendar Event Specific colors,3->Calendar Event Specific colors
+        int _Default = 0;//0->Default Calendar Colors,1->Set As Complete,2->subCalendar Event Specific colors,3->Calendar Event Specific colors
         string _Id = Guid.NewGuid().ToString();
         string _colorId = Guid.NewGuid().ToString();
         public string Id
@@ -29,13 +29,13 @@ namespace TilerElements
         {
             Visible = true;
             eventColor = new TilerColor(127, 127, 127, 1);
-            Default = 0;
+            _Default = 0;
         }
         public EventDisplay(bool VisibleFlag, TilerColor EventColor,int TypeOfDisplay=0,bool CompleteFlag=false)
         {
             Visible = VisibleFlag;
             eventColor = EventColor;
-            Default = TypeOfDisplay;
+            _Default = TypeOfDisplay;
         }
 
         public EventDisplay createCopy()
@@ -43,7 +43,7 @@ namespace TilerElements
             EventDisplay retValue = new EventDisplay();
             retValue .Visible =Visible;
             retValue.eventColor = eventColor;
-            retValue.Default = Default;//0->Default Calendar Colors,1->Set As Complete,2->subCalendar Event Specific colors,3->Calendar Event Specific colors
+            retValue._Default = _Default;//0->Default Calendar Colors,1->Set As Complete,2->subCalendar Event Specific colors,3->Calendar Event Specific colors
             return retValue;
         }
 
@@ -74,12 +74,19 @@ namespace TilerElements
             }
         }
 
+        public int Default
+        {
+            get
+            {
+                return _Default;
+            }
+        }
 
         public int isDefault
         {
             get 
             {
-                return Default;
+                return _Default;
             }
         }
 

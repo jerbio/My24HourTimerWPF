@@ -109,6 +109,7 @@
     <Compile Include="CalendarEvent.cs" />
     <Compile Include="CalendarEventRestricted.cs" />
     <Compile Include="HealthEvaluation.cs" />
+    <Compile Include="IUndoAble.cs" />
     <Compile Include="OptimizedGrouping.cs" />
     <Compile Include="TempTilerEventChanges.cs" />
     <Compile Include="ThirdPartyTilerUser.cs" />
@@ -158,6 +159,7 @@
     <Compile Include="TimeOfDayPreferrence.cs" />
     <Compile Include="TimeSpanWithID.cs" />
     <Compile Include="TravelTime.cs" />
+    <Compile Include="Undo.cs" />
     <Compile Include="UserActivity.cs" />
     <Compile Include="Utility.cs" />
   </ItemGroup>

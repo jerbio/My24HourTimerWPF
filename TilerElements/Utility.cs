@@ -1161,24 +1161,6 @@ namespace TilerElements
             return retValue;
         }
 
-
-
-        //public static List<T> RandomizeIEnumerable<T>(List<T> EntryList)
-        //{
-        //    //EntryList=EntryList.ToList();
-        //    List<T> retValue = EntryList.ToList();
-        //    Random myRand = new Random(1);
-        //    for (int i = 0; i < EntryList.Count; i++)
-        //    {
-        //        int MyNumb = myRand.Next(0, EntryList.Count);
-        //        T Temp = retValue[i];
-        //        retValue[i] = retValue[MyNumb];
-        //        retValue[MyNumb] = Temp;
-        //    }
-
-        //    return retValue;
-        //}
-
         static public List<mTuple<T, SubCalendarEvent>> SubCalEventsTomTuple<T>(IEnumerable<SubCalendarEvent> ListOfMTuples, T DefaultValue)
         {
             List<mTuple<T, SubCalendarEvent>> retValue = new System.Collections.Generic.List<mTuple<T, SubCalendarEvent>>();

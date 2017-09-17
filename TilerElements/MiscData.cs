@@ -7,8 +7,9 @@ namespace TilerElements
 {
     public class MiscData
     {
-        string UserTypedData;
-        int Type;//Entry Source. 0-> No Entry from Calendar Event. 1->From CalendarEvent. 2-> from SubCalendarEvent
+        string _Id;
+        string _UserTypedData;
+        int _Type;//Entry Source. 0-> No Entry from Calendar Event. 1->From CalendarEvent. 2-> from SubCalendarEvent
 
         #region constructor
 
@@ -16,14 +17,14 @@ namespace TilerElements
 
         public MiscData()
         {
-            UserTypedData = "";
-            Type = 0;
+            _UserTypedData = "";
+            _Type = 0;
         }
         
         public MiscData(string TypedNotes, int Type=0)
         {
-            UserTypedData = TypedNotes;
-            this.Type = Type;
+            _UserTypedData = TypedNotes;
+            this._Type = Type;
         }
         #endregion
 
@@ -31,8 +32,8 @@ namespace TilerElements
         public MiscData createCopy()
         {
             MiscData retValue = new MiscData();
-            retValue.Type = Type;
-            retValue.UserTypedData = UserTypedData;
+            retValue._Type = _Type;
+            retValue._UserTypedData = _UserTypedData;
 
             return retValue;
         }
@@ -47,7 +48,7 @@ namespace TilerElements
         {
             get
             {
-                return UserTypedData;
+                return _UserTypedData;
             }
         }
 
@@ -56,10 +57,51 @@ namespace TilerElements
         {
             get
             {
-                return Type;
+                return _Type;
             }
         }
 
+        #region dbProperties
+        public int Type
+        {
+            get
+            {
+                return _Type;
+            }
+
+            set
+            {
+                _Type = value;
+            }
+        }
+
+
+        public string UserTypedData
+        {
+            get
+            {
+                return _UserTypedData;
+            }
+
+            set
+            {
+                _UserTypedData = value;
+            }
+        }
+
+        public string Id
+        {
+            get
+            {
+                return _Id ?? (_Id = Guid.NewGuid().ToString());
+            }
+            set
+            {
+                _Id = value;
+            }
+        }
+
+        #endregion
         #endregion
 
     }

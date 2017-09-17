@@ -31,6 +31,8 @@ namespace TilerElements
             retValue.Id = this.Id;
             return retValue;
         }
+
+        #region dbProperties
         public DateTimeOffset PreferredTime
         {
             get
@@ -66,8 +68,8 @@ namespace TilerElements
                 _AssociatedEvent = value;
             }
         }
+        #endregion
 
-        
         public void reset()
         {
             TimePreferredForEvent = new DateTimeOffset();

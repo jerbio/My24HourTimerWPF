@@ -12,6 +12,7 @@ namespace TilerElements
     public class RestrictionTimeLine
     {
         //ToDo restriction timeline needs to include a day component
+        string _Id;
         static TimeSpan TwentyFourHourTImeSpan = TimeSpan.FromDays(1);
         protected DateTimeOffset StartTimeOfDay;
         protected TimeSpan RangeTimeSpan;
@@ -115,7 +116,7 @@ namespace TilerElements
         {
             set
             {
-                Span = value;
+                RangeTimeSpan = value;
             }
             get
             {
@@ -127,11 +128,23 @@ namespace TilerElements
         {
             set
             {
-                End = value;
+                EndTimeOfDay = value;
             }
             get
             {
                 return EndTimeOfDay;
+            }
+        }
+
+        public string Id
+        {
+            get
+            {
+                return _Id ?? (_Id = Guid.NewGuid().ToString());
+            }
+            set
+            {
+                _Id = value;
             }
         }
         #endregion

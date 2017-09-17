@@ -35,6 +35,22 @@ namespace TilerElements
             _BeginTIme = new DateTimeOffset();
         }
 
+
+        public Procrastination CreateCopy(string id = "")
+        {
+            Procrastination retValue = new Procrastination(this._FromTime, _BeginTIme - _FromTime);
+            if (string.IsNullOrEmpty(id))
+            {
+                retValue._Id = this.Id;
+            }
+            else
+            {
+                retValue._Id = id;
+            }
+
+            return retValue;
+        }
+        #region properties
         public DateTimeOffset PreferredStartTime
         {
             get
@@ -50,6 +66,40 @@ namespace TilerElements
                 return _FromTime;
             }
         }
+
+        public DayOfWeek DislikedDayOfWeek
+        {
+            get
+            {
+                return _FromTime.DayOfWeek;
+            }
+        }
+
+        public int DislikedDaySection
+        {
+            get
+            {
+                return _SectionOfDay;
+            }
+        }
+
+        public ulong DislikedDayIndex
+        {
+            get
+            {
+                return ReferenceNow.getDayIndexFromStartOfTime(_FromTime);
+            }
+        }
+
+        public ulong PreferredDayIndex
+        {
+            get
+            {
+                return ReferenceNow.getDayIndexFromStartOfTime(_BeginTIme);
+            }
+        }
+
+        #region dbProperties
         public string Id
         {
             get
@@ -75,53 +125,7 @@ namespace TilerElements
             }
         }
 
-        public DayOfWeek DislikedDayOfWeek
-        { 
-            get
-            {
-                return _FromTime.DayOfWeek;
-            }
-        }
-
-        public int DislikedDaySection
-        {
-            get
-            {
-                return _SectionOfDay;
-            }
-        }
-
-        public ulong DislikedDayIndex
-        {
-            get 
-            {
-                return ReferenceNow.getDayIndexFromStartOfTime(_FromTime);
-            }
-        }
-
-        public ulong PreferredDayIndex
-        {
-            get
-            {
-                return ReferenceNow.getDayIndexFromStartOfTime(_BeginTIme);
-            }
-        }
-
-        public Procrastination CreateCopy(string id = "")
-        {
-            Procrastination retValue = new Procrastination(this._FromTime,_BeginTIme-_FromTime);
-            if(string.IsNullOrEmpty(id))
-            {
-                retValue._Id = this.Id;
-            }
-            else
-            {
-                retValue._Id = id;
-            }
-            
-            return retValue ;
-        }
-        public DateTimeOffset FromTime
+       public DateTimeOffset FromTime
         {
             set
             {
@@ -154,5 +158,7 @@ namespace TilerElements
                 return SectionOfDay;
             }
         }
+#endregion
+#endregion
     }
 }

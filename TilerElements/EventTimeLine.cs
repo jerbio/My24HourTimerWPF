@@ -5,9 +5,10 @@ using System.Text;
 
 namespace TilerElements
 {
-    public class EventTimeLine : TimeLine
+    public class EventTimeLine : TimeLine, IUndoable
     {
         protected string TimeLineEventID = "";
+        protected string _UndoId = "";
 
         public EventTimeLine()
             : base()
@@ -28,6 +29,41 @@ namespace TilerElements
             TimeLineEventID = MyEventID;
         }
 
+        public void undoUpdate(Undo undo)
+        {
+            UndoStartOfTimeLine = StartTime;
+            UndoEndOfTimeLine = EndTime;
+            FirstInstantiation = false;
+        }
+
+        public virtual void undo(string undoId)
+        {
+            if(undoId == this.UndoId)
+            {
+                DateTimeOffset end = EndTime;
+                DateTimeOffset start = StartTime;
+                StartTime = this.UndoStartOfTimeLine;
+                EndTime = this.UndoEndOfTimeLine;
+                UndoStartOfTimeLine = start;
+                UndoEndOfTimeLine = end;
+            }
+        }
+
+        public virtual void redo(string undoId)
+        {
+            if (undoId == this.UndoId)
+            {
+                DateTimeOffset end = EndTime;
+                DateTimeOffset start = StartTime;
+                StartTime = this.UndoStartOfTimeLine;
+                EndTime = this.UndoEndOfTimeLine;
+                UndoStartOfTimeLine = start;
+                UndoEndOfTimeLine = end;
+            }
+        }
+
+
+        #region properties
         public string TimeLineID
         {
             get
@@ -47,6 +83,60 @@ namespace TilerElements
                 return ActiveTimeSlots.ToArray();
             }
         }
+
+        #region dbProperties
+        public string Id
+        {
+            set
+            {
+                TimeLineEventID = value;
+            }
+            get
+            {
+                return TimeLineEventID;
+            }
+        }
+        public DateTimeOffset StartOfTimeLine
+        {
+            get
+            {
+                return this.StartTime;
+            }
+            set
+            {
+                this.StartTime = value;
+            }
+        }
+        public DateTimeOffset EndOfTimeLine
+        {
+            get
+            {
+                return this.EndTime;
+            }
+            set
+            {
+                this.EndTime = value;
+            }
+        }
+
+        public virtual DateTimeOffset UndoStartOfTimeLine{ get;set;}
+        public virtual DateTimeOffset UndoEndOfTimeLine { get; set; }
+
+        public virtual string UndoId
+        {
+            get
+            {
+                return _UndoId;
+            }
+            set
+            {
+                _UndoId = value;
+            }
+        }
+
+        public virtual bool FirstInstantiation { get; set; } = true;
+        #endregion
+        #endregion
     }
 
 }

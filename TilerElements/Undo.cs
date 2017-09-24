@@ -15,5 +15,6 @@ namespace TilerElements
         public string activeId { get; set; }
         public string lastUndoId { get; set; }
         public DateTimeOffset lastUndoTIme { get; set; }
+        public bool LastAction { get; set; } = false; // if true then last action is re undo else it was redo
     }
 }

@@ -474,38 +474,10 @@ namespace TilerElements
                     BusyTimeLine MyBustTimeLine = ActiveTimeSlots[i];
                     InterferringBusyTimeLines = new System.Collections.Generic.List<BusyTimeLine>();
 
-                    //if ((MyBustTimeLine.Start == ActiveTimeSlots[i + 1].Start))
-                    //{
-                    //    if (MyBustTimeLine.End < ActiveTimeSlots[i + 1].End)
-                    //    {
-                    //        ActiveTimeSlots[i] = ActiveTimeSlots[i + 1];
-                    //        ActiveTimeSlots[i + 1] = MyBustTimeLine;
-                    //        MyBustTimeLine = ActiveTimeSlots[i];
-                    //        InterferringBusyTimeLines.Add(ActiveTimeSlots[i + 1]);
-                    //        i = 0;//this can be optimized
-                    //        DictionaryOfClashingTimelines = new System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<BusyTimeLine>>();
-
-                    //        flip = true;
-                    //    }
-                    //    else
-                    //    {
-                    //        if (MyBustTimeLine.End == ActiveTimeSlots[i + 1].End)
-                    //        {
-                    //            InterferringBusyTimeLines.Add(ActiveTimeSlots[i + 1]);
-                    //        }
-                    //    }
-                    //}
-
 
                     int j = i + 1;
                     for (j = i + 1; j < ActiveTimeSlots.Length; j++)
                     {
-                        //if (flip)
-                        //{
-                        //    flip = false;
-                        //    break;
-                        //}
-
                         if (MyBustTimeLine.doesTimeLineInterfere(ActiveTimeSlots[j]))
                         {
                             InterferringBusyTimeLines.Add(ActiveTimeSlots[j]);
@@ -513,20 +485,14 @@ namespace TilerElements
 
                     }
 
-                    //if (InterferringBusyTimeLines.Count > 0)
+                    if (DictionaryOfClashingTimelines.ContainsKey(i))
                     {
-                        if (DictionaryOfClashingTimelines.ContainsKey(i))
-                        {
-                            DictionaryOfClashingTimelines[i] = InterferringBusyTimeLines;
-                        }
-                        else
-                        {
-                            DictionaryOfClashingTimelines.Add(i, InterferringBusyTimeLines);
-                        }
+                        DictionaryOfClashingTimelines[i] = InterferringBusyTimeLines;
                     }
-
-
-
+                    else
+                    {
+                        DictionaryOfClashingTimelines.Add(i, InterferringBusyTimeLines);
+                    }
                 }
 
                 return DictionaryOfClashingTimelines;

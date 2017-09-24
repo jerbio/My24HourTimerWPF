@@ -238,7 +238,10 @@ namespace TilerElements
             
             
             subEvent.TempChanges.allChanges.Add(subEvent);
-            calEvent.EventRepetition = new Repetition(true, timeLine, Repetition.Frequency.YEARLY, subEvent.RangeTimeLine);
+            TimeLine subEventActiveTime = subEvent.RangeTimeLine;
+            TimeSpan dayDiffSpan = timeLine.Start.Date - subEventActiveTime.Start.Date;
+            TimeLine subEvenRangeReadjustedToexpectedTimeLine = new TimeLine(subEventActiveTime.Start.Add(dayDiffSpan), subEventActiveTime.End.Add(dayDiffSpan));
+            calEvent.EventRepetition = new Repetition(true, timeLine, Repetition.Frequency.YEARLY, subEvenRangeReadjustedToexpectedTimeLine);
             calEvent.EventRepetition.PopulateRepetitionParameters(calEvent);
             CalendarEvent calEventCpy = calEvent.Repeat.RecurringCalendarEvents().Single();// using ssingle because this must always return a single calendarevent. Because we generated a repeat event which should only have one calendar event;
             SubCalendarEvent subEventCopy = calEventCpy.AllSubEvents.First();
@@ -270,7 +273,6 @@ namespace TilerElements
             return retvalue;
         }
 
-
         virtual public void ReverseWhatIf(TempTilerEventChanges toBeReverted)
         {
             CalendarEvent calEvent = toBeReverted.allChanges[0] as CalendarEvent;
@@ -278,7 +280,7 @@ namespace TilerElements
             SubCalendarEvent subEventIni = calEvent.TempChanges.allChanges[0] as SubCalendarEvent;
             SubCalendarEvent subEventCopy = calEvent.TempChanges.allChanges[1] as SubCalendarEvent;
             subEventIni.Enable(calEvent);
-            subEventIni.shiftEvent(subEventCopy.Start);
+            //subEventIni.shiftEvent(subEventCopy.Start);
         }
         #endregion
 
@@ -785,10 +787,14 @@ namespace TilerElements
                     return true;
                 }
             }
-
             return false;
         }
 
+        public virtual List<TimeLine> getInterferringWithTimeLine(TimeLine timeLine)
+        {
+            TimeLine interFerringTimeLine = this.RangeTimeLine.InterferringTimeLine(timeLine);
+            return new List<TimeLine>() { interFerringTimeLine };
+        }
 
         public bool removeSubCalEvents(IEnumerable<SubCalendarEvent> ElementsToBeRemoved)
         {
@@ -809,58 +815,54 @@ namespace TilerElements
             return retValue;
         }
 
-        /*
-        public void DisableSubEvents(IEnumerable<SubCalendarEvent> ElementsToBeRemoved)
+        public override List<double> EvaluateTimeLines(List<TimelineWithSubcalendarEvents> timeLines)
         {
-                      
-
-            Parallel.ForEach(ElementsToBeRemoved, eachSubCalendarEvent => { SubEvents[eachSubCalendarEvent.SubEvent_ID].Dis(false); });
-
-            
-        }
-        */
-        /*
-        public void EnableSubEvents(IEnumerable<SubCalendarEvent> ElementsToBeRemoved)
-        {
-            
-             * Function replaces sets the enable flag of the subevents as true
-             
-
-            Parallel.ForEach(ElementsToBeRemoved, eachSubCalendarEvent => { SubEvents[eachSubCalendarEvent.SubEvent_ID].SetEventEnableStatus(true); });
-            if (ActiveSubEvents.Count() > 0)
-            {
-                Enabled = true;
-            }
-        }
-            */
-        /*
-        public bool replaceNullSubCalevents(List<SubCalendarEvent> ElementsToBeRemoved)
-        {
-            ///\*
-             * Function replaces null sub cal events. It is only to be called after a preceeding call to removeSubCalEvents. This simply replaces them
-             *\/
-
-            int LastDetectedIndex = ArrayOfSubEvents.ToList().IndexOf(null);
-            do
-            {
-                if (LastDetectedIndex > -1)
-                {
-
-                    SubCalendarEvent NewSubCalEvent = new SubCalendarEvent(RemovedIDs[0].Item1.ToString(), ElementsToBeRemoved[0].Start, ElementsToBeRemoved[0].End, ElementsToBeRemoved[0].ActiveSlot, ElementsToBeRemoved[0].Rigid, ElementsToBeRemoved[0].myLocation, this.RangeTimeLine);
-
-                    string thirdPartyID = RemovedIDs[0].Item2;
-                    ArrayOfSubEvents[LastDetectedIndex] = NewSubCalEvent;
-                    ArrayOfSubEvents[LastDetectedIndex].ThirdPartyID = thirdPartyID;
-                    ElementsToBeRemoved.Remove(ElementsToBeRemoved[0]);
-                    RemovedIDs.RemoveAt(0);
+            List<IList<double>> multiDimensionalCalculation = new List<IList<double>>();
+            List<TimelineWithSubcalendarEvents> validTimeLine = timeLines.Select(timeLine => {
+                if (timeLine.doesTimeLineInterfere(this.RangeTimeLine)) {
+                    return timeLine;
                 }
-                LastDetectedIndex = ArrayOfSubEvents.ToList().IndexOf(null);
+                else {
+                    return null;
+                }
+            }).ToList();
+            TimeSpan totalAvailableSpan = TimeSpan.FromTicks(timeLines.Sum(timeLine => timeLine.TimelineSpan.Ticks));
+
+            foreach (TimelineWithSubcalendarEvents timeline in validTimeLine)
+            {
+                if (timeline != null)
+                {
+                    List<TimeLine> interferringTImeLines = getInterferringWithTimeLine(timeline);
+                    TimeSpan totalInterferringSpan = TimeSpan.FromTicks(interferringTImeLines.Sum(objTimeLine => objTimeLine.TimelineSpan.Ticks));
+                    double distance = Location.calculateDistance(timeline.averageLocation, this.Location, 0);
+                    double tickRatio = (double)this.getActiveDuration.Ticks / totalInterferringSpan.Ticks;
+                    double occupancy = (double)timeline.Occupancy;
+                    double availableSpanRatio = (double)totalInterferringSpan.Ticks / totalAvailableSpan.Ticks;
+                    IList<double> dimensionsPerDay = new List<double>() { distance, tickRatio, occupancy };
+                    multiDimensionalCalculation.Add(dimensionsPerDay);
+                }
+                else
+                {
+                    multiDimensionalCalculation.Add(null);
+                }
             }
-            while ((LastDetectedIndex > -1) && (ElementsToBeRemoved.Count > 0));
-
-
-            return !((LastDetectedIndex < 0) && (ElementsToBeRemoved.Count > 0));
-        }*/
+            var NotNullMultidimenstionValues = multiDimensionalCalculation.Where(obj => obj != null).ToList();
+            List<double> foundIndexes = Utility.multiDimensionCalculationNormalize(NotNullMultidimenstionValues);
+            List<double> retValue = new List<double>();
+            int notNullCounter = 0;
+            foreach(var coordinates in multiDimensionalCalculation)
+            {
+                if (coordinates != null)
+                {
+                    retValue.Add(foundIndexes[notNullCounter++]);
+                }
+                else
+                {
+                    retValue.Add(double.NaN);
+                }
+            }
+            return retValue;
+        }
 
         static public string convertTimeToMilitary(string TimeString)
         {
@@ -1161,7 +1163,7 @@ namespace TilerElements
                 AllFreeDayTIme.AsParallel().ForAll(obj => { obj.updateOccupancyOfTimeLine(); });
             }
 
-            List<DayTimeLine> retValue = AllFreeDayTIme.Where(obj => obj.TotalFreeSpace > _AverageTimePerSplit).ToList();
+            List<DayTimeLine> retValue = AllFreeDayTIme.Where(obj => obj.TotalFreeSpotAvailable > _AverageTimePerSplit).ToList();
             return retValue;
         }
 
@@ -1187,7 +1189,14 @@ namespace TilerElements
                 AllFreeDayTIme.AsParallel().ForAll(obj => { obj.updateOccupancyOfTimeLine(); });
             }
 
-            List<DayTimeLine> retValue = AllFreeDayTIme.Where(obj => obj.TotalFreeSpace > _AverageTimePerSplit).ToList();
+            List<DayTimeLine> retValue = AllFreeDayTIme.Where(obj => obj.TotalFreeSpotAvailable > _AverageTimePerSplit).Where(dayTimeLine => {
+                TimeLine timeLine = dayTimeLine.InterferringTimeLine(this.RangeTimeLine);
+                if(timeLine !=null)
+                {
+                    return timeLine.TimelineSpan >= _AverageTimePerSplit;
+                }
+                return false;
+            }) .ToList();
             return retValue;
         }
 
@@ -1384,7 +1393,7 @@ namespace TilerElements
 
         public void removeDayTimeLinesWithInsufficientSpace()
         {
-            List<DayTimeLine> DaysWithInSufficientSpace=CalculationLimitation.Values.Where(obj => obj.TotalFreeSpace < _AverageTimePerSplit).ToList();
+            List<DayTimeLine> DaysWithInSufficientSpace=CalculationLimitation.Values.Where(obj => obj.TotalFreeSpotAvailable < _AverageTimePerSplit).ToList();
             DaysWithInSufficientSpace.ForEach(obj => CalculationLimitation.Remove(obj.UniversalIndex));
             DaysWithInSufficientSpace.ForEach(obj => FreeDaysLimitation.Remove(obj.UniversalIndex));
 
@@ -1705,14 +1714,6 @@ namespace TilerElements
                 return DataBlob;
             }
         }
-        virtual public Location myLocation
-        {
-            get
-            {
-                return Location;
-            }
-        }
-
 
         #endregion
 

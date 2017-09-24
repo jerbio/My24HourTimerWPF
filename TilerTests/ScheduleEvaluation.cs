@@ -152,7 +152,7 @@ namespace TilerTests
             TimeLine eachTimeLine = new TimeLine(refNow, refNow.Add(duration));
             HashSet<EventID> hashEventIDs = new HashSet<EventID>();
             HashSet<EventID> EventIDs = new HashSet<EventID>();
-            for (int i =0;i<4;i++)
+            for (int i =0;i< locations.Count; i++)
             {
                 TestSchedule Schedule = new TestSchedule(currentUser, refNow);
                 CalendarEvent testEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), eachTimeLine.Start,i == 0 ? eachTimeLine.End.AddHours(-12) : eachTimeLine.End, 1, false, locations[i]);
@@ -238,7 +238,7 @@ namespace TilerTests
 
             foreach (DayTimeLine daytimeLine in daytimeLines)
             {
-                int numberOfSubevent = daytimeLine.getSubEventsInDayTimeLine().Count;
+                int numberOfSubevent = daytimeLine.getSubEventsInTimeLine().Count;
                 Assert.AreEqual(numberOfSubevent, numberOfSubeventPerCalendarEvent);//This is known to fail
             }
         }
@@ -289,9 +289,41 @@ namespace TilerTests
 
             foreach (DayTimeLine daytimeLine in daytimeLines)
             {
-                int numberOfSubevent = daytimeLine.getSubEventsInDayTimeLine().Count;
+                int numberOfSubevent = daytimeLine.getSubEventsInTimeLine().Count;
                 Assert.AreEqual(numberOfSubevent, numberOfSubeventPerCalendarEvent);
             }
+        }
+
+        /// <summary>
+        /// Test tries to make sure that schedules are weighted based on the different timesections.
+        /// it tries to verify that just because there is a huge block of rigid none rigid events are NOT unusually scheduled around it. 
+        /// The test creates a huge rigid event (eight hours 8:00am - 4:00pm) that cuts from the morning time section into the afternoon section, and then creates eight 2 hour non rigids. Ideally this should result in the eight hours been spread between afternoon and evening as opposed to the morning.
+        /// The test will fail if there isn't enough sleep time(eight hours)
+        /// </summary>
+        [TestMethod]
+        public void scheduleBalanceSleepAllocation()
+        {
+            Location defaultLocation = TestUtility.getLocations()[1];
+            Location defaultLocation0 = TestUtility.getLocations()[2];
+            UserAccount currentUser = TestUtility.getTestUser();
+            currentUser.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.Parse("9:00pm");
+            DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00pm");
+            TestSchedule schedule = new TestSchedule(currentUser, refNow, startOfDay);
+            DateTimeOffset startTimeOfHugeRigid = startOfDay.AddHours(10);
+            CalendarEvent bigHugeRigidEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(8), new Repetition(), startTimeOfHugeRigid, startTimeOfHugeRigid.AddHours(8),rigidFlags:true, location: defaultLocation0);
+            schedule.AddToScheduleAndCommit(bigHugeRigidEvent).Wait();
+            schedule = new TestSchedule(currentUser, refNow, startOfDay);
+            CalendarEvent nonRigids = TestUtility.generateCalendarEvent(TimeSpan.FromHours(8), new Repetition(), startOfDay, startOfDay.AddDays(1),8,false, defaultLocation);
+            schedule.AddToScheduleAndCommit(nonRigids).Wait();
+            schedule = new TestSchedule(currentUser, refNow, startOfDay);
+            Location location = TestUtility.getLocations()[0];
+            schedule.FindMeSomethingToDo(location).Wait();
+            TimeSpan eightHourSpan = TimeSpan.FromHours(8);
+            List<SubCalendarEvent> subEveents = schedule.getAllCalendarEvents().SelectMany(calEvent => calEvent.AllSubEvents).OrderBy(obj => obj.Start).ToList();
+            SubCalendarEvent subEvent = subEveents.First();
+            TimeSpan spanOfEvents = (subEvent.Start - startOfDay);
+            Assert.IsTrue(spanOfEvents >= eightHourSpan);
         }
 
         [ClassCleanup]

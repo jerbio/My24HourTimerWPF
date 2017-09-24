@@ -82,6 +82,30 @@ namespace TilerTests
         }
 
 
+        /// Current UTC time is 12:15 AM, Friday, June 2, 2017
+        /// End of day is 10:00pm
+        /// There is a conflict between the subevents 6413191_7_0_6413193 "Path optimization - implement optimization about beginning from home" and 6417040_7_0_6926266 "Event name analysis". 
+        /// I tried shuffling and this doesnt resolve the issue. Even though event name analysis can be scheduled for a later date.
+        /// Also WTF is 6418068_7_0_6909066('Spin up alternate tiler server for dbchanges') still doing there.It's deadline is sometime on the 16th
+        /// </summary>
+        [TestMethod]
+        public void conflictResolution0()
+        {
+            Location homeLocation = TestUtility.getLocations()[0];
+            DateTimeOffset startOfDay = DateTimeOffset.Parse("2:00am");
+            UserAccount currentUser = TestUtility.getTestUser(userId: "982935bc-f5bc-4d5e-a372-7a5d5e40cfa0");
+            currentUser.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.Parse("06/02/2017 12:15am");
+            TestSchedule schedule = new TestSchedule(currentUser, refNow, startOfDay);
+            var resultOfShuffle = schedule.FindMeSomethingToDo(homeLocation);
+            resultOfShuffle.Wait();
+            schedule.WriteFullScheduleToLogAndOutlook().Wait();
+            TimeLine timeLine = new TimeLine(refNow.AddDays(0), refNow.AddDays(7));
+            List<SubCalendarEvent>subEvents = schedule.getAllCalendarEvents().Where(calEvent=> calEvent.isActive).SelectMany(calEvent => calEvent.ActiveSubEvents).Where(subEvent => subEvent.ActiveSlot.doesTimeLineInterfere(timeLine)).ToList();
+            List<BlobSubCalendarEvent> conflictingSubEvents = Utility.getConflictingEvents(subEvents);
+            Assert.AreEqual(conflictingSubEvents.Count, 0);
+        }
+
         /// <summary>
         /// Test creates a combination of rigid and non rigid evvents that the sum of their duration adds up to eight hours. 
         /// Test creates a rigid event and then tries to add the other non-rigid events. The none rigids have a timeline that starts at the smetime as the rigid, but ends eight hours after

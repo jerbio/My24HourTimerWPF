@@ -141,7 +141,6 @@ namespace TilerElements
                 }
             }
             List<double> retValue = summingArray.Select(obj => obj / collection.Count).ToList();
-
             return retValue;
         }
 
@@ -198,11 +197,9 @@ namespace TilerElements
                 }
             }
 
-            //double[] maxIndexes;
             if (normalizedFields == null)
             {
                 normalizedFields = new double[length];
-                //maxIndexes = normalizedFields.ToArray();
                 for (int i = 0; i < normalizedFields.Count; i++)
                 {
                     normalizedFields[i] = collection.Select(obj => obj[i]).Max();

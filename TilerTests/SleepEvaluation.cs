@@ -42,7 +42,7 @@ namespace TilerTests
             Schedule.AddToScheduleAndCommit(newCalEvent).Wait();
             dayForCalculaition = now.getAllDaysForCalc().ToList()[1];
             TimeSpan atLeastSleepSpan = TimeSpan.FromHours(8);
-            SubCalendarEvent subEvent = dayForCalculaition.getSubEventsInDayTimeLine().First();
+            SubCalendarEvent subEvent = dayForCalculaition.getSubEventsInTimeLine().First();
             TimeSpan sleepSpan = subEvent.Start - dayForCalculaition.Start;
 
             bool assertValue = atLeastSleepSpan <= sleepSpan;
@@ -81,9 +81,9 @@ namespace TilerTests
             dayForCalculation0 = allValidDays[1];
             dayForCalculation1 = allValidDays[2];
             dayForCalculation2 = allValidDays[3];
-            SubCalendarEvent subEvent0 = dayForCalculation0.getSubEventsInDayTimeLine().First();
-            SubCalendarEvent subEvent1 = dayForCalculation2.getSubEventsInDayTimeLine().OrderBy(subEvent => subEvent.Start).ToList()[0];
-            SubCalendarEvent subEvent2 = dayForCalculation2.getSubEventsInDayTimeLine().OrderBy(subEvent => subEvent.Start).ToList()[1];
+            SubCalendarEvent subEvent0 = dayForCalculation0.getSubEventsInTimeLine().First();
+            SubCalendarEvent subEvent1 = dayForCalculation2.getSubEventsInTimeLine().OrderBy(subEvent => subEvent.Start).ToList()[0];
+            SubCalendarEvent subEvent2 = dayForCalculation2.getSubEventsInTimeLine().OrderBy(subEvent => subEvent.Start).ToList()[1];
             TimeSpan sleepSpan = subEvent2.Start - dayForCalculation2.Start;
             TimeSpan atLeastSleepSpan = TimeSpan.FromHours(8);
 

@@ -45,12 +45,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="OptimizedGrouping.cs" />
     <Compile Include="OptimizedPath.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Schedule.cs" />
     <Compile Include="SnugArray.cs" />
-    <Compile Include="SpreadOutList.cs" />
+    <Compile Include="DayTempEvaluation.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TilerElements\TilerElements.csproj">

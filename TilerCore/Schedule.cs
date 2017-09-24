@@ -72,6 +72,7 @@ namespace TilerCore
         protected double PercentageOccupancy = 0;
         //public static DateTimeOffset Now = new DateTimeOffset(2014,4,6,0,0,0);//DateTimeOffset.UtcNow;
         protected ReferenceNow _Now;// = new ReferenceNow( DateTimeOffset.UtcNow);
+        protected HashSet<SubCalendarEvent> ConflictinSubEvents = new HashSet<SubCalendarEvent>();
 
         public ReferenceNow Now
         {
@@ -135,32 +136,9 @@ namespace TilerCore
 
 
         #region ToBeDeleted
-        //public void RemoveAllCalendarEventFromLogAndCalendar()//MyTemp Function for deleting all calendar events
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //async public Task WriteFullScheduleToLogAndOutlook()
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public void removeAllFromOutlook()
-        //{
-        //    throw new NotImplementedException();
-        //}
-        //public void WriteFullScheduleToOutlook()
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //async virtual public Task UpdateWithDifferentSchedule(Dictionary<string, CalendarEvent> UpdatedSchedule)
-        //{
-        //    throw new NotImplementedException();
-        //}
         #endregion
 
-        #region IwhyImplementation
+#region IwhyImplementation
         virtual public IWhy Because()
         {
             throw new NotImplementedException("Yet to implement a because functionality for subcalendar event");
@@ -198,9 +176,8 @@ namespace TilerCore
                 CurrentTimeZone = "UTC";
             }
             await this.FindMeSomethingToDo(CurrentLocation, CurrentTimeZone).ConfigureAwait(false);
-            calEvent.ReverseWhatIf(tilerChanges);
-            //virtual public void ReverseWhatIf(TempTilerEventChanges toBeReverted)
             Health scheduleHealth = new Health(getAllCalendarEvents(), Now.ComputationRange.Start, Now.ComputationRange.TimelineSpan, Now, this.getHomeLocation);
+            calEvent.ReverseWhatIf(tilerChanges);
             return scheduleHealth;
         }
 #endregion
@@ -243,8 +220,6 @@ namespace TilerCore
         {
             EventID userEvent = new EventID(EventID);
             return getCalendarEvent(userEvent);
-            
-            
         }
 
         public CalendarEvent getCalendarEvent(EventID myEventID)
@@ -460,7 +435,7 @@ namespace TilerCore
         public List<SubCalendarEvent> getSubweventsForDay(DateTimeOffset time)
         {
             DayTimeLine daytimeLine = Now.getDayTimeLineByTime(time);
-            List<SubCalendarEvent> retValue = daytimeLine.getSubEventsInDayTimeLine();
+            List<SubCalendarEvent> retValue = daytimeLine.getSubEventsInTimeLine();
             return retValue;
         }
 
@@ -1965,7 +1940,13 @@ namespace TilerCore
         /// <param name="OptimizeFirstTwentyFour"></param>
         /// <param name="preserveFirstTwentyFourHours"></param>
         /// <returns></returns>
-        CalendarEvent ReArrangeTimeLineWithinWithinCalendaEventRangeUpdated(CalendarEvent MyCalendarEvent, List<CalendarEvent> NoneCommitedCalendarEventsEvents, int InterferringWithNowFlag, HashSet<SubCalendarEvent> NotDoneYet, bool OptimizeFirstTwentyFour = true, bool preserveFirstTwentyFourHours = true)// this looks at the timeline of the calendar event and then tries to rearrange all subevents within the range to suit final output. Such that there will be sufficient time space for each subevent
+        CalendarEvent ReArrangeTimeLineWithinWithinCalendaEventRangeUpdated(
+            CalendarEvent MyCalendarEvent, 
+            List<CalendarEvent> NoneCommitedCalendarEventsEvents, 
+            int InterferringWithNowFlag, 
+            HashSet<SubCalendarEvent> NotDoneYet, 
+            bool OptimizeFirstTwentyFour = true, 
+            bool preserveFirstTwentyFourHours = true)// this looks at the timeline of the calendar event and then tries to rearrange all subevents within the range to suit final output. Such that there will be sufficient time space for each subevent
         {
             /*
                 Name{: Jerome Biotidara
@@ -2375,12 +2356,12 @@ namespace TilerCore
             }
             foreach (DayTimeLine EachDay in AllDayTimeLine)
             {
-                HashSet<string> ids = new HashSet<string>(EachDay.getSubEventsInDayTimeLine().Select(subEvent => subEvent.getId));
+                HashSet<string> ids = new HashSet<string>(EachDay.getSubEventsInTimeLine().Select(subEvent => subEvent.getId));
                 OptimizedPath dayPath = new OptimizedPath(EachDay, home);
                 dayToOPtimization.AddOrUpdate(EachDay, dayPath, ((key, oldValue) => { return dayPath; }));
                 dayPath.OptimizePath();
                 optimizeDay(EachDay, dayPath.getSubevents());
-                List<SubCalendarEvent> optimizedForDay = EachDay.getSubEventsInDayTimeLine().OrderBy(obj => obj.Start).ToList();
+                List<SubCalendarEvent> optimizedForDay = EachDay.getSubEventsInTimeLine().OrderBy(obj => obj.Start).ToList();
                 
 
             }
@@ -2461,14 +2442,21 @@ namespace TilerCore
             return retValue;
         }
         
+        //void resolveConflicts(IList<SubCalendarEvent> orderedListOFAlreadyAssignedSubEvents)
+        //{
+        //    if(ConflictinSubEvents.Count > 0)
+        //    {
+        //        stitchUnRestrictedSubCalendarEvent();
+        //    }
+        //}
+
         ulong ParallelizeCallsToDay(List<CalendarEvent> AllCalEvents,List<SubCalendarEvent> TotalActiveEvents, DayTimeLine[] AllDayTImeLine ,bool Optimize=true, bool preserveFirttwentyFourHours=true)
         {
             int TotalDays = (int)AllDayTImeLine.Length;
             Now.getAllDaysForCalc();
             ulong DayIndex = Now.consttDayIndex;
             ConcurrentBag< SubCalendarEvent>[] BagPerDay = new ConcurrentBag< SubCalendarEvent>[TotalDays];
-
-
+            TotalActiveEvents.ForEach((subEvent) => ConflictinSubEvents.Add(subEvent));
             AllCalEvents.AsParallel().ForAll(obj => { obj.resetDesignationAllActiveEventsInCalculables(); obj.InitialCalculationLookupDays(AllDayTImeLine); });
             ILookup<ulong, SubCalendarEvent> SetForFirstDay = (new List<SubCalendarEvent>()).ToLookup(obj => (ulong)0, obj => obj);
             preserveFirttwentyFourHours = false;
@@ -2487,7 +2475,6 @@ namespace TilerCore
                 int index = (int)(eachGrouping.Key - AllDayTImeLine[0].UniversalIndex);
                 AllDayTImeLine[index].AddToSubEventList(SetForFirstDay[eachGrouping.Key]);
             }
-            ConcurrentBag<List<SubCalendarEvent>> unassignedEvents = new ConcurrentBag<List<SubCalendarEvent>>();
             Dictionary<ulong, List<CalendarEvent>> DeadlineToCalEvents = new Dictionary<ulong, List<CalendarEvent>>();
 
             
@@ -2515,7 +2502,6 @@ namespace TilerCore
                 do
                 {
                     ConcurrentBag<CalendarEvent> UnUsableCalEvents = new ConcurrentBag<CalendarEvent>();
-                    unassignedEvents = new ConcurrentBag<List<SubCalendarEvent>>();
                     BagPerDay = BagPerDay.Select(obj => new ConcurrentBag<SubCalendarEvent>()).ToArray();
                     OldNumberOfAssignedElements = DesignatedAndAssignedSubEventCount;
 
@@ -2582,13 +2568,9 @@ namespace TilerCore
                             }
                         }
 
-
-                        
-
-
                         if (DaysToUse.Count > 0)
                         {
-                            List<Tuple<ulong, SubCalendarEvent>> AllEvents = EvaluateEachDayIndexForEvent(UndesignatedEvents, DaysToUse);
+                            List<Tuple<ulong, SubCalendarEvent>> AllEvents = EvaluateEachDayIndexForEvent(UndesignatedEvents, DaysToUse, eachCal);
                             Parallel.ForEach(AllEvents, eachTuple =>
                             {
                                 BagPerDay[(int)(eachTuple.Item1 - DayIndex)].Add(eachTuple.Item2);
@@ -2609,7 +2591,6 @@ namespace TilerCore
                         {
                             DictOfCalEvents[eachSucal.SubEvent_ID.getRepeatCalendarEventID()].removeDayTimeFromFreeUpdays(eachSucal.UniversalDayIndex);
                         }
-                        unassignedEvents.Add(newSubEventAdditions);
                     }
 
                     AllDayTImeLine.AsParallel().ForAll(obj => obj.updateOccupancyOfTimeLine());
@@ -2624,12 +2605,13 @@ namespace TilerCore
 
 
             List<SubCalendarEvent> undesignatedSubevents = TotalActiveEvents.Where(subEvent => !subEvent.isDesignated).ToList();
-            List<SubCalendarEvent> orderedByStart = TotalActiveEvents.OrderBy(obj => obj.Start).ToList(); ;
+            List<SubCalendarEvent> orderedByStart = TotalActiveEvents.OrderBy(obj => obj.Start).ToList();
             List<BlobSubCalendarEvent> beforePathOptimizationConflictingEvetns = Utility.getConflictingEvents(orderedByStart);
 
 
             int optimizedDayLimit = 10;
             IDictionary<DayTimeLine, OptimizedPath> dayToOptimization = null;
+            List<DayTimeLine> OptimizedDays = AllDayTImeLine.Take(optimizedDayLimit).ToList();
             if (Optimize)
             {
                 ulong FirstIndex = AllDayTImeLine[0].UniversalIndex;
@@ -2638,10 +2620,15 @@ namespace TilerCore
                     ILookup<ulong, SubCalendarEvent> DayToSubEvent = AllRigids.ToLookup(obj => obj.UniversalDayIndex, obj => obj);
                     foreach(IGrouping<ulong,SubCalendarEvent>eachGrouping in DayToSubEvent)
                     {
+                        IEnumerable<SubCalendarEvent> subEvents = DayToSubEvent[eachGrouping.Key];
+                        foreach(SubCalendarEvent subEvent in subEvents)
+                        {
+                            ConflictinSubEvents.Remove(subEvent);
+                        }
                         int currentIndex = (int)(eachGrouping.Key - FirstIndex);
                         AllDayTImeLine[currentIndex].AddToSubEventList(DayToSubEvent[eachGrouping.Key]);
                     }
-                    List<DayTimeLine> OptimizedDays = AllDayTImeLine.Take(optimizedDayLimit).ToList();
+                    
                     dayToOptimization = SortForSleep(OptimizedDays);
                     
                 }
@@ -2650,23 +2637,13 @@ namespace TilerCore
                     throw E;
                 } 
             }
+            TimeLine computationRange = Now.ComputationRange;
             List<BlobSubCalendarEvent> afterPathOptimizationConflictingEvetns = Utility.getConflictingEvents(TotalActiveEvents.OrderBy(obj => obj.Start).ToList());
-
-
-            //foreach (SubCalendarEvent element in TotalActiveEvents.OrderBy(SubEvent => SubEvent.Start))
-            //{
-            //    Console.WriteLine(element.myLocation.justLongLatString());
-            //}
-            double distanceCovered = Location.calculateDistance(TotalActiveEvents.OrderBy(SubEvent=> SubEvent.Start).Select(SubEvent => SubEvent.Location).ToList(),0);
+            List<SubCalendarEvent> ordereByStartTime = TotalActiveEvents.OrderBy(SubEvent => SubEvent.Start).ToList();
+            double distanceCovered = Location.calculateDistance(ordereByStartTime.Select(SubEvent => SubEvent.Location).ToList(),0);
             Health scheduleHealth = new Health(TotalActiveEvents, Now.calculationNow, new TimeSpan(7,0,0,0), Now,this.getHomeLocation);
-
-            //Console.WriteLine("Distance covered is {0}, Optimize is set to {1}\n Health Score is {2}", distanceCovered, Optimize, scheduleHealth.getScore());
-            
             return totalNumberOfEvents;
         }
-
-        
-
 
         ILookup<ulong, SubCalendarEvent> PrepFirstTwentyFOurHours(List<CalendarEvent> AllCalEvents, TimeLine FirstTwentyFour)
         {
@@ -2727,7 +2704,7 @@ namespace TilerCore
         List<SubCalendarEvent> processTwentyFourHours(DayTimeLine myDayTimeLine, List<SubCalendarEvent> AllSubEvents)//,List<BusyTimeLine>BusySlots)
         {
             ++CountCall;
-            List<SubCalendarEvent> AllreadyAssigned = myDayTimeLine.getSubEventsInDayTimeLine();
+            List<SubCalendarEvent> AllreadyAssigned = myDayTimeLine.getSubEventsInTimeLine();
             List<SubCalendarEvent> AllRigids = AllSubEvents.Concat(AllreadyAssigned).Where(obj => obj.getRigid).ToList();
             
             List<SubCalendarEvent> Movables = AllSubEvents.Except(AllRigids ).ToList();
@@ -2735,21 +2712,14 @@ namespace TilerCore
             {
                 return AllRigids;
             }
-            Location AvgLocation = Location.AverageGPSLocation((AllRigids.Concat(myDayTimeLine.getSubEventsInDayTimeLine())).Select(obj => obj.Location));
+            Location AvgLocation = Location.AverageGPSLocation((AllRigids.Concat(myDayTimeLine.getSubEventsInTimeLine())).Select(obj => obj.Location));
             SubCalendarEvent.resetScores(AllSubEvents);
-            /*
-            TimeLine timeLineForCalc = new TimeLine(myDayTimeLine.Start, myDayTimeLine.End);
-            timeLineForCalc.AddBusySlots(BusySlots);
-             //*/
             TimeLine timeLineForCalc = myDayTimeLine;
-
-            //Movables = stitchRestrictedSubCalendarEvent(timeLineForCalc.getAllFreeSlots().ToList(), Movables).SelectMany(obj => obj.Value).ToList();
-
             Tuple<TimeLine, Double> BaseLine = getAllReferenceCalculation(Movables, myDayTimeLine, AvgLocation);
             Movables = Movables.OrderBy(obj => obj.Score).ThenBy(obj=>obj.fittability).ToList();
             SubCalendarEvent.updateDayIndex(0, Movables);
             
-            List<SubCalendarEvent> Calculables = Movables .Count>6?Movables.GetRange(0, 7):Movables.ToList();
+            List<SubCalendarEvent> Calculables = Movables.Count>6?Movables.GetRange(0, 7):Movables.ToList();
             
             
             List<SubCalendarEvent> Reassigned = BuildAllPossibleSnugLists(Calculables, timeLineForCalc, 1, AllreadyAssigned.Except(AllRigids).ToList());
@@ -2768,7 +2738,7 @@ namespace TilerCore
             Movables = Movables.Except(Reassigned).ToList();
             myDayTimeLine.AddToSubEventList(Reassigned);
 
-            HashSet<SubCalendarEvent> ReassignedHashDayTime = new HashSet<SubCalendarEvent>(myDayTimeLine.getSubEventsInDayTimeLine());
+            HashSet<SubCalendarEvent> ReassignedHashDayTime = new HashSet<SubCalendarEvent>(myDayTimeLine.getSubEventsInTimeLine());
             HashSet<SubCalendarEvent> diff = new HashSet<SubCalendarEvent>(ReassignedHashDayTime.Except(ReassignedHash));
             SubCalendarEvent.updateDayIndex(myDayTimeLine.UniversalIndex, Reassigned.Concat(AllRigids));
             return Reassigned;
@@ -2843,61 +2813,124 @@ namespace TilerCore
         /// </summary>
         /// <param name="AllSubEvents"></param>
         /// <param name="AllDays"></param>
-        /// <returns></returns>
-        List<Tuple<ulong,SubCalendarEvent>>EvaluateEachDayIndexForEvent(List<SubCalendarEvent> AllSubEvents, List<DayTimeLine>AllDays )
+        /// <returns>
+        /// a list of tuples, each tuple has: 
+        ///     item1 is the preferred day for a subevent
+        ///     item2 is the subevent
+        /// 
+        /// </returns>
+        List<Tuple<ulong,SubCalendarEvent>>EvaluateEachDayIndexForEvent(List<SubCalendarEvent> AllSubEvents, List<DayTimeLine>AllDays, CalendarEvent calEvent)
         {
+            
             List<Tuple<ulong,SubCalendarEvent>> retValue = new List<Tuple<ulong,SubCalendarEvent>>();
             if (AllSubEvents.Count > 0)
             {
                 Procrastination procrastinationProfile = AllSubEvents[0].getProcrastinationInfo;
+                ILookup<TimeSpan, SubCalendarEvent> durationsToSubEvents =  AllSubEvents.ToLookup(subEvent => subEvent.getActiveDuration, subEvent => subEvent);
+                if(durationsToSubEvents.Count == 1)
+                {
+                    SubCalendarEvent subEvent = durationsToSubEvents[durationsToSubEvents.First().Key].First();
+                    
+                }
                 ulong PreferrdDayIndex = ReferenceNow.getDayIndexFromStartOfTime(procrastinationProfile.PreferredStartTime);
 
                 List<mTuple<bool, DayTimeLine>> OptimizedDayTimeLine = AllDays.Select(obj => new mTuple<bool, DayTimeLine>(((long)(obj.UniversalIndex - PreferrdDayIndex) >= 0), obj)).ToList();//this line orders Daytimeline by  if they are after the procrastination day.
-              
-                //AllDays = AllDays.OrderBy(obj => obj.Occupancy).ToList();
-                AllDays = OptimizedDayTimeLine.OrderByDescending(obj => obj.Item1).ThenBy(obj => obj.Item2.Occupancy).Select(obj => obj.Item2).ToList();//
+                List<double> timeLineScores = calEvent.EvaluateTimeLines(OptimizedDayTimeLine.Select(timeLine => (TimelineWithSubcalendarEvents)timeLine.Item2).ToList());
+                List<Tuple<int, double, DayTimeLine>> dayIndexToTImeLinw = timeLineScores.Select((score, index) => { return new Tuple<int, double, DayTimeLine>(index, score, OptimizedDayTimeLine[index].Item2); }).ToList();
+
+                //DayTimeLineCurrentProperties holds the propeties of all the daytimeline elements. The tuple has the folloiwng Left, Right, Difference, score
+                Dictionary<DayTimeLine, DayTempEvaluation> DayTimeLineCurrentProperties = new Dictionary<DayTimeLine, DayTempEvaluation>();
                 
 
-                int NumberOfDaysPossible = AllDays.Count;// (IndexRange.Item2 - IndexRange.Item1) + 1;
-                int iniRation = (int)AllSubEvents.Count / NumberOfDaysPossible;
-                int AllSubEventsStartingIndex = 0;
-                //ulong rangeDayIndex = Now.getDayIndexFromStartOfTime(PossibLeRangeForCalc.Start);
-                for (int i = 0; i < iniRation; i++)
-                {
-                    ulong StartIndex = 0;// AllDays[0].UniversalIndex;
-                    for (int j = 0; j < NumberOfDaysPossible; j++, ++StartIndex, ++AllSubEventsStartingIndex)
-                    {
-                        retValue.Add(new Tuple<ulong, SubCalendarEvent>(AllDays[j].UniversalIndex, AllSubEvents[AllSubEventsStartingIndex]));
-                    }
-                }
-
-                int UnAssignedCount = AllSubEvents.Count - AllSubEventsStartingIndex;
-                if (UnAssignedCount != 0)
-                { 
-                    int Spacing = (NumberOfDaysPossible / UnAssignedCount);
-                    int Delta = 0;
-                    int iniindex = 0;
-
-
-                    for (int i = AllSubEventsStartingIndex, j = 0; i < AllSubEvents.Count; i++, j++)
-                    {
-                        SubCalendarEvent refSubEvent = AllSubEvents[i];
-                        int MultiPlicator = j * Spacing;
-                        Delta = MultiPlicator;
-                        if (MultiPlicator < NumberOfDaysPossible)
+                Func<DayTimeLine, DayTimeLine, DayTempEvaluation> reevaluateLeftAndRightDays = (latestSelectedDayTimeLine, currentTimeLine) => {
+                    DayTempEvaluation tempScore = DayTimeLineCurrentProperties[currentTimeLine];
+                    ulong selectedUniversalIndex = latestSelectedDayTimeLine.UniversalIndex;
+                    ulong currentRight = tempScore.Right + tempScore.DayIndex;
+                    ulong currentLeft = tempScore.DayIndex - tempScore.Left;
+                    bool updateScore = selectedUniversalIndex < currentRight && selectedUniversalIndex > currentLeft;
+                    if (updateScore)
+                    { 
+                        if(selectedUniversalIndex > tempScore.DayIndex)
                         {
-                            ;
+                            tempScore.Right = selectedUniversalIndex - tempScore.DayIndex;
                         }
                         else
                         {
-                            j = 0;
-                            ++iniindex;
-                            Delta = 0;
+                            tempScore.Left = tempScore.DayIndex - selectedUniversalIndex;
                         }
 
-                        //ulong DayIndex = rangeDayIndex + (ulong)(Delta + iniindex);
-                        ulong DayIndex = AllDays[(Delta + iniindex)].UniversalIndex;
-                        retValue.Add(new Tuple<ulong, SubCalendarEvent>(DayIndex, refSubEvent));
+
+                        long diff = (long)tempScore.Left - (long)tempScore.Right;
+                        ulong uDiff = (ulong)Math.Abs(diff);
+                        tempScore.Diff = uDiff;
+                    }
+                    return tempScore;
+                };
+
+                List<mTuple<double, DayTimeLine>> orderedOnEvaluation = dayIndexToTImeLinw.Where(tuple => !double.IsNaN(tuple.Item2)).OrderBy(tuple => tuple.Item2).Select(tuple => new mTuple<double, DayTimeLine>(tuple.Item2, tuple.Item3)).ToList();
+                List<ulong> dayIndexes = orderedOnEvaluation.Select(obj => obj.Item2.UniversalIndex).OrderBy(dayIndex => dayIndex).ToList();
+                List<DayTimeLine> useUpOrder = new List<DayTimeLine>();
+                mTuple<double, DayTimeLine> lastDaySelected = orderedOnEvaluation.FirstOrDefault();
+                if(lastDaySelected != null)
+                {
+                    ulong selectedDayIndex = lastDaySelected.Item2.UniversalIndex;
+                    SubCalendarEvent subEvent = AllSubEvents.First();
+                    retValue.Add(new Tuple<ulong, SubCalendarEvent>(selectedDayIndex, subEvent));
+                    useUpOrder.Add(lastDaySelected.Item2);
+                    if (orderedOnEvaluation.Count != 0)
+                    {
+                        DayTimeLineCurrentProperties = orderedOnEvaluation.ToDictionary(dayTuple =>
+                            {
+                                return dayTuple.Item2;
+                            },
+                            dayTuple =>
+                            {
+                                ulong left = dayTuple.Item2.UniversalIndex - dayIndexes[0];
+                                ulong right = dayIndexes[dayIndexes.Count - 1] - dayTuple.Item2.UniversalIndex;
+                                long diff = (long)left - (long)right;
+                                ulong uDiff = (ulong)Math.Abs(diff);
+                                return new DayTempEvaluation()
+                                {
+                                    Diff = uDiff,
+                                    Left = left,
+                                    Right = right,
+                                    Score = dayTuple.Item1,
+                                    TimeLineScore = dayTuple.Item1,
+                                    DayIndex = dayTuple.Item2.UniversalIndex
+                                };
+                            }
+                        );
+                        orderedOnEvaluation.RemoveAt(0);
+                        for (int i = 1; i < AllSubEvents.Count; i++)
+                        {
+                            subEvent = AllSubEvents[i];
+                            if(useUpOrder.Count != dayIndexes.Count) {
+                                orderedOnEvaluation.ForEach(evaluationResult => {
+                                    DayTempEvaluation evaluation = reevaluateLeftAndRightDays(lastDaySelected.Item2, evaluationResult.Item2);
+                                });
+                                List<IList<double>> data = orderedOnEvaluation.Select(obj => (IList<double>)DayTimeLineCurrentProperties[obj.Item2].toMultiArrayDict()).ToList();
+                                List<double> values = Utility.multiDimensionCalculationNormalize(data);
+                                int lowestIndex = values.MinIndex();
+                                lastDaySelected = orderedOnEvaluation[lowestIndex];
+                                DayTimeLine minDayTimeLine = lastDaySelected.Item2;
+                                retValue.Add(new Tuple<ulong, SubCalendarEvent>(minDayTimeLine.UniversalIndex, subEvent));
+                                orderedOnEvaluation.RemoveAt(lowestIndex);
+                                selectedDayIndex = lastDaySelected.Item2.UniversalIndex;
+                                useUpOrder.Add(minDayTimeLine);
+                            }
+                            else
+                            {
+                                int j = 0;
+                                int usedUPLength = useUpOrder.Count;
+                                for(; i < AllSubEvents.Count; i++, j++)
+                                {
+                                    SubCalendarEvent excessSubEvent = AllSubEvents[i];
+                                    int dayIndex = j % usedUPLength;
+                                    DayTimeLine dayTimeLine = useUpOrder[dayIndex];
+                                    retValue.Add(new Tuple<ulong, SubCalendarEvent>(dayTimeLine.UniversalIndex, excessSubEvent));
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -2905,53 +2938,28 @@ namespace TilerCore
 
         }
 
-        List<SubCalendarEvent> BuildAllPossibleSnugLists(List<SubCalendarEvent> DictionaryWithBothCalendarEventsAndListOfInterferringSubEvents, TimeLine ReferenceTimeLine, double Occupancy, List<SubCalendarEvent> AlreadyAssigneEvents)
+        List<SubCalendarEvent> BuildAllPossibleSnugLists(List<SubCalendarEvent> subEventsForCalculation, TimeLine ReferenceTimeLine, double Occupancy, List<SubCalendarEvent> AlreadyAssignedEvents)
         {
             TimeLine[] JustFreeSpots = getAllFreeSpots_NoCompleteSchedule(ReferenceTimeLine).OrderByDescending(obj => obj.End).ToArray();
 
 
-            List<SubCalendarEvent> MyListOfSubCalendarEvents = DictionaryWithBothCalendarEventsAndListOfInterferringSubEvents.ToList();
-            List<SubCalendarEvent> ListOfAlreadyAssignedSubCalendarEvents = new System.Collections.Generic.List<SubCalendarEvent>();
-            List<TimeSpan> ListOfAllInterferringTimeSpans = new List<TimeSpan>();
-            TimeLine FirstTwentyFOurTimeLine = new TimeLine();
-            List<mTuple<SubCalendarEvent, TimeLine>> FirstTwentyFourHours = new List<mTuple<SubCalendarEvent, TimeLine>>();
-            List<SubCalendarEvent> ListOfAllInterferringSubCalendarEvents = new List<SubCalendarEvent>();// AlreadyAssigneEvents.ToList();
-            
-            if (JustFreeSpots.Length > 0)
-            {
-                DateTimeOffset refStartTime24Hour = Now.calculationNow;
-                FirstTwentyFOurTimeLine = new TimeLine(refStartTime24Hour, refStartTime24Hour.AddDays(1));
-            }
+            List<SubCalendarEvent> MyListOfSubCalendarEvents = subEventsForCalculation.ToList();
+            List<SubCalendarEvent> ListOfAlreadyAssignedSubCalendarEvents = new System.Collections.Generic.List<SubCalendarEvent>();           
 
             List<SubCalendarEvent> retValue = new List<SubCalendarEvent>();
-
-            foreach (SubCalendarEvent MySubEvents in MyListOfSubCalendarEvents)//Loop creates a List of interferring SubCalendarEvens
-            {
-                //foreach (SubCalendarEvent MySubEvents in MyList)
-                {
-                    ListOfAllInterferringSubCalendarEvents.Add(MySubEvents);
-                    ListOfAllInterferringTimeSpans.Add(MySubEvents.ActiveSlot.BusyTimeSpan);
-                    if (FirstTwentyFOurTimeLine.InterferringTimeLine(MySubEvents.RangeTimeLine) != null)
-                    {
-                        FirstTwentyFourHours.Add(new mTuple<SubCalendarEvent, TimeLine>(MySubEvents, MySubEvents.RangeTimeLine));
-                    }
-                }
-            }
-            FirstTwentyFourHours = FirstTwentyFourHours.OrderBy(obj => obj.Item1.Start).ToList();//orders the element by start time in order to preserve order for later calculation
             
-            
-            List<SubCalendarEvent> AllInterferringSubEvents= DictionaryWithBothCalendarEventsAndListOfInterferringSubEvents.ToList();
+            List<SubCalendarEvent> AllInterferringSubEvents= subEventsForCalculation.ToList();
             List<SubCalendarEvent> NoChangeTOOrder_AllInterferringSubEvents = AllInterferringSubEvents.ToList();
             List<SubCalendarEvent> AllInterferringSubEvents_Cpy = AllInterferringSubEvents.ToList();
             
             
-            HashSet<SubCalendarEvent> AllInterferringSubEvents_Cpy_Hash = new HashSet<SubCalendarEvent>(AllInterferringSubEvents_Cpy.Concat(AlreadyAssigneEvents));
-            AllInterferringSubEvents_Cpy = AllInterferringSubEvents_Cpy_Hash.Except(AlreadyAssigneEvents).ToList();
+            HashSet<SubCalendarEvent> AllInterferringSubEvents_Cpy_Hash = new HashSet<SubCalendarEvent>(AllInterferringSubEvents_Cpy.Concat(AlreadyAssignedEvents));
+            AllInterferringSubEvents_Cpy = AllInterferringSubEvents_Cpy_Hash.Except(AlreadyAssignedEvents).ToList();
             Dictionary<string, SubCalendarEvent> AllEvents_Dict=AllInterferringSubEvents_Cpy_Hash.ToDictionary(obj=>obj.getId,obj=>obj);
             Dictionary<TimeLine, List<SubCalendarEvent>> Dict_ConstrainedElements;
-            if (AlreadyAssigneEvents.Count > 0)
+            if (AlreadyAssignedEvents.Count > 0)
             {
-                Dict_ConstrainedElements = JustPickCollidingTimeline(JustFreeSpots.ToList(), new HashSet<SubCalendarEvent>(AlreadyAssigneEvents).ToList());
+                Dict_ConstrainedElements = JustPickCollidingTimeline(JustFreeSpots.ToList(), new HashSet<SubCalendarEvent>(AlreadyAssignedEvents).ToList());
             }
             else
             { 
@@ -2988,7 +2996,7 @@ namespace TilerCore
                 }
 
                 JustFreeSpots_Cpy.RemoveAt(0);
-                if ((JustFreeSpots_Cpy.Count > 0)&&(AlreadyAssigneEvents.Count==0))
+                if ((JustFreeSpots_Cpy.Count > 0)&&(AlreadyAssignedEvents.Count==0))
                 {
                     SubCalendarEvent.updateMiscData(AllInterferringSubEvents_Cpy,0);
                     //I believe the next two lines of code can be optimized and combined to one
@@ -7780,59 +7788,6 @@ namespace TilerCore
 
         int LargestTimeIndex = -1;
 
-        int checkSumOfTimeEvent(List<List<SubCalendarEvent>> MySubCalEventInTimeLine)//hack for optimization
-        {
-            int Sum = 0;
-            foreach (List<SubCalendarEvent> EachTimeLineSubeventList in MySubCalEventInTimeLine)
-            {
-                Sum += EachTimeLineSubeventList.Count;
-            }
-            return Sum;
-        }
-
-        List<List<SubCalendarEvent>> SerializeListOfMatchingSubcalendarEvents(List<List<List<SubCalendarEvent>>> MyListofListOfListOfSubcalendar)
-        {
-
-            int MyCounterBreaker = 0;
-            List<List<SubCalendarEvent>> MyTotalCompilation = new System.Collections.Generic.List<System.Collections.Generic.List<SubCalendarEvent>>();
-            foreach (List<List<SubCalendarEvent>> MyListOfList in MyListofListOfListOfSubcalendar)
-            {
-
-                //++MyCounterBreaker;
-                // if (MyCounterBreaker > 200)//estimate how long it'll take to lose memory then optimize for that
-                {
-                    //break;
-                }
-                var MyHolder = MyTotalCompilation.Concat(SpreadOutList.GenerateListOfSubCalendarEvent(MyListOfList));
-                MyTotalCompilation = MyHolder.ToList();
-                //MyTotalCompilation.Add(SpreadOutList.GenerateListOfSubCalendarEvent(MyListOfList))
-            }
-
-
-
-            return MyTotalCompilation;
-        }
-
-
-
-
-
-        bool isSubCalendarEventInList(SubCalendarEvent SubCalendarEventToCheck, List<SubCalendarEvent> MyCurrentList)
-        {
-            foreach (SubCalendarEvent MySubCalendarEvent in MyCurrentList)
-            {
-                if (SubCalendarEventToCheck.getId == MySubCalendarEvent.getId)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-
-
-
-
         private CalendarEvent[] getPertinentCalendarEvents(CalendarEvent[] PossibleCalendarEvents, TimeLine VerifiableSpace)
         {
             List<CalendarEvent> MyPertinentCalendarList = new List<CalendarEvent>();
@@ -7847,32 +7802,7 @@ namespace TilerCore
             }
             return MyPertinentCalendarList.ToArray();
         }
-        /*
-        TimeLine CreateTimeLineWithSubCalendarEventsStackedNextToEachOtherWithinRestrictiveCalendarEvent(Dictionary<CalendarEvent, List<SubCalendarEvent>> DictionaryCalendarEventAndJustInterferringSubCalendar)
-        {
-            /*
-             * Name: Jerome Biotidara
-             * Description: This function is called when a timeline in which the Calendar events have subcalendar events are set to their last possible assignable position.
-             * e.g CalendarEvent1 with Time Line (12:00Am 1/1/2013 and 12:00AM 1/3/2013) and a busy time slot of 7 hours and 2 subcalendar events. 
-             * The expected final result will be SubEvent[0]=>5:00pm 1/2/2013 SubEvent[0]=>8:30pm 1/2/2013
-             * Note this is only called with a dicitionary this is because thois is supposed to be called in a case wehere we have to optimize the assignation of the subevents
-             
-            TimeLine MyTimeLine = new TimeLine();
-            List<CalendarEvent> MyDeadlineSortedListOfCalendarEvents = DictionaryCalendarEventAndJustInterferringSubCalendar.Keys.OrderBy(obj => obj.End).ToList();// QuickSortCalendarEventFunctionFromEnd(DictionaryCalendarEventAndJustInterferringSubCalendar.Keys.ToList(), 0, (DictionaryCalendarEventAndJustInterferringSubCalendar.Keys.Count - 1), (DictionaryCalendarEventAndJustInterferringSubCalendar.Keys.Count / 2));
-
-            return new TimeLine();
-        }*/
-
-
-
-
-
-
-
-
-
-
-        
+       
 
         List<List<List<SubCalendarEvent>>> BuildListMatchingTimelineAndSubCalendarEvent(List<List<TimeSpan>> ListOfSnugPossibilities, List<SubCalendarEvent> ListOfSubCalendarEvents)
         {

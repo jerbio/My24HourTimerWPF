@@ -213,12 +213,20 @@ namespace TilerElements
                     Destination = second.justLongLatString(),
                     TravelMode = travelMode
                 };
-                DirectionsResponse directions = GoogleMaps.Directions.Query(directionsRequest);
-                if (directions.Status == DirectionsStatusCodes.OK)
+                try
                 {
-                    var route = directions.Routes.First();
-                    retValue = route.Legs.First().Duration.Value;
+                    DirectionsResponse directions = GoogleMaps.Directions.Query(directionsRequest);
+                    if (directions.Status == DirectionsStatusCodes.OK)
+                    {
+                        var route = directions.Routes.First();
+                        retValue = route.Legs.First().Duration.Value;
+                    }
                 }
+                catch(Exception e)
+                {
+                    retValue = new TimeSpan(-1);
+                }
+                
             }
             
 

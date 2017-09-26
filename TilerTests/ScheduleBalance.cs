@@ -201,6 +201,53 @@ namespace TilerTests
             Assert.AreEqual(index, 3);/// This is known to fail
         }
 
+
+        /// <summary>
+        /// Function test a scenario where there is a change of no consequence is applied to a users schedule. This modification should not necessarily trigger a reordering of events.
+        /// In this case a rigid calendar event is extended by 5 minutes, amongst non-rigids. This should not result in in the order of things. There might be a change in start times
+        /// </summary>
+        [TestMethod]
+        public void noConsequenceChange ()
+        {
+            List<Location> locations = TestUtility.getLocations();
+            UserAccount currentUser = TestUtility.getTestUser();
+            currentUser.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.Parse("12:00AM");
+            DateTimeOffset start = DateTimeOffset.Parse("2:00PM");
+            TimeSpan duration = TimeSpan.FromHours(4);
+            TimeSpan rigidDuration = TimeSpan.FromHours(1);
+            DateTimeOffset end = start.Add(duration);
+            CalendarEvent noneRigid0 = TestUtility.generateCalendarEvent(duration, new Repetition(), start, start.AddDays(0.8), 4, false, locations[0]);
+            CalendarEvent noneRigid1 = TestUtility.generateCalendarEvent(duration, new Repetition(), start, start.AddDays(0.8), 4, false, locations[0]);
+            CalendarEvent rigid0 = TestUtility.generateCalendarEvent(rigidDuration, new Repetition(), start, start.Add(rigidDuration), 1, true, locations[0]);
+            CalendarEvent rigid1 = TestUtility.generateCalendarEvent(rigidDuration, new Repetition(), rigid0.Start.AddHours(4), rigid0.Start.AddHours(4).Add(rigidDuration), 1, true, locations[0]);
+
+            TestSchedule schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
+            schedule.AddToScheduleAndCommit(noneRigid0).Wait();
+            schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
+            schedule.AddToScheduleAndCommit(noneRigid1).Wait();
+            schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
+            schedule.AddToScheduleAndCommit(rigid0).Wait();
+            schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
+            schedule.AddToScheduleAndCommit(rigid1).Wait();
+            schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
+            schedule.FindMeSomethingToDo(locations[0]).Wait();
+
+            List<SubCalendarEvent> subEvents = schedule.getAllCalendarEvents().SelectMany(calEvent => calEvent.AllSubEvents).ToList();
+            subEvents = subEvents.OrderBy(obj => obj.Start).ToList();
+            List<string> orderedByTimelIds = subEvents.Select(subEvent => subEvent.getId).ToList();
+            schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
+            SubCalendarEvent subeventNoConsequence = rigid1.AllSubEvents.First();
+            TimeSpan timeDelta = TimeSpan.FromMinutes(30);
+            Tuple < CustomErrors, Dictionary < string, CalendarEvent >> bundleResult = schedule.BundleChangeUpdate(subeventNoConsequence.getId, subeventNoConsequence.getName, subeventNoConsequence.Start, subeventNoConsequence.End.Add(timeDelta), rigid1.Start, rigid1.End, 1);
+            List<SubCalendarEvent> reOrderedSubEvents = bundleResult.Item2.Values.SelectMany(calEvent => calEvent.AllSubEvents).OrderBy(obj => obj.Start).ToList();
+            List<string> reOrderedByTimelIds = reOrderedSubEvents.Select(subEvent => subEvent.getId).ToList();
+            Assert.AreEqual(reOrderedByTimelIds.Count, orderedByTimelIds.Count);
+            for(int i =0; i < orderedByTimelIds.Count; i++)
+            {
+                Assert.AreEqual(reOrderedByTimelIds[i], orderedByTimelIds[i]);
+            }
+        }
         [TestInitialize]
         public void cleanUpLog()
         {

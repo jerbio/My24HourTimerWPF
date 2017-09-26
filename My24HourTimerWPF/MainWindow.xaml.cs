@@ -1467,6 +1467,9 @@ namespace My24HourTimerWPF
         {
             //WebApp.Start<Startup>("http://localhost:9000");
 
+            EventName name = new EventName("Add google address lookup to mobile");
+            await name.AnalyzeName();
+
             TilerFront.Models.LoginViewModel myLogin = new TilerFront.Models.LoginViewModel() { Username = UserNameTextBox.Text, Password = PasswordTextBox.Text, RememberMe = true };
             TilerFront.Models.AuthorizedUser AuthorizeUser = new TilerFront.Models.AuthorizedUser(){UserID="d350ba4d-fe0b-445c-bed6-b6411c2156b3",UserName="jerbio"};
             TilerFront.UserAccount currentUser = await AuthorizeUser.getUserAccountDebug();

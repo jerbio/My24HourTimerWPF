@@ -137,7 +137,6 @@
     <Compile Include="CustomErrors.cs" />
     <Compile Include="EventDisplay.cs" />
     <Compile Include="EventID.cs" />
-    <Compile Include="EventIDGenerator.cs" />
     <Compile Include="EventTimeLine.cs" />
     <Compile Include="IDefinedRange.cs" />
     <Compile Include="Location.cs" />

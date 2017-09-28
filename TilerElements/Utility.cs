@@ -1288,7 +1288,7 @@ namespace TilerElements
             return (T)Enum.Parse(typeof(T), value, true);
         }
 
-        public static void Swap<T>(T lhs, T rhs)
+        public static void Swap<T>(ref T lhs, ref T rhs)
         {
             T temp;
             temp = lhs;

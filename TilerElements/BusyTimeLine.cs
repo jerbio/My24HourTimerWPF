@@ -103,14 +103,14 @@ namespace TilerElements
             }
         }
 
-        public TimeSpan UndoBusyTimeSpan_DB { get; set; }
+        public TimeSpan UndoBusyTimeSpan_DB;
 
         public override void undo(string undoId)
         {
             if(this._UndoId == undoId)
             {
                 base.undo(undoId);
-                Utility.Swap(UndoBusyTimeSpan_DB, _BusySpan);
+                Utility.Swap(ref UndoBusyTimeSpan_DB, ref _BusySpan);
             }
         }
 
@@ -119,7 +119,7 @@ namespace TilerElements
             if (this._UndoId == undoId)
             {
                 base.undo(undoId);
-                Utility.Swap(UndoBusyTimeSpan_DB, _BusySpan);
+                Utility.Swap(ref UndoBusyTimeSpan_DB, ref _BusySpan);
             }
         }
 

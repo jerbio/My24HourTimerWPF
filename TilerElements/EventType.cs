@@ -8,12 +8,19 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TilerElements
 {
-    public class Classification
+    public class Classification:IUndoable
     {
         Vicinity _Placement = Vicinity.None;
         EnergyDifferential _Succubus = EnergyDifferential.None;
         Leisure _LeisureType = Leisure.None;
         bool _Initialized = true;
+
+        public Vicinity _UndoPlacement;
+        public EnergyDifferential _UndoSuccubus;
+        public Leisure _UndoLeisureType;
+        public bool _UndoInitialized;
+        protected string _UndoId = "";
+
         protected string _Id { get; set; }
         protected TilerEvent _AssociatedEvent { get; set; }
         public Classification(Vicinity LocationPlacement, EnergyDifferential StrengthDelta, Leisure RelaxationData, bool InitializedData)
@@ -61,6 +68,33 @@ namespace TilerElements
 
             }
             //Console.WriteLine(xml);
+        }
+
+        public void undoUpdate(Undo undo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void undo(string undoId)
+        {
+            if(undoId == this.UndoId)
+            {
+                Utility.Swap(ref _UndoPlacement, ref _Placement);
+                Utility.Swap(ref _UndoSuccubus, ref _Succubus);
+                Utility.Swap(ref _UndoLeisureType, ref _LeisureType);
+                Utility.Swap(ref _UndoInitialized, ref _Initialized);
+            }
+        }
+
+        public void redo(string undoId)
+        {
+            if (undoId == this.UndoId)
+            {
+                Utility.Swap(ref _UndoPlacement, ref _Placement);
+                Utility.Swap(ref _UndoSuccubus, ref _Succubus);
+                Utility.Swap(ref _UndoLeisureType, ref _LeisureType);
+                Utility.Swap(ref _UndoInitialized, ref _Initialized);
+            }
         }
         #region Properties
 
@@ -134,6 +168,20 @@ namespace TilerElements
             set
             {
                 Enum.TryParse(value, out _LeisureType);
+            }
+        }
+
+        public virtual bool FirstInstantiation { get; set; } = true;
+
+        public virtual string UndoId
+        {
+            get
+            {
+                return _UndoId;
+            }
+            set
+            {
+                _UndoId = value;
             }
         }
         #endregion

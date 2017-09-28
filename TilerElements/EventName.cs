@@ -6,10 +6,13 @@ using System.Threading.Tasks;
 
 namespace TilerElements
 {
-    public class EventName
+    public class EventName:IUndoable
     {
+        protected string _UndoId;
         protected string _Name = "";
+        public string _UndoName;
         protected string _Id = Guid.NewGuid().ToString();
+        public virtual bool FirstInstantiation { get; set; } = true;
         public EventName(string name = "")
         {
             _Name = name;
@@ -47,7 +50,29 @@ namespace TilerElements
             }
             return retValue;
         }
-#region dataModelProperties
+
+        public void undoUpdate(Undo undo)
+        {
+            _UndoName = Name;
+            FirstInstantiation = false;
+        }
+
+        public void undo(string undoId)
+        {
+            if(_UndoId == undoId)
+            {
+                Utility.Swap(ref _Name, ref _UndoName);
+            }
+        }
+
+        public void redo(string undoId)
+        {
+            if (_UndoId == undoId)
+            {
+                Utility.Swap(ref _Name, ref _UndoName);
+            }
+        }
+        #region dataModelProperties
         public string Id
         {
             get
@@ -69,6 +94,14 @@ namespace TilerElements
             set
             {
                 _Name = value;
+            }
+        }
+
+        public string UndoId
+        {
+            get
+            {
+                return _UndoId;
             }
         }
         #endregion

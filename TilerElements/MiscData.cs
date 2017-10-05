@@ -5,15 +5,19 @@ using System.Text;
 
 namespace TilerElements
 {
-    public class MiscData
+    public class MiscData: IUndoable
     {
         string _Id;
         string _UserTypedData;
         int _Type;//Entry Source. 0-> No Entry from Calendar Event. 1->From CalendarEvent. 2-> from SubCalendarEvent
 
+        public int _UndoType;
+        public string _UndoUserTypedData;
+        protected string _UndoId = "";
+
         #region constructor
 
-        
+
 
         public MiscData()
         {
@@ -36,6 +40,30 @@ namespace TilerElements
             retValue._UserTypedData = _UserTypedData;
 
             return retValue;
+        }
+
+        public void undoUpdate(Undo undo)
+        {
+            _UndoType = _Type;
+            _UndoUserTypedData = _UserTypedData;
+        }
+
+        public void undo(string undoId)
+        {
+            if (undoId == this.UndoId)
+            {
+                Utility.Swap(ref _UndoType, ref _Type);
+                Utility.Swap(ref _UndoUserTypedData, ref _UserTypedData);
+            }
+        }
+
+        public void redo(string undoId)
+        {
+            if (undoId == this.UndoId)
+            {
+                Utility.Swap(ref _UndoType, ref _Type);
+                Utility.Swap(ref _UndoUserTypedData, ref _UserTypedData);
+            }
         }
 
         #endregion
@@ -98,6 +126,42 @@ namespace TilerElements
             set
             {
                 _Id = value;
+            }
+        }
+
+        public virtual bool FirstInstantiation { get; set; } = true;
+
+        public virtual string UndoId
+        {
+            get
+            {
+                return _UndoId;
+            }
+            set
+            {
+                _UndoId = value;
+            }
+        }
+
+        public int UndoType {
+            get
+            {
+                return _UndoType;
+            }
+            set
+            {
+                _UndoType = value;
+            }
+        }
+        public string UndoUserTypedData
+        {
+            get
+            {
+                return _UndoUserTypedData;
+            }
+            set
+            {
+                _UndoUserTypedData = value;
             }
         }
 

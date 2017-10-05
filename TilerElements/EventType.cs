@@ -8,17 +8,17 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TilerElements
 {
-    public class Classification:IUndoable
+    public class Classification : IUndoable
     {
-        Vicinity _Placement = Vicinity.None;
-        EnergyDifferential _Succubus = EnergyDifferential.None;
+        Vicinity _Placement = Vicinity.none;
+        EnergyDifferential _Succubus = EnergyDifferential.none;
         Leisure _LeisureType = Leisure.None;
         bool _Initialized = true;
 
-        public Vicinity _UndoPlacement;
-        public EnergyDifferential _UndoSuccubus;
-        public Leisure _UndoLeisureType;
-        public bool _UndoInitialized;
+        protected Vicinity _UndoPlacement;
+        protected EnergyDifferential _UndoSuccubus;
+        protected Leisure _UndoLeisureType;
+        protected bool _UndoInitialized;
         protected string _UndoId = "";
 
         protected string _Id { get; set; }
@@ -45,7 +45,7 @@ namespace TilerElements
             RetValue.Id = this.Id;
             return RetValue;
         }
-        
+
         async internal Task InitializeClassification(string NameOfEvent)
         {
             AlchemyAPI.AlchemyAPI AlchemyObj = new AlchemyAPI.AlchemyAPI();
@@ -59,7 +59,7 @@ namespace TilerElements
             {
 
             }
-            if(string.IsNullOrEmpty(xml))
+            if (string.IsNullOrEmpty(xml))
             {
 
             }
@@ -72,12 +72,16 @@ namespace TilerElements
 
         public void undoUpdate(Undo undo)
         {
-            throw new NotImplementedException();
+            _UndoLeisureType = _LeisureType;
+            _UndoSuccubus = _Succubus;
+            _UndoPlacement = _Placement;
+            _UndoInitialized = _Initialized;
+            FirstInstantiation = false;
         }
 
         public void undo(string undoId)
         {
-            if(undoId == this.UndoId)
+            if (undoId == this.UndoId)
             {
                 Utility.Swap(ref _UndoPlacement, ref _Placement);
                 Utility.Swap(ref _UndoSuccubus, ref _Succubus);
@@ -184,11 +188,58 @@ namespace TilerElements
                 _UndoId = value;
             }
         }
+
+        public string UndoPlacement
+        {
+            get
+            {
+                return _UndoPlacement.ToString();
+            }
+            set
+            {
+                _UndoPlacement = Utility.ParseEnum<Vicinity>(value.ToLower());
+            }
+        }
+
+        public string UndoSuccubus
+        {
+            get
+            {
+                return _UndoSuccubus.ToString();
+            }
+            set
+            {
+                _UndoSuccubus = Utility.ParseEnum<EnergyDifferential>(value.ToLower());
+            }
+        }
+
+        public string UndoLeisureType
+        {
+            get
+            {
+                return _UndoLeisureType.ToString();
+            }
+            set
+            {
+                _UndoLeisureType = Utility.ParseEnum<Leisure>(value.ToLower());
+            }
+        }
+
+        public bool UndoInitialized
+        {
+            get
+            {
+                return _UndoInitialized;
+            }
+            set
+            {
+                _UndoInitialized = value;
+            }
+        }
         #endregion
 
+        public enum Vicinity { indoor, none, outdoor }
+        public enum EnergyDifferential { lethargic, none, active }
+        public enum Leisure { Casual, None, Business }
     }
-
-    public enum Vicinity { Indoor, None, Outdoor }
-    public enum EnergyDifferential { Lethargic, None, Active }
-    public enum Leisure { Casual, None, Business }
 }

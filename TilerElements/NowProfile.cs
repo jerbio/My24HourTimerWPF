@@ -6,12 +6,17 @@ using System.Text;
 
 namespace TilerElements
 {
-    public class NowProfile
+    public class NowProfile: IUndoable
     {
         protected string _Id { get; set; }
-        protected TilerEvent _AssociatedEvent { get; set; }
+        protected TilerEvent _AssociatedEvent;
         DateTimeOffset TimePreferredForEvent;
         bool Initialized = false;
+
+        protected TilerEvent _UndoAssociatedEvent;
+        DateTimeOffset _UndoTimePreferredForEvent;
+        bool _UndoInitialized = false;
+        protected string _UndoId = "";
 
         public NowProfile()
         {
@@ -76,11 +81,53 @@ namespace TilerElements
             Initialized = false;
         }
 
+        public void undoUpdate(Undo undo)
+        {
+            _UndoAssociatedEvent = _AssociatedEvent;
+            _UndoTimePreferredForEvent = TimePreferredForEvent;
+            _UndoInitialized = Initialized;
+            FirstInstantiation = false;
+        }
+
+        public void undo(string undoId)
+        {
+            if (undoId == this.UndoId)
+            {
+                Utility.Swap(ref _UndoAssociatedEvent, ref _AssociatedEvent);
+                Utility.Swap(ref _UndoTimePreferredForEvent, ref TimePreferredForEvent);
+                Utility.Swap(ref _UndoInitialized, ref Initialized);
+            }
+        }
+
+        public void redo(string undoId)
+        {
+            if (undoId == this.UndoId)
+            {
+                Utility.Swap(ref _UndoAssociatedEvent, ref _AssociatedEvent);
+                Utility.Swap(ref _UndoTimePreferredForEvent, ref TimePreferredForEvent);
+                Utility.Swap(ref _UndoInitialized, ref Initialized);
+            }
+        }
+
         public bool isInitialized
         {
             get
             {
                 return Initialized;
+            }
+        }
+
+        public virtual bool FirstInstantiation { get; set; } = true;
+
+        public string UndoId
+        {
+            get
+            {
+                return _UndoId;
+            }
+            set
+            {
+                _UndoId = value;
             }
         }
     }

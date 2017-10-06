@@ -122,7 +122,6 @@
     <Compile Include="IWhy.cs" />
     <Compile Include="MultidimensionalCalculation.cs" />
     <Compile Include="NowProfile.cs" />
-    <Compile Include="PauseProfile.cs" />
     <Compile Include="Procrastination.cs" />
     <Compile Include="Reason.cs" />
     <Compile Include="ReferenceNow.cs" />

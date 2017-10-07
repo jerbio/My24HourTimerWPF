@@ -9,14 +9,20 @@ namespace TilerElements
     /// <summary>
     /// Reperesents the Procrastination parameters
     /// </summary>
-    public class Procrastination
+    public class Procrastination:IUndoable
     {
         protected string _Id { get; set; }
-        protected TilerEvent _AssociatedEvent { get; set; }
+        protected TilerEvent _AssociatedEvent;
         protected DateTimeOffset _FromTime;//Time from which an event was procrastinated
         protected DateTimeOffset _BeginTIme;//Next time for a possible calculation of a new schedule
         protected int _SectionOfDay;// stores the section of day from which it was procrastinated
 
+        protected TilerEvent _UndoAssociatedEvent;
+        protected DateTimeOffset _UndoFromTime;//Time from which an event was procrastinated
+        protected DateTimeOffset _UndoBeginTime;//Next time for a possible calculation of a new schedule
+        protected int _UndoSectionOfDay;// stores the section of day from which it was procrastinated
+
+        protected string _UndoId = "";
         protected Procrastination()
         { 
         
@@ -49,6 +55,82 @@ namespace TilerElements
             }
 
             return retValue;
+        }
+
+        public TilerEvent UndoAssociatedEvent
+        {
+            get
+            {
+                return _UndoAssociatedEvent;
+            }
+            set
+            {
+                _UndoAssociatedEvent = value;
+            }
+        }
+        public DateTimeOffset UndoFromTime
+        {
+            get
+            {
+                return _UndoFromTime;
+            }
+            set
+            {
+                _UndoFromTime = value;
+            }
+        }
+        public DateTimeOffset UndoBeginTime
+        {
+            get
+            {
+                return _UndoBeginTime;
+            }
+            set
+            {
+                _UndoBeginTime = value;
+            }
+        }
+        public int UndoSectionOfDay
+        {
+            get
+            {
+                return _UndoSectionOfDay;
+            }
+            set
+            {
+                _UndoSectionOfDay = value;
+            }
+        }
+
+        public void undoUpdate(Undo undo)
+        {
+            _UndoFromTime = _FromTime;
+            _UndoBeginTime = _BeginTIme;
+            _UndoSectionOfDay = _SectionOfDay;
+            _UndoAssociatedEvent = _AssociatedEvent;
+            FirstInstantiation = false;
+        }
+
+        public void undo(string undoId)
+        {
+            if (undoId == this.UndoId)
+            {
+                Utility.Swap(ref _UndoFromTime, ref _FromTime);
+                Utility.Swap(ref _UndoBeginTime, ref _BeginTIme);
+                Utility.Swap(ref _UndoSectionOfDay, ref _SectionOfDay);
+                Utility.Swap(ref _UndoAssociatedEvent, ref _AssociatedEvent);
+            }
+        }
+
+        public void redo(string undoId)
+        {
+            if (undoId == this.UndoId)
+            {
+                Utility.Swap(ref _UndoFromTime, ref _FromTime);
+                Utility.Swap(ref _UndoBeginTime, ref _BeginTIme);
+                Utility.Swap(ref _UndoSectionOfDay, ref _SectionOfDay);
+                Utility.Swap(ref _UndoAssociatedEvent, ref _AssociatedEvent);
+            }
         }
         #region properties
         public DateTimeOffset PreferredStartTime
@@ -158,7 +240,21 @@ namespace TilerElements
                 return SectionOfDay;
             }
         }
-#endregion
-#endregion
+
+        public bool FirstInstantiation { get; set; } = true;
+
+        public string UndoId
+        {
+            get
+            {
+                return _UndoId;
+            }
+            set
+            {
+                _UndoId = value;
+            }
+        }
+        #endregion
+        #endregion
     }
 }

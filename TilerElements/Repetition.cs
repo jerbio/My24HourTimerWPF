@@ -6,13 +6,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TilerElements
 {
-    public class Repetition
+    public class Repetition: IUndoable
     {
         protected string _Id = Guid.NewGuid().ToString();
         protected string _ParentRepetitionId;
         protected string _LocationId;
         protected Frequency _RepetitionFrequency;
-        protected TimeLine RepetitionRange;//stores range for repetition so if assuming event happens on thursday from 9-11pm. The range is from today till november 31. The RepetitionRange will be today till November 31
+        protected TimeLine _RepetitionRange;//stores range for repetition so if assuming event happens on thursday from 9-11pm. The range is from today till november 31. The RepetitionRange will be today till November 31
         protected bool _EnableRepeat;
         protected ICollection<CalendarEvent> _RepeatingEvents;
         protected Dictionary<string, CalendarEvent> _DictionaryOfIDAndCalendarEvents;
@@ -23,11 +23,25 @@ namespace TilerElements
         static DayOfWeek[] Weekdays=new DayOfWeek[7]{DayOfWeek.Sunday,DayOfWeek.Monday,DayOfWeek.Tuesday,DayOfWeek.Wednesday,DayOfWeek.Thursday,DayOfWeek.Friday,DayOfWeek.Saturday};
         static DateTimeOffset CalculationStop = DateTimeOffset.UtcNow;
         public enum Frequency {DAILY, WEEKLY, MONTHLY, YEARLY, BIWEEKLY, NONE };
+        protected string _UndoId;
+
+        #region UndoMembers
+        protected Frequency _UndoRepetitionFrequency;
+        protected bool _UndoEnableRepeat;
+        protected int _UndoRepetitionWeekDay = -5;
+        protected Dictionary<int, Repetition> _UndoDictionaryOfWeekDayToRepetition = new Dictionary<int, Repetition>();
+        protected ICollection<CalendarEvent> _UndoRepeatingEvents;
+        protected DateTimeOffset _UndoInitializingRangeStart;
+        protected DateTimeOffset _UndoInitializingRangeEnd;
+        protected DateTimeOffset _UndoRepetitionRangeStart;
+        protected DateTimeOffset _UndoRepetitionRangeEnd;
+
+        #endregion
 
         public Repetition()
         {
             _RepetitionFrequency = Frequency.NONE;
-            RepetitionRange = new TimeLine();
+            _RepetitionRange = new TimeLine();
             _EnableRepeat = false;
             _RepeatingEvents = new CalendarEvent[0];
             _Location = new Location();
@@ -38,7 +52,7 @@ namespace TilerElements
 
         public Repetition(bool EnableFlag, TimeLine RepetitionRange_Entry, Frequency frequency, TimeLine EventActualRange, int[] WeekDayData)
         {
-            RepetitionRange = RepetitionRange_Entry;
+            _RepetitionRange = RepetitionRange_Entry;
             _RepetitionFrequency = frequency;
             _EnableRepeat = EnableFlag;
             _Location = new Location();
@@ -52,7 +66,7 @@ namespace TilerElements
         
         public Repetition(bool EnableFlag, TimeLine RepetitionRange_Entry, Frequency frequency, TimeLine EventActualRange, int WeekDayData=7 )
         {
-            RepetitionRange = RepetitionRange_Entry;
+            _RepetitionRange = RepetitionRange_Entry;
             _RepetitionFrequency = frequency;
             _EnableRepeat = EnableFlag;
             _Location = new Location();
@@ -74,7 +88,7 @@ namespace TilerElements
 
             _RepeatingEvents = _DictionaryOfIDAndCalendarEvents.Values.ToArray();
             _RepetitionFrequency = Utility.ParseEnum<Frequency>(ReadFromFileFrequency.ToUpper());
-            RepetitionRange = ReadFromFileRepetitionRange_Entry;
+            _RepetitionRange = ReadFromFileRepetitionRange_Entry;
             if (ReadFromFileRecurringListOfCalendarEvents.Length > 0)
             {
                 _Location = ReadFromFileRecurringListOfCalendarEvents[0].myLocation;
@@ -95,7 +109,7 @@ namespace TilerElements
 
             _RepeatingEvents = _DictionaryOfIDAndCalendarEvents.Values.ToArray();
             _RepetitionFrequency = Utility.ParseEnum<Frequency>(ReadFromFileFrequency.ToUpper());
-            RepetitionRange = ReadFromFileRepetitionRange_Entry;
+            _RepetitionRange = ReadFromFileRepetitionRange_Entry;
             if (repetition_Weekday.Length > 0)
             {
                 _Location = repetition_Weekday[0]._Location;
@@ -126,7 +140,7 @@ namespace TilerElements
                 return;
             }
             _EnableRepeat = true;
-            RepetitionRange = MyParentEvent.Repeat.Range;
+            _RepetitionRange = MyParentEvent.Repeat.Range;
             _RepetitionFrequency = MyParentEvent.Repeat.getFrequency;
             if (_DictionaryOfWeekDayToRepetition.Count > 0)
             {
@@ -139,7 +153,7 @@ namespace TilerElements
             this.ParentEvent = MyParentEvent;
 
             RestrictionProfile restrictionProfile = new RestrictionProfile(_initializingRange.Start, _initializingRange.End - _initializingRange.Start);
-            TimeLineRestricted segmentedTimeLine = new TimeLineRestricted(RepetitionRange.Start, RepetitionRange.End, restrictionProfile);
+            TimeLineRestricted segmentedTimeLine = new TimeLineRestricted(_RepetitionRange.Start, _RepetitionRange.End, restrictionProfile);
             TimeLine firstRepeatSequenct = segmentedTimeLine.getTimeFrames().First();
 
             DateTimeOffset EachRepeatCalendarStart = firstRepeatSequenct.Start;//Start DateTimeOffset Object for each recurring Calendar Event
@@ -189,7 +203,7 @@ namespace TilerElements
                 return;
             }
             _EnableRepeat = true;
-            RepetitionRange = MyParentEvent.Repeat.Range;
+            _RepetitionRange = MyParentEvent.Repeat.Range;
             _RepetitionFrequency = MyParentEvent.Repeat.getFrequency;
             if (_DictionaryOfWeekDayToRepetition.Count > 0)
             {
@@ -201,7 +215,7 @@ namespace TilerElements
             }
 
             RestrictionProfile restrictionProfile = new RestrictionProfile(_initializingRange.Start, _initializingRange.End - _initializingRange.Start);
-            TimeLineRestricted segmentedTimeLine = new TimeLineRestricted(RepetitionRange.Start, RepetitionRange.End, restrictionProfile);
+            TimeLineRestricted segmentedTimeLine = new TimeLineRestricted(_RepetitionRange.Start, _RepetitionRange.End, restrictionProfile);
             TimeLine firstRepeatSequenct = segmentedTimeLine.getTimeFrames().First();
 
             DateTimeOffset EachRepeatCalendarStart = firstRepeatSequenct.Start;//Start DateTimeOffset Object for each recurring Calendar Event
@@ -241,11 +255,11 @@ namespace TilerElements
 
         private void PopulateRepetitionParameters(CalendarEvent MyParentEvent, int WeekDay)
         { 
-            RepetitionRange = MyParentEvent.Repeat.Range;
+            _RepetitionRange = MyParentEvent.Repeat.Range;
             _RepetitionFrequency = MyParentEvent.Repeat.getFrequency;
             _EnableRepeat = true;
-            DateTimeOffset EachRepeatCalendarStart = RepetitionRange.Start;
-            DateTimeOffset EachRepeatCalendarEnd = RepetitionRange.End;
+            DateTimeOffset EachRepeatCalendarStart = _RepetitionRange.Start;
+            DateTimeOffset EachRepeatCalendarEnd = _RepetitionRange.End;
             DateTimeOffset StartTimeLineForActity = getStartTimeForAppropriateWeek(_initializingRange.Start, Weekdays[WeekDay]);
             DateTimeOffset EndTimeLineForActity = StartTimeLineForActity.Add(_initializingRange.TimelineSpan);
 
@@ -256,7 +270,7 @@ namespace TilerElements
 
             this.ParentEvent = MyParentEvent;
             this._initializingRange = ActiveTimeline;
-            this.RepetitionRange = repetitionTimeline;
+            this._RepetitionRange = repetitionTimeline;
             EventID MyEventCalendarID = EventID.GenerateRepeatDayCalendarEvent(MyParentEvent.getId, WeekDay);
             CalendarEvent MyRepeatCalendarEvent;
             if (MyParentEvent.getRigid)
@@ -273,11 +287,11 @@ namespace TilerElements
 
         private void PopulateRepetitionParameters(CalendarEventRestricted MyParentEvent, int WeekDay)
         {
-            RepetitionRange = MyParentEvent.Repeat.Range;
+            _RepetitionRange = MyParentEvent.Repeat.Range;
             _RepetitionFrequency = MyParentEvent.Repeat.getFrequency;
             _EnableRepeat = true;
-            DateTimeOffset EachRepeatCalendarStart = RepetitionRange.Start;
-            DateTimeOffset EachRepeatCalendarEnd = RepetitionRange.End;
+            DateTimeOffset EachRepeatCalendarStart = _RepetitionRange.Start;
+            DateTimeOffset EachRepeatCalendarEnd = _RepetitionRange.End;
             DateTimeOffset StartTimeLineForActity = getStartTimeForAppropriateWeek(_initializingRange.Start, Weekdays[WeekDay]);
             DateTimeOffset EndTimeLineForActity = StartTimeLineForActity.Add(_initializingRange.TimelineSpan);
 
@@ -288,7 +302,7 @@ namespace TilerElements
 
 
             this._initializingRange = ActiveTimeline;
-            this.RepetitionRange = repetitionTimeline;
+            this._RepetitionRange = repetitionTimeline;
             EventID MyEventCalendarID = EventID.GenerateRepeatDayCalendarEvent(MyParentEvent.getId, WeekDay);
             CalendarEventRestricted MyRepeatCalendarEvent = new CalendarEventRestricted(MyParentEvent.getCreator , MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyParentEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.RetrictionInfo, MyParentEvent.getActiveDuration, repetitionData, MyParentEvent.getIsComplete, MyParentEvent.isEnabled, MyParentEvent.getRigid ? 1 : MyParentEvent.NumberOfSplit, MyParentEvent.getRigid, MyParentEvent.myLocation, MyParentEvent.getPreparation,MyParentEvent.getPreDeadline, MyEventCalendarID, MyParentEvent.getUIParam, MyParentEvent.Notes);
             this.PopulateRepetitionParameters(MyRepeatCalendarEvent);
@@ -368,7 +382,7 @@ namespace TilerElements
         {
             get
             {
-                return RepetitionRange;
+                return _RepetitionRange;
             }
         }
 
@@ -422,6 +436,86 @@ namespace TilerElements
             }
         }
 
+        #region undoProperties
+        public DateTimeOffset UndoInitializingRangeStart
+        {
+            get
+            {
+                return UndoInitializingRangeStart;
+            }
+            set
+            {
+                UndoInitializingRangeStart = value;
+            }
+        }
+        public DateTimeOffset UndoInitializingRangeEnd
+        {
+            get
+            {
+                return _UndoInitializingRangeEnd;
+            }
+            set
+            {
+                _UndoInitializingRangeEnd = value;
+            }
+        }
+        public DateTimeOffset UndoRepetitionRangeStart
+        {
+            get
+            {
+                return _UndoRepetitionRangeStart;
+            }
+            set
+            {
+                _UndoRepetitionRangeStart = value;
+            }
+        }
+        public DateTimeOffset UndoRepetitionRangeEnd
+        {
+            get
+            {
+                return _UndoRepetitionRangeEnd;
+            }
+            set
+            {
+                _UndoRepetitionRangeEnd = value;
+            }
+        }
+
+        public string UndoRepetitionFrequency
+        {
+            get
+            {
+                return _UndoRepetitionFrequency.ToString();
+            }
+            set
+            {
+                _UndoRepetitionFrequency = Utility.ParseEnum<Frequency>(value);
+            }
+        }
+        public bool UndoEnableRepeat
+        {
+            get
+            {
+                return _UndoEnableRepeat;
+            }
+            set
+            {
+                _UndoEnableRepeat = value;
+            }
+        }
+        public int UndoRepetitionWeekDay {
+            get
+            {
+                return _UndoRepetitionWeekDay;
+            }
+            set
+            {
+                _UndoRepetitionWeekDay = value;
+            }
+        }
+        #endregion
+
         #region dbproperties
         public string  RepetitionFrequency
         {
@@ -436,46 +530,46 @@ namespace TilerElements
             }
         }
 
-        public DateTimeOffset _RepetitionRangeStart { get; set; }
+        protected DateTimeOffset _RepetitionRangeStart;
 
         public DateTimeOffset RepetitionRangeStart
         {
             get
             {
-                return RepetitionRange.Start;
+                return _RepetitionRange.Start;
             }
 
             set
             {
                 _RepetitionRangeStart = value;
-                if(RepetitionRange == null && _RepetitionRangeEnd != null && _RepetitionRangeStart != null)
+                if(_RepetitionRange == null && _RepetitionRangeEnd != null && _RepetitionRangeStart != null)
                 {
-                    RepetitionRange = new TimeLine(_RepetitionRangeStart, _RepetitionRangeEnd);
+                    _RepetitionRange = new TimeLine(_RepetitionRangeStart, _RepetitionRangeEnd);
                 }
             }
         }
 
-        public DateTimeOffset _RepetitionRangeEnd { get; set; }
+        protected DateTimeOffset _RepetitionRangeEnd;
 
         public DateTimeOffset RepetitionRangeEnd
         {
             get
             {
-                return RepetitionRange.End;
+                return _RepetitionRange.End;
             }
 
             set
             {
                 _RepetitionRangeEnd = value;
-                if (RepetitionRange == null && _RepetitionRangeEnd != null && _RepetitionRangeStart != null)
+                if (_RepetitionRange == null && _RepetitionRangeEnd != null && _RepetitionRangeStart != null)
                 {
-                    RepetitionRange = new TimeLine(_RepetitionRangeStart, _RepetitionRangeEnd);
+                    _RepetitionRange = new TimeLine(_RepetitionRangeStart, _RepetitionRangeEnd);
                 }
             }
         }
 
 
-        public DateTimeOffset _initializingRangeStart { get; set; }
+        protected DateTimeOffset _initializingRangeStart;
 
         public DateTimeOffset initializingRangeStart
         {
@@ -494,7 +588,7 @@ namespace TilerElements
             }
         }
 
-        public DateTimeOffset _initializingRangeEnd { get; set; }
+        protected DateTimeOffset _initializingRangeEnd;
 
         public DateTimeOffset initializingRangeEnd
         {
@@ -618,6 +712,9 @@ namespace TilerElements
                 }
             }
         }
+
+        public virtual bool FirstInstantiation { get; set; } = true;
+
         #endregion
         #endregion
 
@@ -644,7 +741,7 @@ namespace TilerElements
                 return repetition_cpy;
             }
             repetition_cpy._RepetitionFrequency = this._RepetitionFrequency;
-            repetition_cpy.RepetitionRange = this.RepetitionRange.CreateCopy();
+            repetition_cpy._RepetitionRange = this._RepetitionRange.CreateCopy();
             repetition_cpy._RepeatingEvents = _RepeatingEvents.AsParallel().Select(obj => obj.createCopy()).ToArray();
             repetition_cpy._Location = _Location.CreateCopy();
             repetition_cpy._EnableRepeat = _EnableRepeat;
@@ -652,6 +749,75 @@ namespace TilerElements
             repetition_cpy._DictionaryOfIDAndCalendarEvents = _DictionaryOfIDAndCalendarEvents.AsParallel().ToDictionary(obj => obj.Key, obj1 => obj1.Value.createCopy());
             repetition_cpy._DictionaryOfWeekDayToRepetition = _DictionaryOfWeekDayToRepetition.AsParallel().ToDictionary(obj => obj.Key, obj1 => obj1.Value.CreateCopy());
             return repetition_cpy;
+        }
+
+        public void undoUpdate(Undo undo)
+        {
+            _UndoParentRepetitionId = ParentRepetitionId;
+            _UndoLocationId = LocationId;
+            _UndoRepetitionFrequency = _RepetitionFrequency;
+            _UndoEnableRepeat = this.EnableRepeat;
+            Location.undoUpdate(undo);
+            _UndoRepetitionWeekDay = RepetitionWeekDay;
+            FirstInstantiation = false;
+            //protected TimeLine _UndoRepetitionRange;//stores range for repetition so if assuming event happens on thursday from 9-11pm. The range is from today till november 31. The RepetitionRange will be today till November 31
+            //protected ICollection<CalendarEvent> _UndoRepeatingEvents;
+            //protected Dictionary<int, Repetition> _UndoDictionaryOfWeekDayToRepetition = new Dictionary<int, Repetition>();
+            //protected TimeLine _UndoinitializingRange;//stores range for repetition so if assuming event happens on thursday from 9-11pm. The range is from today till november 31. The initializingRange will be 9-11pm
+        }
+
+        public void undo(string undoId)
+        {
+            if (_UndoId == undoId)
+            {
+                Utility.Swap(ref _ParentRepetitionId, ref _UndoParentRepetitionId);
+                Utility.Swap(ref _UndoLocationId, ref _LocationId);
+                Utility.Swap(ref _UndoRepetitionFrequency, ref _RepetitionFrequency);
+                Utility.Swap(ref _UndoEnableRepeat, ref _EnableRepeat);
+                Utility.Swap(ref _UndoInitializingRangeStart, ref _initializingRangeStart);
+                Utility.Swap(ref _UndoInitializingRangeEnd, ref _initializingRangeEnd);
+                Utility.Swap(ref _UndoRepetitionRangeStart, ref _RepetitionRangeStart);
+                Utility.Swap(ref _UndoRepetitionRangeEnd, ref _RepetitionRangeEnd);
+                foreach (KeyValuePair<int, Repetition> kvp in _DictionaryOfWeekDayToRepetition)
+                {
+                    kvp.Value.undo(undoId);
+                }
+                _Location.undo(undoId);
+                throw new NotImplementedException("You need to implement the implement the undo for _RepeatingEvents");
+            }
+        }
+
+        public void redo(string undoId)
+        {
+            if (_UndoId == undoId)
+            {
+                Utility.Swap(ref _ParentRepetitionId, ref _UndoParentRepetitionId);
+                Utility.Swap(ref _UndoLocationId, ref _LocationId);
+                Utility.Swap(ref _UndoRepetitionFrequency, ref _RepetitionFrequency);
+                Utility.Swap(ref _UndoEnableRepeat, ref _EnableRepeat);
+                Utility.Swap(ref _UndoInitializingRangeStart, ref _initializingRangeStart);
+                Utility.Swap(ref _UndoInitializingRangeEnd, ref _initializingRangeEnd);
+                Utility.Swap(ref _UndoRepetitionRangeStart, ref _RepetitionRangeStart);
+                Utility.Swap(ref _UndoRepetitionRangeEnd, ref _RepetitionRangeEnd);
+                foreach (KeyValuePair<int, Repetition> kvp in _DictionaryOfWeekDayToRepetition)
+                {
+                    kvp.Value.undo(undoId);
+                }
+                _Location.undo(undoId);
+                throw new NotImplementedException("You need to implement the implement the undo for _RepeatingEvents");
+            }
+        }
+
+        public string UndoId
+        {
+            set
+            {
+                _UndoId = value;
+            }
+            get
+            {
+                return _UndoId;
+            }
         }
     }  
 }

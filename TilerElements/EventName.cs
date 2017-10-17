@@ -99,6 +99,10 @@ namespace TilerElements
 
         public string UndoId
         {
+            set
+            {
+                _UndoId = value;
+            }
             get
             {
                 return _UndoId;

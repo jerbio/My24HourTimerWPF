@@ -9,13 +9,16 @@ namespace TilerElements
     {
         protected TimeLine HardCalendarEventRange;//this does not include the restriction
         protected RestrictionProfile ProfileOfRestriction;
+
+        public TimeLine UndoHardCalendarEventRange;
+        public RestrictionProfile UndoProfileOfRestriction;
         #region Constructor
-        public SubCalendarEventRestricted(TilerUser creator, TilerUserGroup users,  string CalEventID, EventName name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile constrictionProgile, TimeLine HardCalEventTimeRange, bool isEnabled, bool isComplete, ConflictProfile conflictingEvents, bool RigidFlag,TimeSpan PrepTimeData ,TimeSpan PreDeadline, Location Locationdata, EventDisplay UiData, MiscData Notes, int Priority = 0, bool isDeadlineElapsed = false, string thirdPartyID = "", ConflictProfile conflicts = null )
+        public SubCalendarEventRestricted(TilerUser creator, TilerUserGroup users,  string CalEventID, EventName name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile constrictionProgile, TimeLine HardCalEventTimeRange, bool isEnabled, bool isComplete, ConflictProfile conflictingEvents, bool RigidFlag,TimeSpan PrepTimeData ,TimeSpan PreDeadline, Location Locationdata, EventDisplay UiData, MiscData Notes, int Priority = 0, string thirdPartyID = "", ConflictProfile conflicts = null )
         { 
             isRestricted =true;
             StartDateTime = Start;
             EndDateTime = End;
-            EventDuration = EndDateTime - StartDateTime;
+            _EventDuration = EndDateTime - StartDateTime;
             _Name = name;
             UniqueID = EventID.GenerateSubCalendarEvent(CalEventID);
             ProfileOfRestriction = constrictionProgile;
@@ -24,17 +27,16 @@ namespace TilerElements
             BusyFrame = new BusyTimeLine(UniqueID.ToString(),StartDateTime, EndDateTime);
             _Users = new TilerUserGroup();
             RigidSchedule = RigidFlag;
-            Complete = isComplete;
-            DeadlineElapsed = isDeadlineElapsed;
-            Enabled = isEnabled;
-            EventPreDeadline = PreDeadline;
-            this.Priority = Priority;
-            this.LocationInfo = Locationdata;
-            otherPartyID = thirdPartyID;
-            this.UiParams = UiData;
+            _Complete = isComplete;
+            _Enabled = isEnabled;
+            _EventPreDeadline = PreDeadline;
+            this._Priority = Priority;
+            this._LocationInfo = Locationdata;
+            _otherPartyID = thirdPartyID;
+            this._UiParams = UiData;
             this.ConflictingEvents = conflicts;
-            DataBlob = Notes;
-            PrepTime = PrepTimeData;
+            _DataBlob = Notes;
+            _PrepTime = PrepTimeData;
             ConflictingEvents = new ConflictProfile();
             HumaneTimeLine = BusyFrame.CreateCopy();
             NonHumaneTimeLine = BusyFrame.CreateCopy();
@@ -48,7 +50,7 @@ namespace TilerElements
             isRestricted = true;
             StartDateTime = new DateTimeOffset();
             EndDateTime = new DateTimeOffset();
-            EventDuration = EndDateTime - StartDateTime;
+            _EventDuration = EndDateTime - StartDateTime;
             UniqueID = null;
             ProfileOfRestriction = null;
             HardCalendarEventRange = new TimeLine();
@@ -57,8 +59,33 @@ namespace TilerElements
         #endregion
 
         #region Functions
-        
 
+        public override void undoUpdate(Undo undo)
+        {
+            UndoProfileOfRestriction.undoUpdate(undo);
+            UndoHardCalendarEventRange = HardCalendarEventRange.CreateCopy();
+            base.undoUpdate(undo);
+        }
+
+        public override void undo(string undoId)
+        {
+            if (UndoId == undoId)
+            {
+                UndoProfileOfRestriction.undo(undoId);
+                Utility.Swap(ref HardCalendarEventRange, ref UndoHardCalendarEventRange);
+            }
+            base.undo(undoId);
+        }
+
+        public override void redo(string undoId)
+        {
+            if (UndoId == undoId)
+            {
+                UndoProfileOfRestriction.redo(undoId);
+                Utility.Swap(ref HardCalendarEventRange, ref UndoHardCalendarEventRange);
+            }
+            base.redo(undoId);
+        }
 
         public IEnumerable<TimeLine> getFeasibleTimeLines(TimeLine TimeLineEntry)
         {
@@ -181,31 +208,30 @@ namespace TilerElements
             SubCalendarEventRestricted copy = new SubCalendarEventRestricted();
             copy.BusyFrame = this.BusyFrame.CreateCopy();
             copy.CalendarEventRange = CalendarEventRange.CreateCopy();
-            copy.Complete = Complete;
+            copy._Complete = _Complete;
             copy.ConflictingEvents = this.ConflictingEvents.CreateCopy();
-            copy.DataBlob = this.DataBlob.createCopy();
-            copy.DeadlineElapsed = this.DeadlineElapsed;
-            copy.Enabled = this.Enabled;
+            copy._DataBlob = this._DataBlob.createCopy();
+            copy._Enabled = this._Enabled;
             copy.EndDateTime = this.EndDateTime;
-            copy.EventDuration = this.EventDuration;
+            copy._EventDuration = this._EventDuration;
             copy._Name = this.getName.createCopy();
-            copy.EventPreDeadline = this.EventPreDeadline;
+            copy._EventPreDeadline = this._EventPreDeadline;
             copy.EventScore = this.EventScore;
             copy.HardCalendarEventRange = this.HardCalendarEventRange.CreateCopy();
             copy.HumaneTimeLine = this.HumaneTimeLine.CreateCopy();
             copy.isRestricted = this.isRestricted;
             copy.Vestige = this.Vestige;
-            copy.LocationInfo = this.LocationInfo.CreateCopy();
+            copy._LocationInfo = this._LocationInfo.CreateCopy();
             copy.MiscIntData = this.MiscIntData;
             copy.NonHumaneTimeLine = this.NonHumaneTimeLine.CreateCopy();
-            copy.otherPartyID = this.otherPartyID;
+            copy._otherPartyID = this._otherPartyID;
             copy.preferredDayIndex = this.preferredDayIndex;
-            copy.PrepTime = this.PrepTime;
-            copy.Priority = this.Priority;
+            copy._PrepTime = this._PrepTime;
+            copy._Priority = this._Priority;
             copy.ProfileOfRestriction = this.ProfileOfRestriction.createCopy();
             copy.RigidSchedule = this.RigidSchedule;
             copy.StartDateTime = this.StartDateTime;
-            copy.UiParams = this.UiParams.createCopy();
+            copy._UiParams = this._UiParams.createCopy();
 
             if (eventId != null)
             {
@@ -216,9 +242,9 @@ namespace TilerElements
                 copy.UniqueID = UniqueID;//hack
             }
             copy.UnUsableIndex = this.UnUsableIndex;
-            copy.UserDeleted = this.UserDeleted;
+            copy._UserDeleted = this._UserDeleted;
             copy._Users = this._Users;
-            copy.Semantics = this.Semantics.createCopy();
+            copy._Semantics = this._Semantics.createCopy();
             copy._UsedTime = this._UsedTime;
             copy.OptimizationFlag = this.OptimizationFlag;
             return copy;
@@ -230,19 +256,6 @@ namespace TilerElements
         }
         public override bool IsDateTimeWithin(DateTimeOffset DateTimeEntry)
         {
-            /*
-            bool retValue=false;
-            TimeLine myTImelineA =  ProfileOfRestriction.getEarliestActiveFrameAfterBeginning(new TimeLine(DateTimeEntry.AddMilliseconds(-1),DateTimeEntry.AddMilliseconds(1)));
-            if (myTImelineA.IsDateTimeWithin(DateTimeEntry))
-            {
-                return true;
-            }
-
-            myTImelineA = ProfileOfRestriction.getLatestActiveTimeFrameBeforeEnd(new TimeLine(DateTimeEntry.AddMilliseconds(-1), DateTimeEntry.AddMilliseconds(1)));
-            if (myTImelineA.IsDateTimeWithin(DateTimeEntry))
-            {
-                return false;
-            }*/
             return base.IsDateTimeWithin(DateTimeEntry);
         }
 
@@ -269,12 +282,6 @@ namespace TilerElements
             return false;
         }
 
-        /*
-        public override bool PinToEndAndIncludeInTimeLine(TimeLine LimitingTimeLine)
-        {
-            return base.PinToEndAndIncludeInTimeLine(LimitingTimeLine);
-        }
-        */
 
         public override bool PinToPossibleLimit(TimeLine referenceTimeLine)
         {
@@ -311,7 +318,6 @@ namespace TilerElements
         public RestrictionProfile RetrictionInfo
         {
             get 
-            
             {
                 return ProfileOfRestriction;
             }
@@ -325,35 +331,33 @@ namespace TilerElements
                 this.BusyFrame = SubEventEntry.ActiveSlot;
                 this.CalendarEventRange = SubEventEntry.getCalendarEventRange;
                 this._Name = SubEventEntry.getName;
-                this.EventDuration = SubEventEntry.getActiveDuration;
-                this.Complete = SubEventEntry.getIsComplete;
+                this._EventDuration = SubEventEntry.getActiveDuration;
+                this._Complete = SubEventEntry.getIsComplete;
                 this.ConflictingEvents = SubEventEntry.Conflicts;
-                this.DataBlob = SubEventEntry.Notes;
-                this.DeadlineElapsed = SubEventEntry.getIsDeadlineElapsed;
-                this.Enabled = SubEventEntry.isEnabled;
+                this._DataBlob = SubEventEntry.Notes;
+                this._Enabled = SubEventEntry.isEnabled;
                 this.EndDateTime = SubEventEntry.End;
-                this.EventPreDeadline = SubEventEntry.getPreDeadline;
+                this._EventPreDeadline = SubEventEntry.getPreDeadline;
                 this.EventScore = SubEventEntry.Score;
-                //this.isRestricted = true;
-                this.LocationInfo = SubEventEntry.Location;
+                this._LocationInfo = SubEventEntry.Location;
                 this.OldPreferredIndex = SubEventEntry.OldUniversalIndex;
-                this.otherPartyID = SubEventEntry.ThirdPartyID;
+                this._otherPartyID = SubEventEntry.ThirdPartyID;
                 this.preferredDayIndex = SubEventEntry.UniversalDayIndex;
-                this.PrepTime = SubEventEntry.getPreparation;
-                this.Priority = SubEventEntry.getEventPriority;
-                this.ProfileOfNow = SubEventEntry.ProfileOfNow;
-                this.ProfileOfProcrastination = SubEventEntry.ProfileOfProcrastination;
+                this._PrepTime = SubEventEntry.getPreparation;
+                this._Priority = SubEventEntry.getEventPriority;
+                this._ProfileOfNow = SubEventEntry._ProfileOfNow;
+                this._ProfileOfProcrastination = SubEventEntry._ProfileOfProcrastination;
                 //this.RigidSchedule = this.rig
                 this.StartDateTime = SubEventEntry.Start;
-                this.UiParams = SubEventEntry.getUIParam;
+                this._UiParams = SubEventEntry.getUIParam;
                 this.UniqueID = SubEventEntry.SubEvent_ID;
-                this.UserDeleted = SubEventEntry.getIsUserDeleted;
+                this._UserDeleted = SubEventEntry.getIsUserDeleted;
                 this._Users = SubEventEntry.getAllUsers();
                 this.Vestige = SubEventEntry.isVestige;
-                this.otherPartyID = SubEventEntry.otherPartyID;
+                this._otherPartyID = SubEventEntry._otherPartyID;
                 this.ProfileOfRestriction = SubEventEntry.ProfileOfRestriction;
                 this._Creator = SubEventEntry._Creator;
-                this.Semantics = SubEventEntry.Semantics;
+                this._Semantics = SubEventEntry._Semantics;
                 this._UsedTime = SubEventEntry._UsedTime;
                 return true;
             }
@@ -367,32 +371,31 @@ namespace TilerElements
             retValue.BusyFrame = this.ActiveSlot;
             retValue.CalendarEventRange = this.getCalendarEventRange.CreateCopy();
             retValue._Name = this.getName.createCopy();
-            retValue.EventDuration = this.getActiveDuration;
-            retValue.Complete = this.getIsComplete;
+            retValue._EventDuration = this.getActiveDuration;
+            retValue._Complete = this.getIsComplete;
             retValue.ConflictingEvents = this.Conflicts;
-            retValue.DataBlob = this.Notes;
-            retValue.DeadlineElapsed = this.getIsDeadlineElapsed;
-            retValue.Enabled = this.isEnabled;
+            retValue._DataBlob = this.Notes;
+            retValue._Enabled = this.isEnabled;
             retValue.EndDateTime = this.End;
-            retValue.EventPreDeadline = this.getPreDeadline;
+            retValue._EventPreDeadline = this.getPreDeadline;
             retValue.EventScore = this.Score;
             retValue.isRestricted = this.getIsEventRestricted;
-            retValue.LocationInfo = this.Location;
+            retValue._LocationInfo = this.Location;
             retValue.OldPreferredIndex = this.OldUniversalIndex;
-            retValue.otherPartyID = this.ThirdPartyID;
+            retValue._otherPartyID = this.ThirdPartyID;
             retValue.preferredDayIndex = this.UniversalDayIndex;
-            retValue.PrepTime = this.getPreparation;
-            retValue.Priority = this.getEventPriority;
-            retValue.ProfileOfNow = this.ProfileOfNow.CreateCopy();
-            retValue.ProfileOfProcrastination = this.ProfileOfProcrastination.CreateCopy();
+            retValue._PrepTime = this.getPreparation;
+            retValue._Priority = this.getEventPriority;
+            retValue._ProfileOfNow = this._ProfileOfNow.CreateCopy();
+            retValue._ProfileOfProcrastination = this._ProfileOfProcrastination.CreateCopy();
             retValue.RigidSchedule = this.getRigid;
             retValue.StartDateTime = this.Start;
-            retValue.UiParams = this.getUIParam;
+            retValue._UiParams = this.getUIParam;
             retValue.UniqueID = this.SubEvent_ID;
-            retValue.UserDeleted = this.getIsUserDeleted;
+            retValue._UserDeleted = this.getIsUserDeleted;
             retValue._Users = this.getAllUsers();
             retValue.Vestige = this.isVestige;
-            retValue.otherPartyID = this.otherPartyID;
+            retValue._otherPartyID = this._otherPartyID;
             retValue.ProfileOfRestriction = this.ProfileOfRestriction;
             return retValue;
         }
@@ -431,6 +434,43 @@ namespace TilerElements
             return ProfileOfRestriction;
         }
 
+        virtual public DateTimeOffset HardRangeStartTime_EventDB
+        {
+            get
+            {
+                return this.HardCalendarEventRange.Start;
+            }
+            set
+            {
+                if(this.HardCalendarEventRange == null)
+                {
+                    this.HardCalendarEventRange = new TimeLine(value, value);
+                }
+                else
+                {
+                    this.HardCalendarEventRange = new TimeLine(this.HardCalendarEventRange.Start, value);
+                }
+            }
+        }
+
+        virtual public DateTimeOffset HardRangeEndTime_EventDB
+        {
+            get
+            {
+                return this.HardCalendarEventRange.End;
+            }
+            set
+            {
+                if (this.HardCalendarEventRange == null)
+                {
+                    this.HardCalendarEventRange = new TimeLine(value, value);
+                }
+                else
+                {
+                    this.HardCalendarEventRange = new TimeLine(value, this.HardCalendarEventRange.End);
+                };
+            }
+        }
         #endregion
     }
 }

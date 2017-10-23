@@ -21,10 +21,18 @@ namespace TilerElements
         }
         public BusyTimeLine(string MyEventID, DateTimeOffset MyStartTime, DateTimeOffset MyEndTime)
         {
-            StartTime = MyStartTime;
-            EndTime = MyEndTime;
-            _BusySpan = EndTime - StartTime;
-            TimeLineEventID = MyEventID;
+            if(!String.IsNullOrEmpty(MyEventID))
+            {
+                StartTime = MyStartTime;
+                EndTime = MyEndTime;
+                _BusySpan = EndTime - StartTime;
+                TimeLineEventID = MyEventID;
+            }
+            else
+            {
+                throw new ArgumentNullException("MyEventID");
+            }
+            
         }
 
         public BusyTimeLine(string eventID, TimeLine timeLine)

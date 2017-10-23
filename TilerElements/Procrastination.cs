@@ -109,6 +109,7 @@ namespace TilerElements
             _UndoSectionOfDay = _SectionOfDay;
             _UndoAssociatedEvent = _AssociatedEvent;
             FirstInstantiation = false;
+            this._UndoId = undo.id;
         }
 
         public void undo(string undoId)

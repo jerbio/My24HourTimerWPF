@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "My24HourTimerWPF", "My24HourTimerWPF\My24HourTimerWPF.csproj", "{9B826E2B-41F4-4164-9899-EE7F84529B66}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -15,14 +15,25 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TilerTests", "TilerTests\TilerTests.csproj", "{75C84EBA-6BA1-41A2-8E4D-E46CD0C92BC7}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9B826E2B-41F4-4164-9899-EE7F84529B66} = {9B826E2B-41F4-4164-9899-EE7F84529B66}
+		{5E86E44F-7CE0-482D-B3C5-059EF7032398} = {5E86E44F-7CE0-482D-B3C5-059EF7032398}
 		{307ED69E-4DF8-41C4-934C-38495FC8900C} = {307ED69E-4DF8-41C4-934C-38495FC8900C}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TilerCore", "TilerCore\TilerCore.csproj", "{BD4E5701-2E62-464B-8840-D49E056FD49B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TilerFront", "..\WagTapWeb\TilerFront\TilerFront.csproj", "{5E86E44F-7CE0-482D-B3C5-059EF7032398}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BD4E5701-2E62-464B-8840-D49E056FD49B} = {BD4E5701-2E62-464B-8840-D49E056FD49B}
+		{86E36121-0952-46AB-9DF4-5AF34E2141B6} = {86E36121-0952-46AB-9DF4-5AF34E2141B6}
+		{9B826E2B-41F4-4164-9899-EE7F84529B66} = {9B826E2B-41F4-4164-9899-EE7F84529B66}
+		{307ED69E-4DF8-41C4-934C-38495FC8900C} = {307ED69E-4DF8-41C4-934C-38495FC8900C}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DBTilerElement", "..\WagTapWeb\DBTilerElement\DBTilerElement.csproj", "{86E36121-0952-46AB-9DF4-5AF34E2141B6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BD4E5701-2E62-464B-8840-D49E056FD49B} = {BD4E5701-2E62-464B-8840-D49E056FD49B}
+		{307ED69E-4DF8-41C4-934C-38495FC8900C} = {307ED69E-4DF8-41C4-934C-38495FC8900C}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -149,5 +160,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5CE78560-EE1D-42BC-B379-7A9DE8BD7F6D}
 	EndGlobalSection
 EndGlobal

@@ -77,6 +77,7 @@ namespace TilerElements
             _UndoPlacement = _Placement;
             _UndoInitialized = _Initialized;
             FirstInstantiation = false;
+            this._UndoId = undo.id;
         }
 
         public void undo(string undoId)

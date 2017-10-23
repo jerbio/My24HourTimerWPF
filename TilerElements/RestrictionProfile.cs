@@ -9,13 +9,14 @@ namespace TilerElements
     /// <summary>
     /// Reperesents the restriction of profile. This is to be used with events. There is no to be a default constructor for semantic purposes
     /// </summary>
-    public class RestrictionProfile
+    public class RestrictionProfile: IUndoable
     {
-        string _Id;
+        protected string _Id = Guid.NewGuid().ToString();
         static DateTimeOffset SundayDate = new DateTimeOffset(2015, 3, 15, 0, 0, 0, new TimeSpan());
         public static readonly DayOfWeek[] AllDaysOfWeek = new DayOfWeek[7] { DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday };
         protected RestrictionDay[] _DaySelection = new RestrictionDay[7];
         protected RestrictionDay[] _NoNull_DaySelections;
+        protected string _UndoId;
         /// <summary>
         /// given a series of days to their restricted timelines, this data member holds the number of days the restricted timeline overlaps. Note even though it always has seven memebers the first element in the tuple is always in respect to the index of nonull dayselections.
         /// The first element in the tuple represents the day to which the restricting timeline is associated. The second element in the tuple is the number of days from the day of origin for which this will cover.
@@ -37,7 +38,10 @@ namespace TilerElements
         {
             
         }
-
+        #region undoMembers
+        public ICollection<RestrictionDay> UndoDaySelection;
+        public ICollection<RestrictionDay> UndoNoNull_DaySelection;
+        #endregion
         public RestrictionProfile(int typeOfRestriction,DayOfWeek beginningDayOfWeek ,DateTimeOffset Start,DateTimeOffset End)
         {
             
@@ -614,6 +618,43 @@ namespace TilerElements
         {
             return _NoNull_DaySelections.ToList();
         }
+
+        public void undoUpdate(Undo undo)
+        {
+            foreach (RestrictionDay day in UndoDaySelection)
+            {
+                day.undoUpdate(undo);
+            }
+            foreach (RestrictionDay noNullday in UndoNoNull_DaySelection)
+            {
+                noNullday.undoUpdate(undo);
+            }
+            this._UndoId = undo.id;
+        }
+
+        public void undo(string undoId)
+        {
+            foreach (RestrictionDay day in UndoDaySelection)
+            {
+                day.undo(undoId);
+            }
+            foreach (RestrictionDay noNullDay in UndoNoNull_DaySelection)
+            {
+                noNullDay.undo(undoId);
+            }
+        }
+
+        public void redo(string undoId)
+        {
+            foreach (RestrictionDay day in UndoDaySelection)
+            {
+                day.redo(undoId);
+            }
+            foreach (RestrictionDay noNullDay in UndoNoNull_DaySelection)
+            {
+                noNullDay.redo(undoId);
+            }
+        }
         #endregion
 
         #region properties
@@ -659,6 +700,20 @@ namespace TilerElements
             set
             {
                 _Id = value;
+            }
+        }
+
+        public virtual bool FirstInstantiation { get; set; } = true;
+
+        public string UndoId
+        {
+            set
+            {
+                _UndoId = value;
+            }
+            get
+            {
+                return _UndoId;
             }
         }
         #endregion

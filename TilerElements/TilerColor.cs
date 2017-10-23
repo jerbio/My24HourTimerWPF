@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TilerElements
 {
-    public struct TilerColor
+    public struct TilerColor: IUndoable
     {
         string _Id;
         int Red;
@@ -14,9 +14,28 @@ namespace TilerElements
         double Opacity;
         int ColorSelection;
         string HexColor;
+        string _UndoId;
+        public bool _FirstInstantiation;
+
+        #region undoMembers
+        public int UndoRed;
+        public int UndoBlue;
+        public int UndoGreen;
+        public double UndoOpacity;
+        public int UndoColorSelection;
+        public string UndoHexColor;
+        #endregion
 
         public TilerColor(int RedColor = 255, int BlueColor = 255, int GreenColor = 255, double Opacity=1, int Selection=-1)
         {
+            UndoRed = 0;
+            UndoBlue = 0;
+            UndoGreen = 0;
+            UndoOpacity = 0;
+            UndoColorSelection = 0;
+            UndoHexColor = "";
+            _FirstInstantiation = false;
+            _UndoId = "";
             Red = RedColor;
             Blue = BlueColor;
             Green = GreenColor;
@@ -76,6 +95,44 @@ namespace TilerElements
                 b = "0" + b;
             }
             HexColor = '#'+r + g + b;
+        }
+
+        public void undoUpdate(Undo undo)
+        {
+            UndoRed = Red;
+            UndoBlue = Blue;
+            UndoGreen = Green;
+            UndoOpacity = Opacity;
+            UndoColorSelection = ColorSelection;
+            UndoHexColor = HexColor;
+            this._UndoId = undo.id;
+            _FirstInstantiation = true;
+        }
+
+        public void undo(string undoId)
+        {
+            if(this.UndoId == undoId)
+            {
+                Utility.Swap(ref UndoRed, ref Red);
+                Utility.Swap(ref UndoBlue, ref Blue);
+                Utility.Swap(ref UndoGreen, ref Green);
+                Utility.Swap(ref UndoOpacity, ref Opacity);
+                Utility.Swap(ref UndoColorSelection, ref ColorSelection);
+                Utility.Swap(ref UndoHexColor, ref HexColor);
+            }
+        }
+
+        public void redo(string undoId)
+        {
+            if (this.UndoId == undoId)
+            {
+                Utility.Swap(ref UndoRed, ref Red);
+                Utility.Swap(ref UndoBlue, ref Blue);
+                Utility.Swap(ref UndoGreen, ref Green);
+                Utility.Swap(ref UndoOpacity, ref Opacity);
+                Utility.Swap(ref UndoColorSelection, ref ColorSelection);
+                Utility.Swap(ref UndoHexColor, ref HexColor);
+            }
         }
         #endregion
 
@@ -180,6 +237,29 @@ namespace TilerElements
             set
             {
                 _Id = value;
+            }
+        }
+
+        public bool FirstInstantiation
+        {
+            set
+            {
+                _FirstInstantiation = value;
+            }
+            get
+            {
+                return _FirstInstantiation;
+            }
+        }
+        public string UndoId
+        {
+            set
+            {
+                _UndoId = value;
+            }
+            get
+            {
+                return _UndoId;
             }
         }
         #endregion

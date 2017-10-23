@@ -87,6 +87,7 @@ namespace TilerElements
             _UndoTimePreferredForEvent = TimePreferredForEvent;
             _UndoInitialized = Initialized;
             FirstInstantiation = false;
+            this._UndoId = undo.id;
         }
 
         public void undo(string undoId)

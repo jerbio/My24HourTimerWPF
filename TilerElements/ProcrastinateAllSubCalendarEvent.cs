@@ -11,7 +11,7 @@ namespace TilerElements
         public ProcrastinateAllSubCalendarEvent(TilerUser user, TilerUserGroup group, string timeZone, TimeLine timeLine, EventID calendarEventId, Location location, ProcrastinateCalendarEvent calendarEvent):base()
         {
             this.Name = calendarEvent.getName;
-            this.LocationInfo = location;
+            this._LocationInfo = location;
             this._TimeZone = timeZone;
             this.StartDateTime = timeLine.Start;
             this.EndDateTime = timeLine.End;
@@ -19,12 +19,12 @@ namespace TilerElements
             this.UniqueID = EventID.GenerateSubCalendarEvent(calendarEventId);
             this._Creator = user;
             this._Users = group;
-            this.ProfileOfNow = new NowProfile();
-            this.ProfileOfProcrastination = new Procrastination(new DateTimeOffset(), new TimeSpan());
+            this._ProfileOfNow = new NowProfile();
+            this._ProfileOfProcrastination = new Procrastination(new DateTimeOffset(), new TimeSpan());
             isProcrastinateEvent = true;
             this.CalendarEventRange = calendarEvent.RangeTimeLine;
             this.BusyFrame = new BusyTimeLine(this.UniqueID.ToString(), Start, End);
-            this.EventDuration = this.BusyFrame.BusyTimeSpan;
+            this._EventDuration = this.BusyFrame.BusyTimeSpan;
         }
     }
 }

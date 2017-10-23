@@ -7,61 +7,68 @@ using System.Threading.Tasks;
 
 namespace TilerElements
 {
-    public abstract class TilerEvent: IWhy
+    public abstract class TilerEvent: IWhy, IUndoable
     {
         public static TimeSpan ZeroTimeSpan = new TimeSpan(0);
         //protected string EventName="";
         protected DateTimeOffset StartDateTime;
         protected DateTimeOffset EndDateTime;
-        protected bool Complete = false;
-        protected bool Enabled = true;
-        protected bool DeadlineElapsed = false;
-        protected bool UserDeleted = false;
-        protected Location LocationInfo;
-        protected EventDisplay UiParams = new EventDisplay();
-        protected MiscData DataBlob = new MiscData();
-        protected Repetition EventRepetition;
-        //protected bool RepetitionFlag;
+        protected bool _Complete = false;
+        protected bool _Enabled = true;
+        protected bool _UserDeleted = false;
+        protected Location _LocationInfo;
+        protected EventDisplay _UiParams = new EventDisplay();
+        protected MiscData _DataBlob = new MiscData();
+        protected Repetition _EventRepetition;
         protected bool RigidSchedule;
-        protected TimeSpan EventDuration;
-        protected string otherPartyID;
-        protected TimeSpan EventPreDeadline;
-        protected TimeSpan PrepTime;
+        protected TimeSpan _EventDuration;
+        protected string _otherPartyID;
+        protected TimeSpan _EventPreDeadline;
+        protected TimeSpan _PrepTime;
         protected EventID UniqueID;
-        protected int Priority;
+        protected int _Priority;
         protected bool isRestricted = false;
         protected static DateTimeOffset EventNow = DateTimeOffset.UtcNow;
         protected static TimeSpan CalculationEndSpan = new TimeSpan(180, 0, 0, 0, 0);
-        protected Procrastination ProfileOfProcrastination = new Procrastination(new DateTimeOffset(), new TimeSpan());
-        protected NowProfile ProfileOfNow = new NowProfile();
-        protected bool ThirdPartyFlag = false;
+        protected Procrastination _ProfileOfProcrastination = new Procrastination(new DateTimeOffset(), new TimeSpan());
+        protected NowProfile _ProfileOfNow = new NowProfile();
+        protected bool _ThirdPartyFlag = false;
         protected string ThirdPartyUserIDInfo;
         protected ThirdPartyControl.CalendarTool ThirdPartyTypeInfo = ThirdPartyControl.CalendarTool.tiler;
         protected TilerUser _Creator;
         protected TimeSpan _UsedTime = new TimeSpan();
-        protected Classification Semantics= new Classification();
+        protected Classification _Semantics= new Classification();
         protected TimeOfDayPreferrence DaySectionPreference;
         protected TilerUserGroup _Users;
         protected string _TimeZone = "UTC";
         protected bool isProcrastinateEvent = false;
         internal TempTilerEventChanges TempChanges = new TempTilerEventChanges();
         protected EventName _Name;
+        protected string _UndoId;
 
-        #region dataModelProperties
-        public string nameId { get; set; }
-        [ForeignKey("nameId")]
-        public EventName Name {
-            get
-            {
-                return _Name;
-            }
-            set
-            {
-                _Name = value;
-            }
-        }
+        #region undoParameters
+        public DateTimeOffset UndoStartDateTime;
+        public DateTimeOffset UndoEndDateTime;
+        public bool UndoComplete = false;
+        public bool UndoEnabled = true;
+        public bool UndoUserDeleted = false;
+        public bool UndoRigidSchedule;
+        public TimeSpan UndoEventDuration;
+        public string UndootherPartyID;
+        public TimeSpan UndoEventPreDeadline;
+        public TimeSpan UndoPrepTime;
+        public int UndoPriority;
+        public bool UndoIsRestricted = false;
+        public static TimeSpan UndoCalculationEndSpan;
+        public bool UndoThirdPartyFlag;
+        public string UndoThirdPartyUserIDInfo;
+        public ThirdPartyControl.CalendarTool UndoThirdPartyTypeInfo;
+        public TimeSpan UndoUsedTime;
+        public string UndoTimeZone = "UTC";
+        public bool UndoIsProcrastinateEvent;
 
         #endregion
+
 
         #region IwhyImplementation
         abstract public IWhy Because();
@@ -73,7 +80,7 @@ namespace TilerElements
 
         async public Task InitializeClassification()
         {
-            await Semantics.InitializeClassification(_Name.NameValue);
+            await _Semantics.InitializeClassification(_Name.NameValue);
         }
         public TilerUserGroup getAllUsers()
         {
@@ -148,11 +155,110 @@ namespace TilerElements
             }
         }
 
+        #region undoFunctions
+        public virtual void undoUpdate(Undo undo)
+        {
+            UndoStartDateTime = StartDateTime;
+            UndoEndDateTime = EndDateTime;
+            UndoComplete = _Complete;
+            UndoEnabled = _Enabled;
+            UndoUserDeleted = _UserDeleted;
+            _LocationInfo.undoUpdate(undo);
+            _UiParams.undoUpdate(undo);
+            _DataBlob.undoUpdate(undo);
+            _EventRepetition.undoUpdate(undo);
+            UndoRigidSchedule = RigidSchedule;
+            UndoEventDuration = _EventDuration;
+            UndootherPartyID = _otherPartyID;
+            UndoEventPreDeadline = _EventPreDeadline;
+            UndoPrepTime = _PrepTime;
+            UndoPriority = _Priority;
+            UndoIsRestricted = isRestricted;
+            UndoCalculationEndSpan = CalculationEndSpan;
+            _ProfileOfProcrastination.undoUpdate(undo);
+            _ProfileOfNow.undoUpdate(undo);
+            UndoThirdPartyFlag = _ThirdPartyFlag;
+            UndoThirdPartyUserIDInfo = ThirdPartyUserIDInfo;
+            UndoThirdPartyTypeInfo = ThirdPartyTypeInfo;
+            UndoUsedTime = _UsedTime;
+            _Semantics.undoUpdate(undo);
+            UndoTimeZone = _TimeZone;
+            Name.undoUpdate(undo);
+            FirstInstantiation = false;
+            this._UndoId = undo.id;
+        }
+
+        public virtual void undo(string undoId)
+        {
+            if(undoId == UndoId)
+            {
+                Utility.Swap(ref UndoStartDateTime, ref StartDateTime);
+                Utility.Swap(ref UndoEndDateTime, ref EndDateTime);
+                Utility.Swap(ref UndoComplete, ref _Complete);
+                Utility.Swap(ref UndoEnabled, ref _Enabled);
+                Utility.Swap(ref UndoUserDeleted, ref _UserDeleted);
+                _LocationInfo.undo(undoId);
+                _UiParams.undo(undoId);
+                _DataBlob.undo(undoId);
+                _EventRepetition.undo(undoId);
+                Utility.Swap(ref UndoRigidSchedule, ref RigidSchedule);
+                Utility.Swap(ref UndoEventDuration, ref _EventDuration);
+                Utility.Swap(ref UndootherPartyID, ref _otherPartyID);
+                Utility.Swap(ref UndoEventPreDeadline, ref _EventPreDeadline);
+                Utility.Swap(ref UndoPrepTime, ref _PrepTime);
+                Utility.Swap(ref UndoPriority, ref _Priority);
+                Utility.Swap(ref UndoIsRestricted, ref isRestricted);
+                Utility.Swap(ref UndoCalculationEndSpan, ref CalculationEndSpan);
+                _ProfileOfProcrastination.undo(undoId);
+                _ProfileOfNow.undo(undoId);
+                Utility.Swap(ref UndoThirdPartyFlag, ref _ThirdPartyFlag);
+                Utility.Swap(ref UndoThirdPartyUserIDInfo, ref ThirdPartyUserIDInfo);
+                Utility.Swap(ref UndoThirdPartyTypeInfo, ref ThirdPartyTypeInfo);
+                Utility.Swap(ref UndoUsedTime, ref _UsedTime);
+                _Semantics.undo(undoId);
+                Utility.Swap(ref UndoTimeZone, ref _TimeZone);
+                Name.undo(undoId);
+            }
+        }
+
+        public virtual void redo(string undoId)
+        {
+            if (undoId == UndoId)
+            {
+                Utility.Swap(ref UndoStartDateTime, ref StartDateTime);
+                Utility.Swap(ref UndoEndDateTime, ref EndDateTime);
+                Utility.Swap(ref UndoComplete, ref _Complete);
+                Utility.Swap(ref UndoEnabled, ref _Enabled);
+                Utility.Swap(ref UndoUserDeleted, ref _UserDeleted);
+                _LocationInfo.undo(undoId);
+                _UiParams.undo(undoId);
+                _DataBlob.undo(undoId);
+                _EventRepetition.undo(undoId);
+                Utility.Swap(ref UndoRigidSchedule, ref RigidSchedule);
+                Utility.Swap(ref UndoEventDuration, ref _EventDuration);
+                Utility.Swap(ref UndootherPartyID, ref _otherPartyID);
+                Utility.Swap(ref UndoEventPreDeadline, ref _EventPreDeadline);
+                Utility.Swap(ref UndoPrepTime, ref _PrepTime);
+                Utility.Swap(ref UndoPriority, ref _Priority);
+                Utility.Swap(ref UndoIsRestricted, ref isRestricted);
+                Utility.Swap(ref UndoCalculationEndSpan, ref CalculationEndSpan);
+                _ProfileOfProcrastination.undo(undoId);
+                _ProfileOfNow.undo(undoId);
+                Utility.Swap(ref UndoThirdPartyFlag, ref _ThirdPartyFlag);
+                Utility.Swap(ref UndoThirdPartyUserIDInfo, ref ThirdPartyUserIDInfo);
+                Utility.Swap(ref UndoThirdPartyTypeInfo, ref ThirdPartyTypeInfo);
+                Utility.Swap(ref UndoUsedTime, ref _UsedTime);
+                _Semantics.undo(undoId);
+                Utility.Swap(ref UndoTimeZone, ref _TimeZone);
+                Name.undo(undoId);
+            }
+        }
+        #endregion 
         public bool getIsComplete
         {
             get
             {
-                return Complete;
+                return _Complete;
             }
         }
 
@@ -160,7 +266,7 @@ namespace TilerElements
         {
             get
             {
-                return UiParams;
+                return _UiParams;
             }
         }
 
@@ -176,7 +282,7 @@ namespace TilerElements
         {
             get
             {
-                return Enabled;
+                return _Enabled;
             }
         }
 
@@ -225,11 +331,11 @@ namespace TilerElements
         {
             get
             {
-                return otherPartyID;
+                return _otherPartyID;
             }
             set
             {
-                otherPartyID = value;
+                _otherPartyID = value;
             }
         }
 
@@ -241,23 +347,352 @@ namespace TilerElements
             }
         }
 
+        #region dbProperties
+
+        virtual public string Id
+        {
+            get
+            {
+                return this.UniqueID.ToString();
+            }
+            set
+            {
+                this.UniqueID = new EventID(value);
+            }
+        }
+
+        public string LocationId { get; set; }
+        [ForeignKey("LocationId")]
         virtual public Location Location
         {
             set
             {
-                LocationInfo = value;
+                _LocationInfo = value;
             }
             get
             {
-                return LocationInfo;
+                return _LocationInfo;
             }
         }
+
+        public string NameId { get; set; }
+        [ForeignKey("NameId")]
+        public EventName Name
+        {
+            get
+            {
+                return _Name;
+            }
+            set
+            {
+                _Name = value;
+            }
+        }
+
+        public string UiParamsId { get; set; }
+        [ForeignKey("UiParamsId")]
+        public EventDisplay UiParams_EventDB
+        {
+            get
+            {
+                return _UiParams;
+            }
+            set
+            {
+                _UiParams = value;
+            }
+        }
+
+
+        virtual public DateTimeOffset StartTime_EventDB
+        {
+            get
+            {
+                return this.StartDateTime;
+            }
+
+            set
+            {
+                StartDateTime = value;
+            }
+        }
+
+        virtual public DateTimeOffset EndTime_EventDB
+        {
+            get
+            {
+                return this.EndDateTime;
+            }
+            set
+            {
+                EndDateTime = value;
+            }
+        }
+
+        public bool Complete_EventDB
+        {
+            get
+            {
+                return this._Complete;
+            }
+            set
+            {
+                this._Complete = value;
+            }
+        }
+
+        public bool UserDeleted_EventDB
+        {
+            get
+            {
+                return this._UserDeleted;
+            }
+            set
+            {
+                this._UserDeleted = value;
+            }
+        }
+
+        public string DataBlobId { get; set; }
+        [ForeignKey("DataBlobId")]
+        public MiscData DataBlob_EventDB
+        {
+            get
+            {
+                return this._DataBlob;
+            }
+            set
+            {
+                this._DataBlob = value;
+            }
+        }
+
+        public string EventRepetitionId { get; set; }
+        [ForeignKey("EventRepetitionId")]
+        public Repetition Repetition_EventDB
+        {
+            get
+            {
+                return this._EventRepetition;
+            }
+            set
+            {
+                this._EventRepetition = value;
+            }
+        }
+
+        public TimeSpan Duration_EventDB
+        {
+            get
+            {
+                return this._EventDuration;
+            }
+            set
+            {
+                this._EventDuration = value;
+            }
+        }
+
+        public string otherPartyID_EventDB
+        {
+            get
+            {
+                return this._otherPartyID;
+            }
+            set
+            {
+                this._otherPartyID = value;
+            }
+        }
+
+        public TimeSpan PreDeadline_EventDB
+        {
+            get
+            {
+                return this._EventPreDeadline;
+            }
+            set
+            {
+                this._EventPreDeadline = value;
+            }
+        }
+
+        public TimeSpan Preptime_EventDB
+        {
+            get
+            {
+                return this._PrepTime;
+            }
+            set
+            {
+                this._PrepTime = value;
+            }
+        }
+
+        public bool RigidSchedule_EventDB
+        {
+            get
+            {
+                return this.RigidSchedule;
+            }
+            set
+            {
+                this.RigidSchedule = value;
+            }
+        }
+
+        public int Priority_EventDB
+        {
+            get
+            {
+                return this._Priority;
+            }
+            set
+            {
+                this._Priority = value;
+            }
+        }
+
+        public bool isRestricted_EventDB
+        {
+            get
+            {
+                return this.isRestricted;
+            }
+            set
+            {
+                this.isRestricted = value;
+            }
+        }
+
+        public string ProcrastinationId { get; set; }
+        [ForeignKey("ProcrastinationId")]
+        public Procrastination Procrastination_EventDB
+        {
+            get
+            {
+                return _ProfileOfProcrastination;
+            }
+            set
+            {
+                _ProfileOfProcrastination = value;
+            }
+        }
+
+        public string ProfileOfNowId { get; set; }
+        [ForeignKey("ProfileOfNowId")]
+        public NowProfile ProfileOfNow_EventDB
+        {
+            get
+            {
+                return _ProfileOfNow;
+            }
+            set
+            {
+                _ProfileOfNow = value;
+            }
+        }
+
+        public bool ThirdPartyFlag_EventDB
+        {
+            get
+            {
+                return _ThirdPartyFlag;
+            }
+            set
+            {
+                _ThirdPartyFlag = value;
+            }
+        }
+
+        public string ThirdPartyTypeInfo_EventDB
+        {
+            get
+            {
+                return ThirdPartyTypeInfo.ToString().ToLower();
+            }
+            set
+            {
+                ThirdPartyTypeInfo = Utility.ParseEnum<ThirdPartyControl.CalendarTool>(value);
+            }
+        }
+
+        public string CreatorId { get; set; }
+        [ForeignKey("CreatorId")]
+        public TilerUser Creator_EventDB
+        {
+            get
+            {
+                return _Creator;
+            }
+            set
+            {
+                _Creator = value;
+            }
+        }
+
+        public TimeSpan UsedTime_EventDB
+        {
+            get
+            {
+                return _UsedTime;
+            }
+            set
+            {
+                _UsedTime = value;
+            }
+        }
+
+        public string SemanticsId { get; set; }
+        [ForeignKey("SemanticsId")]
+        public Classification Semantics_EventDB
+        {
+            get
+            {
+                return _Semantics;
+            }
+            set
+            {
+                _Semantics = value;
+            }
+        }
+
+        public string TilerUserGroupId { get; set; }
+        [ForeignKey("TilerUserGroupId")]
+        TilerUserGroup Users_EventDB
+        {
+            get
+            {
+                return _Users;
+            }
+            set
+            {
+                _Users = value;
+            }
+        }
+        #region undoProperties
+        public virtual bool FirstInstantiation { get; set; } = true;
+
+        public string UndoId
+        {
+            set
+            {
+                _UndoId = value;
+            }
+            get
+            {
+                return _UndoId;
+            }
+        }
+        #endregion
+        #endregion
+
 
         public virtual bool getIsRepeat
         {
             get
             {
-                return EventRepetition.Enable;
+                return _EventRepetition.Enable;
             }
         }
 
@@ -265,14 +700,14 @@ namespace TilerElements
          {
              get
              {
-                 return PrepTime;
+                 return _PrepTime;
              }
          }
          public TimeSpan getPreDeadline
          {
              get
              {
-                 return EventPreDeadline;
+                 return _EventPreDeadline;
              }
          }
 
@@ -287,7 +722,7 @@ namespace TilerElements
          {
              get 
              {
-                 return DeadlineElapsed;
+                 return End < DateTimeOffset.UtcNow;
              }
          }
         public EventName getName
@@ -302,7 +737,7 @@ namespace TilerElements
         {
             get
             {
-                return UserDeleted;
+                return _UserDeleted;
             }
 
         }
@@ -311,7 +746,7 @@ namespace TilerElements
         {
             get
             {
-                return Priority;
+                return _Priority;
             }
         }
 
@@ -319,7 +754,7 @@ namespace TilerElements
         {
             get
             {
-                return ProfileOfProcrastination;
+                return _ProfileOfProcrastination;
             }
         }
 
@@ -327,7 +762,7 @@ namespace TilerElements
         {
             get
             {
-                return ProfileOfNow;
+                return _ProfileOfNow;
             }
         }
 
@@ -430,18 +865,6 @@ namespace TilerElements
             get
             {
                 return _TimeZone;
-            }
-        }
-
-        virtual public string Id
-        {
-            get
-            {
-                return this.UniqueID.ToString();
-            }
-            set
-            {
-                this.UniqueID = new EventID(value);
             }
         }
     }

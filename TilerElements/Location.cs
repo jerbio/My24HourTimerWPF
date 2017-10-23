@@ -423,6 +423,7 @@ namespace TilerElements
             _UndoNullLocation = _NullLocation;
             _UndoDefaultFlag = _DefaultFlag;
             FirstInstantiation = false;
+            _UndoId = undo.id;
         }
 
         public void undo(string undoId)

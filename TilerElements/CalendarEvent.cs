@@ -9,14 +9,13 @@ using System.Xml;
 
 namespace TilerElements
 {
-    public class CalendarEvent : TilerEvent, IDefinedRange
+    public class CalendarEvent : TilerEvent, IDefinedRange, IUndoable
     {
         protected DateTimeOffset EndOfCalculation = DateTime.Now.AddMonths(3);
-        protected int Splits;
+        protected int _Splits;
         protected TimeSpan _AverageTimePerSplit;
-        protected int CompletedCount;
-        protected int DeletedCount;
-//        protected bool FromRepetion=false;
+        protected int _CompletedCount;
+        protected int _DeletedCount;
         protected Dictionary<EventID, SubCalendarEvent> SubEvents;
 
         CustomErrors CalendarError = null;
@@ -29,28 +28,67 @@ namespace TilerElements
         Dictionary<ulong, DayTimeLine> CalculationLimitation;
         Dictionary<ulong, DayTimeLine> FreeDaysLimitation;
 
+        #region undoMembers
+        public int UndoSplits;
+        public TimeSpan UndoAverageTimePerSplit;
+        public int UndoCompletedCount;
+        public int UndoDeletedCount;
+        #endregion
+
+        public override void undoUpdate(Undo undo)
+        {
+            UndoSplits = _Splits;
+            UndoAverageTimePerSplit = _AverageTimePerSplit;
+            UndoCompletedCount = _CompletedCount;
+            UndoDeletedCount = _DeletedCount;
+            base.undoUpdate(undo);
+        }
+
+        public override void undo(string undoId)
+        {
+            if(UndoId == undoId)
+            {
+                Utility.Swap(ref UndoSplits, ref _Splits);
+                Utility.Swap(ref UndoAverageTimePerSplit, ref _AverageTimePerSplit);
+                Utility.Swap(ref UndoCompletedCount, ref _CompletedCount);
+                Utility.Swap(ref UndoDeletedCount, ref _DeletedCount);
+            }
+            base.undo(undoId);
+        }
+
+        public override void redo(string undoId)
+        {
+            if (UndoId == undoId)
+            {
+                Utility.Swap(ref UndoSplits, ref _Splits);
+                Utility.Swap(ref UndoAverageTimePerSplit, ref _AverageTimePerSplit);
+                Utility.Swap(ref UndoCompletedCount, ref _CompletedCount);
+                Utility.Swap(ref UndoDeletedCount, ref _DeletedCount);
+            }
+            base.redo(undoId);
+        }
         #region Constructor
         public CalendarEvent()
         {
-            EventDuration = new TimeSpan();
+            _EventDuration = new TimeSpan();
             _Name = new EventName();
             StartDateTime = new DateTimeOffset();
             EndDateTime = new DateTimeOffset();
-            EventPreDeadline = new TimeSpan();
-            PrepTime = new TimeSpan();
-            Priority = 0;
-            EventRepetition = new Repetition();
+            _EventPreDeadline = new TimeSpan();
+            _PrepTime = new TimeSpan();
+            _Priority = 0;
+            _EventRepetition = new Repetition();
             RigidSchedule = false;
-            Splits = 1;
-            LocationInfo = new Location();
+            _Splits = 1;
+            _LocationInfo = new Location();
             UniqueID = EventID.GenerateCalendarEvent();
             SubEvents = new Dictionary<EventID, SubCalendarEvent>();
-            Semantics = new Classification();
-            otherPartyID = "";
+            _Semantics = new Classification();
+            _otherPartyID = "";
             CalendarError = null;
             EventSequence = new TimeLine();
-            ProfileOfProcrastination = new Procrastination(new DateTimeOffset(), new TimeSpan());
-            ProfileOfNow = new NowProfile();
+            _ProfileOfProcrastination = new Procrastination(new DateTimeOffset(), new TimeSpan());
+            _ProfileOfNow = new NowProfile();
         }
 
         public CalendarEvent(CustomErrors Error) : this()
@@ -78,23 +116,23 @@ namespace TilerElements
 
             this.StartDateTime = start;
             this.EndDateTime = end;
-            this.Splits = split;
+            this._Splits = split;
             this._Creator = creator;
-            this.DataBlob = miscData;
+            this._DataBlob = miscData;
             this.UniqueID = EventID.GenerateCalendarEvent();
-            this.EventDuration = duration;
+            this._EventDuration = duration;
             this._Users = otherUsers;
-            this.EventPreDeadline = preDeadline;
-            this.PrepTime = prepTime;
-            this.ProfileOfNow = nowProfile??new NowProfile();
-            this.ProfileOfProcrastination = procrastinationProfile??new Procrastination(new DateTimeOffset(), new TimeSpan());
-            this.EventRepetition = repetition;
-            this.Complete = completeflag;
-            this.Enabled = isEnabled;
-            this.LocationInfo = location;
-            this.UiParams = displayData;
+            this._EventPreDeadline = preDeadline;
+            this._PrepTime = prepTime;
+            this._ProfileOfNow = nowProfile??new NowProfile();
+            this._ProfileOfProcrastination = procrastinationProfile??new Procrastination(new DateTimeOffset(), new TimeSpan());
+            this._EventRepetition = repetition;
+            this._Complete = completeflag;
+            this._Enabled = isEnabled;
+            this._LocationInfo = location;
+            this._UiParams = displayData;
             this._Name = name;
-            this.UserDeleted = userDeleted;
+            this._UserDeleted = userDeleted;
             this._TimeZone = timeZoneOrigin;
         }
 
@@ -124,15 +162,15 @@ namespace TilerElements
                  NameEntry, StartData, EndData, eventDuration, eventPrepTimeSpan, preDeadlineTimeSpan, eventSplit, EventRepetitionEntry, UiData, NoteData, EnabledEventFlag, CompletionFlag, nowProfile, procrastination, EventLocation, creator, users, false, DateTimeOffset.UtcNow, timeZone)
         {
             UniqueID = eventId ?? this.UniqueID; /// already initialized by parent initialization
-            if (EventRepetition.Enable)
+            if (_EventRepetition.Enable)
             {
                 _AverageTimePerSplit = new TimeSpan();
             }
             else
             {
-                _AverageTimePerSplit = TimeSpan.FromTicks(((eventDuration.Ticks / Splits)));
+                _AverageTimePerSplit = TimeSpan.FromTicks(((eventDuration.Ticks / _Splits)));
             }
-            this.EventDuration = eventDuration;
+            this._EventDuration = eventDuration;
             if (initializeSubCalendarEvents)
             {
                 initializeSubEvents();
@@ -145,9 +183,9 @@ namespace TilerElements
         {
             SubEvents = new Dictionary<EventID, SubCalendarEvent>();
 
-            for (int i = 0; i < Splits; i++)
+            for (int i = 0; i < _Splits; i++)
             {
-                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(getCreator, _Users, _TimeZone, _AverageTimePerSplit, this.getName, (EndDateTime - _AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), RigidSchedule, this.Enabled, this.UiParams, this.Notes, this.Complete, this.LocationInfo, this.RangeTimeLine);
+                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(this, getCreator, _Users, _TimeZone, _AverageTimePerSplit, this.getName, (EndDateTime - _AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), RigidSchedule, this._Enabled, this._UiParams, this.Notes, this._Complete, this._LocationInfo, this.RangeTimeLine);
                 SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
             }
         }
@@ -159,14 +197,14 @@ namespace TilerElements
             StartDateTime = MyUpdated.StartDateTime;
             EndDateTime = MyUpdated.End;
             EventSequence = new TimeLine(StartDateTime, EndDateTime);
-            EventDuration = MyUpdated.getActiveDuration;
-            Splits = MyUpdated.Splits;
-            PrepTime = MyUpdated.PrepTime;
-            EventPreDeadline = MyUpdated.getPreDeadline;
+            _EventDuration = MyUpdated.getActiveDuration;
+            _Splits = MyUpdated._Splits;
+            _PrepTime = MyUpdated._PrepTime;
+            _EventPreDeadline = MyUpdated.getPreDeadline;
             RigidSchedule = MyUpdated.getRigid;
             _AverageTimePerSplit = MyUpdated._AverageTimePerSplit;
-            Enabled = MyUpdated.isEnabled;
-            Complete = MyUpdated.getIsComplete;
+            _Enabled = MyUpdated.isEnabled;
+            _Complete = MyUpdated.getIsComplete;
             SubEvents = new Dictionary<EventID, SubCalendarEvent>();
             for (int i = 0; i < MySubEvents.Length; i++)//using MySubEvents.length for the scenario of the call for repeat event. Remember the parent event does not generate subevents
             {
@@ -181,18 +219,17 @@ namespace TilerElements
                 }   
             }
 
-            this.Priority = MyUpdated.getEventPriority;
-            this.UiParams = MyUpdated.getUIParam;
-            this.DataBlob = MyUpdated.Notes;
+            this._Priority = MyUpdated.getEventPriority;
+            this._UiParams = MyUpdated.getUIParam;
+            this._DataBlob = MyUpdated.Notes;
             this.isRestricted = MyUpdated.getIsEventRestricted;
-            this.LocationInfo = MyUpdated.myLocation;//hack you might need to make copy
-            this.ProfileOfProcrastination = MyUpdated.getProcrastinationInfo;
-            this.DeadlineElapsed = MyUpdated.getIsDeadlineElapsed;
-            this.UserDeleted = MyUpdated.getIsUserDeleted;
-            this.CompletedCount = MyUpdated.CompletionCount;
-            this.DeletedCount = MyUpdated.DeletionCount;
-            EventRepetition = MyUpdated.Repeat;
-            ProfileOfNow = MyUpdated.getNowInfo;
+            this._LocationInfo = MyUpdated.Location;//hack you might need to make copy
+            this._ProfileOfProcrastination = MyUpdated.getProcrastinationInfo;
+            this._UserDeleted = MyUpdated.getIsUserDeleted;
+            this._CompletedCount = MyUpdated.CompletionCount;
+            this._DeletedCount = MyUpdated.DeletionCount;
+            _EventRepetition = MyUpdated.Repeat;
+            _ProfileOfNow = MyUpdated.getNowInfo;
             EventSequence = new TimeLine(StartDateTime, EndDateTime);
             _Creator = MyUpdated.getCreator;
             _UsedTime = MyUpdated.UsedTime;
@@ -241,8 +278,8 @@ namespace TilerElements
             TimeLine subEventActiveTime = subEvent.RangeTimeLine;
             TimeSpan dayDiffSpan = timeLine.Start.Date - subEventActiveTime.Start.Date;
             TimeLine subEvenRangeReadjustedToexpectedTimeLine = new TimeLine(subEventActiveTime.Start.Add(dayDiffSpan), subEventActiveTime.End.Add(dayDiffSpan));
-            calEvent.EventRepetition = new Repetition(true, timeLine, Repetition.Frequency.YEARLY, subEvenRangeReadjustedToexpectedTimeLine);
-            calEvent.EventRepetition.PopulateRepetitionParameters(calEvent);
+            calEvent._EventRepetition = new Repetition(true, timeLine, Repetition.Frequency.YEARLY, subEvenRangeReadjustedToexpectedTimeLine);
+            calEvent._EventRepetition.PopulateRepetitionParameters(calEvent);
             CalendarEvent calEventCpy = calEvent.Repeat.RecurringCalendarEvents().Single();// using ssingle because this must always return a single calendarevent. Because we generated a repeat event which should only have one calendar event;
             SubCalendarEvent subEventCopy = calEventCpy.AllSubEvents.First();
             SubCalendarEvent duplicateOfOriginal = subEvent.createCopy(subEventCopy.SubEvent_ID);
@@ -276,7 +313,7 @@ namespace TilerElements
         virtual public void ReverseWhatIf(TempTilerEventChanges toBeReverted)
         {
             CalendarEvent calEvent = toBeReverted.allChanges[0] as CalendarEvent;
-            calEvent.EventRepetition = new Repetition();
+            calEvent._EventRepetition = new Repetition();
             SubCalendarEvent subEventIni = calEvent.TempChanges.allChanges[0] as SubCalendarEvent;
             SubCalendarEvent subEventCopy = calEvent.TempChanges.allChanges[1] as SubCalendarEvent;
             subEventIni.Enable(calEvent);
@@ -319,9 +356,9 @@ namespace TilerElements
         ///*
         public void updateProcrastinate(Procrastination ProcrastinationTime)
         {
-            ProfileOfProcrastination = ProcrastinationTime;
+            _ProfileOfProcrastination = ProcrastinationTime;
             ProcrastinationTime.AssociatedEvent = this;
-            ProfileOfNow.reset();
+            _ProfileOfNow.reset();
         }
         //*/
 
@@ -333,17 +370,17 @@ namespace TilerElements
         virtual public CalendarEvent createCopy(EventID Id=null)
         {
             CalendarEvent MyCalendarEventCopy = new CalendarEvent();
-            MyCalendarEventCopy.EventDuration = new TimeSpan(EventDuration.Ticks);
+            MyCalendarEventCopy._EventDuration = new TimeSpan(_EventDuration.Ticks);
             MyCalendarEventCopy._Name = this._Name.createCopy();
             MyCalendarEventCopy.StartDateTime = StartDateTime;
             MyCalendarEventCopy.EndDateTime = EndDateTime;
-            MyCalendarEventCopy.EventPreDeadline = new TimeSpan(EventPreDeadline.Ticks);
-            MyCalendarEventCopy.PrepTime = new TimeSpan(PrepTime.Ticks);
-            MyCalendarEventCopy.Priority = Priority;
-            MyCalendarEventCopy.EventRepetition = EventRepetition.CreateCopy();// EventRepetition != null ? EventRepetition.CreateCopy() : EventRepetition;
-            MyCalendarEventCopy.Complete = this.Complete;
+            MyCalendarEventCopy._EventPreDeadline = new TimeSpan(_EventPreDeadline.Ticks);
+            MyCalendarEventCopy._PrepTime = new TimeSpan(_PrepTime.Ticks);
+            MyCalendarEventCopy._Priority = _Priority;
+            MyCalendarEventCopy._EventRepetition = _EventRepetition.CreateCopy();// EventRepetition != null ? EventRepetition.CreateCopy() : EventRepetition;
+            MyCalendarEventCopy._Complete = this._Complete;
             MyCalendarEventCopy.RigidSchedule = RigidSchedule;//hack
-            MyCalendarEventCopy.Splits = Splits;
+            MyCalendarEventCopy._Splits = _Splits;
             MyCalendarEventCopy._AverageTimePerSplit = new TimeSpan(_AverageTimePerSplit.Ticks);
             
             if (Id != null)
@@ -356,19 +393,18 @@ namespace TilerElements
             }
             MyCalendarEventCopy.EventSequence = EventSequence.CreateCopy();
             MyCalendarEventCopy.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
-            MyCalendarEventCopy.UiParams = this.UiParams.createCopy();
-            MyCalendarEventCopy.DataBlob = this.DataBlob.createCopy();
-            MyCalendarEventCopy.Enabled = this.Enabled;
+            MyCalendarEventCopy._UiParams = this._UiParams.createCopy();
+            MyCalendarEventCopy._DataBlob = this._DataBlob.createCopy();
+            MyCalendarEventCopy._Enabled = this._Enabled;
             MyCalendarEventCopy.isRestricted = this.isRestricted;
-            MyCalendarEventCopy.LocationInfo = LocationInfo;//hack you might need to make copy
-            MyCalendarEventCopy.ProfileOfProcrastination = this.ProfileOfProcrastination.CreateCopy();
-            MyCalendarEventCopy.DeadlineElapsed = this.DeadlineElapsed;
-            MyCalendarEventCopy.UserDeleted= this.UserDeleted;
-            MyCalendarEventCopy.CompletedCount = this.CompletedCount;
-            MyCalendarEventCopy.DeletedCount = this.DeletedCount;
-            MyCalendarEventCopy.ProfileOfProcrastination = this.ProfileOfProcrastination.CreateCopy();
-            MyCalendarEventCopy.ProfileOfNow = this.getNowInfo.CreateCopy();
-            MyCalendarEventCopy.Semantics = this.Semantics.createCopy();
+            MyCalendarEventCopy._LocationInfo = _LocationInfo;//hack you might need to make copy
+            MyCalendarEventCopy._ProfileOfProcrastination = this._ProfileOfProcrastination.CreateCopy();
+            MyCalendarEventCopy._UserDeleted= this._UserDeleted;
+            MyCalendarEventCopy._CompletedCount = this._CompletedCount;
+            MyCalendarEventCopy._DeletedCount = this._DeletedCount;
+            MyCalendarEventCopy._ProfileOfProcrastination = this._ProfileOfProcrastination.CreateCopy();
+            MyCalendarEventCopy._ProfileOfNow = this.getNowInfo.CreateCopy();
+            MyCalendarEventCopy._Semantics = this._Semantics.createCopy();
             MyCalendarEventCopy._UsedTime = this._UsedTime;
 
             foreach (SubCalendarEvent eachSubCalendarEvent in this.SubEvents.Values)
@@ -377,7 +413,7 @@ namespace TilerElements
             }
 
             //MyCalendarEventCopy.SchedulStatus = SchedulStatus;
-            MyCalendarEventCopy.otherPartyID = otherPartyID == null ? null : otherPartyID.ToString();
+            MyCalendarEventCopy._otherPartyID = _otherPartyID == null ? null : _otherPartyID.ToString();
             MyCalendarEventCopy._Users = this._Users;
             MyCalendarEventCopy.DaySectionPreference = this.DaySectionPreference;
             return MyCalendarEventCopy;
@@ -385,9 +421,9 @@ namespace TilerElements
 
         public void UpdateNowProfile(NowProfile ProfileNowData)
         {
-            ProfileOfNow = ProfileNowData;
-            ProfileOfNow.AssociatedEvent = this;
-            ProfileOfProcrastination.reset();
+            _ProfileOfNow = ProfileNowData;
+            _ProfileOfNow.AssociatedEvent = this;
+            _ProfileOfProcrastination.reset();
         }
 
         public static CalendarEvent getEmptyCalendarEvent( EventID myEventID,DateTimeOffset Start=new DateTimeOffset(), DateTimeOffset End=new DateTimeOffset())
@@ -396,22 +432,22 @@ namespace TilerElements
             retValue.UniqueID = new EventID( myEventID.getCalendarEventID());
             retValue.StartDateTime = Start;
             retValue.EndDateTime = End;
-            retValue.EventDuration = new TimeSpan(0);
+            retValue._EventDuration = new TimeSpan(0);
             SubCalendarEvent emptySubEvent = SubCalendarEvent.getEmptySubCalendarEvent(retValue.UniqueID);
             retValue.SubEvents.Add(emptySubEvent.SubEvent_ID, emptySubEvent);
-            retValue.Splits = 1;
+            retValue._Splits = 1;
             retValue.RigidSchedule = true;
-            retValue.Complete = true;
+            retValue._Complete = true;
 
-            retValue.Enabled = false;
+            retValue._Enabled = false;
             //retValue.UpdateLocationMatrix(new Location_Elements());
             return retValue;
         }
 
         internal void decrementDeleteCount(TimeSpan span)
         {
-            int currentCount = DeletedCount - 1;
-            if (DeletedCount < 0)
+            int currentCount = _DeletedCount - 1;
+            if (_DeletedCount < 0)
             {
                 throw new Exception("You are deleting more event Than is available");
             }
@@ -419,15 +455,15 @@ namespace TilerElements
             _UsedTime += span;
 
 
-            DeletedCount = currentCount;
+            _DeletedCount = currentCount;
         }
 
         internal void incrementDeleteCount(TimeSpan span)
         {
-            int currentCount = DeletedCount + 1;
-            if (DeletedCount <= Splits)
+            int currentCount = _DeletedCount + 1;
+            if (_DeletedCount <= _Splits)
             {
-                DeletedCount = currentCount;
+                _DeletedCount = currentCount;
                 _UsedTime += span;
             }
             else
@@ -438,10 +474,10 @@ namespace TilerElements
 
         internal void decrementCompleteCount(TimeSpan span)
         {
-            int currentCount = CompletedCount - 1;
+            int currentCount = _CompletedCount - 1;
             if (currentCount >= 0)
             {
-                CompletedCount = currentCount;
+                _CompletedCount = currentCount;
                 _UsedTime += span;
             }
             else
@@ -452,7 +488,7 @@ namespace TilerElements
 
         virtual public void Disable(bool goDeep=true)
         { 
-            this.Enabled=false;
+            this._Enabled=false;
             if (goDeep)
             { 
                 DisableSubEvents(AllSubEvents); 
@@ -461,7 +497,7 @@ namespace TilerElements
 
         virtual public void Enable(bool goDeep = false)
         {
-            this.Enabled = true;
+            this._Enabled = true;
             if (goDeep)
             {
                 EnableSubEvents(AllSubEvents);
@@ -471,11 +507,11 @@ namespace TilerElements
 
         internal void incrementCompleteCount(TimeSpan span)
         {
-            int CurrentCount = CompletedCount;
+            int CurrentCount = _CompletedCount;
             CurrentCount += 1;
-            if ((CurrentCount + DeletedCount) <= Splits)
+            if ((CurrentCount + _DeletedCount) <= _Splits)
             {
-                CompletedCount = CurrentCount;
+                _CompletedCount = CurrentCount;
                 _UsedTime += span;
                 return;
             }
@@ -486,13 +522,13 @@ namespace TilerElements
 
         virtual public void SetCompletion(bool CompletionStatus, bool goDeep=false)
         {
-            Complete = CompletionStatus;
+            _Complete = CompletionStatus;
 
             if (RepetitionStatus)
             {
                 if (goDeep)
                 {
-                    IEnumerable<CalendarEvent> AllrepeatingCalEvents=EventRepetition.RecurringCalendarEvents();
+                    IEnumerable<CalendarEvent> AllrepeatingCalEvents=_EventRepetition.RecurringCalendarEvents();
                     foreach (CalendarEvent eachCalendarEvent in AllrepeatingCalEvents)
                     {
                         eachCalendarEvent.SetCompletion(CompletionStatus, goDeep);
@@ -570,10 +606,10 @@ namespace TilerElements
         public void nonCompleteSubEvents(IEnumerable<SubCalendarEvent> mySubEvents)
         {
             int NumberToBeNonComplete = mySubEvents.Where(obj => obj.getIsComplete).Count();
-            int CurrentCount = CompletedCount - NumberToBeNonComplete;
+            int CurrentCount = _CompletedCount - NumberToBeNonComplete;
             if (CurrentCount >=0)
             {
-                CompletedCount = CurrentCount;
+                _CompletedCount = CurrentCount;
                 mySubEvents.Where(obj => obj.getIsComplete).AsParallel().ForAll(obj => obj.nonCompleteWithoutUpdatingCalEvent());
                 return;
             }
@@ -583,11 +619,11 @@ namespace TilerElements
         public void completeSubEvents(IEnumerable<SubCalendarEvent> mySubEvents)
         {
             int NumberToBeEComplete = mySubEvents.Where(obj => !obj.getIsComplete).Count();
-            int CurrentCount = CompletedCount + NumberToBeEComplete;
+            int CurrentCount = _CompletedCount + NumberToBeEComplete;
 
-            if (CurrentCount <= (Splits-DeletedCount))
+            if (CurrentCount <= (_Splits-_DeletedCount))
             {
-                CompletedCount = CurrentCount;
+                _CompletedCount = CurrentCount;
                 mySubEvents.Where(obj => !obj.getIsComplete).AsParallel().ForAll(obj => obj.completeWithoutUpdatingCalEvent());
                 return;
             }
@@ -598,11 +634,11 @@ namespace TilerElements
         public void EnableSubEvents(IEnumerable<SubCalendarEvent> mySubEvents)
         {
             int NumberToBeEnabled = mySubEvents.Where(obj => !obj.isEnabled).Count();
-            int CurrentCount =DeletedCount - NumberToBeEnabled;
+            int CurrentCount =_DeletedCount - NumberToBeEnabled;
 
             if (CurrentCount >=0)
             {
-                DeletedCount = CurrentCount;
+                _DeletedCount = CurrentCount;
                 mySubEvents.Where(obj => !obj.isEnabled).AsParallel().ForAll(obj => obj.enableWithouUpdatingCalEvent());
                 return;
             }
@@ -614,10 +650,10 @@ namespace TilerElements
         public void DisableSubEvents(IEnumerable<SubCalendarEvent> mySubEvents)
         {
             int NumberToBeDeleted = mySubEvents.Where(obj => obj.isEnabled).Count();
-            int CurrentCount = DeletedCount + NumberToBeDeleted;
-            if (CurrentCount <= Splits)
+            int CurrentCount = _DeletedCount + NumberToBeDeleted;
+            if (CurrentCount <= _Splits)
             {
-                DeletedCount = CurrentCount;
+                _DeletedCount = CurrentCount;
                 mySubEvents.AsParallel().ForAll(obj => obj.disableWithoutUpdatingCalEvent());
                 return;
             }
@@ -659,9 +695,9 @@ namespace TilerElements
                 }
             }
             return null;*/
-            if (EventRepetition.Enable)
+            if (_EventRepetition.Enable)
             {
-                return EventRepetition.getCalendarEvent(CalendarIDUpToRepeatCalEvent);
+                return _EventRepetition.getCalendarEvent(CalendarIDUpToRepeatCalEvent);
             }
             else
             {
@@ -672,7 +708,7 @@ namespace TilerElements
 
         virtual public void SetEventEnableStatus(bool EnableDisableFlag)
         {
-            this.Enabled = EnableDisableFlag;
+            this._Enabled = EnableDisableFlag;
         }
         
         virtual public TimeLine PinSubEventsToStart(TimeLine MyTimeLine, List<SubCalendarEvent> MySubCalendarEventList)
@@ -736,7 +772,7 @@ namespace TilerElements
 
             if (Repeat.Enable)
             {
-                IEnumerable<CalendarEvent> AllrepeatingCalEvents = EventRepetition.RecurringCalendarEvents();
+                IEnumerable<CalendarEvent> AllrepeatingCalEvents = _EventRepetition.RecurringCalendarEvents();
                 foreach (CalendarEvent MyCalendarEvent in AllrepeatingCalEvents)
                 {
                     SubCalendarEvent MySubEvent = MyCalendarEvent.getSubEvent(SubEventID);
@@ -967,44 +1003,44 @@ namespace TilerElements
         {
             if ((this.getId == CalendarEventEntry.getId))
             {
-                EventDuration=CalendarEventEntry.getActiveDuration;
+                _EventDuration=CalendarEventEntry.getActiveDuration;
                 _Name=CalendarEventEntry._Name;
                 StartDateTime=CalendarEventEntry.StartDateTime;
                 EndDateTime=CalendarEventEntry.EndDateTime;
-                EventPreDeadline=CalendarEventEntry.getPreDeadline;
-                PrepTime=CalendarEventEntry.PrepTime;
-                Priority=CalendarEventEntry.Priority;
-                EventRepetition=CalendarEventEntry.EventRepetition;
-                Complete = CalendarEventEntry.Complete;
+                _EventPreDeadline=CalendarEventEntry.getPreDeadline;
+                _PrepTime=CalendarEventEntry._PrepTime;
+                _Priority=CalendarEventEntry._Priority;
+                _EventRepetition=CalendarEventEntry._EventRepetition;
+                _Complete = CalendarEventEntry._Complete;
                 RigidSchedule = CalendarEventEntry.RigidSchedule;
-                Splits=CalendarEventEntry.Splits;
+                _Splits=CalendarEventEntry._Splits;
                 _AverageTimePerSplit=CalendarEventEntry._AverageTimePerSplit;
                 UniqueID=CalendarEventEntry.UniqueID;
                 EventSequence=CalendarEventEntry.EventSequence;;
                 SubEvents=CalendarEventEntry.SubEvents;
                 //SchedulStatus=CalendarEventEntry.SchedulStatus;
                 CalendarError = CalendarEventEntry.CalendarError;
-                Enabled=CalendarEventEntry.Enabled;
-                UiParams=CalendarEventEntry.UiParams;
-                DataBlob=CalendarEventEntry.DataBlob;
-                LocationInfo =CalendarEventEntry.LocationInfo;
-                otherPartyID = CalendarEventEntry.otherPartyID;
+                _Enabled=CalendarEventEntry._Enabled;
+                _UiParams=CalendarEventEntry._UiParams;
+                _DataBlob=CalendarEventEntry._DataBlob;
+                _LocationInfo =CalendarEventEntry._LocationInfo;
+                _otherPartyID = CalendarEventEntry._otherPartyID;
                 this._Creator = CalendarEventEntry._Creator;
                 this.CalculableSubEvents = CalendarEventEntry.CalculableSubEvents;
-                this.CompletedCount = CalendarEventEntry.CompletedCount;
-                this.DeletedCount = CalendarEventEntry.DeletedCount;
+                this._CompletedCount = CalendarEventEntry._CompletedCount;
+                this._DeletedCount = CalendarEventEntry._DeletedCount;
                 this.EndOfCalculation = CalendarEventEntry.EndOfCalculation;
                 this.isCalculableInitialized = CalendarEventEntry.isCalculableInitialized;
                 this.isUnDesignableInitialized = CalendarEventEntry.isUnDesignableInitialized;
-                this.Splits = CalendarEventEntry.Splits;
+                this._Splits = CalendarEventEntry._Splits;
                 this.UnDesignables = CalendarEventEntry.UnDesignables;
-                this.ProfileOfNow= CalendarEventEntry.ProfileOfNow;
-                this.ProfileOfProcrastination = CalendarEventEntry.ProfileOfProcrastination;
-                this.Semantics=CalendarEventEntry.Semantics;
-                this.ThirdPartyFlag=CalendarEventEntry.ThirdPartyFlag;
+                this._ProfileOfNow= CalendarEventEntry._ProfileOfNow;
+                this._ProfileOfProcrastination = CalendarEventEntry._ProfileOfProcrastination;
+                this._Semantics=CalendarEventEntry._Semantics;
+                this._ThirdPartyFlag=CalendarEventEntry._ThirdPartyFlag;
                 this.ThirdPartyTypeInfo=CalendarEventEntry.ThirdPartyTypeInfo;
                 this.ThirdPartyUserIDInfo= CalendarEventEntry.ThirdPartyUserIDInfo;
-                this.UserDeleted=CalendarEventEntry.UserDeleted;
+                this._UserDeleted=CalendarEventEntry._UserDeleted;
                 this._Users = CalendarEventEntry._Users;
                 this._UsedTime= CalendarEventEntry._UsedTime;
                 return;
@@ -1220,32 +1256,31 @@ namespace TilerElements
         virtual protected CalendarEvent getCalculationCopy()
         {
             CalendarEvent RetValue = new CalendarEvent();
-            RetValue.EventDuration = this.getActiveDuration;
+            RetValue._EventDuration = this.getActiveDuration;
             RetValue._Name = this._Name.createCopy();
             RetValue.StartDateTime = this.Start;
             RetValue.EndDateTime = this.End;
-            RetValue.EventPreDeadline = this.getPreDeadline;
-            RetValue.PrepTime = this.getPreparation;
-            RetValue.Priority = this.getEventPriority;
-            RetValue.EventRepetition = this.Repeat;// EventRepetition != this.null ? EventRepetition.CreateCopy() : EventRepetition;
-            RetValue.Complete = this.getIsComplete;
+            RetValue._EventPreDeadline = this.getPreDeadline;
+            RetValue._PrepTime = this.getPreparation;
+            RetValue._Priority = this.getEventPriority;
+            RetValue._EventRepetition = this.Repeat;// EventRepetition != this.null ? EventRepetition.CreateCopy() : EventRepetition;
+            RetValue._Complete = this.getIsComplete;
             RetValue.RigidSchedule = this.getRigid;//hack
-            RetValue.Splits = this.NumberOfSplit;
+            RetValue._Splits = this.NumberOfSplit;
             RetValue._AverageTimePerSplit = this.AverageTimeSpanPerSubEvent;
             RetValue.UniqueID = EventID.GenerateCalendarEvent();
             RetValue.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
-            RetValue.UiParams = this.getUIParam;
-            RetValue.DataBlob = this.Notes;
-            RetValue.Enabled = this.isEnabled;
+            RetValue._UiParams = this.getUIParam;
+            RetValue._DataBlob = this.Notes;
+            RetValue._Enabled = this.isEnabled;
             RetValue.isRestricted = this.getIsEventRestricted;
-            RetValue.LocationInfo = this.myLocation;//hack you might need to make copy
-            RetValue.ProfileOfProcrastination = this.getProcrastinationInfo.CreateCopy();
-            RetValue.DeadlineElapsed = this.getIsDeadlineElapsed;
-            RetValue.UserDeleted = this.getIsUserDeleted;
-            RetValue.CompletedCount = this.CompletionCount;
-            RetValue.DeletedCount = this.DeletionCount;
-            RetValue.ProfileOfNow = this.ProfileOfNow.CreateCopy();
-            RetValue.otherPartyID = this.ThirdPartyID;// == this.null ? null : otherPartyID.ToString();
+            RetValue._LocationInfo = this.Location;//hack you might need to make copy
+            RetValue._ProfileOfProcrastination = this.getProcrastinationInfo.CreateCopy();
+            RetValue._UserDeleted = this.getIsUserDeleted;
+            RetValue._CompletedCount = this.CompletionCount;
+            RetValue._DeletedCount = this.DeletionCount;
+            RetValue._ProfileOfNow = this._ProfileOfNow.CreateCopy();
+            RetValue._otherPartyID = this.ThirdPartyID;// == this.null ? null : otherPartyID.ToString();
             RetValue._Users = this._Users;
             //RetValue.UpdateLocationMatrix(RetValue.LocationInfo);
             return RetValue;
@@ -1254,7 +1289,7 @@ namespace TilerElements
         virtual public CalendarEvent getProcrastinationCopy(Procrastination ProcrastinationProfileData)
         {
             CalendarEvent retValue = getCalculationCopy();
-            retValue.ProfileOfProcrastination=ProcrastinationProfileData;
+            retValue._ProfileOfProcrastination=ProcrastinationProfileData;
             retValue.StartDateTime = ProcrastinationProfileData.PreferredStartTime;
             retValue.EventSequence = new TimeLine(retValue.StartDateTime, retValue.EndDateTime);
             List<SubCalendarEvent> ProcrastinatonCopy = this.ActiveSubEvents.Select(obj => obj.getProcrastinationCopy(retValue, ProcrastinationProfileData)).ToList();
@@ -1266,7 +1301,7 @@ namespace TilerElements
         virtual public CalendarEvent getNowCalculationCopy(NowProfile NowProfileData )
         {
             CalendarEvent retValue = getCalculationCopy();
-            retValue.ProfileOfNow = NowProfileData;
+            retValue._ProfileOfNow = NowProfileData;
             retValue.StartDateTime = NowProfileData.PreferredTime;
             retValue.EventSequence = new TimeLine(retValue.StartDateTime, retValue.EndDateTime);
             SubCalendarEvent ProcrastinatonCopy = this.ActiveSubEvents[0].getNowCopy(retValue.UniqueID, NowProfileData);
@@ -1291,7 +1326,7 @@ namespace TilerElements
 
                     if (RepetitionStatus)
                     {
-                        EventRepetition.RecurringCalendarEvents().AsParallel().ForAll(obj => obj.IncreaseSplitCount(Change));
+                        _EventRepetition.RecurringCalendarEvents().AsParallel().ForAll(obj => obj.IncreaseSplitCount(Change));
                         return 2;
                     }
                     else
@@ -1304,7 +1339,7 @@ namespace TilerElements
                 {
                     if (RepetitionStatus)
                     {
-                        EventRepetition.RecurringCalendarEvents().AsParallel().ForAll(obj => obj.ReduceSplitCount(Change));
+                        _EventRepetition.RecurringCalendarEvents().AsParallel().ForAll(obj => obj.ReduceSplitCount(Change));
                         return 1;
                     }
                     else
@@ -1318,7 +1353,7 @@ namespace TilerElements
 
         virtual protected void ReduceSplitCount(uint delta)
         {
-            if (delta<Splits)
+            if (delta<_Splits)
             {
                 List<SubCalendarEvent> orderedByActive = SubEvents.OrderByDescending(subEvent => subEvent.Value.isActive).Select(subEvemt => subEvemt.Value).ToList();
                 for (int i=0; i<delta;i++)
@@ -1332,10 +1367,10 @@ namespace TilerElements
                         decrementDeleteCount(SubEvent.RangeSpan);
                     }
                     SubEvents.Remove(SubEvent.SubEvent_ID);
-                    EventDuration = EventDuration.Add(-SubEvent.getActiveDuration);
+                    _EventDuration = _EventDuration.Add(-SubEvent.getActiveDuration);
                     orderedByActive.RemoveAt(0);
                 }
-                Splits -= (int)delta;
+                _Splits -= (int)delta;
                 UpdateTimePerSplit();
                 return;
             }
@@ -1348,11 +1383,11 @@ namespace TilerElements
             List<SubCalendarEvent> newSubs = new List<SubCalendarEvent>();
             for (int i = 0; i < delta; i++)
             {
-                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(getCreator, _Users,_TimeZone, _AverageTimePerSplit, this.getName, (EndDateTime - _AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), RigidSchedule, this.isEnabled, this.UiParams, this.Notes, this.Complete, LocationInfo, this.RangeTimeLine);
+                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(this, getCreator, _Users,_TimeZone, _AverageTimePerSplit, this.getName, (EndDateTime - _AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), RigidSchedule, this.isEnabled, this._UiParams, this.Notes, this._Complete, _LocationInfo, this.RangeTimeLine);
                 SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
-                EventDuration = EventDuration.Add(newSubCalEvent.getActiveDuration);
+                _EventDuration = _EventDuration.Add(newSubCalEvent.getActiveDuration);
             }
-            Splits += (int)delta;
+            _Splits += (int)delta;
             UpdateTimePerSplit();
         }
 
@@ -1364,15 +1399,15 @@ namespace TilerElements
                 SubCalendarEvent newSubCalEvent = newSubs[i];
                 SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
             }
-            Splits += (int)delta;
+            _Splits += (int)delta;
             UpdateTimePerSplit();
         }
 
         public virtual short UpdateTimePerSplit()
         {
             short retValue = 0;
-            EventDuration = TimeSpan.FromTicks(SubEvents.Values.Sum(subEvent => subEvent.getActiveDuration.Ticks));
-            _AverageTimePerSplit = TimeSpan.FromTicks(EventDuration.Ticks / Splits);
+            _EventDuration = TimeSpan.FromTicks(SubEvents.Values.Sum(subEvent => subEvent.getActiveDuration.Ticks));
+            _AverageTimePerSplit = TimeSpan.FromTicks(_EventDuration.Ticks / _Splits);
             return retValue;
         }
 
@@ -1451,7 +1486,7 @@ namespace TilerElements
                 EndDateTime = newTImeLine.End;
                 if (this.getRigid)
                 {
-                    EventDuration = EndDateTime - StartDateTime;
+                    _EventDuration = EndDateTime - StartDateTime;
                 }
             } else
             {
@@ -1518,7 +1553,7 @@ namespace TilerElements
         {
             get
             {
-                return Splits;
+                return _Splits;
             }
         }
         
@@ -1526,14 +1561,14 @@ namespace TilerElements
         {
             get
             {
-                return EventRepetition.Enable;
+                return _EventRepetition.Enable;
             }
         }
         public Repetition Repeat
         {
             get
             {
-                return EventRepetition;
+                return _EventRepetition;
             }
         }
 
@@ -1549,7 +1584,7 @@ namespace TilerElements
         {
             get
             {
-                return EventDuration;
+                return _EventDuration;
             }
         }
         public SubCalendarEvent[] ActiveSubEvents//needs to update to get only active events
@@ -1595,18 +1630,6 @@ namespace TilerElements
                 }
 
                 return SubEvents.Values.Where(obj=>obj!=null).ToArray();
-            }
-        }
-
-        virtual public Location myLocation
-        {
-            set
-            {
-                LocationInfo=value;
-            }
-            get
-            {
-                return LocationInfo;
             }
         }
 
@@ -1668,8 +1691,8 @@ namespace TilerElements
 
         public void InitializeCounts(int Deletion, int Completion)
         {
-            DeletedCount = Deletion;
-            CompletedCount = Completion;
+            _DeletedCount = Deletion;
+            _CompletedCount = Completion;
         }
 
         public void UpdateError(CustomErrors Error)
@@ -1689,15 +1712,12 @@ namespace TilerElements
                 return this.RangeTimeLine.TimelineSpan;
             }
         }
-
         
-
-
         virtual public int CompletionCount
         {
             get 
             {
-                return CompletedCount;
+                return _CompletedCount;
             }
         }
 
@@ -1705,7 +1725,7 @@ namespace TilerElements
         {
             get
             {
-                return DeletedCount;
+                return _DeletedCount;
             }
         }
 
@@ -1715,19 +1735,9 @@ namespace TilerElements
         {
             get
             {
-                return DataBlob;
+                return _DataBlob;
             }
         }
-
-        /*
-        virtual public NowProfile NowProfile
-        {
-            get
-            {
-                return ProfileOfNow;
-            }
-        }
-        */
 
         #endregion
 

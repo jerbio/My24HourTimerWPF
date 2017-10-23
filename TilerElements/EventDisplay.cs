@@ -7,13 +7,21 @@ using System.Text;
 namespace TilerElements
 {
     
-    public class EventDisplay
+    public class EventDisplay: IUndoable
     {
-        bool Visible;
+        bool _Visible;
         TilerColor eventColor;
         int _Default = 0;//0->Default Calendar Colors,1->Set As Complete,2->subCalendar Event Specific colors,3->Calendar Event Specific colors
         string _Id = Guid.NewGuid().ToString();
         string _colorId = Guid.NewGuid().ToString();
+        string _UndoId;
+
+        #region undoMembers
+        public bool UndoVisible;
+        public TilerColor UndoEventColor;
+        public int UndoDefault = 0;//0->Default Calendar Colors,1->Set As Complete,2->subCalendar Event Specific colors,3->Calendar Event Specific colors
+        
+        #endregion
         public string Id
         {
             get
@@ -27,13 +35,13 @@ namespace TilerElements
         }
         public EventDisplay()
         {
-            Visible = true;
+            _Visible = true;
             eventColor = new TilerColor(127, 127, 127, 1);
             _Default = 0;
         }
         public EventDisplay(bool VisibleFlag, TilerColor EventColor,int TypeOfDisplay=0,bool CompleteFlag=false)
         {
-            Visible = VisibleFlag;
+            _Visible = VisibleFlag;
             eventColor = EventColor;
             _Default = TypeOfDisplay;
         }
@@ -41,10 +49,37 @@ namespace TilerElements
         public EventDisplay createCopy()
         {
             EventDisplay retValue = new EventDisplay();
-            retValue .Visible =Visible;
+            retValue ._Visible =_Visible;
             retValue.eventColor = eventColor;
             retValue._Default = _Default;//0->Default Calendar Colors,1->Set As Complete,2->subCalendar Event Specific colors,3->Calendar Event Specific colors
             return retValue;
+        }
+
+        public void undoUpdate(Undo undo)
+        {
+            UndoDefault = _Default;
+            UndoVisible = _Visible;
+            eventColor.undoUpdate(undo);
+            FirstInstantiation = false;
+            this._UndoId = undo.id;
+        }
+
+        public void undo(string undoId)
+        {
+            if(UndoId == undoId)
+            {
+                this.UndoVisible = _Visible;
+                eventColor.undo(undoId);
+            }
+        }
+
+        public void redo(string undoId)
+        {
+            if (UndoId == undoId)
+            {
+                this.UndoVisible = _Visible;
+                eventColor.undo(undoId);
+            }
         }
 
 
@@ -90,9 +125,23 @@ namespace TilerElements
             }
         }
 
-        
+        public virtual bool FirstInstantiation { get; set; } = true;
 
-        
+        public string UndoId
+        {
+            set
+            {
+                _UndoId = value;
+            }
+            get
+            {
+                return _UndoId;
+            }
+        }
+
+
+
+
 
         #endregion
     }

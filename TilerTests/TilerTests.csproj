@@ -82,10 +82,35 @@
     <Compile Include="EventUpdate.cs" />
     <Compile Include="CompletionTest.cs" />
     <Compile Include="DeletionTest.cs" />
+    <Compile Include="ConflictResolution.cs" />
     <Compile Include="WhatIfTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="WagTapCalLogs\499a0ab4-81d7-42df-a476-44fc4348e94b\d350ba4d-fe0b-445c-bed6-b6411c2156b3.zip" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="WagTapCalLogs\065febec-d1fe-4c8b-bd32-548613d4479f.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="WagTapCalLogs\499a0ab4-81d7-42df-a476-44fc4348e94b.xml" />
+    <Content Include="WagTapCalLogs\499a0ab4-81d7-42df-a476-44fc4348e94b\499a0ab4-81d7-42df-a476-44fc4348e94b.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="WagTapCalLogs\499a0ab4-81d7-42df-a476-44fc4348e94b\Copy_d350ba4d-fe0b-445c-bed6-b6411c2156b3.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="WagTapCalLogs\499a0ab4-81d7-42df-a476-44fc4348e94b\d350ba4d-fe0b-445c-bed6-b6411c2156b3.xml" />
+    <Content Include="WagTapCalLogs\982935bc-f5bc-4d5e-a372-7a5d5e40cfa0.xml" />
+    <Content Include="WagTapCalLogs\982935bc-f5bc-4d5e-a372-7a5d5e40cfa0\982935bc-f5bc-4d5e-a372-7a5d5e40cfa0.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="WagTapCalLogs\982935bc-f5bc-4d5e-a372-7a5d5e40cfa0\Copy_982935bc-f5bc-4d5e-a372-7a5d5e40cfa0.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="WagTapCalLogs\Copy_065febec-d1fe-4c8b-bd32-548613d4479f.xml" />
+    <Content Include="WagTapCalLogs\Copy_499a0ab4-81d7-42df-a476-44fc4348e94b.xml" />
+    <Content Include="WagTapCalLogs\Copy_982935bc-f5bc-4d5e-a372-7a5d5e40cfa0.xml" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

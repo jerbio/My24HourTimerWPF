@@ -33,6 +33,34 @@ namespace TilerTests
             SubCalendarEvent subEventA = schedule.getSubCalendarEvent("7170280_7_0_7170281");
             SubCalendarEvent subEventB = schedule.getSubCalendarEvent("7156969_7_0_7156970");
             Assert.IsFalse(subEventB.ActiveSlot.doesTimeLineInterfere(subEventA.ActiveSlot));
+            // This is known to fail and is on bug list
+        }
+
+
+        // Current UTC time: 10/23/2017 7:00:34 PM +00:00
+        // End of day is : 10:00pm Est
+        // For some reason adding a 30 min event with a deadline of 10/24/2017 3:59:00 AM(UTC), triggers unnecessary conflicts.With the events 8615397_7_0_8615398 and 8615271_7_0_8615272(IBM steez, check amqp stability and workout respectively). Not you have chill at work on your schedule from 9a - 6p(est) via google calendar.
+       [TestMethod]
+        public void TestMethod2()
+        {
+            Location homeLocation = TestUtility.getLocations()[0];
+            DateTimeOffset startOfDay = DateTimeOffset.Parse("2:00am");
+            DateTimeOffset refNow = DateTimeOffset.Parse("10/23/2017 7:00:34PM");
+            DateTimeOffset endOfEvent = DateTimeOffset.Parse("10/24/2017 3:59:00AM");
+            UserAccount currentUser = TestUtility.getTestUser(userId: "712dd797-8991-4f79-90c1-7b51c744c4bd");
+            TimeLine actualTime = new TimeLine(DateTimeOffset.Parse("10/21/2017 1:00PM"), DateTimeOffset.Parse("10/21/2017 10:00PM"));
+            Repetition repeating = new Repetition(true, new TimeLine(startOfDay.AddDays(-5), startOfDay.AddDays(18)), Repetition.Frequency.DAILY, actualTime);
+            CalendarEvent repeatingCalEvent = TestUtility.generateCalendarEvent(actualTime.TimelineSpan, repeating, actualTime.Start, actualTime.End, rigidFlags: true);// simulation of google cal event
+            TestSchedule schedule = new TestSchedule(currentUser, refNow, startOfDay);
+            schedule.AddToScheduleAndCommit(repeatingCalEvent);
+            currentUser.Login().Wait();
+            CalendarEvent calEvent = TestUtility.generateCalendarEvent(TimeSpan.FromMinutes(30), new Repetition(), refNow, endOfEvent);
+            schedule = new TestSchedule(currentUser, refNow, startOfDay);
+            schedule.AddToScheduleAndCommit(calEvent);
+            SubCalendarEvent subEventA = schedule.getSubCalendarEvent("8615397_7_0_8615398");
+            SubCalendarEvent subEventB = schedule.getSubCalendarEvent("8615271_7_0_8615272");
+            Assert.IsFalse(subEventB.ActiveSlot.doesTimeLineInterfere(subEventA.ActiveSlot));
+            // This is known to fail and is on bug list
         }
     }
 }

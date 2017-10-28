@@ -36,12 +36,17 @@ Icon
 .Spotlight-V100
 .Trashes
 
+.vs/
 TilerCore/bin/*
 TilerCore/obj/*
 packages/
+TilerElements/obj/*
 TilerElements/bin/*
 TilerTests/bin/Debug/BigDataLogs/*
 TilerTests/bin/Debug/*.xml
 TilerTests/bin/Debug/*.dll
 TilerTests/bin/Debug/*.pdb
 TilerTests/bin/Debug/*.exe
+TilerTests/bin/Debug/
+TilerTests/obj/*
+UpgradeLog*.htm

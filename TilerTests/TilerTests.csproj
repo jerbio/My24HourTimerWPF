@@ -83,6 +83,7 @@
     <Compile Include="CompletionTest.cs" />
     <Compile Include="DeletionTest.cs" />
     <Compile Include="ConflictResolution.cs" />
+    <Compile Include="PathOptimization.cs" />
     <Compile Include="WhatIfTest.cs" />
   </ItemGroup>
   <ItemGroup>

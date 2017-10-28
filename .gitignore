@@ -36,6 +36,7 @@ Icon
 .Spotlight-V100
 .Trashes
 
+.vs
 TilerCore/bin/*
 TilerCore/obj/*
 packages/

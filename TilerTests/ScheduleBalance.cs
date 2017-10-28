@@ -107,7 +107,7 @@ namespace TilerTests
         }
 
         /// <summary>
-        /// Test creates a combination of rigid and non rigid evvents that the sum of their duration adds up to eight hours. 
+        /// Test creates a combination of rigid and non rigid events that the sum of their duration adds up to eight hours. 
         /// Test creates a rigid event and then tries to add the other non-rigid events. The none rigids have a timeline that starts at the smetime as the rigid, but ends eight hours after
         /// The non rigids hould be aable to fit, without a conflict. The non rigids have a span of at least 1 hour
         /// The ed of day is created in suc a way that it is 30 mins after the end time of the rigid event.

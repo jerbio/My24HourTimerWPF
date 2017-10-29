@@ -795,6 +795,7 @@ namespace TilerElements
                 return _Creator;
             }
         }
+        [NotMapped]
         virtual public TimeSpan UsedTime
         {
             set

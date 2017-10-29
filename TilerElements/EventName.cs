@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,9 +15,17 @@ namespace TilerElements
         public string _UndoName;
         protected string _Id = Guid.NewGuid().ToString();
         public virtual bool FirstInstantiation { get; set; } = true;
-        public EventName(string name = "")
+        protected TilerUser _Creator;
+        protected TilerEvent _Event;
+        protected EventName()
+        {
+            
+        }
+        public EventName(TilerUser tilerUser, TilerEvent tilerEvent, string name = "")
         {
             _Name = name;
+            _Creator = tilerUser;
+            _Event = tilerEvent;
         }
 
         public string NameValue
@@ -39,9 +49,37 @@ namespace TilerElements
             _Name = name;
         }
 
+        public string CreatorId { get; set; }
+        [Required, ForeignKey("CreatorId")]
+        public TilerUser Creator_EventDB
+        {
+            get
+            {
+                return _Creator;
+            }
+            set
+            {
+                _Creator = value;
+            }
+        }
+
+        public string EventId { get; set; }
+        [Required, ForeignKey("EventId")]
+        public TilerEvent Tiler_EventDB
+        {
+            get
+            {
+                return _Event;
+            }
+            set
+            {
+                _Event = value;
+            }
+        }
+
         public EventName createCopy(string id = null)
         {
-            EventName retValue = new EventName();
+            EventName retValue = new EventName(this.Creator_EventDB, this.Tiler_EventDB);
             retValue._Id = id;
             retValue._Name = this._Name;
             if (string.IsNullOrEmpty(id))
@@ -85,7 +123,7 @@ namespace TilerElements
             }
         }
 
-        public string Name
+        public virtual string Name
         {
             get
             {
@@ -97,7 +135,7 @@ namespace TilerElements
             }
         }
 
-        public string UndoId
+        public virtual string UndoId
         {
             set
             {

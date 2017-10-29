@@ -317,7 +317,7 @@ namespace TilerCore
         }
 
 
-        public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> BundleChangeUpdate(string SubEventID, EventName NewName, DateTimeOffset SubeventStart, DateTimeOffset SubeventEnd, DateTimeOffset TimeLineStart, DateTimeOffset TimeLineEnd, int SplitCount)
+        public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> BundleChangeUpdate(string SubEventID, string NewName, DateTimeOffset SubeventStart, DateTimeOffset SubeventEnd, DateTimeOffset TimeLineStart, DateTimeOffset TimeLineEnd, int SplitCount)
         {
             EventID myEventID = new EventID(SubEventID);
             SubCalendarEvent mySubCalEvent = getSubCalendarEvent(SubEventID);
@@ -360,10 +360,10 @@ namespace TilerCore
             }
             return BundleChangeUpdate(mySubCalEvent.SubEvent_ID.ToString(), NewName, calEventStart, TimeLineEnd, SplitCount, timeLineChange, mySubCalEvent);
         }
-        public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> BundleChangeUpdate(string EventId, EventName NewName, DateTimeOffset newStart, DateTimeOffset newEnd, int newSplitCount, bool forceRecalculation=false, SubCalendarEvent triggerSubEvent = null)
+        public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> BundleChangeUpdate(string EventId, string NewName, DateTimeOffset newStart, DateTimeOffset newEnd, int newSplitCount, bool forceRecalculation=false, SubCalendarEvent triggerSubEvent = null)
         {
             CalendarEvent myCalendarEvent = getCalendarEvent(EventId);
-            bool isNameChange = NewName.NameValue != myCalendarEvent.getName.NameValue;
+            bool isNameChange = NewName != myCalendarEvent.getName.NameValue;
             bool isDeadlineChange = (newEnd) != myCalendarEvent.End;
             bool isStartChange = newStart != myCalendarEvent.Start;
             //bool isDurationDiff = myCalendarEvent.EachSplitTimeSpan != TimePerSplitCount;
@@ -397,7 +397,7 @@ namespace TilerCore
 
             if (isNameChange)
             {
-                myCalendarEvent.updateEventName(NewName.NameValue);
+                myCalendarEvent.updateEventName(NewName);
             }
 
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(myCalendarEvent.Error, AllEventDictionary);
@@ -896,11 +896,13 @@ namespace TilerCore
 
         public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ProcrastinateAll(TimeSpan DelaySpan, string NameOfEvent = "BLOCKED OUT", string timeZone = "UTC")
         {
-            EventName blockName = new EventName(NameOfEvent);
+            EventName blockName = new EventName(null, null, NameOfEvent);
             TilerUser user = this.User;
             ProcrastinateCalendarEvent procratinateAll = getProcrastinateAllEvent();
 
             CalendarEvent procrastinateAll = ProcrastinateCalendarEvent.generateProcrastinateAll(Now.constNow, user, DelaySpan, timeZone, procratinateAll , NameOfEvent);
+            blockName.Creator_EventDB = procrastinateAll.getCreator;
+            blockName.Tiler_EventDB = procrastinateAll;
             return Procrastinate(procrastinateAll);
         }
 
@@ -1098,10 +1100,12 @@ namespace TilerCore
 #endif
             EventID id = EventID.GenerateCalendarEvent();
             TimeSpan duration = TimeSpan.FromMinutes(1);
-            EventName name = new EventName("NothingToDo");
+            EventName name = new EventName(null, null, "NothingToDo");
             CalendarEvent NewEvent = new RigidCalendarEvent(
                 //EventID.GenerateCalendarEvent(), 
                 name, Now.constNow, Now.constNow.Add(duration), duration, new TimeSpan(), new TimeSpan(), new Repetition(), currentLocation, null, null, false, false, TilerUser, new TilerUserGroup(), timeZone, null);
+            name.Creator_EventDB = NewEvent.getCreator;
+            name.Tiler_EventDB = NewEvent;
             NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, new HashSet<SubCalendarEvent>(), null, 1,true, false);
             CustomErrors RetValue = NewEvent.Error;
             AllEventDictionary.Remove(NewEvent.Calendar_EventID.getCalendarEventComponent());

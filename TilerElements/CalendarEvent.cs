@@ -71,7 +71,7 @@ namespace TilerElements
         public CalendarEvent()
         {
             _EventDuration = new TimeSpan();
-            _Name = new EventName();
+
             StartDateTime = new DateTimeOffset();
             EndDateTime = new DateTimeOffset();
             _EventPreDeadline = new TimeSpan();
@@ -89,6 +89,7 @@ namespace TilerElements
             EventSequence = new TimeLine();
             _ProfileOfProcrastination = new Procrastination(new DateTimeOffset(), new TimeSpan());
             _ProfileOfNow = new NowProfile();
+            _Name = new EventName(_Creator, this);
         }
 
         public CalendarEvent(CustomErrors Error) : this()

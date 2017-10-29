@@ -85,7 +85,7 @@ namespace TilerElements
 
 public static CalendarEvent generateProcrastinateAll(DateTimeOffset referenceNow, TilerUser user, TimeSpan DelaySpan, string timeZone, ProcrastinateCalendarEvent procrastinateEvent = null, string NameOfEvent = "BLOCKED OUT")
         {
-            EventName blockName = new EventName(NameOfEvent);
+            EventName blockName = new EventName(user, null, NameOfEvent);
             EventID clearAllEventsId = new EventID(user.getClearAllEventsId());
             EventID suEventId = EventID.GenerateSubCalendarEvent(clearAllEventsId);
             DateTimeOffset eventStartTime = referenceNow;
@@ -118,6 +118,8 @@ public static CalendarEvent generateProcrastinateAll(DateTimeOffset referenceNow
                     procrastinateAll.IncreaseSplitCount(1, new List<SubCalendarEvent>() { subEvent });
                 }
             }
+            blockName.Creator_EventDB = procrastinateAll.getCreator;
+            blockName.Tiler_EventDB = procrastinateAll;
             procrastinateAll.UpdateTimePerSplit();
             return procrastinateAll;
         }

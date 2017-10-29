@@ -36,7 +36,7 @@ namespace TilerTests
         [TestMethod]
         public void NameOfRigidSubEventUpdate()
         {
-            EventName newName = new EventName( Guid.NewGuid().ToString());
+            string newName = Guid.NewGuid().ToString();
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
@@ -52,7 +52,7 @@ namespace TilerTests
             var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, newName, retrievedCalendarEvent.Start, retrievedCalendarEvent.End, testEvent.NumberOfSplit);
             scheduleReloaded.UpdateWithDifferentSchedule(scheduleUpdated.Item2).Wait();
             retrievedCalendarEvent = scheduleReloaded.getCalendarEvent(testEvent.Calendar_EventID);
-            Assert.AreEqual(retrievedCalendarEvent.getName.NameValue, newName.NameValue);
+            Assert.AreEqual(retrievedCalendarEvent.getName.NameValue, newName);
             Assert.IsTrue(retrievedCalendarEvent.isTestEquivalent(testEvent));
         }
         [TestMethod]
@@ -64,7 +64,7 @@ namespace TilerTests
         [TestMethod]
         public void NameOfNonRigidSubEventUpdate()
         {
-            EventName newName = new EventName( Guid.NewGuid().ToString());
+            string newName = Guid.NewGuid().ToString();
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
@@ -79,7 +79,7 @@ namespace TilerTests
             var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, newName, testEvent.Start, testEvent.End, testEvent.NumberOfSplit);
             scheduleReloaded.UpdateWithDifferentSchedule(scheduleUpdated.Item2).Wait();
             CalendarEvent retrievedCalendarEvent = scheduleReloaded.getCalendarEvent(testEvent.Calendar_EventID);
-            Assert.AreEqual(retrievedCalendarEvent.getName.NameValue, newName.NameValue);
+            Assert.AreEqual(retrievedCalendarEvent.getName.NameValue, newName);
             Assert.IsTrue(retrievedCalendarEvent.isTestEquivalent(testEvent));
         }
 
@@ -92,7 +92,7 @@ namespace TilerTests
         [TestMethod]
         public void NameOfRestrictedSubEventUpdate()
         {
-            EventName newName = new EventName( Guid.NewGuid().ToString());
+            string newName = Guid.NewGuid().ToString();
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
@@ -108,7 +108,7 @@ namespace TilerTests
             var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, newName, testEvent.Start, testEvent.End, testEvent.NumberOfSplit);
             scheduleReloaded.UpdateWithDifferentSchedule(scheduleUpdated.Item2).Wait();
             CalendarEvent retrievedCalendarEvent = scheduleReloaded.getCalendarEvent(testEvent.Calendar_EventID);
-            Assert.AreEqual(retrievedCalendarEvent.getName.NameValue, newName.NameValue);
+            Assert.AreEqual(retrievedCalendarEvent.getName.NameValue, newName);
             Assert.IsTrue(retrievedCalendarEvent.isTestEquivalent(testEvent));
         }
 
@@ -141,7 +141,7 @@ namespace TilerTests
             schedule.AddToScheduleAndCommit(increaseSplitCountTestEvent).Wait();
             TestSchedule scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             int newSplitCount = increaseSplitCountTestEvent.NumberOfSplit + 1;
-            var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(increaseSplitCountTestEvent.getId, increaseSplitCountTestEvent.getName, increaseSplitCountTestEvent.Start, increaseSplitCountTestEvent.End, newSplitCount);
+            var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(increaseSplitCountTestEvent.getId, increaseSplitCountTestEvent.getName.NameValue, increaseSplitCountTestEvent.Start, increaseSplitCountTestEvent.End, newSplitCount);
             scheduleReloaded.UpdateWithDifferentSchedule(scheduleUpdated.Item2).Wait();
             scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             CalendarEvent retrievedCalendarEvent = scheduleReloaded.getCalendarEvent(increaseSplitCountTestEvent.Calendar_EventID);
@@ -154,7 +154,7 @@ namespace TilerTests
             schedule.AddToScheduleAndCommit(decreaseSplitCountTestEvent).Wait();
             scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             newSplitCount = decreaseSplitCountTestEvent.NumberOfSplit - 1;
-            scheduleUpdated = scheduleReloaded.BundleChangeUpdate(decreaseSplitCountTestEvent.getId, decreaseSplitCountTestEvent.getName, decreaseSplitCountTestEvent.Start, decreaseSplitCountTestEvent.End, newSplitCount);
+            scheduleUpdated = scheduleReloaded.BundleChangeUpdate(decreaseSplitCountTestEvent.getId, decreaseSplitCountTestEvent.getName.NameValue, decreaseSplitCountTestEvent.Start, decreaseSplitCountTestEvent.End, newSplitCount);
             scheduleReloaded.UpdateWithDifferentSchedule(scheduleUpdated.Item2).Wait();
             scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             retrievedCalendarEvent = scheduleReloaded.getCalendarEvent(decreaseSplitCountTestEvent.Calendar_EventID);
@@ -186,7 +186,7 @@ namespace TilerTests
             schedule.AddToScheduleAndCommit(increaseSplitCountTestEvent).Wait();
             TestSchedule scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             int newSplitCount = increaseSplitCountTestEvent.NumberOfSplit + 1;
-            var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(increaseSplitCountTestEvent.getId, increaseSplitCountTestEvent.getName, increaseSplitCountTestEvent.Start, increaseSplitCountTestEvent.End, newSplitCount);
+            var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(increaseSplitCountTestEvent.getId, increaseSplitCountTestEvent.getName.NameValue, increaseSplitCountTestEvent.Start, increaseSplitCountTestEvent.End, newSplitCount);
             scheduleReloaded.UpdateWithDifferentSchedule(scheduleUpdated.Item2).Wait();
             scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             CalendarEvent retrievedCalendarEvent = scheduleReloaded.getCalendarEvent(increaseSplitCountTestEvent.Calendar_EventID);
@@ -199,7 +199,7 @@ namespace TilerTests
             schedule.AddToScheduleAndCommit(decreaseSplitCountTestEvent).Wait();
             scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             newSplitCount = decreaseSplitCountTestEvent.NumberOfSplit - 1;
-            scheduleUpdated = scheduleReloaded.BundleChangeUpdate(decreaseSplitCountTestEvent.getId, decreaseSplitCountTestEvent.getName, decreaseSplitCountTestEvent.Start, decreaseSplitCountTestEvent.End, newSplitCount);
+            scheduleUpdated = scheduleReloaded.BundleChangeUpdate(decreaseSplitCountTestEvent.getId, decreaseSplitCountTestEvent.getName.NameValue, decreaseSplitCountTestEvent.Start, decreaseSplitCountTestEvent.End, newSplitCount);
             scheduleReloaded.UpdateWithDifferentSchedule(scheduleUpdated.Item2).Wait();
             scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             retrievedCalendarEvent = scheduleReloaded.getCalendarEvent(decreaseSplitCountTestEvent.Calendar_EventID);
@@ -231,7 +231,7 @@ namespace TilerTests
             schedule.AddToScheduleAndCommit(testEvent).Wait();
             TestSchedule scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             DateTimeOffset newDeadline = testEvent.End.Add(duration);
-            var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.ActiveSubEvents.First().getId, testEvent.getName, testEvent.Start, newDeadline, testEvent.Start, newDeadline, testEvent.NumberOfSplit);
+            var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.ActiveSubEvents.First().getId, testEvent.getName.NameValue, testEvent.Start, newDeadline, testEvent.Start, newDeadline, testEvent.NumberOfSplit);
             scheduleReloaded.UpdateWithDifferentSchedule(scheduleUpdated.Item2).Wait();
             scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             CalendarEvent retrievedCalendarEvent = scheduleReloaded.getCalendarEvent(testEvent.Calendar_EventID);
@@ -242,7 +242,7 @@ namespace TilerTests
             // decreases the deadline
             scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             newDeadline = testEvent.End.Add(TimeSpan.FromTicks((long)duration.Ticks/2));
-            scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.ActiveSubEvents.First().getId, testEvent.getName, testEvent.Start, newDeadline, testEvent.Start, newDeadline, testEvent.NumberOfSplit);
+            scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.ActiveSubEvents.First().getId, testEvent.getName.NameValue, testEvent.Start, newDeadline, testEvent.Start, newDeadline, testEvent.NumberOfSplit);
             scheduleReloaded.UpdateWithDifferentSchedule(scheduleUpdated.Item2).Wait();
             scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             retrievedCalendarEvent = scheduleReloaded.getCalendarEvent(testEvent.Calendar_EventID);
@@ -272,7 +272,7 @@ namespace TilerTests
             schedule.AddToScheduleAndCommit(testEvent).Wait();
             TestSchedule scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             DateTimeOffset newDeadline = testEvent.End.Add(duration);
-            var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, testEvent.getName, testEvent.Start, newDeadline, testEvent.NumberOfSplit);
+            var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, testEvent.getName.NameValue, testEvent.Start, newDeadline, testEvent.NumberOfSplit);
             scheduleReloaded.UpdateWithDifferentSchedule(scheduleUpdated.Item2).Wait();
             scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             CalendarEvent retrievedCalendarEvent = scheduleReloaded.getCalendarEvent(testEvent.Calendar_EventID);
@@ -283,7 +283,7 @@ namespace TilerTests
             // decreases the deadline
             scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             newDeadline = testEvent.End.Add(TimeSpan.FromTicks((long)duration.Ticks / 2));
-            scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, testEvent.getName, testEvent.Start, newDeadline, testEvent.NumberOfSplit);
+            scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, testEvent.getName.NameValue, testEvent.Start, newDeadline, testEvent.NumberOfSplit);
             scheduleReloaded.UpdateWithDifferentSchedule(scheduleUpdated.Item2).Wait();
             scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             retrievedCalendarEvent = scheduleReloaded.getCalendarEvent(testEvent.Calendar_EventID);
@@ -314,7 +314,7 @@ namespace TilerTests
             schedule.AddToScheduleAndCommit(testEvent).Wait();
             TestSchedule scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             DateTimeOffset newDeadline = end.Add(duration);
-            var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, testEvent.getName, testEvent.Start, newDeadline, testEvent.NumberOfSplit);
+            var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, testEvent.getName.NameValue, testEvent.Start, newDeadline, testEvent.NumberOfSplit);
             scheduleReloaded.UpdateWithDifferentSchedule(scheduleUpdated.Item2).Wait();
             scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             CalendarEvent retrievedCalendarEvent = scheduleReloaded.getCalendarEvent(testEvent.Calendar_EventID);
@@ -325,7 +325,7 @@ namespace TilerTests
             // decreases the deadline
             scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             newDeadline = end.Add(- TimeSpan.FromTicks(duration.Ticks * 3));
-            scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, testEvent.getName, testEvent.Start, newDeadline, testEvent.NumberOfSplit);
+            scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, testEvent.getName.NameValue, testEvent.Start, newDeadline, testEvent.NumberOfSplit);
             scheduleReloaded.UpdateWithDifferentSchedule(scheduleUpdated.Item2).Wait();
             scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             retrievedCalendarEvent = scheduleReloaded.getCalendarEvent(testEvent.Calendar_EventID);
@@ -357,7 +357,7 @@ namespace TilerTests
             TestSchedule scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             DateTimeOffset newStart = testEvent.Start.Add(-TimeSpan.FromTicks((long)duration.Ticks / 2));
             DateTimeOffset newDeadline = testEvent.End.Add(duration);
-            var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.ActiveSubEvents.First().getId, testEvent.getName, newStart, newDeadline, newStart, newDeadline, testEvent.NumberOfSplit);
+            var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.ActiveSubEvents.First().getId, testEvent.getName.NameValue, newStart, newDeadline, newStart, newDeadline, testEvent.NumberOfSplit);
             scheduleReloaded.UpdateWithDifferentSchedule(scheduleUpdated.Item2).Wait();
             scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             CalendarEvent retrievedCalendarEvent = scheduleReloaded.getCalendarEvent(testEvent.Calendar_EventID);
@@ -371,7 +371,7 @@ namespace TilerTests
             scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             newStart = newStart.Add(-duration);
             newDeadline = newDeadline.Add(-TimeSpan.FromTicks((long)(duration.Ticks * 2)));
-            scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.ActiveSubEvents.First().getId, testEvent.getName, newStart, newDeadline, newStart, newDeadline, testEvent.NumberOfSplit);
+            scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.ActiveSubEvents.First().getId, testEvent.getName.NameValue, newStart, newDeadline, newStart, newDeadline, testEvent.NumberOfSplit);
             scheduleReloaded.UpdateWithDifferentSchedule(scheduleUpdated.Item2).Wait();
             scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             retrievedCalendarEvent = scheduleReloaded.getCalendarEvent(testEvent.Calendar_EventID);
@@ -403,7 +403,7 @@ namespace TilerTests
             TestSchedule scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             DateTimeOffset newStart = start.Add(-TimeSpan.FromTicks((long)duration.Ticks / 2));
             DateTimeOffset newDeadline = end.Add(duration);
-            var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, testEvent.getName, newStart, newDeadline, testEvent.NumberOfSplit);
+            var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, testEvent.getName.NameValue, newStart, newDeadline, testEvent.NumberOfSplit);
             scheduleReloaded.UpdateWithDifferentSchedule(scheduleUpdated.Item2).Wait();
             scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             CalendarEvent retrievedCalendarEvent = scheduleReloaded.getCalendarEvent(testEvent.Calendar_EventID);
@@ -416,7 +416,7 @@ namespace TilerTests
             scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             newStart = newStart.Add(-duration);
             newDeadline = newDeadline.Add(-TimeSpan.FromTicks((long)(duration.Ticks * 2)));
-            scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, testEvent.getName, newStart, newDeadline, testEvent.NumberOfSplit);
+            scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, testEvent.getName.NameValue, newStart, newDeadline, testEvent.NumberOfSplit);
             scheduleReloaded.UpdateWithDifferentSchedule(scheduleUpdated.Item2).Wait();
             scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             retrievedCalendarEvent = scheduleReloaded.getCalendarEvent(testEvent.Calendar_EventID);
@@ -430,7 +430,7 @@ namespace TilerTests
             newDeadline = newStart.Add(TimeSpan.FromTicks((long)(duration.Ticks / 2)));
             try
             {
-                scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, testEvent.getName, newStart, newDeadline, testEvent.NumberOfSplit);
+                scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, testEvent.getName.NameValue, newStart, newDeadline, testEvent.NumberOfSplit);
             } catch(CustomErrors tilerError)
             {
                 if(tilerError.Code == 40000001)
@@ -465,7 +465,7 @@ namespace TilerTests
             TestSchedule scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             DateTimeOffset newStart = start.Add(-TimeSpan.FromTicks((long)duration.Ticks / 2));
             DateTimeOffset newDeadline = end.Add(duration);
-            var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, testEvent.getName, newStart, newDeadline, testEvent.NumberOfSplit);
+            var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, testEvent.getName.NameValue, newStart, newDeadline, testEvent.NumberOfSplit);
             scheduleReloaded.UpdateWithDifferentSchedule(scheduleUpdated.Item2).Wait();
             scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             CalendarEvent retrievedCalendarEvent = scheduleReloaded.getCalendarEvent(testEvent.Calendar_EventID);
@@ -478,7 +478,7 @@ namespace TilerTests
             scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             newStart = newStart.Add(-duration);
             newDeadline = newDeadline.Add(-TimeSpan.FromTicks((long)(duration.Ticks * 2)));
-            scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, testEvent.getName, newStart, newDeadline, testEvent.NumberOfSplit);
+            scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, testEvent.getName.NameValue, newStart, newDeadline, testEvent.NumberOfSplit);
             scheduleReloaded.UpdateWithDifferentSchedule(scheduleUpdated.Item2).Wait();
             scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             retrievedCalendarEvent = scheduleReloaded.getCalendarEvent(testEvent.Calendar_EventID);
@@ -492,7 +492,7 @@ namespace TilerTests
             newDeadline = newStart.Add(TimeSpan.FromTicks((long)(duration.Ticks / 2)));
             try
             {
-                scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, testEvent.getName, newStart, newDeadline, testEvent.NumberOfSplit);
+                scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, testEvent.getName.NameValue, newStart, newDeadline, testEvent.NumberOfSplit);
             }
             catch (CustomErrors tilerError)
             {

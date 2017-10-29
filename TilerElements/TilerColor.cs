@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TilerElements
 {
-    public struct TilerColor: IUndoable
+    public class TilerColor: IUndoable
     {
         string _Id;
         int Red;

@@ -171,7 +171,7 @@ namespace TilerTests
             schedule.AddToScheduleAndCommit(testEvent).Wait();
             schedule = new TestSchedule(user, refNow);
             CalendarEvent copyOfTestEvent = schedule.getCalendarEvent(testEvent.getId);
-            EventName newName = new EventName("test-Event-For-stack-"+Guid.NewGuid().ToString());
+            string newName = "test-Event-For-stack-" + Guid.NewGuid().ToString();
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> tupleResult = schedule.BundleChangeUpdate(testEvent.ActiveSubEvents.First().getId, 
                 newName, 
                 testEvent.ActiveSubEvents.First().Start, 
@@ -182,8 +182,8 @@ namespace TilerTests
             schedule.UpdateWithDifferentSchedule(tupleResult.Item2).Wait();
             TestSchedule scheduleReloaded = new TestSchedule(user, refNow);
             CalendarEvent renamedEvent = scheduleReloaded.getCalendarEvent(testEvent.getId);
-            Assert.AreEqual(renamedEvent.getName.NameValue, newName.NameValue);
-            Assert.AreEqual(renamedEvent.ActiveSubEvents.First().getName.NameValue, newName.NameValue);
+            Assert.AreEqual(renamedEvent.getName.NameValue, newName);
+            Assert.AreEqual(renamedEvent.ActiveSubEvents.First().getName.NameValue, newName);
             Assert.AreEqual(renamedEvent.getName.NameId, testEvent.getName.NameId);
 
         }

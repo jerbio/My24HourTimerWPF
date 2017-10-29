@@ -184,7 +184,7 @@ namespace TilerTests
             CalendarEvent RetValue;
             if(restrictionProfile == null)
             {
-                EventName name = new EventName("TestCalendarEvent-" + Guid.NewGuid().ToString());
+                EventName name = new EventName(null, null, "TestCalendarEvent-" + Guid.NewGuid().ToString());
                 if(testUser == null)
                 {
                     getTestUser(true);
@@ -201,12 +201,15 @@ namespace TilerTests
                         //EventID.GenerateCalendarEvent(), 
                         name, Start, End, duration, new TimeSpan(), new TimeSpan(), splitCount , repetition, location, new EventDisplay(), new MiscData(), null, new NowProfile(), true, false, testUser, new TilerUserGroup(), "UTC", null);
                 }
+                name.Creator_EventDB = RetValue.getCreator;
+                name.Tiler_EventDB = RetValue;
             }
             else
             {
-                EventName name = new EventName("TestCalendarEvent-" + Guid.NewGuid().ToString() + "-Restricted");
+                EventName name = new EventName(null, null, "TestCalendarEvent-" + Guid.NewGuid().ToString() + "-Restricted");
                 RetValue = new CalendarEventRestricted(name, Start, End, restrictionProfile, duration, repetition, false, true, splitCount, false, location, new TimeSpan(), new TimeSpan(), null, UiSettings: new EventDisplay(), NoteData: new MiscData());
-
+                name.Creator_EventDB = RetValue.getCreator;
+                name.Tiler_EventDB = RetValue;
             }
 
             if (repetition.Enable)

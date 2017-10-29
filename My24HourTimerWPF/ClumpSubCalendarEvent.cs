@@ -35,13 +35,15 @@ namespace My24HourTimerWPF
             BreakOffClump= myThis.BreakOffClump;
             ClumpedResults= myThis.ClumpedResults;
             BaseReferenceStartTime = myThis.BaseReferenceStartTime;
-            _Name = new EventName();
+            _Name = new EventName(null, null);
+            _Name.Creator_EventDB = this.getCreator;
+            _Name.Tiler_EventDB= this;
         }
         
         public ClumpSubCalendarEvent(SubCalendarEvent BaseSubCalendarEvent, List<SubCalendarEvent> Appendables, TimeLine BoundaryTimeLine)
         {
             SubCalEventsOverLapWithBase = new List<SubCalendarEvent>();
-            _Name = new EventName();
+            _Name = new EventName(null, null);
             BaseEvent = BaseSubCalendarEvent;
             DateTimeOffset var1 = BaseEvent.getCalculationRange.End < BoundaryTimeLine.End ? BaseEvent.getCalculationRange.End : BoundaryTimeLine.End;//hack assumes base can fit within boundary
             this.BoundaryTimeLine = new TimeLine(BoundaryTimeLine.Start, var1);
@@ -88,6 +90,8 @@ namespace My24HourTimerWPF
                     //Removed_Unnecessary.Remove(Appendables[i]);
                     SubCalEventsOverLapWithBase.Add(Appendables[i]);
                 }
+                _Name.Creator_EventDB = this.getCreator;
+                _Name.Tiler_EventDB = this;
             }
 
             List<SubCalendarEvent> arg1=ClumpedResults.Keys.ToList();

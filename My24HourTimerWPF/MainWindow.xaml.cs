@@ -178,7 +178,7 @@ namespace My24HourTimerWPF
             string EventID = textBox9.Text;
             SubCalendarEvent MySubcal= MySchedule.getSubCalendarEvent(EventID);
             CalendarEvent myCalEvent = MySchedule.getCalendarEvent(MySubcal.SubEvent_ID.getCalendarEventID());
-            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> result =MySchedule.BundleChangeUpdate(EventID,myCalEvent.getName,MySubcal.Start,MySubcal.End,MySubcal.getCalendarEventRange.Start,EndDate,myCalEvent.NumberOfSplit);
+            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> result =MySchedule.BundleChangeUpdate(EventID,myCalEvent.getName.NameValue, MySubcal.Start,MySubcal.End,MySubcal.getCalendarEventRange.Start,EndDate,myCalEvent.NumberOfSplit);
 
             //"BundleChangeUpdate"
             /*
@@ -494,7 +494,7 @@ namespace My24HourTimerWPF
         async private void button5_Click_2(object sender, RoutedEventArgs e)
         {
             
-            EventName eventName = new EventName( textBox1.Text);
+            EventName eventName = new EventName(null, null, textBox1.Text);
             string LocationString  = textBox8.Text.Trim();
             /*if (LocationString != "")
             {
@@ -616,8 +616,9 @@ namespace My24HourTimerWPF
                     //EventID.GenerateCalendarEvent(), 
                     eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, splitCount, MyRepetition, var0, UiData, NoteData, null,new NowProfile(), true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), "UTC", null);
             }
-            
-            
+
+            eventName.Creator_EventDB = ScheduleUpdated.getCreator;
+            eventName.Tiler_EventDB = ScheduleUpdated;
             if (RestrictedCheckbox.IsChecked.Value)
             {
                 string TimeString = eventStartDate.Date.ToShortDateString() + " " + eventStartTime+" +00:00";
@@ -696,7 +697,7 @@ namespace My24HourTimerWPF
         async private void PeekIntoFuture(object sender, RoutedEventArgs e)
         {
 
-            EventName eventName = new EventName( textBox1.Text);
+            EventName eventName = new EventName(null, null, textBox1.Text);
             string LocationString = textBox8.Text.Trim();
             /*if (LocationString != "")
             {
@@ -815,6 +816,9 @@ namespace My24HourTimerWPF
                 ScheduleUpdated = new CalendarEvent(//EventID.GenerateCalendarEvent(), 
                     eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, splitCount, MyRepetition, var0, UiData, NoteData, null, new NowProfile(), true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), "UTC", null);
             }
+
+            eventName.Creator_EventDB = ScheduleUpdated.getCreator;
+            eventName.Tiler_EventDB = ScheduleUpdated;
             if (RestrictedCheckbox.IsChecked.Value)
             {
                 string TimeString = eventStartDate.Date.ToShortDateString() + " " + eventStartTime + " +00:00";
@@ -1288,7 +1292,7 @@ namespace My24HourTimerWPF
                 TilerFront.UserAccount currentUser = await AuthorizeUser.getUserAccountDebug();
                 //MySchedule = new Schedule(currentUser,DateTimeOffset.UtcNow);
 
-                EventName eventName = new EventName( textBox1.Text);
+                EventName eventName = new EventName(null, null, textBox1.Text);
                 string LocationString = textBox8.Text.Trim();
                 /*if (LocationString != "")
                 {
@@ -1406,7 +1410,8 @@ namespace My24HourTimerWPF
                         eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, splitCount, MyRepetition, var0, UiData, NoteData, null, new NowProfile(),  true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), "UTC", null);
                 }
                 ScheduleUpdated.Repeat.PopulateRepetitionParameters(ScheduleUpdated);
-                
+                eventName.Creator_EventDB = ScheduleUpdated.getCreator;
+                eventName.Tiler_EventDB = ScheduleUpdated;
                 Stopwatch snugarrayTester = new Stopwatch();
                 snugarrayTester.Start();
                 //CustomErrors ScheduleUpdateMessage = await MySchedule.AddToScheduleAndCommit(ScheduleUpdated);

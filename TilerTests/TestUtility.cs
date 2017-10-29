@@ -18,6 +18,7 @@ namespace TilerTests
         static readonly Random _Rand = new Random((int)DateTimeOffset.UtcNow.Ticks);
         static readonly string _UserName = "TestUserTiler";
         static readonly string _Password = "T35tU53r#";
+        const string testUserId = "065febec-d1fe-4c8b-bd32-548613d4479f";
         static TilerUser testUser;
 
 
@@ -220,11 +221,17 @@ namespace TilerTests
             return RetValue;
         }
 
-        public static UserAccount getTestUser(bool forxeUpdateOfTilerUser = false)
+        public static UserAccount getTestUser(bool forxeUpdateOfTilerUser = false, string userId = testUserId)
         {
+            if(userId != testUserId)
+            {
+                string sourceFile = "WagTapCalLogs\\" + userId+ "\\" + userId +".xml";
+                string destinationFile = "WagTapCalLogs\\" + userId + ".xml";
+                System.IO.File.Copy(sourceFile, destinationFile,true);
+            }
             TilerFront.Models.LoginViewModel myLogin = new TilerFront.Models.LoginViewModel() { Username = TestUtility.UserName, Password = TestUtility.Password, RememberMe = true };
-
-            TilerFront.Models.AuthorizedUser AuthorizeUser = new TilerFront.Models.AuthorizedUser() { UserID = "065febec-d1fe-4c8b-bd32-548613d4479f", UserName = TestUtility.UserName };
+            
+            TilerFront.Models.AuthorizedUser AuthorizeUser = new TilerFront.Models.AuthorizedUser() { UserID = userId, UserName = TestUtility.UserName };
             Task<UserAccountDebug> waitForUseraccount = AuthorizeUser.getUserAccountDebug();
             waitForUseraccount.Wait();
             if((testUser == null )|| (forxeUpdateOfTilerUser))

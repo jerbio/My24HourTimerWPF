@@ -82,6 +82,30 @@ namespace TilerTests
         }
 
 
+        /// Current UTC time is 12:15 AM, Friday, June 2, 2017
+        /// End of day is 10:00pm
+        /// There is a conflict between the subevents 6413191_7_0_6413193 "Path optimization - implement optimization about beginning from home" and 6417040_7_0_6926266 "Event name analysis". 
+        /// I tried shuffling and this doesnt resolve the issue. Even though event name analysis can be scheduled for a later date.
+        /// Also WTF is 6418068_7_0_6909066('Spin up alternate tiler server for dbchanges') still doing there.It's deadline is sometime on the 16th
+        /// </summary>
+        [TestMethod]
+        public void conflictResolution0()
+        {
+            Location homeLocation = TestUtility.getLocations()[0];
+            DateTimeOffset startOfDay = DateTimeOffset.Parse("2:00am");
+            UserAccount currentUser = TestUtility.getTestUser(userId: "982935bc-f5bc-4d5e-a372-7a5d5e40cfa0");
+            currentUser.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.Parse("06/02/2017 12:15am");
+            TestSchedule schedule = new TestSchedule(currentUser, refNow, startOfDay);
+            var resultOfShuffle = schedule.FindMeSomethingToDo(homeLocation);
+            resultOfShuffle.Wait();
+            schedule.WriteFullScheduleToLogAndOutlook().Wait();
+            TimeLine timeLine = new TimeLine(refNow.AddDays(0), refNow.AddDays(7));
+            List<SubCalendarEvent>subEvents = schedule.getAllCalendarEvents().Where(calEvent=> calEvent.isActive).SelectMany(calEvent => calEvent.ActiveSubEvents).Where(subEvent => subEvent.ActiveSlot.doesTimeLineInterfere(timeLine)).ToList();
+            List<BlobSubCalendarEvent> conflictingSubEvents = Utility.getConflictingEvents(subEvents);
+            Assert.AreEqual(conflictingSubEvents.Count, 0);
+        }
+
         /// <summary>
         /// Test creates a combination of rigid and non rigid evvents that the sum of their duration adds up to eight hours. 
         /// Test creates a rigid event and then tries to add the other non-rigid events. The none rigids have a timeline that starts at the smetime as the rigid, but ends eight hours after
@@ -177,6 +201,53 @@ namespace TilerTests
             Assert.AreEqual(index, 3);/// This is known to fail
         }
 
+
+        /// <summary>
+        /// Function test a scenario where there is a change of no consequence is applied to a users schedule. This modification should not necessarily trigger a reordering of events.
+        /// In this case a rigid calendar event is extended by 5 minutes, amongst non-rigids. This should not result in in the order of things. There might be a change in start times
+        /// </summary>
+        [TestMethod]
+        public void noConsequenceChange ()
+        {
+            List<Location> locations = TestUtility.getLocations();
+            UserAccount currentUser = TestUtility.getTestUser();
+            currentUser.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.Parse("12:00AM");
+            DateTimeOffset start = DateTimeOffset.Parse("2:00PM");
+            TimeSpan duration = TimeSpan.FromHours(4);
+            TimeSpan rigidDuration = TimeSpan.FromHours(1);
+            DateTimeOffset end = start.Add(duration);
+            CalendarEvent noneRigid0 = TestUtility.generateCalendarEvent(duration, new Repetition(), start, start.AddDays(0.8), 4, false, locations[0]);
+            CalendarEvent noneRigid1 = TestUtility.generateCalendarEvent(duration, new Repetition(), start, start.AddDays(0.8), 4, false, locations[0]);
+            CalendarEvent rigid0 = TestUtility.generateCalendarEvent(rigidDuration, new Repetition(), start, start.Add(rigidDuration), 1, true, locations[0]);
+            CalendarEvent rigid1 = TestUtility.generateCalendarEvent(rigidDuration, new Repetition(), rigid0.Start.AddHours(4), rigid0.Start.AddHours(4).Add(rigidDuration), 1, true, locations[0]);
+
+            TestSchedule schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
+            schedule.AddToScheduleAndCommit(noneRigid0).Wait();
+            schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
+            schedule.AddToScheduleAndCommit(noneRigid1).Wait();
+            schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
+            schedule.AddToScheduleAndCommit(rigid0).Wait();
+            schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
+            schedule.AddToScheduleAndCommit(rigid1).Wait();
+            schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
+            schedule.FindMeSomethingToDo(locations[0]).Wait();
+
+            List<SubCalendarEvent> subEvents = schedule.getAllCalendarEvents().SelectMany(calEvent => calEvent.AllSubEvents).ToList();
+            subEvents = subEvents.OrderBy(obj => obj.Start).ToList();
+            List<string> orderedByTimelIds = subEvents.Select(subEvent => subEvent.getId).ToList();
+            schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
+            SubCalendarEvent subeventNoConsequence = rigid1.AllSubEvents.First();
+            TimeSpan timeDelta = TimeSpan.FromMinutes(30);
+            Tuple < CustomErrors, Dictionary < string, CalendarEvent >> bundleResult = schedule.BundleChangeUpdate(subeventNoConsequence.getId, subeventNoConsequence.getName.NameValue, subeventNoConsequence.Start, subeventNoConsequence.End.Add(timeDelta), rigid1.Start, rigid1.End, 1);
+            List<SubCalendarEvent> reOrderedSubEvents = bundleResult.Item2.Values.SelectMany(calEvent => calEvent.AllSubEvents).OrderBy(obj => obj.Start).ToList();
+            List<string> reOrderedByTimelIds = reOrderedSubEvents.Select(subEvent => subEvent.getId).ToList();
+            Assert.AreEqual(reOrderedByTimelIds.Count, orderedByTimelIds.Count);
+            for(int i =0; i < orderedByTimelIds.Count; i++)
+            {
+                Assert.AreEqual(reOrderedByTimelIds[i], orderedByTimelIds[i]);
+            }
+        }
         [TestInitialize]
         public void cleanUpLog()
         {

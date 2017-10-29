@@ -1487,7 +1487,7 @@ namespace My24HourTimerWPF
             currentUser.getTilerUser().EndfOfDay = DateTimeOffset.Parse("2:00am");
             await currentUser.Login();
             DateTimeOffset refNow=DateTimeOffset.UtcNow;
-            refNow = DateTimeOffset.Parse("4:53 am 3/25/2017");
+            refNow = DateTimeOffset.Parse("10:41 pm 4/18/2017");
 
             Stopwatch timer = new Stopwatch();
             timer.Start();
@@ -1522,19 +1522,6 @@ namespace My24HourTimerWPF
                 comboBox4.Text = 0.ToString();
                 comboBox5.Text = 0.ToString();
                 comboBox6.Text = 0.ToString();
-
-#if enableDebugging
-#if enableMultithreading            
-            MessageBox.Show("Multithreading Enabled");
-#else
-            MessageBox.Show("Sequential run enabled");
-            
-            var current = Process.GetCurrentProcess();
-            var affinity = current.ProcessorAffinity.ToInt32();
-            current.ProcessorAffinity = new IntPtr(affinity & 0x5555);
-#endif
-#endif
-                //EventIDGenerator.Initialize((uint)(MySchedule.LastScheduleIDNumber));
             }
             else
             {

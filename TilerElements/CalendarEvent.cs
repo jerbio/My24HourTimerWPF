@@ -1225,7 +1225,14 @@ namespace TilerElements
                 AllFreeDayTIme.AsParallel().ForAll(obj => { obj.updateOccupancyOfTimeLine(); });
             }
 
-            List<DayTimeLine> retValue = AllFreeDayTIme.Where(obj => obj.TotalFreeSpotAvailable > _AverageTimePerSplit).ToList();
+            List<DayTimeLine> retValue = AllFreeDayTIme.Where(obj => obj.TotalFreeSpotAvailable > _AverageTimePerSplit).Where(dayTimeLine => {
+                TimeLine timeLine = dayTimeLine.InterferringTimeLine(this.RangeTimeLine);
+                if(timeLine !=null)
+                {
+                    return timeLine.TimelineSpan >= _AverageTimePerSplit;
+                }
+                return false;
+            }) .ToList();
             return retValue;
         }
 

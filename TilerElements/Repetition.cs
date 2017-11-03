@@ -241,10 +241,14 @@ namespace TilerElements
             RepetitionRange = MyParentEvent.Repeat.Range;
             RepetitionFrequency = MyParentEvent.Repeat.getFrequency;
             EnableRepeat = true;
-            DateTimeOffset EachRepeatCalendarStart = RepetitionRange.Start;
+            DateTimeOffset EachRepeatCalendarStart = getStartTimeForAppropriateWeek(RepetitionRange.Start, Weekdays[WeekDay]);
             DateTimeOffset EachRepeatCalendarEnd = RepetitionRange.End;
             DateTimeOffset StartTimeLineForActity = getStartTimeForAppropriateWeek(initializingRange.Start, Weekdays[WeekDay]);
             DateTimeOffset EndTimeLineForActity = StartTimeLineForActity.Add(initializingRange.TimelineSpan);
+            if((EachRepeatCalendarEnd - EachRepeatCalendarStart) < MyParentEvent.AverageTimeSpanPerSubEvent)
+            {
+                throw new CustomErrors("The repetition range cannot contain the event", 40000001);
+            }
 
             TimeLine repetitionTimeline= new TimeLine(EachRepeatCalendarStart,EachRepeatCalendarEnd);
             TimeLine ActiveTimeline = new TimeLine(StartTimeLineForActity, EndTimeLineForActity);

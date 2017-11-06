@@ -13,18 +13,31 @@ namespace TilerTests
     class TestSchedule : DB_Schedule
     {
         protected DateTimeOffset StartOfDay;
-        public TestSchedule(UserAccount AccountEntry, DateTimeOffset referenceNow, DateTimeOffset startOfDay) : base(AccountEntry, referenceNow)
+        public TestSchedule(UserAccount AccountEntry, DateTimeOffset referenceNow, DateTimeOffset startOfDay, uint LatestId = 0) : base(AccountEntry, referenceNow)
         {
             StartOfDay = startOfDay;
             Initialize(referenceNow, StartOfDay).Wait();
             myAccount = AccountEntry;
+            if (LatestId != 0)
+            {
+                EventID.Initialize(LatestId);
+            }
         }
-        public TestSchedule(UserAccount AccountEntry, DateTimeOffset referenceNow) : base(AccountEntry, referenceNow)
-        {}
+        public TestSchedule(UserAccount AccountEntry, DateTimeOffset referenceNow, uint LatestId = 0) : base(AccountEntry, referenceNow)
+        {
+            if(LatestId!=0)
+            {
+                EventID.Initialize(LatestId);
+            }
+        }
 
-        public TestSchedule(IEnumerable<CalendarEvent> calendarEvents ,UserAccount AccountEntry, DateTimeOffset referenceNow) : base(AccountEntry, referenceNow)
+        public TestSchedule(IEnumerable<CalendarEvent> calendarEvents ,UserAccount AccountEntry, DateTimeOffset referenceNow, uint LatestId = 0) : base(AccountEntry, referenceNow)
         {
             AllEventDictionary =  calendarEvents.ToDictionary(calEvent => calEvent.Calendar_EventID.getCalendarEventComponent(), calEvent => calEvent);
+            if (LatestId != 0)
+            {
+                EventID.Initialize(LatestId);
+            }
         }
 
         public override Task<CustomErrors> AddToScheduleAndCommit(CalendarEvent NewEvent, bool optimizeSchedule = false)

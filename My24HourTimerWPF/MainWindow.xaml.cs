@@ -1482,7 +1482,7 @@ namespace My24HourTimerWPF
             currentUser.getTilerUser().EndfOfDay = DateTimeOffset.Parse("2:00am");
             await currentUser.Login();
             DateTimeOffset refNow=DateTimeOffset.UtcNow;
-            refNow = DateTimeOffset.Parse("10:41 pm 4/18/2017");
+            refNow = DateTimeOffset.Parse("4:59 am 11/3/2017");
 
             Stopwatch timer = new Stopwatch();
             timer.Start();
@@ -1496,8 +1496,8 @@ namespace My24HourTimerWPF
                 timer.Stop();
                 tabItem2.IsEnabled = true;
                 datePicker1.SelectedDate = new DateTime(MySchedule.Now.calculationNow.AddDays(0).ToLocalTime().Ticks);// DateTimeOffset.UtcNow.AddDays(0);
-                datePicker2.SelectedDate = new DateTime(MySchedule.Now.calculationNow.AddHours(1).ToLocalTime().Ticks);// DateTimeOffset.UtcNow.AddDays(0);
-                calendar4.SelectedDate = new DateTime(DateTimeOffset.UtcNow.AddDays(0).ToLocalTime().Ticks);
+                datePicker2.SelectedDate = new DateTime(MySchedule.Now.calculationNow.AddHours(14).ToLocalTime().Ticks);// DateTimeOffset.UtcNow.AddDays(0);
+                calendar4.SelectedDate = new DateTime(DateTimeOffset.UtcNow.AddDays(14).ToLocalTime().Ticks);
                 Random myNumber = new Random();
                 int RandomHour = myNumber.Next(0, 24);
                 int RandomMinute = myNumber.Next(0, 60);

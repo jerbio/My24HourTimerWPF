@@ -212,8 +212,8 @@ namespace TilerTests
             List<Location> locations = TestUtility.getLocations();
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Parse("12:00AM");
-            DateTimeOffset start = DateTimeOffset.Parse("2:00PM");
+            DateTimeOffset refNow = DateTimeOffset.Parse("11/6/2017 12:00AM");
+            DateTimeOffset start = DateTimeOffset.Parse("11/6/2017 2:00PM");
             TimeSpan duration = TimeSpan.FromHours(4);
             TimeSpan rigidDuration = TimeSpan.FromHours(1);
             DateTimeOffset end = start.Add(duration);
@@ -245,7 +245,7 @@ namespace TilerTests
             Assert.AreEqual(reOrderedByTimelIds.Count, orderedByTimelIds.Count);
             for(int i =0; i < orderedByTimelIds.Count; i++)
             {
-                Assert.AreEqual(reOrderedByTimelIds[i], orderedByTimelIds[i]);
+                Assert.AreEqual(reOrderedByTimelIds[i], orderedByTimelIds[i]);// this is know to fail
             }
         }
         [TestInitialize]

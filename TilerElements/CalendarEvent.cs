@@ -124,14 +124,7 @@ namespace TilerElements
                  NameEntry, StartData, EndData, eventDuration, eventPrepTimeSpan, preDeadlineTimeSpan, eventSplit, EventRepetitionEntry, UiData, NoteData, EnabledEventFlag, CompletionFlag, nowProfile, procrastination, EventLocation, creator, users, false, DateTimeOffset.UtcNow, timeZone)
         {
             UniqueID = eventId ?? this.UniqueID; /// already initialized by parent initialization
-            if (EventRepetition.Enable)
-            {
-                _AverageTimePerSplit = new TimeSpan();
-            }
-            else
-            {
-                _AverageTimePerSplit = TimeSpan.FromTicks(((eventDuration.Ticks / Splits)));
-            }
+            _AverageTimePerSplit = TimeSpan.FromTicks(((eventDuration.Ticks / Splits)));
             this.EventDuration = eventDuration;
             if (initializeSubCalendarEvents)
             {

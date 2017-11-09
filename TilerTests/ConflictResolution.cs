@@ -59,5 +59,32 @@ namespace TilerTests
             SubCalendarEvent subEventB = schedule.getSubCalendarEvent("8615271_7_0_8615272");
             Assert.IsFalse(subEventB.ActiveSlot.doesTimeLineInterfere(subEventA.ActiveSlot));
         }
+
+        // Current UTC time: 11/9/2017 5:28am utc
+        // End of day is : 10:00pm Est
+        // No matter how much I increase the number of splits count on this calendar event it never goes above 3
+        [TestMethod]
+        public void file_a56a5ac5()
+        {
+            string subEventId = "6418072_7_0_6418075";
+            Location homeLocation = TestUtility.getLocations()[0];
+            DateTimeOffset startOfDay = DateTimeOffset.Parse("2:00am");
+            DateTimeOffset refNow = DateTimeOffset.Parse("11/9/2017 5:28am");
+            UserAccount currentUser = TestUtility.getTestUser(userId: "a56a5ac5-b474-4d4e-b878-bbb593a0d5b1");
+            TestSchedule schedule = new TestSchedule(currentUser, refNow, startOfDay);
+            CalendarEvent readjustCalendarEvent = schedule.getCalendarEvent("6418072_7_0_6418075");
+            const int updatedSplitCount = 11;
+            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> updateResult= schedule.BundleChangeUpdate(readjustCalendarEvent.ActiveSubEvents.First().getId,
+                readjustCalendarEvent.getName,
+                readjustCalendarEvent.ActiveSubEvents.First().Start,
+                readjustCalendarEvent.ActiveSubEvents.First().End,
+                readjustCalendarEvent.Start,
+                readjustCalendarEvent.End,
+                updatedSplitCount);
+            schedule.UpdateWithDifferentSchedule(updateResult.Item2).Wait();
+            schedule = new TestSchedule(currentUser, refNow, startOfDay);
+            CalendarEvent latestCalendarEvent = schedule.getCalendarEvent(subEventId);
+            Assert.AreEqual(latestCalendarEvent.NumberOfSplit, updatedSplitCount);
+        }
     }
 }

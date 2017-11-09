@@ -17,7 +17,7 @@ namespace TilerTests
         When I shuffle for some reason there is an unnecessary conflict with 7170280_7_0_7170281 and 7156969_7_0_7156970.(Work on test bug ibm steez & Workout) Event though there is enough time in the day to let both time frames.
         */
         [TestMethod]
-        public void file499a0ab4()
+        public void file_499a0ab4()
         {
             Location homeLocation = TestUtility.getLocations()[0];
             DateTimeOffset startOfDay = DateTimeOffset.Parse("2:00am");
@@ -39,7 +39,7 @@ namespace TilerTests
         // End of day is : 10:00pm Est
         // For some reason adding a 30 min event with a deadline of 10/24/2017 3:59:00 AM(UTC), triggers unnecessary conflicts.With the events 8615397_7_0_8615398 and 8615271_7_0_8615272(IBM steez, check amqp stability and workout respectively). Not you have chill at work on your schedule from 9a - 6p(est) via google calendar.
        [TestMethod]
-        public void TestMethod2()
+        public void file_712dd797()
         {
             Location homeLocation = TestUtility.getLocations()[0];
             DateTimeOffset startOfDay = DateTimeOffset.Parse("2:00am");
@@ -57,7 +57,7 @@ namespace TilerTests
             schedule.AddToScheduleAndCommit(calEvent);
             SubCalendarEvent subEventA = schedule.getSubCalendarEvent("8615397_7_0_8615398");
             SubCalendarEvent subEventB = schedule.getSubCalendarEvent("8615271_7_0_8615272");
-            Assert.IsFalse(subEventB.ActiveSlot.doesTimeLineInterfere(subEventA.ActiveSlot));// This is known to fail and is on bug list
+            Assert.IsFalse(subEventB.ActiveSlot.doesTimeLineInterfere(subEventA.ActiveSlot));
         }
     }
 }

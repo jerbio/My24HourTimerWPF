@@ -39,6 +39,8 @@ Icon
 TilerCore/bin/*
 TilerCore/obj/*
 packages/
+TilerTests/obj/*
+TilerElements/obj/*
 TilerElements/bin/*
 TilerTests/bin/Debug/BigDataLogs/*
 TilerTests/bin/Debug/*.xml

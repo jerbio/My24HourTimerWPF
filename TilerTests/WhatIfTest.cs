@@ -52,13 +52,15 @@ namespace TilerTests
         public async Task WhatIfMondayInsteadOfTuesdayLocation()
         {
             List<Location> locations = TestUtility.getLocations();
-            int mondayLocationIndex = random.Next(locations.Count);
-            Location mondayLocation = locations[mondayLocationIndex];
-            Location TuesdayLocation = locations[(mondayLocationIndex + 1)% locations.Count];
+            Location homeLocation = locations[0];
+            //int mondayLocationIndex = random.Next(locations.Count);
+            Location mondayLocation = homeLocation;
+            Location TuesdayLocation = locations[1];
             List<CalendarEvent> mondayEvents = new List<CalendarEvent>();
             List<CalendarEvent> tuesdayEvents = new List<CalendarEvent>();
             TimeSpan durationOfCalEvent = TimeSpan.FromHours(1);
-            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            DateTimeOffset startOfDay = DateTimeOffset.Parse("2:00am");
+            DateTimeOffset refNow = DateTimeOffset.Parse("11/10/2017 3:00am");
             DateTimeOffset mondayStart = getNextDateForDayOfWeek(DayOfWeek.Monday, refNow);
             DateTimeOffset tuesdayStart = mondayStart.AddDays(1);
             int numberOfEvents = 5;
@@ -107,8 +109,7 @@ namespace TilerTests
         public async Task WhatIfMondayInsteadOfTuesdayConflict()
         {
             List<Location> locations = TestUtility.getLocations();
-            int mondayLocationIndex = random.Next(locations.Count);
-            Location desiredLocation = locations[mondayLocationIndex];
+            Location desiredLocation = locations[1];
             List<CalendarEvent> mondayEvents = new List<CalendarEvent>();
             List<CalendarEvent> tuesdayEvents = new List<CalendarEvent>();
             TimeSpan durationOfCalEvent = TimeSpan.FromHours(1);

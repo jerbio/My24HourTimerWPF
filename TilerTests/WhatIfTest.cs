@@ -52,13 +52,15 @@ namespace TilerTests
         public async Task WhatIfMondayInsteadOfTuesdayLocation()
         {
             List<Location> locations = TestUtility.getLocations();
-            int mondayLocationIndex = random.Next(locations.Count);
-            Location mondayLocation = locations[mondayLocationIndex];
-            Location TuesdayLocation = locations[(mondayLocationIndex + 1)% locations.Count];
+            Location homeLocation = locations[0];
+            //int mondayLocationIndex = random.Next(locations.Count);
+            Location mondayLocation = homeLocation;
+            Location TuesdayLocation = locations[1];
             List<CalendarEvent> mondayEvents = new List<CalendarEvent>();
             List<CalendarEvent> tuesdayEvents = new List<CalendarEvent>();
             TimeSpan durationOfCalEvent = TimeSpan.FromHours(1);
-            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            DateTimeOffset startOfDay = DateTimeOffset.Parse("2:00am");
+            DateTimeOffset refNow = DateTimeOffset.Parse("11/10/2017 3:00am");
             DateTimeOffset mondayStart = getNextDateForDayOfWeek(DayOfWeek.Monday, refNow);
             DateTimeOffset tuesdayStart = mondayStart.AddDays(1);
             int numberOfEvents = 5;
@@ -107,12 +109,11 @@ namespace TilerTests
         public async Task WhatIfMondayInsteadOfTuesdayConflict()
         {
             List<Location> locations = TestUtility.getLocations();
-            int mondayLocationIndex = random.Next(locations.Count);
-            Location desiredLocation = locations[mondayLocationIndex];
+            Location desiredLocation = locations[1];
             List<CalendarEvent> mondayEvents = new List<CalendarEvent>();
             List<CalendarEvent> tuesdayEvents = new List<CalendarEvent>();
             TimeSpan durationOfCalEvent = TimeSpan.FromHours(1);
-            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            DateTimeOffset refNow = DateTimeOffset.Parse("11/6/2017 12:00AM");
             DateTimeOffset mondayStart = getNextDateForDayOfWeek(DayOfWeek.Monday, refNow);
             DateTimeOffset tuesdayStart = mondayStart.AddDays(1);
             DateTimeOffset mondayStartCopy = mondayStart;
@@ -132,20 +133,20 @@ namespace TilerTests
             currentUser.Login().Wait();
             foreach (CalendarEvent calEvent in allCalendarEvents)
             {
-                DB_Schedule eachSchedule = new DB_Schedule(currentUser, refNow);
+                DB_Schedule eachSchedule = new TestSchedule(currentUser, refNow, EventID.LatestID);
                 eachSchedule.AddToScheduleAndCommit(calEvent).Wait();
             }
 
             DateTimeOffset wednesdayStart = mondayStart.AddDays(2);
             CalendarEvent wednesdayEvent = TestUtility.generateCalendarEvent(durationOfCalEvent, new Repetition(), mondayStart, wednesdayStart.AddHours(1), 1, true, desiredLocation);
-            DB_Schedule schedule = new DB_Schedule(currentUser, refNow);
+            DB_Schedule schedule = new TestSchedule(currentUser, refNow, EventID.LatestID);
             schedule.AddToScheduleAndCommit(wednesdayEvent).Wait();
-            schedule = new TestSchedule(currentUser, refNow);
+            schedule = new TestSchedule(currentUser, refNow, EventID.LatestID);
             CalendarEvent retrievedWednesdayEvent = schedule.getCalendarEvent(wednesdayEvent.Calendar_EventID);
 
-            schedule = new DB_Schedule(currentUser, refNow);
+            schedule = new TestSchedule(currentUser, refNow, EventID.LatestID);
             Health tuesdayHealth = await schedule.WhatIfDifferentDay(tuesdayStart, retrievedWednesdayEvent.ActiveSubEvents.First().SubEvent_ID).ConfigureAwait(false);
-            schedule = new DB_Schedule(currentUser, refNow);
+            schedule = new TestSchedule(currentUser, refNow, EventID.LatestID);
             Health mondayHealth = await schedule.WhatIfDifferentDay(wednesdayStart.AddDays(-2), retrievedWednesdayEvent.ActiveSubEvents.First().SubEvent_ID).ConfigureAwait(false);
             HealthEvaluation mondayEvaluation = new HealthEvaluation(mondayHealth);
             HealthEvaluation tuesdayEvaluation = new HealthEvaluation(tuesdayHealth);
@@ -153,7 +154,7 @@ namespace TilerTests
             double mondayScore = mondayHealth.getScore();
             double tuesdayScore = tuesdayHealth.getScore();
 
-            Assert.IsTrue(tuesdayScore < mondayScore);
+            Assert.IsTrue(tuesdayScore < mondayScore);// this is know to fail
         }
 
         public DateTimeOffset getNextDateForDayOfWeek(DayOfWeek dayOfeek, DateTimeOffset referenceTime)

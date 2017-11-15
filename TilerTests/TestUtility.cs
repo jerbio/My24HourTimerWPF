@@ -221,9 +221,9 @@ namespace TilerTests
             return RetValue;
         }
 
-        public static UserAccount getTestUser(bool forxeUpdateOfTilerUser = false, string userId = testUserId)
+        public static UserAccount getTestUser(bool forxeUpdateOfTilerUser = false, string userId = testUserId, bool copyTestFolder = true)
         {
-            if(userId != testUserId)
+            if(userId != testUserId && copyTestFolder)
             {
                 string sourceFile = "WagTapCalLogs\\" + userId+ "\\" + userId +".xml";
                 string destinationFile = "WagTapCalLogs\\" + userId + ".xml";

@@ -35,18 +35,10 @@ namespace TilerElements
             freeSpace = EndTime - StartTime;
             _TotalActiveSpan = new TimeSpan();
             updateOccupancyOfTimeLine();
-            evaluateTotalActiveTimeSpan();
         }
         #endregion
 
         #region Function
-
-        protected void evaluateTotalActiveTimeSpan()
-        {
-            Utility.ConflictEvaluation ConflictEvaluation = new Utility.ConflictEvaluation(this.OccupiedSlots);
-            TimeSpan totalSpan = TimeSpan.FromTicks(ConflictEvaluation.ConflictingTimeRange.Concat(ConflictEvaluation.NonConflictingTimeRange).Select(timeRange => timeRange.RangeTimeLine.TimelineSpan).Sum(timeSpan => timeSpan.Ticks));
-            _TotalActiveSpan = totalSpan;
-        }
 
         public virtual void AddToSubEventList(IEnumerable<SubCalendarEvent> SubEventList)
         {
@@ -62,7 +54,6 @@ namespace TilerElements
 
             updateOccupancyOfTimeLine();
             updateAverageLocation();
-            evaluateTotalActiveTimeSpan();
         }
 
         public virtual void AddToSubEventList(SubCalendarEvent eachSubCal)
@@ -73,19 +64,17 @@ namespace TilerElements
             }
             updateOccupancyOfTimeLine();
             updateAverageLocation();
-            evaluateTotalActiveTimeSpan();
         }
 
-        public virtual void InitializeSubEventList(List<SubCalendarEvent> SubEventList)
-        {
-            AllocatedSubEvents = new ConcurrentDictionary<string, SubCalendarEvent>(SubEventList.ToDictionary(obj => obj.getId, obj => obj));
-            updateOccupancyOfTimeLine();
-        }
         public virtual void updateOccupancyOfTimeLine()
         {
-            OccupancyOfTImeLine = ((double)(SubCalendarEvent.TotalActiveDuration(AllocatedSubEvents.Values).Ticks) / (double)TimelineSpan.Ticks);
-            freeSpace = TimelineSpan - SubCalendarEvent.TotalActiveDuration(AllocatedSubEvents.Values);
             OccupiedSlots = AllocatedSubEvents.Select(obj => obj.Value.ActiveSlot).ToArray();
+            List<TimeLine> onlyValidSlots = OccupiedSlots.Select(timeSlot => timeSlot.InterferringTimeLine(this)).Where(interFerringSlot => interFerringSlot != null).ToList();
+            Utility.ConflictEvaluation ConflictEvaluation = new Utility.ConflictEvaluation(onlyValidSlots);
+            _TotalActiveSpan = TimeSpan.FromTicks(ConflictEvaluation.ConflictingTimeRange.Concat(ConflictEvaluation.NonConflictingTimeRange).Select(timeRange => timeRange.RangeTimeLine.TimelineSpan).Sum(timeSpan => timeSpan.Ticks));
+            OccupancyOfTImeLine = ((double)(SubCalendarEvent.TotalActiveDuration(AllocatedSubEvents.Values).Ticks) / (double)TimelineSpan.Ticks);
+            freeSpace = TimelineSpan - _TotalActiveSpan;
+            
         }
 
         public virtual void updateAverageLocation()
@@ -153,6 +142,10 @@ namespace TilerElements
 
         }
 
+        /// <summary>
+        /// This gets you a ratio used up space to free space. Note this does NOT ignore conflicts. Conflicting spaces are counted for each sub active slot.
+        /// So if you have subEventA and subEventB have a twent minute conflict, the total occupancy will be the duration of (subEventA + subEventB + 20 mins)/TimelineSpan.
+        /// </summary>
         virtual public double Occupancy
         {
             get

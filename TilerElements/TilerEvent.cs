@@ -348,6 +348,7 @@ namespace TilerElements
         }
 
         #region dbProperties
+        virtual public DateTimeOffset TimeCreated { get; set; } = DateTimeOffset.Parse(DateTimeOffset.UtcNow.ToLocalTime().ToString("MM/dd/yyyy hh:mm tt"));
 
         virtual public string Id
         {

@@ -193,6 +193,7 @@ namespace TilerElements
                 DateTimeOffset SubStart = eachStart.Start;
                 DateTimeOffset SubEnd = SubStart.Add(_AverageTimePerSplit);
                 SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(this.getCreator, this._Users, UniqueID.ToString(), this.getName, SubStart, SubEnd, ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), RigidSchedule, _PrepTime, _EventPreDeadline, _LocationInfo, _UiParams, _DataBlob, _Priority, ThirdPartyID);
+                newEvent.TimeCreated = this.TimeCreated;
                 SubEvents.Add(newEvent.SubEvent_ID, newEvent);
             }
         }

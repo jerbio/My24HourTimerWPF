@@ -878,7 +878,7 @@ namespace TilerCore
 
             CalendarEvent procrastinateAll = ProcrastinateCalendarEvent.generateProcrastinateAll(Now.constNow, user, DelaySpan, timeZone, procratinateAll , NameOfEvent);
             blockName.Creator_EventDB = procrastinateAll.getCreator;
-            blockName.Tiler_EventDB = procrastinateAll;
+            blockName.AssociatedEvent = procrastinateAll;
             return Procrastinate(procrastinateAll);
         }
 
@@ -1081,7 +1081,7 @@ namespace TilerCore
                 //EventID.GenerateCalendarEvent(), 
                 name, Now.constNow, Now.constNow.Add(duration), duration, new TimeSpan(), new TimeSpan(), new Repetition(), currentLocation, null, null, false, false, TilerUser, new TilerUserGroup(), timeZone, null);
             name.Creator_EventDB = NewEvent.getCreator;
-            name.Tiler_EventDB = NewEvent;
+            name.AssociatedEvent = NewEvent;
             NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, new HashSet<SubCalendarEvent>(), null, 1,true, false);
             CustomErrors RetValue = NewEvent.Error;
             AllEventDictionary.Remove(NewEvent.Calendar_EventID.getCalendarEventComponent());

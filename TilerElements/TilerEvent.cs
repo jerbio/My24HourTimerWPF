@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -376,8 +377,6 @@ namespace TilerElements
             }
         }
 
-        public string NameId { get; set; }
-        [ForeignKey("NameId")]
         public EventName Name
         {
             get
@@ -580,8 +579,6 @@ namespace TilerElements
             }
         }
 
-        public string ProfileOfNowId { get; set; }
-        [ForeignKey("ProfileOfNowId")]
         public NowProfile ProfileOfNow_EventDB
         {
             get

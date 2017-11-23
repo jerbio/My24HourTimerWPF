@@ -350,8 +350,8 @@ namespace TilerElements
 
                 foreach (var geoCoordinate in Locations)
                 {
-                    var latitude = geoCoordinate.XCoordinate * Math.PI / 180;
-                    var longitude = geoCoordinate.YCoordinate * Math.PI / 180;
+                    var latitude = geoCoordinate.Latitude * Math.PI / 180;
+                    var longitude = geoCoordinate.Longitude * Math.PI / 180;
 
                     x += Math.Cos(latitude) * Math.Cos(longitude);
                     y += Math.Cos(latitude) * Math.Sin(longitude);
@@ -481,7 +481,7 @@ namespace TilerElements
             }
         }
 
-        public double XCoordinate
+        public double Latitude
         {
             set
             {
@@ -493,7 +493,7 @@ namespace TilerElements
         }
 
 
-        public double YCoordinate
+        public double Longitude
         {
             set
             {

@@ -37,7 +37,7 @@ namespace My24HourTimerWPF
             BaseReferenceStartTime = myThis.BaseReferenceStartTime;
             _Name = new EventName(null, null);
             _Name.Creator_EventDB = this.getCreator;
-            _Name.Tiler_EventDB= this;
+            _Name.AssociatedEvent= this;
         }
         
         public ClumpSubCalendarEvent(SubCalendarEvent BaseSubCalendarEvent, List<SubCalendarEvent> Appendables, TimeLine BoundaryTimeLine)
@@ -91,7 +91,7 @@ namespace My24HourTimerWPF
                     SubCalEventsOverLapWithBase.Add(Appendables[i]);
                 }
                 _Name.Creator_EventDB = this.getCreator;
-                _Name.Tiler_EventDB = this;
+                _Name.AssociatedEvent = this;
             }
 
             List<SubCalendarEvent> arg1=ClumpedResults.Keys.ToList();

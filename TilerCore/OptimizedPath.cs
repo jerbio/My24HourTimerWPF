@@ -489,7 +489,7 @@ namespace TilerCore
                 List<KeyValuePair<TilerEvent, double>> subEventsEvaluated = evaluatedEvents.OrderBy(obj => obj.Value).ToList();
 
                 IEnumerable<SubCalendarEvent> subEvents = (IEnumerable<SubCalendarEvent>)evaluatedEvents.OrderBy(obj => obj.Value).Select(obj => (SubCalendarEvent)obj.Key);
-                List<String> locations = subEvents.Select(obj => "" + obj.Location.XCoordinate + "," + obj.Location.YCoordinate).ToList();
+                List<String> locations = subEvents.Select(obj => "" + obj.Location.Latitude + "," + obj.Location.Longitude).ToList();
                 Subevents = subEvents.Take(5).ToList();
                 //Subevents= Utility.getBestPermutation(Subevents.ToList(), double.MaxValue, new Tuple<Location_Elements, Location_Elements>(Grouping.LeftBorder, Grouping.RightBorder)).ToList();
                 Tuple<Location, Location> borderElements = null;

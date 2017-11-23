@@ -618,7 +618,7 @@ namespace My24HourTimerWPF
             }
 
             eventName.Creator_EventDB = ScheduleUpdated.getCreator;
-            eventName.Tiler_EventDB = ScheduleUpdated;
+            eventName.AssociatedEvent = ScheduleUpdated;
             if (RestrictedCheckbox.IsChecked.Value)
             {
                 string TimeString = eventStartDate.Date.ToShortDateString() + " " + eventStartTime+" +00:00";
@@ -818,7 +818,7 @@ namespace My24HourTimerWPF
             }
 
             eventName.Creator_EventDB = ScheduleUpdated.getCreator;
-            eventName.Tiler_EventDB = ScheduleUpdated;
+            eventName.AssociatedEvent = ScheduleUpdated;
             if (RestrictedCheckbox.IsChecked.Value)
             {
                 string TimeString = eventStartDate.Date.ToShortDateString() + " " + eventStartTime + " +00:00";
@@ -1411,7 +1411,7 @@ namespace My24HourTimerWPF
                 }
                 ScheduleUpdated.Repeat.PopulateRepetitionParameters(ScheduleUpdated);
                 eventName.Creator_EventDB = ScheduleUpdated.getCreator;
-                eventName.Tiler_EventDB = ScheduleUpdated;
+                eventName.AssociatedEvent = ScheduleUpdated;
                 Stopwatch snugarrayTester = new Stopwatch();
                 snugarrayTester.Start();
                 //CustomErrors ScheduleUpdateMessage = await MySchedule.AddToScheduleAndCommit(ScheduleUpdated);

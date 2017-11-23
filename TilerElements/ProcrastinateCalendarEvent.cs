@@ -119,7 +119,7 @@ public static CalendarEvent generateProcrastinateAll(DateTimeOffset referenceNow
                 }
             }
             blockName.Creator_EventDB = procrastinateAll.getCreator;
-            blockName.Tiler_EventDB = procrastinateAll;
+            blockName.AssociatedEvent = procrastinateAll;
             procrastinateAll.UpdateTimePerSplit();
             return procrastinateAll;
         }

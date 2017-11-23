@@ -108,6 +108,7 @@
     <Compile Include="BusyTimeLine.cs" />
     <Compile Include="CalendarEvent.cs" />
     <Compile Include="CalendarEventRestricted.cs" />
+    <Compile Include="Fluent\TilerEventMapping.cs" />
     <Compile Include="HealthEvaluation.cs" />
     <Compile Include="IUndoable.cs" />
     <Compile Include="OptimizedGrouping.cs" />

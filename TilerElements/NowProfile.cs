@@ -62,7 +62,6 @@ namespace TilerElements
             }
         }
 
-        [ForeignKey("Id")]
         public TilerEvent AssociatedEvent
         {
             get {

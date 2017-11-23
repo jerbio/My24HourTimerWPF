@@ -75,7 +75,7 @@ namespace TilerTests
             CalendarEvent readjustCalendarEvent = schedule.getCalendarEvent("6418072_7_0_6418075");
             const int updatedSplitCount = 11;
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> updateResult= schedule.BundleChangeUpdate(readjustCalendarEvent.ActiveSubEvents.First().getId,
-                readjustCalendarEvent.getName,
+                readjustCalendarEvent.getName.NameValue,
                 readjustCalendarEvent.ActiveSubEvents.First().Start,
                 readjustCalendarEvent.ActiveSubEvents.First().End,
                 readjustCalendarEvent.Start,

@@ -19,7 +19,7 @@ namespace TilerElements
             CalendarEvent nullEvent = CalendarEvent.getEmptyCalendarEvent(UniqueID, StartDateTime, EndDateTime);
             RigidSchedule = true;
             double halfDouble=Double.MaxValue/2;
-            _LocationInfo = Location.AverageGPSLocation(InterFerringEvents.Where(Obj => Obj.Location.XCoordinate < halfDouble).Select(obj => obj.Location));
+            _LocationInfo = Location.AverageGPSLocation(InterFerringEvents.Where(Obj => Obj.Location.Latitude < halfDouble).Select(obj => obj.Location));
             EventScore = 0;
             EventClumps = InterFerringEvents.ToArray();
             _EventDuration = TimeSpan.FromTicks( InterFerringEvents.Sum(obj => obj.getActiveDuration.Ticks));

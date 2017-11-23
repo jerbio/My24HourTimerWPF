@@ -63,9 +63,7 @@ namespace TilerElements
             }
         }
 
-        public string EventId { get; set; }
-        [Required, ForeignKey("EventId")]
-        public TilerEvent Tiler_EventDB
+        public TilerEvent AssociatedEvent
         {
             get
             {
@@ -79,7 +77,7 @@ namespace TilerElements
 
         public EventName createCopy(string id = null)
         {
-            EventName retValue = new EventName(this.Creator_EventDB, this.Tiler_EventDB);
+            EventName retValue = new EventName(this.Creator_EventDB, this.AssociatedEvent);
             retValue._Id = id;
             retValue._Name = this._Name;
             if (string.IsNullOrEmpty(id))

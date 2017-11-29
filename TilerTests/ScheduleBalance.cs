@@ -201,6 +201,44 @@ namespace TilerTests
             Assert.AreEqual(index, 3);/// This is known to fail
         }
 
+        /// <summary>
+        /// Test tries to ensure for an unnecessary complicated series of event. Events should always start or end from home or at least the location closest to the 'current location' passed to the current location when shuffle is clicked
+        /// </summary>
+        [TestMethod]
+        public void testHomeAsSourceOfAction()
+        {
+            Dictionary<String,Location> locationsDict = TestUtility.getLocations().ToDictionary(obj => obj.Description, obj => obj);
+            List<Location> locations = locationsDict.Values.ToList();
+            UserAccount currentUser = TestUtility.getTestUser();
+            currentUser.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.Parse("12:00AM");
+            DateTimeOffset start = DateTimeOffset.Parse("2:00AM");
+            TimeSpan duration = TimeSpan.FromHours(4);
+            DateTimeOffset end = start.Add(duration);
+            CalendarEvent hugeRigid = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, true, locations[0]);
+            TestSchedule schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
+
+            CalendarEvent shaker0 = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), refNow, refNow.AddDays(1), 2, false, locationsDict["Shaker Library"]);
+            schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5), EventID.LatestID);
+            schedule.AddToScheduleAndCommit(shaker0).Wait();
+            CalendarEvent gym0 = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), refNow, refNow.AddDays(1), 1, false, locationsDict["Gym"]);
+            schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5), EventID.LatestID);
+            schedule.AddToScheduleAndCommit(gym0).Wait();
+            CalendarEvent gym1 = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), refNow, refNow.AddDays(1), 1, false, locationsDict["Gym"]);
+            schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5), EventID.LatestID);
+            schedule.AddToScheduleAndCommit(gym1).Wait();
+            CalendarEvent work0 = TestUtility.generateCalendarEvent(TimeSpan.FromHours(2), new Repetition(), refNow, refNow.AddDays(1), 2, false, locationsDict["Work"]);
+            schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5), EventID.LatestID);
+            schedule.AddToScheduleAndCommit(work0).Wait();
+            Location work = locationsDict["Work"];
+
+            schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5), EventID.LatestID);
+            schedule.FindMeSomethingToDo(work).Wait();
+            schedule.WriteFullScheduleToLogAndOutlook().Wait();
+            List<SubCalendarEvent> subevents = schedule.getAllCalendarEvents().SelectMany(subevent => subevent.AllSubEvents).OrderBy(subevent => subevent.Start).ToList();
+            Assert.AreEqual(subevents.First().Location.Description, work.Description);/// This is known to fail
+
+        }
 
         /// <summary>
         /// Function test a scenario where there is a change of no consequence is applied to a users schedule. This modification should not necessarily trigger a reordering of events.

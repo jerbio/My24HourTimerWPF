@@ -58,6 +58,7 @@ namespace TilerTests
 
         public static bool CheckForInternetConnection()
         {
+            return false;
             try
             {
                 using (var client = new System.Net.WebClient())

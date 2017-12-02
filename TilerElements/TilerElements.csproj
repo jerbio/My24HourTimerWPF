@@ -117,7 +117,7 @@
     <Compile Include="ConflictProfile.cs" />
     <Compile Include="DayTimeLine.cs" />
     <Compile Include="EventName.cs" />
-    <Compile Include="EventType.cs" />
+    <Compile Include="Classification.cs" />
     <Compile Include="Health.cs" />
     <Compile Include="IWhy.cs" />
     <Compile Include="MultidimensionalCalculation.cs" />

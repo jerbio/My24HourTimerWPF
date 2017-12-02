@@ -3629,7 +3629,9 @@ namespace TilerCore
                     throw new Exception("Error before call to stitchunrestricted");
                 }
 
-                reassignableEvents = reassignableEvents.Except(COnstrainedElementsForTimeLine).ToList();
+                reassignableEvents = reassignableEvents.Except(COnstrainedElementsForTimeLine)
+                    .Where(subEvent => !subEvent.getIsEventRestricted || subEvent.canExistWithinTimeLine(timelineForFurtherPinning))
+                    .ToList();
                 List<SubCalendarEvent> reassignedElements;
                 if (reassignableEvents.Count > 0)
                 {

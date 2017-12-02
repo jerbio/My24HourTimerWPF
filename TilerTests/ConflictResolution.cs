@@ -86,5 +86,34 @@ namespace TilerTests
             CalendarEvent latestCalendarEvent = schedule.getCalendarEvent(subEventId);
             Assert.AreEqual(latestCalendarEvent.NumberOfSplit, updatedSplitCount);
         }
+
+        // Current UTC time: 12/2/2017 8:20pm utc
+        // End of day is : 10:00pm Est
+        // Trying to update the deadline of 8631313_7_0_8631314 to the time 12/3/2017 4:59pm causes it to crash
+        [TestMethod]
+        public void file_b10cdae0()
+        {
+            string subEventId = "8631313_7_0_8631314";
+            Location homeLocation = TestUtility.getLocations()[0];
+            DateTimeOffset startOfDay = DateTimeOffset.Parse("2:00am");
+            DateTimeOffset refNow = DateTimeOffset.Parse("12/2/2017 8:20pm");
+            DateTimeOffset deadline = DateTimeOffset.Parse("12/3/2017 4:59pm");
+            UserAccount currentUser = TestUtility.getTestUser(userId: "b10cdae0-64e1-498f-82a2-8601da577255");
+            TestSchedule schedule = new TestSchedule(currentUser, refNow, startOfDay);
+            CalendarEvent calEvent = schedule.getCalendarEvent(subEventId);
+            SubCalendarEvent subEvent = schedule.getSubCalendarEvent(subEventId);
+            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> updateResult = schedule.BundleChangeUpdate(
+                subEvent.getId,
+                subEvent.getName,
+                subEvent.Start,
+                subEvent.End,
+                subEvent.getCalendarEventRange.Start,
+                deadline,
+                1); ///this is known to fail
+            schedule.UpdateWithDifferentSchedule(updateResult.Item2).Wait();
+            schedule = new TestSchedule(currentUser, refNow, startOfDay);
+            
+            Assert.AreEqual(((SubCalendarEventRestricted)schedule.getSubCalendarEvent(subEventId)).getHardCalendarEventRange.End, deadline);
+        }
     }
 }

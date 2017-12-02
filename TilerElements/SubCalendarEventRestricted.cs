@@ -431,6 +431,14 @@ namespace TilerElements
             return ProfileOfRestriction;
         }
 
+        public TimeLine getHardCalendarEventRange
+        {
+            get
+            {
+                return HardCalendarEventRange;
+            }
+        }
+
         #endregion
     }
 }

@@ -88,6 +88,9 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="WagTapCalLogs\499a0ab4-81d7-42df-a476-44fc4348e94b\d350ba4d-fe0b-445c-bed6-b6411c2156b3.zip" />
+    <None Include="WagTapCalLogs\BeforeInsertionFixingStiticRestricted.xml.lnk">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="WagTapCalLogs\065febec-d1fe-4c8b-bd32-548613d4479f.xml">

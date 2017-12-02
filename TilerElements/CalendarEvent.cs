@@ -808,7 +808,7 @@ namespace TilerElements
             return retValue;
         }
 
-        public override List<double> EvaluateTimeLines(List<TimelineWithSubcalendarEvents> timeLines)
+        public override List<double> EvaluateTimeLines(List<TimelineWithSubcalendarEvents> timeLines, List<Tuple<Location, Location>> borderLocations = null)
         {
             List<IList<double>> multiDimensionalCalculation = new List<IList<double>>();
             List<TimelineWithSubcalendarEvents> validTimeLine = timeLines.Select(timeLine => {

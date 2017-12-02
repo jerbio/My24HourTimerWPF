@@ -271,7 +271,7 @@ namespace TilerCore
             AllEventDictionary_Cpy = AllEventDictionary.ToDictionary(obj => obj.Key, obj => obj.Value.createCopy());
 
 
-            myCalendarEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(myCalendarEvent, NoDoneYet);
+            myCalendarEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(myCalendarEvent, NoDoneYet, null);
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(myCalendarEvent.Error, AllEventDictionary);
             AllEventDictionary=AllEventDictionary_Cpy;
             return retValue ;
@@ -368,7 +368,7 @@ namespace TilerCore
                 {
                     NoDoneYet.Remove(subEvent);
                 }
-                myCalendarEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(myCalendarEvent, NoDoneYet,null,1);
+                myCalendarEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(myCalendarEvent, NoDoneYet,null, null,1);
             }
 
             if (isNameChange)
@@ -607,7 +607,7 @@ namespace TilerCore
 
                     HashSet<SubCalendarEvent> NotDoneYets = getNoneDoneYetBetweenNowAndReerenceStartTIme();
                     NotDoneYets.RemoveWhere(obj => obj.RangeTimeLine.doesTimeLineInterfere(unDisabled.RangeTimeLine));
-                    CalEventCopy = EvaluateTotalTimeLineAndAssignValidTimeSpots(CalEventCopy, NotDoneYets,InterringWithNowEvent:2);
+                    CalEventCopy = EvaluateTotalTimeLineAndAssignValidTimeSpots(CalEventCopy, NotDoneYets, null, InterringWithNowEvent:2);
                     if (!isRigidInitial)
                     {
                         unDisabled.SetAsNonRigid();
@@ -654,7 +654,7 @@ namespace TilerCore
             CalendarEventTOBeRemoved.DisableSubEvents(CalendarEventTOBeRemoved.ActiveSubEvents);
 
             HashSet<SubCalendarEvent> NotDOneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
-            CalendarEvent retValue= EvaluateTotalTimeLineAndAssignValidTimeSpots(CalendarEventTOBeRemoved, NotDOneYet);
+            CalendarEvent retValue= EvaluateTotalTimeLineAndAssignValidTimeSpots(CalendarEventTOBeRemoved, NotDOneYet, null);
 
 
             AllEventDictionary.Remove(CalendarEventTOBeRemoved.getId);//removes the false calendar event
@@ -688,7 +688,7 @@ namespace TilerCore
 
 
             HashSet<SubCalendarEvent> NotDOneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
-            CalendarEvent retValue= EvaluateTotalTimeLineAndAssignValidTimeSpots(CalendarEventTOBeRemoved, NotDOneYet);
+            CalendarEvent retValue= EvaluateTotalTimeLineAndAssignValidTimeSpots(CalendarEventTOBeRemoved, NotDOneYet, null);
 
 
             AllEventDictionary.Remove(CalendarEventTOBeRemoved.getId);//removes the false calendar event
@@ -746,7 +746,7 @@ namespace TilerCore
 
 
             HashSet<SubCalendarEvent> NotDOneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
-            ScheduleUpdated = EvaluateTotalTimeLineAndAssignValidTimeSpots(ScheduleUpdated, NotDOneYet);
+            ScheduleUpdated = EvaluateTotalTimeLineAndAssignValidTimeSpots(ScheduleUpdated, NotDOneYet, null);
 
             AllEventDictionary.Remove(ScheduleUpdated.getId);//removes the false calendar event
         }
@@ -887,7 +887,7 @@ namespace TilerCore
             HashSet<SubCalendarEvent> NotdoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
             /*Dictionary<string, CalendarEvent> AllEventDictionary_Cpy = new Dictionary<string, CalendarEvent>();
             AllEventDictionary_Cpy = AllEventDictionary.ToDictionary(obj => obj.Key, obj => obj.Value.createCopy());*/
-            NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, NotdoneYet,null,2);
+            NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, NotdoneYet,null,null, 2);
             //AllEventDictionary.Remove(NewEvent.Id);
 
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(NewEvent.Error, AllEventDictionary);
@@ -952,7 +952,7 @@ namespace TilerCore
             HashSet<SubCalendarEvent> NotDOneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
 
 
-            ScheduleUpdated = EvaluateTotalTimeLineAndAssignValidTimeSpots(ScheduleUpdated,NotDOneYet ,null,1);
+            ScheduleUpdated = EvaluateTotalTimeLineAndAssignValidTimeSpots(ScheduleUpdated,NotDOneYet ,null, null, 1);
 
             SubCalendarEvent[] UpdatedSubCalevents = ScheduleUpdated.ActiveSubEvents;
 
@@ -1026,11 +1026,11 @@ namespace TilerCore
             HashSet<SubCalendarEvent> NotdoneYet = new HashSet<SubCalendarEvent>();// getNoneDoneYetBetweenNowAndReerenceStartTIme();
             if (!NewEvent.getRigid)
             {
-                NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, NotdoneYet);
+                NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, NotdoneYet, null);
             }
             else
             {
-                NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, NotdoneYet, null, 1);
+                NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, NotdoneYet, null, null, 1);
             }
 
             
@@ -1080,7 +1080,7 @@ namespace TilerCore
             CalendarEvent NewEvent = new RigidCalendarEvent(
                 //EventID.GenerateCalendarEvent(), 
                 name, Now.constNow, Now.constNow.Add(duration), duration, new TimeSpan(), new TimeSpan(), new Repetition(), currentLocation, null, null, false, false, TilerUser, new TilerUserGroup(), timeZone, null);
-            NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, new HashSet<SubCalendarEvent>(), null, 1,true, false);
+            NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, new HashSet<SubCalendarEvent>(), currentLocation, null, 1,true, false);
             CustomErrors RetValue = NewEvent.Error;
             AllEventDictionary.Remove(NewEvent.Calendar_EventID.getCalendarEventComponent());
             return RetValue;
@@ -1303,7 +1303,7 @@ namespace TilerCore
                 return RetValue;
             }
 
-            RetValue = peekIntoDays(MyEvent, NoneCOmmitedCalendarEvent.ToList(), InterringWithNowEvent, UnDoneEvents);
+            RetValue = peekIntoDays(MyEvent, NoneCOmmitedCalendarEvent.ToList(), InterringWithNowEvent, UnDoneEvents, null);
             return RetValue;
 
         }
@@ -1326,7 +1326,7 @@ namespace TilerCore
         /// <param name="InterringWithNowEvent"></param>
         /// <param name="optimizeFirstTwentyFourHours"></param>
         /// <returns></returns>
-        public CalendarEvent EvaluateTotalTimeLineAndAssignValidTimeSpots(CalendarEvent MyEvent,HashSet<SubCalendarEvent> UnDoneEvents, List<CalendarEvent> NoneCOmmitedCalendarEvent = null, int InterringWithNowEvent=0,bool optimizeFirstTwentyFourHours = true, bool preserveFirstTwentyFourHours = true)
+        public CalendarEvent EvaluateTotalTimeLineAndAssignValidTimeSpots(CalendarEvent MyEvent,HashSet<SubCalendarEvent> UnDoneEvents, Location callLocation, List<CalendarEvent> NoneCOmmitedCalendarEvent = null, int InterringWithNowEvent=0,bool optimizeFirstTwentyFourHours = true, bool preserveFirstTwentyFourHours = true)
         {
 
             int i = 0;
@@ -1338,10 +1338,10 @@ namespace TilerCore
             {
                 CalendarEvent tempCalendarEvent = CalendarEvent.getEmptyCalendarEvent(MyEvent.Calendar_EventID, MyEvent.Start,MyEvent.getRigid?MyEvent.Start: MyEvent.End);//creates an "empty" calendar event. If the calEvent is rigid it has time span of zero
 
-                EvaluateTotalTimeLineAndAssignValidTimeSpots(tempCalendarEvent, UnDoneEvents, MyEvent.Repeat.RecurringCalendarEvents().ToList(), InterringWithNowEvent, optimizeFirstTwentyFourHours, preserveFirstTwentyFourHours);
+                EvaluateTotalTimeLineAndAssignValidTimeSpots(tempCalendarEvent, UnDoneEvents, callLocation, MyEvent.Repeat.RecurringCalendarEvents().ToList(), InterringWithNowEvent, optimizeFirstTwentyFourHours, preserveFirstTwentyFourHours);
                 return MyEvent;
             }
-            CalendarEvent MyCalendarEventUpdated = ReArrangeTimeLineWithinWithinCalendaEventRangeUpdated(MyEvent, NoneCOmmitedCalendarEvent.ToList(), InterringWithNowEvent, UnDoneEvents, optimizeFirstTwentyFourHours, preserveFirstTwentyFourHours);
+            CalendarEvent MyCalendarEventUpdated = ReArrangeTimeLineWithinWithinCalendaEventRangeUpdated(MyEvent, NoneCOmmitedCalendarEvent.ToList(), InterringWithNowEvent, UnDoneEvents, callLocation, optimizeFirstTwentyFourHours, preserveFirstTwentyFourHours);
             return MyCalendarEventUpdated;
         }
 
@@ -1944,7 +1944,8 @@ namespace TilerCore
             CalendarEvent MyCalendarEvent, 
             List<CalendarEvent> NoneCommitedCalendarEventsEvents, 
             int InterferringWithNowFlag, 
-            HashSet<SubCalendarEvent> NotDoneYet, 
+            HashSet<SubCalendarEvent> NotDoneYet,
+            Location callLocation,
             bool OptimizeFirstTwentyFour = true, 
             bool preserveFirstTwentyFourHours = true)// this looks at the timeline of the calendar event and then tries to rearrange all subevents within the range to suit final output. Such that there will be sufficient time space for each subevent
         {
@@ -2009,7 +2010,7 @@ namespace TilerCore
 
 
             DayTimeLine[] AllDayTImeLine = Now.getAllDaysLookup().Select(obj => obj.Value).ToArray();
-            ParallelizeCallsToDay(SortedInterFerringCalendarEvents_Deadline, ArrayOfInterferringSubEvents, AllDayTImeLine,OptimizeFirstTwentyFour, preserveFirstTwentyFourHours);
+            ParallelizeCallsToDay(SortedInterFerringCalendarEvents_Deadline, ArrayOfInterferringSubEvents, AllDayTImeLine, callLocation, OptimizeFirstTwentyFour, preserveFirstTwentyFourHours);
 
             foreach (BlobSubCalendarEvent eachSubCalEvent in preppedDataForNExtStage.Item2)
             {
@@ -2201,7 +2202,7 @@ namespace TilerCore
             return RetValue;
         }
 
-        Tuple<List<SubCalendarEvent>[],DayTimeLine[],List<SubCalendarEvent>>peekIntoDays(CalendarEvent MyCalendarEvent, List<CalendarEvent> NoneCommitedCalendarEventsEvents, int InterferringWithNowFlag, HashSet<SubCalendarEvent> NotDoneYet,uint NumberOfDays=28)
+        Tuple<List<SubCalendarEvent>[],DayTimeLine[],List<SubCalendarEvent>>peekIntoDays(CalendarEvent MyCalendarEvent, List<CalendarEvent> NoneCommitedCalendarEventsEvents, int InterferringWithNowFlag, HashSet<SubCalendarEvent> NotDoneYet, Location callLocation, uint NumberOfDays=28)
         {
             int i = 0;
             List<SubCalendarEvent>[] AssignedEvents = new List<SubCalendarEvent>[NumberOfDays];
@@ -2267,7 +2268,7 @@ namespace TilerCore
             List<CalendarEvent> SortedInterFerringCalendarEvents_Deadline = DictionaryWithBothCalendarEventIDAndListOfInterferringSubEvents.Keys.ToList();
             SortedInterFerringCalendarEvents_Deadline = SortedInterFerringCalendarEvents_Deadline.OrderBy(obj => obj.End).ToList();
             DayTimeLine[] AllDays = Now.getAllDaysCount((uint)NumberOfDays).ToArray();
-            ParallelizeCallsToDay(SortedInterFerringCalendarEvents_Deadline, ArrayOfInterferringSubEvents.ToList(),AllDays,false );
+            ParallelizeCallsToDay(SortedInterFerringCalendarEvents_Deadline, ArrayOfInterferringSubEvents.ToList(),AllDays, callLocation, false);
             List<SubCalendarEvent> ConflictingEvents = new List<SubCalendarEvent>();
             foreach(SubCalendarEvent eachSubCalendarEvent in ArrayOfInterferringSubEvents)
             {
@@ -2344,20 +2345,34 @@ namespace TilerCore
         /// <summary>
         /// Funtion makes iterative calls to the daily optimizers
         /// </summary>
-        /// <param name="AllDayTimeLine"></param>
-        IDictionary<DayTimeLine, OptimizedPath> SortForSleep(IEnumerable<DayTimeLine>AllDayTimeLine)
+        /// <param name="AllDayTimeLine">A list of days to be optimied</param>
+        /// <param name="location">The location passed from the client where this call is being made, this is most likely passed from say shuffle action</param>
+        IDictionary<DayTimeLine, OptimizedPath> SortForSleep(List<DayTimeLine>AllDayTimeLine, Location location)
         {
             ConcurrentDictionary<DayTimeLine, OptimizedPath> dayToOPtimization = new ConcurrentDictionary<DayTimeLine, OptimizedPath>();
-            //Parallel.ForEach(AllDayTimeLine, EachDay=>
             Location home = null;
             if (Locations.ContainsKey("home"))
             {
                 home = Locations["home"];
-            }
-            foreach (DayTimeLine EachDay in AllDayTimeLine)
+            } else
             {
+                home = Location.getDefaultLocation();
+            }
+            for ( int i= 0; i< AllDayTimeLine.Count; i++)
+            {
+                DayTimeLine EachDay = AllDayTimeLine[i];
                 HashSet<string> ids = new HashSet<string>(EachDay.getSubEventsInTimeLine().Select(subEvent => subEvent.getId));
-                OptimizedPath dayPath = new OptimizedPath(EachDay, home);
+                Location beginLocation, endLocation = home;
+
+                if (i==0 && location !=null)// its he first day and the location provided is not null
+                {
+                    beginLocation = location;
+                }
+                else {
+                    beginLocation = home;
+                }
+
+                OptimizedPath dayPath = new OptimizedPath(EachDay, beginLocation, endLocation, home);
                 dayToOPtimization.AddOrUpdate(EachDay, dayPath, ((key, oldValue) => { return dayPath; }));
                 dayPath.OptimizePath();
                 optimizeDay(EachDay, dayPath.getSubevents());
@@ -2365,7 +2380,6 @@ namespace TilerCore
                 
 
             }
-            //);
             return dayToOPtimization;
         }
 
@@ -2450,7 +2464,7 @@ namespace TilerCore
         //    }
         //}
 
-        ulong ParallelizeCallsToDay(List<CalendarEvent> AllCalEvents,List<SubCalendarEvent> TotalActiveEvents, DayTimeLine[] AllDayTImeLine ,bool Optimize=true, bool preserveFirttwentyFourHours=true)
+        ulong ParallelizeCallsToDay(List<CalendarEvent> AllCalEvents,List<SubCalendarEvent> TotalActiveEvents, DayTimeLine[] AllDayTImeLine , Location callLocation, bool Optimize=true, bool preserveFirttwentyFourHours=true)
         {
             int TotalDays = (int)AllDayTImeLine.Length;
             Now.getAllDaysForCalc();
@@ -2629,7 +2643,7 @@ namespace TilerCore
                         AllDayTImeLine[currentIndex].AddToSubEventList(DayToSubEvent[eachGrouping.Key]);
                     }
                     
-                    dayToOptimization = SortForSleep(OptimizedDays);
+                    dayToOptimization = SortForSleep(OptimizedDays, callLocation);
                     
                 }
                 catch(Exception E)
@@ -8671,7 +8685,7 @@ namespace TilerCore
                 CalendarEvent ScheduleUpdated = ProcrastinateEvent.getProcrastinationCopy(procrastinateData); // new CalendarEvent(ProcrastinateEvent.Name, StartTimeOfProcrastinate.ToString("hh:mm tt"), StartTimeOfProcrastinate, ProcrastinateEvent.End.ToString("hh:mm tt"), ProcrastinateEvent.End, AllValidSubCalEvents.Count.ToString(), ProcrastinateEvent.PreDeadline.ToString(), TotalActiveDuration.ToString(), new Repetition(), true, ProcrastinateEvent.Rigid, ProcrastinateEvent.Preparation.ToString(), true, ProcrastinateEvent.myLocation, true, new EventDisplay(), new MiscData(), false);
                 ProcrastinateEvent.DisableSubEvents(AllValidSubCalEvents);
                 HashSet<SubCalendarEvent> NotDoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
-                ScheduleUpdated = EvaluateTotalTimeLineAndAssignValidTimeSpots(ScheduleUpdated, NotDoneYet);
+                ScheduleUpdated = EvaluateTotalTimeLineAndAssignValidTimeSpots(ScheduleUpdated, NotDoneYet, null);
 
                 SubCalendarEvent[] UpdatedSubCalevents = ScheduleUpdated.ActiveSubEvents;
 

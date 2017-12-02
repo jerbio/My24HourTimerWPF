@@ -260,6 +260,25 @@ namespace TilerElements
             return d;
         }
 
+        /// <summary>
+        /// calculates distance. Result is in KM
+        /// </summary>
+        /// <param name="Worst"></param>
+        /// <param name="Locations"></param>
+        /// <returns></returns>
+        static public double sumDistance(double Worst = double.MaxValue, params Location [] Locations)
+        {
+            double retValue = 0;
+            for (int i=0, j= 1; j < Locations.Length; i++,j++)
+            {
+                Location Location24A = Locations[i];
+                Location Location24B = Locations[j];
+                retValue += calculateDistance(Location24A, Location24B, Worst);
+            }
+            return retValue;
+        }
+
+
         static double toRad(double value)
         {
             return value * Math.PI / 180;

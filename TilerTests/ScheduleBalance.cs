@@ -205,14 +205,14 @@ namespace TilerTests
         /// Test events should always start or end from home or at least the location closest to the 'current location' passed to the current location when shuffle is clicked
         /// </summary>
         [TestMethod]
-        public void testHomeAsSourceOfAction()
+        public void testInitialRandomEventShouldConsiderLocationAsSourceOfAction()
         {
             Dictionary<String,Location> locationsDict = TestUtility.getLocations().ToDictionary(obj => obj.Description, obj => obj);
             List<Location> locations = locationsDict.Values.ToList();
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Parse("12:00AM");
-            DateTimeOffset start = DateTimeOffset.Parse("2:00AM");
+            DateTimeOffset refNow = DateTimeOffset.Parse("12:00AM 12/2/2017");
+            DateTimeOffset start = DateTimeOffset.Parse("2:00AM 12/2/2017");
             TimeSpan duration = TimeSpan.FromHours(4);
             DateTimeOffset end = start.Add(duration);
             CalendarEvent hugeRigid = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, true, locations[0]);
@@ -236,7 +236,7 @@ namespace TilerTests
             schedule.FindMeSomethingToDo(work).Wait();
             schedule.WriteFullScheduleToLogAndOutlook().Wait();
             List<SubCalendarEvent> subevents = schedule.getAllCalendarEvents().SelectMany(subevent => subevent.AllSubEvents).OrderBy(subevent => subevent.Start).ToList();
-            Assert.AreEqual(subevents.First().Location.Description, work.Description);/// This is known to fail
+            Assert.AreEqual(subevents.First().Location.Description, work.Description);
 
         }
 
@@ -250,8 +250,8 @@ namespace TilerTests
             List<Location> locations = locationsDict.Values.ToList();
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Parse("12:00AM");
-            DateTimeOffset start = DateTimeOffset.Parse("2:00AM");
+            DateTimeOffset refNow = DateTimeOffset.Parse("12:00AM 12/2/2017");
+            DateTimeOffset start = DateTimeOffset.Parse("2:00AM 12/2/2017");
             TimeSpan duration = TimeSpan.FromHours(4);
             DateTimeOffset end = start.Add(duration);
             CalendarEvent hugeRigid = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, true, locations[0]);
@@ -259,19 +259,19 @@ namespace TilerTests
 
             CalendarEvent shaker0 = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), refNow, refNow.AddDays(1), 2, false, locationsDict["Shaker Library"]);
             schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5), EventID.LatestID);
-            schedule.AddToScheduleAndCommit(shaker0).Wait();
+            schedule.AddToScheduleAndCommit(shaker0, true).Wait();
             CalendarEvent gym1 = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), refNow, refNow.AddDays(1), 1, false, locationsDict["Gym"]);
             schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5), EventID.LatestID);
-            schedule.AddToScheduleAndCommit(gym1).Wait();
+            schedule.AddToScheduleAndCommit(gym1, true).Wait();
             CalendarEvent home0 = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), refNow, refNow.AddDays(1), 1, false, locationsDict["Home"]);
             schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5), EventID.LatestID);
-            schedule.AddToScheduleAndCommit(home0).Wait();
+            schedule.AddToScheduleAndCommit(home0, true).Wait();
             CalendarEvent home1 = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), refNow, refNow.AddDays(1), 1, false, locationsDict["Home"]);
             schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5), EventID.LatestID);
-            schedule.AddToScheduleAndCommit(home1).Wait();
+            schedule.AddToScheduleAndCommit(home1, true).Wait();
             CalendarEvent work0 = TestUtility.generateCalendarEvent(TimeSpan.FromHours(2), new Repetition(), refNow, refNow.AddDays(1), 1, false, locationsDict["Work"]);
             schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5), EventID.LatestID);
-            schedule.AddToScheduleAndCommit(work0).Wait();
+            schedule.AddToScheduleAndCommit(work0, true).Wait();
             Location Home = locationsDict["Home"];
 
             schedule.WriteFullScheduleToLogAndOutlook().Wait();
@@ -281,7 +281,7 @@ namespace TilerTests
             {
                 isAtEdge = true;
             }
-            Assert.IsTrue(isAtEdge);/// This is known to fail
+            Assert.IsTrue(isAtEdge);
 
         }
 

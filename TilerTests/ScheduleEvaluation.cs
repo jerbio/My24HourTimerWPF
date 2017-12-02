@@ -35,11 +35,11 @@ namespace TilerTests
         {
             TimeSpan jitterSpan = TimeSpan.FromMinutes(10);
             TimeSpan durationOfEvents = TimeSpan.FromMinutes(60);
-            DateTimeOffset Start = DateTimeOffset.UtcNow;
+            DateTimeOffset refNow = DateTimeOffset.Parse("06/02/2017 12:15am");
+            DateTimeOffset Start = refNow.AddHours(1);
             DateTimeOffset newStart = Start;
             UserAccount user = TestUtility.getTestUser();
             user.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.UtcNow.Date;
             Schedule mySchedule = new TestSchedule(user, refNow);
             int count = 5;
 
@@ -146,8 +146,8 @@ namespace TilerTests
 
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            
+            DateTimeOffset refNow = DateTimeOffset.Parse("06/02/2017 12:15am");
+
             TimeSpan duration = TimeSpan.FromDays(1);
             TimeLine eachTimeLine = new TimeLine(refNow, refNow.Add(duration));
             HashSet<EventID> hashEventIDs = new HashSet<EventID>();

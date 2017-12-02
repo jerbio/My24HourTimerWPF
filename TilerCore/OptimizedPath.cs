@@ -18,7 +18,7 @@ namespace TilerCore
         /// This holds the subevents that cannot fit anywhere within this and also have no partial timefram that works
         /// </summary>
         HashSet<SubCalendarEvent> NotInvolvedIncalculation = new HashSet<SubCalendarEvent>();
-        public OptimizedPath(DayTimeLine dayData, Location home = null)
+        public OptimizedPath(DayTimeLine dayData, Location beginLocation = null, Location endLocation = null, Location home = null)
         {
             initializeSubEvents(dayData);
 
@@ -30,10 +30,37 @@ namespace TilerCore
             }
 
             Dictionary<TimeOfDayPreferrence.DaySection, TimeLine> timeSections = TimeOfDayPreferrence.splitIntoDaySections(dayData);
-            List<TimeOfDayPreferrence.SingleTimeOfDayPreference> singleTimeOfDayPreferences = timeSections.Select(kvp => new TimeOfDayPreferrence.SingleTimeOfDayPreference(kvp.Key, new TimelineWithSubcalendarEvents(kvp.Value.Start, kvp.Value.End, null))).ToList();
-            TimeOfDayPreferrence.SingleTimeOfDayPreference sleepPreference = singleTimeOfDayPreferences.Single(obj => obj.DaySection == TimeOfDayPreferrence.DaySection.Sleep);
-            AllGroupings = singleTimeOfDayPreferences.Where(obj => obj != sleepPreference).ToDictionary(obj => obj.DaySection, obj => new OptimizedGrouping(obj, TotalDuration, DefaultLocation.CreateCopy()));
-            AllGroupings.Add(sleepPreference.DaySection, new OptimizedGrouping(sleepPreference, TotalDuration, home));
+            List<TimeOfDayPreferrence.SingleTimeOfDayPreference> singleTimeOfDayPreferences = timeSections.Select(kvp => new TimeOfDayPreferrence.SingleTimeOfDayPreference(kvp.Key, new TimelineWithSubcalendarEvents(kvp.Value.Start, kvp.Value.End, null))).OrderBy(obj => obj.Timeline.Start).ToList();
+            //TimeOfDayPreferrence.SingleTimeOfDayPreference sleepPreference = singleTimeOfDayPreferences.Single(obj => obj.DaySection == TimeOfDayPreferrence.DaySection.Sleep);
+            TimeOfDayPreferrence.SingleTimeOfDayPreference nonePreference = singleTimeOfDayPreferences.Single(obj => obj.DaySection == TimeOfDayPreferrence.DaySection.None);
+            List<TimeOfDayPreferrence.SingleTimeOfDayPreference> noNone = singleTimeOfDayPreferences.Where(obj => obj != nonePreference).ToList();
+
+            AllGroupings.Add(nonePreference.DaySection, new OptimizedGrouping(nonePreference, TotalDuration, home));
+
+            if (noNone.Count > 0)
+            {
+                TimeOfDayPreferrence.SingleTimeOfDayPreference firstTimeOfDayPreference = noNone.First();
+                OptimizedGrouping firstGrouping = new OptimizedGrouping(firstTimeOfDayPreference, TotalDuration, DefaultLocation.CreateCopy());
+                firstGrouping.setLeftStitch(beginLocation);
+                AllGroupings.Add(firstTimeOfDayPreference.DaySection, firstGrouping);
+                noNone.Remove(firstTimeOfDayPreference);
+            }
+
+            if(noNone.Count > 0)
+            {
+                TimeOfDayPreferrence.SingleTimeOfDayPreference lastTimeOfDayPreference = noNone.Last();
+                OptimizedGrouping lastGrouping = new OptimizedGrouping(lastTimeOfDayPreference, TotalDuration, DefaultLocation.CreateCopy());
+                lastGrouping.setRightStitch(endLocation);
+                AllGroupings.Add(lastTimeOfDayPreference.DaySection, lastGrouping);
+                noNone.Remove(lastTimeOfDayPreference);
+            }
+
+
+
+            foreach (TimeOfDayPreferrence.SingleTimeOfDayPreference singleTimeOfDayPreference in noNone)
+            {
+                AllGroupings.Add(singleTimeOfDayPreference.DaySection, new OptimizedGrouping(singleTimeOfDayPreference, TotalDuration, DefaultLocation.CreateCopy()));
+            }
             assignRigidsToTimeGroupings(DayInfo.getSubEventsInTimeLine(), DayInfo);
         }
 
@@ -492,12 +519,7 @@ namespace TilerCore
                 List<String> locations = subEvents.Select(obj => "" + obj.Location.XCoordinate + "," + obj.Location.YCoordinate).ToList();
                 Subevents = subEvents.Take(5).ToList();
                 //Subevents= Utility.getBestPermutation(Subevents.ToList(), double.MaxValue, new Tuple<Location_Elements, Location_Elements>(Grouping.LeftBorder, Grouping.RightBorder)).ToList();
-                Tuple<Location, Location> borderElements = null;
-                //if (!Grouping.LeftBorder.isNull && !Grouping.RightBorder.isNull)
-                //{
-                //    borderElements = new Tuple<Location_Elements, Location_Elements>(Grouping.LeftBorder, Grouping.RightBorder);
-                //}
-
+                Tuple<Location, Location> borderElements = new Tuple<Location, Location>(Grouping.LeftBorder, Grouping.RightBorder);
                 Subevents = Utility.getBestPermutation(Subevents.ToList(), borderElements, 0).ToList();
                 Dictionary<SubCalendarEvent, int> subEventTOIndex = new Dictionary<SubCalendarEvent, int>();
 

@@ -278,23 +278,36 @@ namespace TilerElements
         {
             Dictionary<TimelineWithSubcalendarEvents, OptimizedGrouping> TimelinesDict = groupings.ToDictionary(grouping => grouping.GroupAverage.TimeLine, grouping => grouping);
             Dictionary<TimeOfDayPreferrence.DaySection, OptimizedGrouping> TimeOfDayToGroup = groupings.ToDictionary(grouping => grouping.DaySector, grouping => grouping);
+            Dictionary<TimelineWithSubcalendarEvents, OptimizedGrouping> timelineToGroups = groupings.ToDictionary(grouping => grouping.GroupAverage.TimeLine, grouping => grouping);
             List<TimelineWithSubcalendarEvents> Timelines = orderBasedOnProductivity(TimeOfDayToGroup);
-            List<double> foundIndexes = EvaluateTimeLines(Timelines);//
+            List<Tuple<Location, Location>> borderLocations = Timelines.Select(timeLine => 
+                { var optimizedGrouping = timelineToGroups[timeLine];
+                    return new Tuple<Location, Location>(optimizedGrouping.LeftBorder, optimizedGrouping.RightBorder);
+                }).ToList();
+            List<double> foundIndexes = EvaluateTimeLines(Timelines, borderLocations);
             List<Tuple<double, OptimizedGrouping>> indexToGrouping = foundIndexes.Select((score, index) => { return new Tuple<double, OptimizedGrouping>(score, TimelinesDict[Timelines[index]]);}).OrderBy(tuple => tuple.Item1).ToList();
             int bestIndex = foundIndexes.MinIndex();
             List<OptimizedGrouping> retValue = indexToGrouping.Select(tuple => tuple.Item2).ToList();
             return retValue;
         }
 
-        public virtual List<double> EvaluateTimeLines (List<TimelineWithSubcalendarEvents> timeLines)
+        public virtual List<double> EvaluateTimeLines (List<TimelineWithSubcalendarEvents> timeLines, List<Tuple<Location, Location>> borderLocations = null)
         {
+            double worstDistanceInKM = 7;
             List<IList<double>> multiDimensionalClaculation = new List<IList<double>>();
-            foreach (TimelineWithSubcalendarEvents timeline in timeLines)
+            for (int i =0; i< timeLines.Count; i++)
             {
-                double distance = Location.calculateDistance(timeline.averageLocation, this.Location);
+                TimelineWithSubcalendarEvents timeline = timeLines[i];
+                double distance = Location.calculateDistance(timeline.averageLocation, this.Location, worstDistanceInKM);
                 double tickRatio = (double)this.getActiveDuration.Ticks / timeline.TotalFreeSpotAvailable.Ticks;
                 double occupancy = (double)timeline.Occupancy;
                 IList<double> dimensionsPerDay = new List<double>() { distance, tickRatio, occupancy };
+                if(borderLocations != null && borderLocations.Count == timeLines.Count)
+                {
+                    Tuple<Location, Location> borderLocation = borderLocations[i];
+                    double borderLocationsDistance = Location.sumDistance(worstDistanceInKM, borderLocation.Item1, this.Location, borderLocation.Item2);
+                    dimensionsPerDay.Add(borderLocationsDistance);
+                }
                 multiDimensionalClaculation.Add(dimensionsPerDay);
             }
             List<double> foundIndexes = Utility.multiDimensionCalculationNormalize(multiDimensionalClaculation);

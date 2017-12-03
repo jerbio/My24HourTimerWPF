@@ -52,6 +52,7 @@ namespace TilerElements
             for (int i = 0; i < Splits; i++)
             {
                 SubCalendarEvent newSubCalEvent = new SubCalendarEvent(getCreator, _Users, _TimeZone, _AverageTimePerSplit, this.getName, (EndDateTime - _AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), RigidSchedule, this.Enabled, this.UiParams, this.Notes, this.Complete, this.LocationInfo, this.RangeTimeLine);
+                newSubCalEvent.TimeCreated = this.TimeCreated;
                 SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
             }
         }

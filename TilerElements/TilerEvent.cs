@@ -44,6 +44,7 @@ namespace TilerElements
         protected TilerUserGroup _Users;
         protected string _TimeZone = "UTC";
         protected bool isProcrastinateEvent = false;
+        public DateTimeOffset TimeCreated { get; set; } = new DateTimeOffset(1970, 1, 1, 0, 0, 0, new TimeSpan());
         internal TempTilerEventChanges TempChanges = new TempTilerEventChanges();
 
         #region IwhyImplementation

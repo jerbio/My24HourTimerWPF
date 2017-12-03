@@ -32,6 +32,7 @@ namespace TilerElements
             {
                 TimeLine procrastinationTimeLine = new TimeLine(StartDateTime, EndDateTime);
                 SubCalendarEvent newSubCalEvent = new ProcrastinateAllSubCalendarEvent(getCreator, _Users, _TimeZone, procrastinationTimeLine, this.UniqueID, this.LocationInfo, this);
+                newSubCalEvent.TimeCreated = this.TimeCreated;
                 SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
             }
         }

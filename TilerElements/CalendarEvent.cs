@@ -51,6 +51,7 @@ namespace TilerElements
             EventSequence = new TimeLine();
             ProfileOfProcrastination = new Procrastination(new DateTimeOffset(), new TimeSpan());
             ProfileOfNow = new NowProfile();
+            this.TimeCreated = DateTimeOffset.UtcNow;
         }
 
         public CalendarEvent(CustomErrors Error) : this()
@@ -96,6 +97,7 @@ namespace TilerElements
             this._Name = name;
             this.UserDeleted = userDeleted;
             this._TimeZone = timeZoneOrigin;
+            this.TimeCreated = DateTimeOffset.UtcNow;
         }
 
         public CalendarEvent(
@@ -141,6 +143,7 @@ namespace TilerElements
             for (int i = 0; i < Splits; i++)
             {
                 SubCalendarEvent newSubCalEvent = new SubCalendarEvent(getCreator, _Users, _TimeZone, _AverageTimePerSplit, this.getName, (EndDateTime - _AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), RigidSchedule, this.Enabled, this.UiParams, this.Notes, this.Complete, this.LocationInfo, this.RangeTimeLine);
+                newSubCalEvent.TimeCreated = this.TimeCreated;
                 SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
             }
         }

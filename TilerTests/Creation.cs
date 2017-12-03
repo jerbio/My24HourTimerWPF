@@ -30,11 +30,14 @@ namespace TilerTests
             List<TimeLine> timeLines = TestUtility.getTimeFrames(refNow , duration);
             foreach(TimeLine eachTimeLine in timeLines)
             {
+                DateTimeOffset TimeCreation = DateTimeOffset.UtcNow;
                 CalendarEvent testEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1),  new Repetition(), eachTimeLine.Start, eachTimeLine.End, 1, false);
+                testEvent.TimeCreated = TimeCreation;
                 Schedule.AddToScheduleAndCommit(testEvent).Wait();
                 Schedule = new TestSchedule(currentUser, refNow);
                 CalendarEvent newlyaddedevent = Schedule.getCalendarEvent(testEvent.Calendar_EventID);
                 Assert.AreEqual(testEvent.getId, newlyaddedevent.getId);
+                Assert.AreEqual(testEvent.TimeCreated, TimeCreation);
             }
         }
 
@@ -48,10 +51,13 @@ namespace TilerTests
             TimeSpan duration = TimeSpan.FromHours(1);
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(duration);
+            DateTimeOffset TimeCreation = DateTimeOffset.UtcNow;
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, true);
+            testEvent.TimeCreated = TimeCreation;
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
             CalendarEvent newlyaddedevent = Schedule.getCalendarEvent(testEvent.Calendar_EventID);
             Assert.AreEqual(testEvent.getId, newlyaddedevent.getId);
+            Assert.AreEqual(testEvent.TimeCreated, TimeCreation);
         }
 
         [TestMethod]

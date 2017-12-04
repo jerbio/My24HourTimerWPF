@@ -207,7 +207,7 @@ namespace TilerTests
             else
             {
                 EventName name = new EventName("TestCalendarEvent-" + Guid.NewGuid().ToString() + "-Restricted");
-                RetValue = new CalendarEventRestricted(name, Start, End, restrictionProfile, duration, repetition, false, true, splitCount, false, location, new TimeSpan(), new TimeSpan(), null, UiSettings: new EventDisplay(), NoteData: new MiscData());
+                RetValue = new CalendarEventRestricted(testUser, new TilerUserGroup(), name, Start, End, restrictionProfile, duration, repetition, false, true, splitCount, false, location, new TimeSpan(), new TimeSpan(), null, UiSettings: new EventDisplay(), NoteData: new MiscData());
 
             }
 

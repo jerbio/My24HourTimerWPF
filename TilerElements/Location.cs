@@ -123,6 +123,7 @@ namespace TilerElements
         /// <returns></returns>
         public bool Validate()
         {
+            bool retValue = false;
             TaggedAddress = TaggedAddress.Trim();
             try
             {
@@ -146,6 +147,7 @@ namespace TilerElements
                     xValue = Convert.ToDouble(result.Geometry.Location.Latitude);
                     yValue = Convert.ToDouble(result.Geometry.Location.Longitude);
                     NullLocation = false;
+                    retValue = true;
                 }
                 else
                 {
@@ -157,7 +159,7 @@ namespace TilerElements
                 initializeWithNull();
             }
 
-            return NullLocation;
+            return retValue;
         }
 
         void initializeWithNull()
@@ -321,7 +323,15 @@ namespace TilerElements
             return JSON;
         }
 
-
+        public void update(Location location)
+        {
+            this.TaggedAddress = location.TaggedAddress;
+            this.TaggedDescription = location.TaggedDescription;
+            this.xValue = location.xValue;
+            this.yValue = location.yValue;
+            this.NullLocation = location.NullLocation;
+            this.DefaultFlag = location.DefaultFlag;
+        }
 
         public Location CreateCopy()
         {

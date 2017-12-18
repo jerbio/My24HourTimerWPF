@@ -1671,8 +1671,10 @@ namespace TilerCore
              * The function tries to select all elemnents that interfer with the time frame. It assumes IniTImeLine is wide enough. It does not try to recalulate. If an element cannot exist within the timeline it simply removed from the calculation to ensure some correctness
              * */
             DateTimeOffset NowTIme = Now.constNow;
-
-            HashSet<SubCalendarEvent> subEventsInSet = new HashSet<SubCalendarEvent>(getInterferringSubEvents(IniTImeLine, InitializingCalEvents).AsParallel().Where(obj => obj.getCalendarEventRange.End > NowTIme));
+            HashSet<SubCalendarEvent> subEventsInSet = new HashSet<SubCalendarEvent>(AllEventDictionary.Values.Concat(InitializingCalEvents).Where(calEvent => calEvent.isActive)
+                .SelectMany(calEvent => calEvent.ActiveSubEvents).AsParallel().
+                Where(subEvent => subEvent.getCalendarEventRange.End > NowTIme).
+                Where(subEvent => subEvent.canExistWithinTimeLine(CalculationTImeLine)));
             ConcurrentBag<SubCalendarEvent> subEvents = new ConcurrentBag<SubCalendarEvent>();
             subEventsInSet.AsParallel().ForAll((subEvent) =>
             {

@@ -47,5 +47,10 @@ namespace TilerElements
             }
             return retValue;
         }
+
+        public override string ToString()
+        {
+            return this._Name + "||" + this._Id;
+        }
     }
 }

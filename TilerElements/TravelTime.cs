@@ -5,10 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GoogleMapsApi.Entities.Directions.Request;
+using Newtonsoft.Json.Linq;
 
 namespace TilerElements
 {
-    public class TravelTime
+    public class TravelTime:IJson
     {
         List<SubCalendarEvent> OrderedSubEvents;
         Dictionary<EventID, SubCalendarEvent> EventIdToSubEvent;
@@ -92,6 +93,14 @@ namespace TilerElements
         public Dictionary<string, TimeSpan> result()
         {
             Dictionary<string, TimeSpan> retValue = TransitingIdsToSuccess.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            return retValue;
+        }
+
+        public JObject ToJson()
+        {
+            JObject retValue = new JObject();
+            retValue.Add("travelMode", TravelMode.ToString());
+            retValue.Add("eventSequence", EventSequence.ToJson());
             return retValue;
         }
     }

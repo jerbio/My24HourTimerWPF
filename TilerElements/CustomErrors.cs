@@ -7,7 +7,9 @@ namespace TilerElements
 {
     public class CustomErrors: Exception
     {
+        public enum Errors { cannotFitWithinTimeline = 40000001 };
         string ErrorMessage;
+        TilerEvent TilerEvent;
         int ErrorCode;
         /* Error Code 0: No Error
          * Error Code 5: Set Sub event as Now was selected however, The sub event will exceed the bounds of the CalendarEvent
@@ -17,10 +19,11 @@ namespace TilerElements
          * 40000000<=Code => Schedule Maniputlation Error issue
          */
 
-        public CustomErrors(string MessagEntry, int ErrorCode = 0)
+        public CustomErrors(string MessagEntry, int ErrorCode = 0, TilerEvent tilerEvent = null)
         {
             ErrorMessage = MessagEntry;
             this.ErrorCode = ErrorCode;
+            this.TilerEvent = tilerEvent;
         }
 
         public string Message

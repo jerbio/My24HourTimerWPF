@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Collections.Concurrent;
+using Newtonsoft.Json.Linq;
 
 namespace TilerElements
 {
-    public class TimeLine : IDefinedRange
+    public class TimeLine : IDefinedRange, IJson
     {
         protected DateTimeOffset EndTime;
         protected DateTimeOffset StartTime;
@@ -541,6 +542,13 @@ namespace TilerElements
             }
         }
 
+        public JObject ToJson()
+        {
+            JObject retValue = new JObject();
+            retValue.Add("start", (Start-ReferenceNow.StartOfTime).Milliseconds);
+            retValue.Add("end", (End - ReferenceNow.StartOfTime).Milliseconds);
+            return retValue;
+        }
 
         public TimeLine RangeTimeLine
         {

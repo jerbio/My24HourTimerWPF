@@ -166,7 +166,6 @@ namespace TilerCore
             CalendarEvent calEvent = getCalendarEvent(eventId);
             DayTimeLine timeLine = Now.getDayTimeLineByTime(newDay);
             TempTilerEventChanges tilerChanges = calEvent.prepForWhatIfDifferentDay(timeLine, eventId);
-            //subevent.updateCalculationEventRange(timeLine);
             if(CurrentLocation == null)
             {
                 CurrentLocation = Location.getDefaultLocation();
@@ -180,7 +179,74 @@ namespace TilerCore
             calEvent.ReverseWhatIf(tilerChanges);
             return scheduleHealth;
         }
-#endregion
+
+        /// <summary>
+        /// function assesses changes to a schedule. It tests if te start time is deferred to a different start time and then tries to see the effect of the schedule change.
+        /// </summary>
+        /// <param name="pushSpan"></param>
+        /// <param name="eventId"></param>
+        /// <param name="assessmentWindow"></param>
+        /// <returns></returns>
+        virtual public async Task<Tuple<HealthEvaluation, HealthEvaluation>> WhatIfPushed(TimeSpan pushSpan, EventID eventId, TimeLine assessmentWindow)
+        {
+            if(assessmentWindow == null)
+            {
+                assessmentWindow = new TimeLine(Now.ComputationRange.Start, Now.ComputationRange.Start.AddDays(7));
+            }
+            CalendarEvent calEvent = getCalendarEvent(eventId);
+            DateTimeOffset newStartTime= Now.constNow + pushSpan;
+            
+            Health beforeChange = new Health(getAllCalendarEvents(), Now.ComputationRange.Start, Now.ComputationRange.TimelineSpan, Now, this.getHomeLocation);
+            HealthEvaluation beforeEvaluation = new HealthEvaluation(beforeChange);
+            await beforeEvaluation.evaluate(assessmentWindow);
+            if (CurrentLocation == null)
+            {
+                CurrentLocation = Location.getDefaultLocation();
+            }
+            if (string.IsNullOrEmpty(CurrentTimeZone))
+            {
+                CurrentTimeZone = "UTC";
+            }
+            this.ProcrastinateJustAnEvent(eventId.ToString(), pushSpan);
+            Health afterChange = new Health(getAllCalendarEvents(), Now.ComputationRange.Start, Now.ComputationRange.TimelineSpan, Now, this.getHomeLocation);
+            HealthEvaluation afterEvaluation = new HealthEvaluation(afterChange);
+            await afterEvaluation.evaluate(assessmentWindow);
+            var retValue = new Tuple<HealthEvaluation, HealthEvaluation>(beforeEvaluation, afterEvaluation);
+            return retValue;
+        }
+
+        /// <summary>
+        /// function assesses changes to a schedule. It tests if a time chunk is cleared out. It tries to see the effect of the schedule change.
+        /// </summary>
+        /// <param name="pushSpan"></param>
+        /// <param name="assessmentWindow"></param>
+        /// <returns></returns>
+        virtual public async Task<Tuple< HealthEvaluation, HealthEvaluation>> WhatIfPushedAll(TimeSpan pushSpan, TimeLine assessmentWindow)
+        {
+            if (assessmentWindow == null)
+            {
+                assessmentWindow = new TimeLine(Now.ComputationRange.Start, Now.ComputationRange.Start.AddDays(7));
+            }
+            DateTimeOffset newStartTime = Now.constNow + pushSpan;
+            if (CurrentLocation == null)
+            {
+                CurrentLocation = Location.getDefaultLocation();
+            }
+            if (string.IsNullOrEmpty(CurrentTimeZone))
+            {
+                CurrentTimeZone = "UTC";
+            }
+            Tuple < CustomErrors, Dictionary < string, CalendarEvent >>  procradstinateResult = this.ProcrastinateAll(pushSpan);
+            Health beforeChange = new Health(getAllCalendarEvents(), Now.ComputationRange.Start, Now.ComputationRange.TimelineSpan, Now, this.getHomeLocation);
+            HealthEvaluation beforeEvaluation = new HealthEvaluation(beforeChange);
+            await beforeEvaluation.evaluate(assessmentWindow);
+            Health afterChange = new Health(procradstinateResult.Item2.Values, Now.ComputationRange.Start, Now.ComputationRange.TimelineSpan, Now, this.getHomeLocation);
+            HealthEvaluation afterEvaluation = new HealthEvaluation(afterChange);
+            await afterEvaluation.evaluate(assessmentWindow);
+            var retValue = new Tuple<HealthEvaluation, HealthEvaluation>(beforeEvaluation, afterEvaluation);
+            return retValue;
+        }
+        #endregion
 
         public void updateDataSetWithThirdPartyData(Tuple<ThirdPartyControl.CalendarTool,IEnumerable<CalendarEvent>> ThirdPartyData)
         {

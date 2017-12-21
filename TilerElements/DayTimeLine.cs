@@ -51,6 +51,30 @@ namespace TilerElements
                 return UniversalDayIndex;
             }
         }
+
+        public TimeLineWithEdgeElements SleepTimeLine
+        {
+            get
+            {
+                TimeLineWithEdgeElements retValue = new TimeLineWithEdgeElements(this.Start, this.Start, "", "");
+                DateTimeOffset start = this.Start;
+                DateTimeOffset end = this.End;
+                string idToEnd = "";
+                BusyTimeLine timeLine = this.OrderedOcupiedSlots.FirstOrDefault();
+                if(timeLine!=null)
+                {
+                    end = timeLine.Start;
+                    idToEnd = timeLine.ID;
+                    if(end < start)
+                    {
+                        return retValue;
+                    }
+                }
+
+                retValue = new TimeLineWithEdgeElements(start, end, "", idToEnd);
+                return retValue;
+            }
+        }
         #endregion
 
     }

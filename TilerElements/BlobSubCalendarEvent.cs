@@ -7,7 +7,7 @@ namespace TilerElements
 {
     public class BlobSubCalendarEvent:SubCalendarEvent
     {
-        SubCalendarEvent[] EventClumps;
+        HashSet<SubCalendarEvent> EventClumps;
 
         public BlobSubCalendarEvent(IEnumerable<SubCalendarEvent> InterFerringEvents)
         {
@@ -21,14 +21,14 @@ namespace TilerElements
             double halfDouble=Double.MaxValue/2;
             LocationInfo = Location.AverageGPSLocation(InterFerringEvents.Where(Obj => Obj.Location.XCoordinate < halfDouble).Select(obj => obj.Location));
             EventScore = 0;
-            EventClumps = InterFerringEvents.ToArray();
+            EventClumps = new HashSet<SubCalendarEvent>(InterFerringEvents);
             EventDuration = TimeSpan.FromTicks( InterFerringEvents.Sum(obj => obj.getActiveDuration.Ticks));
             ConflictingEvents = new ConflictProfile();
             BlobEvent = true;
             _Name = new EventName();
         }
 
-        public IEnumerable<SubCalendarEvent> getSubCalendarEventsInBlob()
+        public HashSet<SubCalendarEvent> getSubCalendarEventsInBlob()
         {
             return EventClumps;
         }

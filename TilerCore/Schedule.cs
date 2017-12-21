@@ -187,18 +187,16 @@ namespace TilerCore
         /// <param name="eventId"></param>
         /// <param name="assessmentWindow"></param>
         /// <returns></returns>
-        virtual public async Task<Tuple<HealthEvaluation, HealthEvaluation>> WhatIfPushed(TimeSpan pushSpan, EventID eventId, TimeLine assessmentWindow)
+        virtual public async Task<Tuple<Health, Health>> WhatIfPushed(TimeSpan pushSpan, EventID eventId, TimeLine assessmentWindow)
         {
             if(assessmentWindow == null)
             {
-                assessmentWindow = new TimeLine(Now.ComputationRange.Start, Now.ComputationRange.Start.AddDays(7));
+                assessmentWindow = new TimeLine(Now.constNow, Now.constNow.AddDays(7));
             }
             CalendarEvent calEvent = getCalendarEvent(eventId);
             DateTimeOffset newStartTime= Now.constNow + pushSpan;
             
-            Health beforeChange = new Health(getAllCalendarEvents(), Now.ComputationRange.Start, Now.ComputationRange.TimelineSpan, Now, this.getHomeLocation);
-            HealthEvaluation beforeEvaluation = new HealthEvaluation(beforeChange);
-            await beforeEvaluation.evaluate(assessmentWindow);
+            Health beforeChange = new Health(getAllCalendarEvents().Where(obj => obj.isActive).Select(obj => obj.createCopy()), Now.constNow, assessmentWindow.TimelineSpan, Now, this.getHomeLocation);
             if (CurrentLocation == null)
             {
                 CurrentLocation = Location.getDefaultLocation();
@@ -207,11 +205,9 @@ namespace TilerCore
             {
                 CurrentTimeZone = "UTC";
             }
-            this.ProcrastinateJustAnEvent(eventId.ToString(), pushSpan);
-            Health afterChange = new Health(getAllCalendarEvents(), Now.ComputationRange.Start, Now.ComputationRange.TimelineSpan, Now, this.getHomeLocation);
-            HealthEvaluation afterEvaluation = new HealthEvaluation(afterChange);
-            await afterEvaluation.evaluate(assessmentWindow);
-            var retValue = new Tuple<HealthEvaluation, HealthEvaluation>(beforeEvaluation, afterEvaluation);
+            var procrastinateResult = this.ProcrastinateJustAnEvent(eventId.ToString(), pushSpan);
+            Health afterChange = new Health(procrastinateResult.Item2.Values.Where(obj => obj.isActive), Now.constNow, assessmentWindow.TimelineSpan, Now, this.getHomeLocation);
+            var retValue = new Tuple<Health, Health>(beforeChange, afterChange);
             return retValue;
         }
 
@@ -221,11 +217,11 @@ namespace TilerCore
         /// <param name="pushSpan"></param>
         /// <param name="assessmentWindow"></param>
         /// <returns></returns>
-        virtual public async Task<Tuple< HealthEvaluation, HealthEvaluation>> WhatIfPushedAll(TimeSpan pushSpan, TimeLine assessmentWindow)
+        virtual public async Task<Tuple<Health, Health>> WhatIfPushedAll(TimeSpan pushSpan, TimeLine assessmentWindow)
         {
             if (assessmentWindow == null)
             {
-                assessmentWindow = new TimeLine(Now.ComputationRange.Start, Now.ComputationRange.Start.AddDays(7));
+                assessmentWindow = new TimeLine(Now.constNow, Now.constNow.AddDays(7));
             }
             DateTimeOffset newStartTime = Now.constNow + pushSpan;
             if (CurrentLocation == null)
@@ -236,14 +232,10 @@ namespace TilerCore
             {
                 CurrentTimeZone = "UTC";
             }
+            Health beforeChange = new Health(getAllCalendarEvents().Where(obj=>obj.isActive).Select(obj => obj.createCopy()), Now.constNow, assessmentWindow.TimelineSpan, Now, this.getHomeLocation);
             Tuple < CustomErrors, Dictionary < string, CalendarEvent >>  procradstinateResult = this.ProcrastinateAll(pushSpan);
-            Health beforeChange = new Health(getAllCalendarEvents(), Now.ComputationRange.Start, Now.ComputationRange.TimelineSpan, Now, this.getHomeLocation);
-            HealthEvaluation beforeEvaluation = new HealthEvaluation(beforeChange);
-            await beforeEvaluation.evaluate(assessmentWindow);
-            Health afterChange = new Health(procradstinateResult.Item2.Values, Now.ComputationRange.Start, Now.ComputationRange.TimelineSpan, Now, this.getHomeLocation);
-            HealthEvaluation afterEvaluation = new HealthEvaluation(afterChange);
-            await afterEvaluation.evaluate(assessmentWindow);
-            var retValue = new Tuple<HealthEvaluation, HealthEvaluation>(beforeEvaluation, afterEvaluation);
+            Health afterChange = new Health(procradstinateResult.Item2.Values.Where(obj => obj.isActive), Now.constNow, assessmentWindow.TimelineSpan, Now, this.getHomeLocation);
+            var retValue = new Tuple<Health, Health>(beforeChange, afterChange);
             return retValue;
         }
         #endregion
@@ -953,7 +945,7 @@ namespace TilerCore
             HashSet<SubCalendarEvent> NotdoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
             /*Dictionary<string, CalendarEvent> AllEventDictionary_Cpy = new Dictionary<string, CalendarEvent>();
             AllEventDictionary_Cpy = AllEventDictionary.ToDictionary(obj => obj.Key, obj => obj.Value.createCopy());*/
-            NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, NotdoneYet,null,null, 2);
+            NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, NotdoneYet,null,null, 1);
             //AllEventDictionary.Remove(NewEvent.Id);
 
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(NewEvent.Error, AllEventDictionary);
@@ -1684,7 +1676,7 @@ namespace TilerCore
                         interferringWithNow = interFerringData.Item1;
                         if (currentNowTime != interFerringData.Item2)
                         {
-                            Now.UpdateNow(interFerringData.Item2);
+                            Now.UpdateNow(interFerringData.Item2, false);
                             SubEventsForCalculation = SubEventsForCalculation.Except(interferringWithNow).ToList();
                         }
                         CalculationTImeLine = new TimeLine(Now.calculationNow, CalculationTImeLine.End);
@@ -1694,7 +1686,7 @@ namespace TilerCore
                 case 2:
                     {
                         DateTimeOffset currentNowTime = initializingCalendarEvent.ActiveSubEvents.Max(obj => obj.End);
-                        Now.UpdateNow(currentNowTime);
+                        Now.UpdateNow(currentNowTime, false);
                         SubEventsForCalculation = SubEventsForCalculation.Except(initializingCalendarEvent.ActiveSubEvents).ToList();
                         CalculationTImeLine = new TimeLine(Now.calculationNow, CalculationTImeLine.End);
                     }
@@ -1740,7 +1732,7 @@ namespace TilerCore
             HashSet<SubCalendarEvent> subEventsInSet = new HashSet<SubCalendarEvent>(AllEventDictionary.Values.Concat(InitializingCalEvents).Where(calEvent => calEvent.isActive)
                 .SelectMany(calEvent => calEvent.ActiveSubEvents).AsParallel().
                 Where(subEvent => subEvent.getCalendarEventRange.End > NowTIme).
-                Where(subEvent => subEvent.canExistWithinTimeLine(CalculationTImeLine)));
+                Where(subEvent => subEvent.canExistWithinTimeLine(CalculationTImeLine) || subEvent.getIsProcrastinateCalendarEvent));
             ConcurrentBag<SubCalendarEvent> subEvents = new ConcurrentBag<SubCalendarEvent>();
             subEventsInSet.AsParallel().ForAll((subEvent) =>
             {
@@ -2046,7 +2038,7 @@ namespace TilerCore
                 }
 
             }
-            Now.UpdateNow(RangeForScheduleUpdate.Start);
+            //Now.UpdateNow(RangeForScheduleUpdate.Start);
 
 
             TimeSpan SumOfAllEventsTimeSpan = Utility.SumOfActiveDuration(ArrayOfInterferringSubEvents);
@@ -2722,8 +2714,6 @@ namespace TilerCore
             TimeLine computationRange = Now.ComputationRange;
             List<BlobSubCalendarEvent> afterPathOptimizationConflictingEvetns = Utility.getConflictingEvents(TotalActiveEvents.OrderBy(obj => obj.Start).ToList());
             List<SubCalendarEvent> ordereByStartTime = TotalActiveEvents.OrderBy(SubEvent => SubEvent.Start).ToList();
-            double distanceCovered = Location.calculateDistance(ordereByStartTime.Select(SubEvent => SubEvent.Location).ToList(),0);
-            Health scheduleHealth = new Health(TotalActiveEvents, Now.calculationNow, new TimeSpan(7,0,0,0), Now,this.getHomeLocation);
             return totalNumberOfEvents;
         }
 
@@ -3468,7 +3458,8 @@ namespace TilerCore
                     bufferSpan = new TimeSpan((long)(bufferPerMile.Ticks * distance));
                 }
 
-                
+                myCoEvents.Item1.TravelTimeAfter = bufferSpan;
+                myCoEvents.Item2.TravelTimeBefore = bufferSpan;
                 referencePinningTImeline = new TimeLine(myCoEvents.Item1.End.Add(bufferSpan), myCoEvents.Item2.End);
                 if (!myCoEvents.Item2.PinToStart(referencePinningTImeline))
                 {
@@ -8727,7 +8718,7 @@ namespace TilerCore
                 DateTimeOffset ReferenceStart = Now.calculationNow > ReferenceSubEvent.Start ? Now.calculationNow : ReferenceSubEvent.Start;
                 Procrastination procrastinateData = new Procrastination(ReferenceSubEvent.Start, RangeOfPush);
 
-                ReferenceStart = Now.UpdateNow(ReferenceStart);
+                //ReferenceStart = Now.UpdateNow(ReferenceStart);
                 DateTimeOffset StartTimeOfProcrastinate = ReferenceStart + RangeOfPush;
                 DateTimeOffset limitOfProcrastination = ReferenceSubEvent.getCalendarEventRange.End;
                 TimeSpan ActiveSubEventSpan = TimeSpan.FromTicks(ProcrastinateEvent.ActiveSubEvents.Select(subEvent => subEvent.getActiveDuration.Ticks).Sum());

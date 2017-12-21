@@ -122,26 +122,75 @@ namespace TilerTests
             Location shaker = location_dict["shaker library"];
             Location work = location_dict["work"];
 
-            CalendarEvent homeEventA = TestUtility.generateCalendarEvent(durationOfCalEvent, new Repetition(), startOfDay, endOfDay, 1, true, home);
-            CalendarEvent homeEventB = TestUtility.generateCalendarEvent(durationOfCalEvent, new Repetition(), startOfDay, endOfDay, 1, true, home);
-            CalendarEvent workEventA = TestUtility.generateCalendarEvent(durationOfCalEvent, new Repetition(), startOfDay, endOfDay, 1, true, work);
-            CalendarEvent gymEventA = TestUtility.generateCalendarEvent(durationOfCalEvent, new Repetition(), startOfDay, endOfDay, 1, true, gym);
-            CalendarEvent shakerEventA = TestUtility.generateCalendarEvent(durationOfCalEvent, new Repetition(), startOfDay, endOfDay, 1, true, shaker);
+            CalendarEvent homeEventA = TestUtility.generateCalendarEvent(durationOfCalEvent, new Repetition(), startOfDay, endOfDay, 1, false, home);
+            CalendarEvent homeEventB = TestUtility.generateCalendarEvent(durationOfCalEvent, new Repetition(), startOfDay, endOfDay, 1, false, home);
+            CalendarEvent workEventA = TestUtility.generateCalendarEvent(durationOfCalEvent, new Repetition(), startOfDay, endOfDay, 1, false, work);
+            CalendarEvent gymEventA = TestUtility.generateCalendarEvent(durationOfCalEvent, new Repetition(), startOfDay, endOfDay, 1, false, gym);
+            CalendarEvent shakerEventA = TestUtility.generateCalendarEvent(durationOfCalEvent, new Repetition(), startOfDay, endOfDay, 1, false, shaker);
             List<CalendarEvent> allCalendarEvents = new List<CalendarEvent>() { homeEventA, homeEventB, workEventA, gymEventA, shakerEventA};
             UserAccount currentUser = TestUtility.getTestUser();
             foreach (CalendarEvent calEvent in allCalendarEvents)
             {
                 DB_Schedule eachSchedule = new TestSchedule(currentUser, refNow, EventID.LatestID);
-                eachSchedule.AddToScheduleAndCommit(calEvent).Wait();
+                eachSchedule.AddToScheduleAndCommit(calEvent, true).Wait();
             }
 
             DB_Schedule findSomethingTodSchedule = new TestSchedule(currentUser, refNow, EventID.LatestID);
             findSomethingTodSchedule.FindMeSomethingToDo(home).Wait();
             DB_Schedule pushSchedule = new TestSchedule(currentUser, refNow, EventID.LatestID);
             workEventA = pushSchedule.getCalendarEvent(workEventA.getId);
-            var beforAfteranalysis = await pushSchedule.WhatIfPushed(TimeSpan.FromHours(20), new EventID(workEventA.ActiveSubEvents.First().getId), null);
-            Assert.IsTrue(beforAfteranalysis.Item1.PositioningScore < beforAfteranalysis.Item2.PositioningScore);
-            
+            SubCalendarEvent procrastinateSubevent = workEventA.ActiveSubEvents.First();
+            EventID subEventId = new EventID(procrastinateSubevent.getId);
+            DateTimeOffset limitOfProcrastination = procrastinateSubevent.getCalculationRange.End.AddHours(-2);
+            DateTimeOffset start = findSomethingTodSchedule.Now.constNow > procrastinateSubevent.Start ? findSomethingTodSchedule.Now.constNow : procrastinateSubevent.Start;
+            var Procrastinationpan = limitOfProcrastination - start;
+            var beforAfteranalysis = await pushSchedule.WhatIfPushed(Procrastinationpan, subEventId, null);
+            Assert.IsTrue(beforAfteranalysis.Item1.getScore() < beforAfteranalysis.Item2.getScore());
+        }
+
+        /// <summary>
+        /// Test creates a subeevents tries pushing a sub event and pushing the sub event should result in a worse optimized schedule and thus generate an assesss value with a lesser score.
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod]
+        public async Task WhatIfIPushedAllEvents()
+        {
+            List<Location> locations = TestUtility.getLocations();
+            Dictionary<string, Location> location_dict = locations.ToDictionary(location => location.Description.ToLower(), location => location);
+            Location desiredLocation = locations[1];
+            List<CalendarEvent> mondayEvents = new List<CalendarEvent>();
+            List<CalendarEvent> tuesdayEvents = new List<CalendarEvent>();
+            TimeSpan durationOfCalEvent = TimeSpan.FromHours(1);
+            DateTimeOffset refNow = DateTimeOffset.Parse("12/20/2017 3:00AM");
+            DateTimeOffset startOfDay = DateTimeOffset.Parse("12/20/2017 2:00AM");
+            DateTimeOffset endOfDay = startOfDay.AddDays(1);
+
+            Location home = location_dict["home"];
+            Location gym = location_dict["gym"];
+            Location shaker = location_dict["shaker library"];
+            Location work = location_dict["work"];
+
+            CalendarEvent homeEventA = TestUtility.generateCalendarEvent(durationOfCalEvent, new Repetition(), startOfDay, endOfDay, 1, false, home);
+            CalendarEvent homeEventB = TestUtility.generateCalendarEvent(durationOfCalEvent, new Repetition(), startOfDay, endOfDay, 1, false, home);
+            CalendarEvent workEventA = TestUtility.generateCalendarEvent(durationOfCalEvent, new Repetition(), startOfDay, endOfDay, 1, false, work);
+            CalendarEvent gymEventA = TestUtility.generateCalendarEvent(durationOfCalEvent, new Repetition(), startOfDay, endOfDay, 1, false, gym);
+            CalendarEvent shakerEventA = TestUtility.generateCalendarEvent(durationOfCalEvent, new Repetition(), startOfDay, endOfDay, 1, false, shaker);
+            List<CalendarEvent> allCalendarEvents = new List<CalendarEvent>() { homeEventA, homeEventB, workEventA, gymEventA, shakerEventA };
+            UserAccount currentUser = TestUtility.getTestUser();
+            foreach (CalendarEvent calEvent in allCalendarEvents)
+            {
+                DB_Schedule eachSchedule = new TestSchedule(currentUser, refNow, EventID.LatestID);
+                eachSchedule.AddToScheduleAndCommit(calEvent, true).Wait();
+            }
+
+            DB_Schedule findSomethingTodSchedule = new TestSchedule(currentUser, refNow, EventID.LatestID);
+            findSomethingTodSchedule.FindMeSomethingToDo(home).Wait();
+            DB_Schedule pushSchedule = new TestSchedule(currentUser, refNow, EventID.LatestID);
+            workEventA = pushSchedule.getCalendarEvent(workEventA.getId);
+            var Procrastinationpan = TimeSpan.FromHours(19);
+            var beforAfteranalysis = await pushSchedule.WhatIfPushedAll(Procrastinationpan, null);
+            Assert.IsTrue(beforAfteranalysis.Item1.evaluatePositioning() < beforAfteranalysis.Item2.evaluatePositioning());
+            Assert.IsTrue(beforAfteranalysis.Item1.getScore() < beforAfteranalysis.Item2.getScore());
         }
 
         /// <summary>

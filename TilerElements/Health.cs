@@ -56,7 +56,8 @@ namespace TilerElements
             double positioningScore = evaluatePositioning();
             double conflictScore = evaluateConflicts().Sum(blob => blob.getSubCalendarEventsInBlob().Count());
             double sleepScore = evaluateSleepTimeFrameScore();
-            double retValue = Utility.CalcuateResultant(totalDistance, positioningScore, conflictScore, sleepScore);
+            double eventPerDayScore = eventsPerDay();
+            double retValue = Utility.CalcuateResultant(totalDistance, positioningScore, conflictScore, sleepScore, eventPerDayScore);
             return retValue;
         }
 
@@ -68,12 +69,23 @@ namespace TilerElements
                 List<SubCalendarEvent> relevantSubCalendarEventList = _orderedByStartThenEndSubEvents.Where(obj => !obj.getIsProcrastinateCalendarEvent).ToList();
                 if(relevantSubCalendarEventList.Count > 0)
                 {
-                    int dayIndex = Now.getDayIndexComputationBound(relevantSubCalendarEventList[0].Start);
+                    relevantSubCalendarEventList.AsParallel().ForAll(subEvent =>
+                    {
+                        if (subEvent.Location.isNull)
+                        {
+                            subEvent.Location.Validate();
+                        }
+                    }
+                    );
+                    SubCalendarEvent firstSUbEvent = relevantSubCalendarEventList[0];
+                    DateTimeOffset refTIme = CalculationTimeline.IsDateTimeWithin(firstSUbEvent.Start) ? firstSUbEvent.Start : firstSUbEvent.End;
+                    int dayIndex = Now.getDayIndexComputationBound(refTIme);
                     SubCalendarEvent previousSubCalendarEvent = relevantSubCalendarEventList[0];
                     for (int index = 1; index < relevantSubCalendarEventList.Count; index++)
                     {
                         SubCalendarEvent currentSubEvent = relevantSubCalendarEventList[index];
-                        int currentDayIndex = Now.getDayIndexComputationBound(currentSubEvent.Start);
+                        refTIme = CalculationTimeline.IsDateTimeWithin(currentSubEvent.Start) ? currentSubEvent.Start : currentSubEvent.End;
+                        int currentDayIndex = Now.getDayIndexComputationBound(refTIme);
                         if (currentDayIndex != dayIndex)
                         {
                             retValue += Location.calculateDistance(previousSubCalendarEvent.Location, _HomeLocation);
@@ -190,12 +202,16 @@ namespace TilerElements
             double conflictScore = evaluateConflicts().Sum(blob => blob.getSubCalendarEventsInBlob().Count());
             double sleepScore = evaluateSleepTimeFrameScore();
             double score = Utility.CalcuateResultant(totalDistance, positioningScore, conflictScore, sleepScore);
+            double eventPerDayScore = eventsPerDay();
             JObject retValue = new JObject();
             retValue.Add("Distance", totalDistance);
             retValue.Add("Position", positioningScore);
             retValue.Add("Conflict", conflictScore);
             retValue.Add("Sleep", sleepScore);
+            retValue.Add("eventPerDayScore", eventPerDayScore);
             retValue.Add("scheduleScore", score);
+            
+
             return retValue;
         }
 
@@ -232,6 +248,29 @@ namespace TilerElements
                 TimeSpan retValue = TimeSpan.FromHours(averageSleepSpan * 24);
                 return retValue;
             }
+        }
+
+        public double eventsPerDay()
+        {
+            double retValue = 0;
+            double sum = 0;
+            List<SubCalendarEvent> allSubEvents = new List<SubCalendarEvent>();
+            Tuple<int, int> dayIndexBoundaries = Now.indexRange(CalculationTimeline);
+            ulong universlaIndex = Now.firstDay.UniversalIndex;
+            int i = dayIndexBoundaries.Item1;
+            for (; i <= dayIndexBoundaries.Item2; i++)
+            {
+                ulong universalIndex = universlaIndex + (ulong)i;
+                DayTimeLine dayTimeLine = Now.getDayTimeLineByDayIndex(universalIndex);
+                allSubEvents.AddRange(dayTimeLine.getSubEventsInTimeLine());
+                sum += dayTimeLine.getSubEventsInTimeLine().Count;
+            }
+            if (i > 0)
+            {
+                retValue = (double)sum / i;
+            }
+            
+            return retValue;
         }
 
         public List<TimeLine>  SleepTimeLines

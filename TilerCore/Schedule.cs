@@ -232,9 +232,21 @@ namespace TilerCore
             {
                 CurrentTimeZone = "UTC";
             }
-            Health beforeChange = new Health(getAllCalendarEvents().Where(obj=>obj.isActive).Select(obj => obj.createCopy()), Now.constNow, assessmentWindow.TimelineSpan, Now, this.getHomeLocation);
-            Tuple < CustomErrors, Dictionary < string, CalendarEvent >>  procradstinateResult = this.ProcrastinateAll(pushSpan);
-            Health afterChange = new Health(procradstinateResult.Item2.Values.Where(obj => obj.isActive), Now.constNow, assessmentWindow.TimelineSpan, Now, this.getHomeLocation);
+            var beforeNow = new ReferenceNow(Now.constNow, Now.StartOfDay);
+            var beforeCalevents = getAllCalendarEvents().Where(obj => obj.isActive).Select(obj => obj.createCopy());
+            List<SubCalendarEvent> subEVents = beforeCalevents.SelectMany(calEvent => calEvent.ActiveSubEvents).Where(subEvent => !subEvent.isDesignated).ToList();
+            var orderedDayTimeLines = beforeNow.getAllDaysLookup().OrderBy(obj => obj.Key).Select(obj => obj.Value);
+            DesignateRigidsTODays(orderedDayTimeLines.ToArray(), subEVents);
+            Health beforeChange = new Health(getAllCalendarEvents().Where(obj=>obj.isActive).Select(obj => obj.createCopy()), beforeNow.constNow, assessmentWindow.TimelineSpan, beforeNow, this.getHomeLocation);
+            Tuple <CustomErrors, Dictionary < string, CalendarEvent >>  procradstinateResult = this.ProcrastinateAll(pushSpan);
+
+            var afterSubEVents = procradstinateResult.Item2.Values.Where(obj => obj.isActive).SelectMany(calEvent => calEvent.ActiveSubEvents).Where(subEvent => { subEvent.resetAndgetUnUsableIndex(); return true; });//.Where(subEvent => !subEvent.isDesignated).ToList();
+            var afterNow = new ReferenceNow(Now.constNow, Now.StartOfDay);
+            var afterCalevents = procradstinateResult.Item2.Values.Where(obj => obj.isActive);
+            var afterorderedDayTimeLines = afterNow.getAllDaysLookup().OrderBy(obj => obj.Key).Select(obj => obj.Value);
+            DesignateRigidsTODays(afterorderedDayTimeLines.ToArray(), afterSubEVents);
+
+            Health afterChange = new Health(procradstinateResult.Item2.Values.Where(obj => obj.isActive), afterNow.constNow, assessmentWindow.TimelineSpan, afterNow, this.getHomeLocation);
             var retValue = new Tuple<Health, Health>(beforeChange, afterChange);
             return retValue;
         }

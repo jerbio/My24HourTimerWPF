@@ -15,7 +15,7 @@ namespace TilerElements
         protected TimeSpan ConstOfCalculation = new TimeSpan(numberOfDfDays, 0, 0, 0, 0);
         DateTimeOffset tempNow = new DateTimeOffset(DateTimeOffset.UtcNow.Year, DateTimeOffset.UtcNow.Month, DateTimeOffset.UtcNow.Day, 0, 0, 0, new TimeSpan());
         TimeLine ComputationBound;// = new TimeLine(new DateTimeOffset(DateTimeOffset.UtcNow.Year, DateTimeOffset.UtcNow.Month, DateTimeOffset.UtcNow.Day, 0, 0, 0, new TimeSpan()), new DateTimeOffset(DateTimeOffset.UtcNow.Year, DateTimeOffset.UtcNow.Month, DateTimeOffset.UtcNow.Day, 0, 0, 0, new TimeSpan()).AddDays(90));
-        DateTimeOffset StartOfDay;
+        DateTimeOffset startOfDay;
         DayTimeLine refFirstDay;
         protected DayTimeLine[] AllDays;
         Dictionary<ulong, DayTimeLine> DayLookUp;
@@ -28,17 +28,17 @@ namespace TilerElements
             Now = new DateTimeOffset(Now.Year, Now.Month, Now.Day, Now.Hour, Now.Minute, 0, new TimeSpan());
             CalculationNow = Now;
             ImmutableNow = CalculationNow;
-            this.StartOfDay = StartOfDay;
+            this.startOfDay = StartOfDay;
             InitializeParameters();
             
         }
 
         protected virtual void InitializeParameters()
         {
-            DateTimeOffset IndifferentStartOfDay = new DateTimeOffset(CalculationNow.Year, CalculationNow.Month, CalculationNow.Day, StartOfDay.Hour, StartOfDay.Minute, 0, new TimeSpan());
+            DateTimeOffset IndifferentStartOfDay = new DateTimeOffset(CalculationNow.Year, CalculationNow.Month, CalculationNow.Day, startOfDay.Hour, startOfDay.Minute, 0, new TimeSpan());
             DateTimeOffset refDayStart = CalculationNow;// < IndifferentStartOfDay ? CalculationNow : IndifferentStartOfDay;
             DateTimeOffset refDayEnd = CalculationNow < IndifferentStartOfDay ?refDayStart :refDayStart .AddDays(1);
-            refDayEnd = new DateTimeOffset(refDayEnd.Year, refDayEnd.Month, refDayEnd.Day, StartOfDay.Hour, StartOfDay.Minute, 0, new TimeSpan());
+            refDayEnd = new DateTimeOffset(refDayEnd.Year, refDayEnd.Month, refDayEnd.Day, startOfDay.Hour, startOfDay.Minute, 0, new TimeSpan());
             refFirstDay = new DayTimeLine(refDayStart, refDayEnd, (ulong)(refDayStart - StartOfTime).TotalDays,0);
 
             new DateTimeOffset(1970, 1, 1, 0, 0, 0, new TimeSpan()); 
@@ -231,6 +231,14 @@ namespace TilerElements
             get
             {
                 return DayCount;
+            }
+        }
+
+        public DateTimeOffset StartOfDay
+        {
+            get
+            {
+                return this.startOfDay;
             }
         }
 

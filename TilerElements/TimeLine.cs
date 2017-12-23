@@ -474,30 +474,6 @@ namespace TilerElements
                 {
                     BusyTimeLine MyBustTimeLine = ActiveTimeSlots[i];
                     InterferringBusyTimeLines = new System.Collections.Generic.List<BusyTimeLine>();
-
-                    //if ((MyBustTimeLine.Start == ActiveTimeSlots[i + 1].Start))
-                    //{
-                    //    if (MyBustTimeLine.End < ActiveTimeSlots[i + 1].End)
-                    //    {
-                    //        ActiveTimeSlots[i] = ActiveTimeSlots[i + 1];
-                    //        ActiveTimeSlots[i + 1] = MyBustTimeLine;
-                    //        MyBustTimeLine = ActiveTimeSlots[i];
-                    //        InterferringBusyTimeLines.Add(ActiveTimeSlots[i + 1]);
-                    //        i = 0;//this can be optimized
-                    //        DictionaryOfClashingTimelines = new System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<BusyTimeLine>>();
-
-                    //        flip = true;
-                    //    }
-                    //    else
-                    //    {
-                    //        if (MyBustTimeLine.End == ActiveTimeSlots[i + 1].End)
-                    //        {
-                    //            InterferringBusyTimeLines.Add(ActiveTimeSlots[i + 1]);
-                    //        }
-                    //    }
-                    //}
-
-
                     int j = i + 1;
                     for (j = i + 1; j < ActiveTimeSlots.Length; j++)
                     {
@@ -545,8 +521,9 @@ namespace TilerElements
         public JObject ToJson()
         {
             JObject retValue = new JObject();
-            retValue.Add("start", (Start-ReferenceNow.StartOfTime).Milliseconds);
-            retValue.Add("end", (End - ReferenceNow.StartOfTime).Milliseconds);
+            retValue.Add("start", Start.toJSMilliseconds());
+            retValue.Add("end", End.toJSMilliseconds());
+            retValue.Add("duration", (ulong)this.TimelineSpan.TotalMilliseconds);
             return retValue;
         }
 

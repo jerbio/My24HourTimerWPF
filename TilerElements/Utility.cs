@@ -1317,5 +1317,17 @@ namespace TilerElements
         {
             return (T)Enum.Parse(typeof(T), value, true);
         }
+
+        public static ulong toJSMilliseconds(this DateTimeOffset time)
+        {
+            ulong retValue = (ulong)(time - ReferenceNow.StartOfTime).TotalMilliseconds;
+            return retValue;
+        }
+
+        public static ulong toJSMilliseconds(this DateTime time)
+        {
+            ulong retValue = (ulong)(time - ReferenceNow.StartOfTime).TotalMilliseconds;
+            return retValue;
+        }
     }
 }

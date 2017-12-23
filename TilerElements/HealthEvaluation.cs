@@ -28,7 +28,7 @@ namespace TilerElements
             this._ConflictingEvents = this.ScheduleHealth.evaluateConflicts();
             this._TotalDistance = this.ScheduleHealth.TotalDistance;
             this._PositioningScore = this.ScheduleHealth.evaluatePositioning();
-            this._SleepSchedule = this.ScheduleHealth.SleepTimeLines.Select(sleepTimeLine => sleepTimeLine.TimelineSpan).ToList();
+            this._SleepSchedule = this.ScheduleHealth.SleepTimeLines.Select(sleepTimeLine => sleepTimeLine.Item1.TimelineSpan).ToList();
             this._TravelTimeAnalysis = new TravelTime(this.ScheduleHealth.orderedByStartThenEndSubEvents, this.ScheduleHealth.TravelMode);
         }
 

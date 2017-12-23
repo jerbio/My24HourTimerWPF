@@ -283,15 +283,20 @@ namespace TilerElements
                 TimeSpan totalSleepSpan = new TimeSpan();
                 TimeSpan totalDayspans = new TimeSpan();
                 Tuple<int, int> dayIndexBoundaries = Now.indexRange(CalculationTimeline);
-                ulong universlaIndex = Now.firstDay.UniversalIndex;
+                ulong iniUniverslaIndex = Now.firstDay.UniversalIndex;
                 for (int i = dayIndexBoundaries.Item1; i <= dayIndexBoundaries.Item2; i++)
                 {
-                    ulong universalIndex = universlaIndex + (ulong)i;
+                    ulong universalIndex = iniUniverslaIndex + (ulong)i;
                     DayTimeLine dayTimeLine = Now.getDayTimeLineByDayIndex(universalIndex);
-                    if(dayTimeLine.TimelineSpan.TotalHours > 20)
+
+                    if (dayTimeLine.TimelineSpan.TotalHours > 20 && universalIndex > iniUniverslaIndex)
                     {
-                        totalDayspans= totalDayspans.Add(dayTimeLine.TimelineSpan);
-                        totalSleepSpan = totalSleepSpan.Add(dayTimeLine.SleepTimeLine.TimelineSpan);
+                        DayTimeLine previousDayTimeLine = Now.getDayTimeLineByDayIndex(universalIndex - 1);
+                        totalDayspans = totalDayspans.Add(dayTimeLine.TimelineSpan);
+                        DateTimeOffset sleepStart = previousDayTimeLine.SleepSubEvent?.End ?? previousDayTimeLine.End;
+                        DateTimeOffset sleepEnd = dayTimeLine.WakeSubEvent?.Start ?? sleepStart.Add(Now.SleepSpan);
+                        TimeLine sleepTImeLine =new TimeLine(sleepStart, sleepEnd);
+                        totalSleepSpan = totalSleepSpan.Add(sleepTImeLine.TimelineSpan);
                     }
                     
                 }
@@ -328,17 +333,25 @@ namespace TilerElements
         {
             get
             {
-                List<Tuple<TimeLine, int>> sleepTimeLine = new List<Tuple<TimeLine, int>>();
+                List<Tuple<TimeLine, int>> sleepTimeLines = new List<Tuple<TimeLine, int>>();
                 Tuple<int, int> dayIndexBoundaries = Now.indexRange(CalculationTimeline);
-                ulong universlaIndex = Now.firstDay.UniversalIndex;
+                ulong iniUniverslaIndex = Now.firstDay.UniversalIndex;
                 for (int i = dayIndexBoundaries.Item1; i <= dayIndexBoundaries.Item2; i++)
                 {
-                    ulong universalIndex = universlaIndex + (ulong)i;
+                    ulong universalIndex = iniUniverslaIndex + (ulong)i;
                     DayTimeLine dayTimeLine = Now.getDayTimeLineByDayIndex(universalIndex);
-                    
-                    sleepTimeLine.Add(new Tuple<TimeLine, int>(dayTimeLine.SleepTimeLine, (int)dayTimeLine.UniversalIndex));
+                    if ( universalIndex > iniUniverslaIndex)
+                    {
+                        ulong previousDayUniversalIndex = universalIndex - 1;
+                        DayTimeLine previousDayTimeLine = Now.getDayTimeLineByDayIndex(previousDayUniversalIndex);
+                        DateTimeOffset sleepStart = previousDayTimeLine.SleepSubEvent?.End ?? previousDayTimeLine.End;
+                        DateTimeOffset sleepEnd = dayTimeLine.WakeSubEvent?.Start ?? sleepStart.Add(Now.SleepSpan);
+                        TimeLine sleepTImeLine = new TimeLine(sleepStart, sleepEnd);
+                        sleepTimeLines.Add(new Tuple<TimeLine, int>(sleepTImeLine, (int)dayTimeLine.UniversalIndex));
+                    }
+                        
                 }
-                return sleepTimeLine;
+                return sleepTimeLines;
             }
         }
 

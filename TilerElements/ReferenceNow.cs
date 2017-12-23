@@ -19,6 +19,7 @@ namespace TilerElements
         DayTimeLine refFirstDay;
         protected DayTimeLine[] AllDays;
         Dictionary<ulong, DayTimeLine> DayLookUp;
+        public TimeSpan SleepSpan = new TimeSpan(0, 8, 0, 0, 0);
         ulong lastDayIndex = 0;
         uint DayCount;
 

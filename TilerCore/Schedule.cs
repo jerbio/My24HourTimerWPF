@@ -2033,7 +2033,6 @@ namespace TilerCore
             }
 
             NoneCommitedCalendarEventsEvents.Add(MyCalendarEvent);
-            DateTimeOffset testDateTime = new DateTimeOffset(2014, 8, 11, 0, 0, 0, new TimeSpan());
             Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluation(MyCalendarEvent, NoneCommitedCalendarEventsEvents, InterferringWithNowFlag, NotDoneYet, new TimeLine(Now.constNow.AddDays(-90), Now.ComputationRange.End));
             List<SubCalendarEvent> collectionOfInterferringSubCalEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToList();
             List<SubCalendarEvent> ArrayOfInterferringSubEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToList();
@@ -2290,7 +2289,6 @@ namespace TilerCore
                 }
 
             NoneCommitedCalendarEventsEvents.Add(MyCalendarEvent);
-            DateTimeOffset testDateTime = new DateTimeOffset(2014, 8, 11, 0, 0, 0, new TimeSpan());
             
             Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluation(MyCalendarEvent, NoneCommitedCalendarEventsEvents, InterferringWithNowFlag, NotDoneYet, new TimeLine(Now.constNow.AddDays(-90), Now.getAllDaysCount((uint)NumberOfDays).Last().End));
             //Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluationOldDesign(MyCalendarEvent, NoneCommitedCalendarEventsEvents, InterferringWithNowFlag, ExemptFromCalculation, new TimeLine(Now.constNow.AddDays(-90), Now.ComputationRange.End));
@@ -2419,7 +2417,7 @@ namespace TilerCore
         /// </summary>
         /// <param name="AllDayTimeLine">A list of days to be optimied</param>
         /// <param name="location">The location passed from the client where this call is being made, this is most likely passed from say shuffle action</param>
-        IDictionary<DayTimeLine, OptimizedPath> SortForSleep(List<DayTimeLine>AllDayTimeLine, Location location)
+        IDictionary<DayTimeLine, OptimizedPath> optimizeDays(List<DayTimeLine>AllDayTimeLine, Location location)
         {
             ConcurrentDictionary<DayTimeLine, OptimizedPath> dayToOPtimization = new ConcurrentDictionary<DayTimeLine, OptimizedPath>();
             Location home = null;
@@ -2448,9 +2446,13 @@ namespace TilerCore
                 dayToOPtimization.AddOrUpdate(EachDay, dayPath, ((key, oldValue) => { return dayPath; }));
                 dayPath.OptimizePath();
                 optimizeDay(EachDay, dayPath.getSubevents());
-                List<SubCalendarEvent> optimizedForDay = EachDay.getSubEventsInTimeLine().OrderBy(obj => obj.Start).ToList();
+                if (i > 0 && EachDay.PrecedingDaySleepSubEvent!= null)
+                {
+                    DayTimeLine previousDay = AllDayTimeLine[i-1];
+                    previousDay.SleepSubEvent = EachDay.PrecedingDaySleepSubEvent;
+                }
                 
-
+                List<SubCalendarEvent> optimizedForDay = EachDay.getSubEventsInTimeLine().OrderBy(obj => obj.Start).ToList();
             }
             return dayToOPtimization;
         }
@@ -2507,6 +2509,20 @@ namespace TilerCore
                     startTimeOfBeforeSet = subSetAfterSleepOfSubevent.First().Start;
                 }
 
+                SubCalendarEvent sleepSubEvent = subSetBeforeSleepOfSubevent.LastOrDefault();
+                SubCalendarEvent wakeSubEvent = subSetAfterSleepOfSubevent.FirstOrDefault();
+
+                if (wakeSubEvent != null)
+                {
+                    myDay.WakeSubEvent = wakeSubEvent;
+                }
+
+                if (sleepSubEvent != null)
+                {
+                    myDay.PrecedingDaySleepSubEvent = sleepSubEvent;
+                }
+                myDay.SleepSubEvent = orderedByStartSubEvents.Last();
+
                 TimeLine beforeSleepTimeline = new TimeLine(myTimeLine.Start, startTimeOfBeforeSet);
                 CreateBufferForEachEvent(subSetBeforeSleepOfSubevent, beforeSleepTimeline);
             }
@@ -2527,7 +2543,7 @@ namespace TilerCore
             List<double> retValue = new List<double>() { span, startTIme };
             return retValue;
         }
-        
+
         //void resolveConflicts(IList<SubCalendarEvent> orderedListOFAlreadyAssignedSubEvents)
         //{
         //    if(ConflictinSubEvents.Count > 0)
@@ -2536,12 +2552,13 @@ namespace TilerCore
         //    }
         //}
 
-        ulong ParallelizeCallsToDay(List<CalendarEvent> AllCalEvents,List<SubCalendarEvent> TotalActiveEvents, DayTimeLine[] AllDayTImeLine , Location callLocation, bool Optimize=true, bool preserveFirttwentyFourHours=true)
+        ulong ParallelizeCallsToDay(List<CalendarEvent> AllCalEvents, List<SubCalendarEvent> TotalActiveEvents, DayTimeLine[] AllDayTImeLine, Location callLocation, bool Optimize = true, bool preserveFirttwentyFourHours = true)
         {
             int TotalDays = (int)AllDayTImeLine.Length;
             Now.getAllDaysForCalc();
             ulong DayIndex = Now.consttDayIndex;
-            ConcurrentBag< SubCalendarEvent>[] BagPerDay = new ConcurrentBag< SubCalendarEvent>[TotalDays];
+            ConcurrentBag<SubCalendarEvent>[] BagPerDay = new ConcurrentBag<SubCalendarEvent>[TotalDays];
+            TotalActiveEvents.AsParallel().ForAll(subEvent => { subEvent.isWake = false; subEvent.isSleep = false; });
             TotalActiveEvents.ForEach((subEvent) => ConflictinSubEvents.Add(subEvent));
             AllCalEvents.AsParallel().ForAll(obj => { obj.resetDesignationAllActiveEventsInCalculables(); obj.InitialCalculationLookupDays(AllDayTImeLine); });
             ILookup<ulong, SubCalendarEvent> SetForFirstDay = (new List<SubCalendarEvent>()).ToLookup(obj => (ulong)0, obj => obj);
@@ -2715,7 +2732,7 @@ namespace TilerCore
                         AllDayTImeLine[currentIndex].AddToSubEventList(DayToSubEvent[eachGrouping.Key]);
                     }
                     
-                    dayToOptimization = SortForSleep(OptimizedDays, callLocation);
+                    dayToOptimization = optimizeDays(OptimizedDays, callLocation);
                     
                 }
                 catch(Exception E)
@@ -4383,12 +4400,6 @@ namespace TilerCore
             //++CountCall;
             TimeLine[] AllFreeSpots = FreeBoundary.getAllFreeSlots();
             int TotalEventsForThisTImeLine = 0;
-
-            if (FreeBoundary.End == new DateTimeOffset(2014, 04, 8, 17, 00, 0, new TimeSpan()))
-            {
-                ;
-            }
-
             foreach (KeyValuePair<TimeSpan, mTuple<int, TimeSpanWithStringID>> eachKeyValuePair in CompatibleWithList)
             {
                 TotalEventsForThisTImeLine += eachKeyValuePair.Value.Item1;

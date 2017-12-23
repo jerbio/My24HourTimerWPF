@@ -12,6 +12,8 @@ namespace TilerElements
     {
         ulong UniversalDayIndex;
         int BoundDayIndex;
+        SubCalendarEvent _sleepSubEVent;
+        SubCalendarEvent _wakeSubEVent;
         #region Constructor
         public DayTimeLine(DateTimeOffset Start, DateTimeOffset End, ulong UniversalIndex, int BoundedIndex=-1):base(Start, End, null)
         {
@@ -51,30 +53,42 @@ namespace TilerElements
                 return UniversalDayIndex;
             }
         }
-
-        public TimeLineWithEdgeElements SleepTimeLine
+        
+        public SubCalendarEvent SleepSubEvent
         {
             get
             {
-                TimeLineWithEdgeElements retValue = new TimeLineWithEdgeElements(this.Start, this.Start, "", "");
-                DateTimeOffset start = this.Start;
-                DateTimeOffset end = this.End;
-                string idToEnd = "";
-                BusyTimeLine timeLine = this.OrderedOcupiedSlots.FirstOrDefault();
-                if(timeLine!=null)
+                return _sleepSubEVent ?? AllocatedSubEvents.Values.FirstOrDefault(subEvent => subEvent.isSleep);
+            }
+            set
+            {
+                if(_sleepSubEVent != null)
                 {
-                    end = timeLine.Start;
-                    idToEnd = timeLine.ID;
-                    if(end < start)
-                    {
-                        return retValue;
-                    }
+                    _sleepSubEVent.isSleep = false;
                 }
-
-                retValue = new TimeLineWithEdgeElements(start, end, "", idToEnd);
-                return retValue;
+                _sleepSubEVent = value;
+                _sleepSubEVent.isSleep = true;
             }
         }
+
+        public SubCalendarEvent WakeSubEvent
+        {
+            get
+            {
+                return _wakeSubEVent ?? AllocatedSubEvents.Values.FirstOrDefault(subEvent => subEvent.isWake);
+            }
+            set
+            {
+                if (_wakeSubEVent != null)
+                {
+                    _wakeSubEVent.isWake = false;
+                }
+                _wakeSubEVent = value;
+                _wakeSubEVent.isWake = true;
+            }
+        }
+
+        public SubCalendarEvent PrecedingDaySleepSubEvent { get; set; }
         #endregion
 
     }

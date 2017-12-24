@@ -7,10 +7,17 @@ namespace TilerElements
 {
     public class CustomErrors: Exception
     {
-        public enum Errors { cannotFitWithinTimeline = 40000001,
+        public enum Errors {
+            cannotAuthenticate = 1,
+            cannotFitWithinTimeline = 40000001,
             procrastinationPastDeadline = 40000002
         };
-        static Dictionary<Errors, String> errorMessage = new Dictionary<Errors, string>();
+        static Dictionary<Errors, String> errorMessage = new Dictionary<Errors, string>()
+        {
+            {Errors.cannotAuthenticate, "Failed to authenticate user account" },
+            {Errors.cannotFitWithinTimeline, "Cannot fit the sub event within the timeline" },
+            {Errors.procrastinationPastDeadline, "Procrastination of the tile will put it past the deadline of the tile" }
+        };
         string ErrorMessage;
         TilerEvent TilerEvent;
         int ErrorCode;

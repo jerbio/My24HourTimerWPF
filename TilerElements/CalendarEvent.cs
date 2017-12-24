@@ -1682,12 +1682,6 @@ namespace TilerElements
                 if (this.Repeat.Enable)
                 {
                     return this.Repeat.RecurringCalendarEvents().Where(calEvent => calEvent.isActive).SelectMany(obj => obj.ActiveSubEvents).ToArray();
-                    /*foreach (CalendarEvent RepeatingElement in this.EventRepetition.RecurringCalendarEvents)
-                    {
-                        var HolderConcat = MyRepeatingSubCalendarEvents.Concat(RepeatingElement.AllActiveSubEvents.ToList());
-                        MyRepeatingSubCalendarEvents = HolderConcat.ToList();
-                    }
-                    return MyRepeatingSubCalendarEvents.ToArray();*/
                 }
               
                 return MyRepeatingSubCalendarEvents.ToArray();

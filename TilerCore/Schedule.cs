@@ -2340,7 +2340,7 @@ namespace TilerCore
             List<CalendarEvent> SortedInterFerringCalendarEvents_Deadline = DictionaryWithBothCalendarEventIDAndListOfInterferringSubEvents.Keys.ToList();
             SortedInterFerringCalendarEvents_Deadline = SortedInterFerringCalendarEvents_Deadline.OrderBy(obj => obj.End).ToList();
             DayTimeLine[] AllDays = Now.getAllDaysCount((uint)NumberOfDays).ToArray();
-            ParallelizeCallsToDay(SortedInterFerringCalendarEvents_Deadline, ArrayOfInterferringSubEvents.ToList(),AllDays, callLocation, false);
+            ParallelizeCallsToDay(SortedInterFerringCalendarEvents_Deadline, ArrayOfInterferringSubEvents.ToList(),AllDays, callLocation, true);
             List<SubCalendarEvent> ConflictingEvents = new List<SubCalendarEvent>();
             foreach(SubCalendarEvent eachSubCalendarEvent in ArrayOfInterferringSubEvents)
             {
@@ -2417,7 +2417,7 @@ namespace TilerCore
         public Tuple<CalendarEvent, SubCalendarEvent> getNearestEventToNow()
         {
             TimeLine timeline = getTimeLine();
-            List<SubCalendarEvent> subEvents = getAllCalendarEvents().SelectMany(calEvent => calEvent.ActiveSubEvents).OrderBy(subEvent => subEvent.Start).Where(subevent => subevent.End >= Now.constNow).ToList();
+            List<SubCalendarEvent> subEvents = getAllCalendarEvents().Where(calEvent => calEvent.isActive).SelectMany(calEvent => calEvent.ActiveSubEvents).OrderBy(subEvent => subEvent.Start).Where(subevent => subevent.End >= Now.constNow).ToList();
             SubCalendarEvent nearestSubEvent = subEvents.FirstOrDefault();
             CalendarEvent subEventCalEvent = null;
             if (nearestSubEvent!= null)

@@ -2414,6 +2414,20 @@ namespace TilerCore
             return RetValue;
         }
 
+        public Tuple<CalendarEvent, SubCalendarEvent> getNearestEventToNow()
+        {
+            TimeLine timeline = getTimeLine();
+            List<SubCalendarEvent> subEvents = getAllCalendarEvents().SelectMany(calEvent => calEvent.ActiveSubEvents).OrderBy(subEvent => subEvent.Start).Where(subevent => subevent.End >= Now.constNow).ToList();
+            SubCalendarEvent nearestSubEvent = subEvents.FirstOrDefault();
+            CalendarEvent subEventCalEvent = null;
+            if (nearestSubEvent!= null)
+            {
+                subEventCalEvent = getCalendarEvent(nearestSubEvent.getId);
+            }
+            Tuple<CalendarEvent, SubCalendarEvent> retValue = new Tuple<CalendarEvent, SubCalendarEvent>(subEventCalEvent, nearestSubEvent);
+            return retValue;
+        }
+
         /// <summary>
         /// Funtion makes iterative calls to the daily optimizers
         /// </summary>
@@ -2545,15 +2559,7 @@ namespace TilerCore
             List<double> retValue = new List<double>() { span, startTIme };
             return retValue;
         }
-
-        //void resolveConflicts(IList<SubCalendarEvent> orderedListOFAlreadyAssignedSubEvents)
-        //{
-        //    if(ConflictinSubEvents.Count > 0)
-        //    {
-        //        stitchUnRestrictedSubCalendarEvent();
-        //    }
-        //}
-
+        
         ulong ParallelizeCallsToDay(List<CalendarEvent> AllCalEvents, List<SubCalendarEvent> TotalActiveEvents, DayTimeLine[] AllDayTImeLine, Location callLocation, bool Optimize = true, bool preserveFirttwentyFourHours = true)
         {
             int TotalDays = (int)AllDayTImeLine.Length;

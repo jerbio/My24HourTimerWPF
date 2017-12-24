@@ -142,7 +142,7 @@ namespace TilerTests
             shakerLibrary.Validate();
             
 
-            List<Location> locations = new List<Location>() { homeLocation, homeLocation, workLocation, gymLocation };//, churchLocation };
+            List<Location> locations = new List<Location>() { homeLocation, homeLocation, workLocation, shakerLibrary, gymLocation };//, churchLocation };
 
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
@@ -156,7 +156,7 @@ namespace TilerTests
             {
                 TestSchedule Schedule = new TestSchedule(currentUser, refNow);
                 CalendarEvent testEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), eachTimeLine.Start,i == 0 ? eachTimeLine.End.AddHours(-12) : eachTimeLine.End, 1, false, locations[i]);
-                Schedule.AddToScheduleAndCommit(testEvent).Wait();
+                Schedule.AddToScheduleAndCommit(testEvent, true).Wait();
                 hashEventIDs.Add(testEvent.Calendar_EventID);
                 EventIDs.Add(testEvent.Calendar_EventID);
             }
@@ -166,9 +166,9 @@ namespace TilerTests
             TestSchedule scheduleA = new TestSchedule(currentUser, refNow);
             List<CalendarEvent> allCalEvents = scheduleA.getAllCalendarEvents().ToList();
             List<SubCalendarEvent> subEvents = allCalEvents.SelectMany(obj => obj.AllSubEvents).OrderBy(obj => obj.Start).ToList();
-            SubCalendarEvent second = subEvents[1];
+            SubCalendarEvent third = subEvents[2];
             TestSchedule scheduleB = new TestSchedule(currentUser, refNow);
-            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> procrastinatioCompletion =scheduleB.ProcrastinateJustAnEvent(second.getId, TimeSpan.FromHours(10));
+            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> procrastinatioCompletion =scheduleB.ProcrastinateJustAnEvent(third.getId, TimeSpan.FromHours(10));
             scheduleB.UpdateWithDifferentSchedule(procrastinatioCompletion.Item2).ConfigureAwait(false);
             scheduleB = new TestSchedule(currentUser, refNow);
             allCalEvents = scheduleB.getAllCalendarEvents().ToList();

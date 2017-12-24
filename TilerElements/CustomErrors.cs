@@ -7,7 +7,10 @@ namespace TilerElements
 {
     public class CustomErrors: Exception
     {
-        public enum Errors { cannotFitWithinTimeline = 40000001 };
+        public enum Errors { cannotFitWithinTimeline = 40000001,
+            procrastinationPastDeadline = 40000002
+        };
+        static Dictionary<Errors, String> errorMessage = new Dictionary<Errors, string>();
         string ErrorMessage;
         TilerEvent TilerEvent;
         int ErrorCode;
@@ -18,6 +21,11 @@ namespace TilerElements
          * 30000000<=Code => Database control issue
          * 40000000<=Code => Schedule Maniputlation Error issue
          */
+
+        public CustomErrors(int ErrorCode, TilerEvent tilerEvent = null)
+        {
+            this.ErrorCode = ErrorCode;
+        }
 
         public CustomErrors(string MessagEntry, int ErrorCode = 0, TilerEvent tilerEvent = null)
         {
@@ -40,6 +48,17 @@ namespace TilerElements
             {
                 return ErrorCode;
             }
+        }
+
+        static string getErrorMessage(Errors errorCode)
+        {
+            return errorMessage[errorCode];
+        }
+
+        static string getErrorMessage(int errorCode)
+        {
+            Errors error = (Errors)Enum.Parse(typeof(Errors), errorCode.ToString());
+            return getErrorMessage(error);
         }
     }
 }

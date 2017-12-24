@@ -34,7 +34,7 @@ namespace TilerElements
             
         }
 
-        protected virtual void InitializeParameters()
+        public virtual void InitializeParameters()
         {
             DateTimeOffset IndifferentStartOfDay = new DateTimeOffset(CalculationNow.Year, CalculationNow.Month, CalculationNow.Day, startOfDay.Hour, startOfDay.Minute, 0, new TimeSpan());
             DateTimeOffset refDayStart = CalculationNow;// < IndifferentStartOfDay ? CalculationNow : IndifferentStartOfDay;

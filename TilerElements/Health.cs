@@ -14,6 +14,7 @@ namespace TilerElements
     /// </summary>
     public class Health : IComparable<Health>, IJson
     {
+        public Guid id = Guid.NewGuid();
         public TimeSpan EvaluationSpan = new TimeSpan(7, 0, 0, 0, 0);
         public TimeSpan SleepSpan = new TimeSpan(0, 7, 0, 0, 0);
         public TimeLine CalculationTimeline;

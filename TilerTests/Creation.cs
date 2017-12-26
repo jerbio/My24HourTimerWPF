@@ -215,7 +215,7 @@ namespace TilerTests
                 testEvent.ActiveSubEvents.First().End, 
                 testEvent.ActiveSubEvents.First().Start, 
                 testEvent.ActiveSubEvents.First().End, 
-                testEvent.NumberOfSplit);
+                testEvent.NumberOfSplit, testEvent.Notes.UserNote);
             schedule.UpdateWithDifferentSchedule(tupleResult.Item2).Wait();
             TestSchedule scheduleReloaded = new TestSchedule(user, refNow);
             CalendarEvent renamedEvent = scheduleReloaded.getCalendarEvent(testEvent.getId);

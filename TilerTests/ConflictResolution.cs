@@ -80,7 +80,8 @@ namespace TilerTests
                 readjustCalendarEvent.ActiveSubEvents.First().End,
                 readjustCalendarEvent.Start,
                 readjustCalendarEvent.End,
-                updatedSplitCount);
+                updatedSplitCount, 
+                readjustCalendarEvent.Notes.UserNote);
             schedule.UpdateWithDifferentSchedule(updateResult.Item2).Wait();
             schedule = new TestSchedule(currentUser, refNow, startOfDay);
             CalendarEvent latestCalendarEvent = schedule.getCalendarEvent(subEventId);
@@ -109,7 +110,8 @@ namespace TilerTests
                 subEvent.End,
                 subEvent.getCalendarEventRange.Start,
                 deadline,
-                1); ///this is known to fail
+                1, 
+                subEvent.Notes.UserNote); ///this is known to fail
             schedule.UpdateWithDifferentSchedule(updateResult.Item2).Wait();
             schedule = new TestSchedule(currentUser, refNow, startOfDay);
             

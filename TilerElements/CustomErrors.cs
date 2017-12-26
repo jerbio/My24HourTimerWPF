@@ -8,12 +8,16 @@ namespace TilerElements
     public class CustomErrors: Exception
     {
         public enum Errors {
+            success = 0,
             cannotAuthenticate = 1,
+            UnknownError = 500,
             cannotFitWithinTimeline = 40000001,
             procrastinationPastDeadline = 40000002
         };
         static Dictionary<Errors, String> errorMessage = new Dictionary<Errors, string>()
         {
+            {Errors.success, "SUCCESS" },
+            {Errors.UnknownError, "Unknown Error" },
             {Errors.cannotAuthenticate, "Failed to authenticate user account" },
             {Errors.cannotFitWithinTimeline, "Cannot fit the sub event within the timeline" },
             {Errors.procrastinationPastDeadline, "Procrastination of the tile will put it past the deadline of the tile" }
@@ -45,7 +49,15 @@ namespace TilerElements
         {
             get
             {
-                return ErrorMessage;
+                
+                if(String.IsNullOrEmpty(ErrorMessage))
+                {
+                    return getErrorMessage(ErrorCode);
+                } else
+                {
+                    return ErrorMessage;
+                }
+                
             }
         }
 
@@ -59,7 +71,15 @@ namespace TilerElements
 
         static string getErrorMessage(Errors errorCode)
         {
-            return errorMessage[errorCode];
+            if(errorMessage.ContainsKey(errorCode))
+            {
+                return errorMessage[errorCode];
+            }
+            else
+            {
+                return errorMessage[Errors.UnknownError];
+            }
+            
         }
 
         static string getErrorMessage(int errorCode)

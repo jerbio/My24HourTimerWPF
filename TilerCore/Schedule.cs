@@ -237,7 +237,7 @@ namespace TilerCore
             var beforeCalevents = getAllCalendarEvents().Where(obj => obj.isActive).Select(obj => obj.createCopy());
             List<SubCalendarEvent> subEVents = beforeCalevents.SelectMany(calEvent => calEvent.ActiveSubEvents).Where(subEvent => !subEvent.isDesignated).ToList();
             var orderedDayTimeLines = beforeNow.getAllDaysLookup().OrderBy(obj => obj.Key).Select(obj => obj.Value);
-            DesignateRigidsTODays(orderedDayTimeLines.ToArray(), subEVents);
+            DesignateSubEventsToDayTimeLine(orderedDayTimeLines.ToArray(), subEVents);
             Health beforeChange = new Health(getAllCalendarEvents().Where(obj=>obj.isActive).Select(obj => obj.createCopy()), beforeNow.constNow, assessmentWindow.TimelineSpan, beforeNow, this.getHomeLocation);
             Tuple <CustomErrors, Dictionary < string, CalendarEvent >>  procradstinateResult = this.ProcrastinateAll(pushSpan);
 
@@ -245,7 +245,7 @@ namespace TilerCore
             var afterNow = new ReferenceNow(Now.constNow, Now.StartOfDay);
             var afterCalevents = procradstinateResult.Item2.Values.Where(obj => obj.isActive);
             var afterorderedDayTimeLines = afterNow.getAllDaysLookup().OrderBy(obj => obj.Key).Select(obj => obj.Value);
-            DesignateRigidsTODays(afterorderedDayTimeLines.ToArray(), afterSubEVents);
+            DesignateSubEventsToDayTimeLine(afterorderedDayTimeLines.ToArray(), afterSubEVents);
 
             Health afterChange = new Health(procradstinateResult.Item2.Values.Where(obj => obj.isActive), afterNow.constNow, assessmentWindow.TimelineSpan, afterNow, this.getHomeLocation);
             var retValue = new Tuple<Health, Health>(beforeChange, afterChange);
@@ -2370,7 +2370,7 @@ namespace TilerCore
         /// <param name="AllDays"></param>
         /// <param name="AllRigidSubEvents"></param>
         /// returns the dictionary of the designated subcalendar events and their days. Note if subevent was exceeds the bounds then it wont be in return value
-        Dictionary<SubCalendarEvent, List<ulong>> DesignateRigidsTODays(DayTimeLine[] OrderedyAscendingAllDays, IEnumerable<SubCalendarEvent>AllRigidSubEvents)
+        public Dictionary<SubCalendarEvent, List<ulong>> DesignateSubEventsToDayTimeLine(DayTimeLine[] OrderedyAscendingAllDays, IEnumerable<SubCalendarEvent>AllRigidSubEvents)
         {
             ulong First = OrderedyAscendingAllDays.First().UniversalIndex;
             //ulong Last = OrderedyAscendingAllDays.Last().UniversalIndex;
@@ -2575,7 +2575,7 @@ namespace TilerCore
             }
 
             List<SubCalendarEvent> AllRigids = TotalActiveEvents.Where(obj => obj.getRigid).ToList();// you need to call this after PrepFirstTwentyFOurHours to prevent resetting of indexes
-            DesignateRigidsTODays(AllDayTImeLine, AllRigids);
+            DesignateSubEventsToDayTimeLine(AllDayTImeLine, AllRigids);
 
             int numberOfDays = AllDayTImeLine.Count();
 

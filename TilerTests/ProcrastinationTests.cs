@@ -109,6 +109,7 @@ namespace TilerTests
 
 
         [TestMethod]
+        [ExpectedException(typeof(CustomErrors), "Procrasting past the deadline should be geenrated.")]
         public void procrastinateSinglePastDeadline()
         {
             TestSchedule Schedule;
@@ -236,7 +237,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             procrastinationEvent = Schedule.getCalendarEvent(user.getTilerUser().getClearAllEventsId());
             firstClearedBlock = procrastinationEvent.ActiveSubEvents.OrderBy(obj => obj.Start).First();
-            procrassinateResult = Schedule.BundleChangeUpdate(firstClearedBlock.getId, procrastinationEvent.getName, startOfProcrastinateAll, newEndOfProcrastinateAll, startOfProcrastinateAll, newEndOfProcrastinateAll, procrastinationEvent.NumberOfSplit, null);
+            procrassinateResult = Schedule.BundleChangeUpdate(firstClearedBlock.getId, procrastinationEvent.getName, startOfProcrastinateAll, newEndOfProcrastinateAll, startOfProcrastinateAll, newEndOfProcrastinateAll, procrastinationEvent.NumberOfSplit, firstClearedBlock.Notes.UserNote);
             Assert.IsNull(procrassinateResult.Item1);
             Schedule.UpdateWithDifferentSchedule(procrassinateResult.Item2).Wait();
             Schedule = new TestSchedule(user, refNow0);

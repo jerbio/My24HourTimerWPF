@@ -136,6 +136,7 @@ namespace TilerTests
             currentUser.getTilerUser().ClearAllId = currentClearAllId;
             TestSchedule schedule = new TestSchedule(currentUser, refNow, startOfDay);
             schedule.FindMeSomethingToDo(homeLocation).Wait();
+            schedule.WriteFullScheduleToLogAndOutlook().Wait();
             schedule = new TestSchedule(currentUser, refNow, startOfDay, EventID.LatestID);
             SubCalendarEvent subEventA = schedule.getSubCalendarEvent(subEventId);
             SubCalendarEvent subEventB = schedule.getSubCalendarEvent(conflictingSubEventId);
@@ -164,6 +165,7 @@ namespace TilerTests
             currentUser.getTilerUser().ClearAllId = currentClearAllId;
             TestSchedule schedule = new TestSchedule(currentUser, refNow, startOfDay);
             schedule.FindMeSomethingToDo(homeLocation).Wait();
+            schedule.WriteFullScheduleToLogAndOutlook().Wait();
             schedule = new TestSchedule(currentUser, refNow, startOfDay, EventID.LatestID);
             DayTimeLine firstDay = schedule.Now.firstDay;
             IEnumerable<SubCalendarEvent> firstDaySUbevents = schedule.getAllCalendarEvents().Where(calevent => calevent.isActive).SelectMany(calEvent => calEvent.ActiveSubEvents).Where(subEvent => subEvent.ActiveSlot.doesTimeLineInterfere(firstDay));

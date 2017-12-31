@@ -71,6 +71,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Creation.cs" />
+    <Compile Include="KnownBugList.cs" />
     <Compile Include="LogicTest.cs" />
     <Compile Include="ProcrastinationTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -136,6 +137,10 @@
     <Content Include="WagTapCalLogs\Copy_065febec-d1fe-4c8b-bd32-548613d4479f.xml" />
     <Content Include="WagTapCalLogs\Copy_499a0ab4-81d7-42df-a476-44fc4348e94b.xml" />
     <Content Include="WagTapCalLogs\Copy_982935bc-f5bc-4d5e-a372-7a5d5e40cfa0.xml" />
+    <Content Include="WagTapCalLogs\e94713a5-9ab6-4c6b-9b46-edafa4b0dafc\d350ba4d-fe0b-445c-bed6-b6411c2156b3.xml" />
+    <Content Include="WagTapCalLogs\e94713a5-9ab6-4c6b-9b46-edafa4b0dafc\e94713a5-9ab6-4c6b-9b46-edafa4b0dafc.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

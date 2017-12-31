@@ -322,7 +322,7 @@ namespace TilerTests
             schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
             SubCalendarEvent subeventNoConsequence = rigid1.AllSubEvents.First();
             TimeSpan timeDelta = TimeSpan.FromMinutes(30);
-            Tuple < CustomErrors, Dictionary < string, CalendarEvent >> bundleResult = schedule.BundleChangeUpdate(subeventNoConsequence.getId, subeventNoConsequence.getName, subeventNoConsequence.Start, subeventNoConsequence.End.Add(timeDelta), rigid1.Start, rigid1.End, 1);
+            Tuple < CustomErrors, Dictionary < string, CalendarEvent >> bundleResult = schedule.BundleChangeUpdate(subeventNoConsequence.getId, subeventNoConsequence.getName, subeventNoConsequence.Start, subeventNoConsequence.End.Add(timeDelta), rigid1.Start, rigid1.End, 1, rigid1.Notes.UserNote);
             List<SubCalendarEvent> reOrderedSubEvents = bundleResult.Item2.Values.SelectMany(calEvent => calEvent.AllSubEvents).OrderBy(obj => obj.Start).ToList();
             List<string> reOrderedByTimelIds = reOrderedSubEvents.Select(subEvent => subEvent.getId).ToList();
             Assert.AreEqual(reOrderedByTimelIds.Count, orderedByTimelIds.Count);

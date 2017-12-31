@@ -215,14 +215,44 @@ namespace TilerTests
                 testEvent.ActiveSubEvents.First().End, 
                 testEvent.ActiveSubEvents.First().Start, 
                 testEvent.ActiveSubEvents.First().End, 
-                testEvent.NumberOfSplit);
+                testEvent.NumberOfSplit, testEvent.Notes.UserNote);
             schedule.UpdateWithDifferentSchedule(tupleResult.Item2).Wait();
             TestSchedule scheduleReloaded = new TestSchedule(user, refNow);
             CalendarEvent renamedEvent = scheduleReloaded.getCalendarEvent(testEvent.getId);
             Assert.AreEqual(renamedEvent.getName.NameValue, newName.NameValue);
             Assert.AreEqual(renamedEvent.ActiveSubEvents.First().getName.NameValue, newName.NameValue);
             Assert.AreEqual(renamedEvent.getName.NameId, testEvent.getName.NameId);
+        }
 
+        [TestMethod]
+        public void testChangeOfNotesOfEvent()
+        {
+            UserAccount user = TestUtility.getTestUser();
+            user.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            refNow = new DateTimeOffset(refNow.Year, refNow.Month, refNow.Day, refNow.Hour, refNow.Minute, refNow.Second, new TimeSpan());
+            TestSchedule schedule = new TestSchedule(user, refNow);
+            TimeSpan duration = TimeSpan.FromHours(1);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.Add(duration);//.Add(duration).Add(duration);
+            string oldNoteName = "test initial note";
+            string newNoteName = "test change note";
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, true, note: new MiscData(oldNoteName));
+            schedule.AddToScheduleAndCommit(testEvent).Wait();
+            schedule = new TestSchedule(user, refNow);
+            CalendarEvent copyOfTestEvent = schedule.getCalendarEvent(testEvent.getId);
+            
+            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> tupleResult = schedule.BundleChangeUpdate(testEvent.ActiveSubEvents.First().getId,
+                testEvent.getName.createCopy(),
+                testEvent.ActiveSubEvents.First().Start,
+                testEvent.ActiveSubEvents.First().End,
+                testEvent.ActiveSubEvents.First().Start,
+                testEvent.ActiveSubEvents.First().End,
+                testEvent.NumberOfSplit, newNoteName);
+            schedule.UpdateWithDifferentSchedule(tupleResult.Item2).Wait();
+            TestSchedule scheduleReloaded = new TestSchedule(user, refNow);
+            CalendarEvent renamedEvent = scheduleReloaded.getCalendarEvent(testEvent.getId);
+            Assert.AreEqual(renamedEvent.Notes.UserNote, newNoteName);
         }
 
         [TestCleanup]

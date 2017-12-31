@@ -25,6 +25,7 @@ namespace TilerElements
             this.CalendarEventRange = calendarEvent.RangeTimeLine;
             this.BusyFrame = new BusyTimeLine(this.UniqueID.ToString(), Start, End);
             this.EventDuration = this.BusyFrame.BusyTimeSpan;
+            this.DataBlob = new MiscData();
         }
     }
 }

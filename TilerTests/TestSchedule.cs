@@ -60,8 +60,8 @@ namespace TilerTests
 
         public void populateDayTimeLinesWithSubcalendarEvents()
         {
-            IEnumerable<CalendarEvent> calendarEvents = getAllCalendarEvents();
-            foreach(SubCalendarEvent subevent in  calendarEvents.SelectMany(calEvent => calEvent.AllSubEvents))
+            IEnumerable<CalendarEvent> calendarEvents = getAllCalendarEvents().Where(calEvent => calEvent.isActive);
+            foreach(SubCalendarEvent subevent in  calendarEvents.SelectMany(calEvent => calEvent.ActiveSubEvents))
             {
                 DayTimeLine dayTimeLineStart  = Now.getDayTimeLineByTime(subevent.Start);
                 DayTimeLine dayTimeLineAfter = Now.getDayTimeLineByTime(subevent.Start);

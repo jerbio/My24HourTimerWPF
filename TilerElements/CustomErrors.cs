@@ -12,7 +12,8 @@ namespace TilerElements
             cannotAuthenticate = 1,
             UnknownError = 500,
             cannotFitWithinTimeline = 40000001,
-            procrastinationPastDeadline = 40000002
+            procrastinationPastDeadline = 40000002,
+            procrastinationBeforeNow = 40000003
         };
         static Dictionary<Errors, String> errorMessage = new Dictionary<Errors, string>()
         {
@@ -20,7 +21,8 @@ namespace TilerElements
             {Errors.UnknownError, "Unknown Error" },
             {Errors.cannotAuthenticate, "Failed to authenticate user account" },
             {Errors.cannotFitWithinTimeline, "Cannot fit the sub event within the timeline" },
-            {Errors.procrastinationPastDeadline, "Procrastination of the tile will put it past the deadline of the tile" }
+            {Errors.procrastinationPastDeadline, "Procrastination of the tile will put it past the deadline of the tile" },
+            {Errors.procrastinationBeforeNow, "Cannot go back in time, if you're from the future, please tell us how tiler is doing" }
         };
         string ErrorMessage;
         TilerEvent TilerEvent;
@@ -33,9 +35,18 @@ namespace TilerElements
          * 40000000<=Code => Schedule Maniputlation Error issue
          */
 
-        public CustomErrors(int ErrorCode, TilerEvent tilerEvent = null)
+        public CustomErrors(int ErrorCode, string MessagEntry=null, TilerEvent tilerEvent = null)
         {
             this.ErrorCode = ErrorCode;
+            ErrorMessage = MessagEntry;
+            this.TilerEvent = tilerEvent;
+        }
+
+        public CustomErrors(Errors status, string MessagEntry = null, TilerEvent tilerEvent = null)
+        {
+            this.ErrorCode = (int)status;
+            ErrorMessage = MessagEntry;
+            this.TilerEvent = tilerEvent;
         }
 
         public CustomErrors(string MessagEntry, int ErrorCode = 0, TilerEvent tilerEvent = null)

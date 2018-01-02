@@ -58,15 +58,19 @@ namespace TilerElements
             clearPathStitchedEvents();
         }
 
-        public static Dictionary<OptimizedGrouping, Location> getAverageLocation(IEnumerable<OptimizedGrouping> Groupings)
+        public static Dictionary<OptimizedGrouping, Location> getAverageLocation(IEnumerable<OptimizedGrouping> OrderedGroupings)
         {
-            List<OptimizedGrouping> OrderedGrouping = Groupings.OrderBy(obj => (int)obj.Section.DaySection).ToList();
+            List<OptimizedGrouping> OrderedGrouping = OrderedGroupings.OrderBy(obj => (int)obj.Section.DaySection).ToList();
             Dictionary<OptimizedGrouping, Location> RetValue = OrderedGrouping.ToDictionary(obj => obj, obj => Location.AverageGPSLocation(obj.PathStitchedSubEvents.Select(obj1 => obj1.Location)));
             return RetValue;
         }
         public static Dictionary<OptimizedGrouping, Location> buildStitchers(IEnumerable<OptimizedGrouping> Groupings)
         {
             Dictionary<OptimizedGrouping, Location> AverageLocation = getAverageLocation(Groupings);
+            foreach (KeyValuePair<OptimizedGrouping, Location> kvp in AverageLocation)
+            {
+                kvp.Key.DefaultLocation = kvp.Value;
+            }
             List<KeyValuePair<OptimizedGrouping, Location>> OrderedAvergeLocation = Groupings.Select(obj => new KeyValuePair<OptimizedGrouping, Location>(obj, AverageLocation[obj])).ToList();
             for (int i = 0; i < OrderedAvergeLocation.Count; i++)
             {
@@ -236,6 +240,17 @@ namespace TilerElements
         {
             PathStitchedSubEvents.Clear();
             PathStitchedSubEventsList.Clear();
+        }
+
+
+        public void setRightStitch(Location location)
+        {
+            RightStitch = location;
+        }
+
+        public void setLeftStitch(Location location)
+        {
+            LeftStitch = location;
         }
 
         public Location LeftBorder

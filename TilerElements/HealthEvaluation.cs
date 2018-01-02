@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace TilerElements
 {
     /// <summary>
     /// Class is simply to provide a way to hold the result of an evaluated schedule. It is not meant to be used outside this Class. 
     /// </summary>
-    public class HealthEvaluation
+    public class HealthEvaluation : IJson
     {
         Health ScheduleHealth;
         List<BlobSubCalendarEvent> _ConflictingEvents { get; set; }
@@ -28,10 +29,31 @@ namespace TilerElements
             this._ConflictingEvents = this.ScheduleHealth.evaluateConflicts();
             this._TotalDistance = this.ScheduleHealth.TotalDistance;
             this._PositioningScore = this.ScheduleHealth.evaluatePositioning();
-            this._SleepSchedule = this.ScheduleHealth.SleepTimeLines.Select(sleepTimeLine => sleepTimeLine.TimelineSpan).ToList();
+            this._SleepSchedule = this.ScheduleHealth.SleepTimeLines.Select(sleepTimeLine => sleepTimeLine.Item1.TimelineSpan).ToList();
             this._TravelTimeAnalysis = new TravelTime(this.ScheduleHealth.orderedByStartThenEndSubEvents, this.ScheduleHealth.TravelMode);
         }
 
+        public JObject ToJson()
+        {
+            JObject retValue = new JObject();
+            JArray conflict = new JArray();
+            _ConflictingEvents.ForEach((blob) => {
+                JArray conflictingSubEvents = new JArray();
+                foreach(SubCalendarEvent subEvent in blob.getSubCalendarEventsInBlob())
+                {
+                    JObject subEventJobject = new JObject();
+                    subEventJobject.Add("name", subEvent.getName.NameValue);
+                    subEventJobject.Add("id", subEvent.getId);
+                    conflictingSubEvents.Add(subEventJobject);
+                }
+                conflict.Add(conflictingSubEvents);
+            });
+            retValue.Add("distance", _TotalDistance);
+            retValue.Add("position", _PositioningScore);
+            retValue.Add("travelTime", _TravelTimeAnalysis.ToJson());
+            retValue.Add("conflict", conflict);
+            return retValue;
+        }
 
         public List<BlobSubCalendarEvent> ConflictingEvents
         {

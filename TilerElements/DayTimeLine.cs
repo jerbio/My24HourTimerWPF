@@ -12,6 +12,8 @@ namespace TilerElements
     {
         ulong UniversalDayIndex;
         int BoundDayIndex;
+        SubCalendarEvent _sleepSubEVent;
+        SubCalendarEvent _wakeSubEVent;
         #region Constructor
         public DayTimeLine(DateTimeOffset Start, DateTimeOffset End, ulong UniversalIndex, int BoundedIndex=-1):base(Start, End, null)
         {
@@ -51,6 +53,42 @@ namespace TilerElements
                 return UniversalDayIndex;
             }
         }
+        
+        public SubCalendarEvent SleepSubEvent
+        {
+            get
+            {
+                return _sleepSubEVent ?? AllocatedSubEvents.Values.FirstOrDefault(subEvent => subEvent.isSleep);
+            }
+            set
+            {
+                if(_sleepSubEVent != null)
+                {
+                    _sleepSubEVent.isSleep = false;
+                }
+                _sleepSubEVent = value;
+                _sleepSubEVent.isSleep = true;
+            }
+        }
+
+        public SubCalendarEvent WakeSubEvent
+        {
+            get
+            {
+                return _wakeSubEVent ?? AllocatedSubEvents.Values.FirstOrDefault(subEvent => subEvent.isWake);
+            }
+            set
+            {
+                if (_wakeSubEVent != null)
+                {
+                    _wakeSubEVent.isWake = false;
+                }
+                _wakeSubEVent = value;
+                _wakeSubEVent.isWake = true;
+            }
+        }
+
+        public SubCalendarEvent PrecedingDaySleepSubEvent { get; set; }
         #endregion
 
     }

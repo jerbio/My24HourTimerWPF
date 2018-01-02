@@ -145,5 +145,9 @@ namespace TilerElements
             }
         }
         #endregion
+        public override string ToString()
+        {
+            return this._Name + "||" + this._Id;
+        }
     }
 }

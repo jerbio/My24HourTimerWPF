@@ -27,6 +27,10 @@ namespace TilerElements
         protected DateTimeOffset _LastReasonStartTimeChanged;
         protected TimeLine CalculationTimeLine = null;
         protected CalendarEvent _calendarEvent;
+        public TimeSpan TravelTimeBefore { get; set; } = new TimeSpan(-1);
+        public TimeSpan TravelTimeAfter { get; set; } = new TimeSpan(-1);
+        public bool isWake { get; set; } = false;
+        public bool isSleep { get; set; } = false;
         /// <summary>
         /// This holds the current session reasons. It will updated based on data and calculation optimizations from HistoricalCurrentPosition
         /// </summary>
@@ -336,6 +340,10 @@ namespace TilerElements
             MySubCalendarEventCopy._LastReasonStartTimeChanged = this._LastReasonStartTimeChanged;
             MySubCalendarEventCopy.DaySectionPreference = this.DaySectionPreference;
             MySubCalendarEventCopy._calendarEvent = this._calendarEvent;
+            MySubCalendarEventCopy.TravelTimeAfter = this.TravelTimeAfter;
+            MySubCalendarEventCopy.TravelTimeBefore= this.TravelTimeBefore;
+            MySubCalendarEventCopy.isSleep = this.isSleep;
+            MySubCalendarEventCopy.isWake = this.isWake;
             if (this.CalculationTimeLine != null)
             {
                 MySubCalendarEventCopy.CalculationTimeLine = this.CalculationTimeLine.CreateCopy();

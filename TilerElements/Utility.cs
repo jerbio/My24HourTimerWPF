@@ -625,8 +625,14 @@ namespace TilerElements
                     totalDistance = SubCalendarEvent.CalculateDistance(myList, worstDistance);
                     if (BorderElements != null)
                     {
-                        totalDistance += Location.calculateDistance(BorderElements.Item1, myList.First().Location);
-                        totalDistance += Location.calculateDistance(BorderElements.Item2, myList.Last().Location);
+                        if (BorderElements.Item1 !=null && !BorderElements.Item1.isNull)
+                        {
+                            totalDistance += Location.calculateDistance(BorderElements.Item1, myList.First().Location);
+                        }
+                        if (BorderElements.Item2!=null && !BorderElements.Item2.isNull)
+                        {
+                            totalDistance += Location.calculateDistance(BorderElements.Item2, myList.Last().Location);
+                        }
                     }
                     //Location_Elements.calculateDistance(myList.Select(obj => obj.myLocation).ToList());
                 }
@@ -691,8 +697,14 @@ namespace TilerElements
                         totalDistance = SubCalendarEvent.CalculateDistance(myList, worstDistance);
                         if (BorderElements != null)
                         {
-                            totalDistance += Location.calculateDistance(BorderElements.Item1, myList.First().Location);
-                            totalDistance += Location.calculateDistance(BorderElements.Item2, myList.Last().Location);
+                            if (BorderElements.Item1!=null && !BorderElements.Item1.isNull)
+                            {
+                                totalDistance += Location.calculateDistance(BorderElements.Item1, myList.First().Location);
+                            }
+                            if (BorderElements.Item2 !=null && !BorderElements.Item2.isNull)
+                            {
+                                totalDistance += Location.calculateDistance(BorderElements.Item2, myList.Last().Location);
+                            }
                         }
                         //Location_Elements.calculateDistance(myList.Select(obj => obj.myLocation).ToList());
                     }
@@ -1294,6 +1306,11 @@ namespace TilerElements
             temp = lhs;
             lhs = rhs;
             rhs = temp;
+        }
+        public static ulong toJSMilliseconds(this DateTimeOffset time)
+        {
+            ulong retValue = (ulong)(time - ReferenceNow.StartOfTime).TotalMilliseconds;
+            return retValue;
         }
     }
 }

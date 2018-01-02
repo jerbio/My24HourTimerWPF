@@ -178,7 +178,8 @@ namespace My24HourTimerWPF
             string EventID = textBox9.Text;
             SubCalendarEvent MySubcal= MySchedule.getSubCalendarEvent(EventID);
             CalendarEvent myCalEvent = MySchedule.getCalendarEvent(MySubcal.SubEvent_ID.getCalendarEventID());
-            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> result =MySchedule.BundleChangeUpdate(EventID,myCalEvent.getName.NameValue, MySubcal.Start,MySubcal.End,MySubcal.getCalendarEventRange.Start,EndDate,myCalEvent.NumberOfSplit);
+
+            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> result =MySchedule.BundleChangeUpdate(EventID,myCalEvent.getName,MySubcal.Start,MySubcal.End,MySubcal.getCalendarEventRange.Start,EndDate,myCalEvent.NumberOfSplit, myCalEvent.Notes.UserNote);
 
             //"BundleChangeUpdate"
             /*
@@ -187,7 +188,7 @@ namespace My24HourTimerWPF
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> result = MySchedule.BundleChangeUpdate(EventID, MyCal.Name, MyCal.Start, MyCal.End.AddDays(1), MyCal.NumberOfSplit);*/
             //DateTimeOffset fullDate = new DateTimeOffset(EndDate.Year, EndDate.Month, EndDate.Day, EndTime.Hour, EndTime.Minute, EndTime.Second, new TimeSpan());
             //Tuple<CustomErrors, Dictionary<string, CalendarEvent>>result= MySchedule.UpdateDeadLine(EventID, fullDate);
-            
+
             await MySchedule.UpdateWithDifferentSchedule(result.Item2).ConfigureAwait(false);
 
         }
@@ -666,7 +667,7 @@ namespace My24HourTimerWPF
 
 
 
-                ScheduleUpdated = new CalendarEventRestricted(eventName, StartDateTime, EndDateTime, myRestrictionProfile, TimeSpan.Parse(EventDuration), MyRepetition, false, true, Convert.ToInt32(eventSplit), RigidFlag, new Location(), TimeSpan.Parse(eventPrepTime), TimeSpan.Parse(PreDeadlineTime), null, UiData, NoteData);
+                ScheduleUpdated = new CalendarEventRestricted(new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), eventName, StartDateTime, EndDateTime, myRestrictionProfile, TimeSpan.Parse(EventDuration), MyRepetition, false, true, Convert.ToInt32(eventSplit), RigidFlag, new Location(), TimeSpan.Parse(eventPrepTime), TimeSpan.Parse(PreDeadlineTime), null, UiData, NoteData);
             }
             
             ScheduleUpdated.Repeat.PopulateRepetitionParameters(ScheduleUpdated);
@@ -866,7 +867,7 @@ namespace My24HourTimerWPF
 
 
 
-                ScheduleUpdated = new CalendarEventRestricted(eventName, StartDateTime, EndDateTime, myRestrictionProfile, TimeSpan.Parse(EventDuration), MyRepetition, false, true, Convert.ToInt32(eventSplit), RigidFlag, new Location(), TimeSpan.Parse(eventPrepTime), TimeSpan.Parse(PreDeadlineTime), null, UiData, NoteData);
+                ScheduleUpdated = new CalendarEventRestricted(new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), eventName, StartDateTime, EndDateTime, myRestrictionProfile, TimeSpan.Parse(EventDuration), MyRepetition, false, true, Convert.ToInt32(eventSplit), RigidFlag, new Location(), TimeSpan.Parse(eventPrepTime), TimeSpan.Parse(PreDeadlineTime), null, UiData, NoteData);
             }
 
             ScheduleUpdated.Repeat.PopulateRepetitionParameters(ScheduleUpdated);

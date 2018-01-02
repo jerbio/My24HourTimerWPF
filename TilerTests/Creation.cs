@@ -30,11 +30,14 @@ namespace TilerTests
             List<TimeLine> timeLines = TestUtility.getTimeFrames(refNow , duration);
             foreach(TimeLine eachTimeLine in timeLines)
             {
+                DateTimeOffset TimeCreation = DateTimeOffset.UtcNow;
                 CalendarEvent testEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1),  new Repetition(), eachTimeLine.Start, eachTimeLine.End, 1, false);
+                testEvent.TimeCreated = TimeCreation;
                 Schedule.AddToScheduleAndCommit(testEvent).Wait();
                 Schedule = new TestSchedule(currentUser, refNow);
                 CalendarEvent newlyaddedevent = Schedule.getCalendarEvent(testEvent.Calendar_EventID);
                 Assert.AreEqual(testEvent.getId, newlyaddedevent.getId);
+                Assert.AreEqual(testEvent.TimeCreated, TimeCreation);
             }
         }
 
@@ -48,10 +51,13 @@ namespace TilerTests
             TimeSpan duration = TimeSpan.FromHours(1);
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(duration);
+            DateTimeOffset TimeCreation = DateTimeOffset.UtcNow;
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, true);
+            testEvent.TimeCreated = TimeCreation;
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
             CalendarEvent newlyaddedevent = Schedule.getCalendarEvent(testEvent.Calendar_EventID);
             Assert.AreEqual(testEvent.getId, newlyaddedevent.getId);
+            Assert.AreEqual(testEvent.TimeCreated, TimeCreation);
         }
 
         [TestMethod]
@@ -116,7 +122,7 @@ namespace TilerTests
         {
             UserAccount user = TestUtility.getTestUser();
             user.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            DateTimeOffset refNow = DateTimeOffset.Parse("12:00AM 12/2/2017");
             Schedule = new TestSchedule(user, refNow);
             TimeSpan duration = TimeSpan.FromHours(4);
             DateTimeOffset start = refNow;
@@ -209,14 +215,44 @@ namespace TilerTests
                 testEvent.ActiveSubEvents.First().End, 
                 testEvent.ActiveSubEvents.First().Start, 
                 testEvent.ActiveSubEvents.First().End, 
-                testEvent.NumberOfSplit);
+                testEvent.NumberOfSplit, testEvent.Notes.UserNote);
             schedule.UpdateWithDifferentSchedule(tupleResult.Item2).Wait();
             TestSchedule scheduleReloaded = new TestSchedule(user, refNow);
             CalendarEvent renamedEvent = scheduleReloaded.getCalendarEvent(testEvent.getId);
             Assert.AreEqual(renamedEvent.getName.NameValue, newName);
             Assert.AreEqual(renamedEvent.ActiveSubEvents.First().getName.NameValue, newName);
             Assert.AreEqual(renamedEvent.getName.NameId, testEvent.getName.NameId);
+        }
 
+        [TestMethod]
+        public void testChangeOfNotesOfEvent()
+        {
+            UserAccount user = TestUtility.getTestUser();
+            user.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            refNow = new DateTimeOffset(refNow.Year, refNow.Month, refNow.Day, refNow.Hour, refNow.Minute, refNow.Second, new TimeSpan());
+            TestSchedule schedule = new TestSchedule(user, refNow);
+            TimeSpan duration = TimeSpan.FromHours(1);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.Add(duration);//.Add(duration).Add(duration);
+            string oldNoteName = "test initial note";
+            string newNoteName = "test change note";
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, true, note: new MiscData(oldNoteName));
+            schedule.AddToScheduleAndCommit(testEvent).Wait();
+            schedule = new TestSchedule(user, refNow);
+            CalendarEvent copyOfTestEvent = schedule.getCalendarEvent(testEvent.getId);
+            
+            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> tupleResult = schedule.BundleChangeUpdate(testEvent.ActiveSubEvents.First().getId,
+                testEvent.getName.createCopy(),
+                testEvent.ActiveSubEvents.First().Start,
+                testEvent.ActiveSubEvents.First().End,
+                testEvent.ActiveSubEvents.First().Start,
+                testEvent.ActiveSubEvents.First().End,
+                testEvent.NumberOfSplit, newNoteName);
+            schedule.UpdateWithDifferentSchedule(tupleResult.Item2).Wait();
+            TestSchedule scheduleReloaded = new TestSchedule(user, refNow);
+            CalendarEvent renamedEvent = scheduleReloaded.getCalendarEvent(testEvent.getId);
+            Assert.AreEqual(renamedEvent.Notes.UserNote, newNoteName);
         }
 
         [TestCleanup]

@@ -5,18 +5,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GoogleMapsApi.Entities.Directions.Request;
+using Newtonsoft.Json.Linq;
 
 namespace TilerElements
 {
     /// <summary>
     /// Class analyses the health of a schedule
     /// </summary>
-    public class Health : IComparable<Health>
+    public class Health : IComparable<Health>, IJson
     {
+        public Guid id = Guid.NewGuid();
         public TimeSpan EvaluationSpan = new TimeSpan(7, 0, 0, 0, 0);
+        public TimeSpan SleepSpan = new TimeSpan(0, 7, 0, 0, 0);
         public TimeLine CalculationTimeline;
         ReferenceNow Now;
         List<SubCalendarEvent> _orderedByStartThenEndSubEvents = new List<SubCalendarEvent>();
+        List<BlobSubCalendarEvent> _conflictingEvents;
         GoogleMapsApi.Entities.Directions.Request.TravelMode _TravelMode;
         bool alreadyEvaluated = false;
         HealthEvaluation evaluation;
@@ -34,9 +38,10 @@ namespace TilerElements
         {
             _HomeLocation = homeLocation ?? Location.getDefaultLocation();
             IEnumerable<SubCalendarEvent> SubEvents = AllEvents;
+            EvaluationSpan = evaluationSpan;
             CalculationTimeline = new TimeLine(startTime, startTime.Add(EvaluationSpan));
             _orderedByStartThenEndSubEvents = SubEvents.Where(SubEvent => SubEvent.RangeTimeLine.InterferringTimeLine(CalculationTimeline) != null).OrderBy(obj => obj.Start).ThenByDescending(tilerEvent => tilerEvent.End).ToList();
-            EvaluationSpan = evaluationSpan;
+            _conflictingEvents = Utility.getConflictingEvents(_orderedByStartThenEndSubEvents);
             Now = now;
             this._TravelMode = travelmode;
         }
@@ -48,67 +53,148 @@ namespace TilerElements
 
         public double getScore()
         {
-            double totalDistance = evaluateTotalDistance();
+            Tuple<double, Dictionary<ulong, List<double>>> distanceEvaluation = evaluateTotalDistance();
             double positioningScore = evaluatePositioning();
             double conflictScore = evaluateConflicts().Sum(blob => blob.getSubCalendarEventsInBlob().Count());
-            double retValue = Utility.CalcuateResultant(totalDistance, positioningScore, conflictScore);
+            var sleepEvaluation = evaluateSleepTimeFrameScore();
+            double eventPerDayScore = eventsPerDay();
+            double retValue = Utility.CalcuateResultant(distanceEvaluation.Item1, positioningScore, conflictScore, sleepEvaluation.Item1, eventPerDayScore);
             return retValue;
         }
 
-        public double evaluateTotalDistance(bool includeReturnHome = true)
+        /// <summary>
+        /// Function evaluates the distance travelled by user at crow flies.  The result returns a tuple with two Items. Item 1 is total distance travelled. Item 2 is a dictionary of day index to distance travelled subevent
+        /// </summary>
+        /// <param name="includeReturnHome"></param>
+        /// <returns></returns>
+        public Tuple<double, Dictionary<ulong, List<double>>> evaluateTotalDistance(bool includeReturnHome = true)
         {
+            Dictionary<ulong, List<double>> combinedResult = new Dictionary<ulong, List<double>>();
             double retValue = 0;
             
-            if (includeReturnHome)
+            List<SubCalendarEvent> relevantSubCalendarEventList = _orderedByStartThenEndSubEvents.Where(obj => !obj.getIsProcrastinateCalendarEvent).ToList();
+            if(relevantSubCalendarEventList.Count > 0)
             {
-                int dayIndex = Now.getDayIndexComputationBound(_orderedByStartThenEndSubEvents[0].Start);
-                SubCalendarEvent previousSubCalendarEvent = _orderedByStartThenEndSubEvents[0];
-                for(int index=1; index < _orderedByStartThenEndSubEvents.Count; index++)
-                {
-                    SubCalendarEvent currentSubEvent = _orderedByStartThenEndSubEvents[index];
-                    int currentDayIndex = Now.getDayIndexComputationBound(currentSubEvent.Start);
-                    if (currentDayIndex != dayIndex)
+                relevantSubCalendarEventList.AsParallel().ForAll(subEvent =>
                     {
-                        retValue += Location.calculateDistance(previousSubCalendarEvent.Location, _HomeLocation);
-                        retValue += Location.calculateDistance(_HomeLocation, currentSubEvent.Location);
-                        dayIndex = currentDayIndex;// currentSubEvent.UniversalDayIndex;
+                        if (subEvent.Location.isNull)
+                        {
+                            subEvent.Location.Validate();
+                        }
+                    }
+                );
+                SubCalendarEvent firstSUbEvent = relevantSubCalendarEventList[0];
+                DateTimeOffset refTIme = CalculationTimeline.IsDateTimeWithin(firstSUbEvent.Start) ? firstSUbEvent.Start : firstSUbEvent.End;
+                ulong dayIndex = ReferenceNow.getDayIndexFromStartOfTime(refTIme);
+                SubCalendarEvent previousSubCalendarEvent = relevantSubCalendarEventList[0];
+                List<double> distances = new List<double>();
+                ulong currentDayIndex = dayIndex;
+                combinedResult.Add(currentDayIndex, distances);
+                for (int index = 1; index < relevantSubCalendarEventList.Count; index++)
+                {
+
+                    SubCalendarEvent currentSubEvent = relevantSubCalendarEventList[index];
+                    refTIme = CalculationTimeline.IsDateTimeWithin(currentSubEvent.Start) ? currentSubEvent.Start : currentSubEvent.End;
+                    ulong subEventDayIndex = ReferenceNow.getDayIndexFromStartOfTime(refTIme);
+                    if (subEventDayIndex != dayIndex)
+                    {
+                        if(includeReturnHome)
+                        {
+                            double distance = Location.calculateDistance(previousSubCalendarEvent.Location, _HomeLocation);
+                            distances.Add(distance);
+                            distances = new List<double>();
+                            combinedResult.Add(subEventDayIndex, distances);
+                            retValue += distance;
+                            if (index != 1)
+                            {
+                                distance = Location.calculateDistance(_HomeLocation, currentSubEvent.Location);
+                                distances.Add(distance);
+                                retValue += distance;
+                            }
+                            dayIndex = subEventDayIndex;// currentSubEvent.UniversalDayIndex;
+                        }
+                        else
+                        {
+                            double distance = Location.calculateDistance(previousSubCalendarEvent.Location, currentSubEvent.Location);
+                            distances.Add(distance);
+                            distances = new List<double>();
+                            combinedResult.Add(subEventDayIndex, distances);
+                        }
                     }
                     else
                     {
-                        retValue += Location.calculateDistance(previousSubCalendarEvent.Location, currentSubEvent.Location);
+                        double distance = Location.calculateDistance(previousSubCalendarEvent.Location, currentSubEvent.Location);
+                        retValue += distance;
+                        distances.Add(distance);
                     }
                     previousSubCalendarEvent = currentSubEvent;
                 }
             }
-            else
-            {
-                retValue = Location.calculateDistance(_orderedByStartThenEndSubEvents.Select(SubEvent => SubEvent.Location).ToList());
-            }
-            
+
+
+            Tuple<double, Dictionary<ulong, List<double>>> retValueTuple = new Tuple<double, Dictionary<ulong, List<double>>>(retValue, combinedResult);
+            return retValueTuple;
+        }
+
+        public Tuple<double, List<Tuple<TimeLine, int>>> evaluateSleepTimeFrameScore()
+        {
+            List<Tuple<TimeLine, int>> sleepTimeLines = SleepTimeLines;
+            double score = (double)TimeSpan.FromHours(24).Ticks / SleepPerDay.Ticks;
+            var retValue = new Tuple<double, List<Tuple<TimeLine, int>>>(score, sleepTimeLines);
             return retValue;
         }
 
+        /// <summary>
+        /// This assess if the position of the subevents is suitable for its completion.
+        /// It considers if the spacing is wide enough to allow the travel time.
+        /// It will also consider the time it is scheduled, does it have a higher percentage of success.
+        /// </summary>
+        /// <returns></returns>
         public double evaluatePositioning()
         {
             double retValue = 0;
-            if(_orderedByStartThenEndSubEvents.Count > 0)
+            List<SubCalendarEvent> relevantSubCalendarEventList = _orderedByStartThenEndSubEvents.Where(obj => !_conflictingEvents.Any(conflicting => conflicting.getSubCalendarEventsInBlob().Contains( obj))).ToList();
+            relevantSubCalendarEventList.AddRange(_conflictingEvents);
+            relevantSubCalendarEventList = relevantSubCalendarEventList.OrderBy(subEvent => subEvent.Start).ToList();
+            if (relevantSubCalendarEventList.Count > 0)
             {
-                EventID lastId = _orderedByStartThenEndSubEvents[0].SubEvent_ID;
-                int indexCounter = 0;
-                for (int i = 1; i < _orderedByStartThenEndSubEvents.Count; i++)
+                EventID lastId = relevantSubCalendarEventList[0].SubEvent_ID;
+                TimeSpan totalTravelSpan = new TimeSpan();
+                TimeSpan idealTotalSpan = new TimeSpan();
+                TimeSpan conflictingSpan = new TimeSpan();
+                for (int i = 0, j = 1; (j < relevantSubCalendarEventList.Count && i < relevantSubCalendarEventList.Count); i++, j++)
                 {
-                    SubCalendarEvent SubEvent = _orderedByStartThenEndSubEvents[i];
-                    EventID iterationId = SubEvent.SubEvent_ID;
-                    if (iterationId.getCalendarEventComponent() .Equals(lastId.getCalendarEventComponent()))
+                    SubCalendarEvent before = relevantSubCalendarEventList[i];
+                    SubCalendarEvent after = relevantSubCalendarEventList[j];
+                    TimeSpan timeSpan = after.Start - before.End;
+                   
+                    totalTravelSpan = totalTravelSpan.Add(timeSpan);
+                    TimeSpan TravelTimeAfter = before.TravelTimeAfter;
+                    if(TravelTimeAfter.Ticks == -1)
                     {
-                        ++indexCounter;
-                        retValue += (double) Utility.getFibonnacciNumber((uint)indexCounter);
+                        TravelTimeAfter = TimeSpan.FromMinutes( Location.calculateDistance(before.Location, after.Location, 30) *12);
                     }
-                    else
+                    idealTotalSpan = idealTotalSpan.Add(TravelTimeAfter);
+                }
+                // need to strip milliseconds and seconds
+                idealTotalSpan = idealTotalSpan.Add(-TimeSpan.FromSeconds(idealTotalSpan.Seconds));
+                idealTotalSpan = idealTotalSpan.Add(-TimeSpan.FromMilliseconds(idealTotalSpan.Milliseconds));
+                if (totalTravelSpan.Ticks < 0)
+                {
+                    totalTravelSpan = -conflictingSpan;
+                }
+
+
+                if (totalTravelSpan.TotalMilliseconds != 0)
+                {
+                    double ratioSpan = (double)idealTotalSpan.TotalMilliseconds / totalTravelSpan.TotalMilliseconds;
+                    retValue = ratioSpan;
+                } else
+                {
+                    if(idealTotalSpan.TotalMilliseconds!=0 )
                     {
-                        indexCounter = 0;
+                        retValue = 100;
                     }
-                    lastId = iterationId;
                 }
             }
             return retValue;
@@ -118,26 +204,6 @@ namespace TilerElements
         {
             List<BlobSubCalendarEvent> conflictingEvents = Utility.getConflictingEvents(_orderedByStartThenEndSubEvents);
             return conflictingEvents;
-        }
-
-        Dictionary<TimeLine, TimeLine> evaluateSleepSchedule(IEnumerable<DayTimeLine> dayTimeLines)
-        {
-            List<SubCalendarEvent> OrderexListOfTilerEvents = this._orderedByStartThenEndSubEvents.ToList();
-            List<TimeLine> daysSortedBystart = dayTimeLines.OrderBy(obj => obj.Start).Select(daytimeLine => daytimeLine.getJustTimeLine()).ToList();
-            Dictionary<TimeLine, TimeLine> retValue = new Dictionary<TimeLine, TimeLine>();
-            for (int i = 0; i < daysSortedBystart.Count; i++)
-            {
-                TimeLine timeLine = daysSortedBystart[i];
-                List<SubCalendarEvent> interferringEvents = OrderexListOfTilerEvents.Where(tilerEvent => tilerEvent.RangeTimeLine.doesTimeLineInterfere(timeLine)).ToList();
-                List<BusyTimeLine> allBusySlots = interferringEvents.Select(tilerEvent => new BusyTimeLine(tilerEvent.getId, tilerEvent.Start, tilerEvent.End)).ToList();
-                timeLine.AddBusySlots(allBusySlots);
-                foreach (SubCalendarEvent tilerEvent in interferringEvents.Where(tilerEvent => tilerEvent.End < timeLine.End))
-                {
-                    OrderexListOfTilerEvents.Remove(tilerEvent);
-                }
-            }
-            retValue = daysSortedBystart.ToDictionary(timeLine => timeLine, timeLine => timeLine.getAllFreeSlots().OrderByDescending(obj => obj.TimelineSpan.Ticks).First());
-            return retValue;
         }
 
         HealthEvaluation getEvaluation(bool forceReevaluation = false)
@@ -158,12 +224,55 @@ namespace TilerElements
             return retValue;
         }
 
-#region properties
+        public JObject ToJson()
+        {
+            var distanceEvaluation = evaluateTotalDistance();
+            double positioningScore = evaluatePositioning();
+            double conflictScore = evaluateConflicts().Sum(blob => blob.getSubCalendarEventsInBlob().Count());
+            var sleepEvaluation = evaluateSleepTimeFrameScore();
+            double score = Utility.CalcuateResultant(distanceEvaluation.Item1, positioningScore, conflictScore, sleepEvaluation.Item1);
+            double eventPerDayScore = eventsPerDay();
+            JObject retValue = new JObject();
+            JObject sleep = new JObject();
+            sleep.Add("score", sleepEvaluation.Item1);
+            sleep.Add("evaluation", new JArray(sleepEvaluation.Item2.Select(eval =>
+            {
+                JObject dayResult = new JObject();
+                dayResult.Add("timeLine", eval.Item1.ToJson());
+                TimeLine timeLine = Now.getDayTimeLineByDayIndex((ulong)eval.Item2);
+                dayResult.Add("day", timeLine.Start.toJSMilliseconds());
+                return dayResult;
+            } )));
+
+            JObject distance = new JObject();
+            distance.Add("score", distanceEvaluation.Item1);
+            distance.Add("evaluation", new JArray(distanceEvaluation.Item2.Select(eval =>
+            {
+                JObject dayResult = new JObject();
+                JArray distances = new JArray(eval.Value);
+                TimeLine timeLine = Now.getDayTimeLineByDayIndex((ulong)eval.Key);
+                
+                dayResult.Add("startOfDay", timeLine.Start.toJSMilliseconds());
+                dayResult.Add("distances", distances);
+                return dayResult;
+            })));
+            retValue.Add("distance", distance);
+            retValue.Add("position", positioningScore);
+            retValue.Add("conflict", conflictScore);
+            retValue.Add("sleep", sleep);
+            retValue.Add("eventPerDayScore", eventPerDayScore);
+            retValue.Add("scheduleScore", score);
+            
+
+            return retValue;
+        }
+
+        #region properties
         public Double TotalDistance
         {
             get
             {
-                return evaluateTotalDistance();
+                return evaluateTotalDistance().Item1;
             }
         }
 
@@ -171,27 +280,79 @@ namespace TilerElements
         {
             get
             {
-                IEnumerable<DayTimeLine> dayTimeLines = Now.getAllDaysCount((uint)(this.CalculationTimeline.TimelineSpan.TotalDays));
-                Dictionary<TimeLine, TimeLine> dayPerTimeLine = evaluateSleepSchedule(dayTimeLines);
-                List <TimeLine> validTimeLines = dayPerTimeLine.Select(keyValuePair => keyValuePair.Value).ToList();
-                TimeSpan totalSum = new TimeSpan();
-                foreach (TimeSpan span in validTimeLines.Select(timeLine => timeLine.TimelineSpan))
+                List<TimeLine> sleepTimeLine = new List<TimeLine>();
+                TimeSpan totalSleepSpan = new TimeSpan();
+                TimeSpan totalDayspans = new TimeSpan();
+                Tuple<int, int> dayIndexBoundaries = Now.indexRange(CalculationTimeline);
+                ulong iniUniverslaIndex = Now.firstDay.UniversalIndex;
+                for (int i = dayIndexBoundaries.Item1; i <= dayIndexBoundaries.Item2; i++)
                 {
-                    totalSum.Add(span);
+                    ulong universalIndex = iniUniverslaIndex + (ulong)i;
+                    DayTimeLine dayTimeLine = Now.getDayTimeLineByDayIndex(universalIndex);
+
+                    if (dayTimeLine.TimelineSpan.TotalHours > 20 && universalIndex > iniUniverslaIndex)
+                    {
+                        DayTimeLine previousDayTimeLine = Now.getDayTimeLineByDayIndex(universalIndex - 1);
+                        totalDayspans = totalDayspans.Add(dayTimeLine.TimelineSpan);
+                        DateTimeOffset sleepStart = previousDayTimeLine.SleepSubEvent?.End ?? previousDayTimeLine.End;
+                        DateTimeOffset sleepEnd = dayTimeLine.WakeSubEvent?.Start ?? sleepStart.Add(Now.SleepSpan);
+                        TimeLine sleepTImeLine =new TimeLine(sleepStart, sleepEnd);
+                        totalSleepSpan = totalSleepSpan.Add(sleepTImeLine.TimelineSpan);
+                    }
+                    
                 }
-                TimeSpan retValue = TimeSpan.FromTicks( totalSum.Ticks / validTimeLines.Count);
+                double averageSleepSpan = (double)totalSleepSpan.Ticks / totalDayspans.Ticks;
+                TimeSpan retValue = TimeSpan.FromHours(averageSleepSpan * 24);
                 return retValue;
             }
         }
 
-        public List<TimeLine>  SleepTimeLines
+        public double eventsPerDay()
+        {
+            double retValue = 0;
+            double sum = 0;
+            List<SubCalendarEvent> allSubEvents = new List<SubCalendarEvent>();
+            Tuple<int, int> dayIndexBoundaries = Now.indexRange(CalculationTimeline);
+            ulong universlaIndex = Now.firstDay.UniversalIndex;
+            int i = dayIndexBoundaries.Item1;
+            for (; i <= dayIndexBoundaries.Item2; i++)
+            {
+                ulong universalIndex = universlaIndex + (ulong)i;
+                DayTimeLine dayTimeLine = Now.getDayTimeLineByDayIndex(universalIndex);
+                allSubEvents.AddRange(dayTimeLine.getSubEventsInTimeLine());
+                sum += dayTimeLine.getSubEventsInTimeLine().Count;
+            }
+            if (i > 0)
+            {
+                retValue = (double)sum / i;
+            }
+            
+            return retValue;
+        }
+
+        public List<Tuple<TimeLine, int>> SleepTimeLines
         {
             get
             {
-                IEnumerable<DayTimeLine> dayTimeLines = Now.getAllDaysCount((uint)(this.CalculationTimeline.TimelineSpan.TotalDays));
-                Dictionary<TimeLine, TimeLine> dayPerTimeLine = evaluateSleepSchedule(dayTimeLines);
-                List<TimeLine> validTimeLines = dayPerTimeLine.Select(keyValuePair => keyValuePair.Value).ToList();
-                return validTimeLines;
+                List<Tuple<TimeLine, int>> sleepTimeLines = new List<Tuple<TimeLine, int>>();
+                Tuple<int, int> dayIndexBoundaries = Now.indexRange(CalculationTimeline);
+                ulong iniUniverslaIndex = Now.firstDay.UniversalIndex;
+                for (int i = dayIndexBoundaries.Item1; i <= dayIndexBoundaries.Item2; i++)
+                {
+                    ulong universalIndex = iniUniverslaIndex + (ulong)i;
+                    DayTimeLine dayTimeLine = Now.getDayTimeLineByDayIndex(universalIndex);
+                    if ( universalIndex > iniUniverslaIndex)
+                    {
+                        ulong previousDayUniversalIndex = universalIndex - 1;
+                        DayTimeLine previousDayTimeLine = Now.getDayTimeLineByDayIndex(previousDayUniversalIndex);
+                        DateTimeOffset sleepStart = previousDayTimeLine.SleepSubEvent?.End ?? previousDayTimeLine.End;
+                        DateTimeOffset sleepEnd = dayTimeLine.WakeSubEvent?.Start ?? sleepStart.Add(Now.SleepSpan);
+                        TimeLine sleepTImeLine = new TimeLine(sleepStart, sleepEnd);
+                        sleepTimeLines.Add(new Tuple<TimeLine, int>(sleepTImeLine, (int)dayTimeLine.UniversalIndex));
+                    }
+                        
+                }
+                return sleepTimeLines;
             }
         }
 

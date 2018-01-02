@@ -39,7 +39,7 @@ namespace TilerElements
             base.redo(undoId);
         }
 
-        public CalendarEventRestricted(EventName Name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, Location Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventID eventId, EventDisplay UiSettings = null, MiscData NoteData=null, string timeZone = null)
+        public CalendarEventRestricted(TilerUser creator, TilerUserGroup userGroup, EventName Name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, Location Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventID eventId, EventDisplay UiSettings = null, MiscData NoteData=null, string timeZone = null)
         {
            _Name =  Name;
             StartDateTime = Start;
@@ -65,8 +65,10 @@ namespace TilerElements
             _AverageTimePerSplit = TimeSpan.FromTicks(_EventDuration.Ticks / _Splits);
             isRestricted = true;
             _ProfileOfNow = new NowProfile();
-            InstantiateSubEvents();
+            this._Creator = creator;
+            this._Users = userGroup;
             this._TimeZone = timeZone;
+            InstantiateSubEvents();
         }
 
 

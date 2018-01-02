@@ -40,9 +40,9 @@ namespace TilerElements
             //UpdateLocationMatrix(LocationInfo);
         }
 
-        protected RigidCalendarEvent(CalendarEvent MyUpdated, SubCalendarEvent[] MySubEvents) : base(MyUpdated, MySubEvents)
+        public RigidCalendarEvent(CalendarEvent MyUpdated, SubCalendarEvent[] MySubEvents) : base(MyUpdated, MySubEvents)
         {
-
+            RigidSchedule = true;
         }
 
         public override void initializeSubEvents()

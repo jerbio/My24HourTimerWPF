@@ -471,6 +471,13 @@ namespace TilerElements
                 };
             }
         }
+        public TimeLine getHardCalendarEventRange
+        {
+            get
+            {
+                return HardCalendarEventRange;
+            }
+        }
         #endregion
     }
 }

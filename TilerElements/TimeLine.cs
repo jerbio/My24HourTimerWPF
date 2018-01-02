@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Collections.Concurrent;
+using Newtonsoft.Json.Linq;
 
 namespace TilerElements
 {
-    public class TimeLine : IDefinedRange
+    public class TimeLine : IDefinedRange, IJson
     {
         protected DateTimeOffset EndTime;
         protected DateTimeOffset StartTime;
@@ -473,8 +474,6 @@ namespace TilerElements
                 {
                     BusyTimeLine MyBustTimeLine = ActiveTimeSlots[i];
                     InterferringBusyTimeLines = new System.Collections.Generic.List<BusyTimeLine>();
-
-
                     int j = i + 1;
                     for (j = i + 1; j < ActiveTimeSlots.Length; j++)
                     {
@@ -507,6 +506,14 @@ namespace TilerElements
             }
         }
 
+        public JObject ToJson()
+        {
+            JObject retValue = new JObject();
+            retValue.Add("start", Start.toJSMilliseconds());
+            retValue.Add("end", End.toJSMilliseconds());
+            retValue.Add("duration", (ulong)this.TimelineSpan.TotalMilliseconds);
+            return retValue;
+        }
 
         public TimeLine RangeTimeLine
         {

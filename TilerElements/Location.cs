@@ -133,6 +133,7 @@ namespace TilerElements
         /// <returns></returns>
         public bool Validate()
         {
+            bool retValue = false;
             _TaggedAddress = _TaggedAddress.Trim();
             try
             {
@@ -156,6 +157,7 @@ namespace TilerElements
                     _Latitude = Convert.ToDouble(result.Geometry.Location.Latitude);
                     _Longitude = Convert.ToDouble(result.Geometry.Location.Longitude);
                     _NullLocation = false;
+                    retValue = true;
                 }
                 else
                 {
@@ -166,8 +168,7 @@ namespace TilerElements
             {
                 initializeWithNull();
             }
-
-            return _NullLocation;
+            return retValue;
         }
 
         void initializeWithNull()
@@ -270,6 +271,25 @@ namespace TilerElements
             return d;
         }
 
+        /// <summary>
+        /// calculates distance. Result is in KM
+        /// </summary>
+        /// <param name="Worst"></param>
+        /// <param name="Locations"></param>
+        /// <returns></returns>
+        static public double sumDistance(double Worst = double.MaxValue, params Location [] Locations)
+        {
+            double retValue = 0;
+            for (int i=0, j= 1; j < Locations.Length; i++,j++)
+            {
+                Location Location24A = Locations[i];
+                Location Location24B = Locations[j];
+                retValue += calculateDistance(Location24A, Location24B, Worst);
+            }
+            return retValue;
+        }
+
+
         static double toRad(double value)
         {
             return value * Math.PI / 180;
@@ -312,7 +332,15 @@ namespace TilerElements
             return JSON;
         }
 
-
+        public void update(Location location)
+        {
+            this._TaggedAddress = location._TaggedDescription;
+            this._TaggedDescription = location._TaggedDescription;
+            this._Latitude = location._Latitude;
+            this._Longitude = location._Longitude;
+            this._NullLocation = location._NullLocation;
+            this._DefaultFlag = location._DefaultFlag;
+        }
 
         public Location CreateCopy()
         {

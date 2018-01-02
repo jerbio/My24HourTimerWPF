@@ -89,7 +89,7 @@ namespace TilerElements
         }
 
         /// <summary>
-        /// This updates the name of a calendar event
+        /// This updates the name of an event
         /// </summary>
         /// <param name="NewName">The new name of the calendar event</param>
         virtual public void updateEventName(string NewName)
@@ -255,6 +255,15 @@ namespace TilerElements
             }
         }
         #endregion 
+        /// <summary>
+        /// This updates the notes of the event
+        /// </summary>
+        /// <param name="NewName">The new name of the calendar event</param>
+        virtual public void updateMiscData(string Notes)
+        {
+            this._DataBlob.UserNote = Notes;
+        }
+
         public bool getIsComplete
         {
             get

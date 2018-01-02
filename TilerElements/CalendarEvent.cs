@@ -90,6 +90,7 @@ namespace TilerElements
             _ProfileOfProcrastination = new Procrastination(new DateTimeOffset(), new TimeSpan());
             _ProfileOfNow = new NowProfile();
             _Name = new EventName(_Creator, this);
+            this.TimeCreated = DateTimeOffset.UtcNow;
         }
 
         public CalendarEvent(CustomErrors Error) : this()
@@ -135,6 +136,7 @@ namespace TilerElements
             this._Name = name;
             this._UserDeleted = userDeleted;
             this._TimeZone = timeZoneOrigin;
+            this.TimeCreated = DateTimeOffset.UtcNow;
         }
 
         public CalendarEvent(
@@ -305,6 +307,68 @@ namespace TilerElements
             retvalue.allChanges.Add(calEvent);
             subEvent.disable(calEvent);
             return retvalue;
+        }
+
+        virtual public TempTilerEventChanges prepForWhatIfDifferentStartTime(DateTimeOffset startTime, EventID eventId)
+        {
+            CalendarEvent calEvent;
+            TempTilerEventChanges retvalue = new TempTilerEventChanges();
+            if (getIsRepeat)
+            {
+                calEvent = Repeat.getCalendarEvent(eventId.ToString());
+            }
+            else
+            {
+                calEvent = this;
+            }
+
+            SubCalendarEvent subEvent = getSubEvent(eventId);
+            subEvent.TempChanges.allChanges.Add(subEvent);
+            TimeLine timeLine = new TimeLine(startTime, calEvent.RangeTimeLine.End);
+            if(timeLine.TimelineSpan >= subEvent.RangeSpan)
+            {
+                TimeLine subEventActiveTime = subEvent.RangeTimeLine;
+                TimeLine subEvenRangeReadjustedToexpectedTimeLine = new TimeLine(
+                    startTime,
+                    subEventActiveTime.End);
+                calEvent.EventRepetition = new Repetition(true,
+                    timeLine,
+                    Repetition.Frequency.YEARLY,
+                    subEvenRangeReadjustedToexpectedTimeLine);
+                calEvent.EventRepetition.PopulateRepetitionParameters(calEvent);
+                CalendarEvent calEventCpy = calEvent.Repeat.RecurringCalendarEvents().Single();// using ssingle because this must always return a single calendarevent. Because we generated a repeat event which should only have one calendar event;
+                SubCalendarEvent subEventCopy = calEventCpy.AllSubEvents.First();
+                SubCalendarEvent duplicateOfOriginal = subEvent.createCopy(subEventCopy.SubEvent_ID);
+
+                subEventCopy.UpdateThis(duplicateOfOriginal);
+
+                calEventCpy.StartDateTime = timeLine.Start;
+                calEventCpy.EndDateTime = timeLine.End;
+                subEventCopy.updateCalculationEventRange(timeLine);
+                if (subEventCopy.getRigid)/// this is optimized for this use case
+                {
+                    DateTimeOffset dayStart = timeLine.Start;
+                    DateTimeOffset preferredStart = new DateTimeOffset(dayStart.Year, dayStart.Month, dayStart.Day, subEventCopy.Start.Hour, subEventCopy.Start.Minute, subEventCopy.Start.Second, new TimeSpan());
+                    if (preferredStart < dayStart)
+                    {
+                        preferredStart = preferredStart.AddDays(1);
+                    }
+                    subEventCopy.shiftEvent(preferredStart, true);
+                }
+
+                subEvent.TempChanges.allChanges.Add(subEvent);
+                subEvent.TempChanges.allChanges.Add(subEventCopy);
+                calEvent.TempChanges.allChanges.Add(subEvent);
+                calEvent.TempChanges.allChanges.Add(subEventCopy);
+                retvalue.allChanges.Add(calEvent);
+                subEvent.disable(calEvent);
+                return retvalue;
+            }
+            else
+            {
+                throw new CustomErrors("Cannot fit " + subEvent.getName.NameValue + "within the timeframe after " + startTime.ToString(), (int)CustomErrors.Errors.cannotFitWithinTimeline);
+            }
+            
         }
 
         virtual public void ReverseWhatIf(TempTilerEventChanges toBeReverted)
@@ -847,7 +911,7 @@ namespace TilerElements
             return retValue;
         }
 
-        public override List<double> EvaluateTimeLines(List<TimelineWithSubcalendarEvents> timeLines)
+        public override List<double> EvaluateTimeLines(List<TimelineWithSubcalendarEvents> timeLines, List<Tuple<Location, Location>> borderLocations = null)
         {
             List<IList<double>> multiDimensionalCalculation = new List<IList<double>>();
             List<TimelineWithSubcalendarEvents> validTimeLine = timeLines.Select(timeLine => {
@@ -1653,13 +1717,7 @@ namespace TilerElements
                 List<SubCalendarEvent> MyRepeatingSubCalendarEvents = new List<SubCalendarEvent>();
                 if (this.Repeat.Enable)
                 {
-                    return this.Repeat.RecurringCalendarEvents().SelectMany(obj => obj.ActiveSubEvents).ToArray();
-                    /*foreach (CalendarEvent RepeatingElement in this.EventRepetition.RecurringCalendarEvents)
-                    {
-                        var HolderConcat = MyRepeatingSubCalendarEvents.Concat(RepeatingElement.AllActiveSubEvents.ToList());
-                        MyRepeatingSubCalendarEvents = HolderConcat.ToList();
-                    }
-                    return MyRepeatingSubCalendarEvents.ToArray();*/
+                    return this.Repeat.RecurringCalendarEvents().Where(calEvent => calEvent.isActive).SelectMany(obj => obj.ActiveSubEvents).ToArray();
                 }
               
                 return MyRepeatingSubCalendarEvents.ToArray();

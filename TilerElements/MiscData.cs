@@ -78,6 +78,10 @@ namespace TilerElements
             {
                 return _UserTypedData;
             }
+            set
+            {
+                UserTypedData = value;
+            }
         }
 
 

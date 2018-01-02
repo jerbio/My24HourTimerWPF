@@ -58,6 +58,7 @@ namespace TilerTests
 
         public static bool CheckForInternetConnection()
         {
+            return false;
             try
             {
                 using (var client = new System.Net.WebClient())
@@ -79,7 +80,7 @@ namespace TilerTests
             Location homeLocation = new Location(41.480352, -81.585446 , "2895 Van aken Blvd cleveland OH 44120", "Home", false, false);
             Location workLocation = new Location(41.5002762, -81.6839155, "1228 euclid Ave cleveland OH", "Work", false, false);
             Location gymLocation = new Location(41.4987461, -81.6884993, "619 Prospect Avenue Cleveland, OH 44115", "Gym", false, false);
-            Location shakerLibrary = new Location(41.4658937, -81.5664832, "16500 Van Aken Blvd, Shaker Heights, OH 44120", "Shake Library", false, false);
+            Location shakerLibrary = new Location(41.4658937, -81.5664832, "16500 Van Aken Blvd, Shaker Heights, OH 44120", "Shaker Library", false, false);
             Location churchLocation = new Location(41.569467, -81.539422, "1465 Dille Rd, Cleveland, OH 44117", "Church", false, false);
             if (CheckForInternetConnection())
             {
@@ -166,7 +167,7 @@ namespace TilerTests
         }
 
 
-        public static CalendarEvent generateCalendarEvent(TimeSpan duration, Repetition repetition, DateTimeOffset Start, DateTimeOffset End, int splitCount = 1, bool rigidFlags = false, Location location = null, RestrictionProfile restrictionProfile = null)
+        public static CalendarEvent generateCalendarEvent(TimeSpan duration, Repetition repetition, DateTimeOffset Start, DateTimeOffset End, int splitCount = 1, bool rigidFlags = false, Location location = null, RestrictionProfile restrictionProfile = null, MiscData note = null)
         {
             if (Start == StartOfTime)
             {
@@ -182,6 +183,7 @@ namespace TilerTests
                 location = new Location();
             }
 
+            note = note ?? new MiscData();
             CalendarEvent RetValue;
             if(restrictionProfile == null)
             {
@@ -194,13 +196,13 @@ namespace TilerTests
                 {
                     RetValue = new RigidCalendarEvent(
                         //EventID.GenerateCalendarEvent(), 
-                        name, Start, End, duration, new TimeSpan(), new TimeSpan(), repetition, location, new EventDisplay(), new MiscData(), true, false, testUser, new TilerUserGroup(), "UTC", null);
+                        name, Start, End, duration, new TimeSpan(), new TimeSpan(), repetition, location, new EventDisplay(), note, true, false, testUser, new TilerUserGroup(), "UTC", null);
                 }
                 else
                 {
                     RetValue = new CalendarEvent(
                         //EventID.GenerateCalendarEvent(), 
-                        name, Start, End, duration, new TimeSpan(), new TimeSpan(), splitCount , repetition, location, new EventDisplay(), new MiscData(), null, new NowProfile(), true, false, testUser, new TilerUserGroup(), "UTC", null);
+                        name, Start, End, duration, new TimeSpan(), new TimeSpan(), splitCount , repetition, location, new EventDisplay(), note, null, new NowProfile(), true, false, testUser, new TilerUserGroup(), "UTC", null);
                 }
                 name.Creator_EventDB = RetValue.getCreator;
                 name.AssociatedEvent = RetValue;
@@ -208,7 +210,7 @@ namespace TilerTests
             else
             {
                 EventName name = new EventName(null, null, "TestCalendarEvent-" + Guid.NewGuid().ToString() + "-Restricted");
-                RetValue = new CalendarEventRestricted(name, Start, End, restrictionProfile, duration, repetition, false, true, splitCount, false, location, new TimeSpan(), new TimeSpan(), null, UiSettings: new EventDisplay(), NoteData: new MiscData());
+                RetValue = new CalendarEventRestricted(testUser, new TilerUserGroup(), name, Start, End, restrictionProfile, duration, repetition, false, true, splitCount, false, location, new TimeSpan(), new TimeSpan(), null, UiSettings: new EventDisplay(), NoteData: note);
                 name.Creator_EventDB = RetValue.getCreator;
                 name.AssociatedEvent = RetValue;
             }

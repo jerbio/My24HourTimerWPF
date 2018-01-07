@@ -331,11 +331,11 @@ namespace TilerElements
                 TimeLine subEvenRangeReadjustedToexpectedTimeLine = new TimeLine(
                     startTime,
                     subEventActiveTime.End);
-                calEvent.EventRepetition = new Repetition(true,
+                calEvent._EventRepetition = new Repetition(true,
                     timeLine,
                     Repetition.Frequency.YEARLY,
                     subEvenRangeReadjustedToexpectedTimeLine);
-                calEvent.EventRepetition.PopulateRepetitionParameters(calEvent);
+                calEvent._EventRepetition.PopulateRepetitionParameters(calEvent);
                 CalendarEvent calEventCpy = calEvent.Repeat.RecurringCalendarEvents().Single();// using ssingle because this must always return a single calendarevent. Because we generated a repeat event which should only have one calendar event;
                 SubCalendarEvent subEventCopy = calEventCpy.AllSubEvents.First();
                 SubCalendarEvent duplicateOfOriginal = subEvent.createCopy(subEventCopy.SubEvent_ID);
@@ -911,7 +911,7 @@ namespace TilerElements
             return retValue;
         }
 
-        public override List<double> EvaluateTimeLines(List<TimelineWithSubcalendarEvents> timeLines, List<Tuple<Location, Location>> borderLocations = null)
+        public virtual List<double> EvaluateTimeLines(List<TimelineWithSubcalendarEvents> timeLines, List<Tuple<Location, Location>> borderLocations = null)
         {
             List<IList<double>> multiDimensionalCalculation = new List<IList<double>>();
             List<TimelineWithSubcalendarEvents> validTimeLine = timeLines.Select(timeLine => {

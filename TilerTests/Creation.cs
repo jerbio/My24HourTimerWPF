@@ -210,7 +210,7 @@ namespace TilerTests
             CalendarEvent copyOfTestEvent = schedule.getCalendarEvent(testEvent.getId);
             string newName = "test-Event-For-stack-" + Guid.NewGuid().ToString();
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> tupleResult = schedule.BundleChangeUpdate(testEvent.ActiveSubEvents.First().getId, 
-                newName, 
+                new EventName(user.getTilerUser(), copyOfTestEvent, newName), 
                 testEvent.ActiveSubEvents.First().Start, 
                 testEvent.ActiveSubEvents.First().End, 
                 testEvent.ActiveSubEvents.First().Start, 

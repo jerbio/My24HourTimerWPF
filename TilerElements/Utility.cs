@@ -342,6 +342,11 @@ namespace TilerElements
                 ConflctingDefinedRanges = evaluation.Item2;
             }
 
+            public ConflictEvaluation(IEnumerable<IDefinedRange> timeEvents, IDefinedRange timeLineFOrCheck): this(timeEvents.Where(timeline => timeLineFOrCheck.RangeTimeLine.doesTimeLineInterfere(timeline.RangeTimeLine)))
+            {
+                ;
+            }
+
             /// <summary>
             /// Function computes all timelines that are conflicting and not conflicting. The firs
             /// </summary>

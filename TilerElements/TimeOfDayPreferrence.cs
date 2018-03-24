@@ -58,7 +58,7 @@ namespace TilerElements
         }
         internal void InitializeGrouping(TilerEvent ControlEvent)
         {
-            if (ControlEvent.getRigid)
+            if (ControlEvent.isLocked)
             {
                 List<Tuple<int, DaySection, bool, TimeLine>> preferenceOrderCopy = DefaultOrder.ToList();
                 preferenceOrderCopy.RemoveAll(preferenceOrder => preferenceOrder.Item2 == DaySection.None);

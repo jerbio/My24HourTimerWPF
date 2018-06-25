@@ -31,6 +31,7 @@ namespace TilerElements
         public TimeSpan TravelTimeAfter { get; set; } = new TimeSpan(-1);
         public bool isWake { get; set; } = false;
         public bool isSleep { get; set; } = false;
+        protected bool tempLock { get; set; } = false;
         /// <summary>
         /// This holds the current session reasons. It will updated based on data and calculation optimizations from HistoricalCurrentPosition
         /// </summary>
@@ -221,14 +222,14 @@ namespace TilerElements
         }
 
 
-        public void SetAsRigid()
+        public void tempLockSubEvent()
         {
-            RigidSchedule = true;
+            tempLock = true;
         }
 
-        public void SetAsNonRigid()
+        public void resetTempUnlock()
         {
-            RigidSchedule = false;
+            RigidSchedule = true;
         }
 
         virtual public void addReasons(Reason eventReason)
@@ -344,6 +345,8 @@ namespace TilerElements
             MySubCalendarEventCopy.TravelTimeBefore= this.TravelTimeBefore;
             MySubCalendarEventCopy.isSleep = this.isSleep;
             MySubCalendarEventCopy.isWake = this.isWake;
+            MySubCalendarEventCopy.userLocked = this._userLocked;
+            MySubCalendarEventCopy.tempLock = this.tempLock;
             if (this.CalculationTimeLine != null)
             {
                 MySubCalendarEventCopy.CalculationTimeLine = this.CalculationTimeLine.CreateCopy();
@@ -416,7 +419,7 @@ namespace TilerElements
             }*/
             TimeSpan TimeDifference = (ReferenceEndTime - ReferenceStartTime);
 
-            if (this.getRigid)
+            if (this.isLocked)
             {
                 return (MyTimeLine.IsTimeLineWithin( this.RangeTimeLine));
             }
@@ -562,7 +565,7 @@ namespace TilerElements
             retValue._Priority = this.getEventPriority;
             retValue._ProfileOfNow = this._ProfileOfNow;
             retValue._ProfileOfProcrastination = this._ProfileOfProcrastination.CreateCopy();
-            retValue.RigidSchedule = this.getRigid;
+            retValue.RigidSchedule = this.RigidSchedule;
             retValue.StartDateTime = this.Start;
             retValue._UiParams = this.getUIParam;
             retValue.UniqueID = this.SubEvent_ID;
@@ -622,7 +625,7 @@ namespace TilerElements
                 ReferenceTime = LimitingTimeLine.End;
             }
 
-            if (this.getRigid)
+            if (this.isLocked)
             {
                 return (LimitingTimeLine.IsTimeLineWithin(this.RangeTimeLine));
             }
@@ -795,7 +798,7 @@ namespace TilerElements
          virtual public bool canExistWithinTimeLine(TimeLine PossibleTimeLine)
          {
             bool retValue = false;
-            if (!this.getRigid)
+            if (!this.isLocked)
             {
                 SubCalendarEvent thisCopy = this.createCopy(this.UniqueID);
                 retValue = (thisCopy.PinToStart(PossibleTimeLine) && thisCopy.PinToEnd(PossibleTimeLine));
@@ -897,11 +900,13 @@ namespace TilerElements
             CalculationMode = true;
         }
 
+        public override bool isLocked => base.isLocked || this.tempLock;
+
         /// <summary>
         /// This changes the duration of the subevent. It requires the change in duration. This just adds/subtracts the delta to the end time
         /// </summary>
         /// <param name="Delta"></param>
-         public virtual void addDurartion(TimeSpan Delta)
+        public virtual void addDurartion(TimeSpan Delta)
          {
              TimeSpan NewEventDuration = _EventDuration.Add(Delta);
              if (NewEventDuration > new TimeSpan(0))

@@ -11,7 +11,6 @@ namespace TilerElements
     public abstract class TilerEvent: IWhy, IUndoable
     {
         public static TimeSpan ZeroTimeSpan = new TimeSpan(0);
-        //protected string EventName="";
         protected DateTimeOffset StartDateTime;
         protected DateTimeOffset EndDateTime;
         protected bool _Complete = false;
@@ -69,7 +68,7 @@ namespace TilerElements
         public bool UndoIsProcrastinateEvent;
 
         #endregion
-
+        protected bool _userLocked { get; set; } = false;
 
         #region IwhyImplementation
         abstract public IWhy Because();
@@ -334,6 +333,13 @@ namespace TilerElements
             get
             {
                 return isProcrastinateEvent;
+            }
+        }
+        public bool isThirdParty
+        {
+            get
+            {
+                return ThirdpartyType != ThirdPartyControl.CalendarTool.tiler;
             }
         }
 
@@ -851,11 +857,31 @@ namespace TilerElements
             return this.Start.ToString() + " - " + this.End.ToString() + "::" + this.getId + "\t\t::" + this.getActiveDuration.ToString();
         }
 
-        virtual public bool getRigid
+        virtual public bool isLocked
+        {
+            get
+            {
+                return isRigid || _userLocked;
+            }
+        }
+
+        virtual public bool isRigid
         {
             get
             {
                 return RigidSchedule;
+            }
+        }
+
+        virtual public bool userLocked
+        {
+            get
+            {
+                return _userLocked;
+            }
+            set
+            {
+                _userLocked = value;
             }
         }
 

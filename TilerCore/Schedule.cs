@@ -372,7 +372,7 @@ namespace TilerCore
             DateTimeOffset calEventStart = new DateTimeOffset(1970, 1, 1, 0, 0, 0, new TimeSpan());
             TimeLine calendarEventRange = null;
             bool isFromRigidEvent = false;
-            if (mySubCalEvent.getRigid && myCalendarEvent.getRigid)
+            if (mySubCalEvent.isLocked && myCalendarEvent.isLocked)
             {
                 calendarEventRange = new TimeLine(SubeventStart, SubeventEnd);
                 calEventStart = SubeventStart;
@@ -384,7 +384,7 @@ namespace TilerCore
                 calendarEventRange = mySubCalEvent.getCalculationRange;
             }
 
-            SubCalendarEvent ChangedSubCal = new SubCalendarEvent(mySubCalEvent.calendarEvent, mySubCalEvent.getCreator, mySubCalEvent.getAllUsers(), mySubCalEvent.getTimeZone, mySubCalEvent.getId, mySubCalEvent.getName, SubeventStart, SubeventEnd, new BusyTimeLine(mySubCalEvent.getId, SubeventStart, SubeventEnd), mySubCalEvent.getRigid, mySubCalEvent.isEnabled, mySubCalEvent.getUIParam, mySubCalEvent.Notes, mySubCalEvent.getIsComplete, mySubCalEvent.Location, calendarEventRange, mySubCalEvent.Conflicts);
+            SubCalendarEvent ChangedSubCal = new SubCalendarEvent(mySubCalEvent.calendarEvent, mySubCalEvent.getCreator, mySubCalEvent.getAllUsers(), mySubCalEvent.getTimeZone, mySubCalEvent.Id, mySubCalEvent.getName, SubeventStart, SubeventEnd, new BusyTimeLine(mySubCalEvent.Id, SubeventStart, SubeventEnd), mySubCalEvent.isRigid, mySubCalEvent.isEnabled, mySubCalEvent.getUIParam, mySubCalEvent.Notes, mySubCalEvent.getIsComplete, mySubCalEvent.Location, calendarEventRange, mySubCalEvent.Conflicts);
 
             //bool InitialRigidStatus = mySubCalEvent.Rigid;
             TimeSpan timeSpanStartDiff = TimeSpan.FromTicks( Math.Abs((mySubCalEvent.Start - SubeventStart).Ticks));
@@ -396,7 +396,7 @@ namespace TilerCore
                 if (!isFromRigidEvent)
                 {
                     mySubCalEvent.UpdateThis(ChangedSubCal);
-                    mySubCalEvent.SetAsRigid();
+                    mySubCalEvent.tempLockSubEvent();
                 }
                 else
                 {
@@ -662,30 +662,18 @@ namespace TilerCore
                     {
                         SubCalendarEvent.disable(CalEventCopy);
                     }
-                    bool isRigidInitial = false;
                     TimeSpan timeDiffBeforePause = (SubEvent.Start- unDisabled.Start);
                     unDisabled.shiftEvent(timeDiffBeforePause);
-                    if (!SubEvent.getRigid)
-                    {
-                        unDisabled.SetAsRigid();
-                    }
-                    else
-                    {
-                        isRigidInitial = true;
-                    }
+                    unDisabled.tempLockSubEvent();
 
                     HashSet<SubCalendarEvent> NotDoneYets = getNoneDoneYetBetweenNowAndReerenceStartTIme();
                     NotDoneYets.RemoveWhere(obj => obj.RangeTimeLine.doesTimeLineInterfere(unDisabled.RangeTimeLine));
                     CalEventCopy = EvaluateTotalTimeLineAndAssignValidTimeSpots(CalEventCopy, NotDoneYets, null, InterringWithNowEvent:2);
-                    if (!isRigidInitial)
-                    {
-                        unDisabled.SetAsNonRigid();
-                    }
+                    
 
                     SubEvent.Enable(CalEvent);
                     TimeSpan timeDiff = (unDisabled.Start - SubEvent.Start);
                     SubEvent.shiftEvent(timeDiff);
-                    //await UpdateWithDifferentSchedule(AllEventDictionary);
                     RetValue = null;
                 }
 
@@ -708,7 +696,7 @@ namespace TilerCore
             CalendarEvent CalendarEventTOBeRemoved = getCalendarEvent(EventId);
             CalendarEventTOBeRemoved.Disable(false);
             //CalendarEventTOBeRemoved.DisableSubEvents(CalendarEventTOBeRemoved.ActiveSubEvents);
-            if (CalendarEventTOBeRemoved.getRigid)
+            if (CalendarEventTOBeRemoved.isLocked)
             {
                 CalendarEventTOBeRemoved = new RigidCalendarEvent(
                     //EventID.GenerateCalendarEvent(), 
@@ -741,7 +729,7 @@ namespace TilerCore
             CalendarEvent CalendarEventTOBeRemoved = getCalendarEvent(EventId);
             CalendarEventTOBeRemoved.SetCompletion(true);
 
-            if (CalendarEventTOBeRemoved.getRigid)
+            if (CalendarEventTOBeRemoved.isLocked)
             {
                 CalendarEventTOBeRemoved = new RigidCalendarEvent(
                     //EventID.GenerateCalendarEvent(), 
@@ -777,7 +765,7 @@ namespace TilerCore
 
             
 
-            bool InitialRigid = ReferenceSubEvent.getRigid;
+            bool InitialRigid = ReferenceSubEvent.isLocked;
 
 
             if (referenceCalendarEventWithSubEvent.RepetitionStatus)
@@ -799,7 +787,7 @@ namespace TilerCore
 
             //CalendarEvent(string NameEntry, string StartTime, DateTimeOffset StartDateEntry, string EndTime, DateTimeOffset EventEndDateEntry, string eventSplit, string PreDeadlineTime, string EventDuration, Repetition EventRepetitionEntry, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag,Location EventLocation)
             CalendarEvent ScheduleUpdated;
-            if (ReferenceSubEvent.getRigid)
+            if (ReferenceSubEvent.isLocked)
             {
                 ScheduleUpdated = new RigidCalendarEvent(
                     //EventID.GenerateCalendarEvent(), 
@@ -863,7 +851,7 @@ namespace TilerCore
             EventID SubEventID = new EventID(EventId);
 
 
-            bool InitialRigid = ReferenceSubEvent.getRigid;
+            bool InitialRigid = ReferenceSubEvent.isLocked;
 
             
             if (referenceCalendarEventWithSubEvent.RepetitionStatus)
@@ -889,7 +877,7 @@ namespace TilerCore
             DateTimeOffset EndData = DateTimeOffset.Parse(referenceCalendarEventWithSubEvent.End.ToString("hh:mm tt") + " " + referenceCalendarEventWithSubEvent.End.Date.ToShortDateString());
 
             CalendarEvent ScheduleUpdated;
-            if (ReferenceSubEvent.getRigid)
+            if (ReferenceSubEvent.isLocked)
             {
                 ScheduleUpdated = new RigidCalendarEvent(
                     //EventID.GenerateCalendarEvent(), 
@@ -985,7 +973,7 @@ namespace TilerCore
             EventID SubEventID = new EventID(EventID);
 
 
-            bool InitialRigid = ReferenceSubEvent.getRigid;
+            bool InitialRigid = ReferenceSubEvent.isLocked;
 
             if (!ReferenceSubEvent.shiftEvent(Now.calculationNow - ReferenceSubEvent.Start) && !Force)
             {
@@ -1034,7 +1022,7 @@ namespace TilerCore
 
             for (int i = 0; i < AllValidSubCalEvents.Count; i++)//updates the subcalevents
             {
-                bool Rigid = AllValidSubCalEvents[i].getRigid;
+                bool Rigid = AllValidSubCalEvents[i].isLocked;
                 if (IDOfRigidized == AllValidSubCalEvents[i].getId)
                 { 
                     Rigid=InitialRigid;
@@ -1080,7 +1068,7 @@ namespace TilerCore
         {
             HashSet<SubCalendarEvent> NotdoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
             Tuple<List<SubCalendarEvent>[], DayTimeLine[], List<SubCalendarEvent>> retValue;
-            if (!NewEvent.getRigid)
+            if (!NewEvent.isLocked)
             {
                 retValue = peekEvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, NotdoneYet);
             }
@@ -1101,7 +1089,7 @@ namespace TilerCore
             Now.InitializeParameters();
             //HashSet<SubCalendarEvent> NotdoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
             HashSet<SubCalendarEvent> NotdoneYet = new HashSet<SubCalendarEvent>();// getNoneDoneYetBetweenNowAndReerenceStartTIme();
-            if (!NewEvent.getRigid)
+            if (!NewEvent.isLocked)
             {
                 NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, NotdoneYet, null);
             }
@@ -1139,6 +1127,15 @@ namespace TilerCore
             }
 
             return NewEvent.Error;
+        }
+
+        public void updateSubEventLock (string subeventID, bool lockStatus)
+        {
+            SubCalendarEvent subEvent = getSubCalendarEvent(subeventID);
+            if(!subEvent.isRigid && !subEvent.isThirdParty)
+            {
+                subEvent.userLocked = lockStatus;
+            }
         }
 
         /// <summary>
@@ -1224,7 +1221,7 @@ namespace TilerCore
             if (MyCalendarEvent.RepetitionStatus)
             {
 
-                SubCalendarEvent MySubEvent = new SubCalendarEvent(MyCalendarEvent, MyCalendarEvent.getCreator, MyCalendarEvent.getAllUsers(), MyCalendarEvent.getTimeZone, MyCalendarEvent.getActiveDuration, MyCalendarEvent.getName, MyCalendarEvent.Repeat.Range.Start, MyCalendarEvent.Repeat.Range.End, MyCalendarEvent.getPreparation, MyCalendarEvent.getId, MyCalendarEvent.getRigid, MyCalendarEvent.isEnabled, MyCalendarEvent.getUIParam, MyCalendarEvent.Notes, MyCalendarEvent.getIsComplete, MyCalendarEvent.Location, MyCalendarEvent.RangeTimeLine);
+                SubCalendarEvent MySubEvent = new SubCalendarEvent(MyCalendarEvent, MyCalendarEvent.getCreator, MyCalendarEvent.getAllUsers(), MyCalendarEvent.getTimeZone, MyCalendarEvent.getActiveDuration, MyCalendarEvent.getName, MyCalendarEvent.Repeat.Range.Start, MyCalendarEvent.Repeat.Range.End, MyCalendarEvent.getPreparation, MyCalendarEvent.getId, MyCalendarEvent.isRigid, MyCalendarEvent.isEnabled, MyCalendarEvent.getUIParam, MyCalendarEvent.Notes, MyCalendarEvent.getIsComplete, MyCalendarEvent.Location, MyCalendarEvent.RangeTimeLine);
 
 
                 //new SubCalendarEvent(MyCalendarEvent.End, MyCalendarEvent.Repeat.Range.Start, MyCalendarEvent.Repeat.Range.End, MyCalendarEvent.Preparation, MyCalendarEvent.ID);
@@ -1236,27 +1233,27 @@ namespace TilerCore
                     {
                         case Repetition.Frequency.DAILY:
                             {
-                                MySubEvent = new SubCalendarEvent(MyCalendarEvent, MyCalendarEvent.getCreator, MyCalendarEvent.getAllUsers(), MyCalendarEvent.getTimeZone, MyCalendarEvent.getActiveDuration, MyCalendarEvent.getName,  MyCalendarEvent.Repeat.Range.Start.AddDays(1), MyCalendarEvent.Repeat.Range.End.AddDays(1), MyCalendarEvent.getPreparation, MyCalendarEvent.getId, MyCalendarEvent.getRigid, MyCalendarEvent.isEnabled, MyCalendarEvent.getUIParam, MyCalendarEvent.Notes, MyCalendarEvent.getIsComplete, MyCalendarEvent.Location, MyCalendarEvent.RangeTimeLine);
+                                MySubEvent = new SubCalendarEvent(MyCalendarEvent, MyCalendarEvent.getCreator, MyCalendarEvent.getAllUsers(), MyCalendarEvent.getTimeZone, MyCalendarEvent.getActiveDuration, MyCalendarEvent.getName,  MyCalendarEvent.Repeat.Range.Start.AddDays(1), MyCalendarEvent.Repeat.Range.End.AddDays(1), MyCalendarEvent.getPreparation, MyCalendarEvent.getId, MyCalendarEvent.isRigid, MyCalendarEvent.isEnabled, MyCalendarEvent.getUIParam, MyCalendarEvent.Notes, MyCalendarEvent.getIsComplete, MyCalendarEvent.Location, MyCalendarEvent.RangeTimeLine);
                                 break;
                             }
                         case Repetition.Frequency.WEEKLY:
                             {
-                                MySubEvent = new SubCalendarEvent(MyCalendarEvent, MyCalendarEvent.getCreator, MyCalendarEvent.getAllUsers(), MyCalendarEvent.getTimeZone, MyCalendarEvent.getActiveDuration, MyCalendarEvent.getName, MyCalendarEvent.Repeat.Range.Start.AddDays(7), MyCalendarEvent.Repeat.Range.End.AddDays(7), MyCalendarEvent.getPreparation, MyCalendarEvent.getId, MyCalendarEvent.getRigid, MyCalendarEvent.isEnabled, MyCalendarEvent.getUIParam, MyCalendarEvent.Notes, MyCalendarEvent.getIsComplete, MyCalendarEvent.Location, MyCalendarEvent.RangeTimeLine);
+                                MySubEvent = new SubCalendarEvent(MyCalendarEvent, MyCalendarEvent.getCreator, MyCalendarEvent.getAllUsers(), MyCalendarEvent.getTimeZone, MyCalendarEvent.getActiveDuration, MyCalendarEvent.getName, MyCalendarEvent.Repeat.Range.Start.AddDays(7), MyCalendarEvent.Repeat.Range.End.AddDays(7), MyCalendarEvent.getPreparation, MyCalendarEvent.getId, MyCalendarEvent.isRigid, MyCalendarEvent.isEnabled, MyCalendarEvent.getUIParam, MyCalendarEvent.Notes, MyCalendarEvent.getIsComplete, MyCalendarEvent.Location, MyCalendarEvent.RangeTimeLine);
                                 break;
                             }
                         case Repetition.Frequency.BIWEEKLY:
                             {
-                                MySubEvent = new SubCalendarEvent(MyCalendarEvent, MyCalendarEvent.getCreator, MyCalendarEvent.getAllUsers(), MyCalendarEvent.getTimeZone, MyCalendarEvent.getActiveDuration, MyCalendarEvent.getName, MyCalendarEvent.Repeat.Range.Start.AddDays(14), MyCalendarEvent.Repeat.Range.End.AddDays(14), MyCalendarEvent.getPreparation, MyCalendarEvent.getId, MyCalendarEvent.getRigid, MyCalendarEvent.isEnabled, MyCalendarEvent.getUIParam, MyCalendarEvent.Notes, MyCalendarEvent.getIsComplete, MyCalendarEvent.Location, MyCalendarEvent.RangeTimeLine);
+                                MySubEvent = new SubCalendarEvent(MyCalendarEvent, MyCalendarEvent.getCreator, MyCalendarEvent.getAllUsers(), MyCalendarEvent.getTimeZone, MyCalendarEvent.getActiveDuration, MyCalendarEvent.getName, MyCalendarEvent.Repeat.Range.Start.AddDays(14), MyCalendarEvent.Repeat.Range.End.AddDays(14), MyCalendarEvent.getPreparation, MyCalendarEvent.getId, MyCalendarEvent.isRigid, MyCalendarEvent.isEnabled, MyCalendarEvent.getUIParam, MyCalendarEvent.Notes, MyCalendarEvent.getIsComplete, MyCalendarEvent.Location, MyCalendarEvent.RangeTimeLine);
                                 break;
                             }
                         case Repetition.Frequency.MONTHLY:
                             {
-                                MySubEvent = new SubCalendarEvent(MyCalendarEvent, MyCalendarEvent.getCreator, MyCalendarEvent.getAllUsers(), MyCalendarEvent.getTimeZone, MyCalendarEvent.getActiveDuration, MyCalendarEvent.getName, MyCalendarEvent.Repeat.Range.Start.AddMonths(1), MyCalendarEvent.Repeat.Range.End.AddMonths(1), MyCalendarEvent.getPreparation, MyCalendarEvent.getId, MyCalendarEvent.getRigid, MyCalendarEvent.isEnabled, MyCalendarEvent.getUIParam, MyCalendarEvent.Notes, MyCalendarEvent.getIsComplete, MyCalendarEvent.Location, MyCalendarEvent.RangeTimeLine);
+                                MySubEvent = new SubCalendarEvent(MyCalendarEvent, MyCalendarEvent.getCreator, MyCalendarEvent.getAllUsers(), MyCalendarEvent.getTimeZone, MyCalendarEvent.getActiveDuration, MyCalendarEvent.getName, MyCalendarEvent.Repeat.Range.Start.AddMonths(1), MyCalendarEvent.Repeat.Range.End.AddMonths(1), MyCalendarEvent.getPreparation, MyCalendarEvent.getId, MyCalendarEvent.isRigid, MyCalendarEvent.isEnabled, MyCalendarEvent.getUIParam, MyCalendarEvent.Notes, MyCalendarEvent.getIsComplete, MyCalendarEvent.Location, MyCalendarEvent.RangeTimeLine);
                                 break;
                             }
                         case Repetition.Frequency.YEARLY:
                             {
-                                MySubEvent = new SubCalendarEvent(MyCalendarEvent, MyCalendarEvent.getCreator, MyCalendarEvent.getAllUsers(), MyCalendarEvent.getTimeZone, MyCalendarEvent.getActiveDuration, MyCalendarEvent.getName, MyCalendarEvent.Repeat.Range.Start.AddYears(1), MyCalendarEvent.Repeat.Range.End.AddYears(1), MyCalendarEvent.getPreparation, MyCalendarEvent.getId, MyCalendarEvent.getRigid, MyCalendarEvent.isEnabled, MyCalendarEvent.getUIParam, MyCalendarEvent.Notes, MyCalendarEvent.getIsComplete, MyCalendarEvent.Location, MyCalendarEvent.RangeTimeLine);
+                                MySubEvent = new SubCalendarEvent(MyCalendarEvent, MyCalendarEvent.getCreator, MyCalendarEvent.getAllUsers(), MyCalendarEvent.getTimeZone, MyCalendarEvent.getActiveDuration, MyCalendarEvent.getName, MyCalendarEvent.Repeat.Range.Start.AddYears(1), MyCalendarEvent.Repeat.Range.End.AddYears(1), MyCalendarEvent.getPreparation, MyCalendarEvent.getId, MyCalendarEvent.isRigid, MyCalendarEvent.isEnabled, MyCalendarEvent.getUIParam, MyCalendarEvent.Notes, MyCalendarEvent.getIsComplete, MyCalendarEvent.Location, MyCalendarEvent.RangeTimeLine);
                                 break;
                             }
                     }
@@ -1330,7 +1327,7 @@ namespace TilerCore
                 if (MyBusySlot.doesTimeLineInterfere(MyPotentialCalendarEvent.RangeTimeLine))
                 {
                     StatusOfCollision[0] = true;
-                    if (AllEventDictionary[(new EventID(MyBusySlot.TimeLineID)).getCalendarEventComponent()].getRigid)
+                    if (AllEventDictionary[(new EventID(MyBusySlot.TimeLineID)).getCalendarEventComponent()].isLocked)
                     {
                         StatusOfCollision[1] = true;
                     }
@@ -1377,7 +1374,7 @@ namespace TilerCore
             }
             if (MyEvent.RepetitionStatus)
             {
-                CalendarEvent tempCalendarEvent = CalendarEvent.getEmptyCalendarEvent(MyEvent.Calendar_EventID, MyEvent.Start, MyEvent.getRigid ? MyEvent.Start : MyEvent.End);//creates an "empty" calendar event. If the calEvent is rigid it has time span of zero
+                CalendarEvent tempCalendarEvent = CalendarEvent.getEmptyCalendarEvent(MyEvent.Calendar_EventID, MyEvent.Start, MyEvent.isLocked ? MyEvent.Start : MyEvent.End);//creates an "empty" calendar event. If the calEvent is rigid it has time span of zero
 
                 RetValue=peekEvaluateTotalTimeLineAndAssignValidTimeSpots(tempCalendarEvent, UnDoneEvents, MyEvent.Repeat.RecurringCalendarEvents().ToList());
                 return RetValue;
@@ -1416,7 +1413,7 @@ namespace TilerCore
             }
             if (MyEvent.RepetitionStatus)
             {
-                CalendarEvent tempCalendarEvent = CalendarEvent.getEmptyCalendarEvent(MyEvent.Calendar_EventID, MyEvent.Start,MyEvent.getRigid?MyEvent.Start: MyEvent.End);//creates an "empty" calendar event. If the calEvent is rigid it has time span of zero
+                CalendarEvent tempCalendarEvent = CalendarEvent.getEmptyCalendarEvent(MyEvent.Calendar_EventID, MyEvent.Start,MyEvent.isLocked?MyEvent.Start: MyEvent.End);//creates an "empty" calendar event. If the calEvent is rigid it has time span of zero
 
                 EvaluateTotalTimeLineAndAssignValidTimeSpots(tempCalendarEvent, UnDoneEvents, callLocation, MyEvent.Repeat.RecurringCalendarEvents().ToList(), InterringWithNowEvent, optimizeFirstTwentyFourHours, preserveFirstTwentyFourHours);
                 return MyEvent;
@@ -1758,7 +1755,7 @@ namespace TilerCore
             ConcurrentBag<SubCalendarEvent> subEvents = new ConcurrentBag<SubCalendarEvent>();
             subEventsInSet.AsParallel().ForAll((subEvent) =>
             {
-                if (subEvent.getRigid)
+                if (subEvent.isLocked)
                 {
                     if (subEvent.RangeTimeLine.doesTimeLineInterfere(CalculationTImeLine))
                     {
@@ -1936,7 +1933,7 @@ namespace TilerCore
 
             TimeLine TimeLineBetweenNowAndReferenceStartTIme = new TimeLine(ReferenceDayTIime.AddDays(-90), Now.calculationNow);
             SubCalendarEvent[] NotDoneYet = getInterferringSubEvents(TimeLineBetweenNowAndReferenceStartTIme);
-            IEnumerable<SubCalendarEvent> retValue = NotDoneYet.Where(obj => (!obj.getRigid) && (!obj.RangeTimeLine.IsDateTimeWithin(Now.calculationNow)));
+            IEnumerable<SubCalendarEvent> retValue = NotDoneYet.Where(obj => (!obj.isLocked) && (!obj.RangeTimeLine.IsDateTimeWithin(Now.calculationNow)));
             HashSet<SubCalendarEvent> retValue_HashSet = new HashSet<SubCalendarEvent>();
             foreach (SubCalendarEvent eachSubCalendarEvent in retValue)
             {
@@ -1952,7 +1949,7 @@ namespace TilerCore
         Tuple<List<SubCalendarEvent>, List<BlobSubCalendarEvent>> PrepareElementsThatWillNotFit(IEnumerable<SubCalendarEvent> AllEvents, TimeLine ReferenceTimeline)
         {
             List<SubCalendarEvent> retValue = AllEvents.ToList();
-            IEnumerable<SubCalendarEvent> AllRigidEvents = AllEvents.Where(obj => obj.getRigid);
+            IEnumerable<SubCalendarEvent> AllRigidEvents = AllEvents.Where(obj => obj.isLocked);
             List<SubCalendarEvent> CannotFitInAnyFreespot = AllEvents.Except(AllRigidEvents).ToList();
 
             TimeLine refTImeLine = ReferenceTimeline.CreateCopy();
@@ -2047,15 +2044,12 @@ namespace TilerCore
             List<SubCalendarEvent> collectionOfInterferringSubCalEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToList();
             List<SubCalendarEvent> ArrayOfInterferringSubEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToList();
             TimeLine RangeForScheduleUpdate = allInterferringSubCalEventsAndTimeLine.Item1;
-            IEnumerable<SubCalendarEvent> NowEvents = allInterferringSubCalEventsAndTimeLine.Item4.Where(obj => !obj.getRigid).ToList();
+            IEnumerable<SubCalendarEvent> NowEvents = allInterferringSubCalEventsAndTimeLine.Item4.Where(obj => !obj.isLocked).ToList();
             if (InterferringWithNowFlag == 0)
             {
                 foreach (SubCalendarEvent eachSubCalendarEvent in NowEvents)
                 {
-                    //if(!eachSubCalendarEvent.Rigid)
-                    {
-                        eachSubCalendarEvent.SetAsRigid();
-                    }
+                    eachSubCalendarEvent.tempLockSubEvent();
                 }
 
             }
@@ -2069,7 +2063,7 @@ namespace TilerCore
             Dictionary<CalendarEvent, List<SubCalendarEvent>> DictionaryWithBothCalendarEventIDAndListOfInterferringSubEvents = new Dictionary<CalendarEvent, List<SubCalendarEvent>>();
             List<SubCalendarEvent> RigidSubCalendarEvents = new List<SubCalendarEvent>(0);
             List<BusyTimeLine> RigidSubCalendarEventsBusyTimeLine = new List<BusyTimeLine>(0);
-            RigidSubCalendarEvents = ArrayOfInterferringSubEvents.Where(obj => obj.getRigid).ToList();
+            RigidSubCalendarEvents = ArrayOfInterferringSubEvents.Where(obj => obj.isLocked).ToList();
             RigidSubCalendarEventsBusyTimeLine = RigidSubCalendarEvents.Select(obj => obj.ActiveSlot).ToList();
 
             double OccupancyOfTimeLineSPan = (double)SumOfAllEventsTimeSpan.Ticks / (double)RangeForScheduleUpdate.TimelineSpan.Ticks;
@@ -2096,19 +2090,6 @@ namespace TilerCore
             foreach (BlobSubCalendarEvent eachSubCalEvent in preppedDataForNExtStage.Item2)
             {
                 AllEventDictionary.Remove(eachSubCalEvent.SubEvent_ID.getIDUpToCalendarEvent());
-            }
-
-
-
-            if (InterferringWithNowFlag == 0)
-            {
-                foreach (SubCalendarEvent eachSubCalendarEvent in NowEvents)
-                {
-                    //if(!eachSubCalendarEvent.Rigid)
-                    {
-                        eachSubCalendarEvent.SetAsNonRigid();
-                    }
-                }
             }
 
             return MyCalendarEvent;
@@ -2305,15 +2286,12 @@ namespace TilerCore
             List<SubCalendarEvent> collectionOfInterferringSubCalEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToList();
             List<SubCalendarEvent> ArrayOfInterferringSubEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToList();
             TimeLine RangeForScheduleUpdate = allInterferringSubCalEventsAndTimeLine.Item1;
-            IEnumerable<SubCalendarEvent> NowEvents = allInterferringSubCalEventsAndTimeLine.Item4.Where(obj => !obj.getRigid).ToList();
+            IEnumerable<SubCalendarEvent> NowEvents = allInterferringSubCalEventsAndTimeLine.Item4.Where(obj => !obj.isLocked).ToList();
             if (InterferringWithNowFlag == 0)
             {
                 foreach (SubCalendarEvent eachSubCalendarEvent in NowEvents)
                 {
-                    //if(!eachSubCalendarEvent.Rigid)
-                    {
-                        eachSubCalendarEvent.SetAsRigid();
-                    }
+                   eachSubCalendarEvent.tempLockSubEvent();
                 }
 
             }
@@ -2327,7 +2305,7 @@ namespace TilerCore
             Dictionary<CalendarEvent, List<SubCalendarEvent>> DictionaryWithBothCalendarEventIDAndListOfInterferringSubEvents = new Dictionary<CalendarEvent, List<SubCalendarEvent>>();
             List<SubCalendarEvent> RigidSubCalendarEvents = new List<SubCalendarEvent>(0);
             List<BusyTimeLine> RigidSubCalendarEventsBusyTimeLine = new List<BusyTimeLine>(0);
-            RigidSubCalendarEvents = ArrayOfInterferringSubEvents.Where(obj => obj.getRigid).ToList();
+            RigidSubCalendarEvents = ArrayOfInterferringSubEvents.Where(obj => obj.isLocked).ToList();
             RigidSubCalendarEventsBusyTimeLine = RigidSubCalendarEvents.Select(obj => obj.ActiveSlot).ToList();
 
             double OccupancyOfTimeLineSPan = (double)SumOfAllEventsTimeSpan.Ticks / (double)RangeForScheduleUpdate.TimelineSpan.Ticks;
@@ -2584,7 +2562,7 @@ namespace TilerCore
                 SetForFirstDay = PrepFirstTwentyFOurHours(AllCalEvents, AllDayTImeLine[0].getJustTimeLine());
             }
 
-            List<SubCalendarEvent> AllRigids = TotalActiveEvents.Where(obj => obj.getRigid).ToList();// you need to call this after PrepFirstTwentyFOurHours to prevent resetting of indexes
+            List<SubCalendarEvent> AllRigids = TotalActiveEvents.Where(obj => obj.isLocked).ToList();// you need to call this after PrepFirstTwentyFOurHours to prevent resetting of indexes
             DesignateSubEventsToDayTimeLine(AllDayTImeLine, AllRigids);
 
             int numberOfDays = AllDayTImeLine.Count();
@@ -2598,7 +2576,7 @@ namespace TilerCore
 
             
             TotalActiveEvents.AsParallel().ForAll(obj => obj.enableCalculationMode());
-            long totalRigidCount = TotalActiveEvents.Where(obj => obj.getRigid).LongCount();
+            long totalRigidCount = TotalActiveEvents.Where(obj => obj.isLocked).LongCount();
 
 
             
@@ -2768,7 +2746,7 @@ namespace TilerCore
             Dictionary<string, CalendarEvent> IDToCalendarEvent = AllCalEvents.ToDictionary(obj => obj.getId, obj => obj);
             TimeLine FirstFortyEight = new TimeLine(Now.firstDay.Start, Now.firstDay.Start.AddDays(2));
             List<Tuple<CalendarEvent, TimeLine>> ListOfTuples = AllCalEvents.Select(obj => new Tuple<CalendarEvent, TimeLine>(obj, obj.RangeTimeLine.InterferringTimeLine(FirstFortyEight))).Where(obj => obj.Item2 != null).ToList();
-            ListOfTuples = ListOfTuples.Where(obj => ((obj.Item1.getRigid)||(new TimeLine(obj.Item2.End, obj.Item1.End).TimelineSpan < obj.Item1.AverageTimeSpanPerSubEvent))).ToList();//gets elements that have to exist within timeframe, checks if span per fit is less than the intersecting span greater than first forty eight
+            ListOfTuples = ListOfTuples.Where(obj => ((obj.Item1.isLocked)||(new TimeLine(obj.Item2.End, obj.Item1.End).TimelineSpan < obj.Item1.AverageTimeSpanPerSubEvent))).ToList();//gets elements that have to exist within timeframe, checks if span per fit is less than the intersecting span greater than first forty eight
             List<SubCalendarEvent> ForCalculation =ListOfTuples .SelectMany(obj => obj.Item1.ActiveSubEvents).ToList();
             List<CalendarEvent> possibleCalEvents = AllCalEvents.Where(obj => obj.RangeTimeLine.InterferringTimeLine(FirstTwentyFour) != null).ToList();
             possibleCalEvents.AsParallel().ForAll(obj => obj.ActiveSubEvents.AsParallel().ForAll(obj1 => obj1.updateDayIndex(IDToCalendarEvent[obj1.SubEvent_ID.getRepeatCalendarEventID()])));
@@ -2776,7 +2754,7 @@ namespace TilerCore
             List<SubCalendarEvent> possibleSubCals = possibleCalEvents.SelectMany(obj => obj.ActiveSubEvents.Where(obj1 => obj1.UniversalDayIndex <= dayIndexLimit)).OrderBy(obj=>obj.Start).ToList();
             List<SubCalendarEvent> CurrentConstituents = possibleSubCals.Where(obj => obj.RangeTimeLine.InterferringTimeLine(FirstTwentyFour)!=null).ToList();
             
-            List<SubCalendarEvent> AllRigids =  ForCalculation.Where(obj => obj.getRigid).ToList();
+            List<SubCalendarEvent> AllRigids =  ForCalculation.Where(obj => obj.isLocked).ToList();
 
             ForCalculation = ForCalculation.Except(AllRigids).ToList();
             ForCalculation.ForEach(obj => obj.addReasons(new PreservedOrder(ForCalculation.Select(subEvent => subEvent.SubEvent_ID).ToList())));
@@ -2822,7 +2800,7 @@ namespace TilerCore
         {
             ++CountCall;
             List<SubCalendarEvent> AllreadyAssigned = myDayTimeLine.getSubEventsInTimeLine();
-            List<SubCalendarEvent> AllRigids = AllSubEvents.Concat(AllreadyAssigned).Where(obj => obj.getRigid).ToList();
+            List<SubCalendarEvent> AllRigids = AllSubEvents.Concat(AllreadyAssigned).Where(obj => obj.isLocked).ToList();
             
             List<SubCalendarEvent> Movables = AllSubEvents.Except(AllRigids ).ToList();
             if (Movables.Count < 1)
@@ -3273,7 +3251,7 @@ namespace TilerCore
             {
                 bool pinSuccess = eachSubCalendarEvent0.PinToEnd(myTimeLines);
                 
-                if (!pinSuccess && !eachSubCalendarEvent0.getRigid)
+                if (!pinSuccess && !eachSubCalendarEvent0.isLocked)
                 {
                     throw new Exception("Theres an issue with preserving the first twenty four. Check pin to start 1");
                 }
@@ -3318,7 +3296,7 @@ namespace TilerCore
                 {
                     bool pinSuccess = eachSubCalendarEvent0.PinToEnd(myTimeLines0);
                     myTimeLines0 = new TimeLine(refTImeLine_Ini.Start, eachSubCalendarEvent0.Start);
-                    if (!pinSuccess && !eachSubCalendarEvent0.getRigid)
+                    if (!pinSuccess && !eachSubCalendarEvent0.isLocked)
                     {
                         throw new Exception("Invalid list used in CreateBufferForEachEvent");//hack alert we need to involve conflicting events
                     }
@@ -3454,7 +3432,7 @@ namespace TilerCore
             }
 
             AllEvents = allEventshash.ToList();
-            List<SubCalendarEvent> justThemRigids = AllEvents.Where(obj => obj.getRigid).ToList();
+            List<SubCalendarEvent> justThemRigids = AllEvents.Where(obj => obj.isLocked).ToList();
 
             TimeLine myTimeLines = new TimeLine(restrictingTimeline.Start, restrictingTimeline.End);
             List<SubCalendarEvent> allEvents_reversed=AllEvents.ToList();
@@ -3464,7 +3442,7 @@ namespace TilerCore
                 TimeLine oldTimeLine = myTimeLines;
                 bool pinSuccess=eachSubCalendarEvent.PinToEnd(myTimeLines);
                 myTimeLines = new TimeLine(restrictingTimeline.Start, eachSubCalendarEvent.Start);
-                if (!pinSuccess && !eachSubCalendarEvent.getRigid)
+                if (!pinSuccess && !eachSubCalendarEvent.isLocked)
                 {
                     throw new Exception("Invalid list used in CreateBufferForEachEvent");//hack alert we need to involve conflicting events
                 }
@@ -3481,7 +3459,7 @@ namespace TilerCore
             int j=0;
             TimeLine referencePinningTImeline = new TimeLine(restrictingTimeline.Start, restrictingTimeline.End);
             SubCalendarEvent firstEvent = AllEvents[0];
-            if (!firstEvent.PinToStart(referencePinningTImeline) && !firstEvent.getRigid)
+            if (!firstEvent.PinToStart(referencePinningTImeline) && !firstEvent.isLocked)
             {
                 throw new Exception("this is a weird bug to have in CreateBufferForEachEvent");
             }
@@ -3591,7 +3569,7 @@ namespace TilerCore
             List<SubCalendarEvent> AllSubCalEvents_NorestrictedValues = AllPossibleEvents.ToList();
             AllSubCalEvents_NorestrictedValues.RemoveAll(obj => PinnedToStartRestrictedEvents.Contains(obj));
 
-            if (AllSubCalEvents_NorestrictedValues.Where(obj => obj.getRigid).Count()>0)
+            if (AllSubCalEvents_NorestrictedValues.Where(obj => obj.isLocked).Count()>0)
             {
                 throw new Exception("You have a rigid subevent in call to stitchUnRestrictedSubCalendarEvent");
             }
@@ -8793,7 +8771,7 @@ namespace TilerCore
 
                     for (int i = 0; i < AllValidSubCalEvents.Count; i++)//updates the subcalevents
                     {
-                        SubCalendarEvent updatedSubCal = new SubCalendarEvent(AllValidSubCalEvents[i].calendarEvent, AllValidSubCalEvents[i].getCreator, AllValidSubCalEvents[i].getAllUsers(), AllValidSubCalEvents[i].getTimeZone, AllValidSubCalEvents[i].getId, UpdatedSubCalevents[i].getName, UpdatedSubCalevents[i].Start, UpdatedSubCalevents[i].End, UpdatedSubCalevents[i].ActiveSlot, UpdatedSubCalevents[i].getRigid, AllValidSubCalEvents[i].isEnabled, AllValidSubCalEvents[i].getUIParam, AllValidSubCalEvents[i].Notes, AllValidSubCalEvents[i].getIsComplete, UpdatedSubCalevents[i].Location, ProcrastinateEvent.RangeTimeLine);
+                        SubCalendarEvent updatedSubCal = new SubCalendarEvent(AllValidSubCalEvents[i].calendarEvent, AllValidSubCalEvents[i].getCreator, AllValidSubCalEvents[i].getAllUsers(), AllValidSubCalEvents[i].getTimeZone, AllValidSubCalEvents[i].Id, UpdatedSubCalevents[i].getName, UpdatedSubCalevents[i].Start, UpdatedSubCalevents[i].End, UpdatedSubCalevents[i].ActiveSlot, UpdatedSubCalevents[i].isRigid, AllValidSubCalEvents[i].isEnabled, AllValidSubCalEvents[i].getUIParam, AllValidSubCalEvents[i].Notes, AllValidSubCalEvents[i].getIsComplete, UpdatedSubCalevents[i].Location, ProcrastinateEvent.RangeTimeLine);
                         AllValidSubCalEvents[i].shiftEvent(updatedSubCal.Start - AllValidSubCalEvents[i].Start, true);///not using update this because of possible issues with subevent not being restricted
                         //AllValidSubCalEvents[i].UpdateThis(updatedSubCal);
                     }

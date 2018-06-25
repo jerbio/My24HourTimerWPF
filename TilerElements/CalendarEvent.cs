@@ -199,7 +199,8 @@ namespace TilerElements
             _Splits = MyUpdated._Splits;
             _PrepTime = MyUpdated._PrepTime;
             _EventPreDeadline = MyUpdated.getPreDeadline;
-            RigidSchedule = MyUpdated.getRigid;
+            RigidSchedule = MyUpdated.RigidSchedule;
+            _userLocked = MyUpdated.userLocked;
             _AverageTimePerSplit = MyUpdated._AverageTimePerSplit;
             _Enabled = MyUpdated.isEnabled;
             _Complete = MyUpdated.getIsComplete;
@@ -288,7 +289,7 @@ namespace TilerElements
             calEventCpy.StartDateTime = timeLine.Start;
             calEventCpy.EndDateTime= timeLine.End;
             subEventCopy.updateCalculationEventRange(timeLine);
-            if (subEventCopy.getRigid)/// this is optimized for this use case
+            if (subEventCopy.isLocked)/// this is optimized for this use case
             {
                 DateTimeOffset dayStart = timeLine.Start;
                 DateTimeOffset preferredStart = new DateTimeOffset(dayStart.Year, dayStart.Month, dayStart.Day, subEventCopy.Start.Hour, subEventCopy.Start.Minute, subEventCopy.Start.Second, new TimeSpan());
@@ -345,7 +346,7 @@ namespace TilerElements
                 calEventCpy.StartDateTime = timeLine.Start;
                 calEventCpy.EndDateTime = timeLine.End;
                 subEventCopy.updateCalculationEventRange(timeLine);
-                if (subEventCopy.getRigid)/// this is optimized for this use case
+                if (subEventCopy.isLocked)/// this is optimized for this use case
                 {
                     DateTimeOffset dayStart = timeLine.Start;
                     DateTimeOffset preferredStart = new DateTimeOffset(dayStart.Year, dayStart.Month, dayStart.Day, subEventCopy.Start.Hour, subEventCopy.Start.Minute, subEventCopy.Start.Second, new TimeSpan());
@@ -442,6 +443,7 @@ namespace TilerElements
             MyCalendarEventCopy._Complete = this._Complete;
             MyCalendarEventCopy.RigidSchedule = RigidSchedule;//hack
             MyCalendarEventCopy._Splits = _Splits;
+            MyCalendarEventCopy._userLocked = this._userLocked;
             MyCalendarEventCopy._AverageTimePerSplit = new TimeSpan(_AverageTimePerSplit.Ticks);
             
             if (Id != null)
@@ -621,7 +623,7 @@ namespace TilerElements
         virtual public void PauseSubEvent(EventID SubEventId, DateTimeOffset CurrentTime, EventID CurrentPausedEventId = null)
         {
             SubCalendarEvent SubEvent =  getSubEvent(SubEventId);
-            if (!SubEvent.getRigid)
+            if (!SubEvent.isLocked)
             {
                 TimeSpan TimeDelta = SubEvent.Pause(CurrentTime);
                 _UsedTime += TimeDelta;
@@ -796,7 +798,7 @@ namespace TilerElements
             }
             TimeSpan TimeDifference = (ReferenceEndTime- ReferenceStartTime);
 
-            if (this.getRigid)
+            if (this.isLocked)
             {
                 return null;
             }
@@ -1305,8 +1307,8 @@ namespace TilerElements
 
         public static long getTotalUndesignatedEvents(IEnumerable<CalendarEvent> AllCalendarEvents)
         {
-            List<SubCalendarEvent> UnassignedEvents = AllCalendarEvents.Where(obj => !obj.getRigid).SelectMany(obj => obj.UnDesignables).ToList();
-            long retValue = AllCalendarEvents.Where(obj=>!obj.getRigid).Sum(obj => obj.UnDesignables.Count);
+            List<SubCalendarEvent> UnassignedEvents = AllCalendarEvents.Where(obj => !obj.isLocked).SelectMany(obj => obj.UnDesignables).ToList();
+            long retValue = AllCalendarEvents.Where(obj=>!obj.isLocked).Sum(obj => obj.UnDesignables.Count);
             return retValue;
         }
 
@@ -1333,8 +1335,8 @@ namespace TilerElements
             RetValue._Priority = this.getEventPriority;
             RetValue._EventRepetition = this.Repeat;// EventRepetition != this.null ? EventRepetition.CreateCopy() : EventRepetition;
             RetValue._Complete = this.getIsComplete;
-            RetValue.RigidSchedule = this.getRigid;//hack
-            RetValue._Splits = this.NumberOfSplit;
+            RetValue.RigidSchedule = this.RigidSchedule;//hack
+            RetValue._Splits = this._Splits;
             RetValue._AverageTimePerSplit = this.AverageTimeSpanPerSubEvent;
             RetValue.UniqueID = EventID.GenerateCalendarEvent();
             RetValue.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
@@ -1552,7 +1554,7 @@ namespace TilerElements
             {
                 StartDateTime = newTImeLine.Start;
                 EndDateTime = newTImeLine.End;
-                if (this.getRigid)
+                if (this.isLocked)
                 {
                     _EventDuration = EndDateTime - StartDateTime;
                 }

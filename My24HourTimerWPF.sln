@@ -2,6 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2005
+VisualStudioVersion = 15.0.27428.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "My24HourTimerWPF", "My24HourTimerWPF\My24HourTimerWPF.csproj", "{9B826E2B-41F4-4164-9899-EE7F84529B66}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -163,5 +164,6 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5CE78560-EE1D-42BC-B379-7A9DE8BD7F6D}
+		SolutionGuid = {3E2ECB8B-4638-4011-AAD0-77CD687AFF7B}
 	EndGlobalSection
 EndGlobal

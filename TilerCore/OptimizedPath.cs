@@ -80,7 +80,7 @@ namespace TilerCore
                     TimeLine interferringTimeline = subEventToViableTimeLine[subEvent];
                     if (interferringTimeline != null)
                     {
-                        SubCalendarEvent slicedValidSubEvent = new SubCalendarEvent(subEvent.calendarEvent, TilerUser.autoUser, new TilerUserGroup(), subEvent.getTimeZone, subEvent.getId, subEvent.getName, interferringTimeline.Start, interferringTimeline.End, new BusyTimeLine(subEvent.getId, interferringTimeline.Start, interferringTimeline.End), subEvent.getRigid, subEvent.isEnabled, subEvent.getUIParam, subEvent.Notes, subEvent.getIsComplete, subEvent.Location, subEvent.getCalendarEventRange, subEvent.Conflicts);
+                        SubCalendarEvent slicedValidSubEvent = new SubCalendarEvent(subEvent.calendarEvent, TilerUser.autoUser, new TilerUserGroup(), subEvent.getTimeZone, subEvent.Id, subEvent.getName, interferringTimeline.Start, interferringTimeline.End, new BusyTimeLine(subEvent.Id, interferringTimeline.Start, interferringTimeline.End), subEvent.isRigid, subEvent.isEnabled, subEvent.getUIParam, subEvent.Notes, subEvent.getIsComplete, subEvent.Location, subEvent.getCalendarEventRange, subEvent.Conflicts);
                         tempSubEvents.Add(slicedValidSubEvent);
                     }
                     else
@@ -99,7 +99,7 @@ namespace TilerCore
 
         void assignRigidsToTimeGroupings(IEnumerable<SubCalendarEvent> subEvents, DayTimeLine DayData)
         {
-            IEnumerable<SubCalendarEvent> rigidSubEvents = subEvents.Where(subEvent => subEvent.getRigid);
+            IEnumerable<SubCalendarEvent> rigidSubEvents = subEvents.Where(subEvent => subEvent.isLocked);
             HashSet<OptimizedGrouping> retrievedGroupings = new HashSet<OptimizedGrouping>();
             foreach(SubCalendarEvent subEvent in rigidSubEvents)
             {
@@ -153,7 +153,7 @@ namespace TilerCore
                 {
                     List<SubCalendarEvent> BestOrder = AllSubCalendarEvents.OrderBy(obj => obj.Start).ToList();
                     List<Location> BestOrderLocations = BestOrder.Select(obj => obj.Location).ToList();
-                    List<SubCalendarEvent> NoPosition = AllSubCalendarEvents.Where(obj => (!obj.getRigid)).Where(obj => (!obj.isOptimized)).Where(obj =>
+                    List<SubCalendarEvent> NoPosition = AllSubCalendarEvents.Where(obj => (!obj.isLocked)).Where(obj => (!obj.isOptimized)).Where(obj =>
                     {
                         var TimeOfDay = obj.getDaySection().getCurrentDayPreference();
                         //return ((TimeOfDay != TimeOfDayPreferrence.DaySection.Disabled)&&(TimeOfDay!=TimeOfDayPreferrence.DaySection.None));
@@ -353,9 +353,9 @@ namespace TilerCore
             Dictionary<TilerEvent, List<double>> dimensionsPerEvent = new Dictionary<TilerEvent, List<double>>();
             Dictionary<string, uint> fibboIndexes = new Dictionary<string, uint>();
             Location avgLocation;
-            if (events.Where(eve => eve.getRigid).Count() > 0)// if there are rigids, let the rigid be the average location
+            if (events.Where(eve => eve.isLocked).Count() > 0)// if there are rigids, let the rigid be the average location
             {
-                avgLocation = Location.AverageGPSLocation(events.Where(eve => eve.getRigid).Select(obj => obj.Location));
+                avgLocation = Location.AverageGPSLocation(events.Where(eve => eve.isLocked).Select(obj => obj.Location));
             }
             else
             {
@@ -742,7 +742,7 @@ namespace TilerCore
             }
             //*/
             List<SubCalendarEvent> SubEventsWithNoLocationPreference = AllGroupings[TimeOfDayPreferrence.DaySection.None].getPathStitchedSubevents();
-            List<SubCalendarEvent> rigidSubeevents = DayInfo.getSubEventsInTimeLine().Where(obj => obj.getRigid).ToList();
+            List<SubCalendarEvent> rigidSubeevents = DayInfo.getSubEventsInTimeLine().Where(obj => obj.isLocked).ToList();
             SubEventsInrespectivepaths.ForEach(subEVent => SubEventsWithNoLocationPreference.Remove(subEVent));
 
             ///*hash set test
@@ -854,7 +854,7 @@ namespace TilerCore
             else
             {
                 List<SubCalendarEvent> recursionSubEvents = SubEvents.ToList();
-                List<SubCalendarEvent> NonRigidis = recursionSubEvents.Where(obj => (!obj.getRigid) && (!obj.isOptimized)).OrderBy(obj => obj.getActiveDuration).ToList();
+                List<SubCalendarEvent> NonRigidis = recursionSubEvents.Where(obj => (!obj.isLocked) && (!obj.isOptimized)).OrderBy(obj => obj.getActiveDuration).ToList();
                 SubCalendarEvent UnwantedEvent = NonRigidis[0];
                 //UnwantedEvent.getDaySection().rejectCurrentPreference();
                 recursionSubEvents.Remove(UnwantedEvent);

@@ -388,7 +388,7 @@ namespace TilerElements
             retValue._Priority = this.getEventPriority;
             retValue._ProfileOfNow = this._ProfileOfNow.CreateCopy();
             retValue._ProfileOfProcrastination = this._ProfileOfProcrastination.CreateCopy();
-            retValue.RigidSchedule = this.getRigid;
+            retValue.RigidSchedule = this.RigidSchedule;
             retValue.StartDateTime = this.Start;
             retValue._UiParams = this.getUIParam;
             retValue.UniqueID = this.SubEvent_ID;

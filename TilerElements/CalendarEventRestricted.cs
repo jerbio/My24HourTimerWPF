@@ -217,9 +217,10 @@ namespace TilerElements
             RetValue._EventPreDeadline = this.getPreDeadline;
             RetValue._PrepTime = this.getPreparation;
             RetValue._Priority = this.getEventPriority;
-            RetValue._EventRepetition = this.Repeat;// EventRepetition != this.null ? EventRepetition.CreateCopy() : EventRepetition;
+            RetValue._EventRepetition = this.Repeat;
             RetValue._Complete = this.getIsComplete;
-            RetValue.RigidSchedule = this.getRigid;//hack
+            RetValue.RigidSchedule = this.RigidSchedule;
+            RetValue._userLocked= this._userLocked;
             RetValue._Splits = this.NumberOfSplit;
             RetValue._AverageTimePerSplit = this.AverageTimeSpanPerSubEvent;
             RetValue.UniqueID = EventID.GenerateCalendarEvent();

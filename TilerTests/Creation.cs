@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 using TilerCore;
+using TilerTests.Models;
+using Moq;
+using System.Data.Entity;
 
 namespace TilerTests
 {
@@ -18,6 +21,38 @@ namespace TilerTests
         CalendarEvent CalendarEvent1;
         CalendarEvent CalendarEvent2;
         CalendarEvent CalendarEvent3;
+
+        [TestInitialize]
+        public void initializeusers()
+        {
+            TestUtility.init();
+        }
+        [TestMethod]
+        public void createUserTest ()
+        {
+            string userId = Guid.NewGuid().ToString();
+            string FirstName = "First Name " + userId;
+            string lastName = "Last Name " + userId;
+            string userName = "userName " + userId;
+            string testEmail = userId + "test@tiler.com";
+            TilerUser user = new TilerUser()
+            {
+                Id = userId,
+                UserName = userName,
+                Email = testEmail,
+                FirstName = FirstName,
+                LastName = lastName
+            };
+            var mockContext = TestUtility.getContext;
+
+            var userPulled = mockContext.Users.Find("065febec-d1fe-4c8b-bd32-548613d4479f");
+            mockContext.Users.Add(user);
+            mockContext.SaveChanges();
+            string testLocationId = "test-location";
+            var verificationUserPulled = mockContext.Users.Find("065febec-d1fe-4c8b-bd32-548613d4479f");
+            Dictionary<string, TilerElements.Location> retValue = mockContext.Locations.ToDictionary(obj => obj.Description, obj => obj);
+            Assert.IsTrue(userPulled.isTestEquivalent(verificationUserPulled));
+        }
 
         [TestMethod]
         public void TestCreationOfNonRigid()

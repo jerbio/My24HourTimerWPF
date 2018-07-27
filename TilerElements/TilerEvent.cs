@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace TilerElements
 {
-    public abstract class TilerEvent: IWhy, IUndoable
+    public abstract class TilerEvent: IWhy, IUndoable, IHasId
     {
         public static TimeSpan ZeroTimeSpan = new TimeSpan(0);
         protected DateTimeOffset StartDateTime;

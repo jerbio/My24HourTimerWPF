@@ -15,7 +15,7 @@ using GoogleMapsApi.Entities.Directions.Response;
 
 namespace TilerElements
 {
-    public class Location: IUndoable
+    public class Location: IUndoable, IHasId
     {
         public static int LastLocationId = 1;
         public static double MaxLongitude = 181;

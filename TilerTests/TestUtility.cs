@@ -7,6 +7,10 @@ using TilerElements;
 using My24HourTimerWPF;
 using TilerFront;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using TilerFront;
+using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 
 namespace TilerTests
 {
@@ -17,10 +21,89 @@ namespace TilerTests
         static readonly DateTimeOffset _Start = DateTimeOffset.UtcNow.AddMonths(-MonthLimit);
         static readonly Random _Rand = new Random((int)DateTimeOffset.UtcNow.Ticks);
         static readonly string _UserName = "TestUserTiler";
+        static readonly string _Email = "TestUserTiler@tiler.com";
         static readonly string _Password = "T35tU53r#";
+        static readonly string _lastName = "Last Name TestUserTiler";
+        static readonly string _firstName = "First Name TestUserTiler";
         const string testUserId = "065febec-d1fe-4c8b-bd32-548613d4479f";
-        static TilerUser testUser;
+        static bool isInitialized = false;
+        static TilerUser _testUser;
+        static TilerDbContext _Context;
 
+        public static void init()
+        {
+            if (!isInitialized)
+            {
+                _testUser = new TilerUser()
+                {
+                    Id = testUserId,
+                    UserName = _UserName,
+                    Email = _Email,
+                    PasswordHash = _Password
+                };
+                var data = new List<TilerUser>
+                {
+                    _testUser
+                }.AsQueryable();
+
+                var mockContext = new Mock<TilerDbContext>();
+                var userSet = initializeDbCollection<TilerUser>(new List<TilerUser>() { _testUser });
+                mockContext.Setup(c => c.Users).Returns(userSet.Object);
+                List<Location> sampleLocations = new List<Location>(); //getLocations();
+                var locationSet = initializeDbCollection<Location>(sampleLocations);
+                mockContext.Setup(c => c.Locations).Returns(locationSet.Object);
+                _Context = mockContext.Object;
+
+                List<CalendarEvent> calendarevents = new List<CalendarEvent>();
+                var calendarSet = initializeDbCollection<CalendarEvent>(calendarevents);
+                mockContext.Setup(c => c.CalEvents).Returns(calendarSet.Object);
+                _Context = mockContext.Object;
+
+                List<SubCalendarEvent> subCalendarevents = new List<SubCalendarEvent>();
+                var subCalendarSet = initializeDbCollection<SubCalendarEvent>(subCalendarevents);
+                mockContext.Setup(c => c.SubEvents).Returns(subCalendarSet.Object);
+                _Context = mockContext.Object;
+                isInitialized = true;
+            }
+        }
+
+        public static TilerDbContext getContext {
+            get {
+                if (!isInitialized)
+                {
+                    init();
+                }
+                return _Context;
+            }
+        }
+
+
+
+static Mock<DbSet<T>> initializeDbCollection<T>(IEnumerable<T> dataCollection) where T: class, IHasId
+        {
+            var data = (dataCollection?? new List<T>()).ToList().AsQueryable();
+
+            var mockSet = new Mock<DbSet<T>>();
+
+            mockSet.As<IDbAsyncEnumerable<T>>()
+            .Setup(m => m.GetAsyncEnumerator())
+            .Returns(new TestDbAsyncEnumerator<T>(data.GetEnumerator()));
+
+            mockSet.As<IQueryable<T>>()
+                .Setup(m => m.Provider)
+                .Returns(new TestDbAsyncQueryProvider<T>(data.Provider));
+
+            mockSet.As<IQueryable<T>>().Setup(m => m.Provider).Returns(data.Provider);
+            mockSet.As<IQueryable<T>>().Setup(m => m.Expression).Returns(data.Expression);
+            mockSet.As<IQueryable<T>>().Setup(m => m.ElementType).Returns(data.ElementType);
+            //mockSet.As<IQueryable<T>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
+            mockSet.As<IQueryable<T>>().Setup(x => x.GetEnumerator()).Returns(() => data.GetEnumerator());
+            mockSet.Setup(m => m.Find(It.IsAny<object[]>()))
+                .Returns<object[]>(ids => data.FirstOrDefault(d => d.Id == (string)ids[0]));
+            //mockSet.Setup(m => m.Where(It.IsAny<object[]>()))
+            //    .Returns<object[]>(ids => data.FirstOrDefault(d => d.Id == (string)ids[0]));
+            return mockSet;
+        }
 
         public static int MonthLimit
         {
@@ -188,7 +271,7 @@ namespace TilerTests
             if(restrictionProfile == null)
             {
                 EventName name = new EventName(null, null, "TestCalendarEvent-" + Guid.NewGuid().ToString());
-                if(testUser == null)
+                if(_testUser == null)
                 {
                     getTestUser(true);
                 }
@@ -196,13 +279,13 @@ namespace TilerTests
                 {
                     RetValue = new RigidCalendarEvent(
                         //EventID.GenerateCalendarEvent(), 
-                        name, Start, End, duration, new TimeSpan(), new TimeSpan(), repetition, location, new EventDisplay(), note, true, false, testUser, new TilerUserGroup(), "UTC", null);
+                        name, Start, End, duration, new TimeSpan(), new TimeSpan(), repetition, location, new EventDisplay(), note, true, false, _testUser, new TilerUserGroup(), "UTC", null);
                 }
                 else
                 {
                     RetValue = new CalendarEvent(
                         //EventID.GenerateCalendarEvent(), 
-                        name, Start, End, duration, new TimeSpan(), new TimeSpan(), splitCount , repetition, location, new EventDisplay(), note, null, new NowProfile(), true, false, testUser, new TilerUserGroup(), "UTC", null);
+                        name, Start, End, duration, new TimeSpan(), new TimeSpan(), splitCount , repetition, location, new EventDisplay(), note, null, new NowProfile(), true, false, _testUser, new TilerUserGroup(), "UTC", null);
                 }
                 name.Creator_EventDB = RetValue.getCreator;
                 name.AssociatedEvent = RetValue;
@@ -210,7 +293,7 @@ namespace TilerTests
             else
             {
                 EventName name = new EventName(null, null, "TestCalendarEvent-" + Guid.NewGuid().ToString() + "-Restricted");
-                RetValue = new CalendarEventRestricted(testUser, new TilerUserGroup(), name, Start, End, restrictionProfile, duration, repetition, false, true, splitCount, false, location, new TimeSpan(), new TimeSpan(), null, UiSettings: new EventDisplay(), NoteData: note);
+                RetValue = new CalendarEventRestricted(_testUser, new TilerUserGroup(), name, Start, End, restrictionProfile, duration, repetition, false, true, splitCount, false, location, new TimeSpan(), new TimeSpan(), null, UiSettings: new EventDisplay(), NoteData: note);
                 name.Creator_EventDB = RetValue.getCreator;
                 name.AssociatedEvent = RetValue;
             }
@@ -219,28 +302,34 @@ namespace TilerTests
             {
                 repetition.PopulateRepetitionParameters(RetValue);
             }
-            
             return RetValue;
         }
 
-        public static UserAccount getTestUser(bool forxeUpdateOfTilerUser = false, string userId = testUserId, bool copyTestFolder = true)
-        {
-            if(userId != testUserId && copyTestFolder)
-            {
-                string sourceFile = "WagTapCalLogs\\" + userId+ "\\" + userId +".xml";
-                string destinationFile = "WagTapCalLogs\\" + userId + ".xml";
-                System.IO.File.Copy(sourceFile, destinationFile,true);
+        public static UserAccount getTestUser(bool forceUpdateOfTilerUser = false, string userId = testUserId, bool copyTestFolder = true) {
+            //if (userId != testUserId && copyTestFolder)
+            //{
+            //    string sourceFile = "WagTapCalLogs\\" + userId + "\\" + userId + ".xml";
+            //    string destinationFile = "WagTapCalLogs\\" + userId + ".xml";
+            //    System.IO.File.Copy(sourceFile, destinationFile, true);
+            //}
+            //TilerFront.Models.LoginViewModel myLogin = new TilerFront.Models.LoginViewModel() { Username = TestUtility.UserName, Password = TestUtility.Password, RememberMe = true };
+
+            //TilerFront.Models.AuthorizedUser AuthorizeUser = new TilerFront.Models.AuthorizedUser() { UserID = userId, UserName = TestUtility.UserName };
+            //Task<UserAccount> waitForUseraccount = AuthorizeUser.getUserAccountDebug();
+            //waitForUseraccount.Wait();
+            //if ((testUser == null) || (forxeUpdateOfTilerUser))
+            //{
+            //    testUser = new TilerTestUser(AuthorizeUser.UserID);
+            //}
+            //return waitForUseraccount.Result;
+
+
+
+            if (!isInitialized) {
+                init();
             }
-            TilerFront.Models.LoginViewModel myLogin = new TilerFront.Models.LoginViewModel() { Username = TestUtility.UserName, Password = TestUtility.Password, RememberMe = true };
-            
-            TilerFront.Models.AuthorizedUser AuthorizeUser = new TilerFront.Models.AuthorizedUser() { UserID = userId, UserName = TestUtility.UserName };
-            Task<UserAccountDebug> waitForUseraccount = AuthorizeUser.getUserAccountDebug();
-            waitForUseraccount.Wait();
-            if((testUser == null )|| (forxeUpdateOfTilerUser))
-            {
-                testUser = new TilerTestUser(AuthorizeUser.UserID);
-            }
-            return waitForUseraccount.Result;
+            UserAccount userAccount = new UserAccountTest(_testUser, _Context);
+            return userAccount;
         }
 
         public static bool isTestEquivalent(this TilerEvent firstCalEvent, TilerEvent secondCalEvent)
@@ -327,6 +416,25 @@ namespace TilerTests
                 {
                     retValue = false;
                 }
+            }
+            return retValue;
+        }
+
+        public static bool isTestEquivalent(this TilerUser firstUser, TilerUser seconduser)
+        {
+            bool retValue = false;
+            if ((firstUser.FirstName == seconduser.FirstName) 
+                && (firstUser.LastName == seconduser.LastName) 
+                && (firstUser.Id == seconduser.Id)
+                && (firstUser.Email == seconduser.Email)
+                && (firstUser.OtherName == seconduser.OtherName)
+                && (firstUser.TimeZone == seconduser.TimeZone))
+            {
+                retValue = true;
+            }
+            else
+            {
+                retValue = false;
             }
             return retValue;
         }

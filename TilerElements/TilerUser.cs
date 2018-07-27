@@ -9,7 +9,7 @@ using Microsoft.AspNet.Identity;
 
 namespace TilerElements
 {
-    public class TilerUser : IdentityUser
+    public class TilerUser : IdentityUser, IHasId
     {
 
         public static TilerUser autoUser = new TilerUser()
@@ -23,7 +23,14 @@ namespace TilerElements
             _Id = "googleUser",
             Email = "googleUser@tiler.com"
         };
-        public string FullName { get; set; }
+        public string FullName {
+            get {
+                return FirstName + " " + OtherName ?? "" + LastName;
+            }
+        }
+        public string FirstName { get; set; } = "";
+        public string LastName { get; set; } = "";
+        public string OtherName { get; set; } = "";
         public string TimeZone { get; set; } = "UTC";
         public DateTimeOffset EndfOfDay { get; set; }
         public DateTimeOffset LastScheduleModification { get; set; }

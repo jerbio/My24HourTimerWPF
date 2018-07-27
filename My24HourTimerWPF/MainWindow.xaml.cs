@@ -1290,7 +1290,7 @@ namespace My24HourTimerWPF
 
                 TilerFront.Models.AuthorizedUser AuthorizeUser = new TilerFront.Models.AuthorizedUser() { UserID = "d350ba4d-fe0b-445c-bed6-b6411c2156b3", UserName = "jerbio" };
 
-                TilerFront.UserAccount currentUser = await AuthorizeUser.getUserAccountDebug();
+                TilerFront.UserAccount currentUser = await AuthorizeUser.getUserAccount();
                 //MySchedule = new Schedule(currentUser,DateTimeOffset.UtcNow);
 
                 EventName eventName = new EventName(null, null, textBox1.Text);
@@ -1482,7 +1482,7 @@ namespace My24HourTimerWPF
 
             TilerFront.Models.LoginViewModel myLogin = new TilerFront.Models.LoginViewModel() { Username = UserNameTextBox.Text, Password = PasswordTextBox.Text, RememberMe = true };
             TilerFront.Models.AuthorizedUser AuthorizeUser = new TilerFront.Models.AuthorizedUser(){UserID="d350ba4d-fe0b-445c-bed6-b6411c2156b3",UserName="jerbio"};
-            TilerFront.UserAccount currentUser = await AuthorizeUser.getUserAccountDebug();
+            TilerFront.UserAccount currentUser = await AuthorizeUser.getUserAccount();
 
 
             currentUser.getTilerUser().EndfOfDay = DateTimeOffset.Parse("2:00am");

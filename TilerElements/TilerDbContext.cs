@@ -16,7 +16,7 @@ namespace TilerElements
         {
 
         }
-        public TilerDbContext(string connectionName = "DefaultConnection")
+        public TilerDbContext(string connectionName)
             : base(connectionName, throwIfV1Schema: false)
         {
         }

@@ -98,9 +98,9 @@
     <Compile Include="KnownBugList.cs" />
     <Compile Include="LogControlTest.cs" />
     <Compile Include="LogicTest.cs" />
-    <Compile Include="Migrations\201808170325010_initial.cs" />
-    <Compile Include="Migrations\201808170325010_initial.Designer.cs">
-      <DependentUpon>201808170325010_initial.cs</DependentUpon>
+    <Compile Include="Migrations\201808190832596_initial.cs" />
+    <Compile Include="Migrations\201808190832596_initial.Designer.cs">
+      <DependentUpon>201808190832596_initial.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
@@ -140,6 +140,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="test-db_log.ldf">
+      <DependentUpon>test-db.mdf</DependentUpon>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="WagTapCalLogs\065febec-d1fe-4c8b-bd32-548613d4479f.xml">
@@ -190,8 +191,8 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201808170325010_initial.resx">
-      <DependentUpon>201808170325010_initial.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201808190832596_initial.resx">
+      <DependentUpon>201808190832596_initial.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Choose>

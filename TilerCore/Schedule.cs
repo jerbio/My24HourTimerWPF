@@ -481,6 +481,10 @@ namespace TilerCore
             }
         }
 
+        /// <summary>
+        /// Function creates a timeline of all the events that were retrieved from storage, and newly added events.
+        /// </summary>
+        /// <returns></returns>
         protected virtual TimeLine getTimeLine()
         {
             DateTimeOffset LastDeadline = Now.calculationNow.AddHours(1);

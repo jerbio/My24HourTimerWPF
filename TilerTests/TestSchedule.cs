@@ -25,10 +25,36 @@ namespace TilerTests
         }
         public TestSchedule(UserAccount AccountEntry, DateTimeOffset referenceNow, uint LatestId = 0) : base(AccountEntry, referenceNow)
         {
-            if(LatestId!=0)
+            if (LatestId != 0)
             {
                 EventID.Initialize(LatestId);
             }
+        }
+
+        async override protected Task Initialize(DateTimeOffset referenceNow)
+        {
+            DateTimeOffset StartOfDay = myAccount.ScheduleData.getDayReferenceTime();
+            _Now = new ReferenceNow(referenceNow, StartOfDay);
+            TimeLine RangeOfLookup = null;
+            Tuple<Dictionary<string, CalendarEvent>, DateTimeOffset, Dictionary<string, Location>> profileData = await myAccount.ScheduleData.getProfileInfo(RangeOfLookup).ConfigureAwait(false);
+            if (profileData != null)
+            {
+                DateTimeOffset referenceDayTimeNow = new DateTimeOffset(Now.calculationNow.Year, Now.calculationNow.Month, Now.calculationNow.Day, profileData.Item2.Hour, profileData.Item2.Minute, profileData.Item2.Second, new TimeSpan());// profileData.Item2;
+                ReferenceDayTIime = Now.calculationNow < referenceDayTimeNow ? referenceDayTimeNow.AddDays(-1) : referenceDayTimeNow;
+                AllEventDictionary = profileData.Item1;
+                if (AllEventDictionary != null)
+                {
+                    //setAsComplete();
+                    EventID.Initialize((uint)(myAccount.LastEventTopNodeID));
+                    initializeThirdPartyCalendars();
+                    updateThirdPartyCalendars(ThirdPartyControl.CalendarTool.outlook, new List<CalendarEvent>() { });
+                    CompleteSchedule = getTimeLine();
+
+                    //EventIDGenerator.Initialize((uint)(this.LastScheduleIDNumber));
+                }
+                Locations = profileData.Item3;
+            }
+            TilerUser = myAccount.getTilerUser();
         }
 
         public TestSchedule(IEnumerable<CalendarEvent> calendarEvents ,UserAccount AccountEntry, DateTimeOffset referenceNow, uint LatestId = 0) : base(AccountEntry, referenceNow)

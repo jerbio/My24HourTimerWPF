@@ -100,8 +100,11 @@ static Mock<DbSet<T>> initializeDbCollection<T>(IEnumerable<T> dataCollection) w
             mockSet.As<IQueryable<T>>().Setup(x => x.GetEnumerator()).Returns(() => data.GetEnumerator());
             mockSet.Setup(m => m.Find(It.IsAny<object[]>()))
                 .Returns<object[]>(ids => data.FirstOrDefault(d => d.Id == (string)ids[0]));
-            //mockSet.Setup(m => m.Where(It.IsAny<object[]>()))
-            //    .Returns<object[]>(ids => data.FirstOrDefault(d => d.Id == (string)ids[0]));
+            //mockSet.Setup(m => m.Where(It.IsAny<Func<T, bool>>()))
+            //    .Returns((Func<T, bool> lamdaaa) => { return data.Where(lamdaaa); });
+
+            //mockSet.Setup(m => m.Where(It.IsAny<Func<Object, bool>>()))
+            //    .Returns((Func<Object, bool> lamdaaa) => { return data.Where(lamdaaa); });
             return mockSet;
         }
 

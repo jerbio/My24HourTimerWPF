@@ -10,6 +10,8 @@ using TilerCore;
 using TilerTests.Models;
 using Moq;
 using System.Data.Entity;
+using Effort.DataLoaders;
+using Effort;
 
 namespace TilerTests
 {
@@ -22,14 +24,17 @@ namespace TilerTests
         CalendarEvent CalendarEvent2;
         CalendarEvent CalendarEvent3;
 
-        [TestInitialize]
-        public void initializeusers()
+        public TestContext TestContext
         {
-            TestUtility.init();
+            get;
+            set;
         }
+
         [TestMethod]
-        public void createUserTest ()
+        public void createUserTest()
         {
+            TestDBContext mockContext = new TestDBContext();
+
             string userId = Guid.NewGuid().ToString();
             string FirstName = "First Name " + userId;
             string lastName = "Last Name " + userId;
@@ -43,15 +48,41 @@ namespace TilerTests
                 FirstName = FirstName,
                 LastName = lastName
             };
-            var mockContext = TestUtility.getContext;
+            //var mockContext = TestUtility.getContext;
 
-            var userPulled = mockContext.Users.Find("065febec-d1fe-4c8b-bd32-548613d4479f");
+
             mockContext.Users.Add(user);
             mockContext.SaveChanges();
             string testLocationId = "test-location";
-            var verificationUserPulled = mockContext.Users.Find("065febec-d1fe-4c8b-bd32-548613d4479f");
+            var verificationUserPulled = mockContext.Users.Find(userId);
             Dictionary<string, TilerElements.Location> retValue = mockContext.Locations.ToDictionary(obj => obj.Description, obj => obj);
-            Assert.IsTrue(userPulled.isTestEquivalent(verificationUserPulled));
+            Assert.IsNotNull(user);
+            Assert.IsNotNull(verificationUserPulled);
+            Assert.IsTrue(user.isTestEquivalent(verificationUserPulled));
+        }
+
+
+
+        [TestMethod]
+        public void createAddCalendarEventToDB()
+        {
+            string userId = Guid.NewGuid().ToString();
+            UserAccount currentUser = TestUtility.getTestUser();
+            currentUser.Login().Wait();
+
+            Schedule = new TestSchedule(currentUser, refNow);
+            TimeSpan duration = TimeSpan.FromHours(1);
+            TimeLine timeLine = TestUtility.getTimeFrames(refNow, duration).First();
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), timeLine.Start, timeLine.End, 1, false);
+            var mockContext = TestUtility.getContext;
+
+            //var userPulled = mockContext.CalEvents.Find("065febec-d1fe-4c8b-bd32-548613d4479f");
+            //mockContext.Users.Add(user);
+            //mockContext.SaveChanges();
+            //string testLocationId = "test-location";
+            //var verificationUserPulled = mockContext.Users.Find("065febec-d1fe-4c8b-bd32-548613d4479f");
+            //Dictionary<string, TilerElements.Location> retValue = mockContext.Locations.ToDictionary(obj => obj.Description, obj => obj);
+            //Assert.IsTrue(userPulled.isTestEquivalent(verificationUserPulled));
         }
 
         [TestMethod]
@@ -303,11 +334,11 @@ namespace TilerTests
         [ClassCleanup]
         public static void cleanUpTest()
         {
-            UserAccount currentUser = TestUtility.getTestUser();
-            currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            Schedule Schedule = new TestSchedule(currentUser, refNow);
-            currentUser.DeleteAllCalendarEvents();
+            //UserAccount currentUser = TestUtility.getTestUser();
+            //currentUser.Login().Wait();
+            //DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            //Schedule Schedule = new TestSchedule(currentUser, refNow);
+            //currentUser.DeleteAllCalendarEvents();
         }
     }
 }

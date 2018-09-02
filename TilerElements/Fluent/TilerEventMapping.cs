@@ -11,8 +11,8 @@ namespace TilerElements.Fluent
     {
         public TilerEventMapping()
         {
-            this.HasRequired(tilerEvent => tilerEvent.Name).WithRequiredPrincipal(name => name.AssociatedEvent);
-            this.HasRequired(tilerEvent => tilerEvent.ProfileOfNow_EventDB).WithRequiredPrincipal(nowProfile => nowProfile.AssociatedEvent);
+            //this.HasRequired(tilerEvent => tilerEvent.Name).WithRequiredPrincipal(name => name.AssociatedEvent);
+            //this.HasRequired(tilerEvent => tilerEvent.ProfileOfNow_EventDB).WithRequiredPrincipal(nowProfile => nowProfile.AssociatedEvent);
         }
 
     }

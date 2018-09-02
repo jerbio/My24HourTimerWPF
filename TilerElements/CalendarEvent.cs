@@ -83,7 +83,6 @@ namespace TilerElements
             _LocationInfo = new Location();
             UniqueID = EventID.GenerateCalendarEvent();
             SubEvents = new Dictionary<EventID, SubCalendarEvent>();
-            _Semantics = new Classification();
             _otherPartyID = "";
             CalendarError = null;
             EventSequence = new TimeLine();
@@ -91,6 +90,7 @@ namespace TilerElements
             _ProfileOfNow = new NowProfile();
             _Name = new EventName(_Creator, this);
             this.TimeCreated = DateTimeOffset.UtcNow;
+            _Semantics = new Classification(this);
         }
 
         public CalendarEvent(CustomErrors Error) : this()
@@ -109,7 +109,7 @@ namespace TilerElements
             Repetition repetition, 
             EventDisplay displayData, 
             MiscData miscData, bool isEnabled, bool completeflag, NowProfile nowProfile, Procrastination procrastinationProfile, 
-            Location location, TilerUser creator, TilerUserGroup otherUsers, bool userDeleted, DateTimeOffset timeOfCreation, string timeZoneOrigin)
+            Location location, TilerUser creator, TilerUserGroup otherUsers, bool userDeleted, DateTimeOffset timeOfCreation, string timeZoneOrigin, Classification semantics)
         {
             if (end < start)
             {
@@ -137,6 +137,7 @@ namespace TilerElements
             this._UserDeleted = userDeleted;
             this._TimeZone = timeZoneOrigin;
             this.TimeCreated = DateTimeOffset.UtcNow;
+            this._Semantics = semantics ?? new Classification(this);
         }
 
         public CalendarEvent(
@@ -159,10 +160,10 @@ namespace TilerElements
             TilerUserGroup users, 
             string timeZone, 
             EventID eventId,
-            bool initializeSubCalendarEvents = true)
+            bool initializeSubCalendarEvents = true,
+            Classification semantics = null)
             :this(
-                 //eventId, 
-                 NameEntry, StartData, EndData, eventDuration, eventPrepTimeSpan, preDeadlineTimeSpan, eventSplit, EventRepetitionEntry, UiData, NoteData, EnabledEventFlag, CompletionFlag, nowProfile, procrastination, EventLocation, creator, users, false, DateTimeOffset.UtcNow, timeZone)
+                 NameEntry, StartData, EndData, eventDuration, eventPrepTimeSpan, preDeadlineTimeSpan, eventSplit, EventRepetitionEntry, UiData, NoteData, EnabledEventFlag, CompletionFlag, nowProfile, procrastination, EventLocation, creator, users, false, DateTimeOffset.UtcNow, timeZone, semantics)
         {
             UniqueID = eventId ?? this.UniqueID; /// already initialized by parent initialization
 

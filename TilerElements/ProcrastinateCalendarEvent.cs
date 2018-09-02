@@ -19,6 +19,12 @@ namespace TilerElements
             _Splits = splitCount;
         }
 
+        protected ProcrastinateCalendarEvent() : base()
+        {
+            isProcrastinateEvent = true;
+            _Splits = 1;
+            initializeSubEvents();
+        }
 
         protected ProcrastinateCalendarEvent(CalendarEvent MyUpdated, SubCalendarEvent[] MySubEvents) : base(MyUpdated, MySubEvents)
         {

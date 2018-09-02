@@ -17,9 +17,9 @@ namespace TilerElements
             TimeSpan PreDeadlineTimeSpan, 
             Repetition EventRepetitionEntry, 
             Location EventLocation, 
-            EventDisplay UiData, MiscData NoteData, bool EnabledEventFlag, bool CompletionFlag, TilerUser creator, TilerUserGroup users, string timeZone, EventID eventId,bool initializeSubCalendarEvents = true)
-            :base(
-                 NameEntry, StartData, EndData, EventDuration, eventPrepTime, PreDeadlineTimeSpan, 1, EventRepetitionEntry, UiData, NoteData, EnabledEventFlag, CompletionFlag, null, null, EventLocation, creator, users, false, DateTimeOffset.UtcNow, timeZone)
+            EventDisplay UiData, MiscData NoteData, bool EnabledEventFlag, bool CompletionFlag, TilerUser creator, TilerUserGroup users, string timeZone, EventID eventId,bool initializeSubCalendarEvents = true, Classification semantics = null)
+            : base(
+                 NameEntry, StartData, EndData, EventDuration, eventPrepTime, PreDeadlineTimeSpan, 1, EventRepetitionEntry, UiData, NoteData, EnabledEventFlag, CompletionFlag, null, null, EventLocation, creator, users, false, DateTimeOffset.UtcNow, timeZone, semantics)
         {
             UniqueID = eventId ?? this.UniqueID; /// already initialized by parent initialization
             RigidSchedule = true;
@@ -38,6 +38,11 @@ namespace TilerElements
 
             EventSequence = new TimeLine(StartDateTime, EndDateTime);
             //UpdateLocationMatrix(LocationInfo);
+        }
+
+        protected RigidCalendarEvent():base()
+        {
+            RigidSchedule = true;
         }
 
         public RigidCalendarEvent(CalendarEvent MyUpdated, SubCalendarEvent[] MySubEvents) : base(MyUpdated, MySubEvents)

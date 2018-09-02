@@ -140,7 +140,7 @@ namespace TilerElements
         {
             get
             {
-                return _Id;
+                return _Id ?? (_Id = Guid.NewGuid().ToString());
             }
             set
             {

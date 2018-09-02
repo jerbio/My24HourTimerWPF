@@ -470,11 +470,11 @@ namespace TilerElements
         {
             get
             {
-                return UndoInitializingRangeStart;
+                return _UndoInitializingRangeStart;
             }
             set
             {
-                UndoInitializingRangeStart = value;
+                _UndoInitializingRangeStart = value;
             }
         }
         public DateTimeOffset UndoInitializingRangeEnd
@@ -642,12 +642,12 @@ namespace TilerElements
         {
             get
             {
-                return EnableRepeat;
+                return _EnableRepeat;
             }
 
             set
             {
-                EnableRepeat = value;
+                _EnableRepeat = value;
             }
         }
 

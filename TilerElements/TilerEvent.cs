@@ -391,8 +391,9 @@ namespace TilerElements
                 return _LocationInfo;
             }
         }
-
-        public EventName Name
+        public virtual string NameId { get; set; }
+        [ForeignKey("NameId")]
+        public virtual EventName Name
         {
             get
             {
@@ -594,6 +595,8 @@ namespace TilerElements
             }
         }
 
+        public string NowProfileId { get; set; }
+        [ForeignKey("NowProfileId")]
         public NowProfile ProfileOfNow_EventDB
         {
             get
@@ -603,6 +606,18 @@ namespace TilerElements
             set
             {
                 _ProfileOfNow = value;
+            }
+        }
+
+        public TimeSpan UsedTime_EventDB
+        {
+            get
+            {
+                return _UsedTime;
+            }
+            set
+            {
+                _UsedTime = value;
             }
         }
 
@@ -641,18 +656,6 @@ namespace TilerElements
             set
             {
                 _Creator = value;
-            }
-        }
-
-        public TimeSpan UsedTime_EventDB
-        {
-            get
-            {
-                return _UsedTime;
-            }
-            set
-            {
-                _UsedTime = value;
             }
         }
 
@@ -808,6 +811,7 @@ namespace TilerElements
                 return _Creator;
             }
         }
+
         [NotMapped]
         virtual public TimeSpan UsedTime
         {

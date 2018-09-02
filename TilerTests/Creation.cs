@@ -8,10 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TilerCore;
 using TilerTests.Models;
-using Moq;
 using System.Data.Entity;
-using Effort.DataLoaders;
-using Effort;
 
 namespace TilerTests
 {
@@ -29,6 +26,9 @@ namespace TilerTests
             get;
             set;
         }
+        [TestInitialize]
+        void initializeTests() => TestUtility.init();
+
 
         [TestMethod]
         public void createUserTest()
@@ -53,15 +53,30 @@ namespace TilerTests
 
             mockContext.Users.Add(user);
             mockContext.SaveChanges();
-            string testLocationId = "test-location";
             var verificationUserPulled = mockContext.Users.Find(userId);
-            Dictionary<string, TilerElements.Location> retValue = mockContext.Locations.ToDictionary(obj => obj.Description, obj => obj);
             Assert.IsNotNull(user);
             Assert.IsNotNull(verificationUserPulled);
             Assert.IsTrue(user.isTestEquivalent(verificationUserPulled));
         }
 
+        [TestMethod]
+        public void createAddSubCalendarEventToDB()
+        {
+            string userId = Guid.NewGuid().ToString();
+            UserAccount currentUser = TestUtility.getTestUser();
+            currentUser.Login().Wait();
 
+            Schedule = new TestSchedule(currentUser, refNow);
+            TimeSpan duration = TimeSpan.FromHours(1);
+            TimeLine timeLine = TestUtility.getTimeFrames(refNow, duration).First();
+            CalendarEvent testCalEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), timeLine.Start, timeLine.End, 1, false);
+            SubCalendarEvent testEvent = testCalEvent.EnabledSubEvents.First();
+            testEvent.Calendar_EventDB = null;
+            //string testEVentId = testEvent.Id;
+            var mockContext = TestUtility.getContext;
+            mockContext.SubEvents.Add(testEvent);
+            mockContext.SaveChanges();
+        }
 
         [TestMethod]
         public void createAddCalendarEventToDB()
@@ -74,15 +89,16 @@ namespace TilerTests
             TimeSpan duration = TimeSpan.FromHours(1);
             TimeLine timeLine = TestUtility.getTimeFrames(refNow, duration).First();
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), timeLine.Start, timeLine.End, 1, false);
+            string testEVentId = testEvent.Id;
             var mockContext = TestUtility.getContext;
+            mockContext.CalEvents.Add(testEvent);
+            mockContext.SaveChanges();
+            string testLocationId = "test-location";
+            var verificationEventPulled= mockContext.CalEvents.Find(testEVentId);
 
-            //var userPulled = mockContext.CalEvents.Find("065febec-d1fe-4c8b-bd32-548613d4479f");
-            //mockContext.Users.Add(user);
-            //mockContext.SaveChanges();
-            //string testLocationId = "test-location";
-            //var verificationUserPulled = mockContext.Users.Find("065febec-d1fe-4c8b-bd32-548613d4479f");
-            //Dictionary<string, TilerElements.Location> retValue = mockContext.Locations.ToDictionary(obj => obj.Description, obj => obj);
-            //Assert.IsTrue(userPulled.isTestEquivalent(verificationUserPulled));
+            Assert.IsNotNull(testEvent);
+            Assert.IsNotNull(verificationEventPulled);
+            Assert.IsTrue(testEvent.isTestEquivalent(verificationEventPulled));
         }
 
         [TestMethod]
@@ -334,11 +350,11 @@ namespace TilerTests
         [ClassCleanup]
         public static void cleanUpTest()
         {
-            //UserAccount currentUser = TestUtility.getTestUser();
-            //currentUser.Login().Wait();
-            //DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            //Schedule Schedule = new TestSchedule(currentUser, refNow);
-            //currentUser.DeleteAllCalendarEvents();
+            UserAccount currentUser = TestUtility.getTestUser();
+            currentUser.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            Schedule Schedule = new TestSchedule(currentUser, refNow);
+            currentUser.DeleteAllCalendarEvents();
         }
     }
 }

@@ -49,20 +49,7 @@ namespace TilerElements
             _Name = name;
         }
 
-        public string CreatorId { get; set; }
-        [Required, ForeignKey("CreatorId")]
-        public TilerUser Creator_EventDB
-        {
-            get
-            {
-                return _Creator;
-            }
-            set
-            {
-                _Creator = value;
-            }
-        }
-
+        [NotMapped]
         public TilerEvent AssociatedEvent
         {
             get
@@ -118,6 +105,20 @@ namespace TilerElements
             set
             {
                 _Id = value;
+            }
+        }
+
+        public string CreatorId { get; set; }
+        [Required, ForeignKey("CreatorId")]
+        public TilerUser Creator_EventDB
+        {
+            get
+            {
+                return _Creator;
+            }
+            set
+            {
+                _Creator = value;
             }
         }
 

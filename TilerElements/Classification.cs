@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using AlchemyAPI;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TilerElements
@@ -22,7 +23,7 @@ namespace TilerElements
         protected string _UndoId = "";
 
         protected string _Id { get; set; }
-        protected TilerEvent _AssociatedEvent { get; set; }
+        private TilerEvent _AssociatedEvent;
         public Classification(Vicinity LocationPlacement, EnergyDifferential StrengthDelta, Leisure RelaxationData, bool InitializedData)
         {
             _LeisureType = RelaxationData;
@@ -34,6 +35,11 @@ namespace TilerElements
         public Classification()
         {
 
+        }
+
+        public Classification(TilerEvent associatedEvent) : base()
+        {
+            _AssociatedEvent = associatedEvent;
         }
         public Classification createCopy()
         {
@@ -119,7 +125,7 @@ namespace TilerElements
         {
             get
             {
-                return _Id;
+                return _Id ?? (_Id = Guid.NewGuid().ToString());
             }
             set
             {
@@ -127,7 +133,7 @@ namespace TilerElements
             }
         }
 
-        [ForeignKey("Id")]
+        [NotMapped]
         public TilerEvent AssociatedEvent
         {
             get

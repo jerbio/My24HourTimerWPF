@@ -37,10 +37,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Castle.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
-      <HintPath>..\packages\Castle.Core.4.3.0\lib\net45\Castle.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Effort, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6a46696d54971e6d, processorArchitecture=MSIL">
-      <HintPath>..\packages\Effort.EF6.1.3.7\lib\net45\Effort.dll</HintPath>
+      <HintPath>..\packages\Castle.Core.4.3.1\lib\net45\Castle.Core.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
@@ -54,14 +51,8 @@
     </Reference>
     <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
     <Reference Include="Microsoft.AspNet.Identity.EntityFramework, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
-    <Reference Include="Moq, Version=4.8.0.0, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
-      <HintPath>..\packages\Moq.4.8.3\lib\net45\Moq.dll</HintPath>
-    </Reference>
     <Reference Include="My24HourTimerWPF">
       <HintPath>..\My24HourTimerWPF\bin\Debug\My24HourTimerWPF.exe</HintPath>
-    </Reference>
-    <Reference Include="NMemory, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6a46696d54971e6d, processorArchitecture=MSIL">
-      <HintPath>..\packages\NMemory.1.1.0\lib\net45\NMemory.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -105,9 +96,13 @@
     <Compile Include="KnownBugList.cs" />
     <Compile Include="LogControlTest.cs" />
     <Compile Include="LogicTest.cs" />
-    <Compile Include="Migrations\201808260649516_initial.cs" />
-    <Compile Include="Migrations\201808260649516_initial.Designer.cs">
-      <DependentUpon>201808260649516_initial.cs</DependentUpon>
+    <Compile Include="Migrations\201809020636301_initial.cs" />
+    <Compile Include="Migrations\201809020636301_initial.Designer.cs">
+      <DependentUpon>201809020636301_initial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201809020711256_removedProcrastinationRelationship.cs" />
+    <Compile Include="Migrations\201809020711256_removedProcrastinationRelationship.Designer.cs">
+      <DependentUpon>201809020711256_removedProcrastinationRelationship.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
@@ -145,10 +140,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="test-db.mdf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="test-db_log.ldf">
-      <DependentUpon>test-db.mdf</DependentUpon>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="WagTapCalLogs\065febec-d1fe-4c8b-bd32-548613d4479f.xml">
@@ -199,8 +190,11 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201808260649516_initial.resx">
-      <DependentUpon>201808260649516_initial.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201809020636301_initial.resx">
+      <DependentUpon>201809020636301_initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201809020711256_removedProcrastinationRelationship.resx">
+      <DependentUpon>201809020711256_removedProcrastinationRelationship.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Choose>

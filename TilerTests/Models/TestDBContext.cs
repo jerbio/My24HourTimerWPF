@@ -18,11 +18,11 @@ namespace TilerTests.Models
         ///This is because the database upgrade happens in the folder specified by DB_RUNTIME_LOCATION. And you need to ensure that git can store the new database at its initialized state.
         ///Warning, the package manager console might run things in some app_data temp location if DB_RUNTIME_LOCATION is not initialized.
         ///
-        //public TestDBContext() : base("TestDBConnection")
-        //{
-        //    string DB_RUNTIME_LOCATION = @"C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerTests\bin\Debug";
-        //    AppDomain.CurrentDomain.SetData("DataDirectory", DB_RUNTIME_LOCATION);
-        //}
+        public TestDBContext() : base("TestDBConnection")
+        {
+            string DB_RUNTIME_LOCATION = @"C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerTests\bin\Debug";
+            AppDomain.CurrentDomain.SetData("DataDirectory", DB_RUNTIME_LOCATION);
+        }
         public TestDBContext(string connectionName = "TestDBConnection")
             : base(connectionName)
         {

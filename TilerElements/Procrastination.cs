@@ -11,7 +11,7 @@ namespace TilerElements
     /// </summary>
     public class Procrastination:IUndoable
     {
-        protected string _Id { get; set; }
+        protected string _Id;
         protected TilerEvent _AssociatedEvent;
         protected DateTimeOffset _FromTime;//Time from which an event was procrastinated
         protected DateTimeOffset _BeginTIme;//Next time for a possible calculation of a new schedule
@@ -187,7 +187,7 @@ namespace TilerElements
         {
             get
             {
-                return _Id;
+                return _Id ?? (_Id = Guid.NewGuid().ToString());
             }
             set
             {
@@ -238,7 +238,7 @@ namespace TilerElements
             }
             get
             {
-                return SectionOfDay;
+                return _SectionOfDay;
             }
         }
 

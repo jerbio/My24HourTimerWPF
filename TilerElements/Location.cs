@@ -12,6 +12,7 @@ using GoogleMapsApi;
 using GoogleMapsApi.Entities.Geocoding.Response;
 using GoogleMapsApi.Entities.Directions.Request;
 using GoogleMapsApi.Entities.Directions.Response;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TilerElements
 {
@@ -64,6 +65,19 @@ namespace TilerElements
             _NullLocation = true;
         }
 
+        protected TilerEvent _Event;
+        [NotMapped]
+        public TilerEvent AssociatedEvent
+        {
+            get
+            {
+                return _Event;
+            }
+            set
+            {
+                _Event = value;
+            }
+        }
 
         public Location(double MyxValue, double MyyValue, string Id = "")
         {

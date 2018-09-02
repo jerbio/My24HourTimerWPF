@@ -7,10 +7,9 @@ using TilerElements;
 using My24HourTimerWPF;
 using TilerFront;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using TilerFront;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using TilerTests.Models;
 
 namespace TilerTests
 {
@@ -41,28 +40,12 @@ namespace TilerTests
                     Email = _Email,
                     PasswordHash = _Password
                 };
-                var data = new List<TilerUser>
-                {
-                    _testUser
-                }.AsQueryable();
 
-                var mockContext = new Mock<TilerDbContext>();
-                var userSet = initializeDbCollection<TilerUser>(new List<TilerUser>() { _testUser });
-                mockContext.Setup(c => c.Users).Returns(userSet.Object);
-                List<Location> sampleLocations = new List<Location>(); //getLocations();
-                var locationSet = initializeDbCollection<Location>(sampleLocations);
-                mockContext.Setup(c => c.Locations).Returns(locationSet.Object);
-                _Context = mockContext.Object;
+                TestDBContext context = new TestDBContext();
+                context.Users.Add(_testUser);
+                context.SaveChanges();
+                _Context = context;
 
-                List<CalendarEvent> calendarevents = new List<CalendarEvent>();
-                var calendarSet = initializeDbCollection<CalendarEvent>(calendarevents);
-                mockContext.Setup(c => c.CalEvents).Returns(calendarSet.Object);
-                _Context = mockContext.Object;
-
-                List<SubCalendarEvent> subCalendarevents = new List<SubCalendarEvent>();
-                var subCalendarSet = initializeDbCollection<SubCalendarEvent>(subCalendarevents);
-                mockContext.Setup(c => c.SubEvents).Returns(subCalendarSet.Object);
-                _Context = mockContext.Object;
                 isInitialized = true;
             }
         }
@@ -77,36 +60,6 @@ namespace TilerTests
             }
         }
 
-
-
-static Mock<DbSet<T>> initializeDbCollection<T>(IEnumerable<T> dataCollection) where T: class, IHasId
-        {
-            var data = (dataCollection?? new List<T>()).ToList().AsQueryable();
-
-            var mockSet = new Mock<DbSet<T>>();
-
-            mockSet.As<IDbAsyncEnumerable<T>>()
-            .Setup(m => m.GetAsyncEnumerator())
-            .Returns(new TestDbAsyncEnumerator<T>(data.GetEnumerator()));
-
-            mockSet.As<IQueryable<T>>()
-                .Setup(m => m.Provider)
-                .Returns(new TestDbAsyncQueryProvider<T>(data.Provider));
-
-            mockSet.As<IQueryable<T>>().Setup(m => m.Provider).Returns(data.Provider);
-            mockSet.As<IQueryable<T>>().Setup(m => m.Expression).Returns(data.Expression);
-            mockSet.As<IQueryable<T>>().Setup(m => m.ElementType).Returns(data.ElementType);
-            //mockSet.As<IQueryable<T>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
-            mockSet.As<IQueryable<T>>().Setup(x => x.GetEnumerator()).Returns(() => data.GetEnumerator());
-            mockSet.Setup(m => m.Find(It.IsAny<object[]>()))
-                .Returns<object[]>(ids => data.FirstOrDefault(d => d.Id == (string)ids[0]));
-            //mockSet.Setup(m => m.Where(It.IsAny<Func<T, bool>>()))
-            //    .Returns((Func<T, bool> lamdaaa) => { return data.Where(lamdaaa); });
-
-            //mockSet.Setup(m => m.Where(It.IsAny<Func<Object, bool>>()))
-            //    .Returns((Func<Object, bool> lamdaaa) => { return data.Where(lamdaaa); });
-            return mockSet;
-        }
 
         public static int MonthLimit
         {

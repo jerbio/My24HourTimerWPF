@@ -9,10 +9,9 @@ namespace TilerElements
     /// <summary>
     /// Reperesents the Procrastination parameters
     /// </summary>
-    public class Procrastination:IUndoable
+    public class Procrastination : IUndoable
     {
         protected string _Id;
-        protected TilerEvent _AssociatedEvent;
         protected DateTimeOffset _FromTime;//Time from which an event was procrastinated
         protected DateTimeOffset _BeginTIme;//Next time for a possible calculation of a new schedule
         protected int _SectionOfDay;// stores the section of day from which it was procrastinated
@@ -24,8 +23,8 @@ namespace TilerElements
 
         protected string _UndoId = "";
         protected Procrastination()
-        { 
-        
+        {
+
         }
 
         public Procrastination(DateTimeOffset From, TimeSpan Span)
@@ -56,7 +55,7 @@ namespace TilerElements
 
             return retValue;
         }
-
+        [NotMapped]
         public TilerEvent UndoAssociatedEvent
         {
             get
@@ -107,7 +106,6 @@ namespace TilerElements
             _UndoFromTime = _FromTime;
             _UndoBeginTime = _BeginTIme;
             _UndoSectionOfDay = _SectionOfDay;
-            _UndoAssociatedEvent = _AssociatedEvent;
             FirstInstantiation = false;
             this._UndoId = undo.id;
         }
@@ -119,7 +117,6 @@ namespace TilerElements
                 Utility.Swap(ref _UndoFromTime, ref _FromTime);
                 Utility.Swap(ref _UndoBeginTime, ref _BeginTIme);
                 Utility.Swap(ref _UndoSectionOfDay, ref _SectionOfDay);
-                Utility.Swap(ref _UndoAssociatedEvent, ref _AssociatedEvent);
             }
         }
 
@@ -130,7 +127,6 @@ namespace TilerElements
                 Utility.Swap(ref _UndoFromTime, ref _FromTime);
                 Utility.Swap(ref _UndoBeginTime, ref _BeginTIme);
                 Utility.Swap(ref _UndoSectionOfDay, ref _SectionOfDay);
-                Utility.Swap(ref _UndoAssociatedEvent, ref _AssociatedEvent);
             }
         }
         #region properties
@@ -195,20 +191,7 @@ namespace TilerElements
             }
         }
 
-        [ForeignKey("Id")]
-        public TilerEvent AssociatedEvent
-        {
-            get
-            {
-                return _AssociatedEvent;
-            }
-            set
-            {
-                _AssociatedEvent = value;
-            }
-        }
-
-       public DateTimeOffset FromTime
+        public DateTimeOffset FromTime
         {
             set
             {

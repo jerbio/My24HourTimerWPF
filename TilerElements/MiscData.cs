@@ -46,6 +46,7 @@ namespace TilerElements
         {
             _UndoType = _Type;
             _UndoUserTypedData = _UserTypedData;
+            FirstInstantiation = false;
         }
 
         public void undo(string undoId)

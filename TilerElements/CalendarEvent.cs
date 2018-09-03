@@ -420,7 +420,6 @@ namespace TilerElements
         public void updateProcrastinate(Procrastination ProcrastinationTime)
         {
             _ProfileOfProcrastination = ProcrastinationTime;
-            ProcrastinationTime.AssociatedEvent = this;
             _ProfileOfNow.reset();
         }
         //*/

@@ -630,6 +630,7 @@ namespace TilerElements
                 noNullday.undoUpdate(undo);
             }
             this._UndoId = undo.id;
+            FirstInstantiation = false;
         }
 
         public void undo(string undoId)

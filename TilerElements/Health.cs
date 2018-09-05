@@ -170,7 +170,7 @@ namespace TilerElements
                    
                     totalTravelSpan = totalTravelSpan.Add(timeSpan);
                     TimeSpan TravelTimeAfter = before.TravelTimeAfter;
-                    if(TravelTimeAfter.Ticks == -1)
+                    if(TravelTimeAfter.Ticks == 1)
                     {
                         TravelTimeAfter = TimeSpan.FromMinutes( Location.calculateDistance(before.Location, after.Location, 30) *12);
                     }

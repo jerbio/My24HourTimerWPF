@@ -72,10 +72,16 @@ namespace TilerTests
             CalendarEvent testCalEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), timeLine.Start, timeLine.End, 1, false);
             SubCalendarEvent testEvent = testCalEvent.EnabledSubEvents.First();
             testEvent.Calendar_EventDB = null;
-            //string testEVentId = testEvent.Id;
+            string testEventId = testEvent.Id;
             var mockContext = TestUtility.getContext;
             mockContext.SubEvents.Add(testEvent);
             mockContext.SaveChanges();
+
+            var verificationEventPulled = mockContext.SubEvents.Find(testEventId);
+
+            Assert.IsNotNull(testEvent);
+            Assert.IsNotNull(verificationEventPulled);
+            Assert.IsTrue(testEvent.isTestEquivalent(verificationEventPulled));
         }
 
         [TestMethod]
@@ -93,7 +99,6 @@ namespace TilerTests
             var mockContext = TestUtility.getContext;
             mockContext.CalEvents.Add(testEvent);
             mockContext.SaveChanges();
-            string testLocationId = "test-location";
             var verificationEventPulled= mockContext.CalEvents.Find(testEVentId);
 
             Assert.IsNotNull(testEvent);

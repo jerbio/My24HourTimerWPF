@@ -27,8 +27,8 @@ namespace TilerElements
         protected DateTimeOffset _LastReasonStartTimeChanged;
         protected TimeLine CalculationTimeLine = null;
         protected CalendarEvent _calendarEvent;
-        public TimeSpan TravelTimeBefore { get; set; } = new TimeSpan(-1);
-        public TimeSpan TravelTimeAfter { get; set; } = new TimeSpan(-1);
+        public TimeSpan TravelTimeBefore { get; set; } = new TimeSpan(1);
+        public TimeSpan TravelTimeAfter { get; set; } = new TimeSpan(1);
         public bool isWake { get; set; } = false;
         public bool isSleep { get; set; } = false;
         protected bool tempLock { get; set; } = false;

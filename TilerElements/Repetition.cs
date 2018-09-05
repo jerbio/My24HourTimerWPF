@@ -37,6 +37,7 @@ namespace TilerElements
 
         #endregion
 
+        #region Constructors
         public Repetition()
         {
             _RepetitionFrequency = Frequency.NONE;
@@ -115,7 +116,7 @@ namespace TilerElements
             }
         }
 
-
+        #endregion
         public CalendarEvent getCalendarEvent(string RepeatingEventID)
         {
             EventID eventId = new EventID(new EventID(RepeatingEventID).getIDUpToRepeatCalendarEvent());
@@ -676,7 +677,7 @@ namespace TilerElements
             }
         }
 
-        [ForeignKey("Id")]
+        [NotMapped]
         public CalendarEvent ParentEvent { get; set; }
 
         virtual public string Id

@@ -33,7 +33,7 @@ namespace TilerElements
 
         public override void initializeSubEvents()
         {
-            SubEvents = new Dictionary<EventID, SubCalendarEvent>();
+            SubEvents = new SubEventDictionary();
             for (int i = 0; i < _Splits; i++)
             {
                 TimeLine procrastinationTimeLine = new TimeLine(StartDateTime, EndDateTime);

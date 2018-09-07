@@ -150,7 +150,7 @@ namespace TilerElements
             MyCalendarEventCopy._Splits = _Splits;
             MyCalendarEventCopy._AverageTimePerSplit = new TimeSpan(_AverageTimePerSplit.Ticks);
             MyCalendarEventCopy.EventSequence = EventSequence.CreateCopy();
-            MyCalendarEventCopy.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
+            MyCalendarEventCopy.SubEvents = new SubEventDictionary();
             MyCalendarEventCopy._UiParams = this._UiParams.createCopy();
             MyCalendarEventCopy._DataBlob = this._DataBlob.createCopy();
             MyCalendarEventCopy._Enabled = this._Enabled;
@@ -225,7 +225,7 @@ namespace TilerElements
             RetValue._AverageTimePerSplit = this.AverageTimeSpanPerSubEvent;
             RetValue.UniqueID = EventID.GenerateCalendarEvent();
             //RetValue.EventSequence = this.EventSequence;
-            RetValue.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
+            RetValue.SubEvents = new SubEventDictionary();
             RetValue._UiParams = this.getUIParam.createCopy();
             RetValue._DataBlob = this.Notes;
             RetValue._Enabled = this.isEnabled;

@@ -8,6 +8,11 @@ namespace TilerElements
 {
     public class ProcrastinateAllSubCalendarEvent:SubCalendarEvent
     {
+        protected ProcrastinateAllSubCalendarEvent():base()
+        {
+            isProcrastinateEvent = true;
+            this.RigidSchedule = true;
+        }
         public ProcrastinateAllSubCalendarEvent(TilerUser user, TilerUserGroup group, string timeZone, TimeLine timeLine, EventID calendarEventId, Location location, ProcrastinateCalendarEvent calendarEvent):base()
         {
             this.Name = calendarEvent.getName;

@@ -7,6 +7,11 @@ namespace TilerElements
 {
     public class BlobSubCalendarEvent:SubCalendarEvent
     {
+        protected BlobSubCalendarEvent():base()
+        {
+            BlobEvent = true;
+            RigidSchedule = true;
+        }
         HashSet<SubCalendarEvent> EventClumps;
 
         public BlobSubCalendarEvent(IEnumerable<SubCalendarEvent> InterFerringEvents)

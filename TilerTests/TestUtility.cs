@@ -332,6 +332,38 @@ namespace TilerTests
             return retValue;
         }
 
+        public static bool isTestEquivalent(this CalendarEvent firstCalEvent, CalendarEvent secondCalEvent)
+        {
+            bool retValue = true;
+            if (firstCalEvent.AllSubEvents.Count() == secondCalEvent.AllSubEvents.Count())
+            {
+                Dictionary<string, SubCalendarEvent> firstdictionary = firstCalEvent.AllSubEvents.ToDictionary(subEvent => subEvent.Id, subEvent => subEvent);
+                Dictionary<string, SubCalendarEvent> seconddictionary = secondCalEvent.AllSubEvents.ToDictionary(subEvent => subEvent.Id, subEvent => subEvent);
+                foreach (SubCalendarEvent subEvent in firstdictionary.Values)
+                {
+                    if (seconddictionary.ContainsKey(subEvent.Id))
+                    {
+                        var secondSubEvent = seconddictionary[subEvent.Id];
+                        retValue = subEvent.isTestEquivalent(secondSubEvent);
+                        if(!retValue)
+                        {
+                            break; 
+                        }
+                    } else
+                    {
+                        retValue = false;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                retValue = false;
+            }
+
+            return retValue && isTestEquivalent(firstCalEvent as TilerEvent, secondCalEvent as TilerEvent);
+        }
+
         public static bool isTestEquivalent(this Procrastination firstProcrastination, Procrastination secondProcrastination)
         {
             bool retValue = true;

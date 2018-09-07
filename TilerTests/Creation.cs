@@ -99,8 +99,8 @@ namespace TilerTests
             var mockContext = TestUtility.getContext;
             mockContext.CalEvents.Add(testEvent);
             mockContext.SaveChanges();
-            var verificationEventPulled= mockContext.CalEvents.Find(testEVentId);
-
+            mockContext = new TestDBContext();
+            var verificationEventPulled = mockContext.CalEvents.Include("AllSubEvents_DB").SingleOrDefault(calEvent => calEvent.Id == testEVentId);
             Assert.IsNotNull(testEvent);
             Assert.IsNotNull(verificationEventPulled);
             Assert.IsTrue(testEvent.isTestEquivalent(verificationEventPulled));

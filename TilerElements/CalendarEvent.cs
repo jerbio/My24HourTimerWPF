@@ -16,7 +16,7 @@ namespace TilerElements
         protected TimeSpan _AverageTimePerSplit;
         protected int _CompletedCount;
         protected int _DeletedCount;
-        protected Dictionary<EventID, SubCalendarEvent> SubEvents;
+        protected SubEventDictionary SubEvents;
 
         CustomErrors CalendarError = null;
         protected TimeLine EventSequence;
@@ -82,7 +82,7 @@ namespace TilerElements
             _Splits = 1;
             _LocationInfo = new Location();
             UniqueID = EventID.GenerateCalendarEvent();
-            SubEvents = new Dictionary<EventID, SubCalendarEvent>();
+            SubEvents = new SubEventDictionary();
             _otherPartyID = "";
             CalendarError = null;
             EventSequence = new TimeLine();
@@ -179,7 +179,7 @@ namespace TilerElements
 
         virtual public void initializeSubEvents()
         {
-            SubEvents = new Dictionary<EventID, SubCalendarEvent>();
+            SubEvents = new SubEventDictionary();
 
             for (int i = 0; i < _Splits; i++)
             {
@@ -205,7 +205,7 @@ namespace TilerElements
             _AverageTimePerSplit = MyUpdated._AverageTimePerSplit;
             _Enabled = MyUpdated.isEnabled;
             _Complete = MyUpdated.getIsComplete;
-            SubEvents = new Dictionary<EventID, SubCalendarEvent>();
+            SubEvents = new SubEventDictionary();
             for (int i = 0; i < MySubEvents.Length; i++)//using MySubEvents.length for the scenario of the call for repeat event. Remember the parent event does not generate subevents
             {
                 SubCalendarEvent newSubCalEvent = MySubEvents[i];
@@ -426,7 +426,7 @@ namespace TilerElements
 
         protected Dictionary<EventID, SubCalendarEvent> getSubEvents()
         {
-            return SubEvents;
+            return SubEvents.getData;
         }
 
         virtual public CalendarEvent createCopy(EventID Id=null)
@@ -455,7 +455,7 @@ namespace TilerElements
                 MyCalendarEventCopy.UniqueID = UniqueID;//hack
             }
             MyCalendarEventCopy.EventSequence = EventSequence.CreateCopy();
-            MyCalendarEventCopy.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
+            MyCalendarEventCopy.SubEvents = new SubEventDictionary();
             MyCalendarEventCopy._UiParams = this._UiParams.createCopy();
             MyCalendarEventCopy._DataBlob = this._DataBlob.createCopy();
             MyCalendarEventCopy._Enabled = this._Enabled;
@@ -739,7 +739,7 @@ namespace TilerElements
         {
             StartDateTime = StartTime;
             EndDateTime = EndTime;
-            SubEvents = new Dictionary<EventID, SubCalendarEvent>();
+            SubEvents = new SubEventDictionary();
         }
 
 
@@ -1339,7 +1339,7 @@ namespace TilerElements
             RetValue._Splits = this._Splits;
             RetValue._AverageTimePerSplit = this.AverageTimeSpanPerSubEvent;
             RetValue.UniqueID = EventID.GenerateCalendarEvent();
-            RetValue.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
+            RetValue.SubEvents = new SubEventDictionary();
             RetValue._UiParams = this.getUIParam;
             RetValue._DataBlob = this.Notes;
             RetValue._Enabled = this.isEnabled;
@@ -1425,7 +1425,7 @@ namespace TilerElements
         {
             if (delta<_Splits)
             {
-                List<SubCalendarEvent> orderedByActive = SubEvents.OrderByDescending(subEvent => subEvent.Value.isActive).Select(subEvemt => subEvemt.Value).ToList();
+                List<SubCalendarEvent> orderedByActive = SubEvents.getData.OrderByDescending(subEvent => subEvent.Value.isActive).Select(subEvemt => subEvemt.Value).ToList();
                 for (int i=0; i<delta;i++)
                 {
                     SubCalendarEvent SubEvent = orderedByActive.First();
@@ -1700,6 +1700,22 @@ namespace TilerElements
                 }
 
                 return SubEvents.Values.Where(obj=>obj!=null).ToArray();
+            }
+        }
+
+        public virtual ICollection<SubCalendarEvent> AllSubEvents_DB
+        {
+            set
+            {
+                this.SubEvents = new SubEventDictionary();
+                if (value != null)
+                {
+                    this.SubEvents = new SubEventDictionary(value);
+                }
+            }
+            get
+            {
+                return SubEvents ?? (SubEvents = new SubEventDictionary());
             }
         }
 

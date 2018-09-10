@@ -388,7 +388,7 @@ namespace TilerElements
             }
             get
             {
-                return _LocationInfo;
+                return _LocationInfo.isNull? null : _LocationInfo  ;
             }
         }
         public virtual string NameId { get; set; }

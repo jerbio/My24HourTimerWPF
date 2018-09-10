@@ -219,6 +219,14 @@ namespace TilerElements
             return RetValue;
         }
 
+        public static Location getNullLocation()
+        {
+            Location RetValue = new Location();
+            RetValue._DefaultFlag = true;
+            RetValue._NullLocation = true;
+            return RetValue;
+        }
+
         /// <summary>
         /// FUnction gets the timespan needed to travel from location 'first' to 'second'. The travelMode provides the desired medium of traveling.
         /// </summary>
@@ -270,7 +278,7 @@ namespace TilerElements
         {
             //note .... this function does not take into consideration the calendar event. So if there are two locations of the same calendarevent they will get scheduled right next to each other
             double maxDividedByTwo = MaxLongitude;
-            if ((Location24A._Latitude >= 180) || (Location24B._Latitude > 180) || (Location24A.isNull) || (Location24B.isNull) || (Location24A.isDefault) || (Location24B.isDefault))
+            if ((Location24A == null)|| (Location24B == null) || (Location24A._Latitude >= 180) || (Location24B._Latitude > 180) || (Location24A.isNull) || (Location24B.isNull) || (Location24A.isDefault) || (Location24B.isDefault))
             {
                 return Worst;
             }
@@ -376,7 +384,7 @@ namespace TilerElements
         /// <returns></returns>
         static public Location AverageGPSLocation(IEnumerable<Location> Locations, bool useDefaultLocation=true)
         {
-            Locations = Locations.Where(obj => !obj.isNull).ToList();
+            Locations = Locations.Where(obj => obj!=null  && !obj.isNull).ToList();
             Location retValue;
             Locations = Locations.Where(location => !location.isDefault && !location.isNull).ToList();
             if (Locations.Count() > 0)
@@ -551,7 +559,7 @@ namespace TilerElements
         {
             set
             {
-                isNull = value;
+                _NullLocation = value;
             }
             get
             {

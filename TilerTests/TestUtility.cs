@@ -261,7 +261,7 @@ namespace TilerTests
             return RetValue;
         }
 
-        public static UserAccount getTestUser(bool forceUpdateOfTilerUser = false, string userId = testUserId, bool copyTestFolder = true) {
+        public static UserAccount getTestUser(bool reloadTilerCOntext = false, string userId = testUserId, bool copyTestFolder = true) {
             //if (userId != testUserId && copyTestFolder)
             //{
             //    string sourceFile = "WagTapCalLogs\\" + userId + "\\" + userId + ".xml";
@@ -283,6 +283,11 @@ namespace TilerTests
 
             if (!isInitialized) {
                 init();
+            }
+
+            if(reloadTilerCOntext)
+            {
+                _Context = new TestDBContext();
             }
             UserAccount userAccount = new UserAccountTest(_testUser, _Context);
             return userAccount;

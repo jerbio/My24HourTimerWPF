@@ -76,7 +76,7 @@ namespace TilerTests
             var mockContext = TestUtility.getContext;
             mockContext.SubEvents.Add(testEvent);
             mockContext.SaveChanges();
-
+            mockContext = new TestDBContext();
             var verificationEventPulled = mockContext.SubEvents.Find(testEventId);
 
             Assert.IsNotNull(testEvent);
@@ -120,7 +120,10 @@ namespace TilerTests
                 DateTimeOffset TimeCreation = DateTimeOffset.UtcNow;
                 CalendarEvent testEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1),  new Repetition(), eachTimeLine.Start, eachTimeLine.End, 1, false);
                 testEvent.TimeCreated = TimeCreation;
+                currentUser = TestUtility.getTestUser(true);
                 Schedule.AddToScheduleAndCommit(testEvent).Wait();
+                currentUser = TestUtility.getTestUser(true);
+                currentUser.Login().Wait();
                 Schedule = new TestSchedule(currentUser, refNow);
                 CalendarEvent newlyaddedevent = Schedule.getCalendarEvent(testEvent.Calendar_EventID);
                 Assert.AreEqual(testEvent.getId, newlyaddedevent.getId);

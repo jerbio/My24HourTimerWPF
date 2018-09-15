@@ -68,29 +68,17 @@ namespace TilerElements
             base.redo(undoId);
         }
         #region Constructor
-        public CalendarEvent()
-        {
-            _EventDuration = new TimeSpan();
 
-            StartDateTime = new DateTimeOffset();
-            EndDateTime = new DateTimeOffset();
-            _EventPreDeadline = new TimeSpan();
-            _PrepTime = new TimeSpan();
-            _Priority = 0;
-            _EventRepetition = new Repetition();
-            RigidSchedule = false;
-            _Splits = 1;
-            _LocationInfo = new Location();
-            UniqueID = EventID.GenerateCalendarEvent();
-            SubEvents = new SubEventDictionary();
-            _otherPartyID = "";
-            CalendarError = null;
+        protected CalendarEvent()
+        {
             EventSequence = new TimeLine();
-            _ProfileOfProcrastination = new Procrastination(new DateTimeOffset(), new TimeSpan());
-            _ProfileOfNow = new NowProfile();
-            _Name = new EventName(_Creator, this);
-            this.TimeCreated = DateTimeOffset.UtcNow;
-            _Semantics = new Classification(this);
+        }
+        public CalendarEvent(bool initialize = true)
+        {
+            if(initialize)
+            {
+                this.initialize();
+            }
         }
 
         public CalendarEvent(CustomErrors Error) : this()
@@ -138,6 +126,7 @@ namespace TilerElements
             this._TimeZone = timeZoneOrigin;
             this.TimeCreated = DateTimeOffset.UtcNow;
             this._Semantics = semantics ?? new Classification(this);
+            _LocationInfo.User = this.getCreator;
         }
 
         public CalendarEvent(
@@ -262,7 +251,7 @@ namespace TilerElements
         {
             CalendarEvent calEvent;
             TempTilerEventChanges retvalue = new TempTilerEventChanges();
-            if (getIsRepeat)
+            if (base.IsRepeat)
             {
                 calEvent = Repeat.getCalendarEvent(eventId.ToString());
             } else
@@ -315,7 +304,7 @@ namespace TilerElements
         {
             CalendarEvent calEvent;
             TempTilerEventChanges retvalue = new TempTilerEventChanges();
-            if (getIsRepeat)
+            if (base.IsRepeat)
             {
                 calEvent = Repeat.getCalendarEvent(eventId.ToString());
             }
@@ -384,6 +373,32 @@ namespace TilerElements
         }
         #endregion
 
+        protected void initialize()
+        {
+            _EventDuration = new TimeSpan();
+
+            StartDateTime = new DateTimeOffset();
+            EndDateTime = new DateTimeOffset();
+            _EventPreDeadline = new TimeSpan();
+            _PrepTime = new TimeSpan();
+            _Priority = 0;
+            _EventRepetition = new Repetition();
+            RigidSchedule = false;
+            _Splits = 1;
+            _LocationInfo = new Location();
+            UniqueID = EventID.GenerateCalendarEvent();
+            SubEvents = new SubEventDictionary();
+            _otherPartyID = "";
+            CalendarError = null;
+            EventSequence = new TimeLine();
+            _ProfileOfProcrastination = new Procrastination(new DateTimeOffset(), new TimeSpan());
+            _ProfileOfNow = new NowProfile();
+            _Name = new EventName(_Creator, this);
+            this.TimeCreated = DateTimeOffset.UtcNow;
+            _Semantics = new Classification(this);
+            _LocationInfo.User = this.getCreator;
+        }
+
         /// <summary>
         /// Calendarevent Identifies the subeevents that are to be used for the calculation of a schedule. You need to initialize this for calculation of schedule
         /// </summary>
@@ -431,7 +446,7 @@ namespace TilerElements
 
         virtual public CalendarEvent createCopy(EventID Id=null)
         {
-            CalendarEvent MyCalendarEventCopy = new CalendarEvent();
+            CalendarEvent MyCalendarEventCopy = new CalendarEvent(true);
             MyCalendarEventCopy._EventDuration = new TimeSpan(_EventDuration.Ticks);
             MyCalendarEventCopy._Name = this._Name.createCopy();
             MyCalendarEventCopy.StartDateTime = StartDateTime;
@@ -439,7 +454,7 @@ namespace TilerElements
             MyCalendarEventCopy._EventPreDeadline = new TimeSpan(_EventPreDeadline.Ticks);
             MyCalendarEventCopy._PrepTime = new TimeSpan(_PrepTime.Ticks);
             MyCalendarEventCopy._Priority = _Priority;
-            MyCalendarEventCopy._EventRepetition = _EventRepetition.CreateCopy();// EventRepetition != null ? EventRepetition.CreateCopy() : EventRepetition;
+            MyCalendarEventCopy._EventRepetition = _EventRepetition != null ? _EventRepetition.CreateCopy() : _EventRepetition;
             MyCalendarEventCopy._Complete = this._Complete;
             MyCalendarEventCopy.RigidSchedule = RigidSchedule;//hack
             MyCalendarEventCopy._Splits = _Splits;
@@ -491,7 +506,7 @@ namespace TilerElements
 
         public static CalendarEvent getEmptyCalendarEvent( EventID myEventID,DateTimeOffset Start=new DateTimeOffset(), DateTimeOffset End=new DateTimeOffset())
         {
-            CalendarEvent retValue = new CalendarEvent();
+            CalendarEvent retValue = new CalendarEvent(true);
             retValue.UniqueID = new EventID( myEventID.getCalendarEventID());
             retValue.StartDateTime = Start;
             retValue.EndDateTime = End;
@@ -587,7 +602,7 @@ namespace TilerElements
         {
             _Complete = CompletionStatus;
 
-            if (RepetitionStatus)
+            if (IsRepeat)
             {
                 if (goDeep)
                 {
@@ -758,7 +773,7 @@ namespace TilerElements
                 }
             }
             return null;*/
-            if (_EventRepetition.Enable)
+            if (IsRepeat)
             {
                 return _EventRepetition.getCalendarEvent(CalendarIDUpToRepeatCalEvent);
             }
@@ -833,7 +848,7 @@ namespace TilerElements
         {
             int i = 0;
 
-            if (Repeat.Enable)
+            if (IsRepeat)
             {
                 IEnumerable<CalendarEvent> AllrepeatingCalEvents = _EventRepetition.RecurringCalendarEvents();
                 foreach (CalendarEvent MyCalendarEvent in AllrepeatingCalEvents)
@@ -859,7 +874,7 @@ namespace TilerElements
 
         public virtual bool updateSubEvent(EventID SubEventID,SubCalendarEvent UpdatedSubEvent)
         {
-            if (this.RepetitionStatus)
+            if (this.IsRepeat)
             {
                 IEnumerable<CalendarEvent> AllrepeatingCalEvents = Repeat.RecurringCalendarEvents();
 
@@ -1044,7 +1059,7 @@ namespace TilerElements
                         break;
                 }
             }
-            return new CalendarEvent();
+            return new CalendarEvent(true);
         }
 
         virtual public void updateEventSequence()
@@ -1325,7 +1340,7 @@ namespace TilerElements
 
         virtual protected CalendarEvent getCalculationCopy()
         {
-            CalendarEvent RetValue = new CalendarEvent();
+            CalendarEvent RetValue = new CalendarEvent(true);
             RetValue._EventDuration = this.getActiveDuration;
             RetValue._Name = this._Name.createCopy();
             RetValue.StartDateTime = this.Start;
@@ -1394,7 +1409,7 @@ namespace TilerElements
                 if (delta > 0)
                 {
 
-                    if (RepetitionStatus)
+                    if (IsRepeat)
                     {
                         _EventRepetition.RecurringCalendarEvents().AsParallel().ForAll(obj => obj.IncreaseSplitCount(Change));
                         return 2;
@@ -1407,7 +1422,7 @@ namespace TilerElements
                 }
                 else
                 {
-                    if (RepetitionStatus)
+                    if (IsRepeat)
                     {
                         _EventRepetition.RecurringCalendarEvents().AsParallel().ForAll(obj => obj.ReduceSplitCount(Change));
                         return 1;
@@ -1583,7 +1598,7 @@ namespace TilerElements
             {
                 subEvent.updateEventName(NewName);
             }
-            if (!justThisCalendarEvent && getIsRepeat)
+            if (!justThisCalendarEvent && base.IsRepeat)
             {
                 foreach(CalendarEvent calEvent in Repeat.RecurringCalendarEvents().Where(obj => obj.getId != this.getId))
                 {
@@ -1621,19 +1636,16 @@ namespace TilerElements
 
         public int NumberOfSplit
         {
+            set
+            {
+                _Splits = value;
+            }
             get
             {
                 return _Splits;
             }
         }
         
-        public virtual bool RepetitionStatus
-        {
-            get
-            {
-                return _EventRepetition.Enable;
-            }
-        }
         public Repetition Repeat
         {
             get
@@ -1661,7 +1673,7 @@ namespace TilerElements
         {//return All Subcalevents that are enabled. returns 
             get
             {
-                if (RepetitionStatus)
+                if (IsRepeat)
                 {
                     return this.ActiveRepeatSubCalendarEvents;
                 }
@@ -1678,7 +1690,7 @@ namespace TilerElements
         {//return All Subcalevents that are enabled.
             get
             {
-                if (RepetitionStatus)
+                if (IsRepeat)
                 {
                     return this.ActiveRepeatSubCalendarEvents;
                 }
@@ -1694,7 +1706,7 @@ namespace TilerElements
         {//return All Subcalevents that enabled or not.
             get
             {
-                if (this.Repeat.Enable)
+                if (IsRepeat)
                 {
                     return this.Repeat.RecurringCalendarEvents().SelectMany(obj => obj.AllSubEvents).ToArray();
                 }
@@ -1733,7 +1745,7 @@ namespace TilerElements
             get
             {
                 List<SubCalendarEvent> MyRepeatingSubCalendarEvents = new List<SubCalendarEvent>();
-                if (this.Repeat.Enable)
+                if (IsRepeat)
                 {
                     return this.Repeat.RecurringCalendarEvents().Where(calEvent => calEvent.isActive).SelectMany(obj => obj.ActiveSubEvents).ToArray();
                 }
@@ -1749,7 +1761,7 @@ namespace TilerElements
             get
             {
                 List<SubCalendarEvent> MyRepeatingSubCalendarEvents = new List<SubCalendarEvent>();
-                if (this.Repeat.Enable)
+                if (IsRepeat)
                 {
                     return this.Repeat.RecurringCalendarEvents().SelectMany(obj => obj.EnabledSubEvents).ToArray();
                 }

@@ -20,7 +20,7 @@ namespace TilerElements
             EndDateTime = InterFerringEvents.OrderByDescending(obj => obj.End).First().End;
             UniqueID=EventID.GenerateSubCalendarEvent(EventID.GenerateCalendarEvent().ToString());
             BusyFrame = new BusyTimeLine(UniqueID.ToString(), StartDateTime, EndDateTime);
-            CalendarEventRange = new TimeLine(StartDateTime,EndDateTime);
+            _CalendarEventRange = new TimeLine(StartDateTime,EndDateTime);
             CalendarEvent nullEvent = CalendarEvent.getEmptyCalendarEvent(UniqueID, StartDateTime, EndDateTime);
             RigidSchedule = true;
             double halfDouble=Double.MaxValue/2;

@@ -160,7 +160,8 @@ namespace TilerTests
         }
 
         /// <summary>
-        /// Function 
+        /// Function generates ranging from possibly 10 year, two hour time frame that should surround the time line 
+        /// created from refStart Plus the duration
         /// </summary>
         /// <returns></returns>
         static public List<TimeLine> getTimeFrames(DateTimeOffset refSTart, TimeSpan duration)
@@ -254,7 +255,7 @@ namespace TilerTests
                 name.AssociatedEvent = RetValue;
             }
 
-            if (repetition.Enable)
+            if (repetition.EnableRepeat)
             {
                 repetition.PopulateRepetitionParameters(RetValue);
             }
@@ -289,6 +290,8 @@ namespace TilerTests
             {
                 _Context = new TestDBContext();
             }
+
+            _testUser = _Context.Users.Find(testUserId);
             UserAccount userAccount = new UserAccountTest(_testUser, _Context);
             return userAccount;
         }
@@ -340,7 +343,7 @@ namespace TilerTests
         public static bool isTestEquivalent(this CalendarEvent firstCalEvent, CalendarEvent secondCalEvent)
         {
             bool retValue = true;
-            if (firstCalEvent.AllSubEvents.Count() == secondCalEvent.AllSubEvents.Count())
+            if (firstCalEvent.AllSubEvents.Count() == secondCalEvent.AllSubEvents.Count() &&  firstCalEvent.NumberOfSplit == secondCalEvent.NumberOfSplit)
             {
                 Dictionary<string, SubCalendarEvent> firstdictionary = firstCalEvent.AllSubEvents.ToDictionary(subEvent => subEvent.Id, subEvent => subEvent);
                 Dictionary<string, SubCalendarEvent> seconddictionary = secondCalEvent.AllSubEvents.ToDictionary(subEvent => subEvent.Id, subEvent => subEvent);

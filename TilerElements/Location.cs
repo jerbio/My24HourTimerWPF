@@ -13,6 +13,7 @@ using GoogleMapsApi.Entities.Geocoding.Response;
 using GoogleMapsApi.Entities.Directions.Request;
 using GoogleMapsApi.Entities.Directions.Response;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 
 namespace TilerElements
 {
@@ -38,6 +39,7 @@ namespace TilerElements
         protected string _TaggedDescription = "";
         protected string _TaggedAddress = "";
         protected string _UndoId = "";
+        protected TilerUser _User;
 
         /// <summary>
         /// was tiler able to pull location from google maps. If tiler fails to pull location from google maps then this location is null.
@@ -373,6 +375,7 @@ namespace TilerElements
             this_cpy._Longitude = this._Longitude;
             this_cpy._NullLocation = this._NullLocation;
             this_cpy._Id = this._Id;
+            this_cpy.User = this.User;
             return this_cpy;
         }
 
@@ -667,6 +670,19 @@ namespace TilerElements
             set
             {
                 _UndoDefaultFlag = value;
+            }
+        }
+        public string UserId { get; set; }
+        [Required, ForeignKey("UserId")]
+        public TilerUser User
+        {
+            get
+            {
+                return _User;
+            }
+            set
+            {
+                _User = value;
             }
         }
         #endregion

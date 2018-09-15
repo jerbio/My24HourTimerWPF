@@ -135,7 +135,7 @@ namespace TilerElements
         /// <param name="MyParentEvent"></param>
         public void PopulateRepetitionParameters(CalendarEvent MyParentEvent)
         {
-            if (!MyParentEvent.Repeat.Enable)//Checks if Repetition object is enabled or disabled. If Disabled then just return else continue
+            if (!MyParentEvent.IsRepeat)//Checks if Repetition object is enabled or disabled. If Disabled then just return else continue
             {
                 return;
             }
@@ -224,7 +224,7 @@ namespace TilerElements
 
         public void PopulateRepetitionParameters(CalendarEventRestricted MyParentEvent)
         {
-            if (!MyParentEvent.Repeat.Enable)//Checks if Repetition object is enabled or disabled. If Disabled then just return else continue
+            if (!MyParentEvent.IsRepeat)//Checks if Repetition object is enabled or disabled. If Disabled then just return else continue
             {
                 return;
             }
@@ -381,13 +381,6 @@ namespace TilerElements
         }
 
 #region properties
-        public bool Enable
-        {
-            get
-            {
-                return _EnableRepeat;
-            }
-        }
 
         public Frequency getFrequency
         {
@@ -664,16 +657,29 @@ namespace TilerElements
             }
         }
 
-        [ForeignKey("LocationId")]
-        public Location Location
+        [NotMapped]
+        virtual public Location Location
         {
+            set
+            {
+                _Location = value;
+            }
             get
             {
                 return _Location;
             }
+        }
+
+        [ForeignKey("LocationId")]
+        virtual public Location Location_DB
+        {
             set
             {
                 _Location = value;
+            }
+            get
+            {
+                return _Location.isNull ? null : _Location;
             }
         }
 

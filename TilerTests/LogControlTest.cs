@@ -13,7 +13,7 @@ namespace TilerTests
 {
     public class LogControlTest: TilerFront.LogControlDirect
     {
-        string UserID;
+    
         /*
         public LogControlDebug(string userid)
         {
@@ -33,11 +33,30 @@ namespace TilerTests
             }
         }
 
-        public override Task<Dictionary<string, CalendarEvent>> getAllCalendarFromXml(TimeLine RangeOfLookUP)
+        public override Task<Dictionary<string, CalendarEvent>> getAllCalendarFromXml(TimeLine RangeOfLookUP, bool includeSubEvents = true)
         {
             if(RangeOfLookUP == null)
             {
-                Dictionary<string, CalendarEvent> MyCalendarEventDictionary = _Database.CalEvents.ToDictionary(calEvent => calEvent.getId, calEvent => calEvent);
+                IQueryable<CalendarEvent> calEVents = _Database.CalEvents;
+                if (includeSubEvents)
+                {
+                    calEVents = _Database.CalEvents
+                        .Include(calEvent => calEvent.UiParams_EventDB)
+                        .Include(calEvent => calEvent.DataBlob_EventDB)
+                        .Include(calEvent => calEvent.Name)
+                        .Include(calEvent => calEvent.Name.Creator_EventDB)
+                        .Include(calEvent => calEvent.Location_DB)
+                        .Include(calEvent => calEvent.Creator_EventDB)
+                        .Include(calEvent => calEvent.AllSubEvents_DB.Select(subEvent => subEvent.ParentCalendarEvent))
+                        .Include(calEvent => calEvent.AllSubEvents_DB.Select(subEvent => subEvent.Name))
+                        .Include(calEvent => calEvent.AllSubEvents_DB.Select(subEvent => subEvent.Name.Creator_EventDB))
+                        .Include(calEvent => calEvent.AllSubEvents_DB.Select(subEvent => subEvent.Creator_EventDB))
+                        .Include(calEvent => calEvent.AllSubEvents_DB.Select(subEvent => subEvent.UiParams_EventDB))
+                        .Include(calEvent => calEvent.AllSubEvents_DB.Select(subEvent => subEvent.Location_DB))
+                        .Include(calEvent => calEvent.AllSubEvents_DB.Select(subEvent => subEvent.DataBlob_EventDB));
+
+                }
+                Dictionary<string, CalendarEvent> MyCalendarEventDictionary = calEVents.Where(calEvent => calEvent.CreatorId == _TilerUser.Id).ToDictionary(calEvent => calEvent.Calendar_EventID.getCalendarEventComponent(), calEvent => calEvent);
                 Func<Dictionary<string, CalendarEvent>> retFunc = new Func<Dictionary<string, CalendarEvent>>(() => { return MyCalendarEventDictionary; });
                 Task<Dictionary<string, CalendarEvent>> retTask = Task.Run(retFunc);
                 return retTask;

@@ -13,7 +13,7 @@ namespace TilerElements
         protected string _UndoId;
         protected string _Name = "";
         public string _UndoName;
-        protected string _Id = Guid.NewGuid().ToString();
+        protected string _Id;
         public virtual bool FirstInstantiation { get; set; } = true;
         protected TilerUser _Creator;
         protected TilerEvent _Event;
@@ -100,7 +100,7 @@ namespace TilerElements
         {
             get
             {
-                return _Id;
+                return _Id ?? (_Id = Guid.NewGuid().ToString());
             }
             set
             {

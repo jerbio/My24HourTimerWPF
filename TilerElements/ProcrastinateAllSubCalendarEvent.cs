@@ -27,7 +27,7 @@ namespace TilerElements
             this._ProfileOfNow = new NowProfile();
             this._ProfileOfProcrastination = new Procrastination(new DateTimeOffset(), new TimeSpan());
             isProcrastinateEvent = true;
-            this.CalendarEventRange = calendarEvent.RangeTimeLine;
+            this._CalendarEventRange = calendarEvent.RangeTimeLine;
             this.BusyFrame = new BusyTimeLine(this.UniqueID.ToString(), Start, End);
             this._EventDuration = this.BusyFrame.BusyTimeSpan;
             this._DataBlob = new MiscData();

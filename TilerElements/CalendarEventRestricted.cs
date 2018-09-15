@@ -47,7 +47,7 @@ namespace TilerElements
             RigidSchedule = isRigid;
             ProfileOfRestriction = restrictionProfile;
             _Splits = Divisions;
-            if (RepetitionProfile.Enable)
+            if (RepetitionProfile.EnableRepeat)
             {
                 _Splits = Divisions;
                 End = RepetitionProfile.Range.End;
@@ -81,7 +81,7 @@ namespace TilerElements
             RigidSchedule = isRigid;
             ProfileOfRestriction = restrictionProfile;
             _Splits = Divisions;
-            if (RepetitionProfile.Enable)
+            if (RepetitionProfile.EnableRepeat)
             {
                 _Splits = Divisions;
                 End = RepetitionProfile.Range.End;
@@ -144,7 +144,7 @@ namespace TilerElements
             MyCalendarEventCopy._EventPreDeadline = new TimeSpan(_EventPreDeadline.Ticks);
             MyCalendarEventCopy._PrepTime = new TimeSpan(_PrepTime.Ticks);
             MyCalendarEventCopy._Priority = _Priority;
-            MyCalendarEventCopy._EventRepetition = _EventRepetition.CreateCopy();// EventRepetition != null ? EventRepetition.CreateCopy() : EventRepetition;
+            MyCalendarEventCopy._EventRepetition = _EventRepetition != null ? _EventRepetition.CreateCopy() : _EventRepetition;
             MyCalendarEventCopy._Complete = this._Complete;
             MyCalendarEventCopy.RigidSchedule = RigidSchedule;//hack
             MyCalendarEventCopy._Splits = _Splits;

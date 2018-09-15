@@ -71,7 +71,7 @@ namespace TilerTests
             TimeLine timeLine = TestUtility.getTimeFrames(refNow, duration).First();
             CalendarEvent testCalEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), timeLine.Start, timeLine.End, 1, false);
             SubCalendarEvent testEvent = testCalEvent.EnabledSubEvents.First();
-            testEvent.Calendar_EventDB = null;
+            testEvent.ParentCalendarEvent = null;
             string testEventId = testEvent.Id;
             var mockContext = TestUtility.getContext;
             mockContext.SubEvents.Add(testEvent);
@@ -113,21 +113,30 @@ namespace TilerTests
             currentUser.Login().Wait();
             
             Schedule = new TestSchedule(currentUser, refNow);
-            TimeSpan duration = TimeSpan.FromHours(1);
+            TimeSpan duration = TimeSpan.FromHours(5);
             List<TimeLine> timeLines = TestUtility.getTimeFrames(refNow , duration);
             foreach(TimeLine eachTimeLine in timeLines)
             {
                 DateTimeOffset TimeCreation = DateTimeOffset.UtcNow;
                 CalendarEvent testEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1),  new Repetition(), eachTimeLine.Start, eachTimeLine.End, 1, false);
                 testEvent.TimeCreated = TimeCreation;
-                currentUser = TestUtility.getTestUser(true);
+                currentUser = TestUtility.getTestUser();
                 Schedule.AddToScheduleAndCommit(testEvent).Wait();
-                currentUser = TestUtility.getTestUser(true);
+                currentUser = TestUtility.getTestUser();
                 currentUser.Login().Wait();
                 Schedule = new TestSchedule(currentUser, refNow);
-                CalendarEvent newlyaddedevent = Schedule.getCalendarEvent(testEvent.Calendar_EventID);
-                Assert.AreEqual(testEvent.getId, newlyaddedevent.getId);
-                Assert.AreEqual(testEvent.TimeCreated, TimeCreation);
+                //var tempSchedule = Schedule.ProcrastinateJustAnEvent(testEvent.ActiveSubEvents.First().Id, TimeSpan.FromHours(1));
+                //Schedule.UpdateWithDifferentSchedule(tempSchedule.Item2).ConfigureAwait(false);
+
+                //var mockContext = new TestDBContext();
+                //var verificationEventPulled = mockContext.CalEvents
+                //        .Include(calEvent => calEvent.Location_DB)
+                //        .Include(calEvent => calEvent.Creator_EventDB)
+                //        .Include(calEvent => calEvent.Name.Creator_EventDB)
+                //        //.Include(calEvent => calEvent.AllSubEvents_DB)
+                //        //.Include(calEvent => calEvent.AllSubEvents_DB.Select(subEvent => subEvent.ParentCalendarEvent.Name.Creator_EventDB))
+                //        //.Include("Name.Creator_EventDB")
+                //        .SingleOrDefault(calEvent => calEvent.Id == testEvent.Id);
             }
         }
 

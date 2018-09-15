@@ -16,7 +16,7 @@ namespace TilerElements
         protected bool _Complete = false;
         protected bool _Enabled = true;
         protected bool _UserDeleted = false;
-        protected Location _LocationInfo;
+        protected Location _LocationInfo = Location.getNullLocation();
         protected EventDisplay _UiParams = new EventDisplay();
         protected MiscData _DataBlob = new MiscData();
         protected Repetition _EventRepetition;
@@ -45,6 +45,7 @@ namespace TilerElements
         internal TempTilerEventChanges TempChanges = new TempTilerEventChanges();
         protected EventName _Name;
         protected string _UndoId;
+        protected bool _IsRepeat;
 
         #region undoParameters
         public DateTimeOffset UndoStartDateTime;
@@ -379,7 +380,7 @@ namespace TilerElements
         }
 
         public string LocationId { get; set; }
-        [ForeignKey("LocationId")]
+        [NotMapped]
         virtual public Location Location
         {
             set
@@ -388,7 +389,20 @@ namespace TilerElements
             }
             get
             {
-                return _LocationInfo.isNull? null : _LocationInfo  ;
+                return _LocationInfo;
+            }
+        }
+
+        [ForeignKey("LocationId")]
+        virtual public Location Location_DB
+        {
+            set
+            {
+                _LocationInfo = value;
+            }
+            get
+            {
+                return _LocationInfo.isNull ? null : _LocationInfo;
             }
         }
         public virtual string NameId { get; set; }
@@ -704,11 +718,17 @@ namespace TilerElements
         #endregion
 
 
-        public virtual bool getIsRepeat
+        public virtual bool IsRepeat
         {
             get
             {
-                return _EventRepetition.Enable;
+                bool retValue = _EventRepetition != null ? _EventRepetition.EnableRepeat : _IsRepeat;
+                return retValue;
+            }
+
+            set
+            {
+                _IsRepeat = value;
             }
         }
 

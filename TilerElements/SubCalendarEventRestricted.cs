@@ -95,7 +95,7 @@ namespace TilerElements
 
         public override bool PinToEnd(TimeLine LimitingTimeLineData)
         {
-            TimeLine LimitingTimeLine = LimitingTimeLineData.InterferringTimeLine(CalendarEventRange);
+            TimeLine LimitingTimeLine = LimitingTimeLineData.InterferringTimeLine(getCalendarEventRange);
             if (LimitingTimeLine == null)
             {
                 return false;
@@ -125,7 +125,7 @@ namespace TilerElements
 
         public override bool PinToStart(TimeLine MyTimeLineEntry)
         {
-            TimeLine MyTimeLine = MyTimeLineEntry.InterferringTimeLine(CalendarEventRange);
+            TimeLine MyTimeLine = MyTimeLineEntry.InterferringTimeLine(getCalendarEventRange);
             if (MyTimeLine == null)
             {
                 return false;
@@ -168,7 +168,7 @@ namespace TilerElements
 
             DateTimeOffset myStart = ProfileOfRestriction.getEarliestStartTimeWithinAFrameAfterRefTime(refTimeLine.Start).Start;
             DateTimeOffset myEnd = ProfileOfRestriction.getLatestEndTimeWithinFrameBeforeRefTime(refTimeLine.End).End;
-            CalendarEventRange = new TimeLineRestricted(myStart, myEnd, RestrictionData);
+            _CalendarEventRange = new TimeLineRestricted(myStart, myEnd, RestrictionData);
         }
         ///*
         public override bool canExistTowardsEndWithoutSpace(TimeLine PossibleTimeLine)
@@ -207,7 +207,7 @@ namespace TilerElements
         {
             SubCalendarEventRestricted copy = new SubCalendarEventRestricted();
             copy.BusyFrame = this.BusyFrame.CreateCopy();
-            copy.CalendarEventRange = CalendarEventRange.CreateCopy();
+            copy._CalendarEventRange = getCalendarEventRange.CreateCopy();
             copy._Complete = _Complete;
             copy.ConflictingEvents = this.ConflictingEvents.CreateCopy();
             copy._DataBlob = this._DataBlob.createCopy();
@@ -329,7 +329,7 @@ namespace TilerElements
             {
                 SubCalendarEventRestricted SubEventEntry = (SubCalendarEventRestricted)SubEventEntryData;
                 this.BusyFrame = SubEventEntry.ActiveSlot;
-                this.CalendarEventRange = SubEventEntry.getCalendarEventRange;
+                this._CalendarEventRange = SubEventEntry.getCalendarEventRange;
                 this._Name = SubEventEntry.getName;
                 this._EventDuration = SubEventEntry.getActiveDuration;
                 this._Complete = SubEventEntry.getIsComplete;
@@ -369,7 +369,7 @@ namespace TilerElements
         {
             SubCalendarEventRestricted retValue = new SubCalendarEventRestricted();
             retValue.BusyFrame = this.ActiveSlot;
-            retValue.CalendarEventRange = this.getCalendarEventRange.CreateCopy();
+            retValue._CalendarEventRange = this.getCalendarEventRange.CreateCopy();
             retValue._Name = this.getName.createCopy();
             retValue._EventDuration = this.getActiveDuration;
             retValue._Complete = this.getIsComplete;

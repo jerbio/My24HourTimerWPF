@@ -10,7 +10,7 @@ namespace TilerElements
     public class SubEventDictionary<TKey, TValue> : IDictionary<string, TValue>, ICollection<TValue>, IEnumerable<TValue>
         where TValue : IHasId
     {
-        Dictionary<string, Object> Data = new Dictionary<string, Object>();
+        Dictionary<string, TValue> Data = new Dictionary<string, TValue>();
         public SubEventDictionary()
         {
 
@@ -23,11 +23,11 @@ namespace TilerElements
             }
         }
 
-        public TValue this[string key] { get => (TValue)Data[key]; set => Data[key] = value; }
+        public TValue this[string key] { get => Data[key]; set => Data[key] = value; }
 
         public ICollection<string> Keys => Data.Keys;
 
-        public ICollection<TValue> Values => Data.Values as ICollection<TValue>;
+        public ICollection<TValue> Values => Data.Values;
 
         public int Count => Data.Count;
 
@@ -55,12 +55,13 @@ namespace TilerElements
 
         public void Add(Repetition repetition)
         {
-            Data.Add(repetition.weekDay.ToString(), repetition);
+            TValue value = (TValue)Convert.ChangeType(repetition, typeof(TValue));
+            Data.Add(repetition.weekDay.ToString(), value);
         }
 
         public void Clear()
         {
-            Data = new Dictionary<string, Object>();
+            Data = new Dictionary<string, TValue>();
         }
 
         public bool Contains(KeyValuePair<string, TValue> item)
@@ -90,7 +91,7 @@ namespace TilerElements
 
         public IEnumerator<KeyValuePair<string, TValue>> GetEnumerator()
         {
-            return (Data as Dictionary<string, TValue>) .GetEnumerator();
+            return Data.GetEnumerator();
         }
 
         public bool Remove(string key)
@@ -120,7 +121,7 @@ namespace TilerElements
 
         IEnumerator<TValue> IEnumerable<TValue>.GetEnumerator()
         {
-            return (Data.Values as IEnumerable<TValue>) .GetEnumerator();
+            return Data.Values .GetEnumerator();
         }
 
         public Dictionary<string, TValue> Collection {
@@ -131,7 +132,7 @@ namespace TilerElements
 
             set
             {
-                Data = value as Dictionary<string, Object>;
+                Data = value as Dictionary<string, TValue>;
             }
         }
     }

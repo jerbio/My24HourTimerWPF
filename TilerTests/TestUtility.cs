@@ -296,6 +296,12 @@ namespace TilerTests
             return userAccount;
         }
 
+
+        static public void cleanupDB ()
+        {
+            _Context.Database.ExecuteSqlCommand("TRUNCATE TABLE Entity");
+            isInitialized = false;
+        }
         public static bool isTestEquivalent(this TilerEvent firstCalEvent, TilerEvent secondCalEvent)
         {
             bool retValue = true;
@@ -369,7 +375,75 @@ namespace TilerTests
                 retValue = false;
             }
 
-            return retValue && isTestEquivalent(firstCalEvent as TilerEvent, secondCalEvent as TilerEvent);
+            return retValue && isTestEquivalent(firstCalEvent as TilerEvent, secondCalEvent as TilerEvent) && isTestEquivalent(firstCalEvent.Repeat, secondCalEvent.Repeat);
+        }
+
+        public static bool isTestEquivalent(this Repetition firstRepetition, Repetition secondRepetition)
+        {
+            bool retValue = true;
+            if(firstRepetition!=null && secondRepetition!=null)
+            {
+                if(firstRepetition.EnableRepeat == secondRepetition.EnableRepeat)
+                {
+                    if (firstRepetition.getFrequency == secondRepetition.getFrequency)
+                    {
+                        Dictionary<string, CalendarEvent> firstdictionary = firstRepetition.RepeatingEvents.ToDictionary(calEvent => calEvent.Id, calEvent => calEvent);
+                        Dictionary<string, CalendarEvent> seconddictionary = secondRepetition.RepeatingEvents.ToDictionary(calEvent => calEvent.Id, calEvent => calEvent);
+                        foreach (CalendarEvent calEvent in firstdictionary.Values)
+                        {
+                            if (seconddictionary.ContainsKey(calEvent.Id))
+                            {
+                                var secondCalEvent = seconddictionary[calEvent.Id];
+                                retValue = calEvent.isTestEquivalent(secondCalEvent);
+                                if (!retValue)
+                                {
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                retValue = false;
+                                break;
+                            }
+                        }
+
+                        if(retValue) {
+                            Dictionary<string, Repetition> firstRepetitionDict = firstRepetition.SubRepetitions.ToDictionary(repetition => repetition.Id, repetition => repetition);
+                            Dictionary<string, Repetition> secondRepetitionDict = secondRepetition.SubRepetitions.ToDictionary(repetition => repetition.Id, repetition => repetition);
+                            foreach (Repetition repetition in firstRepetitionDict.Values)
+                            {
+                                if (secondRepetitionDict.ContainsKey(repetition.Id))
+                                {
+                                    var secondRepetitions = secondRepetitionDict[repetition.Id];
+                                    retValue = repetition.isTestEquivalent(secondRepetitions);
+                                    if (!retValue)
+                                    {
+                                        break;
+                                    }
+                                }
+                                else
+                                {
+                                    retValue = false;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        retValue = false;
+                    }
+                }
+                else
+                {
+                    retValue = false;
+                }
+            }
+            else
+            {
+                retValue = firstRepetition == secondRepetition;
+            }
+            return retValue;
         }
 
         public static bool isTestEquivalent(this Procrastination firstProcrastination, Procrastination secondProcrastination)

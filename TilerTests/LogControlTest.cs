@@ -47,6 +47,7 @@ namespace TilerTests
                         .Include(calEvent => calEvent.Name.Creator_EventDB)
                         .Include(calEvent => calEvent.Location_DB)
                         .Include(calEvent => calEvent.Creator_EventDB)
+                        .Include(calEvent => calEvent.Repetition_EventDB)
                         .Include(calEvent => calEvent.AllSubEvents_DB.Select(subEvent => subEvent.ParentCalendarEvent))
                         .Include(calEvent => calEvent.AllSubEvents_DB.Select(subEvent => subEvent.Name))
                         .Include(calEvent => calEvent.AllSubEvents_DB.Select(subEvent => subEvent.Name.Creator_EventDB))
@@ -56,7 +57,7 @@ namespace TilerTests
                         .Include(calEvent => calEvent.AllSubEvents_DB.Select(subEvent => subEvent.DataBlob_EventDB));
 
                 }
-                Dictionary<string, CalendarEvent> MyCalendarEventDictionary = calEVents.Where(calEvent => calEvent.CreatorId == _TilerUser.Id).ToDictionary(calEvent => calEvent.Calendar_EventID.getCalendarEventComponent(), calEvent => calEvent);
+                Dictionary<string, CalendarEvent> MyCalendarEventDictionary = calEVents.Where(calEvent => calEvent.CreatorId == _TilerUser.Id && !calEvent.IsRepeatsChildCalEvent).ToDictionary(calEvent => calEvent.Calendar_EventID.getCalendarEventComponent(), calEvent => calEvent);
                 Func<Dictionary<string, CalendarEvent>> retFunc = new Func<Dictionary<string, CalendarEvent>>(() => { return MyCalendarEventDictionary; });
                 Task<Dictionary<string, CalendarEvent>> retTask = Task.Run(retFunc);
                 return retTask;

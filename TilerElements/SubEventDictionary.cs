@@ -7,95 +7,110 @@ using System.Threading.Tasks;
 
 namespace TilerElements
 {
-    public class SubEventDictionary : IDictionary<EventID, SubCalendarEvent>, ICollection<SubCalendarEvent>
+    public class SubEventDictionary<TKey, TValue> : IDictionary<string, TValue>, ICollection<TValue>, IEnumerable<TValue>
+        where TValue : IHasId
     {
-        Dictionary<EventID, SubCalendarEvent> Data = new Dictionary<EventID, SubCalendarEvent>();
+        Dictionary<string, Object> Data = new Dictionary<string, Object>();
         public SubEventDictionary()
         {
 
         }
-        public SubEventDictionary(ICollection<SubCalendarEvent> data)
+        public SubEventDictionary(IEnumerable<TValue> data)
         {
-            Data = data.ToDictionary(subEvent => subEvent.SubEvent_ID, subEvent => subEvent);
+            foreach (TValue value in data)
+            {
+                this.Add(value);
+            }
         }
-        public SubCalendarEvent this[EventID key] { get => Data[key]; set => Data[key] = value; }
 
-        public ICollection<EventID> Keys => Data.Keys;
+        public TValue this[string key] { get => (TValue)Data[key]; set => Data[key] = value; }
 
-        public ICollection<SubCalendarEvent> Values => Data.Values;
+        public ICollection<string> Keys => Data.Keys;
+
+        public ICollection<TValue> Values => Data.Values as ICollection<TValue>;
 
         public int Count => Data.Count;
 
         public bool IsReadOnly => false;
 
-        public void Add(EventID key, SubCalendarEvent value)
+        public void Add(string key, TValue value)
         {
             Data.Add(key, value);
         }
 
-        public void Add(KeyValuePair<EventID, SubCalendarEvent> item)
+        public void Add(TKey key, TValue value)
+        {
+            Data.Add(key.ToString(), value);
+        }
+
+        public void Add(KeyValuePair<string, TValue> item)
         {
             Data.Add(item.Key, item.Value);
         }
 
-        public void Add(SubCalendarEvent item)
+        public void Add(TValue item)
         {
-            Data.Add(item.SubEvent_ID, item);
+            Data.Add(item.Id, item);
+        }
+
+        public void Add(Repetition repetition)
+        {
+            Data.Add(repetition.weekDay.ToString(), repetition);
         }
 
         public void Clear()
         {
-            Data = new Dictionary<EventID, SubCalendarEvent>();
+            Data = new Dictionary<string, Object>();
         }
 
-        public bool Contains(KeyValuePair<EventID, SubCalendarEvent> item)
+        public bool Contains(KeyValuePair<string, TValue> item)
         {
-            return Data.ContainsKey(item.Key) && Data[item.Key] == item.Value;
+            return Data.ContainsKey(item.Key) && Data[item.Key].Equals( item.Value);
         }
 
-        public bool Contains(SubCalendarEvent item)
+        public bool Contains(TValue item)
         {
-            return Data.ContainsKey(item.SubEvent_ID) && Data[item.SubEvent_ID] == item;
+            return Data.ContainsKey(item.Id) && Data[item.Id].Equals( item);
         }
 
-        public bool ContainsKey(EventID key)
+        public bool ContainsKey(string key)
         {
             return Data.ContainsKey(key);
         }
 
-        public void CopyTo(KeyValuePair<EventID, SubCalendarEvent>[] array, int arrayIndex)
+        public void CopyTo(KeyValuePair<string, TValue>[] array, int arrayIndex)
         {
             throw new NotImplementedException();
         }
 
-        public void CopyTo(SubCalendarEvent[] array, int arrayIndex)
+        public void CopyTo(TValue[] array, int arrayIndex)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerator<KeyValuePair<EventID, SubCalendarEvent>> GetEnumerator()
+        public IEnumerator<KeyValuePair<string, TValue>> GetEnumerator()
         {
-            return Data.GetEnumerator();
+            return (Data as Dictionary<string, TValue>) .GetEnumerator();
         }
 
-        public bool Remove(EventID key)
+        public bool Remove(string key)
         {
             return Data.Remove(key);
         }
 
-        public bool Remove(KeyValuePair<EventID, SubCalendarEvent> item)
+        public bool Remove(KeyValuePair<string, TValue> item)
         {
             return Data.Remove(item.Key);
         }
 
-        public bool Remove(SubCalendarEvent item)
+        public bool Remove(TValue item)
         {
-            return Data.Remove(item.SubEvent_ID);
+            return Data.Remove(item.Id);
         }
 
-        public bool TryGetValue(EventID key, out SubCalendarEvent value)
+        public bool TryGetValue(string key, out TValue value)
         {
-            return Data.TryGetValue(key,out value);
+            throw new NotImplementedException();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -103,11 +118,21 @@ namespace TilerElements
             return Data.Values.GetEnumerator();
         }
 
-        IEnumerator<SubCalendarEvent> IEnumerable<SubCalendarEvent>.GetEnumerator()
+        IEnumerator<TValue> IEnumerable<TValue>.GetEnumerator()
         {
-            return Data.Values.GetEnumerator();
+            return (Data.Values as IEnumerable<TValue>) .GetEnumerator();
         }
 
-        public Dictionary<EventID, SubCalendarEvent> getData => Data;
+        public Dictionary<string, TValue> Collection {
+            get
+            {
+                return Data as Dictionary<string, TValue>;
+            }
+
+            set
+            {
+                Data = value as Dictionary<string, Object>;
+            }
+        }
     }
 }

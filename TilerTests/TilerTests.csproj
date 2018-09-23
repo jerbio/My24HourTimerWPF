@@ -96,25 +96,9 @@
     <Compile Include="KnownBugList.cs" />
     <Compile Include="LogControlTest.cs" />
     <Compile Include="LogicTest.cs" />
-    <Compile Include="Migrations\201809130548137_initial.cs" />
-    <Compile Include="Migrations\201809130548137_initial.Designer.cs">
-      <DependentUpon>201809130548137_initial.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201809140710296_isRepeatOnTIlerEvent.cs" />
-    <Compile Include="Migrations\201809140710296_isRepeatOnTIlerEvent.Designer.cs">
-      <DependentUpon>201809140710296_isRepeatOnTIlerEvent.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201809140738478_splitCount.cs" />
-    <Compile Include="Migrations\201809140738478_splitCount.Designer.cs">
-      <DependentUpon>201809140738478_splitCount.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201809150352301_activeSlotRemoval.cs" />
-    <Compile Include="Migrations\201809150352301_activeSlotRemoval.Designer.cs">
-      <DependentUpon>201809150352301_activeSlotRemoval.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201809150511093_addedUserToLocation.cs" />
-    <Compile Include="Migrations\201809150511093_addedUserToLocation.Designer.cs">
-      <DependentUpon>201809150511093_addedUserToLocation.cs</DependentUpon>
+    <Compile Include="Migrations\201809160659345_repeatParent.cs" />
+    <Compile Include="Migrations\201809160659345_repeatParent.Designer.cs">
+      <DependentUpon>201809160659345_repeatParent.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
@@ -206,20 +190,8 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201809130548137_initial.resx">
-      <DependentUpon>201809130548137_initial.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201809140710296_isRepeatOnTIlerEvent.resx">
-      <DependentUpon>201809140710296_isRepeatOnTIlerEvent.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201809140738478_splitCount.resx">
-      <DependentUpon>201809140738478_splitCount.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201809150352301_activeSlotRemoval.resx">
-      <DependentUpon>201809150352301_activeSlotRemoval.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201809150511093_addedUserToLocation.resx">
-      <DependentUpon>201809150511093_addedUserToLocation.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201809160659345_repeatParent.resx">
+      <DependentUpon>201809160659345_repeatParent.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Choose>

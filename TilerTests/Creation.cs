@@ -96,10 +96,8 @@ namespace TilerTests
             TimeLine timeLine = TestUtility.getTimeFrames(refNow, duration).First();
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), timeLine.Start, timeLine.End, 1, false);
             string testEVentId = testEvent.Id;
-            var mockContext = TestUtility.getContext;
-            mockContext.CalEvents.Add(testEvent);
-            mockContext.SaveChanges();
-            mockContext = new TestDBContext();
+            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            var mockContext = new TestDBContext();
             var verificationEventPulled = mockContext.CalEvents.Include("AllSubEvents_DB").SingleOrDefault(calEvent => calEvent.Id == testEVentId);
             Assert.IsNotNull(testEvent);
             Assert.IsNotNull(verificationEventPulled);
@@ -125,18 +123,6 @@ namespace TilerTests
                 currentUser = TestUtility.getTestUser();
                 currentUser.Login().Wait();
                 Schedule = new TestSchedule(currentUser, refNow);
-                //var tempSchedule = Schedule.ProcrastinateJustAnEvent(testEvent.ActiveSubEvents.First().Id, TimeSpan.FromHours(1));
-                //Schedule.UpdateWithDifferentSchedule(tempSchedule.Item2).ConfigureAwait(false);
-
-                //var mockContext = new TestDBContext();
-                //var verificationEventPulled = mockContext.CalEvents
-                //        .Include(calEvent => calEvent.Location_DB)
-                //        .Include(calEvent => calEvent.Creator_EventDB)
-                //        .Include(calEvent => calEvent.Name.Creator_EventDB)
-                //        //.Include(calEvent => calEvent.AllSubEvents_DB)
-                //        //.Include(calEvent => calEvent.AllSubEvents_DB.Select(subEvent => subEvent.ParentCalendarEvent.Name.Creator_EventDB))
-                //        //.Include("Name.Creator_EventDB")
-                //        .SingleOrDefault(calEvent => calEvent.Id == testEvent.Id);
             }
         }
 
@@ -154,9 +140,13 @@ namespace TilerTests
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, true);
             testEvent.TimeCreated = TimeCreation;
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
-            CalendarEvent newlyaddedevent = Schedule.getCalendarEvent(testEvent.Calendar_EventID);
-            Assert.AreEqual(testEvent.getId, newlyaddedevent.getId);
-            Assert.AreEqual(testEvent.TimeCreated, TimeCreation);
+            var testEVentId = testEvent.Id;
+            var mockContext = new TestDBContext();
+            var verificationEventPulled = mockContext.CalEvents.Include("AllSubEvents_DB").SingleOrDefault(calEvent => calEvent.Id == testEVentId);
+            Assert.IsNotNull(testEvent);
+            Assert.IsNotNull(verificationEventPulled);
+            Assert.IsTrue(testEvent.isTestEquivalent(verificationEventPulled));
+
         }
 
         [TestMethod]
@@ -172,11 +162,22 @@ namespace TilerTests
             TimeLine repetitionRange = new TimeLine(start, start.AddDays(14));
             Repetition repetition = new Repetition(true, repetitionRange, Repetition.Frequency.DAILY, new TimeLine(start, end));
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, repetition, start, end, 1, true);
+            string testEVentId = testEvent.getId;
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
-            CalendarEvent newlyaddedevent = Schedule.getCalendarEvent(testEvent.Calendar_EventID);
-            Assert.AreEqual(testEvent.getId, newlyaddedevent.getId);
-            CalendarEvent newlyaddedevent0 = Schedule.getCalendarEvent(newlyaddedevent.ActiveSubEvents.First().SubEvent_ID.getIDUpToRepeatCalendarEvent());
-            Assert.AreEqual(newlyaddedevent.Calendar_EventID.getCalendarEventComponent(), newlyaddedevent0.Calendar_EventID.getCalendarEventComponent());
+            var mockContext = new TestDBContext();
+            user = TestUtility.getTestUser(true);
+
+            Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEVentId);
+            waitVar.Wait();
+            CalendarEvent verificationEventPulled = waitVar.Result;
+            Assert.IsNotNull(testEvent);
+            Assert.IsNotNull(verificationEventPulled);
+            Assert.IsTrue(testEvent.isTestEquivalent(verificationEventPulled));
+
+            Schedule = new TestSchedule(user, refNow);
+            Assert.AreEqual(testEvent.getId, verificationEventPulled.getId);
+            CalendarEvent newlyaddedevent0 = Schedule.getCalendarEvent(verificationEventPulled.ActiveSubEvents.First().SubEvent_ID.getIDUpToRepeatCalendarEvent());
+            Assert.AreEqual(verificationEventPulled.Calendar_EventID.getCalendarEventComponent(), newlyaddedevent0.Calendar_EventID.getCalendarEventComponent());
         }
 
         [TestMethod]
@@ -357,11 +358,7 @@ namespace TilerTests
         [TestCleanup]
         void cleanUpForEachTest()
         {
-            UserAccount currentUser = TestUtility.getTestUser();
-            currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            Schedule Schedule = new TestSchedule(currentUser, refNow);
-            currentUser.DeleteAllCalendarEvents();
+            TestUtility.cleanupDB();
         }
 
         [ClassCleanup]

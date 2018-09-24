@@ -170,7 +170,7 @@ namespace TilerElements
         {
             SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
 
-            for (int i = 0; i < _Splits; i++)
+            for (int i = 0; i < _Splits; i++)// This is still is still called when dealing with repeat events. Meaning repeat calendar events all have an unnecessary extra subevent
             {
                 SubCalendarEvent newSubCalEvent = new SubCalendarEvent(this, getCreator, _Users, _TimeZone, _AverageTimePerSplit, this.getName, (EndDateTime - _AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), RigidSchedule, this._Enabled, this._UiParams, this.Notes, this._Complete, this._LocationInfo, this.RangeTimeLine);
                 newSubCalEvent.TimeCreated = this.TimeCreated;
@@ -1650,14 +1650,6 @@ namespace TilerElements
         public bool IsRepeatsChildCalEvent
         {
             get; set;
-        }
-
-        public Repetition Repeat
-        {
-            get
-            {
-                return _EventRepetition;
-            }
         }
 
         public TimeSpan AverageTimeSpanPerSubEvent

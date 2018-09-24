@@ -96,9 +96,9 @@
     <Compile Include="KnownBugList.cs" />
     <Compile Include="LogControlTest.cs" />
     <Compile Include="LogicTest.cs" />
-    <Compile Include="Migrations\201809230503096_initial.cs" />
-    <Compile Include="Migrations\201809230503096_initial.Designer.cs">
-      <DependentUpon>201809230503096_initial.cs</DependentUpon>
+    <Compile Include="Migrations\201809231851418_initial.cs" />
+    <Compile Include="Migrations\201809231851418_initial.Designer.cs">
+      <DependentUpon>201809231851418_initial.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
@@ -186,8 +186,8 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201809230503096_initial.resx">
-      <DependentUpon>201809230503096_initial.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201809231851418_initial.resx">
+      <DependentUpon>201809231851418_initial.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Choose>

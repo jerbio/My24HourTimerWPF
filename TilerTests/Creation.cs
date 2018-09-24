@@ -173,11 +173,6 @@ namespace TilerTests
             Assert.IsNotNull(testEvent);
             Assert.IsNotNull(verificationEventPulled);
             Assert.IsTrue(testEvent.isTestEquivalent(verificationEventPulled));
-
-            Schedule = new TestSchedule(user, refNow);
-            Assert.AreEqual(testEvent.getId, verificationEventPulled.getId);
-            CalendarEvent newlyaddedevent0 = Schedule.getCalendarEvent(verificationEventPulled.ActiveSubEvents.First().SubEvent_ID.getIDUpToRepeatCalendarEvent());
-            Assert.AreEqual(verificationEventPulled.Calendar_EventID.getCalendarEventComponent(), newlyaddedevent0.Calendar_EventID.getCalendarEventComponent());
         }
 
         [TestMethod]
@@ -204,9 +199,14 @@ namespace TilerTests
             Repetition repetition = new Repetition(true, repetitionRange, Repetition.Frequency.WEEKLY, new TimeLine(start, end), weekDaysAsInt.ToArray());
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, repetition, start, end, 1, true);
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
-            CalendarEvent newlyaddedevent = Schedule.getCalendarEvent(testEvent.Calendar_EventID);
-            Assert.AreEqual(testEvent.getId, newlyaddedevent.getId);
-            CalendarEvent newlyaddedevent0 = Schedule.getCalendarEvent(newlyaddedevent.ActiveSubEvents.First().SubEvent_ID.getIDUpToRepeatCalendarEvent());
+
+            var mockContext = new TestDBContext();
+            user = TestUtility.getTestUser(true);
+
+            Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
+
+            CalendarEvent verificationEventPulled = waitVar.Result;
+            CalendarEvent newlyaddedevent0 = Schedule.getCalendarEvent(verificationEventPulled.ActiveSubEvents.First().SubEvent_ID.getIDUpToRepeatCalendarEvent());
             List<SubCalendarEvent> subEvents = newlyaddedevent0.AllSubEvents.OrderBy(subEvent => subEvent.Start).ToList();
             for(int index = 0; index < subEvents.Count; index++)
             {
@@ -214,7 +214,7 @@ namespace TilerTests
                 DayOfWeek dayOfWeek = weekDays[currentDayIndex];
                 Assert.AreEqual(subEvents[index].Start.DayOfWeek, dayOfWeek);
             }
-            Assert.AreEqual(newlyaddedevent.Calendar_EventID.getCalendarEventComponent(), newlyaddedevent0.Calendar_EventID.getCalendarEventComponent());
+            Assert.AreEqual(verificationEventPulled.Calendar_EventID.getCalendarEventComponent(), newlyaddedevent0.Calendar_EventID.getCalendarEventComponent());
         }
 
         [TestMethod]

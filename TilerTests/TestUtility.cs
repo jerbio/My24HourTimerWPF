@@ -375,7 +375,10 @@ namespace TilerTests
                 retValue = false;
             }
 
-            return retValue && isTestEquivalent(firstCalEvent as TilerEvent, secondCalEvent as TilerEvent) && isTestEquivalent(firstCalEvent.Repeat, secondCalEvent.Repeat);
+            return retValue && isTestEquivalent(firstCalEvent as TilerEvent, secondCalEvent as TilerEvent)
+                && (firstCalEvent.IsRepeat == secondCalEvent.IsRepeat ? 
+                (firstCalEvent.IsRepeat ? isTestEquivalent(firstCalEvent.Repeat, secondCalEvent.Repeat) : true) : //if repeat is enabled the run equivalecy test else then passing test
+                false); // if calendar repeat flags aren't the same then the calEvents are not equal
         }
 
         public static bool isTestEquivalent(this Repetition firstRepetition, Repetition secondRepetition)
@@ -441,7 +444,7 @@ namespace TilerTests
             }
             else
             {
-                retValue = firstRepetition == secondRepetition;
+                retValue = firstRepetition == secondRepetition;// this will only be true when both are null
             }
             return retValue;
         }

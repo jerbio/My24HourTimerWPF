@@ -45,7 +45,7 @@ namespace TilerElements
         internal TempTilerEventChanges TempChanges = new TempTilerEventChanges();
         protected EventName _Name;
         protected string _UndoId;
-        protected bool _IsRepeat;
+        protected bool _IsRepeat = false;
 
         #region undoParameters
         public DateTimeOffset UndoStartDateTime;
@@ -364,6 +364,13 @@ namespace TilerElements
             }
         }
 
+        public Repetition Repeat
+        {
+            get
+            {
+                return _EventRepetition;
+            }
+        }
         #region dbProperties
         virtual public DateTimeOffset TimeCreated { get; set; } = DateTimeOffset.Parse(DateTimeOffset.UtcNow.ToLocalTime().ToString("MM/dd/yyyy hh:mm tt"));
 
@@ -503,7 +510,7 @@ namespace TilerElements
         {
             get
             {
-                return this._EventRepetition;
+                return IsRepeat ? _EventRepetition : null;
             }
             set
             {

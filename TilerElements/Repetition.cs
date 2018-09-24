@@ -61,6 +61,7 @@ namespace TilerElements
             _EnableRepeat = EnableFlag;
             _Location = new Location();
             _DictionaryOfIDAndCalendarEvents = new SubEventDictionary<string, CalendarEvent>();
+            _DictionaryOfWeekDayToRepetition = new SubEventDictionary<int, Repetition>();
             _initializingRange = EventActualRange;
             foreach (int eachWeekDay in WeekDayData)
             {
@@ -75,6 +76,7 @@ namespace TilerElements
             _EnableRepeat = EnableFlag;
             _Location = new Location();
             _DictionaryOfIDAndCalendarEvents = new SubEventDictionary<string, CalendarEvent>();
+            _DictionaryOfWeekDayToRepetition = new SubEventDictionary<int, Repetition>();
             _initializingRange = EventActualRange;
             RepetitionWeekDay = WeekDayData;
         }
@@ -695,14 +697,17 @@ namespace TilerElements
         {
             get
             {
-                return _DictionaryOfIDAndCalendarEvents;
+                return _DictionaryOfIDAndCalendarEvents ?? (_DictionaryOfIDAndCalendarEvents = new SubEventDictionary<string, CalendarEvent>());
             }
             set
             {
-                this._DictionaryOfIDAndCalendarEvents = new SubEventDictionary<string, CalendarEvent>();
                 if (value != null)
                 {
                     this._DictionaryOfIDAndCalendarEvents = new SubEventDictionary<string, CalendarEvent>(value);
+                }
+                else
+                {
+                    this._DictionaryOfIDAndCalendarEvents = null;
                 }
             }
         }

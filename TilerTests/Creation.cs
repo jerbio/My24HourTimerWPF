@@ -204,17 +204,15 @@ namespace TilerTests
             user = TestUtility.getTestUser(true);
 
             Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
-
             CalendarEvent verificationEventPulled = waitVar.Result;
-            CalendarEvent newlyaddedevent0 = Schedule.getCalendarEvent(verificationEventPulled.ActiveSubEvents.First().SubEvent_ID.getIDUpToRepeatCalendarEvent());
-            List<SubCalendarEvent> subEvents = newlyaddedevent0.AllSubEvents.OrderBy(subEvent => subEvent.Start).ToList();
+            Assert.IsTrue(testEvent.isTestEquivalent(verificationEventPulled));
+            List<SubCalendarEvent> subEvents = verificationEventPulled.AllSubEvents.OrderBy(subEvent => subEvent.Start).ToList();
             for(int index = 0; index < subEvents.Count; index++)
             {
                 int currentDayIndex = index % weekDays.Count;
                 DayOfWeek dayOfWeek = weekDays[currentDayIndex];
                 Assert.AreEqual(subEvents[index].Start.DayOfWeek, dayOfWeek);
             }
-            Assert.AreEqual(verificationEventPulled.Calendar_EventID.getCalendarEventComponent(), newlyaddedevent0.Calendar_EventID.getCalendarEventComponent());
         }
 
         [TestMethod]
@@ -235,9 +233,13 @@ namespace TilerTests
             Repetition repetition = new Repetition(true, repetitionRange, Repetition.Frequency.WEEKLY, new TimeLine(start, end), weekDaysAsInt.ToArray());
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, repetition, repetitionRange.Start, repetitionRange.End, 1, false);
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
-            CalendarEvent newlyaddedevent = Schedule.getCalendarEvent(testEvent.Calendar_EventID);
+
+            var checkingNull = testEvent.getRepeatedCalendarEvent(testEvent.ActiveSubEvents.First().SubEvent_ID.getIDUpToRepeatCalendarEvent());
+            Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
+            CalendarEvent newlyaddedevent = waitVar.Result;
             Assert.AreEqual(testEvent.getId, newlyaddedevent.getId);
-            CalendarEvent newlyaddedevent0 = Schedule.getCalendarEvent(newlyaddedevent.ActiveSubEvents.First().SubEvent_ID.getIDUpToRepeatCalendarEvent());
+            waitVar = user.ScheduleLogControl.getCalendarEventWithID(newlyaddedevent.ActiveSubEvents.First().SubEvent_ID.getRepeatCalendarEventID());
+            CalendarEvent newlyaddedevent0 = waitVar.Result;
             List<SubCalendarEvent> subEvents = newlyaddedevent0.AllSubEvents.OrderBy(subEvent => subEvent.Start).ToList();
             for (int index = 0; index < subEvents.Count; index++)
             {

@@ -235,20 +235,19 @@ namespace TilerTests
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
 
             var checkingNull = testEvent.getRepeatedCalendarEvent(testEvent.ActiveSubEvents.First().SubEvent_ID.getIDUpToRepeatCalendarEvent());
+            var all = testEvent.AllSubEvents;
             Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
-            CalendarEvent newlyaddedevent = waitVar.Result;
-            Assert.AreEqual(testEvent.getId, newlyaddedevent.getId);
-            waitVar = user.ScheduleLogControl.getCalendarEventWithID(newlyaddedevent.ActiveSubEvents.First().SubEvent_ID.getRepeatCalendarEventID());
-            CalendarEvent newlyaddedevent0 = waitVar.Result;
-            List<SubCalendarEvent> subEvents = newlyaddedevent0.AllSubEvents.OrderBy(subEvent => subEvent.Start).ToList();
+            CalendarEvent verificationEventPulled = waitVar.Result;
+            Assert.IsTrue(testEvent.isTestEquivalent(verificationEventPulled));
+            List<SubCalendarEvent> subEvents = verificationEventPulled.AllSubEvents.OrderBy(subEvent => subEvent.Start).ToList();
             for (int index = 0; index < subEvents.Count; index++)
             {
                 int currentDayIndex = index % weekDays.Count;
                 DayOfWeek dayOfWeek = weekDays[currentDayIndex];
                 Assert.AreEqual(subEvents[index].Start.DayOfWeek, dayOfWeek);
             }
-            Assert.AreEqual(newlyaddedevent.Calendar_EventID.getCalendarEventComponent(), newlyaddedevent0.Calendar_EventID.getCalendarEventComponent());
         }
+
 
         [TestMethod]
         public void testPersistedCalendarEvent()

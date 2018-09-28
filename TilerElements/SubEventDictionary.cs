@@ -50,13 +50,28 @@ namespace TilerElements
 
         public void Add(TValue item)
         {
-            Data.Add(item.Id, item);
+            if(!(item is Repetition))
+            {
+                Data.Add(item.Id, item);
+            }
+            else
+            {
+                this.Add(item as Repetition);
+            }
         }
 
         public void Add(Repetition repetition)
         {
             TValue value = (TValue)Convert.ChangeType(repetition, typeof(TValue));
-            Data.Add(repetition.weekDay.ToString(), value);
+            string weekDayString = repetition.weekDay.ToString();
+            if (!Data.ContainsKey(weekDayString))
+            {
+                Data.Add(weekDayString, value);
+            } else
+            {
+                Data[weekDayString] = value;
+            }
+            
         }
 
         public void Clear()

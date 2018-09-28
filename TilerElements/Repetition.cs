@@ -124,14 +124,24 @@ namespace TilerElements
         public CalendarEvent getCalendarEvent(string RepeatingEventID)
         {
             EventID eventId = new EventID(new EventID(RepeatingEventID).getIDUpToRepeatCalendarEvent());
-            if (_DictionaryOfIDAndCalendarEvents.ContainsKey(eventId.ToString()))
+            CalendarEvent retValue = null;
+            if (_DictionaryOfWeekDayToRepetition.Count > 0)
             {
-                return _DictionaryOfIDAndCalendarEvents[eventId.ToString()];
+                retValue = _DictionaryOfWeekDayToRepetition.Values.Select(obj => obj.getCalendarEvent(RepeatingEventID)).Where(obj => obj != null).SingleOrDefault();
             }
             else
             {
-                return null;
+                if (_DictionaryOfIDAndCalendarEvents.ContainsKey(eventId.ToString()))
+                {
+                    return _DictionaryOfIDAndCalendarEvents[eventId.ToString()];
+                }
+                else
+                {
+                    return null;
+                }
             }
+            return retValue;
+            
         }
         /// <summary>
         /// this function of repetition, is responsible for populating the repetition object in the passed CalendarEvent.
@@ -283,7 +293,8 @@ namespace TilerElements
         }
 
         private void PopulateRepetitionParameters(CalendarEvent MyParentEvent, int WeekDay)
-        { 
+        { // the bug is here. This does not enforce the day of the week for the week of the day sub events
+            // trouble shoot line 171. See why the monday timeline isnt selected it keeps everyday
             _RepetitionRange = MyParentEvent.Repeat.Range;
             _RepetitionFrequency = MyParentEvent.Repeat.getFrequency;
             _EnableRepeat = true;
@@ -315,7 +326,7 @@ namespace TilerElements
                 MyRepeatCalendarEvent = new CalendarEvent(MyParentEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyParentEvent.NumberOfSplit, repetitionData,  MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.getProcrastinationInfo, MyParentEvent.getNowInfo, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID);
             }
             MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
-            this.PopulateRepetitionParameters(MyRepeatCalendarEvent);
+            repetitionData.PopulateRepetitionParameters(MyRepeatCalendarEvent);
         }
 
         private void PopulateRepetitionParameters(CalendarEventRestricted MyParentEvent, int WeekDay)

@@ -167,6 +167,7 @@ namespace TilerElements
             this.ParentEvent = MyParentEvent;
 
             RestrictionProfile restrictionProfile = new RestrictionProfile(_initializingRange.Start, _initializingRange.End - _initializingRange.Start);
+
             TimeLineRestricted segmentedTimeLine = new TimeLineRestricted(_RepetitionRange.Start, _RepetitionRange.End, restrictionProfile);
             TimeLine firstRepeatSequence = segmentedTimeLine.getTimeFrames().First();
 
@@ -298,7 +299,7 @@ namespace TilerElements
             _RepetitionRange = MyParentEvent.Repeat.Range;
             _RepetitionFrequency = MyParentEvent.Repeat.getFrequency;
             _EnableRepeat = true;
-            DateTimeOffset EachRepeatCalendarStart = _RepetitionRange.Start;
+            DateTimeOffset EachRepeatCalendarStart = getStartTimeForAppropriateWeek(_RepetitionRange.Start, Weekdays[WeekDay]); //_RepetitionRange.Start;
             DateTimeOffset EachRepeatCalendarEnd = _RepetitionRange.End;
             DateTimeOffset StartTimeLineForActity = getStartTimeForAppropriateWeek(_initializingRange.Start, Weekdays[WeekDay]);
             DateTimeOffset EndTimeLineForActity = StartTimeLineForActity.Add(_initializingRange.TimelineSpan);
@@ -326,7 +327,7 @@ namespace TilerElements
                 MyRepeatCalendarEvent = new CalendarEvent(MyParentEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyParentEvent.NumberOfSplit, repetitionData,  MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.getProcrastinationInfo, MyParentEvent.getNowInfo, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID);
             }
             MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
-            repetitionData.PopulateRepetitionParameters(MyRepeatCalendarEvent);
+            this.PopulateRepetitionParameters(MyRepeatCalendarEvent);
         }
 
         private void PopulateRepetitionParameters(CalendarEventRestricted MyParentEvent, int WeekDay)

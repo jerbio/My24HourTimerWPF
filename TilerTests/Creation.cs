@@ -262,6 +262,7 @@ namespace TilerTests
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, true);
             schedule.AddToScheduleAndCommit(testEvent).Wait();
             schedule = null;
+            user = TestUtility.getTestUser(true);
             schedule = new TestSchedule(user, refNow);
             CalendarEvent newlyaddedevent = schedule.getCalendarEvent(testEvent.Calendar_EventID);
             Assert.IsTrue(newlyaddedevent.isTestEquivalent(testEvent));

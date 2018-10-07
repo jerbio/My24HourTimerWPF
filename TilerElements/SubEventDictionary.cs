@@ -62,7 +62,7 @@ namespace TilerElements
 
         public void Add(Repetition repetition)
         {
-            TValue value = (TValue)Convert.ChangeType(repetition, typeof(TValue));
+            TValue value = (TValue)(object)repetition;
             string weekDayString = repetition.weekDay.ToString();
             if (!Data.ContainsKey(weekDayString))
             {

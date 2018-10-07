@@ -337,7 +337,7 @@ namespace TilerElements
             MySubCalendarEventCopy.isRestricted = this.isRestricted;
             MySubCalendarEventCopy.preferredDayIndex = this.preferredDayIndex;
             MySubCalendarEventCopy._Creator = this._Creator;
-            MySubCalendarEventCopy._Semantics = this._Semantics.createCopy();
+            MySubCalendarEventCopy._Semantics = this._Semantics !=null ?this._Semantics.createCopy() : null;
             MySubCalendarEventCopy._UsedTime = this._UsedTime;
             MySubCalendarEventCopy.OptimizationFlag = this.OptimizationFlag;
             MySubCalendarEventCopy._LastReasonStartTimeChanged = this._LastReasonStartTimeChanged;

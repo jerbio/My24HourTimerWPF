@@ -27,7 +27,9 @@ namespace TilerTests
             set;
         }
         [TestInitialize]
-        void initializeTests() => TestUtility.init();
+        public void initializeTests() {
+            TestUtility.init();
+        }
 
 
         [TestMethod]
@@ -98,7 +100,11 @@ namespace TilerTests
             string testEVentId = testEvent.Id;
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
             var mockContext = new TestDBContext();
-            var verificationEventPulled = mockContext.CalEvents.Include("AllSubEvents_DB").SingleOrDefault(calEvent => calEvent.Id == testEVentId);
+            UserAccount user = TestUtility.getTestUser(true);
+
+            Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
+            CalendarEvent verificationEventPulled = waitVar.Result;
+
             Assert.IsNotNull(testEvent);
             Assert.IsNotNull(verificationEventPulled);
             Assert.IsTrue(testEvent.isTestEquivalent(verificationEventPulled));
@@ -142,7 +148,8 @@ namespace TilerTests
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
             var testEVentId = testEvent.Id;
             var mockContext = new TestDBContext();
-            var verificationEventPulled = mockContext.CalEvents.Include("AllSubEvents_DB").SingleOrDefault(calEvent => calEvent.Id == testEVentId);
+            Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEVentId);
+            CalendarEvent verificationEventPulled = waitVar.Result;
             Assert.IsNotNull(testEvent);
             Assert.IsNotNull(verificationEventPulled);
             Assert.IsTrue(testEvent.isTestEquivalent(verificationEventPulled));
@@ -218,10 +225,9 @@ namespace TilerTests
         [TestMethod]
         public void TestCreationOfWeekdayRepeatNonRigid()
         {
-            UserAccount user = TestUtility.getTestUser();
-            user.Login().Wait();
+            UserAccount user = TestUtility.getTestUser(true);
             DateTimeOffset refNow = DateTimeOffset.Parse("12:00AM 12/2/2017");
-            Schedule = new TestSchedule(user, refNow);
+            user.Login().Wait();
             TimeSpan duration = TimeSpan.FromHours(4);
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(duration);
@@ -232,6 +238,7 @@ namespace TilerTests
             DayOfWeek startingWeekDay = start.DayOfWeek;
             Repetition repetition = new Repetition(true, repetitionRange, Repetition.Frequency.WEEKLY, new TimeLine(start, end), weekDaysAsInt.ToArray());
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, repetition, repetitionRange.Start, repetitionRange.End, 1, false);
+            Schedule = new TestSchedule(user, refNow);
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
 
             var checkingNull = testEvent.getRepeatedCalendarEvent(testEvent.ActiveSubEvents.First().SubEvent_ID.getIDUpToRepeatCalendarEvent());
@@ -264,7 +271,8 @@ namespace TilerTests
             schedule = null;
             user = TestUtility.getTestUser(true);
             schedule = new TestSchedule(user, refNow);
-            CalendarEvent newlyaddedevent = schedule.getCalendarEvent(testEvent.Calendar_EventID);
+            Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
+            CalendarEvent newlyaddedevent = waitVar.Result;
             Assert.IsTrue(newlyaddedevent.isTestEquivalent(testEvent));
         }
 
@@ -284,8 +292,13 @@ namespace TilerTests
             CalendarEvent tempEvent = schedule.getCalendarEvent(testEvent.Calendar_EventID);
             Schedule tempSchedule = schedule;
             schedule = null;
-            schedule = new TestSchedule(user, refNow);
-            CalendarEvent newlyaddedevent = schedule.getCalendarEvent(testEvent.Calendar_EventID);
+            user = TestUtility.getTestUser(true);
+
+            var mockContext = new TestDBContext();
+            user = TestUtility.getTestUser(true);
+
+            Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
+            CalendarEvent newlyaddedevent = waitVar.Result;
             Assert.IsTrue(newlyaddedevent.isTestEquivalent(testEvent));
             foreach (SubCalendarEvent eachSubCalendarEvent in newlyaddedevent.AllSubEvents)
             {
@@ -319,8 +332,12 @@ namespace TilerTests
                 testEvent.ActiveSubEvents.First().End, 
                 testEvent.NumberOfSplit, testEvent.Notes.UserNote);
             schedule.UpdateWithDifferentSchedule(tupleResult.Item2).Wait();
-            TestSchedule scheduleReloaded = new TestSchedule(user, refNow);
-            CalendarEvent renamedEvent = scheduleReloaded.getCalendarEvent(testEvent.getId);
+            var mockContext = new TestDBContext();
+            user = TestUtility.getTestUser(true);
+
+            Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
+            CalendarEvent renamedEvent = waitVar.Result;
+
             Assert.AreEqual(renamedEvent.getName.NameValue, newName);
             Assert.AreEqual(renamedEvent.ActiveSubEvents.First().getName.NameValue, newName);
             Assert.AreEqual(renamedEvent.getName.NameId, testEvent.getName.NameId);
@@ -352,15 +369,21 @@ namespace TilerTests
                 testEvent.ActiveSubEvents.First().End,
                 testEvent.NumberOfSplit, newNoteName);
             schedule.UpdateWithDifferentSchedule(tupleResult.Item2).Wait();
-            TestSchedule scheduleReloaded = new TestSchedule(user, refNow);
-            CalendarEvent renamedEvent = scheduleReloaded.getCalendarEvent(testEvent.getId);
+
+            var mockContext = new TestDBContext();
+            user = TestUtility.getTestUser(true);
+
+            Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
+            CalendarEvent renamedEvent = waitVar.Result;
+
             Assert.AreEqual(renamedEvent.Notes.UserNote, newNoteName);
         }
 
-        [TestCleanup]
-        void cleanUpForEachTest()
+        [TestCleanup()]
+        public void cleanUpForEachTest()
         {
             TestUtility.cleanupDB();
+            UserAccount user = TestUtility.getTestUser(true);
         }
 
         [ClassCleanup]

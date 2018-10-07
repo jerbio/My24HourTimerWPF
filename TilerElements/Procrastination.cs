@@ -11,16 +11,17 @@ namespace TilerElements
     /// </summary>
     public class Procrastination : IUndoable
     {
+        static Procrastination defaultProcrastination;
         protected string _Id;
         protected DateTimeOffset _FromTime;//Time from which an event was procrastinated
         protected DateTimeOffset _BeginTIme;//Next time for a possible calculation of a new schedule
         protected int _SectionOfDay;// stores the section of day from which it was procrastinated
-
+        
         protected TilerEvent _UndoAssociatedEvent;
         protected DateTimeOffset _UndoFromTime;//Time from which an event was procrastinated
         protected DateTimeOffset _UndoBeginTime;//Next time for a possible calculation of a new schedule
         protected int _UndoSectionOfDay;// stores the section of day from which it was procrastinated
-
+        protected bool isNull = false;
         protected string _UndoId = "";
         protected Procrastination()
         {
@@ -55,6 +56,18 @@ namespace TilerElements
 
             return retValue;
         }
+
+        public static Procrastination getDefaultProcrastination ()
+        {
+            if(defaultProcrastination == null)
+            {
+                defaultProcrastination = new Procrastination();
+                defaultProcrastination.isNull = true;
+            }
+
+            return defaultProcrastination;
+        }
+
         [NotMapped]
         public TilerEvent UndoAssociatedEvent
         {

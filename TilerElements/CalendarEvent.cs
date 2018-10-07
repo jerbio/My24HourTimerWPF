@@ -471,8 +471,8 @@ namespace TilerElements
             }
             MyCalendarEventCopy.EventSequence = EventSequence.CreateCopy();
             MyCalendarEventCopy.SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
-            MyCalendarEventCopy._UiParams = this._UiParams.createCopy();
-            MyCalendarEventCopy._DataBlob = this._DataBlob.createCopy();
+            MyCalendarEventCopy._UiParams = this._UiParams != null ? this._UiParams.createCopy() : null;
+            MyCalendarEventCopy._DataBlob = this._DataBlob!=null ? this._DataBlob.createCopy() : null;
             MyCalendarEventCopy._Enabled = this._Enabled;
             MyCalendarEventCopy.isRestricted = this.isRestricted;
             MyCalendarEventCopy._LocationInfo = _LocationInfo;//hack you might need to make copy
@@ -481,8 +481,8 @@ namespace TilerElements
             MyCalendarEventCopy._CompletedCount = this._CompletedCount;
             MyCalendarEventCopy._DeletedCount = this._DeletedCount;
             MyCalendarEventCopy._ProfileOfProcrastination = this._ProfileOfProcrastination.CreateCopy();
-            MyCalendarEventCopy._ProfileOfNow = this.getNowInfo.CreateCopy();
-            MyCalendarEventCopy._Semantics = this._Semantics.createCopy();
+            MyCalendarEventCopy._ProfileOfNow = this.getNowInfo !=null ? this.getNowInfo.CreateCopy() : null;
+            MyCalendarEventCopy._Semantics = this._Semantics!=null ? this._Semantics.createCopy(): null;
             MyCalendarEventCopy._UsedTime = this._UsedTime;
 
             foreach (SubCalendarEvent eachSubCalendarEvent in this.SubEvents.Values)

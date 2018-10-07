@@ -17,8 +17,8 @@ namespace TilerElements
         protected bool _Enabled = true;
         protected bool _UserDeleted = false;
         protected Location _LocationInfo = Location.getNullLocation();
-        protected EventDisplay _UiParams = new EventDisplay();
-        protected MiscData _DataBlob = new MiscData();
+        protected EventDisplay _UiParams;
+        protected MiscData _DataBlob;
         protected Repetition _EventRepetition;
         protected bool RigidSchedule;
         protected TimeSpan _EventDuration;
@@ -30,14 +30,14 @@ namespace TilerElements
         protected bool isRestricted = false;
         protected static DateTimeOffset EventNow = DateTimeOffset.UtcNow;
         protected static TimeSpan CalculationEndSpan = new TimeSpan(180, 0, 0, 0, 0);
-        protected Procrastination _ProfileOfProcrastination = new Procrastination(new DateTimeOffset(), new TimeSpan());
-        protected NowProfile _ProfileOfNow = new NowProfile();
+        protected Procrastination _ProfileOfProcrastination;
+        protected NowProfile _ProfileOfNow;
         protected bool _ThirdPartyFlag = false;
         protected string ThirdPartyUserIDInfo;
         protected ThirdPartyControl.CalendarTool ThirdPartyTypeInfo = ThirdPartyControl.CalendarTool.tiler;
         protected TilerUser _Creator;
         protected TimeSpan _UsedTime = new TimeSpan();
-        protected Classification _Semantics= new Classification();
+        protected Classification _Semantics;
         protected TimeOfDayPreferrence DaySectionPreference;
         protected TilerUserGroup _Users;
         protected string _TimeZone = "UTC";
@@ -797,7 +797,7 @@ namespace TilerElements
         {
             get
             {
-                return _ProfileOfProcrastination;
+                return _ProfileOfProcrastination ?? (string.IsNullOrEmpty(ProcrastinationId) ? _ProfileOfProcrastination = Procrastination.getDefaultProcrastination() : null);
             }
         }
 

@@ -75,6 +75,12 @@ namespace TilerTests
             }
         }
 
+        public static void initializeLocation ()
+        {
+            string apiKey = "AIzaSyDXrtMxPbt6Dqlllpm77AQ47vcCFxZ4oUU";
+            Location.updateApiKey(apiKey);
+        }
+
         public static List<Location> getLocations()
         {
             Location homeLocation = new Location(41.480352, -81.585446 , "2895 Van aken Blvd cleveland OH 44120", "Home", false, false);

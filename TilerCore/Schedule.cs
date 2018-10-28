@@ -102,10 +102,9 @@ namespace TilerCore
         #region Constructor
         protected Schedule()
         {
-
         }
 
-        public Schedule(Dictionary<string, CalendarEvent> allEventDictionary, DateTimeOffset starOfDay, Dictionary<string, Location> locations,  DateTimeOffset referenceNow, TilerUser user)
+        public Schedule(Dictionary<string, CalendarEvent> allEventDictionary, DateTimeOffset starOfDay, Dictionary<string, Location> locations,  DateTimeOffset referenceNow, TilerUser user): base()
         {
             AllEventDictionary = allEventDictionary;
             TilerUser = user;
@@ -132,10 +131,6 @@ namespace TilerCore
                 return AllEventDictionary;
             }
         }
-        #endregion
-
-
-        #region ToBeDeleted
         #endregion
 
 #region IwhyImplementation

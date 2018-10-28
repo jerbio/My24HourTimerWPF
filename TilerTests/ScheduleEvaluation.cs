@@ -17,6 +17,7 @@ namespace TilerTests
         [ClassInitialize]
         public static void classInitialize(TestContext testContext)
         {
+            TestUtility.initializeLocation();
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;

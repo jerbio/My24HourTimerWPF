@@ -578,7 +578,7 @@ namespace My24HourTimerWPF
 
             CustomErrors ErrorCheck = ValidateInputValues(EventDuration, eventStartTime, eventStartDate.ToString(), eventEndTime, eventEndDate.ToString(), RepeatStart.ToString(), RepeatEnd.ToString(), PreDeadlineTime, eventSplit, eventPrepTime, CurrentNow);
 
-            if (ErrorCheck != null && !string.IsNullOrEmpty(ErrorCheck.Message))
+            if (ErrorCheck != null && ErrorCheck.Code != 0)
             { 
                 MessageBox.Show(ErrorCheck.Message);
                 return;

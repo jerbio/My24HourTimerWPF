@@ -147,7 +147,7 @@ namespace TilerElements
         /// <summary>
         /// This assess if the position of the subevents is suitable for its completion.
         /// It considers if the spacing is wide enough to allow the travel time.
-        /// It will also consider the time it is scheduled, does it have a higher percentage of success.
+        /// It will also consider the time it is scheduled, does it have a higher percentage of Success.
         /// </summary>
         /// <returns></returns>
         public double evaluatePositioning()

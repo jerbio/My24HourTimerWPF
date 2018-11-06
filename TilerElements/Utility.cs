@@ -14,7 +14,7 @@ namespace TilerElements
 
         const uint fibonnaciLimit = 150;
         static uint[] fibonacciValues = new uint[fibonnaciLimit];
-        public static DateTimeOffset JSStartTime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, new TimeSpan());
+        public static DateTimeOffset _JSStartTime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, new TimeSpan());
         public static DateTimeOffset BeginningOfTime = new DateTimeOffset();
         static Utility()
         {
@@ -1323,16 +1323,24 @@ namespace TilerElements
             return (T)Enum.Parse(typeof(T), value, true);
         }
 
-        public static ulong toJSMilliseconds(this DateTimeOffset time)
+        public static long toJSMilliseconds(this DateTimeOffset time)
         {
-            ulong retValue = (ulong)(time - ReferenceNow.StartOfTime).TotalMilliseconds;
+            long retValue = (long)(time - ReferenceNow.StartOfTime).TotalMilliseconds;
             return retValue;
         }
 
-        public static ulong toJSMilliseconds(this DateTime time)
+        public static long toJSMilliseconds(this DateTime time)
         {
-            ulong retValue = (ulong)(time - ReferenceNow.StartOfTime).TotalMilliseconds;
+            long retValue = (long)(time.ToUniversalTime() - ReferenceNow.StartOfTime).TotalMilliseconds;
             return retValue;
+        }
+
+        public static DateTimeOffset JSStartTime
+        {
+            get
+            {
+                return _JSStartTime;
+            }
         }
     }
 }

@@ -25,6 +25,16 @@ namespace TilerTests
             currentUser.DeleteAllCalendarEvents();
         }
 
+        [TestCleanup]
+        public void eachTestCleanUp()
+        {
+            UserAccount currentUser = TestUtility.getTestUser();
+            currentUser.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            Schedule Schedule = new TestSchedule(currentUser, refNow);
+            currentUser.DeleteAllCalendarEvents();
+        }
+
         /// <summary>
         /// Function evaluates the addition of a newEvent to an already  populated schedule
         /// The newly added sub event should fall on the same day as events with the same location as the event.
@@ -184,19 +194,10 @@ namespace TilerTests
             Assert.AreEqual(healths.First(), healthA);
         }
 
-        [TestCleanup]
-        public void eachTestCleanUp()
-        {
-            UserAccount currentUser = TestUtility.getTestUser();
-            currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            Schedule Schedule = new TestSchedule(currentUser, refNow);
-            currentUser.DeleteAllCalendarEvents();
-        }
-
         /// <summary>
         /// This test tries to evaluate a simple schedule balance.
-        /// Essentially we are creating seven calendar events. Each having only 1 splits. The scheduler should initially schedule things to be initially evenly spaced so every day should have seven sub calendar events.
+        /// Essentially we are creating seven calendar events. Each having only 1 splits. 
+        /// The scheduler should initially schedule things to be initially evenly spaced so every day should have seven sub calendar events.
         /// There should be one and only one event on each day
         /// </summary>
         [TestMethod]
@@ -204,7 +205,8 @@ namespace TilerTests
         {
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            DateTimeOffset refNow = DateTimeOffset.Parse("10:00pm");
+            DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00pm");
             refNow = refNow.LocalDateTime;
             TimeSpan activeDuration = TimeSpan.FromHours(1);
             int numberOfDays = 7;
@@ -220,7 +222,7 @@ namespace TilerTests
                 CalendarEvent calEvent = TestUtility.generateCalendarEvent(activeDuration, new TilerElements.Repetition(), eventTimeLine.Start, eventTimeLine.End, numberOfSubeventPerCalendarEvent, false, location);
                 allCalendarevents.Add(calEvent);
                 schedule.AddToScheduleAndCommit(calEvent).Wait();
-                schedule = new TestSchedule(currentUser, refNow, refNow);
+                schedule = new TestSchedule(currentUser, refNow, startOfDay);
                 schedule.FindMeSomethingToDo(location).Wait();
                 schedule.WriteFullScheduleToLogAndOutlook().Wait();
                 schedule = new TestSchedule(currentUser, refNow, refNow);
@@ -240,7 +242,7 @@ namespace TilerTests
             foreach (DayTimeLine daytimeLine in daytimeLines)
             {
                 int numberOfSubevent = daytimeLine.getSubEventsInTimeLine().Count;
-                Assert.AreEqual(numberOfSubevent, numberOfSubeventPerCalendarEvent);//This is known to fail
+                Assert.AreEqual(numberOfSubevent, numberOfSubeventPerCalendarEvent);
             }
         }
 

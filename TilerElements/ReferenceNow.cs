@@ -185,7 +185,6 @@ namespace TilerElements
         /// <returns></returns>
         static public ulong getDayIndexFromStartOfTime(DateTimeOffset myDay)
         {
-            myDay = myDay.LocalDateTime;
             ulong retValue = (ulong)((myDay - StartOfTime).TotalDays);
             return retValue;
         }

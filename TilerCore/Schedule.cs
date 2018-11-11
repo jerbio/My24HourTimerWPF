@@ -2538,7 +2538,6 @@ namespace TilerCore
         ulong ParallelizeCallsToDay(List<CalendarEvent> AllCalEvents, List<SubCalendarEvent> TotalActiveEvents, DayTimeLine[] AllDayTImeLine, Location callLocation, bool Optimize = true, bool preserveFirttwentyFourHours = true)
         {
             int TotalDays = (int)AllDayTImeLine.Length;
-            Now.getAllDaysForCalc();
             ulong DayIndex = Now.consttDayIndex;
             ConcurrentBag<SubCalendarEvent>[] BagPerDay = new ConcurrentBag<SubCalendarEvent>[TotalDays];
             TotalActiveEvents.AsParallel().ForAll(subEvent => { subEvent.isWake = false; subEvent.isSleep = false; });
@@ -2578,8 +2577,9 @@ namespace TilerCore
             });
 
             ulong totalDaysAvailable = (ulong)CalendarEvent.getUsableDaysTotal(AllCalEvents);
-            ulong totalNumberOfEvents = (ulong)CalendarEvent.getUsableDaysTotal(AllCalEvents);
+            ulong totalNumberOfEvents = (ulong)CalendarEvent.getTotalUndesignatedEvents(AllCalEvents);
 
+            ulong dayCounterSpreadout = 0;
 
             while ((totalDaysAvailable>0)&&(totalNumberOfEvents>0))
             {
@@ -2656,7 +2656,8 @@ namespace TilerCore
 
                         if (DaysToUse.Count > 0)
                         {
-                            List<Tuple<ulong, SubCalendarEvent>> AllEvents = EvaluateEachDayIndexForEvent(UndesignatedEvents, DaysToUse, eachCal);
+                            ulong preferredIndex = DayIndex + (dayCounterSpreadout % 7);
+                            List<Tuple<ulong, SubCalendarEvent>> AllEvents = EvaluateEachDayIndexForEvent(UndesignatedEvents, DaysToUse, eachCal, preferredIndex);
                             Parallel.ForEach(AllEvents, eachTuple =>
                             {
                                 BagPerDay[(int)(eachTuple.Item1 - DayIndex)].Add(eachTuple.Item2);
@@ -2666,6 +2667,7 @@ namespace TilerCore
                         {
                             UnUsableCalEvents.Add(eachCal);
                         }
+                        ++dayCounterSpreadout;
                     }
                     AllCalEvents = AllCalEvents.Except(UnUsableCalEvents).ToList();
 
@@ -2682,6 +2684,7 @@ namespace TilerCore
                     AllDayTImeLine.AsParallel().ForAll(obj => obj.updateOccupancyOfTimeLine());
                     DesignatedAndAssignedSubEventCount = AllCalEvents.Sum(obj => obj.getNumberOfDesignatedAndActiveSubEventsFromCalculables());
                     AllCalEvents = CalendarEvent.removeCalEventsWitNoUndesignablesFromCalculables(AllCalEvents);
+                    dayCounterSpreadout = 0;// no longer needed to spread out  or balance the days
                 }
                 while (DesignatedAndAssignedSubEventCount != OldNumberOfAssignedElements);
                 
@@ -2903,7 +2906,11 @@ namespace TilerCore
         ///     item2 is the subevent
         /// 
         /// </returns>
-        List<Tuple<ulong,SubCalendarEvent>>EvaluateEachDayIndexForEvent(List<SubCalendarEvent> AllSubEvents, List<DayTimeLine>AllDays, CalendarEvent calEvent)
+        List<Tuple<ulong,SubCalendarEvent>>EvaluateEachDayIndexForEvent(
+            List<SubCalendarEvent> AllSubEvents, 
+            List<DayTimeLine> AllDays, 
+            CalendarEvent calEvent, 
+            ulong balancingStartingindex)
         {
             
             List<Tuple<ulong,SubCalendarEvent>> retValue = new List<Tuple<ulong,SubCalendarEvent>>();
@@ -2916,11 +2923,22 @@ namespace TilerCore
                     SubCalendarEvent subEvent = durationsToSubEvents[durationsToSubEvents.First().Key].First();
                     
                 }
-                ulong PreferrdDayIndex = ReferenceNow.getDayIndexFromStartOfTime(procrastinationProfile.PreferredStartTime);
 
-                List<mTuple<bool, DayTimeLine>> OptimizedDayTimeLine = AllDays.Select(obj => new mTuple<bool, DayTimeLine>(((long)(obj.UniversalIndex - PreferrdDayIndex) >= 0), obj)).ToList();//this line orders Daytimeline by  if they are after the procrastination day.
+                DateTimeOffset preferredStartTime = procrastinationProfile.PreferredStartTime > calEvent.Start ? procrastinationProfile.PreferredStartTime : calEvent.Start;
+                ulong PreferrdDayIndex = ReferenceNow.getDayIndexFromStartOfTime(preferredStartTime);
+                ulong startDayIndex = ReferenceNow.getDayIndexFromStartOfTime(calEvent.Start);
+                if (balancingStartingindex > PreferrdDayIndex)
+                {
+                    PreferrdDayIndex = balancingStartingindex;
+                }
+
+                //List<mTuple<int, DayTimeLine>> OptimizedDayTimeLine = new List<mTuple<int, DayTimeLine>>();// AllDays.Select(obj => new mTuple<bool, DayTimeLine>(((long)(obj.UniversalIndex - PreferrdDayIndex) >= 0), obj)).ToList();//this line orders Daytimeline by  if they are after the procrastination day.
+                List<mTuple<bool, DayTimeLine>> OptimizedDayTimeLine  = AllDays.Select(obj => new mTuple<bool, DayTimeLine>(((long)(obj.UniversalIndex - PreferrdDayIndex) >= 0), obj)).ToList();//this line orders Daytimeline by  if they are after the procrastination day.
+
+                List<mTuple<bool, DayTimeLine>> beforeProcrastination = OptimizedDayTimeLine.Where(obj => !obj.Item1).ToList();
+                OptimizedDayTimeLine = OptimizedDayTimeLine.GetRange(beforeProcrastination.Count, OptimizedDayTimeLine.Count - beforeProcrastination.Count).Concat(beforeProcrastination).ToList();// this reorders all the days with before or on procrastination to the back of list
                 List<double> timeLineScores = calEvent.EvaluateTimeLines(OptimizedDayTimeLine.Select(timeLine => (TimelineWithSubcalendarEvents)timeLine.Item2).ToList());
-                List<Tuple<int, double, DayTimeLine>> dayIndexToTImeLinw = timeLineScores.Select((score, index) => { return new Tuple<int, double, DayTimeLine>(index, score, OptimizedDayTimeLine[index].Item2); }).ToList();
+                List<Tuple<int, double, DayTimeLine>> dayIndexToTImeLine = timeLineScores.Select((score, index) => { return new Tuple<int, double, DayTimeLine>(index, score, OptimizedDayTimeLine[index].Item2); }).ToList();
 
                 //DayTimeLineCurrentProperties holds the propeties of all the daytimeline elements. The tuple has the folloiwng Left, Right, Difference, score
                 Dictionary<DayTimeLine, DayTempEvaluation> DayTimeLineCurrentProperties = new Dictionary<DayTimeLine, DayTempEvaluation>();
@@ -2951,7 +2969,7 @@ namespace TilerCore
                     return tempScore;
                 };
 
-                List<mTuple<double, DayTimeLine>> orderedOnEvaluation = dayIndexToTImeLinw.Where(tuple => !double.IsNaN(tuple.Item2)).OrderBy(tuple => tuple.Item2).Select(tuple => new mTuple<double, DayTimeLine>(tuple.Item2, tuple.Item3)).ToList();
+                List<mTuple<double, DayTimeLine>> orderedOnEvaluation = dayIndexToTImeLine.Where(tuple => !double.IsNaN(tuple.Item2)).OrderBy(tuple => tuple.Item2).Select(tuple => new mTuple<double, DayTimeLine>(tuple.Item2, tuple.Item3)).ToList();
                 List<ulong> dayIndexes = orderedOnEvaluation.Select(obj => obj.Item2.UniversalIndex).OrderBy(dayIndex => dayIndex).ToList();
                 List<DayTimeLine> useUpOrder = new List<DayTimeLine>();
                 mTuple<double, DayTimeLine> lastDaySelected = orderedOnEvaluation.FirstOrDefault();

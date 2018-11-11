@@ -57,7 +57,7 @@ namespace TilerElements
 
         async public Task InitializeClassification()
         {
-            await Semantics.InitializeClassification(_Name.NameValue);
+            //await Semantics.InitializeClassification(_Name.NameValue);
         }
         public TilerUserGroup getAllUsers()
         {

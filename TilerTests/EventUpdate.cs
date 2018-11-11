@@ -32,6 +32,12 @@ namespace TilerTests
             currentUser.DeleteAllCalendarEvents();
         }
 
+        [TestCleanup]
+        public void eachTestCleanUp()
+        {
+            cleanUpLog();
+        }
+
         // Test group test the change of the name of sub event
         [TestMethod]
         public void NameOfRigidSubEventUpdate()

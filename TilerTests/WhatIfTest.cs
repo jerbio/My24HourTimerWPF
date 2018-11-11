@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TilerFront;
 using My24HourTimerWPF;
 using TilerElements;
+using TilerCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -40,6 +41,16 @@ namespace TilerTests
             currentUser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
             DB_Schedule Schedule = new DB_Schedule(currentUser, refNow);
+            currentUser.DeleteAllCalendarEvents();
+        }
+
+        [TestCleanup]
+        public void eachTestCleanUp()
+        {
+            UserAccount currentUser = TestUtility.getTestUser();
+            currentUser.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            Schedule Schedule = new TestSchedule(currentUser, refNow);
             currentUser.DeleteAllCalendarEvents();
         }
         /// <summary>

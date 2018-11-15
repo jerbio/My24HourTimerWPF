@@ -52,6 +52,7 @@ namespace TilerElements
                 _Splits = Divisions;
                 End = RepetitionProfile.Range.End;
                 _AverageTimePerSplit = new TimeSpan();
+                this._EventRepetition = RepetitionProfile;
             }
             _Complete = isCompleted;
             _Enabled = isEnabled;
@@ -86,6 +87,7 @@ namespace TilerElements
                 _Splits = Divisions;
                 End = RepetitionProfile.Range.End;
                 _AverageTimePerSplit = new TimeSpan();
+                this._EventRepetition = RepetitionProfile;
             }
             _Complete = isCompleted;
             _Enabled = isEnabled;
@@ -151,8 +153,8 @@ namespace TilerElements
             MyCalendarEventCopy._AverageTimePerSplit = new TimeSpan(_AverageTimePerSplit.Ticks);
             MyCalendarEventCopy.EventSequence = EventSequence.CreateCopy();
             MyCalendarEventCopy.SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
-            MyCalendarEventCopy._UiParams = this._UiParams.createCopy();
-            MyCalendarEventCopy._DataBlob = this._DataBlob.createCopy();
+            MyCalendarEventCopy._UiParams = this._UiParams != null ? this._UiParams.createCopy() : null;
+            MyCalendarEventCopy._DataBlob = this._DataBlob != null ? this._DataBlob.createCopy() : null;
             MyCalendarEventCopy._Enabled = this._Enabled;
             MyCalendarEventCopy.isRestricted = this.isRestricted;
             MyCalendarEventCopy._LocationInfo = _LocationInfo;//hack you might need to make copy
@@ -161,9 +163,9 @@ namespace TilerElements
             MyCalendarEventCopy._CompletedCount = this._CompletedCount;
             MyCalendarEventCopy._DeletedCount = this._DeletedCount;
             MyCalendarEventCopy.ProfileOfRestriction = this.ProfileOfRestriction.createCopy();
-            MyCalendarEventCopy._ProfileOfNow = this._ProfileOfNow.CreateCopy();
+            MyCalendarEventCopy._ProfileOfNow = this.getNowInfo != null ? this.getNowInfo.CreateCopy() : null;
             MyCalendarEventCopy._ProfileOfProcrastination = this._ProfileOfProcrastination.CreateCopy();
-            MyCalendarEventCopy._Semantics = this._Semantics.createCopy();
+            MyCalendarEventCopy._Semantics = this._Semantics != null ? this._Semantics.createCopy() : null;
             MyCalendarEventCopy._UsedTime = this._UsedTime;
             if (eventId != null)
             {
@@ -189,6 +191,7 @@ namespace TilerElements
 
         void InstantiateSubEvents()
         {
+            SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
             TimeLine eachStart = ProfileOfRestriction.getEarliestStartTimeWithinAFrameAfterRefTime(this.Start);
             for (int i = 0; i < _Splits; i++)
             {

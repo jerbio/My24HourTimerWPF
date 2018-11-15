@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNet.Identity.EntityFramework;
 using System.Security.Claims;
 using Microsoft.AspNet.Identity;
+using NodaTime;
 
 namespace TilerElements
 {
@@ -31,7 +32,6 @@ namespace TilerElements
         public string FirstName { get; set; } = "";
         public string LastName { get; set; } = "";
         public string OtherName { get; set; } = "";
-        public string TimeZone { get; set; } = "UTC";
         public DateTimeOffset EndfOfDay { get; set; }
         public DateTimeOffset LastScheduleModification { get; set; }
         public string ClearAllId { get; set; }
@@ -56,6 +56,28 @@ namespace TilerElements
                 {
                     throw new CustomErrors("Invalid id provided for tiler user");
                 }
+            }
+        }
+
+        protected string _TimeZone = "UTC";
+
+        public string TimeZone
+        {
+            get
+            {
+                return _TimeZone;
+            }
+            set
+            {
+                _TimeZone = value;
+            }
+        }
+
+        public DayOfWeek BeginningOfWeek { get; set; } = DayOfWeek.Sunday;
+
+        public DateTimeOffset MidNight {
+            get {
+                return EndfOfDay.AddHours(3);
             }
         }
 

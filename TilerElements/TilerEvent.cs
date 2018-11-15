@@ -81,7 +81,7 @@ namespace TilerElements
 
         async public Task InitializeClassification()
         {
-            await _Semantics.InitializeClassification(_Name.NameValue);
+            //await Semantics.InitializeClassification(_Name.NameValue);
         }
         public TilerUserGroup getAllUsers()
         {
@@ -109,15 +109,23 @@ namespace TilerElements
             return retValue;
         }
 
-        public virtual List<double> EvaluateTimeLines(List<TimelineWithSubcalendarEvents> timeLines)
+        public virtual List<double> EvaluateTimeLines(List<TimelineWithSubcalendarEvents> timeLines, List<Tuple<Location, Location>> borderLocations = null)
         {
+            double worstDistanceInKM = 7;
             List<IList<double>> multiDimensionalClaculation = new List<IList<double>>();
-            foreach (TimelineWithSubcalendarEvents timeline in timeLines)
+            for (int i = 0; i < timeLines.Count; i++)
             {
-                double distance = Location.calculateDistance(timeline.averageLocation, this.Location);
+                TimelineWithSubcalendarEvents timeline = timeLines[i];
+                double distance = Location.calculateDistance(timeline.averageLocation, this.Location, worstDistanceInKM);
                 double tickRatio = (double)this.getActiveDuration.Ticks / timeline.TotalFreeSpotAvailable.Ticks;
                 double occupancy = (double)timeline.Occupancy;
                 IList<double> dimensionsPerDay = new List<double>() { distance, tickRatio, occupancy };
+                if (borderLocations != null && borderLocations.Count == timeLines.Count)
+                {
+                    Tuple<Location, Location> borderLocation = borderLocations[i];
+                    double borderLocationsDistance = Location.sumDistance(worstDistanceInKM, borderLocation.Item1, this.Location, borderLocation.Item2);
+                    dimensionsPerDay.Add(borderLocationsDistance);
+                }
                 multiDimensionalClaculation.Add(dimensionsPerDay);
             }
             List<double> foundIndexes = Utility.multiDimensionCalculationNormalize(multiDimensionalClaculation);

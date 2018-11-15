@@ -927,8 +927,13 @@ namespace TilerElements
             }
             return retValue;
         }
-
-        public virtual List<double> EvaluateTimeLines(List<TimelineWithSubcalendarEvents> timeLines, List<Tuple<Location, Location>> borderLocations = null)
+        /// <summary>
+        /// Function evaluates the various scores for the different days based on location, occupancy percentage, ratio of active time to tipespan within timeline of calendar event
+        /// </summary>
+        /// <param name="timeLines"></param>
+        /// <param name="borderLocations"></param>
+        /// <returns></returns>
+        public override List<double> EvaluateTimeLines(List<TimelineWithSubcalendarEvents> timeLines, List<Tuple<Location, Location>> borderLocations = null)
         {
             List<IList<double>> multiDimensionalCalculation = new List<IList<double>>();
             List<TimelineWithSubcalendarEvents> validTimeLine = timeLines.Select(timeLine => {

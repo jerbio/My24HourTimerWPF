@@ -32,6 +32,12 @@ namespace TilerTests
             currentUser.DeleteAllCalendarEvents();
         }
 
+        [TestCleanup]
+        public void eachTestCleanUp()
+        {
+            cleanUpLog();
+        }
+
         // Test group test the change of the name of sub event
         [TestMethod]
         public void NameOfRigidSubEventUpdate()
@@ -40,7 +46,7 @@ namespace TilerTests
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00 pm");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("10:00 pm");
             TestSchedule schedule = new TestSchedule(currentuser, refNow, startOfDay);
             TimeSpan duration = TimeSpan.FromHours(1);
             DateTimeOffset start = refNow;
@@ -68,7 +74,7 @@ namespace TilerTests
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00 pm");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("10:00 pm");
             TestSchedule schedule = new TestSchedule(currentuser, refNow, startOfDay);
             TimeSpan duration = TimeSpan.FromHours(1);
             DateTimeOffset start = refNow;
@@ -96,7 +102,7 @@ namespace TilerTests
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00 pm");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("10:00 pm");
             TestSchedule schedule = new TestSchedule(currentuser, refNow, startOfDay);
             TimeSpan duration = TimeSpan.FromHours(1);
             DateTimeOffset start = refNow;
@@ -132,7 +138,7 @@ namespace TilerTests
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00 pm");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("10:00 pm");
             TestSchedule schedule = new TestSchedule(currentuser, refNow, startOfDay);
             TimeSpan duration = TimeSpan.FromHours(1);
             DateTimeOffset start = refNow;
@@ -178,7 +184,7 @@ namespace TilerTests
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00 pm");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("10:00 pm");
             TestSchedule schedule = new TestSchedule(currentuser, refNow, startOfDay);
             TimeSpan duration = TimeSpan.FromHours(1);
             DateTimeOffset start = refNow;
@@ -226,7 +232,7 @@ namespace TilerTests
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00 pm");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("10:00 pm");
             TestSchedule schedule = new TestSchedule(currentuser, refNow, startOfDay);
             TimeSpan duration = TimeSpan.FromHours(1);
             DateTimeOffset start = refNow;
@@ -269,7 +275,7 @@ namespace TilerTests
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00 pm");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("10:00 pm");
             TestSchedule schedule = new TestSchedule(currentuser, refNow, startOfDay);
             TimeSpan duration = TimeSpan.FromHours(1);
             DateTimeOffset start = refNow;
@@ -312,7 +318,7 @@ namespace TilerTests
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00 pm");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("10:00 pm");
             TestSchedule schedule = new TestSchedule(currentuser, refNow, startOfDay);
             TimeSpan duration = TimeSpan.FromHours(1);
             DateTimeOffset start = refNow;
@@ -357,7 +363,7 @@ namespace TilerTests
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00 pm");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("10:00 pm");
             TestSchedule schedule = new TestSchedule(currentuser, refNow, startOfDay);
             TimeSpan duration = TimeSpan.FromHours(1);
             DateTimeOffset start = refNow;
@@ -405,7 +411,7 @@ namespace TilerTests
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00 pm");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("10:00 pm");
             TestSchedule schedule = new TestSchedule(currentuser, refNow, startOfDay);
             TimeSpan duration = TimeSpan.FromHours(1);
             DateTimeOffset start = refNow;
@@ -469,7 +475,7 @@ namespace TilerTests
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00 pm");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("10:00 pm");
             TestSchedule schedule = new TestSchedule(currentuser, refNow, startOfDay);
             TimeSpan duration = TimeSpan.FromHours(1);
             DateTimeOffset start = refNow;

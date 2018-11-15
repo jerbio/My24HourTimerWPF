@@ -92,10 +92,10 @@ namespace TilerTests
         public void conflictResolution0()
         {
             Location homeLocation = TestUtility.getLocations()[0];
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("2:00am");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("2:00am");
             UserAccount currentUser = TestUtility.getTestUser(userId: "982935bc-f5bc-4d5e-a372-7a5d5e40cfa0");
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Parse("06/02/2017 12:15am");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("06/02/2017 12:15am");
             TestSchedule schedule = new TestSchedule(currentUser, refNow, startOfDay);
             var resultOfShuffle = schedule.FindMeSomethingToDo(homeLocation);
             resultOfShuffle.Wait();
@@ -179,8 +179,8 @@ namespace TilerTests
             List<Location> locations = TestUtility.getLocations();
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Parse("12:00AM");
-            DateTimeOffset start = DateTimeOffset.Parse("2:00PM");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM");
+            DateTimeOffset start = TestUtility.parseAsUTC("2:00PM");
             TimeSpan duration = TimeSpan.FromHours(4);
             DateTimeOffset end = start.Add(duration);
             CalendarEvent hugeRigid = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, true, locations[0]);
@@ -211,8 +211,8 @@ namespace TilerTests
             List<Location> locations = locationsDict.Values.ToList();
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Parse("12:00AM 12/2/2017");
-            DateTimeOffset start = DateTimeOffset.Parse("2:00AM 12/2/2017");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
+            DateTimeOffset start = TestUtility.parseAsUTC("2:00AM 12/2/2017");
             TimeSpan duration = TimeSpan.FromHours(4);
             DateTimeOffset end = start.Add(duration);
             CalendarEvent hugeRigid = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, true, locations[0]);
@@ -250,8 +250,8 @@ namespace TilerTests
             List<Location> locations = locationsDict.Values.ToList();
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Parse("12:00AM 12/2/2017");
-            DateTimeOffset start = DateTimeOffset.Parse("2:00AM 12/2/2017");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
+            DateTimeOffset start = TestUtility.parseAsUTC("2:00AM 12/2/2017");
             TimeSpan duration = TimeSpan.FromHours(4);
             DateTimeOffset end = start.Add(duration);
             CalendarEvent hugeRigid = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, true, locations[0]);
@@ -295,8 +295,8 @@ namespace TilerTests
             List<Location> locations = TestUtility.getLocations();
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Parse("11/6/2017 12:00AM");
-            DateTimeOffset start = DateTimeOffset.Parse("11/6/2017 2:00PM");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("11/6/2017 12:00AM");
+            DateTimeOffset start = TestUtility.parseAsUTC("11/6/2017 2:00PM");
             TimeSpan duration = TimeSpan.FromHours(4);
             TimeSpan rigidDuration = TimeSpan.FromHours(1);
             DateTimeOffset end = start.Add(duration);
@@ -334,6 +334,16 @@ namespace TilerTests
         }
         [TestInitialize]
         public void cleanUpLog()
+        {
+            UserAccount currentUser = TestUtility.getTestUser();
+            currentUser.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            Schedule Schedule = new TestSchedule(currentUser, refNow);
+            currentUser.DeleteAllCalendarEvents();
+        }
+
+        [TestCleanup]
+        public void eachTestCleanUp()
         {
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();

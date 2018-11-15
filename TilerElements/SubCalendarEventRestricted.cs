@@ -244,7 +244,7 @@ namespace TilerElements
             copy.UnUsableIndex = this.UnUsableIndex;
             copy._UserDeleted = this._UserDeleted;
             copy._Users = this._Users;
-            copy._Semantics = this._Semantics.createCopy();
+            copy._Semantics = this._Semantics != null ? this._Semantics.createCopy() : null;
             copy._UsedTime = this._UsedTime;
             copy.OptimizationFlag = this.OptimizationFlag;
             return copy;

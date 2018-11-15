@@ -26,8 +26,8 @@ namespace TilerTests
         {
             string currentClearAllId = "4939920_7_0_0";
             Location homeLocation = TestUtility.getLocations()[0];
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("2:00am");
-            DateTimeOffset refNow = DateTimeOffset.Parse("12/31/2017 9:10pm");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("2:00am");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12/31/2017 9:10pm");
             UserAccount currentUser = TestUtility.getTestUser(userId: "e94713a5-9ab6-4c6b-9b46-edafa4b0dafc");
             currentUser.getTilerUser().ClearAllId = currentClearAllId;
             TestSchedule schedule = new TestSchedule(currentUser, refNow, startOfDay);
@@ -47,8 +47,8 @@ namespace TilerTests
         {
             string currentClearAllId = "4939920_7_0_0";
             Location homeLocation = TestUtility.getLocations()[0];
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("2:00am");
-            DateTimeOffset refNow = DateTimeOffset.Parse("2/27/2018 12:36am");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("2:00am");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("2/27/2018 12:36am");
             TimeLine conflictingTimeline = new TimeLine(refNow.AddDays(-1), refNow.AddDays(1));
             UserAccount currentUser = TestUtility.getTestUser(userId: "6439fc14-ad0d-419f-acc8-86b17cc100c2");
             currentUser.getTilerUser().ClearAllId = currentClearAllId;
@@ -71,13 +71,23 @@ namespace TilerTests
         {
             string currentClearAllId = "4939920_7_0_0";
             Location homeLocation = TestUtility.getLocations()[0];
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("2:00am");
-            DateTimeOffset refNow = DateTimeOffset.Parse("2/27/2018 12:36am");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("2:00am");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("2/27/2018 12:36am");
             UserAccount currentUser = TestUtility.getTestUser(userId: "6439fc14-ad0d-419f-acc8-86b17cc100c2");
             CalendarEvent calEvent = TestUtility.generateCalendarEvent(TimeSpan.FromMinutes(45), new Repetition(), refNow, refNow.AddHours(4), location: homeLocation);
             currentUser.getTilerUser().ClearAllId = currentClearAllId;
             TestSchedule schedule = new TestSchedule(currentUser, refNow, startOfDay);
             schedule.AddToScheduleAndCommit(calEvent);// This is known to fail
+        }
+
+        [TestCleanup]
+        public void eachTestCleanUp()
+        {
+            UserAccount currentUser = TestUtility.getTestUser();
+            currentUser.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            Schedule Schedule = new TestSchedule(currentUser, refNow);
+            currentUser.DeleteAllCalendarEvents();
         }
     }
 }

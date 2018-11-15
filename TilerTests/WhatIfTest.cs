@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TilerFront;
 using My24HourTimerWPF;
 using TilerElements;
+using TilerCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -42,6 +43,16 @@ namespace TilerTests
             DB_Schedule Schedule = new DB_Schedule(currentUser, refNow);
             currentUser.DeleteAllCalendarEvents();
         }
+
+        [TestCleanup]
+        public void eachTestCleanUp()
+        {
+            UserAccount currentUser = TestUtility.getTestUser();
+            currentUser.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            Schedule Schedule = new TestSchedule(currentUser, refNow);
+            currentUser.DeleteAllCalendarEvents();
+        }
         /// <summary>
         /// This test runs a what if scenario on the schedule, by moving an event to a different time.
         /// This test works by building two different schedules. Then adding a test event to be constrained to different days. 
@@ -59,8 +70,8 @@ namespace TilerTests
             List<CalendarEvent> mondayEvents = new List<CalendarEvent>();
             List<CalendarEvent> tuesdayEvents = new List<CalendarEvent>();
             TimeSpan durationOfCalEvent = TimeSpan.FromHours(1);
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("2:00am");
-            DateTimeOffset refNow = DateTimeOffset.Parse("11/10/2017 3:00am");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("2:00am");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("11/10/2017 3:00am");
             DateTimeOffset mondayStart = getNextDateForDayOfWeek(DayOfWeek.Monday, refNow);
             DateTimeOffset tuesdayStart = mondayStart.AddDays(1);
             int numberOfEvents = 5;
@@ -113,8 +124,8 @@ namespace TilerTests
             List<CalendarEvent> mondayEvents = new List<CalendarEvent>();
             List<CalendarEvent> tuesdayEvents = new List<CalendarEvent>();
             TimeSpan durationOfCalEvent = TimeSpan.FromHours(1);
-            DateTimeOffset refNow = DateTimeOffset.Parse("12/20/2017 3:00AM");
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("12/20/2017 2:00AM");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12/20/2017 3:00AM");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("12/20/2017 2:00AM");
             DateTimeOffset endOfDay = startOfDay.AddDays(1);
 
             Location home = location_dict["home"];
@@ -161,8 +172,8 @@ namespace TilerTests
             List<CalendarEvent> mondayEvents = new List<CalendarEvent>();
             List<CalendarEvent> tuesdayEvents = new List<CalendarEvent>();
             TimeSpan durationOfCalEvent = TimeSpan.FromHours(1);
-            DateTimeOffset refNow = DateTimeOffset.Parse("12/20/2017 3:00AM");
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("12/20/2017 2:00AM");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12/20/2017 3:00AM");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("12/20/2017 2:00AM");
             DateTimeOffset endOfDay = startOfDay.AddDays(1);
 
             Location home = location_dict["home"];
@@ -206,7 +217,7 @@ namespace TilerTests
             List<CalendarEvent> mondayEvents = new List<CalendarEvent>();
             List<CalendarEvent> tuesdayEvents = new List<CalendarEvent>();
             TimeSpan durationOfCalEvent = TimeSpan.FromHours(1);
-            DateTimeOffset refNow = DateTimeOffset.Parse("11/6/2017 12:00AM");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("11/6/2017 12:00AM");
             DateTimeOffset mondayStart = getNextDateForDayOfWeek(DayOfWeek.Monday, refNow);
             DateTimeOffset tuesdayStart = mondayStart.AddDays(1);
             DateTimeOffset mondayStartCopy = mondayStart;

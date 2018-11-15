@@ -12,6 +12,7 @@ namespace TilerElements
         protected DateTimeOffset EndTime;
         protected DateTimeOffset StartTime;
         protected ConcurrentBag <BusyTimeLine> ActiveTimeSlots;
+        protected bool isForever = false;
 
         #region constructor
         public TimeLine()

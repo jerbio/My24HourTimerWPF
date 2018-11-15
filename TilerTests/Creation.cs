@@ -9,6 +9,7 @@ using System.Linq;
 using TilerCore;
 using TilerTests.Models;
 using System.Data.Entity;
+using System.Globalization;
 
 namespace TilerTests
 {
@@ -103,6 +104,7 @@ namespace TilerTests
             UserAccount user = TestUtility.getTestUser(true);
 
             Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
+            waitVar.Wait();
             CalendarEvent verificationEventPulled = waitVar.Result;
 
             Assert.IsNotNull(testEvent);
@@ -149,6 +151,7 @@ namespace TilerTests
             var testEVentId = testEvent.Id;
             var mockContext = new TestDBContext();
             Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEVentId);
+            waitVar.Wait();
             CalendarEvent verificationEventPulled = waitVar.Result;
             Assert.IsNotNull(testEvent);
             Assert.IsNotNull(verificationEventPulled);
@@ -211,6 +214,7 @@ namespace TilerTests
             user = TestUtility.getTestUser(true);
 
             Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
+            waitVar.Wait();
             CalendarEvent verificationEventPulled = waitVar.Result;
             Assert.IsTrue(testEvent.isTestEquivalent(verificationEventPulled));
             List<SubCalendarEvent> subEvents = verificationEventPulled.AllSubEvents.OrderBy(subEvent => subEvent.Start).ToList();
@@ -226,7 +230,7 @@ namespace TilerTests
         public void TestCreationOfWeekdayRepeatNonRigid()
         {
             UserAccount user = TestUtility.getTestUser(true);
-            DateTimeOffset refNow = DateTimeOffset.Parse("12:00AM 12/2/2017");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
             user.Login().Wait();
             TimeSpan duration = TimeSpan.FromHours(4);
             DateTimeOffset start = refNow;
@@ -244,6 +248,7 @@ namespace TilerTests
             var checkingNull = testEvent.getRepeatedCalendarEvent(testEvent.ActiveSubEvents.First().SubEvent_ID.getIDUpToRepeatCalendarEvent());
             var all = testEvent.AllSubEvents;
             Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
+            waitVar.Wait();
             CalendarEvent verificationEventPulled = waitVar.Result;
             Assert.IsTrue(testEvent.isTestEquivalent(verificationEventPulled));
             List<SubCalendarEvent> subEvents = verificationEventPulled.AllSubEvents.OrderBy(subEvent => subEvent.Start).ToList();
@@ -255,6 +260,140 @@ namespace TilerTests
             }
         }
 
+
+        [TestMethod]
+        public void TestCreationOfDailyRepeatNonRigidLessThanADayEvent()
+        {
+            UserAccount user = TestUtility.getTestUser();
+            user.Login().Wait();
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
+            Schedule = new TestSchedule(user, refNow);
+            TimeSpan duration = TimeSpan.FromHours(4);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.Add(duration);
+            TimeLine repetitionRange = new TimeLine(start, start.AddDays(13).AddHours(-23));
+            //List<DayOfWeek> weekDays = new List<DayOfWeek>() { DayOfWeek.Sunday, DayOfWeek.Monday ,DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday};
+            DayOfWeek startingWeekDay = start.DayOfWeek;
+            Repetition repetition = new Repetition(true, repetitionRange, Repetition.Frequency.DAILY, new TimeLine(start, end));
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, repetition, repetitionRange.Start, repetitionRange.End, 1, false);
+            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            CalendarEvent newlyaddedevent = Schedule.getCalendarEvent(testEvent.Calendar_EventID);
+            Assert.AreEqual(testEvent.getId, newlyaddedevent.getId);
+            CalendarEvent newlyaddedevent0 = Schedule.getCalendarEvent(newlyaddedevent.ActiveSubEvents.First().SubEvent_ID.getIDUpToRepeatCalendarEvent());
+            List<SubCalendarEvent> subEvents = newlyaddedevent0.AllSubEvents.OrderBy(subEvent => subEvent.Start).ToList();
+            int currentDayIndex = (int)repetitionRange.Start.DayOfWeek;
+            for (int index = 0; index < subEvents.Count; index++)
+            {
+                DayOfWeek dayOfWeek = (DayOfWeek)currentDayIndex;
+                Assert.AreEqual(subEvents[index].Start.DayOfWeek, dayOfWeek);
+                currentDayIndex += 1;
+                currentDayIndex %= 7;
+            }
+            Assert.AreEqual(newlyaddedevent.Calendar_EventID.getCalendarEventComponent(), newlyaddedevent0.Calendar_EventID.getCalendarEventComponent());
+        }
+
+        /// <summary>
+        /// Test creates a scenario where the origin calendar event has timeline that is wider than a day, but less than the repetition range
+        /// </summary>
+        [TestMethod]
+        public void TestCreationOfDailyRepeatNonRigidCalendarEventSpanLong()
+        {
+            UserAccount user = TestUtility.getTestUser();
+            user.Login().Wait();
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
+            Schedule = new TestSchedule(user, refNow);
+            TimeSpan duration = TimeSpan.FromHours(4);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.Add(duration);
+            TimeLine repetitionRange = new TimeLine(start, start.AddDays(13).AddHours(-23));
+            //List<DayOfWeek> weekDays = new List<DayOfWeek>() { DayOfWeek.Sunday, DayOfWeek.Monday ,DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday};
+            DayOfWeek startingWeekDay = start.DayOfWeek;
+            Repetition repetition = new Repetition(true, repetitionRange, Repetition.Frequency.DAILY, repetitionRange.CreateCopy());
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, repetition, start, end, 1, false);
+            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            CalendarEvent newlyaddedevent = Schedule.getCalendarEvent(testEvent.Calendar_EventID);
+            Assert.AreEqual(testEvent.getId, newlyaddedevent.getId);
+            CalendarEvent newlyaddedevent0 = Schedule.getCalendarEvent(newlyaddedevent.Calendar_EventID.getIDUpToRepeatCalendarEvent());
+            List<SubCalendarEvent> subEvents = newlyaddedevent0.AllSubEvents.OrderBy(subEvent => subEvent.Start).ToList();
+            int currentDayIndex = (int)repetitionRange.Start.DayOfWeek;
+            for (int index = 0; index < subEvents.Count; index++)
+            {
+                DayOfWeek dayOfWeek = (DayOfWeek)currentDayIndex;
+                Assert.AreEqual(subEvents[index].Start.DayOfWeek, dayOfWeek);
+                currentDayIndex += 1;
+                currentDayIndex %= 7;
+            }
+            Assert.AreEqual(newlyaddedevent.Calendar_EventID.getCalendarEventComponent(), newlyaddedevent0.Calendar_EventID.getCalendarEventComponent());
+        }
+
+        /// <summary>
+        /// Test creates a scenario where the origin calendar event has timeline that is wider than a day, but less than the repetition range
+        /// </summary>
+        [TestMethod]
+        public void TestCreationOfDailyRepeatNonRigidCalendarEventRestrictedSpanLong()
+        {
+            UserAccount user = TestUtility.getTestUser();
+            user.Login().Wait();
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
+            Schedule = new TestSchedule(user, refNow);
+            TimeSpan duration = TimeSpan.FromHours(4);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.Add(duration);
+            TimeLine repetitionRange = new TimeLine(start, start.AddDays(13).AddHours(-23));
+            //List<DayOfWeek> weekDays = new List<DayOfWeek>() { DayOfWeek.Sunday, DayOfWeek.Monday ,DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday};
+            DayOfWeek startingWeekDay = start.DayOfWeek;
+            Repetition repetition = new Repetition(true, repetitionRange, Repetition.Frequency.DAILY, repetitionRange.CreateCopy());
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, repetition, start, end, 1, false, restrictionProfile: new RestrictionProfile(start, duration + duration));
+            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
+            waitVar.Wait();
+            CalendarEvent newlyaddedevent = waitVar.Result;
+            Assert.AreEqual(testEvent.getId, newlyaddedevent.getId);
+            string repatCalEventId = newlyaddedevent.Calendar_EventID.getIDUpToRepeatCalendarEvent();
+
+            List <SubCalendarEvent> subEvents = newlyaddedevent.AllSubEvents.OrderBy(subEvent => subEvent.Start).ToList();
+            int currentDayIndex = (int)repetitionRange.Start.DayOfWeek;
+            for (int index = 0; index < subEvents.Count; index++)
+            {
+                DayOfWeek dayOfWeek = (DayOfWeek)currentDayIndex;
+                Assert.AreEqual(subEvents[index].Start.DayOfWeek, dayOfWeek);
+                currentDayIndex += 1;
+                currentDayIndex %= 7;
+            }
+            //Assert.AreEqual(newlyaddedevent.Calendar_EventID.getCalendarEventComponent(), newlyaddedevent0.Calendar_EventID.getCalendarEventComponent());
+        }
+
+        /// <summary>
+        /// Test creates a scenario where the origin calendar event has timeline that is wider than a day, but greater than repeat range
+        /// </summary>
+        [TestMethod]
+        public void TestCreationCalendarEvent ()
+        {
+            UserAccount user = TestUtility.getTestUser();
+            user.Login().Wait();
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
+            Schedule = new TestSchedule(user, refNow);
+            TimeSpan duration = TimeSpan.FromHours(4);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = start.AddDays(21);
+            TimeLine repetitionRange = new TimeLine(start, end.AddDays(-5).AddHours(-23));
+            //List<DayOfWeek> weekDays = new List<DayOfWeek>() { DayOfWeek.Sunday, DayOfWeek.Monday ,DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday};
+            DayOfWeek startingWeekDay = start.DayOfWeek;
+            Repetition repetition = new Repetition(true, repetitionRange, Repetition.Frequency.WEEKLY, repetitionRange.CreateCopy());
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, repetition, start, end, 1, false);
+            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
+            waitVar.Wait();
+            CalendarEvent newlyaddedevent = waitVar.Result;
+            Assert.AreEqual(testEvent.getId, newlyaddedevent.getId);
+            
+            List<SubCalendarEvent> subEvents = newlyaddedevent.AllSubEvents.OrderBy(subEvent => subEvent.Start).ToList();
+            DayOfWeek dayOfWeek = repetitionRange.Start.DayOfWeek;
+            for (int index = 0; index < subEvents.Count; index++)
+            {
+                Assert.AreEqual(subEvents[index].Start.DayOfWeek, dayOfWeek);
+            }
+        }
 
         [TestMethod]
         public void testPersistedCalendarEvent()
@@ -272,6 +411,7 @@ namespace TilerTests
             user = TestUtility.getTestUser(true);
             schedule = new TestSchedule(user, refNow);
             Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
+            waitVar.Wait();
             CalendarEvent newlyaddedevent = waitVar.Result;
             Assert.IsTrue(newlyaddedevent.isTestEquivalent(testEvent));
         }
@@ -281,7 +421,7 @@ namespace TilerTests
         {
             UserAccount user = TestUtility.getTestUser();
             user.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
             TestSchedule schedule = new TestSchedule(user, refNow);
             TimeSpan duration = TimeSpan.FromHours(1);
             DateTimeOffset start = refNow;
@@ -298,6 +438,7 @@ namespace TilerTests
             user = TestUtility.getTestUser(true);
 
             Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
+            waitVar.Wait();
             CalendarEvent newlyaddedevent = waitVar.Result;
             Assert.IsTrue(newlyaddedevent.isTestEquivalent(testEvent));
             foreach (SubCalendarEvent eachSubCalendarEvent in newlyaddedevent.AllSubEvents)
@@ -336,6 +477,7 @@ namespace TilerTests
             user = TestUtility.getTestUser(true);
 
             Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
+            waitVar.Wait();
             CalendarEvent renamedEvent = waitVar.Result;
 
             Assert.AreEqual(renamedEvent.getName.NameValue, newName);
@@ -374,6 +516,7 @@ namespace TilerTests
             user = TestUtility.getTestUser(true);
 
             Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
+            waitVar.Wait();
             CalendarEvent renamedEvent = waitVar.Result;
 
             Assert.AreEqual(renamedEvent.Notes.UserNote, newNoteName);

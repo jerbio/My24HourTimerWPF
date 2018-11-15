@@ -10,6 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using TilerTests.Models;
+using System.Globalization;
 
 namespace TilerTests
 {
@@ -112,6 +113,12 @@ namespace TilerTests
             {
                 return false;
             }
+        }
+
+        public static void initializeLocation ()
+        {
+            string apiKey = "AIzaSyDXrtMxPbt6Dqlllpm77AQ47vcCFxZ4oUU";
+            Location.updateApiKey(apiKey);
         }
 
         public static List<Location> getLocations()
@@ -546,6 +553,11 @@ namespace TilerTests
                 retValue = false;
             }
             return retValue;
+        }
+
+        public static DateTimeOffset parseAsUTC(string dateString)
+        {
+            return DateTimeOffset.Parse(dateString, null, DateTimeStyles.AssumeUniversal);
         }
     }
 }

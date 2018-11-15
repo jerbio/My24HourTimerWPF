@@ -22,6 +22,7 @@ namespace TilerTests.Models
         {
             string DB_RUNTIME_LOCATION = @"C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerTests\bin\Debug";
             AppDomain.CurrentDomain.SetData("DataDirectory", DB_RUNTIME_LOCATION);
+            System.Data.Entity.Database.SetInitializer<TestDBContext>(null);
         }
         public TestDBContext(string connectionName = "TestDBConnection")
             : base(connectionName)

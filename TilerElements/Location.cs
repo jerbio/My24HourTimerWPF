@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Configuration;
 using GoogleMapsApi.Entities.Geocoding.Request;
 using GoogleMapsApi;
 using GoogleMapsApi.Entities.Geocoding.Response;
@@ -22,6 +23,7 @@ namespace TilerElements
         public static int LastLocationId = 1;
         public static double MaxLongitude = 181;
         public static double MaxLatitude = 91;
+        public static string _ApiKey;
         enum requestType
         {
             authenticate,
@@ -155,12 +157,11 @@ namespace TilerElements
             {
                 GeocodingRequest request = new GeocodingRequest();
                 request.Address = _TaggedAddress;
-                request.Sensor = false;
-
+                request.Sensor = true;
+                request.ApiKey = Location.ApiKey;
 
                 var geocodingEngine = GoogleMaps.Geocode;
                 GeocodingResponse geocode = geocodingEngine.Query(request);
-                Console.WriteLine(geocode);
 
                 if (geocode.Status == Status.OK)
                 {
@@ -177,6 +178,7 @@ namespace TilerElements
                 }
                 else
                 {
+                    Console.WriteLine(geocode.Status);
                     initializeWithNull();
                 }
             }
@@ -448,6 +450,19 @@ namespace TilerElements
         public string justLongLatString()
         {
             return  _Latitude + "," + _Longitude+"\n";
+        }
+
+        public static void updateApiKey(string key)
+        {
+            _ApiKey = key;
+        }
+
+        public static  string ApiKey
+        {
+            get
+            {
+                return _ApiKey;
+            }
         }
 
         public static Location getClosestLocation(IEnumerable<Location> AllLocations, Location RefLocation)

@@ -56,7 +56,7 @@ namespace TilerTests
             UserAccount currentuser = TestUtility.getTestUser();
             currentuser.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00 pm");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("10:00 pm");
             TestSchedule schedule = new TestSchedule(currentuser, refNow, startOfDay);
             ReferenceNow now = schedule.Now;
 

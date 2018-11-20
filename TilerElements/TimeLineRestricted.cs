@@ -15,12 +15,13 @@ namespace TilerElements
         bool isPlausible = false;
         ulong EarliestDayIndex;
         ulong LatestDayIndex;
-
-        public TimeLineRestricted(DateTimeOffset StartData, DateTimeOffset EndData, RestrictionProfile RestrictionData)
+        ReferenceNow Now;
+        public TimeLineRestricted(DateTimeOffset StartData, DateTimeOffset EndData, RestrictionProfile RestrictionData, ReferenceNow now)
         {
             RestrictionInfo = RestrictionData;
             NonViableStart = StartData;
             NonViableEnd = EndData;
+            Now = now;
             initialize();
         }
 
@@ -30,8 +31,8 @@ namespace TilerElements
             DayOfYearToTimeLine = new Dictionary<ulong, HashSet<TimeLine>>();
             List<TimeLine> AllTImeLines = RestrictionInfo.getAllNonPartialTimeFrames(new TimeLine(NonViableStart, NonViableEnd)).OrderBy(obj => obj.Start).ToList();
 
-            ILookup<ulong, TimeLine> lookUpData0 = AllTImeLines.ToLookup(obj => ReferenceNow.getDayIndexFromStartOfTime(obj.Start), obj => obj);
-            ILookup<ulong, TimeLine> lookUpData1 = AllTImeLines.ToLookup(obj => ReferenceNow.getDayIndexFromStartOfTime(obj.End), obj => obj);
+            ILookup<ulong, TimeLine> lookUpData0 = AllTImeLines.ToLookup(obj => Now.getDayIndexFromStartOfTime(obj.Start), obj => obj);
+            ILookup<ulong, TimeLine> lookUpData1 = AllTImeLines.ToLookup(obj => Now.getDayIndexFromStartOfTime(obj.End), obj => obj);
 
 
             //ILookup<ulong,TimeLine>lookUpData =.ToLookup(obj=>ReferenceNow.getDayIndexFromStartOfTime(obj.Start),obj=>obj);
@@ -70,8 +71,8 @@ namespace TilerElements
                 TimeLine LAstTimeLine = DayOfYearToTimeLine.Last().Value.Last();
                 StartTime = FirstTImeLine.Start;
                 EndTime = LAstTimeLine.End;
-                EarliestDayIndex = ReferenceNow.getDayIndexFromStartOfTime(StartTime);
-                LatestDayIndex = ReferenceNow.getDayIndexFromStartOfTime(LAstTimeLine.End);
+                EarliestDayIndex = Now.getDayIndexFromStartOfTime(StartTime);
+                LatestDayIndex = Now.getDayIndexFromStartOfTime(LAstTimeLine.End);
                 isPlausible = true;
             }
 
@@ -96,8 +97,8 @@ namespace TilerElements
 
         public override bool doesTimeLineInterfere(TimeLine TimeLineData)
         {
-            ulong StartIndex = ReferenceNow.getDayIndexFromStartOfTime(TimeLineData.Start);
-            ulong EndIndex = ReferenceNow.getDayIndexFromStartOfTime(TimeLineData.End);
+            ulong StartIndex = Now.getDayIndexFromStartOfTime(TimeLineData.Start);
+            ulong EndIndex = Now.getDayIndexFromStartOfTime(TimeLineData.End);
 
             StartIndex = EarliestDayIndex > StartIndex ? EarliestDayIndex : StartIndex;
             EndIndex = LatestDayIndex < EndIndex ? LatestDayIndex : EndIndex;
@@ -174,7 +175,7 @@ namespace TilerElements
 
             if (retValue != null)
             {
-                TimeLineRestricted retValueRestricted = new TimeLineRestricted(retValue.Start, retValue.End, RestrictionInfo);
+                TimeLineRestricted retValueRestricted = new TimeLineRestricted(retValue.Start, retValue.End, RestrictionInfo, Now);
                 if (retValueRestricted.RangeSpanInfo.Ticks == 0)
                 {
                     return null;

@@ -75,20 +75,14 @@ namespace TilerElements
             }
         }
 
-        public ulong DislikedDayIndex
+        public ulong DislikedDayIndex(ReferenceNow now)
         {
-            get 
-            {
-                return ReferenceNow.getDayIndexFromStartOfTime(FromTime);
-            }
+            return now.getDayIndexFromStartOfTime(FromTime);
         }
 
-        public ulong PreferredDayIndex
+        public ulong PreferredDayIndex(ReferenceNow now)
         {
-            get
-            {
-                return ReferenceNow.getDayIndexFromStartOfTime(BeginTIme);
-            }
+            return now.getDayIndexFromStartOfTime(BeginTIme);
         }
 
         public Procrastination CreateCopy(string id = "")

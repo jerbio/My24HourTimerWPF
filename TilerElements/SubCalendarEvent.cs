@@ -229,9 +229,9 @@ namespace TilerElements
             preferredDayIndex = 0;
         }
 
-        public void updateDayIndex(CalendarEvent myCalEvent)
+        public void updateDayIndex(ulong dayIndex, CalendarEvent myCalEvent)
         {
-            preferredDayIndex = ReferenceNow.getDayIndexFromStartOfTime(StartDateTime);
+            preferredDayIndex = dayIndex;
             myCalEvent.removeDayTimeFromFreeUpdays(preferredDayIndex);
         }
 

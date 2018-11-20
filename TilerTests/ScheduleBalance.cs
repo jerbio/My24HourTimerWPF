@@ -92,10 +92,10 @@ namespace TilerTests
         public void conflictResolution0()
         {
             Location homeLocation = TestUtility.getLocations()[0];
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("2:00am");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("2:00am");
             UserAccount currentUser = TestUtility.getTestUser(userId: "982935bc-f5bc-4d5e-a372-7a5d5e40cfa0");
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Parse("06/02/2017 12:15am");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("06/02/2017 12:15am");
             TestSchedule schedule = new TestSchedule(currentUser, refNow, startOfDay);
             var resultOfShuffle = schedule.FindMeSomethingToDo(homeLocation);
             resultOfShuffle.Wait();
@@ -109,8 +109,8 @@ namespace TilerTests
         /// <summary>
         /// Test creates a combination of rigid and non rigid evvents that the sum of their duration adds up to eight hours. 
         /// Test creates a rigid event and then tries to add the other non-rigid events. The none rigids have a timeline that starts at the smetime as the rigid, but ends eight hours after
-        /// The non rigids hould be aable to fit, without a conflict. The non rigids have a span of at least 1 hour
-        /// The ed of day is created in suc a way that it is 30 mins after the end time of the rigid event.
+        /// The non rigids should be aable to fit, without a conflict. The non rigids have a span of at least 1 hour
+        /// The end of day is created in suc a way that it is 30 mins after the end time of the rigid event.
         /// This creates a scenario where none of the non-rigids can fit between the rigid and the end of the day.
         /// Ideally the code should still fit all events without a conflict, however because nothing can fit between the end of the day and the new event this could cause a problem
         /// </summary>
@@ -126,8 +126,8 @@ namespace TilerTests
             List<Location> locations = new List<Location>() { homeLocation, workLocation, gymLocation, churchLocation };
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            refNow = new DateTimeOffset(refNow.Year, refNow.Month, refNow.Day, 8, 0, 0, new TimeSpan());
+            DateTimeOffset refNow = TestUtility.parseAsUTC("2:00am");
+            refNow = new DateTimeOffset(2017, 11, 14, 8, 0, 0, new TimeSpan());
             TestSchedule schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
             TimeLine encompassingTimeline = new TimeLine(refNow, refNow.AddHours(8));
 
@@ -163,7 +163,7 @@ namespace TilerTests
             schedule.AddToSchedule(testGymNonRigidCalEvent);
             allSubEvents = schedule.getAllCalendarEvents().SelectMany(calEvent => calEvent.AllSubEvents);
             conflicts = Utility.getConflictingEvents(allSubEvents);
-            Assert.AreEqual(0, conflicts.Count);/// This is known to fail
+            Assert.AreEqual(0, conflicts.Count);
         }
 
 
@@ -179,8 +179,8 @@ namespace TilerTests
             List<Location> locations = TestUtility.getLocations();
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Parse("12:00AM");
-            DateTimeOffset start = DateTimeOffset.Parse("2:00PM");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM");
+            DateTimeOffset start = TestUtility.parseAsUTC("2:00PM");
             TimeSpan duration = TimeSpan.FromHours(4);
             DateTimeOffset end = start.Add(duration);
             CalendarEvent hugeRigid = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, true, locations[0]);
@@ -211,8 +211,8 @@ namespace TilerTests
             List<Location> locations = locationsDict.Values.ToList();
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Parse("12:00AM 12/2/2017");
-            DateTimeOffset start = DateTimeOffset.Parse("2:00AM 12/2/2017");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
+            DateTimeOffset start = TestUtility.parseAsUTC("2:00AM 12/2/2017");
             TimeSpan duration = TimeSpan.FromHours(4);
             DateTimeOffset end = start.Add(duration);
             CalendarEvent hugeRigid = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, true, locations[0]);
@@ -250,8 +250,8 @@ namespace TilerTests
             List<Location> locations = locationsDict.Values.ToList();
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Parse("12:00AM 12/2/2017");
-            DateTimeOffset start = DateTimeOffset.Parse("2:00AM 12/2/2017");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
+            DateTimeOffset start = TestUtility.parseAsUTC("2:00AM 12/2/2017");
             TimeSpan duration = TimeSpan.FromHours(4);
             DateTimeOffset end = start.Add(duration);
             CalendarEvent hugeRigid = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, true, locations[0]);
@@ -295,8 +295,8 @@ namespace TilerTests
             List<Location> locations = TestUtility.getLocations();
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Parse("11/6/2017 12:00AM");
-            DateTimeOffset start = DateTimeOffset.Parse("11/6/2017 2:00PM");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("11/6/2017 12:00AM");
+            DateTimeOffset start = TestUtility.parseAsUTC("11/6/2017 2:00PM");
             TimeSpan duration = TimeSpan.FromHours(4);
             TimeSpan rigidDuration = TimeSpan.FromHours(1);
             DateTimeOffset end = start.Add(duration);
@@ -328,7 +328,7 @@ namespace TilerTests
             Assert.AreEqual(reOrderedByTimelIds.Count, orderedByTimelIds.Count);
             for(int i =0; i < orderedByTimelIds.Count; i++)
             {
-                Assert.AreEqual(reOrderedByTimelIds[i], orderedByTimelIds[i]);// this is know to fail
+                Assert.AreEqual(reOrderedByTimelIds[i], orderedByTimelIds[i]);
             }
         }
         [TestInitialize]

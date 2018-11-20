@@ -7,6 +7,7 @@ using TilerElements;
 using My24HourTimerWPF;
 using TilerFront;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Globalization;
 
 namespace TilerTests
 {
@@ -173,7 +174,7 @@ namespace TilerTests
         }
 
 
-        public static CalendarEvent generateCalendarEvent(TimeSpan duration, Repetition repetition, DateTimeOffset Start, DateTimeOffset End, int splitCount = 1, bool rigidFlags = false, Location location = null, RestrictionProfile restrictionProfile = null, MiscData note = null)
+        public static CalendarEvent generateCalendarEvent(TimeSpan duration, Repetition repetition, DateTimeOffset Start, DateTimeOffset End, int splitCount = 1, bool rigidFlags = false, Location location = null, RestrictionProfile restrictionProfile = null, MiscData note = null, ReferenceNow now = null)
         {
             if (Start == StartOfTime)
             {
@@ -214,7 +215,7 @@ namespace TilerTests
             else
             {
                 EventName name = new EventName("TestCalendarEvent-" + Guid.NewGuid().ToString() + "-Restricted");
-                RetValue = new CalendarEventRestricted(testUser, new TilerUserGroup(), name, Start, End, restrictionProfile, duration, repetition, false, true, splitCount, false, location, new TimeSpan(), new TimeSpan(), null, UiSettings: new EventDisplay(), NoteData: note);
+                RetValue = new CalendarEventRestricted(testUser, new TilerUserGroup(), name, Start, End, restrictionProfile, duration, repetition, false, true, splitCount, false, location, new TimeSpan(), new TimeSpan(), null, now, UiSettings: new EventDisplay(), NoteData: note);
 
             }
 
@@ -250,10 +251,10 @@ namespace TilerTests
         {
             bool retValue = true;
             string format = "MM/dd/yyyy HH:mm";
-            DateTimeOffset firstStart = DateTimeOffset.Parse( firstCalEvent.Start.ToString(format));
-            DateTimeOffset firstEnd = DateTimeOffset.Parse(firstCalEvent.End.ToString(format));
-            DateTimeOffset secondStart = DateTimeOffset.Parse(secondCalEvent.Start.ToString(format));
-            DateTimeOffset secondEnd = DateTimeOffset.Parse(secondCalEvent.End.ToString(format));
+            DateTimeOffset firstStart = TestUtility.parseAsUTC( firstCalEvent.Start.ToString(format));
+            DateTimeOffset firstEnd = TestUtility.parseAsUTC(firstCalEvent.End.ToString(format));
+            DateTimeOffset secondStart = TestUtility.parseAsUTC(secondCalEvent.Start.ToString(format));
+            DateTimeOffset secondEnd = TestUtility.parseAsUTC(secondCalEvent.End.ToString(format));
             Type eventType = secondCalEvent.GetType();
             {
                 if (firstCalEvent.getId == secondCalEvent.getId)
@@ -294,22 +295,13 @@ namespace TilerTests
         {
             bool retValue = true;
             {
-                if (firstProcrastination.DislikedDayIndex == secondProcrastination.DislikedDayIndex)
+                if ((firstProcrastination.DislikedDayOfWeek == secondProcrastination.DislikedDayOfWeek) 
+                    && (firstProcrastination.DislikedDaySection == secondProcrastination.DislikedDaySection) 
+                    && (firstProcrastination .DislikedStartTime == secondProcrastination.DislikedStartTime) 
+                    && (secondProcrastination.PreferredStartTime == firstProcrastination.PreferredStartTime))
                 {
-                    if ((firstProcrastination.DislikedDayOfWeek == secondProcrastination.DislikedDayOfWeek) 
-                        && (firstProcrastination.DislikedDaySection == secondProcrastination.DislikedDaySection) 
-                        && (firstProcrastination .DislikedStartTime == secondProcrastination.DislikedStartTime) 
-                        && (secondProcrastination.PreferredDayIndex == firstProcrastination.PreferredDayIndex) 
-                        && (secondProcrastination.PreferredStartTime == firstProcrastination.PreferredStartTime))
-                    {
-                        retValue = true;
-                    }
-                    else
-                    {
-                        retValue = false;
-                    }
-                }
-                else
+                    retValue = true;
+                } else
                 {
                     retValue = false;
                 }
@@ -333,6 +325,12 @@ namespace TilerTests
             }
             return retValue;
         }
+
+        public static DateTimeOffset parseAsUTC(string dateString)
+        {
+            return DateTimeOffset.Parse(dateString, null, DateTimeStyles.AssumeUniversal);
+        }
+
     }
 }
 

@@ -70,8 +70,8 @@ namespace TilerTests
             List<CalendarEvent> mondayEvents = new List<CalendarEvent>();
             List<CalendarEvent> tuesdayEvents = new List<CalendarEvent>();
             TimeSpan durationOfCalEvent = TimeSpan.FromHours(1);
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("2:00am");
-            DateTimeOffset refNow = DateTimeOffset.Parse("11/10/2017 3:00am");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("2:00am");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("11/10/2017 3:00am");
             DateTimeOffset mondayStart = getNextDateForDayOfWeek(DayOfWeek.Monday, refNow);
             DateTimeOffset tuesdayStart = mondayStart.AddDays(1);
             int numberOfEvents = 5;
@@ -124,8 +124,8 @@ namespace TilerTests
             List<CalendarEvent> mondayEvents = new List<CalendarEvent>();
             List<CalendarEvent> tuesdayEvents = new List<CalendarEvent>();
             TimeSpan durationOfCalEvent = TimeSpan.FromHours(1);
-            DateTimeOffset refNow = DateTimeOffset.Parse("12/20/2017 3:00AM");
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("12/20/2017 2:00AM");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12/20/2017 3:00AM");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("12/20/2017 2:00AM");
             DateTimeOffset endOfDay = startOfDay.AddDays(1);
 
             Location home = location_dict["home"];
@@ -172,8 +172,8 @@ namespace TilerTests
             List<CalendarEvent> mondayEvents = new List<CalendarEvent>();
             List<CalendarEvent> tuesdayEvents = new List<CalendarEvent>();
             TimeSpan durationOfCalEvent = TimeSpan.FromHours(1);
-            DateTimeOffset refNow = DateTimeOffset.Parse("12/20/2017 3:00AM");
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("12/20/2017 2:00AM");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12/20/2017 3:00AM");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("12/20/2017 2:00AM");
             DateTimeOffset endOfDay = startOfDay.AddDays(1);
 
             Location home = location_dict["home"];
@@ -217,7 +217,7 @@ namespace TilerTests
             List<CalendarEvent> mondayEvents = new List<CalendarEvent>();
             List<CalendarEvent> tuesdayEvents = new List<CalendarEvent>();
             TimeSpan durationOfCalEvent = TimeSpan.FromHours(1);
-            DateTimeOffset refNow = DateTimeOffset.Parse("11/6/2017 12:00AM");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("11/6/2017 12:00AM");
             DateTimeOffset mondayStart = getNextDateForDayOfWeek(DayOfWeek.Monday, refNow);
             DateTimeOffset tuesdayStart = mondayStart.AddDays(1);
             DateTimeOffset mondayStartCopy = mondayStart;
@@ -258,7 +258,7 @@ namespace TilerTests
             double mondayScore = mondayHealth.getScore();
             double tuesdayScore = tuesdayHealth.getScore();
 
-            Assert.IsTrue(tuesdayScore < mondayScore);// this is know to fail
+            Assert.IsTrue(tuesdayScore < mondayScore);// this is known to fail
         }
 
         public DateTimeOffset getNextDateForDayOfWeek(DayOfWeek dayOfeek, DateTimeOffset referenceTime)

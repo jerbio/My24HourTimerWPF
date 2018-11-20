@@ -20,10 +20,10 @@ namespace TilerTests
         public void file_499a0ab4()
         {
             Location homeLocation = TestUtility.getLocations()[0];
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("2:00am");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("2:00am");
             UserAccount currentUser = TestUtility.getTestUser(userId: "499a0ab4-81d7-42df-a476-44fc4348e94b");
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Parse("04/18/2017 10:41pm ");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("04/18/2017 10:41pm ");
             TestSchedule schedule = new TestSchedule(currentUser, refNow, startOfDay);
             var resultOfShuffle = schedule.FindMeSomethingToDo(homeLocation);
             resultOfShuffle.Wait();
@@ -31,7 +31,7 @@ namespace TilerTests
             schedule = new TestSchedule(currentUser, refNow, startOfDay);
             SubCalendarEvent subEventA = schedule.getSubCalendarEvent("7170280_7_0_7170281");
             SubCalendarEvent subEventB = schedule.getSubCalendarEvent("7156969_7_0_7156970");
-            Assert.IsFalse(subEventB.ActiveSlot.doesTimeLineInterfere(subEventA.ActiveSlot)); // This is known to fail and is on bug list
+            Assert.IsFalse(subEventB.ActiveSlot.doesTimeLineInterfere(subEventA.ActiveSlot));
         }
 
 
@@ -42,11 +42,11 @@ namespace TilerTests
         public void file_712dd797()
         {
             Location homeLocation = TestUtility.getLocations()[0];
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("2:00am");
-            DateTimeOffset refNow = DateTimeOffset.Parse("10/23/2017 7:00:34PM");
-            DateTimeOffset endOfEvent = DateTimeOffset.Parse("10/24/2017 3:59:00AM");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("2:00am");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("10/23/2017 7:00:34PM");
+            DateTimeOffset endOfEvent = TestUtility.parseAsUTC("10/24/2017 3:59:00AM");
             UserAccount currentUser = TestUtility.getTestUser(userId: "712dd797-8991-4f79-90c1-7b51c744c4bd");
-            TimeLine actualTime = new TimeLine(DateTimeOffset.Parse("10/21/2017 1:00PM"), DateTimeOffset.Parse("10/21/2017 10:00PM"));
+            TimeLine actualTime = new TimeLine(TestUtility.parseAsUTC("10/21/2017 1:00PM"), TestUtility.parseAsUTC("10/21/2017 10:00PM"));
             Repetition repeating = new Repetition(true, new TimeLine(startOfDay.AddDays(-5), startOfDay.AddDays(18)), Repetition.Frequency.DAILY, actualTime);
             CalendarEvent repeatingCalEvent = TestUtility.generateCalendarEvent(actualTime.TimelineSpan, repeating, actualTime.Start, actualTime.End, rigidFlags: true);// simulation of google cal event
             TestSchedule schedule = new TestSchedule(currentUser, refNow, startOfDay);
@@ -68,8 +68,8 @@ namespace TilerTests
         {
             string subEventId = "6418072_7_0_6418075";
             Location homeLocation = TestUtility.getLocations()[0];
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("2:00am");
-            DateTimeOffset refNow = DateTimeOffset.Parse("11/9/2017 5:28am");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("2:00am");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("11/9/2017 5:28am");
             UserAccount currentUser = TestUtility.getTestUser(userId: "a56a5ac5-b474-4d4e-b878-bbb593a0d5b1");
             TestSchedule schedule = new TestSchedule(currentUser, refNow, startOfDay);
             CalendarEvent readjustCalendarEvent = schedule.getCalendarEvent("6418072_7_0_6418075");
@@ -96,9 +96,9 @@ namespace TilerTests
         {
             string subEventId = "8631313_7_0_8631314";
             Location homeLocation = TestUtility.getLocations()[0];
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("2:00am");
-            DateTimeOffset refNow = DateTimeOffset.Parse("12/2/2017 8:20pm");
-            DateTimeOffset deadline = DateTimeOffset.Parse("12/3/2017 4:59pm");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("2:00am");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12/2/2017 8:20pm");
+            DateTimeOffset deadline = TestUtility.parseAsUTC("12/3/2017 4:59pm");
             UserAccount currentUser = TestUtility.getTestUser(userId: "b10cdae0-64e1-498f-82a2-8601da577255");
             TestSchedule schedule = new TestSchedule(currentUser, refNow, startOfDay);
             CalendarEvent calEvent = schedule.getCalendarEvent(subEventId);
@@ -111,7 +111,7 @@ namespace TilerTests
                 subEvent.getCalendarEventRange.Start,
                 deadline,
                 1, 
-                subEvent.Notes.UserNote); ///this is known to fail
+                subEvent.Notes.UserNote);
             schedule.UpdateWithDifferentSchedule(updateResult.Item2).Wait();
             schedule = new TestSchedule(currentUser, refNow, startOfDay);
             
@@ -130,8 +130,8 @@ namespace TilerTests
             string subEventId = "8969308_7_0_8969309";
             string conflictingSubEventId = "9105097_7_0_9105098";
             Location homeLocation = TestUtility.getLocations()[0];
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("2:00am");
-            DateTimeOffset refNow = DateTimeOffset.Parse("12/30/2017 8:39am");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("2:00am");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12/30/2017 8:39am");
             UserAccount currentUser = TestUtility.getTestUser(userId: "c1fbe98f-cb7e-4b21-9d99-b4c3acaf670c");
             currentUser.getTilerUser().ClearAllId = currentClearAllId;
             TestSchedule schedule = new TestSchedule(currentUser, refNow, startOfDay);
@@ -140,7 +140,7 @@ namespace TilerTests
             schedule = new TestSchedule(currentUser, refNow, startOfDay, EventID.LatestID);
             SubCalendarEvent subEventA = schedule.getSubCalendarEvent(subEventId);
             SubCalendarEvent subEventB = schedule.getSubCalendarEvent(conflictingSubEventId);
-            Assert.IsFalse(subEventB.ActiveSlot.doesTimeLineInterfere(subEventA.ActiveSlot));// This is known to fail
+            Assert.IsFalse(subEventB.ActiveSlot.doesTimeLineInterfere(subEventA.ActiveSlot));
         }
 
         /// <summary>
@@ -159,8 +159,8 @@ namespace TilerTests
             string conflictingSubEventId = "4939920_7_0_9171782";
             string subEventCId = "9105096_7_0_9105097";
             Location homeLocation = TestUtility.getLocations()[0];
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("2:00am");
-            DateTimeOffset refNow = DateTimeOffset.Parse("12/30/2017 8:39am");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("2:00am");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12/30/2017 8:39am");
             UserAccount currentUser = TestUtility.getTestUser(userId: "c1fbe98f-cb7e-4b21-9d99-b4c3acaf670c");
             currentUser.getTilerUser().ClearAllId = currentClearAllId;
             TestSchedule schedule = new TestSchedule(currentUser, refNow, startOfDay);
@@ -178,7 +178,7 @@ namespace TilerTests
             Assert.AreEqual(conflictingBlob.Count, 0);
             Assert.AreEqual(firstDayConflict.Count, 0);
 
-            Assert.IsFalse(subEventB.ActiveSlot.doesTimeLineInterfere(subEventA.ActiveSlot));// This is known to fail
+            Assert.IsFalse(subEventB.ActiveSlot.doesTimeLineInterfere(subEventA.ActiveSlot));
         }
 
         [TestCleanup]

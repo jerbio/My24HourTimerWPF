@@ -46,7 +46,7 @@ namespace TilerTests
         {
             TimeSpan jitterSpan = TimeSpan.FromMinutes(10);
             TimeSpan durationOfEvents = TimeSpan.FromMinutes(60);
-            DateTimeOffset refNow = DateTimeOffset.Parse("06/02/2017 12:15am");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("06/02/2017 12:15am");
             DateTimeOffset Start = refNow.AddHours(1);
             DateTimeOffset newStart = Start;
             UserAccount user = TestUtility.getTestUser();
@@ -157,7 +157,7 @@ namespace TilerTests
 
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Parse("06/02/2017 12:15am");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("06/02/2017 12:15am");
 
             TimeSpan duration = TimeSpan.FromDays(1);
             TimeLine eachTimeLine = new TimeLine(refNow, refNow.Add(duration));
@@ -205,8 +205,8 @@ namespace TilerTests
         {
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Parse("10:00pm");
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00pm");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("10:00pm");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("10:00pm");
             refNow = refNow.LocalDateTime;
             TimeSpan activeDuration = TimeSpan.FromHours(1);
             int numberOfDays = 7;
@@ -310,8 +310,8 @@ namespace TilerTests
             Location defaultLocation0 = TestUtility.getLocations()[2];
             UserAccount currentUser = TestUtility.getTestUser();
             currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.Parse("9:00pm");
-            DateTimeOffset startOfDay = DateTimeOffset.Parse("10:00pm");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("9:00pm");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("10:00pm");
             TestSchedule schedule = new TestSchedule(currentUser, refNow, startOfDay);
             DateTimeOffset startTimeOfHugeRigid = startOfDay.AddHours(10);
             CalendarEvent bigHugeRigidEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(8), new Repetition(), startTimeOfHugeRigid, startTimeOfHugeRigid.AddHours(8),rigidFlags:true, location: defaultLocation0);

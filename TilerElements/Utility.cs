@@ -838,6 +838,40 @@ namespace TilerElements
             return num;
         }
 
+        public static int MinIndex(this IEnumerable<double> sequence)
+        {
+            int num = -1;
+            double other = sequence.First();
+            int num2 = 0;
+            foreach (double local2 in sequence)
+            {
+                if (!double.IsNaN(local2) && ((local2 < other) || (num == -1)))
+                {
+                    num = num2;
+                    other = local2;
+                }
+                num2++;
+            }
+            return num;
+        }
+
+        public static int MaxIndex(this IEnumerable<double> sequence)
+        {
+            int num = -1;
+            double other = sequence.First();
+            int num2 = 0;
+            foreach (double local2 in sequence)
+            {
+                if (!double.IsNaN(local2) && ((local2 > other) || (num == -1)))
+                {
+                    num = num2;
+                    other = local2;
+                }
+                num2++;
+            }
+            return num;
+        }
+
 
         public static SubCalendarEvent getClosestSubCalendarEvent(IEnumerable<SubCalendarEvent> AllSubCalEvents, Location ReferenceSubEvent)
         {
@@ -1325,13 +1359,78 @@ namespace TilerElements
 
         public static ulong toJSMilliseconds(this DateTimeOffset time)
         {
-            ulong retValue = (ulong)(time - ReferenceNow.StartOfTime).TotalMilliseconds;
+            ulong retValue = (ulong)(time - ReferenceNow.StartOfTimeUTC).TotalMilliseconds;
             return retValue;
         }
 
         public static ulong toJSMilliseconds(this DateTime time)
         {
-            ulong retValue = (ulong)(time - ReferenceNow.StartOfTime).TotalMilliseconds;
+            ulong retValue = (ulong)(time - ReferenceNow.StartOfTimeUTC).TotalMilliseconds;
+            return retValue;
+        }
+
+        public static List<double> EvaluateTimeLines(IEnumerable<TimelineWithSubcalendarEvents> timeLines, TilerEvent tilerEvent)
+        {
+            List<IList<double>> multiDimensionalCalculation = new List<IList<double>>();
+            List<TimelineWithSubcalendarEvents> validTimeLine = timeLines.Select(timeLine => {
+                if(tilerEvent!=null)
+                {
+                    if (timeLine.doesTimeLineInterfere(tilerEvent.RangeTimeLine))
+                    {
+                        return timeLine;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                } else
+                {
+                    return timeLine;
+                }
+                
+            }).ToList();
+            TimeSpan totalAvailableSpan = TimeSpan.FromTicks(timeLines.Sum(timeLine => timeLine.TimelineSpan.Ticks));
+
+            foreach (TimelineWithSubcalendarEvents timeline in validTimeLine)
+            {
+                if (timeline != null)
+                {
+                    double occupancy = (double)timeline.Occupancy;
+                    
+                    IList<double> dimensionsPerDay = new List<double>() { occupancy };
+                    if(tilerEvent !=null)
+                    {
+                        List<TimeLine> interferringTImeLines = tilerEvent.getInterferringWithTimeLine(timeline);
+                        TimeSpan totalInterferringSpan = TimeSpan.FromTicks(interferringTImeLines.Sum(objTimeLine => objTimeLine.TimelineSpan.Ticks));
+                        double availableSpanRatio = (double)totalInterferringSpan.Ticks / totalAvailableSpan.Ticks;
+                        double distance = Location.calculateDistance(timeline.averageLocation, tilerEvent.Location, 0);
+                        double tickRatio = (double)tilerEvent.getActiveDuration.Ticks / totalInterferringSpan.Ticks;
+                        dimensionsPerDay.Add(distance);
+                        dimensionsPerDay.Add(tickRatio);
+                        dimensionsPerDay.Add(availableSpanRatio);
+                    }
+                    multiDimensionalCalculation.Add(dimensionsPerDay);
+                }
+                else
+                {
+                    multiDimensionalCalculation.Add(null);
+                }
+            }
+            var NotNullMultidimenstionValues = multiDimensionalCalculation.Where(obj => obj != null).ToList();
+            List<double> foundIndexes = Utility.multiDimensionCalculationNormalize(NotNullMultidimenstionValues);
+            List<double> retValue = new List<double>();
+            int notNullCounter = 0;
+            foreach (var coordinates in multiDimensionalCalculation)
+            {
+                if (coordinates != null)
+                {
+                    retValue.Add(foundIndexes[notNullCounter++]);
+                }
+                else
+                {
+                    retValue.Add(double.NaN);
+                }
+            }
             return retValue;
         }
     }

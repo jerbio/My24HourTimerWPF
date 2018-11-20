@@ -665,7 +665,7 @@ namespace My24HourTimerWPF
 
 
 
-                ScheduleUpdated = new CalendarEventRestricted(new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), eventName, StartDateTime, EndDateTime, myRestrictionProfile, TimeSpan.Parse(EventDuration), MyRepetition, false, true, Convert.ToInt32(eventSplit), RigidFlag, new Location(), TimeSpan.Parse(eventPrepTime), TimeSpan.Parse(PreDeadlineTime), null, UiData, NoteData);
+                ScheduleUpdated = new CalendarEventRestricted(new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), eventName, StartDateTime, EndDateTime, myRestrictionProfile, TimeSpan.Parse(EventDuration), MyRepetition, false, true, Convert.ToInt32(eventSplit), RigidFlag, new Location(), TimeSpan.Parse(eventPrepTime), TimeSpan.Parse(PreDeadlineTime), null, MySchedule.Now, UiData, NoteData);
             }
             
             ScheduleUpdated.Repeat.PopulateRepetitionParameters(ScheduleUpdated);
@@ -862,7 +862,7 @@ namespace My24HourTimerWPF
 
 
 
-                ScheduleUpdated = new CalendarEventRestricted(new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), eventName, StartDateTime, EndDateTime, myRestrictionProfile, TimeSpan.Parse(EventDuration), MyRepetition, false, true, Convert.ToInt32(eventSplit), RigidFlag, new Location(), TimeSpan.Parse(eventPrepTime), TimeSpan.Parse(PreDeadlineTime), null, UiData, NoteData);
+                ScheduleUpdated = new CalendarEventRestricted(new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), eventName, StartDateTime, EndDateTime, myRestrictionProfile, TimeSpan.Parse(EventDuration), MyRepetition, false, true, Convert.ToInt32(eventSplit), RigidFlag, new Location(), TimeSpan.Parse(eventPrepTime), TimeSpan.Parse(PreDeadlineTime), null, MySchedule.Now, UiData, NoteData);
             }
 
             ScheduleUpdated.Repeat.PopulateRepetitionParameters(ScheduleUpdated);

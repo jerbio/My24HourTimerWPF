@@ -214,6 +214,10 @@ namespace TilerTests
             }
             else
             {
+                if(now == null)
+                {
+                    throw new ArgumentNullException("now", "You need to add a referencenow object for creation of calendareventrestricted object");
+                }
                 EventName name = new EventName("TestCalendarEvent-" + Guid.NewGuid().ToString() + "-Restricted");
                 RetValue = new CalendarEventRestricted(testUser, new TilerUserGroup(), name, Start, End, restrictionProfile, duration, repetition, false, true, splitCount, false, location, new TimeSpan(), new TimeSpan(), null, now, UiSettings: new EventDisplay(), NoteData: note);
 

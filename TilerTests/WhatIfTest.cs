@@ -258,7 +258,7 @@ namespace TilerTests
             double mondayScore = mondayHealth.getScore();
             double tuesdayScore = tuesdayHealth.getScore();
 
-            Assert.IsTrue(tuesdayScore < mondayScore);// this is know to fail
+            Assert.IsTrue(tuesdayScore < mondayScore);// this is known to fail
         }
 
         public DateTimeOffset getNextDateForDayOfWeek(DayOfWeek dayOfeek, DateTimeOffset referenceTime)

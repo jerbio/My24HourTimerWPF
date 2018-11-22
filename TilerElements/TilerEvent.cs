@@ -831,6 +831,12 @@ namespace TilerElements
             return DaySectionPreference;
         }
 
+        public virtual List<TimeLine> getInterferringWithTimeLine(TimeLine timeLine)
+        {
+            TimeLine interFerringTimeLine = this.RangeTimeLine.InterferringTimeLine(timeLine);
+            return new List<TimeLine>() { interFerringTimeLine };
+        }
+
         public string getCreatorId
         {
             get

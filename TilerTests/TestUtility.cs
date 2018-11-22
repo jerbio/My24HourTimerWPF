@@ -214,7 +214,7 @@ namespace TilerTests
         }
 
 
-        public static CalendarEvent generateCalendarEvent(TimeSpan duration, Repetition repetition, DateTimeOffset Start, DateTimeOffset End, int splitCount = 1, bool rigidFlags = false, Location location = null, RestrictionProfile restrictionProfile = null, MiscData note = null)
+        public static CalendarEvent generateCalendarEvent(TimeSpan duration, Repetition repetition, DateTimeOffset Start, DateTimeOffset End, int splitCount = 1, bool rigidFlags = false, Location location = null, RestrictionProfile restrictionProfile = null, MiscData note = null, ReferenceNow now = null)
         {
             if (Start == StartOfTime)
             {
@@ -256,8 +256,12 @@ namespace TilerTests
             }
             else
             {
+                if (now == null)
+                {
+                    throw new ArgumentNullException("now", "You need to add a referencenow object for creation of calendareventrestricted object");
+                }
                 EventName name = new EventName(null, null, "TestCalendarEvent-" + Guid.NewGuid().ToString() + "-Restricted");
-                RetValue = new CalendarEventRestricted(_testUser, new TilerUserGroup(), name, Start, End, restrictionProfile, duration, repetition, false, true, splitCount, false, location, new TimeSpan(), new TimeSpan(), null, UiSettings: new EventDisplay(), NoteData: note);
+                RetValue = new CalendarEventRestricted(_testUser, new TilerUserGroup(), name, Start, End, restrictionProfile, duration, repetition, false, true, splitCount, false, location, new TimeSpan(), new TimeSpan(), null, now, UiSettings: new EventDisplay(), NoteData: note);
                 name.Creator_EventDB = RetValue.getCreator;
                 name.AssociatedEvent = RetValue;
             }
@@ -335,10 +339,10 @@ namespace TilerTests
         {
             bool retValue = true;
             string format = "MM/dd/yyyy HH:mm";
-            DateTimeOffset firstStart = DateTimeOffset.Parse( firstCalEvent.Start.ToString(format));
-            DateTimeOffset firstEnd = DateTimeOffset.Parse(firstCalEvent.End.ToString(format));
-            DateTimeOffset secondStart = DateTimeOffset.Parse(secondCalEvent.Start.ToString(format));
-            DateTimeOffset secondEnd = DateTimeOffset.Parse(secondCalEvent.End.ToString(format));
+            DateTimeOffset firstStart = TestUtility.parseAsUTC( firstCalEvent.Start.ToString(format));
+            DateTimeOffset firstEnd = TestUtility.parseAsUTC(firstCalEvent.End.ToString(format));
+            DateTimeOffset secondStart = TestUtility.parseAsUTC(secondCalEvent.Start.ToString(format));
+            DateTimeOffset secondEnd = TestUtility.parseAsUTC(secondCalEvent.End.ToString(format));
             Type eventType = secondCalEvent.GetType();
             {
                 if (firstCalEvent.getId == secondCalEvent.getId)
@@ -484,20 +488,12 @@ namespace TilerTests
             {
                 if (firstProcrastination!=null && secondProcrastination !=null)
                 {
-                    if (firstProcrastination.DislikedDayIndex == secondProcrastination.DislikedDayIndex)
+                    if ((firstProcrastination.DislikedDayOfWeek == secondProcrastination.DislikedDayOfWeek)
+                    && (firstProcrastination.DislikedDaySection == secondProcrastination.DislikedDaySection)
+                    && (firstProcrastination.DislikedStartTime == secondProcrastination.DislikedStartTime)
+                    && (secondProcrastination.PreferredStartTime == firstProcrastination.PreferredStartTime))
                     {
-                        if ((firstProcrastination.DislikedDayOfWeek == secondProcrastination.DislikedDayOfWeek)
-                            && (firstProcrastination.DislikedDaySection == secondProcrastination.DislikedDaySection)
-                            && (firstProcrastination.DislikedStartTime == secondProcrastination.DislikedStartTime)
-                            && (secondProcrastination.PreferredDayIndex == firstProcrastination.PreferredDayIndex)
-                            && (secondProcrastination.PreferredStartTime == firstProcrastination.PreferredStartTime))
-                        {
-                            retValue = true;
-                        }
-                        else
-                        {
-                            retValue = false;
-                        }
+                        retValue = true;
                     }
                     else
                     {

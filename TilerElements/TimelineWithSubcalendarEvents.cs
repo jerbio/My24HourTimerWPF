@@ -58,10 +58,8 @@ namespace TilerElements
 
         public virtual void AddToSubEventList(SubCalendarEvent eachSubCal)
         {
-            {
-                AllocatedSubEvents.AddOrUpdate(eachSubCal.getId, eachSubCal, (key, value) => eachSubCal);
-                base.AddBusySlots(eachSubCal.ActiveSlot);
-            }
+            AllocatedSubEvents.AddOrUpdate(eachSubCal.getId, eachSubCal, (key, value) => eachSubCal);
+            base.AddBusySlots(eachSubCal.ActiveSlot);
             updateOccupancyOfTimeLine();
             updateAverageLocation();
         }

@@ -31,7 +31,7 @@ namespace TilerTests
             schedule = new TestSchedule(currentUser, refNow, startOfDay);
             SubCalendarEvent subEventA = schedule.getSubCalendarEvent("7170280_7_0_7170281");
             SubCalendarEvent subEventB = schedule.getSubCalendarEvent("7156969_7_0_7156970");
-            Assert.IsFalse(subEventB.ActiveSlot.doesTimeLineInterfere(subEventA.ActiveSlot)); // This is known to fail and is on bug list
+            Assert.IsFalse(subEventB.ActiveSlot.doesTimeLineInterfere(subEventA.ActiveSlot));
         }
 
 
@@ -111,7 +111,7 @@ namespace TilerTests
                 subEvent.getCalendarEventRange.Start,
                 deadline,
                 1, 
-                subEvent.Notes.UserNote); ///this is known to fail
+                subEvent.Notes.UserNote);
             schedule.UpdateWithDifferentSchedule(updateResult.Item2).Wait();
             schedule = new TestSchedule(currentUser, refNow, startOfDay);
             
@@ -140,7 +140,7 @@ namespace TilerTests
             schedule = new TestSchedule(currentUser, refNow, startOfDay, EventID.LatestID);
             SubCalendarEvent subEventA = schedule.getSubCalendarEvent(subEventId);
             SubCalendarEvent subEventB = schedule.getSubCalendarEvent(conflictingSubEventId);
-            Assert.IsFalse(subEventB.ActiveSlot.doesTimeLineInterfere(subEventA.ActiveSlot));// This is known to fail
+            Assert.IsFalse(subEventB.ActiveSlot.doesTimeLineInterfere(subEventA.ActiveSlot));
         }
 
         /// <summary>
@@ -178,7 +178,7 @@ namespace TilerTests
             Assert.AreEqual(conflictingBlob.Count, 0);
             Assert.AreEqual(firstDayConflict.Count, 0);
 
-            Assert.IsFalse(subEventB.ActiveSlot.doesTimeLineInterfere(subEventA.ActiveSlot));// This is known to fail
+            Assert.IsFalse(subEventB.ActiveSlot.doesTimeLineInterfere(subEventA.ActiveSlot));
         }
 
         [TestCleanup]

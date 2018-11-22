@@ -77,7 +77,7 @@ namespace TilerTests
             CalendarEvent calEvent = TestUtility.generateCalendarEvent(TimeSpan.FromMinutes(45), new Repetition(), refNow, refNow.AddHours(4), location: homeLocation);
             currentUser.getTilerUser().ClearAllId = currentClearAllId;
             TestSchedule schedule = new TestSchedule(currentUser, refNow, startOfDay);
-            schedule.AddToScheduleAndCommit(calEvent);// This is known to fail
+            schedule.AddToScheduleAndCommit(calEvent);
         }
 
         [TestCleanup]

@@ -175,20 +175,14 @@ namespace TilerElements
             }
         }
 
-        public ulong DislikedDayIndex
+        public ulong DislikedDayIndex(ReferenceNow now)
         {
-            get
-            {
-                return ReferenceNow.getDayIndexFromStartOfTime(_FromTime);
-            }
+            return now.getDayIndexFromStartOfTime(FromTime);
         }
 
-        public ulong PreferredDayIndex
+        public ulong PreferredDayIndex(ReferenceNow now)
         {
-            get
-            {
-                return ReferenceNow.getDayIndexFromStartOfTime(_BeginTIme);
-            }
+            return now.getDayIndexFromStartOfTime(BeginTIme);
         }
 
         #region dbProperties

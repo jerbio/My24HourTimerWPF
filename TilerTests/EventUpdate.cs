@@ -108,7 +108,7 @@ namespace TilerTests
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(duration.Add(duration).Add(duration).Add(duration));
             RestrictionProfile restrictionProfile = new RestrictionProfile(start.Add(duration), duration.Add(duration));
-            CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, false, null, restrictionProfile);
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, false, null, restrictionProfile, now: schedule.Now);
             schedule.AddToScheduleAndCommit(testEvent).Wait();
             TestSchedule scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, new EventName(currentuser.getTilerUser(), testEvent, newName), testEvent.Start, testEvent.End, testEvent.NumberOfSplit, testEvent.Notes.UserNote);
@@ -190,7 +190,7 @@ namespace TilerTests
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(TimeSpan.FromTicks(duration.Ticks * 5));
             RestrictionProfile restrictionProfile = new RestrictionProfile(start.Add(duration), duration.Add(duration));
-            CalendarEvent increaseSplitCountTestEvent = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, false, null, restrictionProfile);
+            CalendarEvent increaseSplitCountTestEvent = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, false, null, restrictionProfile, now: schedule.Now);
             schedule.AddToScheduleAndCommit(increaseSplitCountTestEvent).Wait();
             TestSchedule scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             int newSplitCount = increaseSplitCountTestEvent.NumberOfSplit + 1;
@@ -204,7 +204,7 @@ namespace TilerTests
             Assert.IsTrue(retrievedCalendarEvent.isTestEquivalent(increaseSplitCountTestEvent));
 
             /// Reducing the split count
-            CalendarEvent decreaseSplitCountTestEvent = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 3, false, null, restrictionProfile);
+            CalendarEvent decreaseSplitCountTestEvent = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 3, false, null, restrictionProfile, now: schedule.Now);
             schedule.AddToScheduleAndCommit(decreaseSplitCountTestEvent).Wait();
             scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             newSplitCount = decreaseSplitCountTestEvent.NumberOfSplit - 1;
@@ -324,7 +324,7 @@ namespace TilerTests
             DateTimeOffset start = refNow;
             DateTimeOffset end = start.Add(TimeSpan.FromTicks(duration.Ticks * 5));
             RestrictionProfile restrictionProfile = new RestrictionProfile(start.Add(duration), duration.Add(duration));
-            CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, false, null, restrictionProfile);
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, false, null, restrictionProfile, now: schedule.Now);
             schedule.AddToScheduleAndCommit(testEvent).Wait();
             TestSchedule scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             DateTimeOffset newDeadline = end.Add(duration);
@@ -481,7 +481,7 @@ namespace TilerTests
             DateTimeOffset start = refNow;
             DateTimeOffset end = start.Add(duration.Add(duration).Add(duration));
             RestrictionProfile restrictionProfile = new RestrictionProfile(start.Add(duration), duration.Add(duration));
-            CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, false, null, restrictionProfile);
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 1, false, null, restrictionProfile, now: schedule.Now);
             schedule.AddToScheduleAndCommit(testEvent).Wait();
             TestSchedule scheduleReloaded = new TestSchedule(currentuser, refNow, startOfDay);
             DateTimeOffset newStart = start.Add(-TimeSpan.FromTicks((long)duration.Ticks / 2));

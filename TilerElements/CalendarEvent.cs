@@ -903,12 +903,6 @@ namespace TilerElements
             return false;
         }
 
-        public virtual List<TimeLine> getInterferringWithTimeLine(TimeLine timeLine)
-        {
-            TimeLine interFerringTimeLine = this.RangeTimeLine.InterferringTimeLine(timeLine);
-            return new List<TimeLine>() { interFerringTimeLine };
-        }
-
         public bool removeSubCalEvents(IEnumerable<SubCalendarEvent> ElementsToBeRemoved)
         {
             SubCalendarEvent[] SubCalEVentsArray= ElementsToBeRemoved.ToArray();
@@ -1259,7 +1253,7 @@ namespace TilerElements
             return retValue;
         }
 
-        public List<DayTimeLine> getDaysOnOrAfterProcrastination(bool forceUpdateFreeTimeLine = true, List<DayTimeLine> AllFreeDayTIme = null)
+        public List<DayTimeLine> getDaysOnOrAfterProcrastination(ReferenceNow now, bool forceUpdateFreeTimeLine = true, List<DayTimeLine> AllFreeDayTIme = null)
         {
 
             AllFreeDayTIme = AllFreeDayTIme ?? CalculationLimitation.Values.ToList();
@@ -1268,7 +1262,7 @@ namespace TilerElements
                 AllFreeDayTIme.AsParallel().ForAll(obj => { obj.updateOccupancyOfTimeLine(); });
             }
             
-            List<DayTimeLine> retValue = AllFreeDayTIme.Where(obj => obj.UniversalIndex >= getProcrastinationInfo.PreferredDayIndex).ToList();
+            List<DayTimeLine> retValue = AllFreeDayTIme.Where(obj => obj.UniversalIndex >= now.getDayIndexFromStartOfTime(getProcrastinationInfo.DislikedStartTime)).ToList();
             return retValue;
         }
 

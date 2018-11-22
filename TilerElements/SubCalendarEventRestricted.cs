@@ -12,8 +12,9 @@ namespace TilerElements
 
         public TimeLine UndoHardCalendarEventRange;
         public RestrictionProfile UndoProfileOfRestriction;
+        protected ReferenceNow _Now;
         #region Constructor
-        public SubCalendarEventRestricted(TilerUser creator, TilerUserGroup users,  string CalEventID, EventName name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile constrictionProgile, TimeLine HardCalEventTimeRange, bool isEnabled, bool isComplete, ConflictProfile conflictingEvents, bool RigidFlag,TimeSpan PrepTimeData ,TimeSpan PreDeadline, Location Locationdata, EventDisplay UiData, MiscData Notes, int Priority = 0, string thirdPartyID = "", ConflictProfile conflicts = null )
+        public SubCalendarEventRestricted(TilerUser creator, TilerUserGroup users,  string CalEventID, EventName name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile constrictionProgile, TimeLine HardCalEventTimeRange, bool isEnabled, bool isComplete, ConflictProfile conflictingEvents, bool RigidFlag,TimeSpan PrepTimeData ,TimeSpan PreDeadline, Location Locationdata, EventDisplay UiData, MiscData Notes, ReferenceNow now, int Priority = 0, string thirdPartyID = "", ConflictProfile conflicts = null )
         { 
             isRestricted =true;
             StartDateTime = Start;
@@ -23,6 +24,7 @@ namespace TilerElements
             UniqueID = EventID.GenerateSubCalendarEvent(CalEventID);
             ProfileOfRestriction = constrictionProgile;
             HardCalendarEventRange = HardCalEventTimeRange;
+            _Now = now;
             initializeCalendarEventRange(ProfileOfRestriction,HardCalendarEventRange);
             BusyFrame = new BusyTimeLine(UniqueID.ToString(),StartDateTime, EndDateTime);
             _Users = new TilerUserGroup();
@@ -43,6 +45,7 @@ namespace TilerElements
             _LastReasonStartTimeChanged = this.Start;
             this._Creator = creator;
             this._Users = users;
+            
         }
 
         public SubCalendarEventRestricted()
@@ -168,7 +171,7 @@ namespace TilerElements
 
             DateTimeOffset myStart = ProfileOfRestriction.getEarliestStartTimeWithinAFrameAfterRefTime(refTimeLine.Start).Start;
             DateTimeOffset myEnd = ProfileOfRestriction.getLatestEndTimeWithinFrameBeforeRefTime(refTimeLine.End).End;
-            _CalendarEventRange = new TimeLineRestricted(myStart, myEnd, RestrictionData);
+            _CalendarEventRange = new TimeLineRestricted(myStart, myEnd, RestrictionData, _Now);
         }
         ///*
         public override bool canExistTowardsEndWithoutSpace(TimeLine PossibleTimeLine)
@@ -417,7 +420,7 @@ namespace TilerElements
             SubCalendarEventRestricted retValue = (SubCalendarEventRestricted)thisCopy;
 
 
-            retValue.HardCalendarEventRange= new TimeLineRestricted(ProcrastinationData.PreferredStartTime, CalendarEventData.RangeTimeLine.End,retValue.ProfileOfRestriction);
+            retValue.HardCalendarEventRange= new TimeLineRestricted(ProcrastinationData.PreferredStartTime, CalendarEventData.RangeTimeLine.End,retValue.ProfileOfRestriction, _Now);
             TimeSpan SpanShift = ProcrastinationData.PreferredStartTime - retValue.Start;
             retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventData.getId);
             retValue.initializeCalendarEventRange(retValue.ProfileOfRestriction, CalendarEventData.RangeTimeLine);

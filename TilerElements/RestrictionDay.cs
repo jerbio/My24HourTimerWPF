@@ -18,13 +18,18 @@ namespace TilerElements
         public RestrictionTimeLine UndoRestrictionTimeLine;
         public string _UndoId;
         #endregion
+        #region constructor
+        protected RestrictionDay()
+        {
+
+        }
 
         public RestrictionDay(DayOfWeek dayOfWeek, RestrictionTimeLine restrictionTimeLine)
         {
             this._DayOfWeek = dayOfWeek;
             this._RestrictionTimeLine = restrictionTimeLine;
         }
-
+        #endregion 
         #region properties
         [NotMapped]
         public DayOfWeek WeekDay
@@ -46,8 +51,11 @@ namespace TilerElements
                 _Id = value;
             }
         }
-
-        public string DayOfWeek
+        /// <summary>
+        /// This return the string for day of the week, if you want the actual day of the week use Weekday
+        /// </summary>
+        [Column("DayOfWeek")]
+        public string DayOfWeekString
         {
             get
             {

@@ -9,8 +9,6 @@ namespace TilerElements
     {
         public static DateTimeOffset InitialPauseTime  = new DateTimeOffset();
         protected BusyTimeLine BusyFrame;
-        protected BusyTimeLine NonHumaneTimeLine= new BusyTimeLine();
-        protected BusyTimeLine HumaneTimeLine = new BusyTimeLine();
         protected TimeLine _CalendarEventRange;
         protected DateTimeOffset _CalendarEventRangeStart;
         protected DateTimeOffset _CalendarEventRangeEnd;
@@ -878,16 +876,7 @@ namespace TilerElements
             bool RetValue = shiftEvent(timeDiff);
             return RetValue;
         }
-
-        public void UpdateInHumaneTimeLine()
-         {
-             NonHumaneTimeLine = ActiveSlot.CreateCopy();
-         }
-
-         public void UpdateHumaneTimeLine()
-         {
-             HumaneTimeLine = ActiveSlot.CreateCopy();
-         }
+        
 
          public ulong UniversalDayIndex
          {

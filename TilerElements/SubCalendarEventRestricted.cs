@@ -8,7 +8,7 @@ namespace TilerElements
     public class SubCalendarEventRestricted : SubCalendarEvent
     {
         protected TimeLine HardCalendarEventRange;//this does not include the restriction
-        protected RestrictionProfile ProfileOfRestriction;
+        protected RestrictionProfile _ProfileOfRestriction;
 
         public TimeLine UndoHardCalendarEventRange;
         public RestrictionProfile UndoProfileOfRestriction;
@@ -22,10 +22,10 @@ namespace TilerElements
             _EventDuration = EndDateTime - StartDateTime;
             _Name = name;
             UniqueID = EventID.GenerateSubCalendarEvent(CalEventID);
-            ProfileOfRestriction = constrictionProgile;
+            _ProfileOfRestriction = constrictionProgile;
             HardCalendarEventRange = HardCalEventTimeRange;
             _Now = now;
-            initializeCalendarEventRange(ProfileOfRestriction,HardCalendarEventRange);
+            initializeCalendarEventRange(_ProfileOfRestriction,HardCalendarEventRange);
             BusyFrame = new BusyTimeLine(UniqueID.ToString(),StartDateTime, EndDateTime);
             _Users = new TilerUserGroup();
             RigidSchedule = RigidFlag;
@@ -40,8 +40,6 @@ namespace TilerElements
             _DataBlob = Notes;
             _PrepTime = PrepTimeData;
             ConflictingEvents = new ConflictProfile();
-            HumaneTimeLine = BusyFrame.CreateCopy();
-            NonHumaneTimeLine = BusyFrame.CreateCopy();
             _LastReasonStartTimeChanged = this.Start;
             this._Creator = creator;
             this._Users = users;
@@ -55,7 +53,7 @@ namespace TilerElements
             EndDateTime = new DateTimeOffset();
             _EventDuration = EndDateTime - StartDateTime;
             UniqueID = null;
-            ProfileOfRestriction = null;
+            _ProfileOfRestriction = null;
             HardCalendarEventRange = new TimeLine();
             _LastReasonStartTimeChanged = this.Start;
         }
@@ -92,7 +90,7 @@ namespace TilerElements
 
         public IEnumerable<TimeLine> getFeasibleTimeLines(TimeLine TimeLineEntry)
         {
-            return ProfileOfRestriction.getAllNonPartialTimeFrames(TimeLineEntry);
+            return _ProfileOfRestriction.getAllNonPartialTimeFrames(TimeLineEntry);
         }
 
 
@@ -103,7 +101,7 @@ namespace TilerElements
             {
                 return false;
             }
-            List<TimeLine> allPossibleTimelines = ProfileOfRestriction.getAllNonPartialTimeFrames(LimitingTimeLine).Where(obj => obj.TimelineSpan >= getActiveDuration).OrderByDescending(obj => obj.End).ToList();
+            List<TimeLine> allPossibleTimelines = _ProfileOfRestriction.getAllNonPartialTimeFrames(LimitingTimeLine).Where(obj => obj.TimelineSpan >= getActiveDuration).OrderByDescending(obj => obj.End).ToList();
             if (allPossibleTimelines.Count > 0)
             {
                 LimitingTimeLine = LimitingTimeLine.InterferringTimeLine( allPossibleTimelines[0]);
@@ -117,10 +115,10 @@ namespace TilerElements
                 return false;
             }
 
-            TimeLine RestrictedLimitingFrame = ProfileOfRestriction.getLatestActiveTimeFrameBeforeEnd(LimitingTimeLine);
+            TimeLine RestrictedLimitingFrame = _ProfileOfRestriction.getLatestActiveTimeFrameBeforeEnd(LimitingTimeLine);
             if(RestrictedLimitingFrame.TimelineSpan<getActiveDuration)
             {
-                RestrictedLimitingFrame = ProfileOfRestriction.getLatestFullFrame(LimitingTimeLine);
+                RestrictedLimitingFrame = _ProfileOfRestriction.getLatestFullFrame(LimitingTimeLine);
             }
             bool retValue=base.PinToEnd(RestrictedLimitingFrame);
             return retValue;
@@ -133,7 +131,7 @@ namespace TilerElements
             {
                 return false;
             }
-            List<TimeLine> allPossibleTimelines = ProfileOfRestriction.getAllNonPartialTimeFrames(MyTimeLine).Where(obj=>obj.TimelineSpan>=getActiveDuration).OrderBy(obj=>obj.Start).ToList();
+            List<TimeLine> allPossibleTimelines = _ProfileOfRestriction.getAllNonPartialTimeFrames(MyTimeLine).Where(obj=>obj.TimelineSpan>=getActiveDuration).OrderBy(obj=>obj.Start).ToList();
 
             if (allPossibleTimelines.Count > 0)
             {
@@ -150,10 +148,10 @@ namespace TilerElements
 
             
 
-            TimeLine RestrictedLimitingFrame = ProfileOfRestriction.getEarliestActiveFrameAfterBeginning(MyTimeLine);
+            TimeLine RestrictedLimitingFrame = _ProfileOfRestriction.getEarliestActiveFrameAfterBeginning(MyTimeLine);
             if (RestrictedLimitingFrame.TimelineSpan < getActiveDuration)
             {
-                RestrictedLimitingFrame = ProfileOfRestriction.getEarliestFullframe(MyTimeLine);
+                RestrictedLimitingFrame = _ProfileOfRestriction.getEarliestFullframe(MyTimeLine);
             }
             bool retValue=base.PinToStart(RestrictedLimitingFrame);
             return retValue;
@@ -169,15 +167,15 @@ namespace TilerElements
                 refTimeLine = HardCalendarEventRange;
             }
 
-            DateTimeOffset myStart = ProfileOfRestriction.getEarliestStartTimeWithinAFrameAfterRefTime(refTimeLine.Start).Start;
-            DateTimeOffset myEnd = ProfileOfRestriction.getLatestEndTimeWithinFrameBeforeRefTime(refTimeLine.End).End;
+            DateTimeOffset myStart = _ProfileOfRestriction.getEarliestStartTimeWithinAFrameAfterRefTime(refTimeLine.Start).Start;
+            DateTimeOffset myEnd = _ProfileOfRestriction.getLatestEndTimeWithinFrameBeforeRefTime(refTimeLine.End).End;
             _CalendarEventRange = new TimeLineRestricted(myStart, myEnd, RestrictionData, _Now);
         }
         ///*
         public override bool canExistTowardsEndWithoutSpace(TimeLine PossibleTimeLine)
         {
             bool retValue = false;
-            List<TimeLine> AllTimeLines = ProfileOfRestriction.getAllNonPartialTimeFrames(PossibleTimeLine).OrderBy(obj=>obj.Start).ToList();
+            List<TimeLine> AllTimeLines = _ProfileOfRestriction.getAllNonPartialTimeFrames(PossibleTimeLine).OrderBy(obj=>obj.Start).ToList();
             if (AllTimeLines.Count > 0)
             {
                 return base.canExistTowardsEndWithoutSpace(AllTimeLines.Last());
@@ -191,7 +189,7 @@ namespace TilerElements
         public override bool canExistTowardsStartWithoutSpace(TimeLine PossibleTimeLine)
         {
             bool retValue = false;
-            List<TimeLine> AllTimeLines = ProfileOfRestriction.getAllNonPartialTimeFrames(PossibleTimeLine).OrderBy(obj => obj.Start).ToList();
+            List<TimeLine> AllTimeLines = _ProfileOfRestriction.getAllNonPartialTimeFrames(PossibleTimeLine).OrderBy(obj => obj.Start).ToList();
             if (AllTimeLines.Count > 0)
             {
                 return base.canExistTowardsStartWithoutSpace(AllTimeLines.First());
@@ -213,7 +211,7 @@ namespace TilerElements
             copy._CalendarEventRange = getCalendarEventRange.CreateCopy();
             copy._Complete = _Complete;
             copy.ConflictingEvents = this.ConflictingEvents.CreateCopy();
-            copy._DataBlob = this._DataBlob.createCopy();
+            copy._DataBlob = this._DataBlob?.createCopy();
             copy._Enabled = this._Enabled;
             copy.EndDateTime = this.EndDateTime;
             copy._EventDuration = this._EventDuration;
@@ -221,20 +219,18 @@ namespace TilerElements
             copy._EventPreDeadline = this._EventPreDeadline;
             copy.EventScore = this.EventScore;
             copy.HardCalendarEventRange = this.HardCalendarEventRange.CreateCopy();
-            copy.HumaneTimeLine = this.HumaneTimeLine.CreateCopy();
             copy.isRestricted = this.isRestricted;
             copy.Vestige = this.Vestige;
             copy._LocationInfo = this._LocationInfo.CreateCopy();
             copy.MiscIntData = this.MiscIntData;
-            copy.NonHumaneTimeLine = this.NonHumaneTimeLine.CreateCopy();
             copy._otherPartyID = this._otherPartyID;
             copy.preferredDayIndex = this.preferredDayIndex;
             copy._PrepTime = this._PrepTime;
             copy._Priority = this._Priority;
-            copy.ProfileOfRestriction = this.ProfileOfRestriction.createCopy();
+            copy._ProfileOfRestriction = this._ProfileOfRestriction.createCopy();
             copy.RigidSchedule = this.RigidSchedule;
             copy.StartDateTime = this.StartDateTime;
-            copy._UiParams = this._UiParams.createCopy();
+            copy._UiParams = this._UiParams?.createCopy();
 
             if (eventId != null)
             {
@@ -247,7 +243,7 @@ namespace TilerElements
             copy.UnUsableIndex = this.UnUsableIndex;
             copy._UserDeleted = this._UserDeleted;
             copy._Users = this._Users;
-            copy._Semantics = this._Semantics != null ? this._Semantics.createCopy() : null;
+            copy._Semantics = this._Semantics?.createCopy();
             copy._UsedTime = this._UsedTime;
             copy.OptimizationFlag = this.OptimizationFlag;
             return copy;
@@ -265,7 +261,7 @@ namespace TilerElements
         public override bool shiftEvent(TimeSpan ChangeInTime, bool force = false)
         {
             TimeLine UpdatedTimeLine = new TimeLine(this.Start + ChangeInTime, this.End + ChangeInTime);
-            TimeLine myTImeLine =  ProfileOfRestriction.getLatestActiveTimeFrameBeforeEnd(UpdatedTimeLine);
+            TimeLine myTImeLine =  _ProfileOfRestriction.getLatestActiveTimeFrameBeforeEnd(UpdatedTimeLine);
             if (myTImeLine.TimelineSpan >= UpdatedTimeLine.TimelineSpan)
             {
                 StartDateTime += ChangeInTime;
@@ -274,7 +270,7 @@ namespace TilerElements
                 return true;
             }
 
-            myTImeLine = ProfileOfRestriction.getEarliestActiveFrameAfterBeginning(UpdatedTimeLine);
+            myTImeLine = _ProfileOfRestriction.getEarliestActiveFrameAfterBeginning(UpdatedTimeLine);
             if (myTImeLine.TimelineSpan >= UpdatedTimeLine.TimelineSpan)
             {
                 StartDateTime += ChangeInTime;
@@ -288,7 +284,7 @@ namespace TilerElements
 
         public override bool PinToPossibleLimit(TimeLine referenceTimeLine)
         {
-            List<TimeLine> AllPossibleTimeLines = ProfileOfRestriction.getAllNonPartialTimeFrames(referenceTimeLine).   Where(obj => obj.TimelineSpan >= this.getActiveDuration).OrderByDescending (obj=>obj.End). ToList();
+            List<TimeLine> AllPossibleTimeLines = _ProfileOfRestriction.getAllNonPartialTimeFrames(referenceTimeLine).   Where(obj => obj.TimelineSpan >= this.getActiveDuration).OrderByDescending (obj=>obj.End). ToList();
             if (AllPossibleTimeLines.Count > 0)
             {
                 return base.PinToEnd(AllPossibleTimeLines[0]);
@@ -309,7 +305,7 @@ namespace TilerElements
         public override List<TimeLine> getTimeLineInterferringWithCalEvent(TimeLine TimeLineData, bool orderByStart = true)
         {
             List<TimeLine> retValue = null;
-            List<TimeLine> possibleTimeLines = orderByStart ? ProfileOfRestriction.getAllNonPartialTimeFrames(TimeLineData).OrderByDescending(obj => obj.TimelineSpan).ThenBy(obj => obj.Start).ToList() : ProfileOfRestriction.getAllNonPartialTimeFrames(TimeLineData).OrderByDescending(obj => obj.TimelineSpan).ThenBy(obj => obj.Start).ToList();
+            List<TimeLine> possibleTimeLines = orderByStart ? _ProfileOfRestriction.getAllNonPartialTimeFrames(TimeLineData).OrderByDescending(obj => obj.TimelineSpan).ThenBy(obj => obj.Start).ToList() : _ProfileOfRestriction.getAllNonPartialTimeFrames(TimeLineData).OrderByDescending(obj => obj.TimelineSpan).ThenBy(obj => obj.Start).ToList();
             if (possibleTimeLines.Count > 0)
             {
                 retValue = possibleTimeLines;
@@ -322,7 +318,7 @@ namespace TilerElements
         {
             get 
             {
-                return ProfileOfRestriction;
+                return _ProfileOfRestriction;
             }
         }
         
@@ -358,7 +354,7 @@ namespace TilerElements
                 this._Users = SubEventEntry.getAllUsers();
                 this.Vestige = SubEventEntry.isVestige;
                 this._otherPartyID = SubEventEntry._otherPartyID;
-                this.ProfileOfRestriction = SubEventEntry.ProfileOfRestriction;
+                this._ProfileOfRestriction = SubEventEntry._ProfileOfRestriction;
                 this._Creator = SubEventEntry._Creator;
                 this._Semantics = SubEventEntry._Semantics;
                 this._UsedTime = SubEventEntry._UsedTime;
@@ -399,7 +395,7 @@ namespace TilerElements
             retValue._Users = this.getAllUsers();
             retValue.Vestige = this.isVestige;
             retValue._otherPartyID = this._otherPartyID;
-            retValue.ProfileOfRestriction = this.ProfileOfRestriction;
+            retValue._ProfileOfRestriction = this._ProfileOfRestriction;
             return retValue;
         }
 
@@ -420,10 +416,10 @@ namespace TilerElements
             SubCalendarEventRestricted retValue = (SubCalendarEventRestricted)thisCopy;
 
 
-            retValue.HardCalendarEventRange= new TimeLineRestricted(ProcrastinationData.PreferredStartTime, CalendarEventData.RangeTimeLine.End,retValue.ProfileOfRestriction, _Now);
+            retValue.HardCalendarEventRange= new TimeLineRestricted(ProcrastinationData.PreferredStartTime, CalendarEventData.RangeTimeLine.End,retValue._ProfileOfRestriction, _Now);
             TimeSpan SpanShift = ProcrastinationData.PreferredStartTime - retValue.Start;
             retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventData.getId);
-            retValue.initializeCalendarEventRange(retValue.ProfileOfRestriction, CalendarEventData.RangeTimeLine);
+            retValue.initializeCalendarEventRange(retValue._ProfileOfRestriction, CalendarEventData.RangeTimeLine);
             retValue.shiftEvent(SpanShift, true);
             return retValue;
         }
@@ -434,7 +430,7 @@ namespace TilerElements
 
         public RestrictionProfile getRestrictionProfile()
         {
-            return ProfileOfRestriction;
+            return _ProfileOfRestriction;
         }
 
         virtual public DateTimeOffset HardRangeStartTime_EventDB
@@ -479,6 +475,19 @@ namespace TilerElements
             get
             {
                 return HardCalendarEventRange;
+            }
+        }
+
+        public override RestrictionProfile RetrictionProfile
+        {
+            get
+            {
+                return _ProfileOfRestriction;
+            }
+
+            set
+            {
+                _ProfileOfRestriction = value;
             }
         }
         #endregion

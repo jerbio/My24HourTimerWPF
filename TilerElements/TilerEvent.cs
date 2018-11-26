@@ -715,6 +715,8 @@ namespace TilerElements
                 _Users = value;
             }
         }
+
+        public virtual RestrictionProfile RetrictionProfile { get; set; } = null;
         #region undoProperties
         public virtual bool FirstInstantiation { get; set; } = true;
 

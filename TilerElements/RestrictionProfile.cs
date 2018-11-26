@@ -14,8 +14,8 @@ namespace TilerElements
         protected string _Id = Guid.NewGuid().ToString();
         static DateTimeOffset SundayDate = new DateTimeOffset(2015, 3, 15, 0, 0, 0, new TimeSpan());
         public static readonly DayOfWeek[] AllDaysOfWeek = new DayOfWeek[7] { DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday };
-        protected RestrictionDay[] _DaySelection = new RestrictionDay[7];
-        protected RestrictionDay[] _NoNull_DaySelections;
+        protected List<RestrictionDay> _DaySelection;
+        protected List<RestrictionDay> _NoNull_DaySelections;
         protected string _UndoId;
         /// <summary>
         /// given a series of days to their restricted timelines, this data member holds the number of days the restricted timeline overlaps. Note even though it always has seven memebers the first element in the tuple is always in respect to the index of nonull dayselections.
@@ -33,28 +33,24 @@ namespace TilerElements
 
         bool[] _ActiveDays = new bool[7];
         DayOfWeek _startDayOfWeek = DayOfWeek.Monday;
-        
+        #region constructor
         protected RestrictionProfile()
         {
-            
+
         }
-        #region undoMembers
-        public ICollection<RestrictionDay> UndoDaySelection;
-        public ICollection<RestrictionDay> UndoNoNull_DaySelection;
-        #endregion
-        public RestrictionProfile(int typeOfRestriction,DayOfWeek beginningDayOfWeek ,DateTimeOffset Start,DateTimeOffset End)
+        public RestrictionProfile(int typeOfRestriction, DayOfWeek beginningDayOfWeek, DateTimeOffset Start, DateTimeOffset End)
         {
-            
+            _DaySelection = new RestrictionDay[7].ToList();
             switch (typeOfRestriction)
-            { 
+            {
                 case 0://Work week
                     {
                         TimeSpan FiveDays = new TimeSpan(4, 0, 0, 0);
                         Start = new DateTimeOffset(SundayDate.Year, SundayDate.Month, SundayDate.Day, Start.Hour, Start.Minute, Start.Second, new TimeSpan()).AddDays((int)beginningDayOfWeek);
-                        DateTimeOffset tempEnd  = Start.Add(FiveDays );
-                        tempEnd = new DateTimeOffset(tempEnd  .Year,tempEnd.Month, tempEnd.Day, End.Hour, End.Minute, End.Second, new TimeSpan());
-                        FiveDays=tempEnd-Start;
-                        _NoNull_DaySelections = new RestrictionDay[1];
+                        DateTimeOffset tempEnd = Start.Add(FiveDays);
+                        tempEnd = new DateTimeOffset(tempEnd.Year, tempEnd.Month, tempEnd.Day, End.Hour, End.Minute, End.Second, new TimeSpan());
+                        FiveDays = tempEnd - Start;
+                        _NoNull_DaySelections = new RestrictionDay[1].ToList();
                         for (int i = (int)beginningDayOfWeek; i < 2; i++)//starting i from 1 because workweek starts on Monday and Monday index is 1
                         {
                             _DaySelection[i] = new RestrictionDay(AllDaysOfWeek[i], new RestrictionTimeLine(Start, FiveDays));
@@ -64,8 +60,8 @@ namespace TilerElements
                     break;
                 default://Work week and Office Hours
                     {
-                        _NoNull_DaySelections = new RestrictionDay[5];
-                        for (int i = (int)beginningDayOfWeek, j = 0; j < _NoNull_DaySelections.Length; i++, j++)//starting i from 1 because workweek starts on Monday and Monday index is 1
+                        _NoNull_DaySelections = new RestrictionDay[5].ToList();
+                        for (int i = (int)beginningDayOfWeek, j = 0; j < _NoNull_DaySelections.Count; i++, j++)//starting i from 1 because workweek starts on Monday and Monday index is 1
                         {
                             _DaySelection[i] = new RestrictionDay(AllDaysOfWeek[i], new RestrictionTimeLine(Start, End));
                             _NoNull_DaySelections[j] = _DaySelection[i];
@@ -77,32 +73,34 @@ namespace TilerElements
         }
         public RestrictionProfile(DateTimeOffset RestrictStart, TimeSpan RestrictDuration)
         {
-            _DaySelection = new RestrictionDay[7];
-            for (int i = 0; i < _DaySelection.Length; i++)
+            _DaySelection = new RestrictionDay[7].ToList();
+            for (int i = 0; i < _DaySelection.Count; i++)
             {
                 _DaySelection[i] = new RestrictionDay(AllDaysOfWeek[i], new RestrictionTimeLine(RestrictStart, RestrictDuration));
                 _ActiveDays[i] = true;
             }
-            _NoNull_DaySelections = _DaySelection.ToArray();
+            _NoNull_DaySelections = _DaySelection.ToList();
             InitializeOverLappingDictionary();
         }
 
         public RestrictionProfile(IEnumerable<DayOfWeek> DaysOfWeekSelection, RestrictionTimeLine constrictionProgile)
         {
-            DaysOfWeekSelection = DaysOfWeekSelection.OrderBy(obj=>obj).ToArray();
-            _startDayOfWeek =((DayOfWeek[]) DaysOfWeekSelection)[0];
+            _DaySelection = new RestrictionDay[7].ToList();
+            DaysOfWeekSelection = DaysOfWeekSelection.OrderBy(obj => obj).ToArray();
+            _startDayOfWeek = ((DayOfWeek[])DaysOfWeekSelection)[0];
             foreach (DayOfWeek eachDayOfWeek in DaysOfWeekSelection)
             {
                 int DayOfWeekInt = (int)eachDayOfWeek;
                 _DaySelection[DayOfWeekInt] = new RestrictionDay(eachDayOfWeek, constrictionProgile);
             }
 
-            _NoNull_DaySelections = _DaySelection.Where(obj => obj != null).ToArray();
+            _NoNull_DaySelections = _DaySelection.Where(obj => obj != null).ToList();
             InitializeOverLappingDictionary();
         }
 
         public RestrictionProfile(IEnumerable<DayOfWeek> DaysOfWeekSelection, IEnumerable<RestrictionTimeLine> constrictionProgiles)
         {
+            _DaySelection = new RestrictionDay[7].ToList();
             if ((constrictionProgiles.Count() == DaysOfWeekSelection.Count()) && (DaysOfWeekSelection.Count() > 0))
             {
                 DaysOfWeekSelection = DaysOfWeekSelection.OrderBy(obj => obj).ToArray();
@@ -110,7 +108,7 @@ namespace TilerElements
                 List<DayOfWeek> AllDay = DaysOfWeekSelection.ToList();
                 List<RestrictionTimeLine> RestrictingTimeLines = constrictionProgiles.ToList();
 
-                for(int i=0;i< AllDay.Count;i++)
+                for (int i = 0; i < AllDay.Count; i++)
                 {
 
                     DayOfWeek eachDayOfWeek = AllDay[i];
@@ -119,12 +117,12 @@ namespace TilerElements
                     _DaySelection[DayOfWeekInt] = new RestrictionDay(eachDayOfWeek, RestrictingFrame);
                 }
 
-                _NoNull_DaySelections = _DaySelection.Where(obj => obj != null).ToArray();
+                _NoNull_DaySelections = _DaySelection.Where(obj => obj != null).ToList();
                 InitializeOverLappingDictionary();
             }
             else
             {
-                if (DaysOfWeekSelection.Count()<1)
+                if (DaysOfWeekSelection.Count() < 1)
                 {
                     throw new Exception("There are zero contriction frames");
                 }
@@ -132,17 +130,34 @@ namespace TilerElements
             }
         }
 
+        #endregion constructor
+        
+        #region undoMembers
+        public ICollection<RestrictionDay> UndoDaySelection;
+        public ICollection<RestrictionDay> UndoNoNull_DaySelection;
+        #endregion
+        
         #region functions
-        protected void InitializeOverLappingDictionary()
+        public void InitializeOverLappingDictionary()
         {
             TimeSpan twentyFourHourSpan = new  TimeSpan(1,0,0,0,0);
             for (int i = 0; i < _DayOfWeekToOverlappingIndexes.Length; i++)
             {
                 _DayOfWeekToOverlappingIndexes[i] = new List<Tuple<int, int>>();
             }
+            var DaySelectionCpy = _DaySelection.Where(obj => obj != null).OrderBy(daySelection => daySelection.WeekDay).ToList();
+            _DaySelection = new RestrictionDay[7].ToList();
+            foreach ( RestrictionDay day in DaySelectionCpy)
+            {
+                DayOfWeek eachDayOfWeek = day.WeekDay;
+                int DayOfWeekInt = (int)eachDayOfWeek;
+                _DaySelection[DayOfWeekInt] = day;
+            }
+            
 
+            _NoNull_DaySelections = _NoNull_DaySelections.OrderBy(daySelection => daySelection.WeekDay).ToList();
 
-            for (int i = 0; i < _NoNull_DaySelections.Length; i++)
+            for (int i = 0; i < _NoNull_DaySelections.Count; i++)
             {
                 DateTimeOffset myStartTime=_NoNull_DaySelections[i].RestrictionTimeLine.getSampleTestTIme();
                 DateTimeOffset StartOfNextDay = myStartTime.AddDays(1);
@@ -164,8 +179,8 @@ namespace TilerElements
         public RestrictionProfile createCopy()
         {
             RestrictionProfile retValue = new RestrictionProfile();
-            retValue._DaySelection = this._DaySelection.Select(obj => obj == null ? obj : new RestrictionDay(obj.WeekDay, obj.RestrictionTimeLine.createCopy())).ToArray();
-            retValue._NoNull_DaySelections = this._DaySelection.Where(obj=>obj!=null).Select(obj => new RestrictionDay(obj.WeekDay, obj.RestrictionTimeLine.createCopy())).ToArray();
+            retValue._DaySelection = this._DaySelection.Select(obj => obj == null ? obj : new RestrictionDay(obj.WeekDay, obj.RestrictionTimeLine.createCopy())).ToList();
+            retValue._NoNull_DaySelections = this._DaySelection.Where(obj=>obj!=null).Select(obj => new RestrictionDay(obj.WeekDay, obj.RestrictionTimeLine.createCopy())).ToList();
             retValue._DayOfWeekToOverlappingIndexes = this._DayOfWeekToOverlappingIndexes.ToArray();
             return retValue;
         }
@@ -297,15 +312,15 @@ namespace TilerElements
             DayOfWeek InitializigWeekday = EncasingFrame!=null? EncasingFrame.Start.DayOfWeek: getEarliestFullframe(FirstFrame).Start.DayOfWeek;
 
             int initializingIndex =0;
-            for (; initializingIndex< _NoNull_DaySelections.Length; initializingIndex++)
+            for (; initializingIndex< _NoNull_DaySelections.Count; initializingIndex++)
             {
                 if (_NoNull_DaySelections[initializingIndex].WeekDay == InitializigWeekday)
                 {
                     break;
                 }
             }
-            int lengthOfNoNull_DaySelections = _NoNull_DaySelections.Length;
-            for (int i = initializingIndex, j=0; j < _NoNull_DaySelections.Length; i++,j++)
+            int lengthOfNoNull_DaySelections = _NoNull_DaySelections.Count;
+            for (int i = initializingIndex, j=0; j < _NoNull_DaySelections.Count; i++,j++)
             //for (int i = initializingIndex; i < NoNull_DaySelections.Length; i++)
             {
                 i = (i + lengthOfNoNull_DaySelections) % lengthOfNoNull_DaySelections;
@@ -492,7 +507,9 @@ namespace TilerElements
 
 
         /// <summary>
-        /// function tries to select Latest time before or on the RefTime time that borders the End of a restriction frame. So Assuming you had frame Nov 11 2015 Mon 11a-2p, Nov 13 2015 Wed 11a-2p. And RefTime is Nov 13 2015 Wed 12p, it'll pick Nov 13 2015 Wed 12p because its already within a border and can simply use its position as the final position
+        /// function tries to select Latest time before or on the RefTime time that borders the End of a restriction frame. 
+        /// So Assuming you had frame Nov 11 2015 Mon 11a-2p, Nov 13 2015 Wed 11a-2p. And RefTime is Nov 13 2015 Wed 12p, 
+        /// it'll pick Nov 13 2015 Wed 12p because its already within a border and can simply use its position as the final position
         /// </summary>
         /// <param name="RefTime"></param>
         /// <returns></returns>
@@ -587,7 +604,7 @@ namespace TilerElements
         }
 
         /// <summary>
-        /// Function generates a timeline based on myTuple and Start. The timeline represents the full frame for the provided "myTuple". The "Start" provides the time component. Note: the function creates the time frame for the week of "Start",a week starts in Sunday. The next two example explain the result.
+        /// Function generates a timeline based on myTuple and Start. The timeline represents the full frame for the provided "myTuple". The "Start" provides the time component. Note: the function of "start" is to select the week on which the rest of the evaluation will be based on, a week starts in Sunday. The next two example explain the result.
         /// Example A: "Mytuple" => Thursday, (9:00am - 3:00pm, 6hours) and Start => 05/10/2015(This is a sunday). The function will return the time frame 05/14/2015 9:00am - 05/14/2014  3:00pm. THis is because it is within the week of 05/10/2015. Based on "myTuple" it has to be a span of 6 hours hence the span from 9:00am - 3:00pm on the same day of 05/14/2015
         /// Example B: "Mytuple" => Tuesday, (9:00am - 10:00am, 25hours) and Start => 05/15/2015(This is a friday). The function will return the time frame 05/12/2015 9:00am - 05/13/2014  10:00am. THis is because it is within the week of 05/10/2015. Based on "myTuple" it has to be a span of 25 hours hence the timeline crossing over two different days. 05/12/2015 & 05/13/2015
         /// </summary>
@@ -662,21 +679,21 @@ namespace TilerElements
         public ICollection<RestrictionDay> DaySelection {
             get
             {
-                return _DaySelection;
+                return _DaySelection ?? (_DaySelection= new List<RestrictionDay>());
             }
             set
             {
-                _DaySelection = value.ToArray();
+                _DaySelection = value.ToList();
             }
         }
         public ICollection<RestrictionDay> NoNull_DaySelections
         {
             get {
-                return _NoNull_DaySelections;
+                return _NoNull_DaySelections ?? (_NoNull_DaySelections = new List<RestrictionDay>());
             }
             set
             {
-                _NoNull_DaySelections = value.ToArray();
+                _NoNull_DaySelections = value.ToList();
             }
         }
 

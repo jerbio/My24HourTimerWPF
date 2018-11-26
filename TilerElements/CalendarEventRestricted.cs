@@ -7,7 +7,7 @@ namespace TilerElements
 {
     public class CalendarEventRestricted:CalendarEvent, IUndoable
     {
-        protected RestrictionProfile ProfileOfRestriction;
+        protected RestrictionProfile _ProfileOfRestriction;
         protected ReferenceNow _Now;
 
         public RestrictionProfile UndoProfileOfRestriction;
@@ -45,7 +45,7 @@ namespace TilerElements
             StartDateTime = Start;
             EndDateTime = End;
             RigidSchedule = isRigid;
-            ProfileOfRestriction = restrictionProfile;
+            _ProfileOfRestriction = restrictionProfile;
             _Splits = Divisions;
             if (RepetitionProfile.EnableRepeat)
             {
@@ -70,6 +70,7 @@ namespace TilerElements
             this._Users = userGroup;
             this._TimeZone = timeZone;
             _Now = now;
+            _LocationInfo.User = this.getCreator;
             InstantiateSubEvents();
         }
 
@@ -81,7 +82,7 @@ namespace TilerElements
             StartDateTime = Start;
             EndDateTime = End;
             RigidSchedule = isRigid;
-            ProfileOfRestriction = restrictionProfile;
+            _ProfileOfRestriction = restrictionProfile;
             _Splits = Divisions;
             if (RepetitionProfile.EnableRepeat)
             {
@@ -106,6 +107,7 @@ namespace TilerElements
             this._Users = userGroup;
             this._TimeZone = timeZone;
             _Now = now;
+            _LocationInfo.User = this.getCreator;
             InstantiateSubEvents();
         }
 
@@ -117,7 +119,7 @@ namespace TilerElements
             retValue._EventDuration = Duration;
             retValue.StartDateTime = Start;
             retValue.EndDateTime = End;
-            retValue.ProfileOfRestriction = restrictionProfile;
+            retValue._ProfileOfRestriction = restrictionProfile;
             retValue._Complete = false;
             retValue._Enabled = true;
             retValue._Splits = division;
@@ -163,7 +165,7 @@ namespace TilerElements
             MyCalendarEventCopy._UserDeleted = this._UserDeleted;
             MyCalendarEventCopy._CompletedCount = this._CompletedCount;
             MyCalendarEventCopy._DeletedCount = this._DeletedCount;
-            MyCalendarEventCopy.ProfileOfRestriction = this.ProfileOfRestriction.createCopy();
+            MyCalendarEventCopy._ProfileOfRestriction = this._ProfileOfRestriction.createCopy();
             MyCalendarEventCopy._ProfileOfNow = this.getNowInfo != null ? this.getNowInfo.CreateCopy() : null;
             MyCalendarEventCopy._ProfileOfProcrastination = this._ProfileOfProcrastination.CreateCopy();
             MyCalendarEventCopy._Semantics = this._Semantics != null ? this._Semantics.createCopy() : null;
@@ -183,33 +185,36 @@ namespace TilerElements
                 MyCalendarEventCopy.SubEvents.Add(eachSubCalendarEvent.Id, eachSubCalendarEvent.createCopy(EventID.GenerateSubCalendarEvent(MyCalendarEventCopy.UniqueID) ));
             }
 
-            //MyCalendarEventCopy.SchedulStatus = SchedulStatus;
             MyCalendarEventCopy._otherPartyID = _otherPartyID == null ? null : _otherPartyID.ToString();
             MyCalendarEventCopy._Users = this._Users;
             return MyCalendarEventCopy;
-            
-            //return base.createCopy();
+           
         }
 
         void InstantiateSubEvents()
         {
             SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
-            TimeLine eachStart = ProfileOfRestriction.getEarliestStartTimeWithinAFrameAfterRefTime(this.Start);
+            TimeLine eachStart = _ProfileOfRestriction.getEarliestStartTimeWithinAFrameAfterRefTime(this.Start);
             for (int i = 0; i < _Splits; i++)
             {
                 DateTimeOffset SubStart = eachStart.Start;
                 DateTimeOffset SubEnd = SubStart.Add(_AverageTimePerSplit);
-                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(this.getCreator, this._Users, UniqueID.ToString(), this.getName, SubStart, SubEnd, ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), RigidSchedule, _PrepTime, _EventPreDeadline, _LocationInfo, _UiParams, _DataBlob, _Now, _Priority, ThirdPartyID);
+                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(this.getCreator, this._Users, UniqueID.ToString(), this.getName, SubStart, SubEnd, _ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), RigidSchedule, _PrepTime, _EventPreDeadline, _LocationInfo, _UiParams, _DataBlob, _Now, _Priority, ThirdPartyID);
                 newEvent.TimeCreated = this.TimeCreated;
                 SubEvents.Add(newEvent.Id, newEvent);
             }
         }
 
-        public RestrictionProfile RetrictionInfo
+        public override RestrictionProfile RetrictionProfile
         {
             get
             {
-                return ProfileOfRestriction;
+                return _ProfileOfRestriction;
+            }
+
+            set
+            {
+                _ProfileOfRestriction = value;
             }
         }
 
@@ -253,7 +258,7 @@ namespace TilerElements
             RetValue._otherPartyID = this.ThirdPartyID;// == this.null ? null : otherPartyID.ToString();
             RetValue._Users = this.getAllUsers();//.ToList();
             RetValue._ProfileOfNow = this._ProfileOfNow.CreateCopy();
-            RetValue.ProfileOfRestriction = this.ProfileOfRestriction.createCopy();
+            RetValue._ProfileOfRestriction = this._ProfileOfRestriction.createCopy();
             //RetValue.UpdateLocationMatrix(RetValue.LocationInfo);
             return RetValue;
         }
@@ -261,12 +266,12 @@ namespace TilerElements
         override protected void IncreaseSplitCount(uint delta)
         {
             List<SubCalendarEvent> newSubs = new List<SubCalendarEvent>();
-            TimeLine eachStart = ProfileOfRestriction.getEarliestStartTimeWithinAFrameAfterRefTime(this.Start);
+            TimeLine eachStart = _ProfileOfRestriction.getEarliestStartTimeWithinAFrameAfterRefTime(this.Start);
             for (int i = 0; i < delta; i++)
             {
                 DateTimeOffset SubStart = eachStart.Start;
                 DateTimeOffset SubEnd = SubStart.Add(_AverageTimePerSplit);
-                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(this.getCreator, this._Users, UniqueID.ToString(), this.getName, SubStart, SubEnd, ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), RigidSchedule, _PrepTime, _EventPreDeadline, _LocationInfo, _UiParams, _DataBlob, _Now, _Priority, ThirdPartyID);
+                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(this.getCreator, this._Users, UniqueID.ToString(), this.getName, SubStart, SubEnd, _ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), RigidSchedule, _PrepTime, _EventPreDeadline, _LocationInfo, _UiParams, _DataBlob, _Now, _Priority, ThirdPartyID);
                 SubEvents.Add(newEvent.Id, newEvent);
             }
             _Splits += (int)delta;
@@ -281,7 +286,7 @@ namespace TilerElements
                 CalendarEventRestricted castedEvent = CalendarEventEntry as CalendarEventRestricted;
                 if (castedEvent != null)
                 {
-                    this.ProfileOfRestriction = castedEvent.ProfileOfRestriction;
+                    this._ProfileOfRestriction = castedEvent._ProfileOfRestriction;
                 }
                 return;
             }
@@ -291,9 +296,9 @@ namespace TilerElements
 
         public override List<TimeLine> getInterferringWithTimeLine(TimeLine timeLine)
         {
-            List<TimeLine> nonPartialFrames = ProfileOfRestriction.getAllNonPartialTimeFrames(timeLine);
-            TimeLine earliestFrame = ProfileOfRestriction.getEarliestActiveFrameAfterBeginning(timeLine);
-            TimeLine latestFrame = ProfileOfRestriction.getLatestActiveTimeFrameBeforeEnd(timeLine);
+            List<TimeLine> nonPartialFrames = _ProfileOfRestriction.getAllNonPartialTimeFrames(timeLine);
+            TimeLine earliestFrame = _ProfileOfRestriction.getEarliestActiveFrameAfterBeginning(timeLine);
+            TimeLine latestFrame = _ProfileOfRestriction.getLatestActiveTimeFrameBeforeEnd(timeLine);
             nonPartialFrames = nonPartialFrames.Where(objTimeLine => objTimeLine.Start != earliestFrame.Start && objTimeLine.End != latestFrame.End ).ToList();
             nonPartialFrames.Insert(0, earliestFrame);
             nonPartialFrames.Add(latestFrame);

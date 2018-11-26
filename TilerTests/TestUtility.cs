@@ -49,6 +49,7 @@ namespace TilerTests
 
                 isInitialized = true;
             }
+            initializeLocation();
         }
 
         public static TilerDbContext getContext {
@@ -322,9 +323,9 @@ namespace TilerTests
             _Context.Database.ExecuteSqlCommand("DELETE FROM  EventDisplays");
             _Context.Database.ExecuteSqlCommand("DELETE FROM  TilerColors");
             _Context.Database.ExecuteSqlCommand("DELETE FROM  AspNetUsers");
-            _Context.Database.ExecuteSqlCommand("DELETE FROM  RestrictionProfiles");
-            _Context.Database.ExecuteSqlCommand("DELETE FROM  RestrictionTimeLines");
             _Context.Database.ExecuteSqlCommand("DELETE FROM  RestrictionDays");
+            _Context.Database.ExecuteSqlCommand("DELETE FROM  RestrictionTimeLines");
+            _Context.Database.ExecuteSqlCommand("DELETE FROM  RestrictionProfiles");
             _Context.Database.ExecuteSqlCommand("DELETE FROM  Classifications");
             _Context.Database.ExecuteSqlCommand("DELETE FROM  NowProfiles");
             _Context.Database.ExecuteSqlCommand("DELETE FROM  EventTimeLines");
@@ -350,7 +351,8 @@ namespace TilerTests
                     if ((firstStart == secondStart) && (firstEnd == secondEnd))
                     {
                         if (firstCalEvent.getProcrastinationInfo.isTestEquivalent(secondCalEvent.getProcrastinationInfo) 
-                            && firstCalEvent.getNowInfo.isTestEquivalent(secondCalEvent.getNowInfo))
+                            && firstCalEvent.getNowInfo.isTestEquivalent(secondCalEvent.getNowInfo)
+                            && firstCalEvent.Location.isTestEquivalent(secondCalEvent.Location))
                         {
                             if ((firstCalEvent.getIsComplete == secondCalEvent.getIsComplete) && (firstCalEvent.isEnabled == secondCalEvent.isEnabled))
                             {
@@ -376,6 +378,7 @@ namespace TilerTests
                     retValue = false;
                 }
             }
+            Assert.IsTrue(retValue);
             return retValue;
         }
 
@@ -391,8 +394,14 @@ namespace TilerTests
                     if (seconddictionary.ContainsKey(subEvent.Id))
                     {
                         var secondSubEvent = seconddictionary[subEvent.Id];
-                        retValue = subEvent.isTestEquivalent(secondSubEvent);
-                        if(!retValue)
+                        retValue = subEvent.isTestEquivalent(secondSubEvent)
+                            && subEvent.Location.isTestEquivalent(secondSubEvent.Location);
+                        if(subEvent.getIsEventRestricted)
+                        {
+                            retValue = retValue && (subEvent as SubCalendarEventRestricted).getRestrictionProfile().isTestEquivalent((secondSubEvent as SubCalendarEventRestricted).getRestrictionProfile());
+                        }
+
+                        if (!retValue)
                         {
                             break; 
                         }
@@ -408,10 +417,14 @@ namespace TilerTests
                 retValue = false;
             }
 
-            return retValue && isTestEquivalent(firstCalEvent as TilerEvent, secondCalEvent as TilerEvent)
-                && (firstCalEvent.IsRepeat == secondCalEvent.IsRepeat ? 
+            Assert.IsTrue(retValue && isTestEquivalent(firstCalEvent as TilerEvent, secondCalEvent as TilerEvent)
+                && (firstCalEvent.IsRepeat == secondCalEvent.IsRepeat ?
                 (firstCalEvent.IsRepeat ? isTestEquivalent(firstCalEvent.Repeat, secondCalEvent.Repeat) : true) : //if repeat is enabled the run equivalecy test else then passing test
-                false); // if calendar repeat flags aren't the same then the calEvents are not equal
+                false) // if calendar repeat flags aren't the same then the calEvents are not equal
+                && (firstCalEvent.getIsEventRestricted == secondCalEvent.getIsEventRestricted ?
+                (firstCalEvent.getIsEventRestricted ? isTestEquivalent((firstCalEvent as CalendarEventRestricted).RetrictionProfile, (secondCalEvent as CalendarEventRestricted).RetrictionProfile) : true) : //if restriction profile is enabled the run equivalecy test else then passing test
+                false));
+            return true;
         }
 
         public static bool isTestEquivalent(this Repetition firstRepetition, Repetition secondRepetition)
@@ -479,6 +492,7 @@ namespace TilerTests
             {
                 retValue = firstRepetition == secondRepetition;// this will only be true when both are null
             }
+            Assert.IsTrue(retValue);
             return retValue;
         }
 
@@ -505,6 +519,7 @@ namespace TilerTests
                     retValue = firstProcrastination == secondProcrastination;
                 }
             }
+            Assert.IsTrue(retValue);
             return retValue;
         }
 
@@ -529,6 +544,70 @@ namespace TilerTests
                 }
                 
             }
+            Assert.IsTrue(retValue);
+            return retValue;
+        }
+
+        public static bool isTestEquivalent(this Location locationA, Location locationB)
+        {
+            bool retValue = true;
+            if(!locationB.isNull && !locationA.isNull)
+            {
+                if (locationB != null && locationA != null)
+                {
+                    if ((locationA.Address == locationB.Address)
+                    && (locationA.Description == locationB.Description)
+                    && (locationA.Id == locationB.Id)
+                    && (locationA.Latitude == locationB.Latitude)
+                    && (locationA.Longitude == locationB.Longitude)
+                    && (locationA.UserId == locationB.UserId))
+                    {
+                        retValue = true;
+                    }
+                    else
+                    {
+                        retValue = false;
+                    }
+                }
+                else
+                {
+                    retValue = locationA == locationB;
+                }
+            } else
+            {
+                retValue = locationB.isNull == locationA.isNull;
+            }
+            Assert.IsTrue(retValue);
+            return retValue;
+        }
+
+
+        public static bool isTestEquivalent(this RestrictionProfile restrictionA, RestrictionProfile restrictionB)
+        {
+            bool retValue = true;
+
+            if (restrictionA != null && restrictionB != null)
+            {
+                if (
+                    (restrictionA.DaySelection.Count == restrictionB.DaySelection.Count)
+                    && (restrictionA.FirstInstantiation == restrictionB.FirstInstantiation)
+                    && (restrictionA.NoNull_DaySelections.Count == restrictionB.NoNull_DaySelections.Count)
+                    && (restrictionA.StartDayOfWeek== restrictionB.StartDayOfWeek)
+                )
+                {
+                    retValue = true;
+                }
+                else
+                {
+                    retValue = false;
+                }
+            }
+            else
+            {
+                retValue = restrictionA == restrictionB;
+            }
+
+            Assert.IsTrue(retValue);
             return retValue;
         }
 
@@ -548,6 +627,7 @@ namespace TilerTests
             {
                 retValue = false;
             }
+            Assert.IsTrue(retValue);
             return retValue;
         }
 

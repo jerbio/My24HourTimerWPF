@@ -8617,18 +8617,5 @@ namespace TilerCore
             xmldoc.Save(LogFile);
 #endif
         }
-
-
-
-
-        //Properties
-
-        public uint LastScheduleIDNumber
-        {
-            get
-            {
-                return (EventID.LatestID);
-            }
-        }
     }
 }

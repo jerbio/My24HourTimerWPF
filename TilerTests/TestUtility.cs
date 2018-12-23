@@ -27,23 +27,23 @@ namespace TilerTests
         static readonly string _firstName = "First Name TestUserTiler";
         const string testUserId = "065febec-d1fe-4c8b-bd32-548613d4479f";
         static bool isInitialized = false;
-        static TilerUser _testUser;
+        //static TilerUser _testUser;
         static TilerDbContext _Context;
 
         public static void init()
         {
             if (!isInitialized)
             {
-                _testUser = new TilerUser()
-                {
-                    Id = testUserId,
-                    UserName = _UserName,
-                    Email = _Email,
-                    PasswordHash = _Password
-                };
+                //_testUser = new TilerUser()
+                //{
+                //    Id = testUserId,
+                //    UserName = _UserName,
+                //    Email = _Email,
+                //    PasswordHash = _Password
+                //};
 
                 TestDBContext context = new TestDBContext();
-                context.Users.Add(_testUser);
+                //context.Users.Add(_testUser);
                 context.SaveChanges();
                 _Context = context;
 
@@ -62,6 +62,43 @@ namespace TilerTests
             }
         }
 
+
+        public static TilerUser createUser (string userId = "", string userName = "", string password = "", string email = "")
+        {
+            if (string.IsNullOrEmpty(userId))
+            {
+                userId = Guid.NewGuid().ToString();
+            }
+
+            if (string.IsNullOrEmpty(userName))
+            {
+                userName = userId + "userName";
+            }
+
+            if (string.IsNullOrEmpty(password))
+            {
+                password = userId + "password";
+            }
+            if(string.IsNullOrEmpty(email))
+            {
+                email = userId + "@testuser.com";
+            }
+
+            TilerUser user = new TilerUser()
+            {
+                Id = userId,
+                UserName = userName,
+                Email = email,
+                PasswordHash = password
+            };
+
+            TestDBContext context = new TestDBContext();
+            context.Users.Add(user);
+            context.SaveChanges();
+            TilerUser retValue = context.Users.Find(userId);
+
+            return retValue;
+        }
 
         public static int MonthLimit
         {
@@ -215,7 +252,7 @@ namespace TilerTests
         }
 
 
-        public static CalendarEvent generateCalendarEvent(TimeSpan duration, Repetition repetition, DateTimeOffset Start, DateTimeOffset End, int splitCount = 1, bool rigidFlags = false, Location location = null, RestrictionProfile restrictionProfile = null, MiscData note = null, ReferenceNow now = null)
+        public static CalendarEvent generateCalendarEvent(TilerUser testUser, TimeSpan duration, Repetition repetition, DateTimeOffset Start, DateTimeOffset End, int splitCount = 1, bool rigidFlags = false, Location location = null, RestrictionProfile restrictionProfile = null, MiscData note = null, ReferenceNow now = null)
         {
             if (Start == StartOfTime)
             {
@@ -236,7 +273,7 @@ namespace TilerTests
             if(restrictionProfile == null)
             {
                 EventName name = new EventName(null, null, "TestCalendarEvent-" + Guid.NewGuid().ToString());
-                if(_testUser == null)
+                if(testUser == null)
                 {
                     getTestUser(true);
                 }
@@ -244,13 +281,13 @@ namespace TilerTests
                 {
                     RetValue = new RigidCalendarEvent(
                         //EventID.GenerateCalendarEvent(), 
-                        name, Start, End, duration, new TimeSpan(), new TimeSpan(), repetition, location, new EventDisplay(), note, true, false, _testUser, new TilerUserGroup(), "UTC", null);
+                        name, Start, End, duration, new TimeSpan(), new TimeSpan(), repetition, location, new EventDisplay(), note, true, false, testUser, new TilerUserGroup(), "UTC", null);
                 }
                 else
                 {
                     RetValue = new CalendarEvent(
                         //EventID.GenerateCalendarEvent(), 
-                        name, Start, End, duration, new TimeSpan(), new TimeSpan(), splitCount , repetition, location, new EventDisplay(), note, null, new NowProfile(), true, false, _testUser, new TilerUserGroup(), "UTC", null);
+                        name, Start, End, duration, new TimeSpan(), new TimeSpan(), splitCount , repetition, location, new EventDisplay(), note, null, new NowProfile(), true, false, testUser, new TilerUserGroup(), "UTC", null);
                 }
                 name.Creator_EventDB = RetValue.getCreator;
                 name.AssociatedEvent = RetValue;
@@ -262,7 +299,7 @@ namespace TilerTests
                     throw new ArgumentNullException("now", "You need to add a referencenow object for creation of calendareventrestricted object");
                 }
                 EventName name = new EventName(null, null, "TestCalendarEvent-" + Guid.NewGuid().ToString() + "-Restricted");
-                RetValue = new CalendarEventRestricted(_testUser, new TilerUserGroup(), name, Start, End, restrictionProfile, duration, repetition, false, true, splitCount, false, location, new TimeSpan(), new TimeSpan(), null, now, UiSettings: new EventDisplay(), NoteData: note);
+                RetValue = new CalendarEventRestricted(testUser, new TilerUserGroup(), name, Start, End, restrictionProfile, duration, repetition, false, true, splitCount, false, location, new TimeSpan(), new TimeSpan(), null, now, UiSettings: new EventDisplay(), NoteData: note);
                 name.Creator_EventDB = RetValue.getCreator;
                 name.AssociatedEvent = RetValue;
             }
@@ -303,38 +340,38 @@ namespace TilerTests
                 _Context = new TestDBContext();
             }
 
-            _testUser = _Context.Users.Find(testUserId);
-            UserAccount userAccount = new UserAccountTest(_testUser, _Context);
+            TilerUser tilerUser = _Context.Users.Find(userId);
+            UserAccount userAccount = new UserAccountTest(tilerUser, _Context);
             return userAccount;
         }
 
 
         static public void cleanupDB ()
         {
-            _Context.Database.ExecuteSqlCommand("TRUNCATE TABLE Undoes");
-            _Context.Database.ExecuteSqlCommand("TRUNCATE TABLE TilerEvents");
-            _Context.Database.ExecuteSqlCommand("DELETE FROM Procrastinations");
-            _Context.Database.ExecuteSqlCommand("DELETE FROM  EventNames");
-            _Context.Database.ExecuteSqlCommand("DELETE FROM  Reasons");
-            _Context.Database.ExecuteSqlCommand("DELETE FROM  Locations");
-            _Context.Database.ExecuteSqlCommand("DELETE FROM  Repetitions");
-            _Context.Database.ExecuteSqlCommand("DELETE FROM  MiscDatas");
-            _Context.Database.ExecuteSqlCommand("DELETE FROM  TilerUserGroups");
-            _Context.Database.ExecuteSqlCommand("DELETE FROM  EventDisplays");
-            _Context.Database.ExecuteSqlCommand("DELETE FROM  TilerColors");
-            _Context.Database.ExecuteSqlCommand("DELETE FROM  AspNetUsers");
-            _Context.Database.ExecuteSqlCommand("DELETE FROM  RestrictionDays");
-            _Context.Database.ExecuteSqlCommand("DELETE FROM  RestrictionTimeLines");
-            _Context.Database.ExecuteSqlCommand("DELETE FROM  RestrictionProfiles");
-            _Context.Database.ExecuteSqlCommand("DELETE FROM  Classifications");
-            _Context.Database.ExecuteSqlCommand("DELETE FROM  NowProfiles");
-            _Context.Database.ExecuteSqlCommand("DELETE FROM  EventTimeLines");
-            _Context.Database.ExecuteSqlCommand("DELETE FROM  AspNetRoles");
-            _Context.Database.ExecuteSqlCommand("DELETE FROM  AspNetUserRoles");
-            _Context.Database.ExecuteSqlCommand("DELETE FROM  AspNetUserLogins");
-            _Context.Database.ExecuteSqlCommand("DELETE FROM  AspNetUserClaims");
+            //_Context.Database.ExecuteSqlCommand("TRUNCATE TABLE Undoes");
+            //_Context.Database.ExecuteSqlCommand("TRUNCATE TABLE TilerEvents");
+            //_Context.Database.ExecuteSqlCommand("DELETE FROM Procrastinations");
+            //_Context.Database.ExecuteSqlCommand("DELETE FROM  EventNames");
+            //_Context.Database.ExecuteSqlCommand("DELETE FROM  Reasons");
+            //_Context.Database.ExecuteSqlCommand("DELETE FROM  Locations");
+            //_Context.Database.ExecuteSqlCommand("DELETE FROM  Repetitions");
+            //_Context.Database.ExecuteSqlCommand("DELETE FROM  MiscDatas");
+            //_Context.Database.ExecuteSqlCommand("DELETE FROM  TilerUserGroups");
+            //_Context.Database.ExecuteSqlCommand("DELETE FROM  EventDisplays");
+            //_Context.Database.ExecuteSqlCommand("DELETE FROM  TilerColors");
+            //_Context.Database.ExecuteSqlCommand("DELETE FROM  AspNetUsers");
+            //_Context.Database.ExecuteSqlCommand("DELETE FROM  RestrictionDays");
+            //_Context.Database.ExecuteSqlCommand("DELETE FROM  RestrictionTimeLines");
+            //_Context.Database.ExecuteSqlCommand("DELETE FROM  RestrictionProfiles");
+            //_Context.Database.ExecuteSqlCommand("DELETE FROM  Classifications");
+            //_Context.Database.ExecuteSqlCommand("DELETE FROM  NowProfiles");
+            //_Context.Database.ExecuteSqlCommand("DELETE FROM  EventTimeLines");
+            //_Context.Database.ExecuteSqlCommand("DELETE FROM  AspNetRoles");
+            //_Context.Database.ExecuteSqlCommand("DELETE FROM  AspNetUserRoles");
+            //_Context.Database.ExecuteSqlCommand("DELETE FROM  AspNetUserLogins");
+            //_Context.Database.ExecuteSqlCommand("DELETE FROM  AspNetUserClaims");
 
-            isInitialized = false;
+            //isInitialized = false;
         }
         public static bool isTestEquivalent(this TilerEvent firstCalEvent, TilerEvent secondCalEvent)
         {

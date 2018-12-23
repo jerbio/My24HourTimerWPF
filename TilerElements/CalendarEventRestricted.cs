@@ -149,26 +149,26 @@ namespace TilerElements
             MyCalendarEventCopy._EventPreDeadline = new TimeSpan(_EventPreDeadline.Ticks);
             MyCalendarEventCopy._PrepTime = new TimeSpan(_PrepTime.Ticks);
             MyCalendarEventCopy._Priority = _Priority;
-            MyCalendarEventCopy._EventRepetition = _EventRepetition != null ? _EventRepetition.CreateCopy() : _EventRepetition;
+            MyCalendarEventCopy._EventRepetition = _EventRepetition?.CreateCopy();
             MyCalendarEventCopy._Complete = this._Complete;
             MyCalendarEventCopy.RigidSchedule = RigidSchedule;//hack
             MyCalendarEventCopy._Splits = _Splits;
             MyCalendarEventCopy._AverageTimePerSplit = new TimeSpan(_AverageTimePerSplit.Ticks);
             MyCalendarEventCopy.EventSequence = EventSequence.CreateCopy();
             MyCalendarEventCopy.SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
-            MyCalendarEventCopy._UiParams = this._UiParams != null ? this._UiParams.createCopy() : null;
-            MyCalendarEventCopy._DataBlob = this._DataBlob != null ? this._DataBlob.createCopy() : null;
+            MyCalendarEventCopy._UiParams = this._UiParams?.createCopy();
+            MyCalendarEventCopy._DataBlob = this._DataBlob?.createCopy();
             MyCalendarEventCopy._Enabled = this._Enabled;
             MyCalendarEventCopy.isRestricted = this.isRestricted;
             MyCalendarEventCopy._LocationInfo = _LocationInfo;//hack you might need to make copy
-            MyCalendarEventCopy._ProfileOfProcrastination = this._ProfileOfProcrastination.CreateCopy();
+            MyCalendarEventCopy._ProfileOfProcrastination = this._ProfileOfProcrastination?.CreateCopy();
             MyCalendarEventCopy._UserDeleted = this._UserDeleted;
             MyCalendarEventCopy._CompletedCount = this._CompletedCount;
             MyCalendarEventCopy._DeletedCount = this._DeletedCount;
-            MyCalendarEventCopy._ProfileOfRestriction = this._ProfileOfRestriction.createCopy();
-            MyCalendarEventCopy._ProfileOfNow = this.getNowInfo != null ? this.getNowInfo.CreateCopy() : null;
-            MyCalendarEventCopy._ProfileOfProcrastination = this._ProfileOfProcrastination.CreateCopy();
-            MyCalendarEventCopy._Semantics = this._Semantics != null ? this._Semantics.createCopy() : null;
+            MyCalendarEventCopy._ProfileOfRestriction = this._ProfileOfRestriction?.createCopy();
+            MyCalendarEventCopy._ProfileOfNow = this.getNowInfo?.CreateCopy();
+            MyCalendarEventCopy._ProfileOfProcrastination = this._ProfileOfProcrastination?.CreateCopy();
+            MyCalendarEventCopy._Semantics = this._Semantics?.createCopy();
             MyCalendarEventCopy._Now = this._Now;
             MyCalendarEventCopy._UsedTime = this._UsedTime;
             if (eventId != null)
@@ -199,7 +199,7 @@ namespace TilerElements
             {
                 DateTimeOffset SubStart = eachStart.Start;
                 DateTimeOffset SubEnd = SubStart.Add(_AverageTimePerSplit);
-                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(this.getCreator, this._Users, UniqueID.ToString(), this.getName, SubStart, SubEnd, _ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), RigidSchedule, _PrepTime, _EventPreDeadline, _LocationInfo, _UiParams, _DataBlob, _Now, _Priority, ThirdPartyID);
+                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(this, this.getCreator, this._Users, UniqueID.ToString(), this.getName, SubStart, SubEnd, _ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), RigidSchedule, _PrepTime, _EventPreDeadline, _LocationInfo, _UiParams, _DataBlob, _Now, _Priority, ThirdPartyID);
                 newEvent.TimeCreated = this.TimeCreated;
                 SubEvents.Add(newEvent.Id, newEvent);
             }
@@ -271,7 +271,7 @@ namespace TilerElements
             {
                 DateTimeOffset SubStart = eachStart.Start;
                 DateTimeOffset SubEnd = SubStart.Add(_AverageTimePerSplit);
-                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(this.getCreator, this._Users, UniqueID.ToString(), this.getName, SubStart, SubEnd, _ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), RigidSchedule, _PrepTime, _EventPreDeadline, _LocationInfo, _UiParams, _DataBlob, _Now, _Priority, ThirdPartyID);
+                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(this, this.getCreator, this._Users, UniqueID.ToString(), this.getName, SubStart, SubEnd, _ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), RigidSchedule, _PrepTime, _EventPreDeadline, _LocationInfo, _UiParams, _DataBlob, _Now, _Priority, ThirdPartyID);
                 SubEvents.Add(newEvent.Id, newEvent);
             }
             _Splits += (int)delta;

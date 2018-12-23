@@ -612,7 +612,7 @@ namespace TilerElements
 
         public string ProcrastinationId { get; set; }
         [ForeignKey("ProcrastinationId")]
-        public Procrastination Procrastination_EventDB
+        public virtual Procrastination Procrastination_EventDB
         {
             get
             {
@@ -803,11 +803,11 @@ namespace TilerElements
             }
         }
 
-        public Procrastination  getProcrastinationInfo
+        public virtual Procrastination  getProcrastinationInfo
         {
             get
             {
-                return _ProfileOfProcrastination ?? (string.IsNullOrEmpty(ProcrastinationId) ? _ProfileOfProcrastination = Procrastination.getDefaultProcrastination() : null);
+                return _ProfileOfProcrastination ?? (string.IsNullOrEmpty(ProcrastinationId) ? Procrastination.getDefaultProcrastination() : null);
             }
         }
 

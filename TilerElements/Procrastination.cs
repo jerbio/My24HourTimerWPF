@@ -246,6 +246,10 @@ namespace TilerElements
             }
         }
         #endregion
+        public override string ToString()
+        {
+            return this._FromTime.ToString() + " - " + this.BeginTIme.ToString() + "::" + this.Id + "\t\t::" + this.SectionOfDay.ToString();
+        }
         #endregion
     }
 }

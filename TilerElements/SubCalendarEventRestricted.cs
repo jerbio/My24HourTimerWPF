@@ -14,7 +14,7 @@ namespace TilerElements
         public RestrictionProfile UndoProfileOfRestriction;
         protected ReferenceNow _Now;
         #region Constructor
-        public SubCalendarEventRestricted(TilerUser creator, TilerUserGroup users,  string CalEventID, EventName name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile constrictionProgile, TimeLine HardCalEventTimeRange, bool isEnabled, bool isComplete, ConflictProfile conflictingEvents, bool RigidFlag,TimeSpan PrepTimeData ,TimeSpan PreDeadline, Location Locationdata, EventDisplay UiData, MiscData Notes, ReferenceNow now, int Priority = 0, string thirdPartyID = "", ConflictProfile conflicts = null )
+        public SubCalendarEventRestricted(CalendarEventRestricted calendarEvent, TilerUser creator, TilerUserGroup users,  string CalEventID, EventName name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile constrictionProgile, TimeLine HardCalEventTimeRange, bool isEnabled, bool isComplete, ConflictProfile conflictingEvents, bool RigidFlag,TimeSpan PrepTimeData ,TimeSpan PreDeadline, Location Locationdata, EventDisplay UiData, MiscData Notes, ReferenceNow now, int Priority = 0, string thirdPartyID = "", ConflictProfile conflicts = null )
         { 
             isRestricted =true;
             StartDateTime = Start;
@@ -43,7 +43,7 @@ namespace TilerElements
             _LastReasonStartTimeChanged = this.Start;
             this._Creator = creator;
             this._Users = users;
-            
+            _calendarEvent = calendarEvent;
         }
 
         public SubCalendarEventRestricted()

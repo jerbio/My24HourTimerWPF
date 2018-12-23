@@ -500,7 +500,6 @@ namespace TilerElements
                 this._PrepTime = SubEventEntry.getPreparation;
                 this._Priority = SubEventEntry.getEventPriority;
                 this._ProfileOfNow = SubEventEntry._ProfileOfNow;
-                this._ProfileOfProcrastination = SubEventEntry._ProfileOfProcrastination;
                 //this.RigidSchedule = SubEventEntry.Rigid;
                 this.StartDateTime = SubEventEntry.Start;
                 this._UiParams = SubEventEntry.getUIParam;
@@ -564,7 +563,6 @@ namespace TilerElements
             retValue._PrepTime = this.getPreparation;
             retValue._Priority = this.getEventPriority;
             retValue._ProfileOfNow = this._ProfileOfNow;
-            retValue._ProfileOfProcrastination = this._ProfileOfProcrastination.CreateCopy();
             retValue.RigidSchedule = this.RigidSchedule;
             retValue.StartDateTime = this.Start;
             retValue._UiParams = this.getUIParam;
@@ -1233,6 +1231,21 @@ namespace TilerElements
             get
             {
                 return HistoricalReasonsCurrentPosition;
+            }
+        }
+        public override Procrastination Procrastination_EventDB
+        {
+            get
+            {
+                return _calendarEvent.Procrastination_EventDB;
+            }
+        }
+
+        public override Procrastination getProcrastinationInfo
+        {
+            get
+            {
+                return _calendarEvent.getProcrastinationInfo;
             }
         }
         #endregion

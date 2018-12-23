@@ -525,6 +525,7 @@ namespace TilerElements
 
         #region Properties
 
+        [MaxLength(256), Index("UserIdAndDesciption", Order = 1, IsUnique = true)]
         public string Description
         {
             set
@@ -687,6 +688,7 @@ namespace TilerElements
                 _UndoDefaultFlag = value;
             }
         }
+        [Index("UserIdAndDesciption", Order = 0, IsUnique = true)]
         public string UserId { get; set; }
         [Required, ForeignKey("UserId")]
         public TilerUser User

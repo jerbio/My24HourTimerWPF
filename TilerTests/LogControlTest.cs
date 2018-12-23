@@ -20,9 +20,9 @@ namespace TilerTests
             UserID = userid;
         }
         */
-        public LogControlTest(TilerUser User, TilerDbContext db = null):base(User, null)
+        public LogControlTest(TilerUser User, TilerDbContext dbContext = null):base(User, null)
         {
-            _Database = db ?? new ApplicationDbContext();
+            _Context = dbContext ?? new ApplicationDbContext();
         }
 
         public override bool Status
@@ -37,7 +37,7 @@ namespace TilerTests
         {
             if(RangeOfLookUP == null)
             {
-                IQueryable<CalendarEvent> calEVents = _Database.CalEvents;
+                IQueryable<CalendarEvent> calEVents = _Context.CalEvents;
                 if (includeSubEvents)
                 {
                     //calEVents = _Database.CalEvents
@@ -55,7 +55,7 @@ namespace TilerTests
                     //    .Include(calEvent => calEvent.AllSubEvents_DB.Select(subEvent => subEvent.UiParams_EventDB))
                     //    .Include(calEvent => calEvent.AllSubEvents_DB.Select(subEvent => subEvent.Location_DB))
                     //    .Include(calEvent => calEvent.AllSubEvents_DB.Select(subEvent => subEvent.DataBlob_EventDB));
-                    calEVents = _Database.CalEvents
+                    calEVents = _Context.CalEvents
                         .Include(calEvent => calEvent.DataBlob_EventDB)
                         .Include(calEvent => calEvent.Name)
                         .Include(calEvent => calEvent.Name.Creator_EventDB)
@@ -127,7 +127,7 @@ namespace TilerTests
 
         public override void deleteAllCalendarEvents(string dirString = "")
         {
-            _Database.CalEvents.ForEachAsync(calEvent => {
+            _Context.CalEvents.ForEachAsync(calEvent => {
                     if(calEvent.CreatorId == _TilerUser.Id)
                     {
                         calEvent.Disable(false);

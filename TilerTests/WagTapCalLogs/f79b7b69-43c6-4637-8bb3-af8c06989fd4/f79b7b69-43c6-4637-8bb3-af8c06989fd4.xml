@@ -1,0 +1,405 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ScheduleLog>
+  <LastIDCounter>1035</LastIDCounter>
+  <referenceDay>8:00 AM</referenceDay>
+  <EventSchedules>
+    <EventSchedule>
+      <Recurrence />
+      <TimeCreaated>1/1/1970 12:00:00 AM +00:00</TimeCreaated>
+      <TimeZone>America/Denver</TimeZone>
+      <isProcrastinateEvent>False</isProcrastinateEvent>
+      <ProcrastinationProfile>
+        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
+        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
+        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
+      </ProcrastinationProfile>
+      <NowProfile>
+        <Initialized>False</Initialized>
+        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
+      </NowProfile>
+      <Restricted>False</Restricted>
+      <MiscData>
+        <TypeSelection>0</TypeSelection>
+        <UserNote />
+      </MiscData>
+      <UIParams>
+        <Type>1</Type>
+        <Color>
+          <UserSelection>2</UserSelection>
+          <Blue>128</Blue>
+          <Green>255</Green>
+          <Red>38</Red>
+          <Opacity>1</Opacity>
+        </Color>
+        <Visible>True</Visible>
+      </UIParams>
+      <Location>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Estes Park</Description>
+        <Address>estes park, co 80517, usa</Address>
+        <YCoordinate>-105.5216651</YCoordinate>
+        <XCoordinate>40.3772059</XCoordinate>
+      </Location>
+      <Enabled>True</Enabled>
+      <ID>1025_7_0_0</ID>
+      <NameId>1798c29a-0ea4-40e0-9ff8-81b2a0e23196</NameId>
+      <Name>visit estees park</Name>
+      <StartTime>11/25/2018 7:00:00 AM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <DeletionCount>0</DeletionCount>
+      <CompletionCount>0</CompletionCount>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>11/26/2018 6:59:00 AM</Deadline>
+      <Split>1</Split>
+      <Duration>00:30:00</Duration>
+      <RigidFlag>False</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <isSleep>True</isSleep>
+          <isWake>True</isWake>
+          <TravelTimeBefore>-00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>-00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>1/1/1970 12:00:00 AM +00:00</TimeCreaated>
+          <TimeZone>America/Denver</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons>
+            <Reason xsi:type="BestFitReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>BestFit</Option>
+              <UsedUp>PT0S</UsedUp>
+              <Available>PT9H43M</Available>
+              <CurrentUse>PT30M</CurrentUse>
+            </Reason>
+            <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>CloseToCluster</Option>
+              <LocationCluster>
+                <Location />
+                <Location />
+              </LocationCluster>
+            </Reason>
+          </TimePositionReasons>
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Type>1</Type>
+            <Color>
+              <UserSelection>2</UserSelection>
+              <Blue>128</Blue>
+              <Green>255</Green>
+              <Red>38</Red>
+              <Opacity>1</Opacity>
+            </Color>
+            <Visible>True</Visible>
+          </UIParams>
+          <Location>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Estes Park</Description>
+            <Address>estes park, co 80517, usa</Address>
+            <YCoordinate>-105.5216651</YCoordinate>
+            <XCoordinate>40.3772059</XCoordinate>
+          </Location>
+          <NameId>1798c29a-0ea4-40e0-9ff8-81b2a0e23196</NameId>
+          <Name>visit estees park</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>1025_7_0_1026</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>11/26/2018 4:32:00 AM</ActiveStartTime>
+          <ActiveEndTime>11/26/2018 5:02:00 AM</ActiveEndTime>
+          <Duration>00:30:00</Duration>
+          <StartTime>11/26/2018 4:32:00 AM</StartTime>
+          <EndTime>11/26/2018 5:02:00 AM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
+    <EventSchedule>
+      <Recurrence />
+      <RestrictionProfile>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>378000000000</RangeSpan>
+            <EndTime>1/2/0001 12:00:00 AM</EndTime>
+            <StartTime>1/1/0001 1:30:00 PM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>0</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>432000000000</RangeSpan>
+            <EndTime>1/2/0001 1:00:00 AM</EndTime>
+            <StartTime>1/1/0001 1:00:00 PM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>1</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>432000000000</RangeSpan>
+            <EndTime>1/2/0001 1:00:00 AM</EndTime>
+            <StartTime>1/1/0001 1:00:00 PM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>2</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>432000000000</RangeSpan>
+            <EndTime>1/2/0001 1:00:00 AM</EndTime>
+            <StartTime>1/1/0001 1:00:00 PM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>3</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>432000000000</RangeSpan>
+            <EndTime>1/2/0001 1:00:00 AM</EndTime>
+            <StartTime>1/1/0001 1:00:00 PM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>4</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>432000000000</RangeSpan>
+            <EndTime>1/2/0001 1:00:00 AM</EndTime>
+            <StartTime>1/1/0001 1:00:00 PM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>5</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>378000000000</RangeSpan>
+            <EndTime>1/2/0001 12:00:00 AM</EndTime>
+            <StartTime>1/1/0001 1:30:00 PM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>6</RestrictionDayOfWeek>
+        </RestrictionNode>
+      </RestrictionProfile>
+      <TimeCreaated>11/25/2018 7:47:06 PM +00:00</TimeCreaated>
+      <TimeZone>America/Denver</TimeZone>
+      <isProcrastinateEvent>False</isProcrastinateEvent>
+      <ProcrastinationProfile>
+        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
+        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
+        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
+      </ProcrastinationProfile>
+      <NowProfile>
+        <Initialized>False</Initialized>
+        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
+      </NowProfile>
+      <Restricted>True</Restricted>
+      <MiscData>
+        <TypeSelection>0</TypeSelection>
+        <UserNote />
+      </MiscData>
+      <UIParams>
+        <Type>0</Type>
+        <Color>
+          <UserSelection>-1</UserSelection>
+          <Blue>127</Blue>
+          <Green>127</Green>
+          <Red>127</Red>
+          <Opacity>1</Opacity>
+        </Color>
+        <Visible>True</Visible>
+      </UIParams>
+      <Location>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Tod's Espresso Cafe Inc</Description>
+        <Address>6558 lookout rd, boulder, co 80301, usa</Address>
+        <YCoordinate>-105.200975</YCoordinate>
+        <XCoordinate>40.0722461</XCoordinate>
+      </Location>
+      <Enabled>True</Enabled>
+      <ID>1029_7_0_0</ID>
+      <NameId>e7137d7f-ce4d-40b9-a6fa-ec1268c9246a</NameId>
+      <Name>Chill with Ginny</Name>
+      <StartTime>11/25/2018 7:00:00 AM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <DeletionCount>0</DeletionCount>
+      <CompletionCount>0</CompletionCount>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>11/26/2018 6:59:00 AM</Deadline>
+      <Split>1</Split>
+      <Duration>00:45:00</Duration>
+      <RigidFlag>False</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <RestrictionProfile>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>378000000000</RangeSpan>
+                <EndTime>1/2/0001 12:00:00 AM</EndTime>
+                <StartTime>1/1/0001 1:30:00 PM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>0</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>432000000000</RangeSpan>
+                <EndTime>1/2/0001 1:00:00 AM</EndTime>
+                <StartTime>1/1/0001 1:00:00 PM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>1</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>432000000000</RangeSpan>
+                <EndTime>1/2/0001 1:00:00 AM</EndTime>
+                <StartTime>1/1/0001 1:00:00 PM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>2</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>432000000000</RangeSpan>
+                <EndTime>1/2/0001 1:00:00 AM</EndTime>
+                <StartTime>1/1/0001 1:00:00 PM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>3</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>432000000000</RangeSpan>
+                <EndTime>1/2/0001 1:00:00 AM</EndTime>
+                <StartTime>1/1/0001 1:00:00 PM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>4</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>432000000000</RangeSpan>
+                <EndTime>1/2/0001 1:00:00 AM</EndTime>
+                <StartTime>1/1/0001 1:00:00 PM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>5</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>378000000000</RangeSpan>
+                <EndTime>1/2/0001 12:00:00 AM</EndTime>
+                <StartTime>1/1/0001 1:30:00 PM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>6</RestrictionDayOfWeek>
+            </RestrictionNode>
+          </RestrictionProfile>
+          <isSleep>False</isSleep>
+          <isWake>False</isWake>
+          <TravelTimeBefore>-00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>-00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>1/1/1970 12:00:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>True</Restricted>
+          <TimePositionReasons>
+            <Reason xsi:type="BestFitReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>BestFit</Option>
+              <UsedUp>PT30M</UsedUp>
+              <Available>PT9H13M</Available>
+              <CurrentUse>PT45M</CurrentUse>
+            </Reason>
+            <Reason xsi:type="LocationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>CloseToCluster</Option>
+              <LocationCluster>
+                <Location />
+                <Location />
+              </LocationCluster>
+            </Reason>
+            <Reason xsi:type="DurationReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>Occupancy</Option>
+            </Reason>
+            <Reason xsi:type="RestrictedEventReason" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Option>RestrictedEvent</Option>
+            </Reason>
+          </TimePositionReasons>
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+            <Visible>True</Visible>
+          </UIParams>
+          <Location>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Tod's Espresso Cafe Inc</Description>
+            <Address>6558 lookout rd, boulder, co 80301, usa</Address>
+            <YCoordinate>-105.200975</YCoordinate>
+            <XCoordinate>40.0722461</XCoordinate>
+          </Location>
+          <NameId>e7137d7f-ce4d-40b9-a6fa-ec1268c9246a</NameId>
+          <Name>Chill with Ginny</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>1029_7_0_1030</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>11/25/2018 7:47:00 PM</ActiveStartTime>
+          <ActiveEndTime>11/25/2018 8:32:00 PM</ActiveEndTime>
+          <Duration>00:45:00</Duration>
+          <StartTime>11/25/2018 7:47:00 PM</StartTime>
+          <EndTime>11/25/2018 8:32:00 PM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
+  </EventSchedules>
+  <LocationCache>
+    <Locations>
+      <Location>
+        <CachedName>estes park</CachedName>
+        <LocationID>7de153f6-0449-4a89-a661-9eddc14f0c75</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Estes Park</Description>
+        <Address>estes park, co 80517, usa</Address>
+        <YCoordinate>-105.5216651</YCoordinate>
+        <XCoordinate>40.3772059</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>tod's espresso cafe inc</CachedName>
+        <LocationID>865cf1b7-546b-4bb8-9fb9-5ff626a6da9a</LocationID>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Tod's Espresso Cafe Inc</Description>
+        <Address>6558 lookout rd, boulder, co 80301, usa</Address>
+        <YCoordinate>-105.200975</YCoordinate>
+        <XCoordinate>40.0722461</XCoordinate>
+      </Location>
+    </Locations>
+  </LocationCache>
+</ScheduleLog>

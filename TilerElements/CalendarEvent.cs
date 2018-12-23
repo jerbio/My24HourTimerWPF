@@ -1359,11 +1359,11 @@ namespace TilerElements
             RetValue._Enabled = this.isEnabled;
             RetValue.isRestricted = this.getIsEventRestricted;
             RetValue._LocationInfo = this.Location;//hack you might need to make copy
-            RetValue._ProfileOfProcrastination = this.getProcrastinationInfo.CreateCopy();
+            RetValue._ProfileOfProcrastination = this.getProcrastinationInfo?.CreateCopy();
             RetValue._UserDeleted = this.getIsUserDeleted;
             RetValue._CompletedCount = this.CompletionCount;
             RetValue._DeletedCount = this.DeletionCount;
-            RetValue._ProfileOfNow = this._ProfileOfNow.CreateCopy();
+            RetValue._ProfileOfNow = this._ProfileOfNow?.CreateCopy();
             RetValue._otherPartyID = this.ThirdPartyID;// == this.null ? null : otherPartyID.ToString();
             RetValue._Users = this._Users;
             //RetValue.UpdateLocationMatrix(RetValue.LocationInfo);

@@ -106,7 +106,7 @@ namespace TilerTests
             string testEVentId = testEvent.Id;
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
             var mockContext = new TestDBContext();
-            UserAccount userAcc = TestUtility.getTestUser(true);
+            UserAccount userAcc = TestUtility.getTestUser(true, userId: tilerUser.Id);
 
             Task<CalendarEvent> waitVar = userAcc.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
             waitVar.Wait();
@@ -133,9 +133,9 @@ namespace TilerTests
                 DateTimeOffset TimeCreation = DateTimeOffset.UtcNow;
                 CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1),  new Repetition(), eachTimeLine.Start, eachTimeLine.End, 1, false);
                 testEvent.TimeCreated = TimeCreation;
-                user = TestUtility.getTestUser();
+                user = TestUtility.getTestUser(userId: tilerUser.Id);
                 Schedule.AddToScheduleAndCommit(testEvent).Wait();
-                user = TestUtility.getTestUser();
+                user = TestUtility.getTestUser(userId: tilerUser.Id);
                 user.Login().Wait();
                 Schedule = new TestSchedule(user, refNow);
                 string testEVentId = testEvent.getId;
@@ -191,7 +191,7 @@ namespace TilerTests
             string testEVentId = testEvent.getId;
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
             var mockContext = new TestDBContext();
-            user = TestUtility.getTestUser(true);
+            user = TestUtility.getTestUser(true, userId: tilerUser.Id);
 
             Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEVentId);
             waitVar.Wait();
@@ -218,9 +218,9 @@ namespace TilerTests
             DateTimeOffset TimeCreation = DateTimeOffset.UtcNow;
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), timeLine.Start, timeLine.End, 1, false, location);
             testEvent.TimeCreated = TimeCreation;
-            user = TestUtility.getTestUser();
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
-            user = TestUtility.getTestUser();
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
             user.Login().Wait();
             Schedule = new TestSchedule(user, refNow);
             string testEVentId = testEvent.getId;
@@ -251,7 +251,7 @@ namespace TilerTests
             testEvent.TimeCreated = TimeCreation;
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
             var mockContext = new TestDBContext();
-            user = TestUtility.getTestUser(true);
+            user = TestUtility.getTestUser(true, userId: tilerUser.Id);
             var testEVentId = testEvent.Id;
             Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEVentId);
             waitVar.Wait();
@@ -264,7 +264,7 @@ namespace TilerTests
         //[TestMethod]
         //public void TestCreationOfRepeatRigid()
         //{
-        //    UserAccount user = TestUtility.getTestUser();
+        //    UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
         //    user.Login().Wait();
         //    DateTimeOffset refNow = DateTimeOffset.UtcNow;
         //    Schedule = new TestSchedule(user, refNow);
@@ -277,7 +277,7 @@ namespace TilerTests
         //    string testEVentId = testEvent.getId;
         //    Schedule.AddToScheduleAndCommit(testEvent).Wait();
         //    var mockContext = new TestDBContext();
-        //    user = TestUtility.getTestUser(true);
+        //    user = TestUtility.getTestUser(true, userId: tilerUser.Id);
 
         //    Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEVentId);
         //    waitVar.Wait();
@@ -310,7 +310,7 @@ namespace TilerTests
             CalendarEventRestricted testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 1, false, restrictionProfile: new RestrictionProfile(start, duration + duration), now: Schedule.Now) as CalendarEventRestricted;
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
             var mockContext = new TestDBContext();
-            user = TestUtility.getTestUser(true);
+            user = TestUtility.getTestUser(true, userId: tilerUser.Id);
             Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
             
             CalendarEvent newlyaddedevent = waitVar.Result;
@@ -338,7 +338,7 @@ namespace TilerTests
             CalendarEventRestricted testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 1, false, location, restrictionProfile: new RestrictionProfile(start, duration + duration), now: Schedule.Now) as CalendarEventRestricted;
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
             var mockContext = new TestDBContext();
-            user = TestUtility.getTestUser(true);
+            user = TestUtility.getTestUser(true, userId: tilerUser.Id);
             Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
             waitVar.Wait();
             CalendarEvent newlyaddedevent = waitVar.Result;
@@ -374,7 +374,7 @@ namespace TilerTests
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
 
             var mockContext = new TestDBContext();
-            user = TestUtility.getTestUser(true);
+            user = TestUtility.getTestUser(true, userId: tilerUser.Id);
 
             Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
             waitVar.Wait();
@@ -519,6 +519,7 @@ namespace TilerTests
             Repetition repetition = new Repetition(true, repetitionRange, Repetition.Frequency.DAILY, repetitionRange.CreateCopy());
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 1, false, location, restrictionProfile: new RestrictionProfile(start, duration + duration), now: Schedule.Now);
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            user = TestUtility.getTestUser(true, userId: tilerUser.Id);
             Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
             waitVar.Wait();
             CalendarEvent newlyaddedevent = waitVar.Result;
@@ -578,6 +579,7 @@ namespace TilerTests
         {
             TilerUser tilerUser = TestUtility.createUser();
             UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
             TestSchedule schedule = new TestSchedule(user, refNow);
@@ -587,7 +589,7 @@ namespace TilerTests
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 1, true);
             schedule.AddToScheduleAndCommit(testEvent).Wait();
             schedule = null;
-            user = TestUtility.getTestUser(true);
+            user = TestUtility.getTestUser(true, userId: tilerUser.Id);
             schedule = new TestSchedule(user, refNow);
             Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
             waitVar.Wait();
@@ -613,10 +615,10 @@ namespace TilerTests
             CalendarEvent tempEvent = schedule.getCalendarEvent(testEvent.Calendar_EventID);
             Schedule tempSchedule = schedule;
             schedule = null;
-            user = TestUtility.getTestUser(true);
+            user = TestUtility.getTestUser(true, userId: tilerUser.Id);
 
             var mockContext = new TestDBContext();
-            user = TestUtility.getTestUser(true);
+            user = TestUtility.getTestUser(true, userId: tilerUser.Id);
 
             Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
             waitVar.Wait();
@@ -657,7 +659,7 @@ namespace TilerTests
                 testEvent.NumberOfSplit, testEvent.Notes.UserNote);
             schedule.UpdateWithDifferentSchedule(tupleResult.Item2).Wait();
             var mockContext = new TestDBContext();
-            user = TestUtility.getTestUser(true);
+            user = TestUtility.getTestUser(true, userId: tilerUser.Id);
 
             Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
             waitVar.Wait();
@@ -698,7 +700,7 @@ namespace TilerTests
             schedule.UpdateWithDifferentSchedule(tupleResult.Item2).Wait();
 
             var mockContext = new TestDBContext();
-            user = TestUtility.getTestUser(true);
+            user = TestUtility.getTestUser(true, userId: tilerUser.Id);
 
             Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
             waitVar.Wait();
@@ -711,17 +713,17 @@ namespace TilerTests
         public void cleanUpForEachTest()
         {
             TestUtility.cleanupDB();
-            //UserAccount user = TestUtility.getTestUser(true);
+            //UserAccount user = TestUtility.getTestUser(true, userId: tilerUser.Id);
         }
 
         [ClassCleanup]
         public static void cleanUpTest()
         {
-            UserAccount currentUser = TestUtility.getTestUser();
-            currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            Schedule Schedule = new TestSchedule(currentUser, refNow);
-            currentUser.DeleteAllCalendarEvents();
+            //UserAccount currentUser = TestUtility.getTestUser(userId: tilerUser.Id);
+            //currentUser.Login().Wait();
+            //DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            //Schedule Schedule = new TestSchedule(currentUser, refNow);
+            //currentUser.DeleteAllCalendarEvents();
         }
     }
 }

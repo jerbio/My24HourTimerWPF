@@ -844,6 +844,13 @@ namespace TilerElements
         }
 
         //CalendarEvent Methods
+        public SubCalendarEvent getSubEvent(string SubEventID)
+        {
+            EventID eventId = new EventID(SubEventID);
+            return getSubEvent(eventId);
+        }
+
+
         public SubCalendarEvent getSubEvent(EventID SubEventID)
         {
             int i = 0;

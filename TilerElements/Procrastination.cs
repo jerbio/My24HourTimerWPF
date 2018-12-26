@@ -21,7 +21,7 @@ namespace TilerElements
         protected DateTimeOffset _UndoFromTime;//Time from which an event was procrastinated
         protected DateTimeOffset _UndoBeginTime;//Next time for a possible calculation of a new schedule
         protected int _UndoSectionOfDay;// stores the section of day from which it was procrastinated
-        protected bool isNull = false;
+        protected bool _isNull = false;
         protected string _UndoId = "";
         protected Procrastination()
         {
@@ -62,7 +62,7 @@ namespace TilerElements
             if(defaultProcrastination == null)
             {
                 defaultProcrastination = new Procrastination();
-                defaultProcrastination.isNull = true;
+                defaultProcrastination._isNull = true;
             }
 
             return defaultProcrastination;
@@ -243,6 +243,13 @@ namespace TilerElements
             set
             {
                 _UndoId = value;
+            }
+        }
+
+        public bool isNull {
+            get
+            {
+                return this._isNull;
             }
         }
         #endregion

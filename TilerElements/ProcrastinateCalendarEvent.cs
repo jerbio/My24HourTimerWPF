@@ -13,7 +13,7 @@ namespace TilerElements
                 //eventId, 
                 NameEntry, StartData, EndData, EventDuration, eventPrepTime, PreDeadlineTimeSpan, EventRepetitionEntry, EventLocation, UiData, NoteData, EnabledEventFlag, CompletionFlag, creator, users, timeZone, eventId, false)
         {
-            isProcrastinateEvent = true;
+            _isProcrastinateEvent = true;
             UniqueID = eventId;
             initializeSubEvents();
             _Splits = splitCount;
@@ -21,9 +21,9 @@ namespace TilerElements
 
         protected ProcrastinateCalendarEvent() : base()
         {
-            isProcrastinateEvent = true;
+            _isProcrastinateEvent = true;
             _Splits = 1;
-            initializeSubEvents();
+            //initializeSubEvents();
         }
 
         protected ProcrastinateCalendarEvent(CalendarEvent MyUpdated, SubCalendarEvent[] MySubEvents) : base(MyUpdated, MySubEvents)
@@ -86,7 +86,7 @@ namespace TilerElements
             TimeLine newTImeLine = new TimeLine(start, end);
             this.StartDateTime = newTImeLine.Start;
             this.EndDateTime = newTImeLine.End;
-            AllSubEvents.AsParallel().ForAll(obj => obj.changeTimeLineRange(newTImeLine));
+            AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(newTImeLine));
             updateEventSequence();
             this.UpdateTimePerSplit();
         }
@@ -104,6 +104,8 @@ public static CalendarEvent generateProcrastinateAll(DateTimeOffset referenceNow
                 procrastinateAll = new ProcrastinateCalendarEvent(
                 clearAllEventsId, 
                 blockName, eventStartTime, eventEndTime, DelaySpan, new TimeSpan(0), new TimeSpan(0), new Repetition(), new Location(), new EventDisplay(), new MiscData(), true, false, user, new TilerUserGroup(), timeZone, 1);
+                blockName.Creator_EventDB = procrastinateAll.getCreator;
+                blockName.AssociatedEvent = procrastinateAll;
             }
             else
             {
@@ -124,6 +126,7 @@ public static CalendarEvent generateProcrastinateAll(DateTimeOffset referenceNow
                 else
                 {
                     procrastinateAll.IncreaseSplitCount(1, new List<SubCalendarEvent>() { subEvent });
+                    procrastinateAll.AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(procrastinateAll));
                 }
             }
             blockName.Creator_EventDB = procrastinateAll.getCreator;

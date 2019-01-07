@@ -41,7 +41,7 @@ namespace TilerElements
         protected TimeOfDayPreferrence DaySectionPreference;
         protected TilerUserGroup _Users;
         protected string _TimeZone = "UTC";
-        protected bool isProcrastinateEvent = false;
+        protected bool _isProcrastinateEvent = false;
         internal TempTilerEventChanges TempChanges = new TempTilerEventChanges();
         protected EventName _Name;
         protected string _UndoId;
@@ -341,7 +341,7 @@ namespace TilerElements
         {
             get
             {
-                return isProcrastinateEvent;
+                return _isProcrastinateEvent;
             }
         }
         public bool isThirdParty
@@ -420,6 +420,19 @@ namespace TilerElements
                 return _LocationInfo.isNull ? null : _LocationInfo;
             }
         }
+
+        virtual public bool isProcrastinateEvent
+        {
+            set
+            {
+                _isProcrastinateEvent = value;
+            }
+            get
+            {
+                return _isProcrastinateEvent;
+            }
+        }
+
         public virtual string NameId { get; set; }
         [ForeignKey("NameId")]
         public virtual EventName Name

@@ -10,7 +10,7 @@ namespace TilerElements
     {
         protected ProcrastinateAllSubCalendarEvent():base()
         {
-            isProcrastinateEvent = true;
+            _isProcrastinateEvent = true;
             this.RigidSchedule = true;
         }
         public ProcrastinateAllSubCalendarEvent(TilerUser user, TilerUserGroup group, string timeZone, TimeLine timeLine, EventID calendarEventId, Location location, ProcrastinateCalendarEvent calendarEvent):base()
@@ -26,7 +26,7 @@ namespace TilerElements
             this._Users = group;
             this._ProfileOfNow = new NowProfile();
             this._ProfileOfProcrastination = new Procrastination(new DateTimeOffset(), new TimeSpan());
-            isProcrastinateEvent = true;
+            _isProcrastinateEvent = true;
             this._CalendarEventRange = calendarEvent.RangeTimeLine;
             this.BusyFrame = new BusyTimeLine(this.UniqueID.ToString(), Start, End);
             this._EventDuration = this.BusyFrame.BusyTimeSpan;

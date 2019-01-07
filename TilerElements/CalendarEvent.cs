@@ -225,7 +225,7 @@ namespace TilerElements
             _UsedTime = MyUpdated.UsedTime;
             _Users = MyUpdated._Users;
             _TimeZone = MyUpdated._TimeZone;
-            isProcrastinateEvent = MyUpdated.isProcrastinateEvent;
+            _isProcrastinateEvent = MyUpdated._isProcrastinateEvent;
         }
         #endregion
 
@@ -404,7 +404,7 @@ namespace TilerElements
         /// </summary>
         public void initializeCalculables()
         {
-            CalculableSubEvents = new HashSet<SubCalendarEvent>(SubEvents.Values.Where(obj => obj.isInCalculationMode));
+            CalculableSubEvents = new HashSet<SubCalendarEvent>(ActiveSubEvents.Where(obj => obj.isInCalculationMode));
             isCalculableInitialized = true;
         }
 
@@ -1383,7 +1383,13 @@ namespace TilerElements
             retValue._ProfileOfProcrastination=ProcrastinationProfileData;
             retValue.StartDateTime = ProcrastinationProfileData.PreferredStartTime;
             retValue.EventSequence = new TimeLine(retValue.StartDateTime, retValue.EndDateTime);
-            List<SubCalendarEvent> ProcrastinatonCopy = this.ActiveSubEvents.Select(obj => obj.getProcrastinationCopy(retValue, ProcrastinationProfileData)).ToList();
+            List<SubCalendarEvent> ProcrastinatonCopy = this.ActiveSubEvents
+                .Select(
+                obj => {
+                    var subEvent = obj.getProcrastinationCopy(retValue, ProcrastinationProfileData);
+                    subEvent.ParentCalendarEvent = retValue;
+                    return subEvent;
+                    }).ToList();
             ProcrastinatonCopy.ForEach(obj => retValue.SubEvents.Add(obj.Id, obj));
             //retValue.SubEvents.Add(ProcrastinatonCopy.SubEvent_ID, ProcrastinatonCopy);
             return retValue;
@@ -1396,6 +1402,7 @@ namespace TilerElements
             retValue.StartDateTime = NowProfileData.PreferredTime;
             retValue.EventSequence = new TimeLine(retValue.StartDateTime, retValue.EndDateTime);
             SubCalendarEvent ProcrastinatonCopy = this.ActiveSubEvents[0].getNowCopy(retValue.UniqueID, NowProfileData);
+            ProcrastinatonCopy.ParentCalendarEvent = retValue;
             retValue.EndDateTime = ProcrastinatonCopy.End;
             retValue.RigidSchedule = true;
             retValue.SubEvents.Add(ProcrastinatonCopy.Id, ProcrastinatonCopy);
@@ -1560,7 +1567,7 @@ namespace TilerElements
         virtual public void updateTimeLine(TimeLine newTImeLine)
         {
             TimeLine oldTimeLine = new TimeLine(StartDateTime, EndDateTime);
-            AllSubEvents.AsParallel().ForAll(obj => obj.changeTimeLineRange(newTImeLine));
+            AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(newTImeLine));
             bool worksForAllSubevents = true;
             SubCalendarEvent failingSubEvent = SubCalendarEvent.getEmptySubCalendarEvent(this.Calendar_EventID);
             foreach(var obj in AllSubEvents)
@@ -1581,7 +1588,7 @@ namespace TilerElements
                 }
             } else
             {
-                AllSubEvents.AsParallel().ForAll(obj => obj.changeTimeLineRange(oldTimeLine));
+                AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(oldTimeLine));
                 CustomErrors customError = new CustomErrors("Cannot update the timeline for the calendar event with sub event " + failingSubEvent.getId + ". Most likely because the new time line won't fit the sub event", 40000001);
                 throw  customError;
             }

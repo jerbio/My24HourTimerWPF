@@ -189,7 +189,7 @@ namespace My24HourTimerWPF
             //DateTimeOffset fullDate = new DateTimeOffset(EndDate.Year, EndDate.Month, EndDate.Day, EndTime.Hour, EndTime.Minute, EndTime.Second, new TimeSpan());
             //Tuple<CustomErrors, Dictionary<string, CalendarEvent>>result= MySchedule.UpdateDeadLine(EventID, fullDate);
 
-            await MySchedule.UpdateWithDifferentSchedule(result.Item2).ConfigureAwait(false);
+            await MySchedule.persistToDB().ConfigureAwait(false);
 
         }
 
@@ -1218,13 +1218,13 @@ namespace My24HourTimerWPF
                 
                 if (result == MessageBoxResult.Yes)
                 {
-                    await MySchedule.UpdateWithDifferentSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
+                    await MySchedule.persistToDB().ConfigureAwait(false);
                 }
             }
             else
             {
 
-                await MySchedule.UpdateWithDifferentSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
+                await MySchedule.persistToDB().ConfigureAwait(false);
 
                 textBlock9.Text = "Schedule updated no clash detected";
             }
@@ -1244,9 +1244,9 @@ namespace My24HourTimerWPF
         {
             string EventID = textBox9.Text.Trim();
             ///*
-            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ScheduleUpdateMessage=MySchedule.SetCalendarEventAsNow(EventID);
+            var ScheduleUpdateMessage=MySchedule.SetCalendarEventAsNow(EventID);
 
-             await MySchedule.UpdateWithDifferentSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
+             await MySchedule.persistToDB().ConfigureAwait(false);
              return;
             //*///
             /*
@@ -1263,18 +1263,18 @@ namespace My24HourTimerWPF
                             if (result == MessageBoxResult.Yes)
                             {
                                 ScheduleUpdateMessage=MySchedule.SetEventAsNow(EventID, true); ;
-                                await MySchedule.UpdateWithDifferentSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
+                                await MySchedule.persistToDB().ConfigureAwait(false);
                             }
                         }
                         break;
                     default://hack alert we need to figure out how to fix this error
-                        await MySchedule.UpdateWithDifferentSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
+                        await MySchedule.persistToDB().ConfigureAwait(false);
                         break;
                 }
             }
             else
             {
-                await MySchedule.UpdateWithDifferentSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
+                await MySchedule.persistToDB().ConfigureAwait(false);
             }
             
         }

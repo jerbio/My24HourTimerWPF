@@ -657,7 +657,7 @@ namespace TilerTests
                 testEvent.ActiveSubEvents.First().Start, 
                 testEvent.ActiveSubEvents.First().End, 
                 testEvent.NumberOfSplit, testEvent.Notes.UserNote);
-            schedule.UpdateWithDifferentSchedule(tupleResult.Item2).Wait();
+            schedule.persistToDB().Wait();
             var mockContext = new TestDBContext();
             user = TestUtility.getTestUser(true, userId: tilerUser.Id);
 
@@ -697,7 +697,7 @@ namespace TilerTests
                 testEvent.ActiveSubEvents.First().Start,
                 testEvent.ActiveSubEvents.First().End,
                 testEvent.NumberOfSplit, newNoteName);
-            schedule.UpdateWithDifferentSchedule(tupleResult.Item2).Wait();
+            schedule.persistToDB().Wait();
 
             var mockContext = new TestDBContext();
             user = TestUtility.getTestUser(true, userId: tilerUser.Id);

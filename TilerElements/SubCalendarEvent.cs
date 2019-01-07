@@ -538,6 +538,7 @@ namespace TilerElements
             TimeSpan SpanShift = NowData.PreferredTime - retValue.Start;
             retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventID.ToString());
             retValue.shiftEvent(SpanShift, true);
+
             return retValue;
         }
 
@@ -909,9 +910,9 @@ namespace TilerElements
 
          }
 
-        internal void changeTimeLineRange(TimeLine newTimeLine, bool resetCalculationTimeLine = true)
+        internal void changeCalendarEventRange(IDefinedRange newTimeLine, bool resetCalculationTimeLine = true)
         {
-            _CalendarEventRange = newTimeLine.CreateCopy();
+            _CalendarEventRange = newTimeLine.RangeTimeLine.CreateCopy();
             if(resetCalculationTimeLine)
             {
                 CalculationTimeLine = null;

@@ -41,14 +41,5 @@ namespace TilerTests
             interFerring = myRestrictionProfile.getLatestEndTimeWithinFrameBeforeRefTime(refTime);
             Assert.AreEqual(RestrictionEnd.DayOfYear, interFerring.End.DayOfYear);
         }
-        [TestCleanup]
-        public void eachTestCleanUp()
-        {
-            UserAccount currentUser = TestUtility.getTestUser();
-            currentUser.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            Schedule Schedule = new TestSchedule(currentUser, refNow);
-            currentUser.DeleteAllCalendarEvents();
-        }
     }
 }

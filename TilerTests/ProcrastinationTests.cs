@@ -14,16 +14,6 @@ namespace TilerTests
     [TestClass]
     public class ProcrastinationTests
     {
-        //[ClassCleanup]
-        //public static void cleanUpTest()
-        //{
-        //    UserAccount currentUser = TestUtility.getTestUser();
-        //    currentUser.Login().Wait();
-        //    DateTimeOffset refNow = DateTimeOffset.UtcNow;
-        //    TestSchedule Schedule = new TestSchedule(currentUser, refNow);
-        //    currentUser.DeleteAllCalendarEvents();
-        //}
-
         [TestMethod]
         public void procrastinateSingle()
         {
@@ -41,14 +31,16 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
             Schedule = new TestSchedule(user, refNow);
-            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
-            Schedule.UpdateWithDifferentSchedule(setAsNowResult.Item2).Wait();
+            var setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
+            Schedule.persistToDB().Wait();
+            testEvent = TestUtility.getCalendarEventById(testEvent.getId, user);
+            Assert.IsTrue(testEvent.ActiveSubEvents.OrderBy(subevent => subevent.Start).First().Start == refNow);
 
             Schedule = new TestSchedule(user, refNow);
             TimeSpan procrastinationSpan = TimeSpan.FromHours(5);
-            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> procrastinateResult = Schedule.ProcrastinateJustAnEvent(testEvent.AllSubEvents.OrderBy(subEvent => subEvent.Start).First().getId, procrastinationSpan);
+            var procrastinateResult = Schedule.ProcrastinateJustAnEvent(testEvent.AllSubEvents.OrderBy(subEvent => subEvent.Start).First().getId, procrastinationSpan);
             Assert.IsNull(procrastinateResult.Item1);
-            Schedule.UpdateWithDifferentSchedule(procrastinateResult.Item2).Wait();
+            Schedule.persistToDB().Wait();
             Schedule = new TestSchedule(user, refNow);
 
             CalendarEvent testEventCopy = TestUtility.getCalendarEventById(testEvent.getId, user);
@@ -97,14 +89,14 @@ namespace TilerTests
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             user.Login().Wait();
             Schedule = new TestSchedule(user, refNow);
-            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
-            Schedule.UpdateWithDifferentSchedule(setAsNowResult.Item2).Wait();
+            var setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
+            Schedule.persistToDB().Wait();
 
             Schedule = new TestSchedule(user, refNow);
             TimeSpan procrastinationSpan = TimeSpan.FromHours(5);
-            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> procrassinateResult = Schedule.ProcrastinateJustAnEvent(testEvent.AllSubEvents.OrderBy(subEvent => subEvent.Start).First().getId, procrastinationSpan);
+            var procrassinateResult = Schedule.ProcrastinateJustAnEvent(testEvent.AllSubEvents.OrderBy(subEvent => subEvent.Start).First().getId, procrastinationSpan);
             Assert.IsNull(procrassinateResult.Item1);
-            Schedule.UpdateWithDifferentSchedule(procrassinateResult.Item2).Wait();
+            Schedule.persistToDB().Wait();
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEventCopy = TestUtility.getCalendarEventById(testEvent.getId, user);
             DateTimeOffset latestTime = refNow.Add(procrastinationSpan);
@@ -132,7 +124,7 @@ namespace TilerTests
             CalendarEvent testEventCopy = TestUtility.getCalendarEventById(testEvent.getId, user);
             Schedule = new TestSchedule(user, refNow);
             TimeSpan procrastinationSpan = TimeSpan.FromDays(10);
-            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> procrassinateResult = Schedule.ProcrastinateJustAnEvent(testEvent.AllSubEvents.First().getId, procrastinationSpan);
+            var procrassinateResult = Schedule.ProcrastinateJustAnEvent(testEvent.AllSubEvents.First().getId, procrastinationSpan);
             Assert.IsNotNull(procrassinateResult.Item1);
         }
 
@@ -144,7 +136,8 @@ namespace TilerTests
             UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
             user.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            //DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            DateTimeOffset refNow = TestUtility.parseAsUTC("11:15AM 12/27/2018");// try 18:15AM 12/27/2018
             refNow = refNow.removeSecondsAndMilliseconds();
             TimeSpan duration = TimeSpan.FromHours(2);
             DateTimeOffset start = refNow;
@@ -153,13 +146,14 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
             Schedule = new TestSchedule(user, refNow);
-            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
-            Schedule.UpdateWithDifferentSchedule(setAsNowResult.Item2).Wait();
+            var setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
+            Schedule.persistToDB().Wait();
+            user = TestUtility.getTestUser(true, userId: tilerUser.Id);
             Schedule = new TestSchedule(user, refNow);
             TimeSpan procrastinationSpan = TimeSpan.FromHours(2);
-            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> procrassinateResult = Schedule.ProcrastinateAll(procrastinationSpan);
-            Assert.IsNull(procrassinateResult.Item1);
-            Schedule.UpdateWithDifferentSchedule(procrassinateResult.Item2).Wait();
+            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> procrastinateResult = Schedule.ProcrastinateAll(procrastinationSpan);
+            Assert.IsNull(procrastinateResult.Item1);
+            Schedule.persistToDB().Wait();
             Schedule = new TestSchedule(user, refNow);
             EventID procrastinateId = new EventID(user.getTilerUser().ClearAllId);
             CalendarEvent procrastinationEvent = TestUtility.getCalendarEventById(procrastinateId.getCalendarEventID(), user);
@@ -178,58 +172,62 @@ namespace TilerTests
             DateTimeOffset refNow0 = refNow.AddHours(1);
             Schedule = new TestSchedule(user, refNow0);
             TimeSpan additionalProcrastinationSpan = TimeSpan.FromHours(2);
-            procrassinateResult = Schedule.ProcrastinateAll(additionalProcrastinationSpan);
-            Assert.IsNull(procrassinateResult.Item1);
-            Schedule.UpdateWithDifferentSchedule(procrassinateResult.Item2).Wait();
+            procrastinateResult = Schedule.ProcrastinateAll(additionalProcrastinationSpan);
+            Assert.IsNull(procrastinateResult.Item1);
+            Schedule.persistToDB().Wait();
             Schedule = new TestSchedule(user, refNow0);
             procrastinateId = new EventID(user.getTilerUser().ClearAllId);
-            procrastinationEvent = Schedule.getCalendarEvent(procrastinateId);
+            procrastinationEvent = TestUtility.getCalendarEventById(procrastinateId.getCalendarEventID(), user);
             endOfProcrastinateAll = refNow0.Add(additionalProcrastinationSpan);
             Assert.AreEqual(procrastinationEvent.End, endOfProcrastinateAll);
             lastFreeSpaceBlock = procrastinationEvent.AllSubEvents.OrderByDescending(obj => obj.End).First();
             Assert.AreEqual(lastFreeSpaceBlock.End, endOfProcrastinateAll);
             Assert.IsNotNull(procrastinationEvent);
-            testEventCopy = Schedule.getCalendarEvent(testEvent.getId);
+            testEventCopy = TestUtility.getCalendarEventById(testEvent.getId, user);
             earliestTImeForNonProcrastinationSubEventTime = refNow0.Add(additionalProcrastinationSpan);
-            Assert.IsTrue(testEventCopy.ActiveSubEvents.First().Start >= earliestTImeForNonProcrastinationSubEventTime);
+            Assert.IsTrue(testEventCopy.ActiveSubEvents.OrderBy(subEvent => subEvent.Start).First().Start >= earliestTImeForNonProcrastinationSubEventTime);
             Assert.AreEqual(procrastinationEvent.ActiveSubEvents.Length, numberOfBlockedOfTimeSlots);
 
             /// if the user choses to use the edit fields as opposed to the normal procrastinate scroll wheel. And the edit range is less than the already established range of procrastinate calendar sub events
             Schedule = new TestSchedule(user, refNow0);
             DateTimeOffset startOfProcrastinateAll = refNow.AddHours(.5);
             DateTimeOffset newEndOfProcrastinateAll = refNow.AddHours(2.5);
-            procrastinationEvent = Schedule.getCalendarEvent(user.getTilerUser().getClearAllEventsId());
+            procrastinationEvent = TestUtility.getCalendarEventById(user.getTilerUser().getClearAllEventsId(), user);
             Schedule = new TestSchedule(user, refNow);
-            procrastinationEvent = Schedule.getCalendarEvent(user.getTilerUser().getClearAllEventsId());
+            procrastinationEvent = TestUtility.getCalendarEventById(user.getTilerUser().getClearAllEventsId(), user);
             SubCalendarEvent firstClearedBlock = procrastinationEvent.ActiveSubEvents.OrderBy(obj => obj.Start).First();
-            procrassinateResult = Schedule.BundleChangeUpdate(firstClearedBlock.getId, procrastinationEvent.getName, startOfProcrastinateAll, newEndOfProcrastinateAll, startOfProcrastinateAll, newEndOfProcrastinateAll, procrastinationEvent.NumberOfSplit, procrastinationEvent.Notes.UserNote);
+            procrastinateResult = Schedule.BundleChangeUpdate(firstClearedBlock.getId, procrastinationEvent.getName, startOfProcrastinateAll, newEndOfProcrastinateAll, startOfProcrastinateAll, newEndOfProcrastinateAll, procrastinationEvent.NumberOfSplit, procrastinationEvent.Notes.UserNote);
 
-            Assert.IsNull(procrassinateResult.Item1);
-            Schedule.UpdateWithDifferentSchedule(procrassinateResult.Item2).Wait();
+            Assert.IsNull(procrastinateResult.Item1);
+            Schedule.persistToDB().Wait();
             Schedule = new TestSchedule(user, refNow0);
             procrastinateId = new EventID(user.getTilerUser().ClearAllId);
-            procrastinationEvent = Schedule.getCalendarEvent(procrastinateId);
+            procrastinationEvent = TestUtility.getCalendarEventById(procrastinateId.getCalendarEventID(), user);
             endOfProcrastinateAll = newEndOfProcrastinateAll;
             Assert.AreEqual(procrastinationEvent.End, endOfProcrastinateAll);
             lastFreeSpaceBlock = procrastinationEvent.AllSubEvents.OrderByDescending(obj => obj.End).First();
             Assert.AreEqual(lastFreeSpaceBlock.End, endOfProcrastinateAll);
             Assert.IsNotNull(procrastinationEvent);
-            testEventCopy = Schedule.getCalendarEvent(testEvent.getId);
+            testEventCopy = TestUtility.getCalendarEventById(testEvent.getId, user);
             earliestTImeForNonProcrastinationSubEventTime = endOfProcrastinateAll;
-            Assert.IsTrue(testEventCopy.ActiveSubEvents.First().Start >= earliestTImeForNonProcrastinationSubEventTime);
+            Assert.IsTrue(testEventCopy.ActiveSubEvents.OrderBy(subEvent => subEvent.Start).First().Start >= earliestTImeForNonProcrastinationSubEventTime);
             Assert.AreEqual(procrastinationEvent.ActiveSubEvents.Length, numberOfBlockedOfTimeSlots);
 
 
             // Procrastinate all if there are no overlaps then we should have multiple active all events
             DateTimeOffset refNow1 = refNow.AddHours(4);
             Schedule = new TestSchedule(user, refNow1);
+            
             TimeSpan additionalProcrastinationSpan0 = TimeSpan.FromHours(1);
-            procrassinateResult = Schedule.ProcrastinateAll(additionalProcrastinationSpan0);
-            Assert.IsNull(procrassinateResult.Item1);
-            Schedule.UpdateWithDifferentSchedule(procrassinateResult.Item2).Wait();
+            procrastinateResult = Schedule.ProcrastinateAll(additionalProcrastinationSpan0);
+         
+            Assert.IsNull(procrastinateResult.Item1);
+            Task updateWait = Schedule.persistToDB();
+            
+            updateWait.Wait();
             Schedule = new TestSchedule(user, refNow1);
             procrastinateId = new EventID(user.getTilerUser().ClearAllId);
-            procrastinationEvent = Schedule.getCalendarEvent(procrastinateId);
+            procrastinationEvent = TestUtility.getCalendarEventById(procrastinateId.getCalendarEventID(), user);
             endOfProcrastinateAll = refNow1.Add(additionalProcrastinationSpan0);
             Assert.AreEqual(procrastinationEvent.End, endOfProcrastinateAll);
             lastFreeSpaceBlock = procrastinationEvent.AllSubEvents.OrderByDescending(obj => obj.End).First();
@@ -242,24 +240,24 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow1);
             startOfProcrastinateAll = refNow.AddHours(.5);
             newEndOfProcrastinateAll = refNow.AddHours(4.5);
-            procrastinationEvent = Schedule.getCalendarEvent(user.getTilerUser().getClearAllEventsId());
+            procrastinationEvent = TestUtility.getCalendarEventById(user.getTilerUser().getClearAllEventsId(), user);
             DateTimeOffset desiredEndTIme = procrastinationEvent.End;
             Schedule = new TestSchedule(user, refNow);
-            procrastinationEvent = Schedule.getCalendarEvent(user.getTilerUser().getClearAllEventsId());
+            procrastinationEvent = TestUtility.getCalendarEventById(user.getTilerUser().getClearAllEventsId(), user);
             firstClearedBlock = procrastinationEvent.ActiveSubEvents.OrderBy(obj => obj.Start).First();
-            procrassinateResult = Schedule.BundleChangeUpdate(firstClearedBlock.getId, procrastinationEvent.getName, startOfProcrastinateAll, newEndOfProcrastinateAll, startOfProcrastinateAll, newEndOfProcrastinateAll, procrastinationEvent.NumberOfSplit, firstClearedBlock.Notes.UserNote);
+            procrastinateResult = Schedule.BundleChangeUpdate(firstClearedBlock.getId, procrastinationEvent.getName, startOfProcrastinateAll, newEndOfProcrastinateAll, startOfProcrastinateAll, newEndOfProcrastinateAll, procrastinationEvent.NumberOfSplit, firstClearedBlock.Notes.UserNote);
 
-            Assert.IsNull(procrassinateResult.Item1);
-            Schedule.UpdateWithDifferentSchedule(procrassinateResult.Item2).Wait();
+            Assert.IsNull(procrastinateResult.Item1);
+            Schedule.persistToDB().Wait();
             Schedule = new TestSchedule(user, refNow0);
             procrastinateId = new EventID(user.getTilerUser().ClearAllId);
-            procrastinationEvent = Schedule.getCalendarEvent(procrastinateId);
+            procrastinationEvent = TestUtility.getCalendarEventById(procrastinateId.getCalendarEventID(), user);
             endOfProcrastinateAll = newEndOfProcrastinateAll;
             Assert.AreEqual(procrastinationEvent.End, desiredEndTIme);
             lastFreeSpaceBlock = procrastinationEvent.AllSubEvents.OrderByDescending(obj => obj.End).First();
             Assert.AreEqual(lastFreeSpaceBlock.End, desiredEndTIme);
             Assert.IsNotNull(procrastinationEvent);
-            testEventCopy = Schedule.getCalendarEvent(testEvent.getId);
+            testEventCopy = TestUtility.getCalendarEventById(testEvent.getId, user);
             earliestTImeForNonProcrastinationSubEventTime = desiredEndTIme;
             Assert.IsTrue(testEventCopy.ActiveSubEvents.First().Start >= earliestTImeForNonProcrastinationSubEventTime);
             Assert.AreEqual(procrastinationEvent.ActiveSubEvents.Length, numberOfBlockedOfTimeSlots);
@@ -284,18 +282,18 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
             Schedule = new TestSchedule(user, refNow);
-            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
-            Schedule.UpdateWithDifferentSchedule(setAsNowResult.Item2).Wait();
+            var setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
+            Schedule.persistToDB().Wait();
             Schedule = new TestSchedule(user, refNow);
             TimeSpan procrastinationSpan = TimeSpan.FromHours(4.5);
-            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> procrassinateResult = Schedule.ProcrastinateAll(procrastinationSpan);
+            var procrassinateResult = Schedule.ProcrastinateAll(procrastinationSpan);
             Assert.IsNull(procrassinateResult.Item1);
-            Schedule.UpdateWithDifferentSchedule(procrassinateResult.Item2).Wait();
+            Schedule.persistToDB().Wait();
             Schedule = new TestSchedule(user, refNow);
             EventID procrastinateId = new EventID(user.getTilerUser().ClearAllId);
-            CalendarEvent procrastinationEvent = Schedule.getCalendarEvent(procrastinateId);
+            CalendarEvent procrastinationEvent = TestUtility.getCalendarEventById(procrastinateId.ToString(), user);
             Assert.IsNotNull(procrastinationEvent);
-            CalendarEvent testEventCopy = Schedule.getCalendarEvent(testEvent.getId);
+            CalendarEvent testEventCopy = TestUtility.getCalendarEventById(testEvent.getId, user);
             DateTimeOffset latestTime = refNow.Add(procrastinationSpan);
             Assert.IsTrue(testEventCopy.ActiveSubEvents.First().Start >= latestTime);
             Schedule = new TestSchedule(user, refNow);

@@ -92,12 +92,32 @@ namespace TilerTests
                 PasswordHash = password
             };
 
+
+            TilerUser user2 = new TilerUser()
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserName = userName+ Guid.NewGuid().ToString(),
+                Email = email + Guid.NewGuid().ToString(),
+                PasswordHash = password + Guid.NewGuid().ToString()
+            };
             TestDBContext context = new TestDBContext();
+            CalendarEvent calEvent = createProcrastinateCalendarEvent(user);
+            //CalendarEvent calEvent2 = generateCalendarEvent(user, TimeSpan.FromSeconds(1), new Repetition(), DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.AddHours(1));
+
             context.Users.Add(user);
+            context.CalEvents.Add(calEvent);
+            //context.CalEvents.Add(calEvent2);
             context.SaveChanges();
             TilerUser retValue = context.Users.Find(userId);
 
             return retValue;
+        }
+
+        public static CalendarEvent createProcrastinateCalendarEvent(TilerUser user)
+        {
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            CalendarEvent procrastinateCalEvent = ProcrastinateCalendarEvent.generateProcrastinateAll(now, user, TimeSpan.FromSeconds(1), "UTC");
+            return procrastinateCalEvent;
         }
 
         public static int MonthLimit
@@ -338,6 +358,7 @@ namespace TilerTests
             if(reloadTilerCOntext)
             {
                 _Context = new TestDBContext();
+                _Context.Database.Log = s => System.Diagnostics.Debug.WriteLine(s);
             }
 
             TilerUser tilerUser = _Context.Users.Find(userId);

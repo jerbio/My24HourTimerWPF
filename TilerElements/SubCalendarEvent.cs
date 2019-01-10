@@ -27,6 +27,7 @@ namespace TilerElements
         protected DateTimeOffset _LastReasonStartTimeChanged;
         protected TimeLine CalculationTimeLine = null;
         protected CalendarEvent _calendarEvent;
+        protected bool _LockToId = false;
         public TimeSpan TravelTimeBefore { get; set; } = new TimeSpan(1);
         public TimeSpan TravelTimeAfter { get; set; } = new TimeSpan(1);
         public bool isWake { get; set; } = false;
@@ -653,15 +654,17 @@ namespace TilerElements
         /// Shifts a subcalendar event by the specified "ChangeInTime". Function returns a false if the change in time will not fall within calendarevent range. It returns true if successful. The force variable makes the subcalendareventignore the check for fitting in the calendarevent range
         /// </summary>
         /// <param name="ChangeInTime"></param>
-        /// <param name="force"></param>
+        /// <param name="force">Sift the sub event even though it outside the subevent timeline</param>
+        /// <param name="lockToId">the subevent won't get shifted when the UI clean up runs</param>
         /// <returns></returns>
-        virtual public bool shiftEvent(TimeSpan ChangeInTime, bool force=false)
+        virtual public bool shiftEvent(TimeSpan ChangeInTime, bool force=false, bool lockToId = false)
         {
             if (force)
             {
                 StartDateTime += ChangeInTime;
                 EndDateTime += ChangeInTime;
                 ActiveSlot.shiftTimeline(ChangeInTime);
+                _LockToId = lockToId;
                 return true;
             }
             TimeLine UpdatedTimeLine = new TimeLine(this.Start + ChangeInTime, this.End + ChangeInTime);
@@ -674,6 +677,7 @@ namespace TilerElements
                 StartDateTime += ChangeInTime;
                 EndDateTime += ChangeInTime;
                 ActiveSlot.shiftTimeline(ChangeInTime);
+                _LockToId = lockToId;
                 return true;
             }
         }
@@ -1247,6 +1251,14 @@ namespace TilerElements
             get
             {
                 return _calendarEvent.getProcrastinationInfo;
+            }
+        }
+
+        public virtual bool LockToId
+        {
+            get
+            {
+                return _LockToId;
             }
         }
         #endregion

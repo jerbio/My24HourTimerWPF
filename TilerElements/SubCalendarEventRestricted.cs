@@ -258,7 +258,7 @@ namespace TilerElements
             return base.IsDateTimeWithin(DateTimeEntry);
         }
 
-        public override bool shiftEvent(TimeSpan ChangeInTime, bool force = false)
+        public override bool shiftEvent(TimeSpan ChangeInTime, bool force = false, bool lockToId = false)
         {
             TimeLine UpdatedTimeLine = new TimeLine(this.Start + ChangeInTime, this.End + ChangeInTime);
             TimeLine myTImeLine =  _ProfileOfRestriction.getLatestActiveTimeFrameBeforeEnd(UpdatedTimeLine);
@@ -267,6 +267,7 @@ namespace TilerElements
                 StartDateTime += ChangeInTime;
                 EndDateTime += ChangeInTime;
                 ActiveSlot.shiftTimeline(ChangeInTime);
+                _LockToId = lockToId;
                 return true;
             }
 
@@ -276,6 +277,7 @@ namespace TilerElements
                 StartDateTime += ChangeInTime;
                 EndDateTime += ChangeInTime;
                 ActiveSlot.shiftTimeline(ChangeInTime);
+                _LockToId = lockToId;
                 return true;
             }
             return false;

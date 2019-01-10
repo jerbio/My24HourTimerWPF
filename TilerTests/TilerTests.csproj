@@ -103,6 +103,7 @@
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
+    <Compile Include="SetEventAsNowTests.cs" />
     <Compile Include="ProcrastinationTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">

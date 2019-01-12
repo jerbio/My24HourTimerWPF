@@ -97,6 +97,11 @@
     <Compile Include="KnownBugList.cs" />
     <Compile Include="LogControlTest.cs" />
     <Compile Include="LogicTest.cs" />
+    <Compile Include="Migrations\201901120709146_removeTravelTime.cs" />
+    <Compile Include="Migrations\201901120709146_removeTravelTime.Designer.cs">
+      <DependentUpon>201901120709146_removeTravelTime.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
     <Compile Include="SetEventAsNowTests.cs" />
     <Compile Include="ProcrastinationTests.cs" />
@@ -192,7 +197,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Migrations\" />
+    <EmbeddedResource Include="Migrations\201901120709146_removeTravelTime.resx">
+      <DependentUpon>201901120709146_removeTravelTime.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

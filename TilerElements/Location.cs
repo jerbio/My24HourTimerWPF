@@ -155,32 +155,41 @@ namespace TilerElements
             _TaggedAddress = _TaggedAddress.Trim();
             try
             {
-                GeocodingRequest request = new GeocodingRequest();
-                request.Address = _TaggedAddress;
-                request.Sensor = true;
-                request.ApiKey = Location.ApiKey;
-
-                var geocodingEngine = GoogleMaps.Geocode;
-                GeocodingResponse geocode = geocodingEngine.Query(request);
-
-                if (geocode.Status == Status.OK)
+                
+                if(!String.IsNullOrEmpty(_TaggedAddress))
                 {
-                    if (string.IsNullOrEmpty(_TaggedDescription))
+                    GeocodingRequest request = new GeocodingRequest();
+                    request.Address = _TaggedAddress;
+                    request.Sensor = true;
+                    request.ApiKey = Location.ApiKey;
+
+                    var geocodingEngine = GoogleMaps.Geocode;
+                    GeocodingResponse geocode = geocodingEngine.Query(request);
+
+                    if (geocode.Status == Status.OK)
                     {
-                        _TaggedDescription = _TaggedAddress;
+                        if (string.IsNullOrEmpty(_TaggedDescription))
+                        {
+                            _TaggedDescription = _TaggedAddress;
+                        }
+                        var result = geocode.Results.First();
+                        _TaggedAddress = result.FormattedAddress.ToLower();
+                        _Latitude = Convert.ToDouble(result.Geometry.Location.Latitude);
+                        _Longitude = Convert.ToDouble(result.Geometry.Location.Longitude);
+                        _NullLocation = false;
+                        retValue = true;
                     }
-                    var result = geocode.Results.First();
-                    _TaggedAddress = result.FormattedAddress.ToLower();
-                    _Latitude = Convert.ToDouble(result.Geometry.Location.Latitude);
-                    _Longitude = Convert.ToDouble(result.Geometry.Location.Longitude);
-                    _NullLocation = false;
-                    retValue = true;
+                    else
+                    {
+                        Console.WriteLine(geocode.Status);
+                        initializeWithNull();
+                    }
                 }
                 else
                 {
-                    Console.WriteLine(geocode.Status);
                     initializeWithNull();
                 }
+                
             }
             catch
             {

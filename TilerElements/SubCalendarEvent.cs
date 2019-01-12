@@ -28,7 +28,9 @@ namespace TilerElements
         protected TimeLine CalculationTimeLine = null;
         protected CalendarEvent _calendarEvent;
         protected bool _LockToId = false;
+        [NotMapped]
         public TimeSpan TravelTimeBefore { get; set; } = new TimeSpan(1);
+        [NotMapped]
         public TimeSpan TravelTimeAfter { get; set; } = new TimeSpan(1);
         public bool isWake { get; set; } = false;
         public bool isSleep { get; set; } = false;

@@ -124,7 +124,9 @@ namespace TilerTests
                         }
                     }
                 }
-                Dictionary<string, CalendarEvent> MyCalendarEventDictionary = calEVents.Where(calEvent => calEvent.CreatorId == _TilerUser.Id && !calEvent.IsRepeatsChildCalEvent).ToDictionary(calEvent => calEvent.Calendar_EventID.getCalendarEventComponent(), calEvent => calEvent);
+                Dictionary<string, CalendarEvent> MyCalendarEventDictionary = calEVents
+                    .Where(calEvent => calEvent.CreatorId == _TilerUser.Id && !calEvent.IsRepeatsChildCalEvent)
+                    .ToDictionary(calEvent => calEvent.Calendar_EventID.getCalendarEventComponent(), calEvent => calEvent);
                 Func<Dictionary<string, CalendarEvent>> retFunc = new Func<Dictionary<string, CalendarEvent>>(() => { return MyCalendarEventDictionary; });
                 Task<Dictionary<string, CalendarEvent>> retTask = Task.Run(retFunc);
                 return retTask;

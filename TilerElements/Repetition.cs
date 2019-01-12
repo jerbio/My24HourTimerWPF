@@ -89,6 +89,7 @@ namespace TilerElements
         {
             _EnableRepeat = false;
             _DictionaryOfIDAndCalendarEvents = new SubEventDictionary<string, CalendarEvent>();
+            _DictionaryOfWeekDayToRepetition = new SubEventDictionary<int, Repetition>();
             RepetitionWeekDay = DayOfWeek;
             if (ReadFromFileRecurringListOfCalendarEvents.Length > 0)
             {

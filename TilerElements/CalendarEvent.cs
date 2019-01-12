@@ -454,7 +454,7 @@ namespace TilerElements
             MyCalendarEventCopy._EventPreDeadline = new TimeSpan(_EventPreDeadline.Ticks);
             MyCalendarEventCopy._PrepTime = new TimeSpan(_PrepTime.Ticks);
             MyCalendarEventCopy._Priority = _Priority;
-            MyCalendarEventCopy._EventRepetition = _EventRepetition != null ? _EventRepetition.CreateCopy() : _EventRepetition;
+            MyCalendarEventCopy._EventRepetition = _EventRepetition?.CreateCopy();
             MyCalendarEventCopy._Complete = this._Complete;
             MyCalendarEventCopy.RigidSchedule = RigidSchedule;//hack
             MyCalendarEventCopy._Splits = _Splits;
@@ -476,11 +476,10 @@ namespace TilerElements
             MyCalendarEventCopy._Enabled = this._Enabled;
             MyCalendarEventCopy.isRestricted = this.isRestricted;
             MyCalendarEventCopy._LocationInfo = _LocationInfo;//hack you might need to make copy
-            MyCalendarEventCopy._ProfileOfProcrastination = this._ProfileOfProcrastination.CreateCopy();
+            MyCalendarEventCopy._ProfileOfProcrastination = this._ProfileOfProcrastination?.CreateCopy();
             MyCalendarEventCopy._UserDeleted= this._UserDeleted;
             MyCalendarEventCopy._CompletedCount = this._CompletedCount;
             MyCalendarEventCopy._DeletedCount = this._DeletedCount;
-            MyCalendarEventCopy._ProfileOfProcrastination = this._ProfileOfProcrastination.CreateCopy();
             MyCalendarEventCopy._ProfileOfNow = this.getNowInfo?.CreateCopy();
             MyCalendarEventCopy._Semantics = this._Semantics?.createCopy();
             MyCalendarEventCopy._UsedTime = this._UsedTime;

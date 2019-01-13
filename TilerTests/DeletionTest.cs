@@ -196,6 +196,9 @@ namespace TilerTests
             Schedule.deleteSubCalendarEvent(deletedSubEventId).Wait();
             Schedule.WriteFullScheduleToLogAndOutlook().Wait();
             Schedule = new TestSchedule(user, refNow);
+            testEvent = Schedule.getCalendarEvent(testEvent.getId);
+            testEvent0 = Schedule.getCalendarEvent(testEvent0.getId);
+            testEvent1 = Schedule.getCalendarEvent(testEvent1.getId);
             SubCalendarEvent testSubEvent = testEvent.ActiveSubEvents[0];
             SubCalendarEvent testSubEvent0 = testEvent0.ActiveSubEvents[0];
             SubCalendarEvent testSubEvent1 = testEvent1.ActiveSubEvents[0];
@@ -219,7 +222,7 @@ namespace TilerTests
             CalendarEvent retrievedCalendarEvent = Schedule.getCalendarEvent(testSubEvent.getId);
             CalendarEvent retrievedCalendarEvent0 = Schedule.getCalendarEvent(testSubEvent0.getId);
             CalendarEvent retrievedCalendarEvent1 = Schedule.getCalendarEvent(testSubEvent1.getId);
-            Assert.AreEqual(retrievedCalendarEvent.DeletionCount, 1);
+            Assert.AreEqual(retrievedCalendarEvent.DeletionCount, 2);
             Assert.AreEqual(retrievedCalendarEvent0.DeletionCount, 1);
             Assert.AreEqual(retrievedCalendarEvent1.DeletionCount, 1);
 
@@ -241,7 +244,7 @@ namespace TilerTests
             retrievedCalendarEvent = Schedule.getCalendarEvent(testSubEvent.getId);
             retrievedCalendarEvent0 = Schedule.getCalendarEvent(testSubEvent0.getId);
             retrievedCalendarEvent1 = Schedule.getCalendarEvent(testSubEvent1.getId);
-            Assert.AreEqual(retrievedCalendarEvent.DeletionCount, 1);
+            Assert.AreEqual(retrievedCalendarEvent.DeletionCount, 2);
             Assert.AreEqual(retrievedCalendarEvent0.DeletionCount, 1);
             Assert.AreEqual(retrievedCalendarEvent1.DeletionCount, 1);
         }

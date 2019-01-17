@@ -12,238 +12,212 @@ namespace TilerTests
     [TestClass]
     public class DeletionTest
     {
-        //[ClassInitialize]
-        //public static void cleanUpTest(TestContext context)
-        //{
-        //    UserAccount currentUser = TestUtility.getTestUser();
-        //    currentUser.Login().Wait();
-        //    DateTimeOffset refNow = DateTimeOffset.UtcNow;
-        //    Schedule Schedule = new TestSchedule(currentUser, refNow);
-        //    currentUser.DeleteAllCalendarEvents();
-        //}
+        [TestMethod]
+        public void DeleteSubEvent()
+        {
+            TestSchedule Schedule;
+            TilerUser tilerUser = TestUtility.createUser();
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            refNow = refNow.removeSecondsAndMilliseconds();
+            TimeSpan duration = TimeSpan.FromHours(2);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.AddHours(7);
+            Schedule = new TestSchedule(user, refNow);
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 2, false);
+            Schedule.AddToScheduleAndCommit(testEvent).Wait();
 
-        //[ClassCleanup]
-        //public static void cleanUpTest()
-        //{
-        //    UserAccount currentUser = TestUtility.getTestUser();
-        //    currentUser.Login().Wait();
-        //    DateTimeOffset refNow = DateTimeOffset.UtcNow;
-        //    Schedule Schedule = new TestSchedule(currentUser, refNow);
-        //    currentUser.DeleteAllCalendarEvents();
-        //}
+            Schedule = new TestSchedule(user, refNow);
+            string deletedSubEventId = testEvent.AllSubEvents[0].getId;
+            Schedule.deleteSubCalendarEvent(deletedSubEventId).Wait();
+            Schedule.persistToDB().Wait();
+            Schedule = new TestSchedule(user, refNow);
+            SubCalendarEvent subEvent = TestUtility.getSubEVentById(deletedSubEventId, user);
+            Assert.IsFalse(subEvent.isEnabled);
+        }
 
-        //[TestInitialize]
-        //public void cleanUpLog()
-        //{
-        //    UserAccount currentUser = TestUtility.getTestUser();
-        //    currentUser.Login().Wait();
-        //    DateTimeOffset refNow = DateTimeOffset.UtcNow;
-        //    Schedule Schedule = new TestSchedule(currentUser, refNow);
-        //    currentUser.DeleteAllCalendarEvents();
-        //}
-
-
-        //[TestCleanup]
-        //public void eachTestCleanUp()
-        //{
-        //    UserAccount currentUser = TestUtility.getTestUser();
-        //    currentUser.Login().Wait();
-        //    DateTimeOffset refNow = DateTimeOffset.UtcNow;
-        //    Schedule Schedule = new TestSchedule(currentUser, refNow);
-        //    currentUser.DeleteAllCalendarEvents();
-        //}
-        //[TestMethod]
-        //public void DeleteSubEvent()
-        //{
-        //    DB_Schedule Schedule;
-        //    UserAccount user = TestUtility.getTestUser();
-        //    user.Login().Wait();
-        //    DateTimeOffset refNow = DateTimeOffset.UtcNow;
-        //    refNow = refNow.removeSecondsAndMilliseconds();
-        //    TimeSpan duration = TimeSpan.FromHours(2);
-        //    DateTimeOffset start = refNow;
-        //    DateTimeOffset end = refNow.AddHours(7);
-        //    Schedule = new TestSchedule(user, refNow);
-        //    CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 2, false);
-        //    Schedule.AddToScheduleAndCommit(testEvent).Wait();
-
-        //    Schedule = new TestSchedule(user, refNow);
-        //    string deletedSubEventId = testEvent.AllSubEvents[0].getId;
-        //    Schedule.deleteSubCalendarEvent(deletedSubEventId).Wait();
-        //    Schedule.WriteFullScheduleToLogAndOutlook().Wait();
-        //    Schedule = new TestSchedule(user, refNow);
-        //    SubCalendarEvent subEvent = Schedule.getSubCalendarEvent(deletedSubEventId);
-        //    Assert.IsFalse(subEvent.isEnabled);
-        //}
-
-        //[TestMethod]
-        //public void DeleteCalendarEvent()
-        //{
-        //    DB_Schedule Schedule;
-        //    UserAccount user = TestUtility.getTestUser();
-        //    user.Login().Wait();
-        //    DateTimeOffset refNow = DateTimeOffset.UtcNow;
-        //    refNow = refNow.removeSecondsAndMilliseconds();
-        //    TimeSpan duration = TimeSpan.FromHours(2);
-        //    DateTimeOffset start = refNow;
-        //    DateTimeOffset end = refNow.AddHours(7);
-        //    Schedule = new TestSchedule(user, refNow);
-        //    CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, 2, false);
-        //    Schedule.AddToSchedule(testEvent);
-        //    Schedule.WriteFullScheduleToLogAndOutlook().Wait();
+        [TestMethod]
+        public void DeleteCalendarEvent()
+        {
+            TestSchedule Schedule;
+            TilerUser tilerUser = TestUtility.createUser();
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            refNow = refNow.removeSecondsAndMilliseconds();
+            TimeSpan duration = TimeSpan.FromHours(2);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.AddHours(7);
+            Schedule = new TestSchedule(user, refNow);
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 2, false);
+            Schedule.AddToScheduleAndCommit(testEvent).Wait();
 
 
-        //    Schedule = new TestSchedule(user, refNow);
-        //    string deletedSubEventId = testEvent.AllSubEvents[0].getId;
-        //    Schedule.deleteCalendarEventAndReadjust(deletedSubEventId).Wait();
-        //    Schedule.WriteFullScheduleToLogAndOutlook().Wait();
+            Schedule = new TestSchedule(user, refNow);
+            string deletedSubEventId = testEvent.AllSubEvents[0].getId;
+            Schedule.deleteCalendarEventAndReadjust(deletedSubEventId).Wait();
+            Schedule.persistToDB().Wait();
 
-        //    Schedule = new TestSchedule(user, refNow);
-        //    CalendarEvent retrievedCalendarEvent = Schedule.getCalendarEvent(deletedSubEventId);
-        //    Assert.IsFalse(retrievedCalendarEvent.isEnabled);
-        //}
+            Schedule = new TestSchedule(user, refNow);
+            EventID id = new EventID(deletedSubEventId);
+            CalendarEvent retrievedCalendarEvent = TestUtility.getCalendarEventById(id.getRepeatCalendarEventID(), user);
+            Assert.IsFalse(retrievedCalendarEvent.isEnabled);
+        }
 
-        //[TestMethod]
-        //public void DeleteSubEventCount()
-        //{
-        //    DB_Schedule Schedule;
-        //    UserAccount user = TestUtility.getTestUser();
-        //    user.Login().Wait();
-        //    DateTimeOffset refNow = DateTimeOffset.UtcNow;
-        //    refNow = refNow.removeSecondsAndMilliseconds();
-        //    int numberOfSubEvent = 5;
-        //    TimeSpan duration = TimeSpan.FromHours(2);
-        //    DateTimeOffset start = refNow;
-        //    DateTimeOffset end = refNow.AddHours(7);
-        //    Schedule = new TestSchedule(user, refNow);
-        //    CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, numberOfSubEvent, false);
-        //    Schedule.AddToScheduleAndCommit(testEvent).Wait();
+        [TestMethod]
+        public void DeleteSubEventCount()
+        {
+            TestSchedule Schedule;
+            TilerUser tilerUser = TestUtility.createUser();
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            refNow = refNow.removeSecondsAndMilliseconds();
+            int numberOfSubEvent = 5;
+            TimeSpan duration = TimeSpan.FromHours(2);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.AddHours(7);
+            Schedule = new TestSchedule(user, refNow);
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, numberOfSubEvent, false);
+            Schedule.AddToScheduleAndCommit(testEvent).Wait();
 
-        //    user = TestUtility.getTestUser();
-        //    user.Login().Wait();
-        //    TimeSpan duration0 = TimeSpan.FromHours(2);
-        //    DateTimeOffset start0 = refNow;
-        //    DateTimeOffset end0 = refNow.AddHours(7);
-        //    Schedule = new TestSchedule(user, refNow);
-        //    CalendarEvent testEvent0 = TestUtility.generateCalendarEvent(duration0, new Repetition(), start0, end0, numberOfSubEvent, false);
-        //    Schedule.AddToScheduleAndCommit(testEvent0).Wait();
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            user.Login().Wait();
+            TimeSpan duration0 = TimeSpan.FromHours(2);
+            DateTimeOffset start0 = refNow;
+            DateTimeOffset end0 = refNow.AddHours(7);
+            Schedule = new TestSchedule(user, refNow);
+            CalendarEvent testEvent0 = TestUtility.generateCalendarEvent(tilerUser, duration0, new Repetition(), start0, end0, numberOfSubEvent, false);
+            Schedule.AddToScheduleAndCommit(testEvent0).Wait();
 
-        //    user = TestUtility.getTestUser();
-        //    user.Login().Wait();
-        //    TimeSpan duration1 = TimeSpan.FromHours(2);
-        //    DateTimeOffset start1 = refNow;
-        //    DateTimeOffset end1 = refNow.AddHours(7);
-        //    Schedule = new TestSchedule(user, refNow);
-        //    CalendarEvent testEvent1 = TestUtility.generateCalendarEvent(duration1, new Repetition(), start1, end1, numberOfSubEvent, false);
-        //    Schedule.AddToScheduleAndCommit(testEvent1).Wait();
-        //    Schedule = new TestSchedule(user, refNow);
-        //    string deletedSubEventId = testEvent.AllSubEvents[0].getId;
-        //    Schedule.deleteSubCalendarEvent(deletedSubEventId).Wait();
-        //    Schedule.WriteFullScheduleToLogAndOutlook().Wait();
-        //    Schedule = new TestSchedule(user, refNow);
-        //    SubCalendarEvent subEvent = Schedule.getSubCalendarEvent(deletedSubEventId);
-        //    Assert.IsFalse(subEvent.isEnabled);
-        //    CalendarEvent calendarEvent = Schedule.getCalendarEvent(deletedSubEventId);
-        //    Assert.AreEqual(calendarEvent.DeletionCount, 1);
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            user.Login().Wait();
+            TimeSpan duration1 = TimeSpan.FromHours(2);
+            DateTimeOffset start1 = refNow;
+            DateTimeOffset end1 = refNow.AddHours(7);
+            Schedule = new TestSchedule(user, refNow);
+            CalendarEvent testEvent1 = TestUtility.generateCalendarEvent(tilerUser, duration1, new Repetition(), start1, end1, numberOfSubEvent, false);
+            Schedule.AddToScheduleAndCommit(testEvent1).Wait();
 
-        //    // Running deletion on the same subEvent, we should get the same deletion count
-        //    Schedule = new TestSchedule(user, refNow);
-        //    Schedule.deleteSubCalendarEvent(deletedSubEventId).Wait();
-        //    Schedule.WriteFullScheduleToLogAndOutlook().Wait();
-        //    Schedule = new TestSchedule(user, refNow);
-        //    subEvent = Schedule.getSubCalendarEvent(deletedSubEventId);
-        //    Assert.IsFalse(subEvent.isEnabled);
-        //    calendarEvent = Schedule.getCalendarEvent(deletedSubEventId);
-        //    Assert.AreEqual(calendarEvent.DeletionCount, 1);
+            Schedule = new TestSchedule(user, refNow);
+            string deletedSubEventId = testEvent.AllSubEvents[0].getId;
+            Schedule.deleteSubCalendarEvent(deletedSubEventId).Wait();
+            Schedule.persistToDB().Wait();
+            Schedule = new TestSchedule(user, refNow);
+            SubCalendarEvent subEvent = TestUtility.getSubEVentById(deletedSubEventId, user);
+            Assert.IsFalse(subEvent.isEnabled);
+            CalendarEvent calendarEvent = TestUtility.getCalendarEventById(new EventID( deletedSubEventId).getCalendarEventID(), user);
+            Assert.AreEqual(calendarEvent.DeletionCount, 1);
 
-        //}
+            // Running deletion on the same subEvent, we should get the same deletion count
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.deleteSubCalendarEvent(deletedSubEventId).Wait();
+            Schedule.persistToDB().Wait();
+            Schedule = new TestSchedule(user, refNow);
+            subEvent = TestUtility.getSubEVentById(deletedSubEventId, user);
+            Assert.IsFalse(subEvent.isEnabled);
+            calendarEvent = TestUtility.getCalendarEventById(new EventID(deletedSubEventId).getRepeatCalendarEventID(), user);
+            Assert.AreEqual(calendarEvent.DeletionCount, 1);
 
-        //[TestMethod]
-        //public void DeleteSubEventMultiple()
-        //{
-        //    DB_Schedule Schedule;
-        //    UserAccount user = TestUtility.getTestUser();
-        //    user.Login().Wait();
-        //    DateTimeOffset refNow = DateTimeOffset.UtcNow;
-        //    refNow = refNow.removeSecondsAndMilliseconds();
-        //    int numberOfSubEvent = 5;
-        //    TimeSpan duration = TimeSpan.FromHours(2);
-        //    DateTimeOffset start = refNow;
-        //    DateTimeOffset end = refNow.AddHours(7);
-        //    Schedule = new TestSchedule(user, refNow);
-        //    CalendarEvent testEvent = TestUtility.generateCalendarEvent(duration, new Repetition(), start, end, numberOfSubEvent, false);
-        //    Schedule.AddToScheduleAndCommit(testEvent).Wait();
+        }
 
-        //    user = TestUtility.getTestUser();
-        //    user.Login().Wait();
-        //    TimeSpan duration0 = TimeSpan.FromHours(2);
-        //    DateTimeOffset start0 = refNow;
-        //    DateTimeOffset end0 = refNow.AddHours(7);
-        //    Schedule = new TestSchedule(user, refNow);
-        //    CalendarEvent testEvent0 = TestUtility.generateCalendarEvent(duration0, new Repetition(), start0, end0, numberOfSubEvent, false);
-        //    Schedule.AddToScheduleAndCommit(testEvent0).Wait();
+        [TestMethod]
+        public void DeleteSubEventMultiple()
+        {
+            TestSchedule Schedule;
+            TilerUser tilerUser = TestUtility.createUser();
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            refNow = refNow.removeSecondsAndMilliseconds();
+            int numberOfSubEvent = 5;
+            TimeSpan duration = TimeSpan.FromHours(2);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.AddHours(7);
+            Schedule = new TestSchedule(user, refNow);
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, numberOfSubEvent, false);
+            Schedule.AddToScheduleAndCommit(testEvent).Wait();
 
-        //    user = TestUtility.getTestUser();
-        //    user.Login().Wait();
-        //    TimeSpan duration1 = TimeSpan.FromHours(2);
-        //    DateTimeOffset start1 = refNow;
-        //    DateTimeOffset end1 = refNow.AddHours(7);
-        //    Schedule = new TestSchedule(user, refNow);
-        //    CalendarEvent testEvent1 = TestUtility.generateCalendarEvent(duration1, new Repetition(), start1, end1, numberOfSubEvent, false);
-        //    Schedule.AddToScheduleAndCommit(testEvent1).Wait();
-        //    Schedule = new TestSchedule(user, refNow);
-        //    string deletedSubEventId = testEvent.AllSubEvents[0].getId;
-        //    Schedule.deleteSubCalendarEvent(deletedSubEventId).Wait();
-        //    Schedule.WriteFullScheduleToLogAndOutlook().Wait();
-        //    Schedule = new TestSchedule(user, refNow);
-        //    SubCalendarEvent testSubEvent = testEvent.ActiveSubEvents[0];
-        //    SubCalendarEvent testSubEvent0 = testEvent0.ActiveSubEvents[0];
-        //    SubCalendarEvent testSubEvent1 = testEvent1.ActiveSubEvents[0];
-        //    Schedule = new TestSchedule(user, refNow);
-        //    Schedule.deleteSubCalendarEventAndReadjust(testSubEvent.getId).Wait();
-        //    Schedule.WriteFullScheduleToLogAndOutlook().Wait();
-        //    testSubEvent = Schedule.getSubCalendarEvent(testSubEvent.getId);
-        //    List<EventID> subEventIds = new List<EventID>() { testSubEvent.SubEvent_ID, testSubEvent0.SubEvent_ID, testSubEvent1.SubEvent_ID };
-        //    Schedule = new TestSchedule(user, refNow);
-        //    Schedule.deleteSubCalendarEvents(subEventIds.Select(subeventid => subeventid.ToString())).Wait();
-        //    Schedule.WriteFullScheduleToLogAndOutlook().Wait();
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            user.Login().Wait();
+            TimeSpan duration0 = TimeSpan.FromHours(2);
+            DateTimeOffset start0 = refNow;
+            DateTimeOffset end0 = refNow.AddHours(7);
+            Schedule = new TestSchedule(user, refNow);
+            CalendarEvent testEvent0 = TestUtility.generateCalendarEvent(tilerUser, duration0, new Repetition(), start0, end0, numberOfSubEvent, false);
+            Schedule.AddToScheduleAndCommit(testEvent0).Wait();
 
-        //    Schedule = new TestSchedule(user, refNow);
-        //    testSubEvent = Schedule.getSubCalendarEvent(testSubEvent.getId);
-        //    testSubEvent0 = Schedule.getSubCalendarEvent(testSubEvent0.getId);
-        //    testSubEvent1 = Schedule.getSubCalendarEvent(testSubEvent1.getId);
-        //    Assert.IsTrue(testSubEvent.getIsDeleted);
-        //    Assert.IsTrue(testSubEvent0.getIsDeleted);
-        //    Assert.IsTrue(testSubEvent1.getIsDeleted);
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            user.Login().Wait();
+            TimeSpan duration1 = TimeSpan.FromHours(2);
+            DateTimeOffset start1 = refNow;
+            DateTimeOffset end1 = refNow.AddHours(7);
+            Schedule = new TestSchedule(user, refNow);
+            CalendarEvent testEvent1 = TestUtility.generateCalendarEvent(tilerUser, duration1, new Repetition(), start1, end1, numberOfSubEvent, false);
+            Schedule.AddToScheduleAndCommit(testEvent1).Wait();
 
-        //    CalendarEvent retrievedCalendarEvent = Schedule.getCalendarEvent(testSubEvent.getId);
-        //    CalendarEvent retrievedCalendarEvent0 = Schedule.getCalendarEvent(testSubEvent0.getId);
-        //    CalendarEvent retrievedCalendarEvent1 = Schedule.getCalendarEvent(testSubEvent1.getId);
-        //    Assert.AreEqual(retrievedCalendarEvent.DeletionCount, 1);
-        //    Assert.AreEqual(retrievedCalendarEvent0.DeletionCount, 1);
-        //    Assert.AreEqual(retrievedCalendarEvent1.DeletionCount, 1);
+            Schedule = new TestSchedule(user, refNow);
+            string deletedSubEventId = testEvent.AllSubEvents[0].getId;
+            Schedule.deleteSubCalendarEvent(deletedSubEventId).Wait();
+            Schedule.persistToDB().Wait();
+
+            Schedule = new TestSchedule(user, refNow);
+            testEvent = TestUtility.getCalendarEventById(testEvent.ActiveSubEvents[0].getId, user);
+            testEvent0 = TestUtility.getCalendarEventById(testEvent0.ActiveSubEvents[0].getId, user);
+            testEvent1 = TestUtility.getCalendarEventById(testEvent1.ActiveSubEvents[0].getId, user);
+            SubCalendarEvent testSubEvent = testEvent.ActiveSubEvents[0];
+            SubCalendarEvent testSubEvent0 = testEvent0.ActiveSubEvents[0];
+            SubCalendarEvent testSubEvent1 = testEvent1.ActiveSubEvents[0];
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.deleteSubCalendarEventAndReadjust(testSubEvent.getId).Wait();
+            Schedule.persistToDB().Wait();
+            testSubEvent = TestUtility.getSubEVentById(testSubEvent.getId, user);
+            List<EventID> subEventIds = new List<EventID>() { testSubEvent.SubEvent_ID, testSubEvent0.SubEvent_ID, testSubEvent1.SubEvent_ID };
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.deleteSubCalendarEvents(subEventIds.Select(subeventid => subeventid.ToString())).Wait();
+            Schedule.persistToDB().Wait();
+
+            Schedule = new TestSchedule(user, refNow);
+            testSubEvent = TestUtility.getSubEVentById(testSubEvent.getId, user);
+            testSubEvent0 = TestUtility.getSubEVentById(testSubEvent0.getId, user);
+            testSubEvent1 = TestUtility.getSubEVentById(testSubEvent1.getId, user);
+            Assert.IsTrue(testSubEvent.getIsDeleted);
+            Assert.IsTrue(testSubEvent0.getIsDeleted);
+            Assert.IsTrue(testSubEvent1.getIsDeleted);
+
+            CalendarEvent retrievedCalendarEvent = TestUtility.getCalendarEventById(testSubEvent.getId, user);
+            CalendarEvent retrievedCalendarEvent0 = TestUtility.getCalendarEventById(testSubEvent0.getId, user);
+            CalendarEvent retrievedCalendarEvent1 = TestUtility.getCalendarEventById(testSubEvent1.getId, user);
+            Assert.AreEqual(retrievedCalendarEvent.DeletionCount, 2);
+            Assert.AreEqual(retrievedCalendarEvent0.DeletionCount, 1);
+            Assert.AreEqual(retrievedCalendarEvent1.DeletionCount, 1);
 
 
 
-        //    /// Re running just to prevent duplicate additions
-        //    Schedule = new TestSchedule(user, refNow);
-        //    Schedule.deleteSubCalendarEvents(subEventIds.Select(subeventid => subeventid.ToString())).Wait();
-        //    Schedule.WriteFullScheduleToLogAndOutlook().Wait();
+            /// Re running just to prevent duplicate additions
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.deleteSubCalendarEvents(subEventIds.Select(subeventid => subeventid.ToString())).Wait();
+            Schedule.persistToDB().Wait();
 
-        //    Schedule = new TestSchedule(user, refNow);
-        //    testSubEvent = Schedule.getSubCalendarEvent(testSubEvent.getId);
-        //    testSubEvent0 = Schedule.getSubCalendarEvent(testSubEvent0.getId);
-        //    testSubEvent1 = Schedule.getSubCalendarEvent(testSubEvent1.getId);
-        //    Assert.IsTrue(testSubEvent.getIsDeleted);
-        //    Assert.IsTrue(testSubEvent0.getIsDeleted);
-        //    Assert.IsTrue(testSubEvent1.getIsDeleted);
+            Schedule = new TestSchedule(user, refNow);
+            testSubEvent = TestUtility.getSubEVentById(testSubEvent.getId, user);
+            testSubEvent0 = TestUtility.getSubEVentById(testSubEvent0.getId, user);
+            testSubEvent1 = TestUtility.getSubEVentById(testSubEvent1.getId, user);
+            Assert.IsTrue(testSubEvent.getIsDeleted);
+            Assert.IsTrue(testSubEvent0.getIsDeleted);
+            Assert.IsTrue(testSubEvent1.getIsDeleted);
 
-        //    retrievedCalendarEvent = Schedule.getCalendarEvent(testSubEvent.getId);
-        //    retrievedCalendarEvent0 = Schedule.getCalendarEvent(testSubEvent0.getId);
-        //    retrievedCalendarEvent1 = Schedule.getCalendarEvent(testSubEvent1.getId);
-        //    Assert.AreEqual(retrievedCalendarEvent.DeletionCount, 1);
-        //    Assert.AreEqual(retrievedCalendarEvent0.DeletionCount, 1);
-        //    Assert.AreEqual(retrievedCalendarEvent1.DeletionCount, 1);
-        //}
+            retrievedCalendarEvent = TestUtility.getCalendarEventById(testSubEvent.getId, user);
+            retrievedCalendarEvent0 = TestUtility.getCalendarEventById(testSubEvent0.getId, user);
+            retrievedCalendarEvent1 = TestUtility.getCalendarEventById(testSubEvent1.getId, user);
+            Assert.AreEqual(retrievedCalendarEvent.DeletionCount, 2);
+            Assert.AreEqual(retrievedCalendarEvent0.DeletionCount, 1);
+            Assert.AreEqual(retrievedCalendarEvent1.DeletionCount, 1);
+        }
     }
 }

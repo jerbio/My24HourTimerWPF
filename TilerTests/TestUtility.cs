@@ -366,6 +366,14 @@ namespace TilerTests
             return userAccount;
         }
 
+        public static CalendarEvent getCalendarEventById(EventID calEventId, UserAccount user)
+        {
+            Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(calEventId.ToString());
+            waitVar.Wait();
+            CalendarEvent retValue = waitVar.Result;
+            return retValue;
+        }
+
         public static CalendarEvent getCalendarEventById (string calEventId, UserAccount user)
         {
             Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(calEventId);

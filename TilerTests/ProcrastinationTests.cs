@@ -105,7 +105,7 @@ namespace TilerTests
 
 
         [TestMethod]
-        [ExpectedException(typeof(CustomErrors), "Procrasting past the deadline should be geenrated.")]
+        [ExpectedException(typeof(CustomErrors), "Procrasting past the deadline should be generated.")]
         public void procrastinateSinglePastDeadline()
         {
             TestSchedule Schedule;

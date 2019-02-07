@@ -1244,7 +1244,7 @@ namespace TilerElements
         {
             get
             {
-                return _calendarEvent.Procrastination_EventDB;
+                return _calendarEvent?.Procrastination_EventDB;
             }
         }
 

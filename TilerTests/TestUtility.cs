@@ -46,6 +46,7 @@ namespace TilerTests
                 //context.Users.Add(_testUser);
                 context.SaveChanges();
                 _Context = context;
+                _Context.Database.Log = s => System.Diagnostics.Debug.WriteLine(s);
 
                 isInitialized = true;
             }
@@ -362,6 +363,26 @@ namespace TilerTests
             }
 
             TilerUser tilerUser = _Context.Users.Find(userId);
+            UserAccount userAccount = new UserAccountTest(tilerUser, _Context);
+            return userAccount;
+        }
+
+
+        public static UserAccount fakegetTestUser(bool reloadTilerCOntext = false, string userId = testUserId)
+        {
+            if (!isInitialized)
+            {
+                init();
+            }
+
+            if (reloadTilerCOntext)
+            {
+                _Context = new TestDBContext();
+                _Context.Database.Log = s => System.Diagnostics.Debug.WriteLine(s);
+            }
+            _Context.SaveChanges();
+            EventName name = _Context.EventNames.Find("fake-id");
+            TilerUser tilerUser = new TilerUser();
             UserAccount userAccount = new UserAccountTest(tilerUser, _Context);
             return userAccount;
         }

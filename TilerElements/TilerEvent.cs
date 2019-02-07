@@ -531,7 +531,7 @@ namespace TilerElements
         {
             get
             {
-                return IsRepeat ? _EventRepetition : null;
+                return IsRepeat && _EventRepetition!=null && _EventRepetition.isPersistable ?  _EventRepetition : null;
             }
             set
             {

@@ -27,6 +27,7 @@ namespace TilerElements
         Dictionary<ulong, DayTimeLine> CalculationLimitationWithUnUsables;
         Dictionary<ulong, DayTimeLine> CalculationLimitation;
         Dictionary<ulong, DayTimeLine> FreeDaysLimitation;
+        List<SubCalendarEvent> _RemovedSubEvents = new List<SubCalendarEvent>();
 
         #region undoMembers
         public int UndoSplits;
@@ -1464,6 +1465,7 @@ namespace TilerElements
                         decrementDeleteCount(SubEvent.RangeSpan);
                     }
                     SubEvents.Remove(SubEvent.Id);
+                    _RemovedSubEvents.Add(SubEvent);
                     _EventDuration = _EventDuration.Add(-SubEvent.getActiveDuration);
                     orderedByActive.RemoveAt(0);
                 }
@@ -1838,6 +1840,21 @@ namespace TilerElements
             get
             {
                 return _DataBlob;
+            }
+        }
+
+        virtual public IEnumerable<SubCalendarEvent> RemoveSubEventFromEntity
+        {
+            get
+            {
+                if(IsRepeat)
+                {
+                    var recurringCalEvents = Repeat.RecurringCalendarEvents();
+                    return recurringCalEvents.SelectMany(calEVent => calEVent._RemovedSubEvents);
+                } else
+                {
+                    return _RemovedSubEvents;
+                }
             }
         }
 

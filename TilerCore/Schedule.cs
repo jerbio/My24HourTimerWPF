@@ -410,8 +410,8 @@ namespace TilerCore
             bool isStartChange = newStart != myCalendarEvent.Start;
             bool isSplitDiff = myCalendarEvent.NumberOfSplit != newSplitCount;
 
-            Dictionary<string, CalendarEvent> AllEventDictionary_Cpy = new Dictionary<string, CalendarEvent>();
-            AllEventDictionary_Cpy = AllEventDictionary.ToDictionary(obj => obj.Key, obj => obj.Value.createCopy());
+            //Dictionary<string, CalendarEvent> AllEventDictionary_Cpy = new Dictionary<string, CalendarEvent>();
+            //AllEventDictionary_Cpy = AllEventDictionary.ToDictionary(obj => obj.Key, obj => obj.Value.createCopy());
 
             //if (isSplitDiff || isDurationDiff || isStartChange || isDeadlineChange||forceRecalculation)
             if (isSplitDiff || isStartChange || isDeadlineChange || forceRecalculation)
@@ -441,7 +441,6 @@ namespace TilerCore
             myCalendarEvent.Notes.UserNote = notes;
 
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(myCalendarEvent.Error, AllEventDictionary);
-            AllEventDictionary = AllEventDictionary_Cpy;
             return retValue;
         }
 

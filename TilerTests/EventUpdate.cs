@@ -527,7 +527,7 @@ namespace TilerTests
             newDeadline = newStart.Add(TimeSpan.FromTicks((long)(duration.Ticks / 2)));
             scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, testEvent.getName, newStart, newDeadline, testEvent.NumberOfSplit, testEvent.Notes.UserNote);
 
-            
+
         }
 
         [TestMethod]

@@ -20,7 +20,7 @@ namespace TilerElements
         protected TimeLine _initializingRange;//stores range for repetition so if assuming event happens on thursday from 9-11pm. The range is from today till november 31. The initializingRange will be 9-11pm
         protected int RepetitionWeekDay =7;
         protected Repetition parentRepetition;
-        static DayOfWeek[] Weekdays=new DayOfWeek[7]{DayOfWeek.Sunday,DayOfWeek.Monday,DayOfWeek.Tuesday,DayOfWeek.Wednesday,DayOfWeek.Thursday,DayOfWeek.Friday,DayOfWeek.Saturday};
+        protected static DayOfWeek[] Weekdays=new DayOfWeek[7]{DayOfWeek.Sunday,DayOfWeek.Monday,DayOfWeek.Tuesday,DayOfWeek.Wednesday,DayOfWeek.Thursday,DayOfWeek.Friday,DayOfWeek.Saturday};
         static DateTimeOffset CalculationStop = DateTimeOffset.UtcNow;
         public enum Frequency {DAILY, WEEKLY, MONTHLY, YEARLY, BIWEEKLY, NONE };
         protected string _UndoId;
@@ -293,9 +293,6 @@ namespace TilerElements
             }
         }
         
-
-
-
         private DateTimeOffset getStartTimeForAppropriateWeek(DateTimeOffset refTime, DayOfWeek SearchedDayOfweek)
         {
             while (refTime.DayOfWeek != SearchedDayOfweek)
@@ -755,6 +752,8 @@ namespace TilerElements
                 return _DictionaryOfWeekDayToRepetition ?? (_DictionaryOfWeekDayToRepetition = new SubEventDictionary<int, Repetition>());
             }
         }
+        [NotMapped]
+        public virtual bool isPersistable { get; set; } = true;
 
         public virtual bool FirstInstantiation { get; set; } = true;
 

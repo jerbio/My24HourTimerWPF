@@ -97,6 +97,14 @@
     <Compile Include="KnownBugList.cs" />
     <Compile Include="LogControlTest.cs" />
     <Compile Include="LogicTest.cs" />
+    <Compile Include="Migrations\201902190709181_completionDeletionCountDefaultIniFix.cs" />
+    <Compile Include="Migrations\201902190709181_completionDeletionCountDefaultIniFix.Designer.cs">
+      <DependentUpon>201902190709181_completionDeletionCountDefaultIniFix.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201902190718031_completionDeletionCountDefault.cs" />
+    <Compile Include="Migrations\201902190718031_completionDeletionCountDefault.Designer.cs">
+      <DependentUpon>201902190718031_completionDeletionCountDefault.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
     <Compile Include="SetEventAsNowTests.cs" />
@@ -208,6 +216,14 @@
     <Content Include="WagTapCalLogs\e94713a5-9ab6-4c6b-9b46-edafa4b0dafc\e94713a5-9ab6-4c6b-9b46-edafa4b0dafc.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201902190709181_completionDeletionCountDefaultIniFix.resx">
+      <DependentUpon>201902190709181_completionDeletionCountDefaultIniFix.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201902190718031_completionDeletionCountDefault.resx">
+      <DependentUpon>201902190718031_completionDeletionCountDefault.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

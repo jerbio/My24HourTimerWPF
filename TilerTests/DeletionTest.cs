@@ -87,6 +87,7 @@ namespace TilerTests
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             user.Login().Wait();
+            tilerUser = user.getTilerUser();
             TimeSpan duration0 = TimeSpan.FromHours(2);
             DateTimeOffset start0 = refNow;
             DateTimeOffset end0 = refNow.AddHours(7);
@@ -96,6 +97,7 @@ namespace TilerTests
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             user.Login().Wait();
+            tilerUser = user.getTilerUser();
             TimeSpan duration1 = TimeSpan.FromHours(2);
             DateTimeOffset start1 = refNow;
             DateTimeOffset end1 = refNow.AddHours(7);
@@ -145,6 +147,7 @@ namespace TilerTests
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             user.Login().Wait();
+            tilerUser = user.getTilerUser();
             TimeSpan duration0 = TimeSpan.FromHours(2);
             DateTimeOffset start0 = refNow;
             DateTimeOffset end0 = refNow.AddHours(7);
@@ -154,6 +157,7 @@ namespace TilerTests
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             user.Login().Wait();
+            tilerUser = user.getTilerUser();
             TimeSpan duration1 = TimeSpan.FromHours(2);
             DateTimeOffset start1 = refNow;
             DateTimeOffset end1 = refNow.AddHours(7);

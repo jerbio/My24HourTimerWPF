@@ -11,6 +11,7 @@ using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using TilerTests.Models;
 using System.Globalization;
+using System.Data.Entity.Core.Objects;
 
 namespace TilerTests
 {
@@ -27,42 +28,16 @@ namespace TilerTests
         static readonly string _firstName = "First Name TestUserTiler";
         const string testUserId = "065febec-d1fe-4c8b-bd32-548613d4479f";
         static bool isInitialized = false;
-        //static TilerUser _testUser;
-        static TilerDbContext _Context;
+        static Dictionary<string, TilerDbContext> UserToContext = new Dictionary<string, TilerDbContext>();
 
         public static void init()
         {
             if (!isInitialized)
             {
-                //_testUser = new TilerUser()
-                //{
-                //    Id = testUserId,
-                //    UserName = _UserName,
-                //    Email = _Email,
-                //    PasswordHash = _Password
-                //};
-
-                TestDBContext context = new TestDBContext();
-                //context.Users.Add(_testUser);
-                context.SaveChanges();
-                _Context = context;
-                _Context.Database.Log = s => System.Diagnostics.Debug.WriteLine(s);
-
                 isInitialized = true;
             }
             initializeLocation();
         }
-
-        public static TilerDbContext getContext {
-            get {
-                if (!isInitialized)
-                {
-                    init();
-                }
-                return _Context;
-            }
-        }
-
 
         public static TilerUser createUser (string userId = "", string userName = "", string password = "", string email = "")
         {
@@ -332,59 +307,41 @@ namespace TilerTests
             return RetValue;
         }
 
-        public static UserAccount getTestUser(bool reloadTilerCOntext = false, string userId = testUserId, bool copyTestFolder = true) {
-            //if (userId != testUserId && copyTestFolder)
-            //{
-            //    string sourceFile = "WagTapCalLogs\\" + userId + "\\" + userId + ".xml";
-            //    string destinationFile = "WagTapCalLogs\\" + userId + ".xml";
-            //    System.IO.File.Copy(sourceFile, destinationFile, true);
-            //}
-            //TilerFront.Models.LoginViewModel myLogin = new TilerFront.Models.LoginViewModel() { Username = TestUtility.UserName, Password = TestUtility.Password, RememberMe = true };
-
-            //TilerFront.Models.AuthorizedUser AuthorizeUser = new TilerFront.Models.AuthorizedUser() { UserID = userId, UserName = TestUtility.UserName };
-            //Task<UserAccount> waitForUseraccount = AuthorizeUser.getUserAccountDebug();
-            //waitForUseraccount.Wait();
-            //if ((testUser == null) || (forxeUpdateOfTilerUser))
-            //{
-            //    testUser = new TilerTestUser(AuthorizeUser.UserID);
-            //}
-            //return waitForUseraccount.Result;
-
-
-
+        public static UserAccount getTestUser(bool reloadTilerContext = true, string userId = testUserId, bool copyTestFolder = true) {
             if (!isInitialized) {
                 init();
             }
 
-            if(reloadTilerCOntext)
+
+            TilerDbContext _Context;
+            if (UserToContext.ContainsKey(userId))
+            {
+                _Context = UserToContext[userId];
+                if (reloadTilerContext)
+                {
+                    RefreshAll(_Context);
+                }
+                _Context = new TestDBContext();
+                _Context.Database.Log = s => System.Diagnostics.Debug.WriteLine(s);
+                UserToContext[userId] = _Context;
+            }
+            else
             {
                 _Context = new TestDBContext();
                 _Context.Database.Log = s => System.Diagnostics.Debug.WriteLine(s);
+                UserToContext.Add(userId, _Context);
             }
+
+            
 
             TilerUser tilerUser = _Context.Users.Find(userId);
             UserAccount userAccount = new UserAccountTest(tilerUser, _Context);
             return userAccount;
         }
 
-
-        public static UserAccount fakegetTestUser(bool reloadTilerCOntext = false, string userId = testUserId)
+        public static void RefreshAll(TilerDbContext context)
         {
-            if (!isInitialized)
-            {
-                init();
-            }
-
-            if (reloadTilerCOntext)
-            {
-                _Context = new TestDBContext();
-                _Context.Database.Log = s => System.Diagnostics.Debug.WriteLine(s);
-            }
-            _Context.SaveChanges();
-            EventName name = _Context.EventNames.Find("fake-id");
-            TilerUser tilerUser = new TilerUser();
-            UserAccount userAccount = new UserAccountTest(tilerUser, _Context);
-            return userAccount;
+            context.Dispose();
         }
 
         public static CalendarEvent getCalendarEventById(EventID calEventId, UserAccount user)

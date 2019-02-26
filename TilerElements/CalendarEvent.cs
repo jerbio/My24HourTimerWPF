@@ -1,6 +1,7 @@
 ﻿#define SetDefaultPreptimeToZero
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -22,7 +23,7 @@ namespace TilerElements
         protected TimeLine EventSequence;
         protected HashSet<SubCalendarEvent> CalculableSubEvents = new HashSet<SubCalendarEvent>();
         protected HashSet<SubCalendarEvent> UnDesignables = new HashSet<SubCalendarEvent>();
-        protected bool isCalculableInitialized = false;
+        protected bool _isCalculableInitialized = false;
         protected bool isUnDesignableInitialized = false;
         Dictionary<ulong, DayTimeLine> CalculationLimitationWithUnUsables;
         Dictionary<ulong, DayTimeLine> CalculationLimitation;
@@ -406,12 +407,12 @@ namespace TilerElements
         public void initializeCalculables()
         {
             CalculableSubEvents = new HashSet<SubCalendarEvent>(ActiveSubEvents.Where(obj => obj.isInCalculationMode));
-            isCalculableInitialized = true;
+            _isCalculableInitialized = true;
         }
 
         public void initializeUndesignables()
         {
-            if (isCalculableInitialized)
+            if (_isCalculableInitialized)
             {
                 UnDesignables = new HashSet<SubCalendarEvent>((CalculableSubEvents.Where(obj => !obj.isDesignated)));
                 isUnDesignableInitialized = true;
@@ -1114,7 +1115,7 @@ namespace TilerElements
                 this._CompletedCount = CalendarEventEntry._CompletedCount;
                 this._DeletedCount = CalendarEventEntry._DeletedCount;
                 this.EndOfCalculation = CalendarEventEntry.EndOfCalculation;
-                this.isCalculableInitialized = CalendarEventEntry.isCalculableInitialized;
+                this._isCalculableInitialized = CalendarEventEntry._isCalculableInitialized;
                 this.isUnDesignableInitialized = CalendarEventEntry.isUnDesignableInitialized;
                 this._Splits = CalendarEventEntry._Splits;
                 this.UnDesignables = CalendarEventEntry.UnDesignables;
@@ -1638,8 +1639,16 @@ namespace TilerElements
                 return UniqueID;
             }
         }
-
         
+        public bool isCalculableInitialized
+        {
+            get
+            {
+                return _isCalculableInitialized;
+            }
+        }
+
+
         public TimeSpan TimeLeftBeforeDeadline
         {
             get
@@ -1740,6 +1749,32 @@ namespace TilerElements
             get
             {
                 return SubEvents ?? (SubEvents = new SubEventDictionary<string, SubCalendarEvent>());
+            }
+        }
+
+        [DefaultValue(0)]
+        virtual public int CompletionCount_DB
+        {
+            set
+            {
+                _CompletedCount = value;
+            }
+            get
+            {
+                return _CompletedCount;
+            }
+        }
+        [DefaultValue(0)]
+        virtual public int DeletionCount_DB
+        {
+            set
+            {
+                _DeletedCount = value;
+            }
+
+            get
+            {
+                return _DeletedCount;
             }
         }
 

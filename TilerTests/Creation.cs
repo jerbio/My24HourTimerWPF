@@ -27,11 +27,46 @@ namespace TilerTests
             get;
             set;
         }
-        [TestInitialize]
-        public void initializeTests() {
-            TestUtility.init();
-        }
+        //[TestInitialize]
+        //public void initializeTests() {
+        //    TestUtility.init();
+        //}
 
+        [TestMethod]
+        public void TestContextCaching ()
+        {
+            TilerUser tilerUser = TestUtility.createUser();
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+
+            Schedule = new TestSchedule(user, refNow);
+            TimeSpan duration = TimeSpan.FromHours(1);
+            TimeLine timeLine = TestUtility.getTimeFrames(refNow, duration).First();
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), timeLine.Start, timeLine.End, 1, false);
+            Assert.IsFalse(testEvent.isCalculableInitialized);
+            string testEVentId = testEvent.Id;
+            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            Assert.IsTrue(testEvent.isCalculableInitialized);// this should be true because AddToScheduleAndCommit should trigger a switch of isCalculableInitialized
+
+            UserAccount userAcc = TestUtility.getTestUser(userId: tilerUser.Id);
+            Task<CalendarEvent> waitVar = userAcc.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
+            waitVar.Wait();
+            CalendarEvent verificationEventPulled = waitVar.Result;
+            Assert.IsFalse(verificationEventPulled.isCalculableInitialized);
+
+            //after refreshing context the data should be reset
+            userAcc = TestUtility.getTestUser(true, userId: tilerUser.Id);
+            waitVar = userAcc.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
+            waitVar.Wait();
+            verificationEventPulled = waitVar.Result;
+            Assert.IsFalse(verificationEventPulled.isCalculableInitialized);
+
+
+            Assert.IsNotNull(testEvent);
+            Assert.IsNotNull(verificationEventPulled);
+            Assert.IsTrue(testEvent.isTestEquivalent(verificationEventPulled));
+        }
 
         [TestMethod]
         public void createUserTest()
@@ -75,11 +110,11 @@ namespace TilerTests
             TimeLine timeLine = TestUtility.getTimeFrames(refNow, duration).First();
             CalendarEvent testCalEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), timeLine.Start, timeLine.End, 1, false);
             SubCalendarEvent testEvent = testCalEvent.EnabledSubEvents.First();
-            //testEvent.ParentCalendarEvent = null;
             string testEventId = testEvent.Id;
-            var mockContext = TestUtility.getContext;
+            var mockContext = user.ScheduleLogControl.Database;
             mockContext.SubEvents.Add(testEvent);
             mockContext.SaveChanges();
+            mockContext.Dispose();
             mockContext = new TestDBContext();
             var verificationEventPulled = mockContext.SubEvents
                                             .Include(subEvent => subEvent.ParentCalendarEvent)
@@ -131,9 +166,9 @@ namespace TilerTests
             foreach(TimeLine eachTimeLine in timeLines)
             {
                 DateTimeOffset TimeCreation = DateTimeOffset.UtcNow;
+                tilerUser = user.getTilerUser();
                 CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1),  new Repetition(), eachTimeLine.Start, eachTimeLine.End, 1, false);
                 testEvent.TimeCreated = TimeCreation;
-                user = TestUtility.getTestUser(userId: tilerUser.Id);
                 Schedule.AddToScheduleAndCommit(testEvent).Wait();
                 user = TestUtility.getTestUser(userId: tilerUser.Id);
                 user.Login().Wait();
@@ -218,7 +253,7 @@ namespace TilerTests
             DateTimeOffset TimeCreation = DateTimeOffset.UtcNow;
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), timeLine.Start, timeLine.End, 1, false, location);
             testEvent.TimeCreated = TimeCreation;
-            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            //user = TestUtility.getTestUser(userId: tilerUser.Id);
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             user.Login().Wait();

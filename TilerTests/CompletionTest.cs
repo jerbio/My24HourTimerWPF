@@ -122,12 +122,13 @@ namespace TilerTests
 
             Schedule = new TestSchedule(user, refNow);
             string completedSubEventId = testEvent.AllSubEvents[0].getId;
-            Schedule.markSubEventAsComplete(completedSubEventId).Wait();
+            Schedule.markSubEventAsCompleteCalendarEventAndReadjust(completedSubEventId);
             Schedule.WriteFullScheduleToLogAndOutlook().Wait();
             SubCalendarEvent subEvent = TestUtility.getSubEVentById(completedSubEventId, user);
             Assert.IsTrue(subEvent.getIsComplete);
 
             EventID evenId = new EventID(completedSubEventId);
+            user = TestUtility.getTestUser(userId: tilerUser.Id, reloadTilerContext: true);
             retrievedCalendarEvent = TestUtility.getCalendarEventById(evenId.getCalendarEventID(), user);
             Assert.AreEqual(retrievedCalendarEvent.CompletionCount, 1);
 
@@ -138,6 +139,7 @@ namespace TilerTests
             subEvent = TestUtility.getSubEVentById(completedSubEventId, user);
             Assert.IsTrue(subEvent.getIsComplete);
             evenId = new EventID(completedSubEventId);
+            user = TestUtility.getTestUser(userId: tilerUser.Id, reloadTilerContext: true);
             retrievedCalendarEvent = TestUtility.getCalendarEventById(evenId.getCalendarEventID(), user); 
             Assert.AreEqual(retrievedCalendarEvent.CompletionCount, 1);
         }
@@ -230,6 +232,7 @@ namespace TilerTests
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             user.Login().Wait();
+            tilerUser = user.getTilerUser();
             TimeSpan duration0 = TimeSpan.FromHours(2);
             DateTimeOffset start0 = refNow;
             DateTimeOffset end0 = refNow.AddHours(7);
@@ -237,8 +240,10 @@ namespace TilerTests
             CalendarEvent testEvent0 = TestUtility.generateCalendarEvent(tilerUser, duration0, new Repetition(), start0, end0, numberOfSubEvent, false);
             Schedule.AddToScheduleAndCommit(testEvent0).Wait();
 
+
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             user.Login().Wait();
+            tilerUser = user.getTilerUser();
             TimeSpan duration1 = TimeSpan.FromHours(2);
             DateTimeOffset start1 = refNow;
             DateTimeOffset end1 = refNow.AddHours(7);

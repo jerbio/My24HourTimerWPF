@@ -26,6 +26,11 @@ namespace TilerElements
         public string UndoHexColor;
         #endregion
 
+        public TilerColor()
+        {
+
+        }
+
         public TilerColor(int RedColor = 255, int BlueColor = 255, int GreenColor = 255, double Opacity=1, int Selection=-1)
         {
             UndoRed = 0;

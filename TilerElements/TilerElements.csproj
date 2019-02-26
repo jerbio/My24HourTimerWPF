@@ -109,6 +109,7 @@
     <Compile Include="CalendarEvent.cs" />
     <Compile Include="CalendarEventRestricted.cs" />
     <Compile Include="IHasId.cs" />
+    <Compile Include="IncludeProperties.cs" />
     <Compile Include="SubEventDictionary.cs" />
     <Compile Include="TilerDbContext.cs" />
     <Compile Include="Fluent\TilerEventMapping.cs" />

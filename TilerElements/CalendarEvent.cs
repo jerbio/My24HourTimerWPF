@@ -502,7 +502,7 @@ namespace TilerElements
         {
             _ProfileOfNow = ProfileNowData;
             _ProfileOfNow.AssociatedEvent = this;
-            _ProfileOfProcrastination.reset();
+            getProcrastinationInfo.reset();
         }
 
         public static CalendarEvent getEmptyCalendarEvent( EventID myEventID,DateTimeOffset Start=new DateTimeOffset(), DateTimeOffset End=new DateTimeOffset())

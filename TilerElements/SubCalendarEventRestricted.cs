@@ -101,6 +101,11 @@ namespace TilerElements
             {
                 return false;
             }
+
+            if (this.isLocked)
+            {
+                return (LimitingTimeLineData.IsTimeLineWithin(this.RangeTimeLine));
+            }
             List<TimeLine> allPossibleTimelines = _ProfileOfRestriction.getAllNonPartialTimeFrames(LimitingTimeLine).Where(obj => obj.TimelineSpan >= getActiveDuration).OrderByDescending(obj => obj.End).ToList();
             if (allPossibleTimelines.Count > 0)
             {
@@ -131,6 +136,12 @@ namespace TilerElements
             {
                 return false;
             }
+
+            if (this.isLocked)
+            {
+                return (MyTimeLineEntry.IsTimeLineWithin(this.RangeTimeLine));
+            }
+
             List<TimeLine> allPossibleTimelines = _ProfileOfRestriction.getAllNonPartialTimeFrames(MyTimeLine).Where(obj=>obj.TimelineSpan>=getActiveDuration).OrderBy(obj=>obj.Start).ToList();
 
             if (allPossibleTimelines.Count > 0)
@@ -260,6 +271,15 @@ namespace TilerElements
 
         public override bool shiftEvent(TimeSpan ChangeInTime, bool force = false, bool lockToId = false)
         {
+            if (force)
+            {
+                StartDateTime += ChangeInTime;
+                EndDateTime += ChangeInTime;
+                ActiveSlot.shiftTimeline(ChangeInTime);
+                _LockToId = lockToId;
+                return true;
+            }
+
             TimeLine UpdatedTimeLine = new TimeLine(this.Start + ChangeInTime, this.End + ChangeInTime);
             TimeLine myTImeLine =  _ProfileOfRestriction.getLatestActiveTimeFrameBeforeEnd(UpdatedTimeLine);
             if (myTImeLine.TimelineSpan >= UpdatedTimeLine.TimelineSpan)
@@ -387,8 +407,8 @@ namespace TilerElements
             retValue.preferredDayIndex = this.UniversalDayIndex;
             retValue._PrepTime = this.getPreparation;
             retValue._Priority = this.getEventPriority;
-            retValue._ProfileOfNow = this._ProfileOfNow.CreateCopy();
-            retValue._ProfileOfProcrastination = this._ProfileOfProcrastination.CreateCopy();
+            retValue._ProfileOfNow = this._ProfileOfNow?.CreateCopy();
+            retValue._ProfileOfProcrastination = this._ProfileOfProcrastination?.CreateCopy();
             retValue.RigidSchedule = this.RigidSchedule;
             retValue.StartDateTime = this.Start;
             retValue._UiParams = this.getUIParam;

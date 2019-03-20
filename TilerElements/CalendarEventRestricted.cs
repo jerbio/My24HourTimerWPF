@@ -161,7 +161,6 @@ namespace TilerElements
             MyCalendarEventCopy._Enabled = this._Enabled;
             MyCalendarEventCopy.isRestricted = this.isRestricted;
             MyCalendarEventCopy._LocationInfo = _LocationInfo;//hack you might need to make copy
-            MyCalendarEventCopy._ProfileOfProcrastination = this._ProfileOfProcrastination?.CreateCopy();
             MyCalendarEventCopy._UserDeleted = this._UserDeleted;
             MyCalendarEventCopy._CompletedCount = this._CompletedCount;
             MyCalendarEventCopy._DeletedCount = this._DeletedCount;
@@ -244,21 +243,20 @@ namespace TilerElements
             RetValue.UniqueID = EventID.GenerateCalendarEvent();
             //RetValue.EventSequence = this.EventSequence;
             RetValue.SubEvents = new SubEventDictionary<string,SubCalendarEvent>();
-            RetValue._UiParams = this.getUIParam.createCopy();
+            RetValue._UiParams = this.getUIParam?.createCopy();
             RetValue._DataBlob = this.Notes;
             RetValue._Enabled = this.isEnabled;
             RetValue.isRestricted = this.getIsEventRestricted;
             RetValue._LocationInfo = this.Location;//hack you might need to make copy
-            RetValue._ProfileOfProcrastination = this.getProcrastinationInfo.CreateCopy();
             RetValue._UserDeleted = this.getIsUserDeleted;
             RetValue._CompletedCount = this.CompletionCount;
             RetValue._DeletedCount = this.DeletionCount;
-            RetValue._ProfileOfProcrastination = this._ProfileOfProcrastination.CreateCopy();
-            RetValue._ProfileOfNow = this._ProfileOfNow.CreateCopy();
+            RetValue._ProfileOfProcrastination = this._ProfileOfProcrastination?.CreateCopy();
+            RetValue._ProfileOfNow = this._ProfileOfNow?.CreateCopy();
             RetValue._otherPartyID = this.ThirdPartyID;// == this.null ? null : otherPartyID.ToString();
             RetValue._Users = this.getAllUsers();//.ToList();
-            RetValue._ProfileOfNow = this._ProfileOfNow.CreateCopy();
-            RetValue._ProfileOfRestriction = this._ProfileOfRestriction.createCopy();
+            RetValue._ProfileOfNow = this._ProfileOfNow?.CreateCopy();
+            RetValue._ProfileOfRestriction = this._ProfileOfRestriction?.createCopy();
             //RetValue.UpdateLocationMatrix(RetValue.LocationInfo);
             return RetValue;
         }

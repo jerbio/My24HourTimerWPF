@@ -37,8 +37,12 @@ namespace TilerElements
 
         public void reset()
         {
-            _FromTime = new DateTimeOffset();
-            _BeginTIme = new DateTimeOffset();
+            if(!this.isNull)
+            {
+                _FromTime = new DateTimeOffset();
+                _BeginTIme = new DateTimeOffset();
+            }
+            
         }
 
 

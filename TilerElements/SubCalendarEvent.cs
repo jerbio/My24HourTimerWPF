@@ -520,7 +520,7 @@ namespace TilerElements
             throw new Exception("Error Detected: Trying to update SubCalendar Event with non matching ID");
         }
 
-        virtual public SubCalendarEvent getProcrastinationCopy(CalendarEvent CalendarEventData,Procrastination ProcrastinationData )
+        virtual public SubCalendarEvent getProcrastinationCopy(CalendarEvent CalendarEventData,Procrastination ProcrastinationData)
         {
             SubCalendarEvent retValue = getCalulationCopy();
             /*

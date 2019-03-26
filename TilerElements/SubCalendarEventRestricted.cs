@@ -418,6 +418,7 @@ namespace TilerElements
             retValue.Vestige = this.isVestige;
             retValue._otherPartyID = this._otherPartyID;
             retValue._ProfileOfRestriction = this._ProfileOfRestriction;
+            retValue._Now = this._Now;
             return retValue;
         }
 
@@ -430,6 +431,11 @@ namespace TilerElements
             retValue.shiftEvent(SpanShift, true);
             retValue.RigidSchedule = true;
             return retValue;
+        }
+
+        public void setNow(ReferenceNow now)
+        {
+            _Now = now;
         }
 
         public override SubCalendarEvent getProcrastinationCopy(CalendarEvent CalendarEventData, Procrastination ProcrastinationData)

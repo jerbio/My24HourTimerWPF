@@ -49,7 +49,45 @@ namespace TilerTests
             Assert.IsTrue(testEventCopy.getProcrastinationInfo.PreferredStartTime >= latestTime);
         }
 
+        [TestMethod]
+        public void procrastinateSingleRestricted()
+        {
+            TestSchedule Schedule;
+            TilerUser tilerUser = TestUtility.createUser();
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2018");
+            refNow = refNow.removeSecondsAndMilliseconds();
+            Schedule = new TestSchedule(user, refNow);
+            TimeSpan duration = TimeSpan.FromHours(2);
+            DateTimeOffset start = refNow;
+            TimeLine repetitionRange = new TimeLine(start, start.AddDays(13).AddHours(-23));
+            DateTimeOffset end = repetitionRange.End.AddDays(14);
+            DayOfWeek startingWeekDay = start.DayOfWeek;
+            Repetition repetition = new Repetition();
+            TimeSpan fullDuration = duration + duration;
+            var restrictionProfile = new RestrictionProfile(start.AddHours(2), fullDuration);
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 4, false, restrictionProfile: restrictionProfile, now: Schedule.Now) as CalendarEventRestricted;
+            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            Schedule = new TestSchedule(user, refNow);
+            var setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
+            Schedule.persistToDB().Wait();
+            testEvent = TestUtility.getCalendarEventById(testEvent.getId, user);
+            Assert.IsTrue(testEvent.ActiveSubEvents.OrderBy(subevent => subevent.Start).First().Start == refNow);
 
+            Schedule = new TestSchedule(user, refNow);
+            TimeSpan procrastinationSpan = TimeSpan.FromHours(5);
+            var procrastinateResult = Schedule.ProcrastinateJustAnEvent(testEvent.AllSubEvents.OrderBy(subEvent => subEvent.Start).First().getId, procrastinationSpan);
+            Assert.IsNull(procrastinateResult.Item1);
+            Schedule.persistToDB().Wait();
+            Schedule = new TestSchedule(user, refNow);
+
+            CalendarEvent testEventCopy = TestUtility.getCalendarEventById(testEvent.getId, user);
+            DateTimeOffset latestTime = refNow.Add(procrastinationSpan);
+            Assert.IsTrue(testEventCopy.ActiveSubEvents.OrderBy(subEvent => subEvent.Start).First().Start >= latestTime);
+            Assert.IsTrue(testEventCopy.getProcrastinationInfo.PreferredStartTime >= latestTime);
+        }
 
         [TestMethod]
         public void procrastinateSingleEventAroundMultipleEvents()
@@ -309,35 +347,5 @@ namespace TilerTests
             Schedule.FindMeSomethingToDo(new Location()).Wait();
             Schedule.WriteFullScheduleToLogAndOutlook().Wait();
         }
-
-        //[ClassInitialize]
-        //public static void cleanUpTest(TestContext context)
-        //{
-        //    UserAccount currentUser = TestUtility.getTestUser();
-        //    currentUser.Login().Wait();
-        //    DateTimeOffset refNow = DateTimeOffset.UtcNow;
-        //    Schedule Schedule = new TestSchedule(currentUser, refNow);
-        //    currentUser.DeleteAllCalendarEvents();
-        //}
-
-        //[TestInitialize]
-        //public void cleanUpLog()
-        //{
-        //    UserAccount currentUser = TestUtility.getTestUser();
-        //    currentUser.Login().Wait();
-        //    DateTimeOffset refNow = DateTimeOffset.UtcNow;
-        //    Schedule Schedule = new TestSchedule(currentUser, refNow);
-        //    currentUser.DeleteAllCalendarEvents();
-        //}
-
-        //[TestCleanup]
-        //public void eachTestCleanUp()
-        //{
-        //    UserAccount currentUser = TestUtility.getTestUser();
-        //    currentUser.Login().Wait();
-        //    DateTimeOffset refNow = DateTimeOffset.UtcNow;
-        //    Schedule Schedule = new TestSchedule(currentUser, refNow);
-        //    currentUser.DeleteAllCalendarEvents();
-        //}
     }
 }

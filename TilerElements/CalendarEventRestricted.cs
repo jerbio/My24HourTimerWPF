@@ -217,6 +217,15 @@ namespace TilerElements
             }
         }
 
+        public void setNow (ReferenceNow now)
+        {
+            _Now = now;
+            foreach(SubCalendarEvent subEvent in ActiveSubEvents) {//only selecting Active Subevents for performance reasons
+                SubCalendarEventRestricted subEventAsRestricted = (subEvent as SubCalendarEventRestricted);
+                subEventAsRestricted?.setNow(now);
+            };
+        }
+
         public ReferenceNow Now
         {
             get
@@ -257,7 +266,7 @@ namespace TilerElements
             RetValue._Users = this.getAllUsers();//.ToList();
             RetValue._ProfileOfNow = this._ProfileOfNow?.CreateCopy();
             RetValue._ProfileOfRestriction = this._ProfileOfRestriction?.createCopy();
-            //RetValue.UpdateLocationMatrix(RetValue.LocationInfo);
+            RetValue._Now = this._Now;
             return RetValue;
         }
 

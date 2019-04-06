@@ -4,6 +4,7 @@ using TilerElements;
 using System.Collections.Generic;
 using TilerCore;
 using TilerFront;
+using System.Threading.Tasks;
 
 namespace TilerTests
 {
@@ -40,6 +41,58 @@ namespace TilerTests
             Assert.AreEqual(RestrictionEnd.DayOfYear , interFerring.Item1.End.DayOfYear);
             interFerring = myRestrictionProfile.getLatestEndTimeWithinFrameBeforeRefTime(refTime);
             Assert.AreEqual(RestrictionEnd.DayOfYear, interFerring.Item1.End.DayOfYear);
+        }
+
+        /// <summary>
+        /// Test tries catch a case where an event has restriction profile which has saturday a restriction day with a timeline that extends into a different day, which is Sunday.
+        /// However, since it extends into a different day it means extends into a different week, since sunday is the beginning of a new week.
+        /// This test tries to capture that.
+        /// </summary>
+        [TestMethod]
+        public void RestrictedEventOnWeekend ()
+        {
+            DateTimeOffset refNow = TestUtility.parseAsUTC("3/30/2019 10:59:56 PM +00:00");
+            List<DayOfWeek> daysOfTheWeek = new List<DayOfWeek>() { DayOfWeek.Sunday,
+                DayOfWeek.Monday,
+                DayOfWeek.Tuesday,
+                DayOfWeek.Wednesday,
+                DayOfWeek.Thursday,
+                DayOfWeek.Friday,
+                DayOfWeek.Saturday};
+            List<RestrictionTimeLine> constrictionProfiles = new List<RestrictionTimeLine>()
+            {
+                new RestrictionTimeLine(TestUtility.parseAsUTC("1:00 PM +00:00"), TestUtility.parseAsUTC("2:00 AM +00:00")),
+                new RestrictionTimeLine(TestUtility.parseAsUTC("12:00 PM +00:00"), TestUtility.parseAsUTC("2:30 AM +00:00")),
+                new RestrictionTimeLine(TestUtility.parseAsUTC("12:00 PM +00:00"), TestUtility.parseAsUTC("2:30 AM +00:00")),
+                new RestrictionTimeLine(TestUtility.parseAsUTC("12:00 PM +00:00"), TestUtility.parseAsUTC("2:30 AM +00:00")),
+                new RestrictionTimeLine(TestUtility.parseAsUTC("12:00 PM +00:00"), TestUtility.parseAsUTC("2:30 AM +00:00")),
+                new RestrictionTimeLine(TestUtility.parseAsUTC("12:00 PM +00:00"), TestUtility.parseAsUTC("2:30 AM +00:00")),
+                new RestrictionTimeLine(TestUtility.parseAsUTC("12:00 PM +00:00"), TestUtility.parseAsUTC("2:30 AM +00:00")),
+            };
+            RestrictionProfile restrictionProfile = new RestrictionProfile(daysOfTheWeek, constrictionProfiles);
+            TilerUser tilerUser = TestUtility.createUser();
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+            TestSchedule Schedule = new TestSchedule(user, refNow);
+            
+            DateTimeOffset TimeCreation = DateTimeOffset.UtcNow;
+            tilerUser = user.getTilerUser();
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.AddDays(4);
+            CalendarEvent testEventA = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(20), new Repetition(), start, end, 5, false, restrictionProfile: restrictionProfile, now: Schedule.Now);
+            testEventA.TimeCreated = TimeCreation;
+            Schedule.AddToScheduleAndCommit(testEventA).Wait();
+
+            CalendarEvent testEventB = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(20), new Repetition(), start, end, 10, false, restrictionProfile: restrictionProfile, now: Schedule.Now);
+            testEventB.TimeCreated = TimeCreation;
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.AddToScheduleAndCommit(testEventB).Wait();
+
+            TimeSpan duration = TimeSpan.FromHours(20);
+            CalendarEventRestricted testEventResticted = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end.AddDays(-2), 10, false, restrictionProfile: restrictionProfile, now: Schedule.Now) as CalendarEventRestricted;
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.AddToScheduleAndCommit(testEventResticted).Wait();
         }
     }
 }

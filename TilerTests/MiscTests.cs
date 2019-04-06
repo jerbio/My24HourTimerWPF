@@ -37,9 +37,9 @@ namespace TilerTests
             RestrictionProfile myRestrictionProfile = new RestrictionProfile(new List<DayOfWeek>() { DayOfWeek.Saturday}, new List<RestrictionTimeLine>() { restrictedTimeLine} );
             DateTimeOffset refTime = new DateTimeOffset(2014, 3, 2, 2, 0, 0, new TimeSpan());
             var interFerring = myRestrictionProfile.getEarliestStartTimeWithinAFrameAfterRefTime(refTime);
-            Assert.AreEqual(RestrictionEnd.DayOfYear , interFerring.End.DayOfYear);
+            Assert.AreEqual(RestrictionEnd.DayOfYear , interFerring.Item1.End.DayOfYear);
             interFerring = myRestrictionProfile.getLatestEndTimeWithinFrameBeforeRefTime(refTime);
-            Assert.AreEqual(RestrictionEnd.DayOfYear, interFerring.End.DayOfYear);
+            Assert.AreEqual(RestrictionEnd.DayOfYear, interFerring.Item1.End.DayOfYear);
         }
     }
 }

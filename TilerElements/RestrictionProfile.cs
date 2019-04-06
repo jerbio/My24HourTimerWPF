@@ -193,37 +193,38 @@ namespace TilerElements
         public TimeLine getWidestTimeLineInterSectingWithFrame(TimeLine RefTimeline)
         {
             DateTimeOffset Start = RefTimeline.Start;
-            Start =  getEarliestStartTimeWithinAFrameAfterRefTime(Start).Start;
+            Start =  getEarliestStartTimeWithinAFrameAfterRefTime(Start).Item1.Start;
 
             DateTimeOffset End = RefTimeline.End;
-            End = getLatestEndTimeWithinFrameBeforeRefTime(End).End;
+            End = getLatestEndTimeWithinFrameBeforeRefTime(End).Item1.End;
 
             TimeLine retValue = new TimeLine(Start, End);
             return retValue;
         }
 
-        public TimeLine getLatestActiveTimeFrameBeforeEnd(IDefinedRange RefTimeline)
+        public Tuple<TimeLine, DateTimeOffset> getLatestActiveTimeFrameBeforeEnd(IDefinedRange RefTimeline)
         {
-            TimeLine LatestFrame = getLatestEndTimeWithinFrameBeforeRefTime(RefTimeline.End);
+            var tuple = getLatestEndTimeWithinFrameBeforeRefTime(RefTimeline.End);
+            TimeLine LatestFrame = tuple.Item1;
             DateTimeOffset End = LatestFrame.End;
             DateTimeOffset Start = LatestFrame.Start;
-            //Start = LatestFrame. getEarliestStartTimeFrameBorder(Start);
             Start = RefTimeline.Start>Start?RefTimeline.Start :Start;
 
-            TimeLine retValue = new TimeLine(Start, End);
+            Tuple<TimeLine, DateTimeOffset> retValue = new Tuple<TimeLine, DateTimeOffset>(new TimeLine(Start, End), tuple.Item2);
             return retValue;
         }
 
-        public TimeLine getEarliestActiveFrameAfterBeginning(IDefinedRange RefTimeline)
+        public Tuple <TimeLine, DateTimeOffset> getEarliestActiveFrameAfterBeginning(IDefinedRange RefTimeline)
         {
-            TimeLine EarliestFrame = getEarliestStartTimeWithinAFrameAfterRefTime(RefTimeline.Start);;
+            var tuple = getEarliestStartTimeWithinAFrameAfterRefTime(RefTimeline.Start);
+            TimeLine EarliestFrame = tuple.Item1;
 
             DateTimeOffset Start = EarliestFrame.Start;
             DateTimeOffset End = EarliestFrame.End;
             //End = getLatestEndTimeFrameBorder(End);
             End = RefTimeline.End < End ? RefTimeline.End : End;
 
-            TimeLine retValue = new TimeLine(Start, End);
+            Tuple<TimeLine, DateTimeOffset> retValue = new Tuple<TimeLine, DateTimeOffset>( new TimeLine(Start, End), tuple.Item2);
             return retValue;
         }
 
@@ -302,14 +303,14 @@ namespace TilerElements
 
         public List<TimeLine> getAllNonPartialTimeFrames(IDefinedRange RefTimeLine)
         {
-            TimeLine FirstFrame = getEarliestActiveFrameAfterBeginning(RefTimeLine);
-            TimeLine LastFrame = getLatestActiveTimeFrameBeforeEnd(RefTimeLine);
+            var FirstFrame = getEarliestActiveFrameAfterBeginning(RefTimeLine);
+            var LastFrame = getLatestActiveTimeFrameBeforeEnd(RefTimeLine);
 
             List<TimeLine>[] TimeLinesPerDaySelection = _NoNull_DaySelections.Select(obj=>new List<TimeLine>()).ToArray();
 
             TimeLine EncasingFrame = getEncasingFullFrame(RefTimeLine.Start);
 
-            DayOfWeek InitializigWeekday = EncasingFrame!=null? EncasingFrame.Start.DayOfWeek: getEarliestFullframe(FirstFrame).Start.DayOfWeek;
+            DayOfWeek InitializigWeekday = EncasingFrame!=null? EncasingFrame.Start.DayOfWeek: getEarliestFullframe(FirstFrame.Item1).Start.DayOfWeek;
 
             int initializingIndex =0;
             for (; initializingIndex< _NoNull_DaySelections.Count; initializingIndex++)
@@ -321,24 +322,23 @@ namespace TilerElements
             }
             int lengthOfNoNull_DaySelections = _NoNull_DaySelections.Count;
             for (int i = initializingIndex, j=0; j < _NoNull_DaySelections.Count; i++,j++)
-            //for (int i = initializingIndex; i < NoNull_DaySelections.Length; i++)
             {
                 i = (i + lengthOfNoNull_DaySelections) % lengthOfNoNull_DaySelections;
                 RestrictionDay eachTuple = _NoNull_DaySelections[i];
                 List<TimeLine> ListOfTimeLine = TimeLinesPerDaySelection[i];
-                int DayDiff = ((eachTuple.WeekDay-FirstFrame.Start.DayOfWeek)+7) % 7;
-                DateTimeOffset Start = FirstFrame.Start.AddDays(DayDiff);
-                //Start= eachTuple.Item2.getInjectedStartHourMinIntoDateTime(Start);
-                TimeLine myTimeLine = getTimeLinesFromTuple(eachTuple, Start);// eachTuple.Item2.getTimeLineFromStartFrame(Start);
-                myTimeLine = new TimeLine(myTimeLine.Start, myTimeLine.End >= LastFrame.End ? LastFrame.End : myTimeLine.End);
+                int DayDiff = ((eachTuple.WeekDay-FirstFrame.Item2.DayOfWeek)+7) % 7;
+                DateTimeOffset refDayInCalculatedWeek = FirstFrame.Item2.AddDays(DayDiff);
+                TimeLine myTimeLine = getTimeLinesFromTuple(eachTuple, refDayInCalculatedWeek);// eachTuple.Item2.getTimeLineFromStartFrame(Start);
+                DateTimeOffset start = FirstFrame.Item1.Start > myTimeLine.Start ? FirstFrame.Item1.Start : myTimeLine.Start;
+                DateTimeOffset end = myTimeLine.End >= LastFrame.Item1.End ? LastFrame.Item1.End : myTimeLine.End;
+                myTimeLine = new TimeLine(start, end);
                 if(myTimeLine.TimelineSpan.Ticks > 0)
                 {
-                    while (myTimeLine.Start < LastFrame.End)
-                    //while (Start < LastFrame.End)
+                    while (myTimeLine.Start < LastFrame.Item1.End)
                     {
                         ListOfTimeLine.Add(myTimeLine);
-                        Start = Start.AddDays(7);
-                        myTimeLine = eachTuple.RestrictionTimeLine.getTimeLineFromStartFrame(Start);
+                        refDayInCalculatedWeek = refDayInCalculatedWeek.AddDays(7);
+                        myTimeLine = eachTuple.RestrictionTimeLine.getTimeLineFromStartFrame(refDayInCalculatedWeek);
                     }
                 }
 
@@ -348,21 +348,21 @@ namespace TilerElements
             if (retValue.Count>0)
             {
                 TimeLine firstTimeLine = retValue[0];
-                if ((firstTimeLine.Start < FirstFrame.Start) && (firstTimeLine.End == FirstFrame.End))//ensures that the first frame is within RefTimeLine. THe preceding code always generates a full frame so, we need to generate a partial frame
+                if ((firstTimeLine.Start < FirstFrame.Item1.Start) && (firstTimeLine.End == FirstFrame.Item1.End))//ensures that the first frame is within RefTimeLine. THe preceding code always generates a full frame so, we need to generate a partial frame
                 {
-                    retValue[0] = FirstFrame;
+                    retValue[0] = FirstFrame.Item1;
                 }
-                else if ((firstTimeLine.Start < FirstFrame.Start) && (firstTimeLine.End != FirstFrame.End))
+                else if ((firstTimeLine.Start < FirstFrame.Item1.Start) && (firstTimeLine.End != FirstFrame.Item1.End))
                 {
                     throw new Exception("There is something wrong with the implementation of getAllNonPartialTimeFrames, the first frame should always be part of the set");
                 }
 
                 TimeLine lastTimeLine = retValue.Last();
-                if ((lastTimeLine.End > LastFrame.End)&& (lastTimeLine.Start == LastFrame.Start))
+                if ((lastTimeLine.End > LastFrame.Item1.End)&& (lastTimeLine.Start == LastFrame.Item1.Start))
                 {
-                    retValue[retValue.Count - 1] = LastFrame;
+                    retValue[retValue.Count - 1] = LastFrame.Item1;
                 }
-                else if ((lastTimeLine.End > LastFrame.End) && (lastTimeLine.Start != LastFrame.Start))
+                else if ((lastTimeLine.End > LastFrame.Item1.End) && (lastTimeLine.Start != LastFrame.Item1.Start))
                 {
                     throw new Exception("There is something wrong with the implementation of getAllNonPartialTimeFrames, the last frame should always be part of the established set");
                 }
@@ -370,23 +370,23 @@ namespace TilerElements
             else
             {
                 retValue = new List<TimeLine>();
-                if (FirstFrame.isEqualStartAndEnd(LastFrame))
+                if (FirstFrame.Item1.isEqualStartAndEnd(LastFrame.Item1))
                 {
-                    if (FirstFrame.TimelineSpan.Ticks > 0)
+                    if (FirstFrame.Item1.TimelineSpan.Ticks > 0)
                     {
-                        retValue.Add(FirstFrame);
+                        retValue.Add(FirstFrame.Item1);
                     }
 
                 }
                 else {
-                    if (FirstFrame.TimelineSpan.Ticks > 0)
+                    if (FirstFrame.Item1.TimelineSpan.Ticks > 0)
                     {
-                        retValue.Add(FirstFrame);
+                        retValue.Add(FirstFrame.Item1);
                     }
 
-                    if (LastFrame.TimelineSpan.Ticks > 0)
+                    if (LastFrame.Item1.TimelineSpan.Ticks > 0)
                     {
-                        retValue.Add(LastFrame);
+                        retValue.Add(LastFrame.Item1);
                     }
                 }
             }
@@ -413,7 +413,9 @@ namespace TilerElements
         }
 
         /// <summary>
-        /// function tries to select earliest time after the RefStart time that borders the beginning of a restriction frame. So Assuming you had frame Nov 11 2015 Mon 11a-2p, Nov 13 2015 Wed 11a-2p. And RefStart is Nov 11 2015 Mon 12p, it'll pick Nov 13 2015 Wed 11a because its a new border frame. It didn't select Mon's because it was past the start of the frame
+        /// function tries to select earliest time after the RefStart time that borders the beginning of a restriction frame. 
+        /// So Assuming you had frame Nov 11 2015 Mon 11a-2p, Nov 13 2015 Wed 11a-2p. And RefStart is Nov 11 2015 Mon 12p, it'll pick Nov 13 2015 Wed 11a because its a new border frame. 
+        /// It didn't select Mon's because it was past the start of the frame
         /// </summary>
         /// <param name="RefStart"></param>
         /// <returns></returns>
@@ -446,12 +448,6 @@ namespace TilerElements
             }
             preceedingCycleFrame = new TimeLine(preceedingCycleFrame.Start.AddDays(-7), preceedingCycleFrame.End.AddDays(-7));
             return preceedingCycleFrame;
-            /*throw new Exception("This isn't suppposed to happen in getEarliestStartTimeFrameBorder");
-            DateTimeOffset retValueTime = RefStart.AddDays(7);
-            retValueTime = new DateTimeOffset(retValueTime.Year, retValueTime.Month, retValueTime.Day, NoNull_DaySelections[0].Item2.Start.Hour, NoNull_DaySelections[0].Item2.Start.Minute, NoNull_DaySelections[0].Item2.Start.Second, new TimeSpan());
-            retValue = NoNull_DaySelections[0].Item2.getTimeLineFromStartFrame(retValueTime);
-
-            return retValue;*/
         }
         
         /// <summary>
@@ -512,17 +508,23 @@ namespace TilerElements
         /// it'll pick Nov 13 2015 Wed 12p because its already within a border and can simply use its position as the final position
         /// </summary>
         /// <param name="RefTime"></param>
-        /// <returns></returns>
-        public TimeLine getLatestEndTimeWithinFrameBeforeRefTime(DateTimeOffset time)
+        /// <returns>
+        /// Tuple<TimeLine, DateTimeOffset> where Item1 is the timeline and Item2 is the day with which the timeline belongs.
+        /// The latter item is mostly crucial when dealing with a RestrictionDay that curs through multiple days.
+        /// So for example if Item1 is a timeline 4/6/2019 1:00am - 3:00am, which is on Saturday but it is based on a Friday restriction Day which is from 1:00pm -3:00am. Notice this resriction day cuts across multiple days.
+        /// Based on this item2 needs to be 4/05/2019 1:00pm.
+        /// </returns>
+        public Tuple<TimeLine, DateTimeOffset> getLatestEndTimeWithinFrameBeforeRefTime(DateTimeOffset time)
         {
             DateTimeOffset RefTime = time;
             int DayOfWeekInt = (int)RefTime.DayOfWeek;
-            TimeLine retValue;
+            Tuple<TimeLine, DateTimeOffset> retValue;
             DateTimeOffset refSTart = new DateTimeOffset(1, 1, 1, RefTime.Hour, RefTime.Minute, RefTime.Second, new TimeSpan());
 
             List<Tuple<int,int>> AllInterFerringIndexes = _DayOfWeekToOverlappingIndexes[DayOfWeekInt];
             int RightIndex = -1;
             List<TimeLine> allPossibleTimeLines = new List<TimeLine>();
+            TimeLine latestTimeLine;
             DateTimeOffset pivotTime = time;
             for (int i = 0; i < AllInterFerringIndexes.Count; i++)
             {
@@ -539,7 +541,8 @@ namespace TilerElements
                 TimeLine dayFrameTImeLine = getTimeLinesFromTuple(_NoNull_DaySelections[myTUple.Item1], pivotTime);
                 if (dayFrameTImeLine.IsDateTimeWithin(RefTime) || (dayFrameTImeLine.End == RefTime))// || (DayFramTImeLine.Start == RefTime))
                 {
-                    retValue = new TimeLine(dayFrameTImeLine.Start, RefTime);
+                    latestTimeLine = new TimeLine(dayFrameTImeLine.Start, RefTime);
+                    retValue = new Tuple<TimeLine, DateTimeOffset>(latestTimeLine, dayFrameTImeLine.Start);
                     return retValue;
                 }
                 allPossibleTimeLines.Add(dayFrameTImeLine);
@@ -549,12 +552,13 @@ namespace TilerElements
                 List<TimeLine> timelines = allPossibleTimeLines.Where(obj => obj.End <= RefTime).ToList();//gets timelines where they occur before current timeline
                 if(timelines.Count>0)
                 {
-                    retValue = timelines.OrderByDescending(obj => obj.End).First();
+                    latestTimeLine = timelines.OrderByDescending(obj => obj.End).First();
+                    retValue = new Tuple<TimeLine, DateTimeOffset>(latestTimeLine, latestTimeLine.Start);
                     return retValue;
                 }
             }
-
-            retValue = getLatestEndTimeFrameBorder(RefTime);
+            latestTimeLine = getLatestEndTimeFrameBorder(RefTime);
+            retValue = new Tuple<TimeLine, DateTimeOffset>(latestTimeLine, latestTimeLine.Start);
             return retValue;
                 
         }
@@ -563,18 +567,23 @@ namespace TilerElements
         /// function tries to select earliest time after or at the RefStart time that as is within any of the restriction frame. So Assuming you had frame Nov 11 2015 Mon 11a-2p, Nov 13 2015 Wed 11a-2p. And RefStart is Nov 11 2015 Mon 12p, it'll pick Nov 11 2015 Mon 12a because its within the Mon Frame.
         /// </summary>
         /// <param name="StartData"></param>
-        /// <returns></returns>
+        /// <returns>
+        /// Tuple<TimeLine, DateTimeOffset> where Item1 is the timeline and Item2 is the day with which the timeline belongs.
+        /// The latter item is mostly crucial when dealing with a RestrictionDay that curs through multiple days.
+        /// So for example if Item1 is a timeline 4/6/2019 1:00am - 3:00am, which is on Saturday but it is based on a Friday restriction Day which is from 1:00pm -3:00am. Notice this resriction day cuts across multiple days.
+        /// Based on this item2 needs to be 4/05/2019 1:00pm.
+        /// </returns>
 
 
-        public TimeLine getEarliestStartTimeWithinAFrameAfterRefTime(DateTimeOffset StartData)
+        public Tuple<TimeLine, DateTimeOffset> getEarliestStartTimeWithinAFrameAfterRefTime(DateTimeOffset StartData)
         {
             int DayOfWeekInt = (int)StartData.DayOfWeek;
-            TimeLine retValue;
+            Tuple<TimeLine, DateTimeOffset> retValue;
             DateTimeOffset refSTart = new DateTimeOffset(1, 1, 1, StartData.Hour, StartData.Minute, StartData.Second, new TimeSpan());
 
             List<Tuple<int,int>> AllInterFerringIndexes = _DayOfWeekToOverlappingIndexes[DayOfWeekInt];
             int RightIndex = -1;
-            TimeLine DayFramTImeLine;
+            TimeLine DayFramTImeLine, earliestTimeLine;
             for (int i = 0; i < AllInterFerringIndexes.Count; i++)
             {
                 Tuple<int,int> myTUple=AllInterFerringIndexes[i];
@@ -594,12 +603,13 @@ namespace TilerElements
 
                 if (DayFramTImeLine.IsDateTimeWithin(StartData) || (DayFramTImeLine.Start == StartData))// || (DayFramTImeLine.End == StartData))
                 {
-                    retValue = new TimeLine(StartData, DayFramTImeLine.End);
+                    earliestTimeLine = new TimeLine(StartData, DayFramTImeLine.End);
+                    retValue = new Tuple<TimeLine, DateTimeOffset>(earliestTimeLine, DayFramTImeLine.Start);
                     return retValue;
                 }
             }
-
-            retValue = getEarliestStartTimeFrameBorder(StartData);
+            earliestTimeLine = getEarliestStartTimeFrameBorder(StartData);
+            retValue = new Tuple<TimeLine, DateTimeOffset>(earliestTimeLine, earliestTimeLine.Start);
             return retValue;
         }
 

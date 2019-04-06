@@ -7156,7 +7156,6 @@ namespace TilerCore
                 if (!Utility.PinSubEventsToStart(leftTreeResult, RestrictingTimeLine))
                 {
                     throw new Exception("oops jerome check reveresed section of stitchrestricted left treeresult ");
-                    ;
                 };
 
                 //Build Strict Towards Left of the tree

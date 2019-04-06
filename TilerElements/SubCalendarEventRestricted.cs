@@ -120,8 +120,8 @@ namespace TilerElements
                 return false;
             }
 
-            TimeLine RestrictedLimitingFrame = _ProfileOfRestriction.getLatestActiveTimeFrameBeforeEnd(LimitingTimeLine);
-            if(RestrictedLimitingFrame.TimelineSpan<getActiveDuration)
+            TimeLine RestrictedLimitingFrame = _ProfileOfRestriction.getLatestActiveTimeFrameBeforeEnd(LimitingTimeLine).Item1;
+            if (RestrictedLimitingFrame.TimelineSpan<getActiveDuration)
             {
                 RestrictedLimitingFrame = _ProfileOfRestriction.getLatestFullFrame(LimitingTimeLine);
             }
@@ -159,7 +159,7 @@ namespace TilerElements
 
             
 
-            TimeLine RestrictedLimitingFrame = _ProfileOfRestriction.getEarliestActiveFrameAfterBeginning(MyTimeLine);
+            TimeLine RestrictedLimitingFrame = _ProfileOfRestriction.getEarliestActiveFrameAfterBeginning(MyTimeLine).Item1;
             if (RestrictedLimitingFrame.TimelineSpan < getActiveDuration)
             {
                 RestrictedLimitingFrame = _ProfileOfRestriction.getEarliestFullframe(MyTimeLine);
@@ -178,8 +178,8 @@ namespace TilerElements
                 refTimeLine = HardCalendarEventRange;
             }
 
-            DateTimeOffset myStart = _ProfileOfRestriction.getEarliestStartTimeWithinAFrameAfterRefTime(refTimeLine.Start).Start;
-            DateTimeOffset myEnd = _ProfileOfRestriction.getLatestEndTimeWithinFrameBeforeRefTime(refTimeLine.End).End;
+            DateTimeOffset myStart = _ProfileOfRestriction.getEarliestStartTimeWithinAFrameAfterRefTime(refTimeLine.Start).Item1.Start;
+            DateTimeOffset myEnd = _ProfileOfRestriction.getLatestEndTimeWithinFrameBeforeRefTime(refTimeLine.End).Item1.End;
             _CalendarEventRange = new TimeLineRestricted(myStart, myEnd, RestrictionData, _Now);
         }
         ///*
@@ -281,7 +281,7 @@ namespace TilerElements
             }
 
             TimeLine UpdatedTimeLine = new TimeLine(this.Start + ChangeInTime, this.End + ChangeInTime);
-            TimeLine myTImeLine =  _ProfileOfRestriction.getLatestActiveTimeFrameBeforeEnd(UpdatedTimeLine);
+            TimeLine myTImeLine =  _ProfileOfRestriction.getLatestActiveTimeFrameBeforeEnd(UpdatedTimeLine).Item1;
             if (myTImeLine.TimelineSpan >= UpdatedTimeLine.TimelineSpan)
             {
                 StartDateTime += ChangeInTime;
@@ -291,7 +291,7 @@ namespace TilerElements
                 return true;
             }
 
-            myTImeLine = _ProfileOfRestriction.getEarliestActiveFrameAfterBeginning(UpdatedTimeLine);
+            myTImeLine = _ProfileOfRestriction.getEarliestActiveFrameAfterBeginning(UpdatedTimeLine).Item1;
             if (myTImeLine.TimelineSpan >= UpdatedTimeLine.TimelineSpan)
             {
                 StartDateTime += ChangeInTime;

@@ -193,7 +193,7 @@ namespace TilerElements
         void InstantiateSubEvents()
         {
             SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
-            TimeLine eachStart = _ProfileOfRestriction.getEarliestStartTimeWithinAFrameAfterRefTime(this.Start);
+            TimeLine eachStart = _ProfileOfRestriction.getEarliestStartTimeWithinAFrameAfterRefTime(this.Start).Item1;
             for (int i = 0; i < _Splits; i++)
             {
                 DateTimeOffset SubStart = eachStart.Start;
@@ -273,7 +273,7 @@ namespace TilerElements
         override protected void IncreaseSplitCount(uint delta)
         {
             List<SubCalendarEvent> newSubs = new List<SubCalendarEvent>();
-            TimeLine eachStart = _ProfileOfRestriction.getEarliestStartTimeWithinAFrameAfterRefTime(this.Start);
+            TimeLine eachStart = _ProfileOfRestriction.getEarliestStartTimeWithinAFrameAfterRefTime(this.Start).Item1;
             for (int i = 0; i < delta; i++)
             {
                 DateTimeOffset SubStart = eachStart.Start;
@@ -304,8 +304,8 @@ namespace TilerElements
         public override List<TimeLine> getInterferringWithTimeLine(TimeLine timeLine)
         {
             List<TimeLine> nonPartialFrames = _ProfileOfRestriction.getAllNonPartialTimeFrames(timeLine);
-            TimeLine earliestFrame = _ProfileOfRestriction.getEarliestActiveFrameAfterBeginning(timeLine);
-            TimeLine latestFrame = _ProfileOfRestriction.getLatestActiveTimeFrameBeforeEnd(timeLine);
+            TimeLine earliestFrame = _ProfileOfRestriction.getEarliestActiveFrameAfterBeginning(timeLine).Item1;
+            TimeLine latestFrame = _ProfileOfRestriction.getLatestActiveTimeFrameBeforeEnd(timeLine).Item1;
             nonPartialFrames = nonPartialFrames.Where(objTimeLine => objTimeLine.Start != earliestFrame.Start && objTimeLine.End != latestFrame.End ).ToList();
             nonPartialFrames.Insert(0, earliestFrame);
             nonPartialFrames.Add(latestFrame);

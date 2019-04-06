@@ -539,17 +539,18 @@ namespace TilerElements
             }
         }
 
-        public TimeSpan Duration_EventDB
+        public double Duration_EventDB
         {
             get
             {
-                return this._EventDuration;
+                return this._EventDuration.TotalMilliseconds;
             }
             set
             {
-                this._EventDuration = value;
+                this._EventDuration = TimeSpan.FromMilliseconds(value);
             }
         }
+
 
         public string otherPartyID_EventDB
         {

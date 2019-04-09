@@ -421,6 +421,18 @@ namespace TilerElements
             }
         }
 
+        virtual public bool IsEnabled_DB
+        {
+            get
+            {
+                return _Enabled;
+            }
+            set
+            {
+                _Enabled = value;
+            }
+        }
+
         virtual public bool isProcrastinateEvent
         {
             set

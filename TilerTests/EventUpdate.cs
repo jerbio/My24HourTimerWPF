@@ -151,26 +151,38 @@ namespace TilerTests
             TimeSpan duration = TimeSpan.FromHours(1);
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(TimeSpan.FromTicks(duration.Ticks * 5));
+            TimeSpan timeSPanPerSubEvent = duration;
             CalendarEvent increaseSplitCountTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 1, false);
             schedule.AddToScheduleAndCommit(increaseSplitCountTestEvent).Wait();
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
             TestSchedule scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
             int newSplitCount = increaseSplitCountTestEvent.NumberOfSplit + 1;
             var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(increaseSplitCountTestEvent.getId, increaseSplitCountTestEvent.getName, increaseSplitCountTestEvent.Start, increaseSplitCountTestEvent.End, newSplitCount, increaseSplitCountTestEvent.Notes.UserNote);
-
+            increaseSplitCountTestEvent = scheduleReloaded.getCalendarEvent(increaseSplitCountTestEvent.Id);//Using this instead of TestUtility.getCalendarEventById because we need the calemdarevent in memory, not in storage for the future assert
             scheduleReloaded.persistToDB().Wait();
             scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
             CalendarEvent retrievedCalendarEvent = TestUtility.getCalendarEventById(increaseSplitCountTestEvent.Calendar_EventID, user);
+            foreach(SubCalendarEvent subEvent in retrievedCalendarEvent.AllSubEvents)
+            {
+                Assert.AreEqual(timeSPanPerSubEvent, subEvent.getActiveDuration);
+            }
             Assert.AreEqual(retrievedCalendarEvent.NumberOfSplit, newSplitCount);
             Assert.AreEqual(retrievedCalendarEvent.AllSubEvents.Count(), newSplitCount);
             Assert.IsTrue(retrievedCalendarEvent.isTestEquivalent(increaseSplitCountTestEvent));
 
             /// Reducing the split count
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            schedule = new TestSchedule(user, refNow, startOfDay);
             CalendarEvent decreaseSplitCountTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 3, false);
             schedule.AddToScheduleAndCommit(decreaseSplitCountTestEvent).Wait();
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
             scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
             newSplitCount = decreaseSplitCountTestEvent.NumberOfSplit - 1;
             scheduleUpdated = scheduleReloaded.BundleChangeUpdate(decreaseSplitCountTestEvent.getId, decreaseSplitCountTestEvent.getName, decreaseSplitCountTestEvent.Start, decreaseSplitCountTestEvent.End, newSplitCount, decreaseSplitCountTestEvent.Notes.UserNote);
-
+            decreaseSplitCountTestEvent = scheduleReloaded.getCalendarEvent(increaseSplitCountTestEvent.Id);//Using this instead of TestUtility.getCalendarEventById because we need the calemdarevent in memory, not in storage for the future assert
             scheduleReloaded.persistToDB().Wait();
             scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
             retrievedCalendarEvent = TestUtility.getCalendarEventById(decreaseSplitCountTestEvent.Calendar_EventID, user);

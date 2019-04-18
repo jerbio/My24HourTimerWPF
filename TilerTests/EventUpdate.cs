@@ -193,8 +193,10 @@ namespace TilerTests
             UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
             user.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            DateTimeOffset startOfDay = TestUtility.parseAsUTC("10:00 pm");
+            //DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            //DateTimeOffset startOfDay = TestUtility.parseAsUTC("10:00 pm");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("4/9/2019 9:00:00 PM +00:00");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("4/9/2019 10:00:00 PM +00:00");
             TestSchedule schedule = new TestSchedule(user, refNow, startOfDay);
             TimeSpan duration = TimeSpan.FromHours(1);
             DateTimeOffset start = refNow;

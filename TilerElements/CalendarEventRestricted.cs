@@ -311,5 +311,20 @@ namespace TilerElements
             nonPartialFrames.Add(latestFrame);
             return nonPartialFrames;
         }
+
+        public override void InitialCalculationLookupDays(IEnumerable<DayTimeLine> RelevantDays, ReferenceNow now = null)
+        {
+            TimeLineRestricted RangeTimeLine = new TimeLineRestricted(this.RangeTimeLine.Start, this.RangeTimeLine.End, _ProfileOfRestriction, now);
+            this.CalculationLimitation = RelevantDays.Where(obj => {
+                var timeLine = obj.InterferringTimeLine(RangeTimeLine);
+                if (timeLine != null && timeLine.TimelineSpan >= _AverageTimePerSplit)
+                {
+                    return true;
+                }
+                else return false;
+            }).ToDictionary(obj => obj.UniversalIndex, obj => obj);
+            FreeDaysLimitation = CalculationLimitation.ToDictionary(obj => obj.Key, obj => obj.Value);
+            CalculationLimitationWithUnUsables = CalculationLimitation.ToDictionary(obj => obj.Key, obj => obj.Value);
+        }
     }
 }

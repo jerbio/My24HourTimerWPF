@@ -25,10 +25,10 @@ namespace TilerElements
         protected HashSet<SubCalendarEvent> UnDesignables = new HashSet<SubCalendarEvent>();
         protected bool _isCalculableInitialized = false;
         protected bool isUnDesignableInitialized = false;
-        Dictionary<ulong, DayTimeLine> CalculationLimitationWithUnUsables;
-        Dictionary<ulong, DayTimeLine> CalculationLimitation;
-        Dictionary<ulong, DayTimeLine> FreeDaysLimitation;
-        List<SubCalendarEvent> _RemovedSubEvents = new List<SubCalendarEvent>();
+        protected Dictionary<ulong, DayTimeLine> CalculationLimitationWithUnUsables;
+        protected Dictionary<ulong, DayTimeLine> CalculationLimitation;
+        protected Dictionary<ulong, DayTimeLine> FreeDaysLimitation;
+        protected List<SubCalendarEvent> _RemovedSubEvents = new List<SubCalendarEvent>();
 
         #region undoMembers
         public int UndoSplits;
@@ -1207,9 +1207,16 @@ namespace TilerElements
             return;
         }
 
-        public virtual void InitialCalculationLookupDays(IEnumerable<DayTimeLine> RelevantDays)
+        public virtual void InitialCalculationLookupDays(IEnumerable<DayTimeLine> RelevantDays, ReferenceNow now = null)
         {
-            CalculationLimitation = RelevantDays.Where(obj => obj.InterferringTimeLine(RangeTimeLine) != null).ToDictionary(obj => obj.UniversalIndex, obj => obj);
+            CalculationLimitation = RelevantDays.Where(obj => {
+                var timeLine = obj.InterferringTimeLine(RangeTimeLine);
+                if (timeLine != null && timeLine.TimelineSpan >= _AverageTimePerSplit)
+                {
+                    return true;
+                }
+                else return false;
+            } ).ToDictionary(obj => obj.UniversalIndex, obj => obj);
             FreeDaysLimitation=CalculationLimitation.ToDictionary(obj => obj.Key, obj => obj.Value);
             CalculationLimitationWithUnUsables = CalculationLimitation.ToDictionary(obj => obj.Key, obj => obj.Value);
         }

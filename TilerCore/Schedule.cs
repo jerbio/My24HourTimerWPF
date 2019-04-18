@@ -2662,10 +2662,17 @@ namespace TilerCore
                         {
                             ulong preferredIndex = DayIndex + (dayCounterSpreadout % 7);
                             List<Tuple<ulong, SubCalendarEvent>> AllEvents = EvaluateEachDayIndexForEvent(UndesignatedEvents, DaysToUse, eachCal, preferredIndex);
-                            Parallel.ForEach(AllEvents, eachTuple =>
+                            if (AllEvents.Count != 0)
                             {
-                                BagPerDay[(int)(eachTuple.Item1 - DayIndex)].Add(eachTuple.Item2);
-                            });
+                                Parallel.ForEach(AllEvents, eachTuple =>
+                                {
+                                    BagPerDay[(int)(eachTuple.Item1 - DayIndex)].Add(eachTuple.Item2);
+                                });
+                            }
+                            else
+                            {
+                                UnUsableCalEvents.Add(eachCal);
+                            }
                         }
                         else
                         {

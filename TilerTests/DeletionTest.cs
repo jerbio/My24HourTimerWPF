@@ -33,6 +33,8 @@ namespace TilerTests
             string deletedSubEventId = testEvent.AllSubEvents[0].getId;
             Schedule.deleteSubCalendarEvent(deletedSubEventId).Wait();
             Schedule.persistToDB().Wait();
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
             Schedule = new TestSchedule(user, refNow);
             SubCalendarEvent subEvent = TestUtility.getSubEVentById(deletedSubEventId, user);
             Assert.IsFalse(subEvent.isEnabled);
@@ -61,6 +63,8 @@ namespace TilerTests
             Schedule.deleteCalendarEventAndReadjust(deletedSubEventId).Wait();
             Schedule.persistToDB().Wait();
 
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
             Schedule = new TestSchedule(user, refNow);
             EventID id = new EventID(deletedSubEventId);
             CalendarEvent retrievedCalendarEvent = TestUtility.getCalendarEventById(id.getRepeatCalendarEventID(), user);
@@ -91,6 +95,8 @@ namespace TilerTests
             TimeSpan duration0 = TimeSpan.FromHours(2);
             DateTimeOffset start0 = refNow;
             DateTimeOffset end0 = refNow.AddHours(7);
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent0 = TestUtility.generateCalendarEvent(tilerUser, duration0, new Repetition(), start0, end0, numberOfSubEvent, false);
             Schedule.AddToScheduleAndCommit(testEvent0).Wait();
@@ -101,6 +107,8 @@ namespace TilerTests
             TimeSpan duration1 = TimeSpan.FromHours(2);
             DateTimeOffset start1 = refNow;
             DateTimeOffset end1 = refNow.AddHours(7);
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent1 = TestUtility.generateCalendarEvent(tilerUser, duration1, new Repetition(), start1, end1, numberOfSubEvent, false);
             Schedule.AddToScheduleAndCommit(testEvent1).Wait();
@@ -109,6 +117,8 @@ namespace TilerTests
             string deletedSubEventId = testEvent.AllSubEvents[0].getId;
             Schedule.deleteSubCalendarEvent(deletedSubEventId).Wait();
             Schedule.persistToDB().Wait();
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
             Schedule = new TestSchedule(user, refNow);
             SubCalendarEvent subEvent = TestUtility.getSubEVentById(deletedSubEventId, user);
             Assert.IsFalse(subEvent.isEnabled);
@@ -119,6 +129,8 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             Schedule.deleteSubCalendarEvent(deletedSubEventId).Wait();
             Schedule.persistToDB().Wait();
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
             Schedule = new TestSchedule(user, refNow);
             subEvent = TestUtility.getSubEVentById(deletedSubEventId, user);
             Assert.IsFalse(subEvent.isEnabled);
@@ -151,6 +163,8 @@ namespace TilerTests
             TimeSpan duration0 = TimeSpan.FromHours(2);
             DateTimeOffset start0 = refNow;
             DateTimeOffset end0 = refNow.AddHours(7);
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent0 = TestUtility.generateCalendarEvent(tilerUser, duration0, new Repetition(), start0, end0, numberOfSubEvent, false);
             Schedule.AddToScheduleAndCommit(testEvent0).Wait();
@@ -161,6 +175,8 @@ namespace TilerTests
             TimeSpan duration1 = TimeSpan.FromHours(2);
             DateTimeOffset start1 = refNow;
             DateTimeOffset end1 = refNow.AddHours(7);
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent1 = TestUtility.generateCalendarEvent(tilerUser, duration1, new Repetition(), start1, end1, numberOfSubEvent, false);
             Schedule.AddToScheduleAndCommit(testEvent1).Wait();
@@ -170,6 +186,8 @@ namespace TilerTests
             Schedule.deleteSubCalendarEvent(deletedSubEventId).Wait();
             Schedule.persistToDB().Wait();
 
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
             Schedule = new TestSchedule(user, refNow);
             testEvent = TestUtility.getCalendarEventById(testEvent.ActiveSubEvents[0].getId, user);
             testEvent0 = TestUtility.getCalendarEventById(testEvent0.ActiveSubEvents[0].getId, user);
@@ -177,15 +195,21 @@ namespace TilerTests
             SubCalendarEvent testSubEvent = testEvent.ActiveSubEvents[0];
             SubCalendarEvent testSubEvent0 = testEvent0.ActiveSubEvents[0];
             SubCalendarEvent testSubEvent1 = testEvent1.ActiveSubEvents[0];
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
             Schedule = new TestSchedule(user, refNow);
             Schedule.deleteSubCalendarEventAndReadjust(testSubEvent.getId).Wait();
             Schedule.persistToDB().Wait();
             testSubEvent = TestUtility.getSubEVentById(testSubEvent.getId, user);
             List<EventID> subEventIds = new List<EventID>() { testSubEvent.SubEvent_ID, testSubEvent0.SubEvent_ID, testSubEvent1.SubEvent_ID };
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
             Schedule = new TestSchedule(user, refNow);
             Schedule.deleteSubCalendarEvents(subEventIds.Select(subeventid => subeventid.ToString())).Wait();
             Schedule.persistToDB().Wait();
 
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
             Schedule = new TestSchedule(user, refNow);
             testSubEvent = TestUtility.getSubEVentById(testSubEvent.getId, user);
             testSubEvent0 = TestUtility.getSubEVentById(testSubEvent0.getId, user);
@@ -204,10 +228,14 @@ namespace TilerTests
 
 
             /// Re running just to prevent duplicate additions
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
             Schedule = new TestSchedule(user, refNow);
             Schedule.deleteSubCalendarEvents(subEventIds.Select(subeventid => subeventid.ToString())).Wait();
             Schedule.persistToDB().Wait();
 
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
             Schedule = new TestSchedule(user, refNow);
             testSubEvent = TestUtility.getSubEVentById(testSubEvent.getId, user);
             testSubEvent0 = TestUtility.getSubEVentById(testSubEvent0.getId, user);

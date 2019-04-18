@@ -1785,6 +1785,18 @@ namespace TilerElements
             }
         }
 
+        virtual public double AverageTimeSpanPerSubEvent_DB
+        {
+            set
+            {
+                _AverageTimePerSplit = TimeSpan.FromMilliseconds(value);
+            }
+            get
+            {
+                return _AverageTimePerSplit.TotalMilliseconds;
+            }
+        }
+
         public CustomErrors Error
         {
 

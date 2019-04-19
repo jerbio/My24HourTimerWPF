@@ -41,6 +41,7 @@ namespace TilerTests
                 if (includeSubEvents)
                 {
                     calEVents = _Context.CalEvents
+                        .Where(calEvent => calEvent.IsEnabled_DB)
                         .Include(calEvent => calEvent.DataBlob_EventDB)
                         .Include(calEvent => calEvent.Name)
                         .Include(calEvent => calEvent.Name.Creator_EventDB)

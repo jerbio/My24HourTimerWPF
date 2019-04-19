@@ -288,12 +288,14 @@ namespace TilerCore
             return getCalendarEvent(userEvent);
         }
 
+        /// <summary>
+        /// function retrieves a calendarevent. 
+        /// If the ID is repeating event ID it'll get the repeating calendar event
+        /// </summary>
+        /// <param name="myEventID"></param>
+        /// <returns></returns>
         public CalendarEvent getCalendarEvent(EventID myEventID)
         {
-            /*
-             * function retrieves a calendarevent. 
-             * If the ID is repeating event ID it'll get the repeating calendar event
-             */
             CalendarEvent calEvent = AllEventDictionary[myEventID.getCalendarEventComponent()];
             CalendarEvent repeatEvent = calEvent.getRepeatedCalendarEvent(myEventID.getIDUpToRepeatCalendarEvent());
 

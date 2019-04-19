@@ -41,6 +41,7 @@ namespace TilerTests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(KeyNotFoundException), "The Calendar event given key was not present in the dictionary of loaded schedule.")]
         public void DeleteCalendarEvent()
         {
             TestSchedule Schedule;
@@ -57,18 +58,24 @@ namespace TilerTests
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 2, false);
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
 
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
 
             Schedule = new TestSchedule(user, refNow);
             string deletedSubEventId = testEvent.AllSubEvents[0].getId;
             Schedule.deleteCalendarEventAndReadjust(deletedSubEventId).Wait();
             Schedule.persistToDB().Wait();
 
-            user = TestUtility.getTestUser(userId: tilerUser.Id);
-            tilerUser = user.getTilerUser();
-            Schedule = new TestSchedule(user, refNow);
             EventID id = new EventID(deletedSubEventId);
             CalendarEvent retrievedCalendarEvent = TestUtility.getCalendarEventById(id.getRepeatCalendarEventID(), user);
             Assert.IsFalse(retrievedCalendarEvent.isEnabled);
+
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            Schedule = new TestSchedule(user, refNow);
+            CalendarEvent calEventLoadedIntoScheduleMemory = Schedule.getCalendarEvent(id);
+            
         }
 
         [TestMethod]

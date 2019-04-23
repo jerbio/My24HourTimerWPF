@@ -417,7 +417,14 @@ namespace TilerElements
             }
             get
             {
-                return _LocationInfo.isNull ? null : _LocationInfo;
+                if (_LocationInfo == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return _LocationInfo.isNull ? null : _LocationInfo;
+                }
             }
         }
 

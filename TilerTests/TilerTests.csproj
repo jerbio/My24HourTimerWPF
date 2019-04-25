@@ -97,6 +97,10 @@
     <Compile Include="KnownBugList.cs" />
     <Compile Include="LogControlTest.cs" />
     <Compile Include="LogicTest.cs" />
+    <Compile Include="Migrations\201904250433239_wrongTimeSpan.cs" />
+    <Compile Include="Migrations\201904250433239_wrongTimeSpan.Designer.cs">
+      <DependentUpon>201904250433239_wrongTimeSpan.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
     <Compile Include="SetEventAsNowTests.cs" />
@@ -192,6 +196,11 @@
     <Content Include="WagTapCalLogs\e94713a5-9ab6-4c6b-9b46-edafa4b0dafc\e94713a5-9ab6-4c6b-9b46-edafa4b0dafc.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201904250433239_wrongTimeSpan.resx">
+      <DependentUpon>201904250433239_wrongTimeSpan.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

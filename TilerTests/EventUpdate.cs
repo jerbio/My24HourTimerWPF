@@ -194,6 +194,7 @@ namespace TilerTests
             Assert.IsTrue(retrievedCalendarEvent.isTestEquivalent(decreaseSplitCountTestEvent));
         }
 
+
         [TestMethod]
         public void SplitCountOfRepeatNonRigidSubEventUpdate()
         {

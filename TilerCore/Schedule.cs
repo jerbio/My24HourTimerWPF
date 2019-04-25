@@ -4605,11 +4605,6 @@ namespace TilerCore
             int j = 0;
             int FrontPartialCounter = 0;
 
-            if (restrictedSnugFitAvailable.Count < 1)
-            {
-                ;
-            }
-
             Tuple<DateTimeOffset, List<SubCalendarEvent>> TimeLineUpdated = null;
             SubCalendarEvent BorderElementBeginning = null;
             SubCalendarEvent BorderElementEnd = null;
@@ -4637,15 +4632,6 @@ namespace TilerCore
                     continue;
                 }
 
-
-                if (a != restrictedSnugFitAvailable.Count)
-                {
-                    ;
-                }
-                if (i == 9)
-                {
-                    ;
-                }
                 previ = i;
 
                 int DateTimeCounter = 0;
@@ -5222,14 +5208,10 @@ namespace TilerCore
                     }
                 }
 
-                if (PossibleSubCaleventsCobination.Count>1)
+                if (PossibleSubCaleventsCobination.Count>=1)
                 {
-                    ;
-
+                    LowestCostArrangement = getArrangementWithLowestDistanceCost(PossibleSubCaleventsCobination, BoundaryCalendarEvent);
                 }
-                //PossibleSubCaleventsCobination = Utility.RandomizeIEnumerable(PossibleSubCaleventsCobination);
-                LowestCostArrangement = getArrangementWithLowestDistanceCost(PossibleSubCaleventsCobination, BoundaryCalendarEvent);
-                //TimeLine FreeSpotUpdated;
             }
 
             return LowestCostArrangement;
@@ -5283,11 +5265,6 @@ namespace TilerCore
             if (AllPossibleBestFit_beforeBreak.Count > 0)
             {
                 var3_beforeBreak.Add(AllPossibleBestFit_beforeBreak);
-                if (AllPossibleBestFit_beforeBreak.Count > 1)
-                {
-                    ;
-                }
-                //List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>> AveragedBestFit = getAveragedOutTIimeLine(var3_beforeBreak, 0);
                 List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>> AveragedBestFit = OptimizeForDeadLine(DeadLineTODuration, PertinentFreeSpot.TimelineSpan);
                 Dictionary<TimeSpan, Dictionary<string, SubCalendarEvent>> removedImpossibleValue = removeSubCalEventsThatCantWorkWithTimeLine_NoMtuple(PertinentFreeSpot, PossibleSubCalEvents);
                 List<List<SubCalendarEvent>> PossibleSubCaleventsCobination = generateCombinationForDifferentEntries_NoMtuple (AveragedBestFit[0], removedImpossibleValue);
@@ -5302,14 +5279,10 @@ namespace TilerCore
                     }
                 }
 
-                if (PossibleSubCaleventsCobination.Count > 1)
+                if (PossibleSubCaleventsCobination.Count >= 1)
                 {
-                    ;
-
+                    LowestCostArrangement = getArrangementWithLowestDistanceCost(PossibleSubCaleventsCobination, BoundaryCalendarEvent);
                 }
-                //PossibleSubCaleventsCobination = Utility.RandomizeIEnumerable(PossibleSubCaleventsCobination);
-                LowestCostArrangement = getArrangementWithLowestDistanceCost(PossibleSubCaleventsCobination, BoundaryCalendarEvent);
-                //TimeLine FreeSpotUpdated;
             }
 
             return LowestCostArrangement;
@@ -5896,77 +5869,77 @@ namespace TilerCore
              * CompatibleWithList is an snug fit result
              * PossibleEntries are the possible sub calendar that can be used in the combinatorial result
              */
-
-
-            if (Aggressive)
-            {
-                PossibleEntries = useAggressivePossibilitiesEntry_NoMtuple(CompatibleWithList, PossibleEntries);
-
-            }
-
-
-
             List<List<List<string>>> MAtrixedSet = new System.Collections.Generic.List<System.Collections.Generic.List<System.Collections.Generic.List<string>>>();
             Dictionary<string, mTuple<int, List<SubCalendarEvent>>> var4 = new System.Collections.Generic.Dictionary<string, mTuple<int, System.Collections.Generic.List<SubCalendarEvent>>>();
             List<List<SubCalendarEvent>> retValue = new System.Collections.Generic.List<System.Collections.Generic.List<SubCalendarEvent>>();
-            foreach (KeyValuePair<TimeSpan, mTuple<int, TimeSpanWithStringID>> eachKeyValuePair0 in CompatibleWithList)//loops every timespan in Snug FIt possibility
-            {
-                TimeSpan eachTimeSpan = eachKeyValuePair0.Key;
 
-                Dictionary<string, SubCalendarEvent> var1 = PossibleEntries[eachTimeSpan];
-                List<List<string>> receivedValue = new System.Collections.Generic.List<System.Collections.Generic.List<string>>();
-                Dictionary<string, int> var2 = new System.Collections.Generic.Dictionary<string, int>();
-                foreach (KeyValuePair<string, SubCalendarEvent> eachKeyValuePair in var1)
+            if(PossibleEntries.Count > 0) {
+                if (Aggressive)
                 {
-                    string ParentID = eachKeyValuePair.Value.SubEvent_ID.getIDUpToCalendarEvent();
-                    if (var2.ContainsKey(ParentID))
+                    PossibleEntries = useAggressivePossibilitiesEntry_NoMtuple(CompatibleWithList, PossibleEntries);
+
+                }
+                foreach (KeyValuePair<TimeSpan, mTuple<int, TimeSpanWithStringID>> eachKeyValuePair0 in CompatibleWithList)//loops every timespan in Snug FIt possibility
+                {
+                    TimeSpan eachTimeSpan = eachKeyValuePair0.Key;
+
+                    Dictionary<string, SubCalendarEvent> var1 = PossibleEntries[eachTimeSpan];
+                    List<List<string>> receivedValue = new System.Collections.Generic.List<System.Collections.Generic.List<string>>();
+                    Dictionary<string, int> var2 = new System.Collections.Generic.Dictionary<string, int>();
+                    foreach (KeyValuePair<string, SubCalendarEvent> eachKeyValuePair in var1)
                     {
-                        ++var2[ParentID];
-                        var4[ParentID].Item2.Add(eachKeyValuePair.Value);
+                        string ParentID = eachKeyValuePair.Value.SubEvent_ID.getIDUpToCalendarEvent();
+                        if (var2.ContainsKey(ParentID))
+                        {
+                            ++var2[ParentID];
+                            var4[ParentID].Item2.Add(eachKeyValuePair.Value);
+                        }
+                        else
+                        {
+                            var2.Add(ParentID, 1);
+                            List<SubCalendarEvent> var5 = new System.Collections.Generic.List<SubCalendarEvent>();
+                            var5.Add(eachKeyValuePair.Value);
+                            var4.Add(ParentID, new mTuple<int, System.Collections.Generic.List<SubCalendarEvent>>(0, var5));
+                        }
                     }
-                    else
+                    List<mTuple<string, int>> PossibleCalEvents = new System.Collections.Generic.List<mTuple<string, int>>();
+                    foreach (KeyValuePair<string, int> eachKeyValuePair in var2)
                     {
-                        var2.Add(ParentID, 1);
-                        List<SubCalendarEvent> var5 = new System.Collections.Generic.List<SubCalendarEvent>();
-                        var5.Add(eachKeyValuePair.Value);
-                        var4.Add(ParentID, new mTuple<int, System.Collections.Generic.List<SubCalendarEvent>>(0, var5));
+                        PossibleCalEvents.Add(new mTuple<string, int>(eachKeyValuePair.Key, eachKeyValuePair.Value));
                     }
+
+                    List<List<string>> var3 = generateCombinationForSpecficTimeSpanStringID(eachKeyValuePair0.Value.Item1, PossibleCalEvents);
+                    MAtrixedSet.Add(var3);
                 }
-                List<mTuple<string, int>> PossibleCalEvents = new System.Collections.Generic.List<mTuple<string, int>>();
-                foreach (KeyValuePair<string, int> eachKeyValuePair in var2)
+
+                List<List<string>> serializedList = Utility.SerializeList(MAtrixedSet);
+                Dictionary<TimeSpan, long> TimeSpanOfEventToTotalDeadlineDateTime = new Dictionary<TimeSpan, long>();
+
+                foreach (List<string> eachList in serializedList)//serializedList has a list of fittable ParentIDs, the loop replaces each List of strings with List of subCalendarEvents
                 {
-                    PossibleCalEvents.Add(new mTuple<string, int>(eachKeyValuePair.Key, eachKeyValuePair.Value));
+                    List<SubCalendarEvent> var6 = new System.Collections.Generic.List<SubCalendarEvent>();
+                    mTuple<int, List<SubCalendarEvent>> var7 = new mTuple<int, System.Collections.Generic.List<SubCalendarEvent>>(0, new System.Collections.Generic.List<SubCalendarEvent>());
+                    foreach (string eachString in eachList)
+                    {
+                        var7 = var4[eachString];
+                        var6.Add(var7.Item2[var7.Item1++]);
+                    }
+                    foreach (KeyValuePair<string, mTuple<int, List<SubCalendarEvent>>> eachKeyValuePair in var4)
+                    {
+                        eachKeyValuePair.Value.Item1 = 0;
+                    }
+
+                    TimeSpan TotalActiveDuration = Utility.SumOfActiveDuration(var6);
+
+
+                    retValue.Add(var6);
                 }
 
-                List<List<string>> var3 = generateCombinationForSpecficTimeSpanStringID(eachKeyValuePair0.Value.Item1, PossibleCalEvents);
-                MAtrixedSet.Add(var3);
-            }
-
-            List<List<string>> serializedList = Utility.SerializeList(MAtrixedSet);
-            Dictionary<TimeSpan, long> TimeSpanOfEventToTotalDeadlineDateTime = new Dictionary<TimeSpan, long>();
-
-            foreach (List<string> eachList in serializedList)//serializedList has a list of fittable ParentIDs, the loop replaces each List of strings with List of subCalendarEvents
+                return retValue;
+            } else
             {
-                List<SubCalendarEvent> var6 = new System.Collections.Generic.List<SubCalendarEvent>();
-                mTuple<int, List<SubCalendarEvent>> var7 = new mTuple<int, System.Collections.Generic.List<SubCalendarEvent>>(0, new System.Collections.Generic.List<SubCalendarEvent>());
-                foreach (string eachString in eachList)
-                {
-                    var7 = var4[eachString];
-                    var6.Add(var7.Item2[var7.Item1++]);
-                }
-                foreach (KeyValuePair<string, mTuple<int, List<SubCalendarEvent>>> eachKeyValuePair in var4)
-                {
-                    eachKeyValuePair.Value.Item1 = 0;
-                }
-
-                TimeSpan TotalActiveDuration = Utility.SumOfActiveDuration(var6);
-
-
-                retValue.Add(var6);
+                return retValue;
             }
-
-            return retValue;
-
         }
 
         List<List<string>> generateCombinationForSpecficTimeSpanStringID(int Count, List<mTuple<string, int>> PossibleCalEvents)

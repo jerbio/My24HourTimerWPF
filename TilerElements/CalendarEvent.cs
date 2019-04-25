@@ -1461,7 +1461,7 @@ namespace TilerElements
         {
             if (delta<_Splits)
             {
-                List<SubCalendarEvent> orderedByActive = SubEvents.Collection.OrderByDescending(subEvent => subEvent.Value.isActive).Select(subEvemt => subEvemt.Value).ToList();
+                List<SubCalendarEvent> orderedByActive = SubEvents.Collection.OrderByDescending(subEvent => !subEvent.Value.isActive).Select(subEvemt => subEvemt.Value).ToList();
                 for (int i=0; i<delta;i++)
                 {
                     SubCalendarEvent SubEvent = orderedByActive.First();

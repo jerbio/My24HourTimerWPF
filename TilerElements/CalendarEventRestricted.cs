@@ -217,12 +217,12 @@ namespace TilerElements
             }
         }
 
-        public void setNow (ReferenceNow now)
+        public void setNow (ReferenceNow now, bool updateCalendarEventRange = false)
         {
             _Now = now;
             foreach(SubCalendarEvent subEvent in ActiveSubEvents) {//only selecting Active Subevents for performance reasons
                 SubCalendarEventRestricted subEventAsRestricted = (subEvent as SubCalendarEventRestricted);
-                subEventAsRestricted?.setNow(now);
+                subEventAsRestricted?.setNow(now, updateCalendarEventRange);
             };
         }
 

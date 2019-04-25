@@ -583,27 +583,27 @@ namespace TilerElements
             }
         }
 
-        public TimeSpan PreDeadline_EventDB
+        public virtual double PreDeadline_EventDB
         {
             get
             {
-                return this._EventPreDeadline;
+                return this._EventPreDeadline.TotalMilliseconds;
             }
             set
             {
-                this._EventPreDeadline = value;
+                this._EventPreDeadline = TimeSpan.FromMilliseconds(value);
             }
         }
 
-        public TimeSpan Preptime_EventDB
+        public virtual double Preptime_EventDB
         {
             get
             {
-                return this._PrepTime;
+                return this._PrepTime.TotalMilliseconds;
             }
             set
             {
-                this._PrepTime = value;
+                this._PrepTime = TimeSpan.FromMilliseconds(value);
             }
         }
 
@@ -671,15 +671,15 @@ namespace TilerElements
             }
         }
 
-        public TimeSpan UsedTime_EventDB
+        public double UsedTime_EventDB
         {
             get
             {
-                return _UsedTime;
+                return this._UsedTime.TotalMilliseconds;
             }
             set
             {
-                _UsedTime = value;
+                this._UsedTime = TimeSpan.FromMilliseconds(value);
             }
         }
 

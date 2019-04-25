@@ -94,5 +94,37 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             Schedule.AddToScheduleAndCommit(testEventResticted).Wait();
         }
+
+        /// <summary>
+        /// Case was found when using application. Issue seems to arise when restricted .
+        /// </summary>
+        [TestMethod]
+        public void SplitCountOfLiveBug()
+        {
+            /// Increasing the split count
+            TilerUser tilerUser = TestUtility.createUser();
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+            DateTimeOffset refNow = TestUtility.parseAsUTC("4/25/2019 4:12:00 AM +00:00");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("1/1/2014 10:00:00 PM +00:00");
+            TestSchedule schedule = new TestSchedule(user, refNow, startOfDay);
+            TimeSpan duration = TimeSpan.FromHours(4);
+            DateTimeOffset start = TestUtility.parseAsUTC("1/1/1970 12:00:00 AM +00:00");
+            DateTimeOffset end = TestUtility.parseAsUTC("4/30/2019 11:59:00 PM +00:00");
+            TimeSpan timeSPanPerSubEvent = duration;
+            Location location = TestUtility.getLocations()[1];
+            List<DayOfWeek> daysOfWeek = new List<DayOfWeek>() { DayOfWeek.Friday };
+            List<RestrictionTimeLine> restrictedTimeLines = new List<RestrictionTimeLine>() { new RestrictionTimeLine(TestUtility.parseAsUTC("1/1/0001 8:00:00 AM +00:00"), TestUtility.parseAsUTC("1/1/0001 6:00:00 PM +00:00")) };
+            RestrictionProfile restrictionProfile = new RestrictionProfile(daysOfWeek, restrictedTimeLines);
+            CalendarEvent increaseSplitCountTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 2, false, location, restrictionProfile, now: schedule.Now);
+            schedule.AddToScheduleAndCommit(increaseSplitCountTestEvent).Wait();
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            TestSchedule scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
+            int newSplitCount = increaseSplitCountTestEvent.NumberOfSplit + 2;
+            var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(increaseSplitCountTestEvent.getId, increaseSplitCountTestEvent.getName, increaseSplitCountTestEvent.Start, increaseSplitCountTestEvent.End, newSplitCount, increaseSplitCountTestEvent.Notes.UserNote);
+            increaseSplitCountTestEvent = scheduleReloaded.getCalendarEvent(increaseSplitCountTestEvent.Id);//Using this instead of TestUtility.getCalendarEventById because we need the calemdarevent in memory, not in storage for the future assert
+            scheduleReloaded.persistToDB().Wait();
+        }
     }
 }

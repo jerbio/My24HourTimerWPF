@@ -433,9 +433,13 @@ namespace TilerElements
             return retValue;
         }
 
-        public void setNow(ReferenceNow now)
+        public void setNow(ReferenceNow now, bool updateCalendarEventRange = false)
         {
             _Now = now;
+            if(updateCalendarEventRange)
+            {
+                initializeCalendarEventRange(this._ProfileOfRestriction);
+            }
         }
 
         public override SubCalendarEvent getProcrastinationCopy(CalendarEvent CalendarEventData, Procrastination ProcrastinationData)

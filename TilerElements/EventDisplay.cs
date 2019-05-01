@@ -33,11 +33,20 @@ namespace TilerElements
                 _Id = value;
             }
         }
-        public EventDisplay()
+        protected EventDisplay()
         {
-            _Visible = true;
-            eventColor = new TilerColor(127, 127, 127, 1);
             _Default = 0;
+        }
+
+        public EventDisplay(bool initialize = true)
+        {
+            if(initialize)
+            {
+                _Visible = true;
+                eventColor = new TilerColor(127, 127, 127, 1);
+                _Default = 0;
+            }
+            
         }
         public EventDisplay(bool VisibleFlag, TilerColor EventColor,int TypeOfDisplay=0,bool CompleteFlag=false)
         {
@@ -48,7 +57,7 @@ namespace TilerElements
 
         public EventDisplay createCopy()
         {
-            EventDisplay retValue = new EventDisplay();
+            EventDisplay retValue = new EventDisplay(true);
             retValue ._Visible =_Visible;
             retValue.eventColor = eventColor;
             retValue._Default = _Default;//0->Default Calendar Colors,1->Set As Complete,2->subCalendar Event Specific colors,3->Calendar Event Specific colors
@@ -117,11 +126,11 @@ namespace TilerElements
             }
         }
 
-        public int isDefault
+        public bool isDefault
         {
             get 
             {
-                return _Default;
+                return _Default == 0;
             }
         }
 

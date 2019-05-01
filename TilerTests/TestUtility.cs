@@ -248,7 +248,7 @@ namespace TilerTests
         }
 
 
-        public static CalendarEvent generateCalendarEvent(TilerUser testUser, TimeSpan duration, Repetition repetition, DateTimeOffset Start, DateTimeOffset End, int splitCount = 1, bool rigidFlags = false, Location location = null, RestrictionProfile restrictionProfile = null, MiscData note = null, ReferenceNow now = null)
+        public static CalendarEvent generateCalendarEvent(TilerUser testUser, TimeSpan duration, Repetition repetition, DateTimeOffset Start, DateTimeOffset End, int splitCount = 1, bool rigidFlags = false, Location location = null, RestrictionProfile restrictionProfile = null, MiscData note = null, ReferenceNow now = null, EventDisplay eventDisplay = null)
         {
             if (Start == StartOfTime)
             {
@@ -266,6 +266,7 @@ namespace TilerTests
 
             note = note ?? new MiscData();
             CalendarEvent RetValue;
+            eventDisplay = eventDisplay ?? new EventDisplay();
             if(restrictionProfile == null)
             {
                 EventName name = new EventName(null, null, "TestCalendarEvent-" + Guid.NewGuid().ToString());
@@ -277,13 +278,13 @@ namespace TilerTests
                 {
                     RetValue = new RigidCalendarEvent(
                         //EventID.GenerateCalendarEvent(), 
-                        name, Start, End, duration, new TimeSpan(), new TimeSpan(), repetition, location, new EventDisplay(), note, true, false, testUser, new TilerUserGroup(), "UTC", null);
+                        name, Start, End, duration, new TimeSpan(), new TimeSpan(), repetition, location, eventDisplay, note, true, false, testUser, new TilerUserGroup(), "UTC", null);
                 }
                 else
                 {
                     RetValue = new CalendarEvent(
                         //EventID.GenerateCalendarEvent(), 
-                        name, Start, End, duration, new TimeSpan(), new TimeSpan(), splitCount , repetition, location, new EventDisplay(), note, null, new NowProfile(), true, false, testUser, new TilerUserGroup(), "UTC", null);
+                        name, Start, End, duration, new TimeSpan(), new TimeSpan(), splitCount , repetition, location, eventDisplay, note, null, new NowProfile(), true, false, testUser, new TilerUserGroup(), "UTC", null);
                 }
                 name.Creator_EventDB = RetValue.getCreator;
                 name.AssociatedEvent = RetValue;
@@ -455,7 +456,8 @@ namespace TilerTests
                     {
                         var secondSubEvent = seconddictionary[subEvent.Id];
                         retValue = subEvent.isTestEquivalent(secondSubEvent)
-                            && subEvent.Location.isTestEquivalent(secondSubEvent.Location);
+                            && subEvent.Location.isTestEquivalent(secondSubEvent.Location)
+                            && subEvent.getUIParam.isTestEquivalent(secondSubEvent.getUIParam);
                         if(subEvent.getIsEventRestricted)
                         {
                             retValue = retValue && (subEvent as SubCalendarEventRestricted).getRestrictionProfile().isTestEquivalent((secondSubEvent as SubCalendarEventRestricted).getRestrictionProfile());
@@ -477,13 +479,16 @@ namespace TilerTests
                 retValue = false;
             }
 
-            Assert.IsTrue(retValue && isTestEquivalent(firstCalEvent as TilerEvent, secondCalEvent as TilerEvent)
+            Assert.IsTrue(retValue && 
+                isTestEquivalent(firstCalEvent as TilerEvent, secondCalEvent as TilerEvent)
                 && (firstCalEvent.IsRepeat == secondCalEvent.IsRepeat ?
-                (firstCalEvent.IsRepeat ? isTestEquivalent(firstCalEvent.Repeat, secondCalEvent.Repeat) : true) : //if repeat is enabled the run equivalecy test else then passing test
-                false) // if calendar repeat flags aren't the same then the calEvents are not equal
+                    (firstCalEvent.IsRepeat ? isTestEquivalent(firstCalEvent.Repeat, secondCalEvent.Repeat) : true) : //if repeat is enabled the run equivalecy test else then passing test
+                    false) // if calendar repeat flags aren't the same then the calEvents are not equal
                 && (firstCalEvent.getIsEventRestricted == secondCalEvent.getIsEventRestricted ?
-                (firstCalEvent.getIsEventRestricted ? isTestEquivalent((firstCalEvent as CalendarEventRestricted).RetrictionProfile, (secondCalEvent as CalendarEventRestricted).RetrictionProfile) : true) : //if restriction profile is enabled the run equivalecy test else then passing test
-                false));
+                    (firstCalEvent.getIsEventRestricted ? isTestEquivalent((firstCalEvent as CalendarEventRestricted).RetrictionProfile, (secondCalEvent as CalendarEventRestricted).RetrictionProfile) : true) : //if restriction profile is enabled the run equivalecy test else then passing test
+                    false)
+                && (firstCalEvent.getUIParam.isTestEquivalent(secondCalEvent.getUIParam))
+                );
             return true;
         }
 
@@ -680,6 +685,59 @@ namespace TilerTests
                 && (firstUser.Email == seconduser.Email)
                 && (firstUser.OtherName == seconduser.OtherName)
                 && (firstUser.TimeZone == seconduser.TimeZone))
+            {
+                retValue = true;
+            }
+            else
+            {
+                retValue = false;
+            }
+            Assert.IsTrue(retValue);
+            return retValue;
+        }
+
+        public static bool isTestEquivalent(this EventDisplay firstDisplay, EventDisplay secondDisplay)
+        {
+            bool retValue = false;
+            if((firstDisplay!=null)&& (secondDisplay!=null)&&(firstDisplay.isDefault != true) && (secondDisplay.isDefault != true)) {
+                if ((firstDisplay.ColorId == secondDisplay.ColorId)
+                    && (firstDisplay.Id == secondDisplay.Id)
+                    && (firstDisplay.FirstInstantiation == secondDisplay.FirstInstantiation))
+                {
+                    retValue = true;
+                }
+                else
+                {
+                    retValue = false;
+                }
+            } else
+            {
+                if(firstDisplay == null)
+                {
+                    firstDisplay = new EventDisplay();
+                }
+                if (secondDisplay==null)
+                {
+                    secondDisplay = new EventDisplay();
+                }
+                retValue = firstDisplay.isDefault == secondDisplay.isDefault;
+                Assert.IsTrue(retValue);
+                return retValue;
+            }
+            retValue = retValue && firstDisplay.UIColor.isTestEquivalent(secondDisplay.UIColor);
+            Assert.IsTrue(retValue);
+            return retValue;
+        }
+
+        public static bool isTestEquivalent(this TilerColor firstColor, TilerColor secondColor)
+        {
+            bool retValue = false;
+            if ((firstColor.B == secondColor.B)
+                && (firstColor.G == secondColor.G)
+                && (firstColor.O == secondColor.O)
+                && (firstColor.R == secondColor.R)
+                && (firstColor.FirstInstantiation == secondColor.FirstInstantiation)
+                )
             {
                 retValue = true;
             }

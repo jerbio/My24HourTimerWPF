@@ -77,7 +77,12 @@ namespace TilerTests
                     if (retrievalOption == DataRetrivalOption.UiAll)
                     {
                         calEVents = calEVents.Include(calEvent => calEvent.UiParams_EventDB)
-                            .Include(calEvent => calEvent.AllSubEvents_DB.Select(subEvent => subEvent.UiParams_EventDB));
+                            .Include(calEvent => calEvent.UiParams_EventDB.UIColor)
+                            .Include(calEvent => calEvent.AllSubEvents_DB
+                                .Select(subEvent => subEvent.UiParams_EventDB))
+                            .Include(calEvent => calEvent.AllSubEvents_DB
+                                .Select(subEvent => subEvent.UiParams_EventDB.UIColor)
+                            );
                     }
                     else if (retrievalOption == DataRetrivalOption.UiSingle)
                     {

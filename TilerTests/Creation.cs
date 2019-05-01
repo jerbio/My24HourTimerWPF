@@ -137,13 +137,15 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             TimeSpan duration = TimeSpan.FromHours(1);
             TimeLine timeLine = TestUtility.getTimeFrames(refNow, duration).First();
-            CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), timeLine.Start, timeLine.End, 1, false);
+            TilerColor tilerColor = new TilerColor(255, 255, 0, 1, 5);
+            EventDisplay eventdisplay = new EventDisplay(true, tilerColor);
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), timeLine.Start, timeLine.End, 1, false, eventDisplay: eventdisplay);
             string testEVentId = testEvent.Id;
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
             var mockContext = new TestDBContext();
             UserAccount userAcc = TestUtility.getTestUser(true, userId: tilerUser.Id);
 
-            Task<CalendarEvent> waitVar = userAcc.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
+            Task<CalendarEvent> waitVar = userAcc.ScheduleLogControl.getCalendarEventWithID(testEvent.Id, LogControl.DataRetrivalOption.UiAll);
             waitVar.Wait();
             CalendarEvent verificationEventPulled = waitVar.Result;
 
@@ -225,8 +227,9 @@ namespace TilerTests
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 1, true);
             string testEVentId = testEvent.getId;
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
-            var mockContext = new TestDBContext();
-            user = TestUtility.getTestUser(true, userId: tilerUser.Id);
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
 
             Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEVentId);
             waitVar.Wait();

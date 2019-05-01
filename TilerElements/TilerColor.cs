@@ -148,6 +148,7 @@ namespace TilerElements
         {
             set
             {
+                Red = value;
                 if (value < 0)
                 {
                     Red = 0;
@@ -167,6 +168,7 @@ namespace TilerElements
         { 
             set
             {
+                Green = value;
                 if (value < 0)
                 {
                     Green = 0;
@@ -187,6 +189,7 @@ namespace TilerElements
         {
             set
             {
+                Blue= value;
                 if (value < 0)
                 {
                     Blue = 0;
@@ -206,6 +209,7 @@ namespace TilerElements
         {
             set
             {
+                Opacity = value;
                 if (value < 0)
                 {
                     Opacity = 0;

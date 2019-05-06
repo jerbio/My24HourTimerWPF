@@ -68,11 +68,11 @@ namespace TilerTests
             }
         }
 
-        public TestSchedule(ScheduleDump scheduleDump, UserAccount AccountEntry, uint LatestId = 0) : base(AccountEntry, scheduleDump.CurentNow)
+        public TestSchedule(ScheduleDump scheduleDump, UserAccount AccountEntry, uint LatestId = 0) : base(AccountEntry, scheduleDump.ReferenceNow)
         {
             AllEventDictionary = AccountEntry.ScheduleLogControl.getAllCalendarFromXml(scheduleDump);
             this.Locations = AccountEntry.ScheduleLogControl.getLocationCache(scheduleDump);
-            _Now = new ReferenceNow(scheduleDump.CurentNow, scheduleDump.StartOfDay);
+            _Now = new ReferenceNow(scheduleDump.ReferenceNow, scheduleDump.StartOfDay);
             if (LatestId != 0)
             {
                 EventID.Initialize(LatestId);

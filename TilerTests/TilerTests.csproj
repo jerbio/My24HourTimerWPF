@@ -105,6 +105,10 @@
     <Compile Include="Migrations\201905041806274_scheduleDumpVisibility.Designer.cs">
       <DependentUpon>201905041806274_scheduleDumpVisibility.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201905060535057_scheduleDumpReferenceNow.cs" />
+    <Compile Include="Migrations\201905060535057_scheduleDumpReferenceNow.Designer.cs">
+      <DependentUpon>201905060535057_scheduleDumpReferenceNow.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
     <Compile Include="SetEventAsNowTests.cs" />
@@ -207,6 +211,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201905041806274_scheduleDumpVisibility.resx">
       <DependentUpon>201905041806274_scheduleDumpVisibility.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201905060535057_scheduleDumpReferenceNow.resx">
+      <DependentUpon>201905060535057_scheduleDumpReferenceNow.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Choose>

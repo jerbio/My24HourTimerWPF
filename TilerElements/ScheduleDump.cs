@@ -18,8 +18,11 @@ namespace TilerElements
         public DateTimeOffset DateOfCreation { get; set; } = DateTimeOffset.UtcNow;
         [Required]
         public DateTimeOffset StartOfDay { get; set; }
+        /// <summary>
+        /// This is the time derived from the reference now object
+        /// </summary>
         [Required]
-        public DateTimeOffset CurentNow { get; set; }
+        public DateTimeOffset ReferenceNow { get; set; }
         public string _Notes { get; set; }
         public TilerUser _User { get; set; }
         public string Id

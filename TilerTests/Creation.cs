@@ -175,13 +175,11 @@ namespace TilerTests
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), timeLine.Start, timeLine.End, 1, false, eventDisplay: eventdisplay, location: location);
             string testEVentId = testEvent.Id;
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
-            Task<ScheduleDump> dumpWait = user.ScheduleLogControl.CreateScheduleDump(Schedule.getAllCalendarEvents(), tilerUser);
+            Task<ScheduleDump> dumpWait = Schedule.CreateAndPersistScheduleDump();
             dumpWait.Wait();
             ScheduleDump scheduleDump = dumpWait.Result;
 
             var mockContext = user.ScheduleLogControl.Database;
-            mockContext.ScheduleDumps.Add(scheduleDump);
-            mockContext.SaveChanges();
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
@@ -210,13 +208,11 @@ namespace TilerTests
             string testEVentId1 = testEvent1.Id;
             TestSchedule Schedule1 = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.UiAll);
             Schedule1.AddToScheduleAndCommit(testEvent1).Wait();
-            Task<ScheduleDump> dumpWait1 = user.ScheduleLogControl.CreateScheduleDump(Schedule1.getAllCalendarEvents(), tilerUser);
+            Task<ScheduleDump> dumpWait1 = Schedule1.CreateAndPersistScheduleDump();
             dumpWait1.Wait();
             ScheduleDump scheduleDump1 = dumpWait1.Result;
 
             var mockContext1 = user.ScheduleLogControl.Database;
-            mockContext1.ScheduleDumps.Add(scheduleDump1);
-            mockContext1.SaveChanges();
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();

@@ -73,7 +73,7 @@ namespace TilerCore
         //public static DateTimeOffset Now = new DateTimeOffset(2014,4,6,0,0,0);//DateTimeOffset.UtcNow;
         protected ReferenceNow _Now;// = new ReferenceNow( DateTimeOffset.UtcNow);
         protected HashSet<SubCalendarEvent> ConflictinSubEvents = new HashSet<SubCalendarEvent>();
-
+        protected DataRetrivalOption retrievalOption = DataRetrivalOption.Evaluation;
         public ReferenceNow Now
         {
             get
@@ -515,6 +515,21 @@ namespace TilerCore
         public IEnumerable<CalendarEvent> getAllCalendarEvents()
         {
             return AllEventDictionary.Values;
+        }
+
+        /// <summary>
+        /// Gets current Calendar events in Memory. It does not retrieve data from DB
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<Location> getAllLocations()
+        {
+            return this.Locations.Values;
+        }
+
+        public Location getLocation(string locationDescription)
+        {
+            Location retValue = this.Locations[locationDescription];
+            return retValue;
         }
 
         public void EmptyMemory()

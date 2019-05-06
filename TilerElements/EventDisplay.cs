@@ -148,6 +148,17 @@ namespace TilerElements
             }
         }
 
+        public bool Visible
+        {
+            get
+            {
+                return _Visible;
+            }
+            set
+            {
+                _Visible = value;
+            }
+        }
 
 
 

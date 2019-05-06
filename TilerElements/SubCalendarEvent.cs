@@ -1263,6 +1263,14 @@ namespace TilerElements
                 return _LockToId;
             }
         }
+
+        public override NowProfile getNowInfo
+        {
+            get
+            {
+                return ParentCalendarEvent.getNowInfo;
+            }
+        }
         #endregion
 
     }

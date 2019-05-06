@@ -6,16 +6,22 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace TilerElements
 {
     public class ScheduleDump
     {
         protected string _Id = Guid.NewGuid().ToString();
-        protected string _UserId = Guid.NewGuid().ToString();
-        public string ScheduleXmlString { get; set; } = "";
+        protected string _UserId;
+        public string _ScheduleXmlString { get; set; } = "";
         public DateTimeOffset DateOfCreation { get; set; } = DateTimeOffset.UtcNow;
+        [Required]
+        public DateTimeOffset StartOfDay { get; set; }
+        [Required]
+        public DateTimeOffset CurentNow { get; set; }
         public string _Notes { get; set; }
+        public TilerUser _User { get; set; }
         public string Id
         {
             get
@@ -39,7 +45,7 @@ namespace TilerElements
                 _Notes = value;
             }
         }
-
+        [Required]
         public string UserId
         {
             get
@@ -53,7 +59,13 @@ namespace TilerElements
         }
 
         [Required, ForeignKey("UserId")]
-        public TilerUser User { get; set; }
+        public TilerUser User {
+            get {
+                return _User;
+            } set {
+                _User = value;
+            }
+        }
 
         public void updaeteId()
         {
@@ -64,6 +76,28 @@ namespace TilerElements
             }
         }
 
+        public string ScheduleXmlString
+        {
+            get
+            {
+                return _ScheduleXmlString;
+            }
+            set
+            {
+                _ScheduleXmlString = value;
+                updaeteId();
+            }
+        }
+
+        public XmlDocument XmlDoc
+        {
+            get
+            {
+                XmlDocument retValue = new XmlDocument();
+                retValue.LoadXml(ScheduleXmlString);
+                return retValue;
+            }
+        }
 
         string GetMd5Hash(MD5 md5Hash)
         {

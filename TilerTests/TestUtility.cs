@@ -12,6 +12,7 @@ using System.Data.Entity.Infrastructure;
 using TilerTests.Models;
 using System.Globalization;
 using System.Data.Entity.Core.Objects;
+using TilerCore;
 
 namespace TilerTests
 {
@@ -443,6 +444,55 @@ namespace TilerTests
             return retValue;
         }
 
+        public static bool isTestEquivalent(this Schedule FirstSchedule, Schedule SecondSchedule)
+        {
+            bool retValue = false;
+            var firstCalendarEvents = FirstSchedule.getAllCalendarEvents();
+            var secondCalendarEvents = SecondSchedule.getAllCalendarEvents();
+            retValue = firstCalendarEvents.Count() == secondCalendarEvents.Count();
+            if(retValue)
+            {
+                foreach(CalendarEvent firstCalEvent in firstCalendarEvents)
+                {
+                    var secondCalEvent = SecondSchedule.getCalendarEvent(firstCalEvent.Id);
+                    retValue = secondCalEvent != null;
+                    if(retValue)
+                    {
+                        retValue = secondCalEvent.isTestEquivalent(firstCalEvent);
+                        Assert.IsTrue(retValue);
+                    } else
+                    {
+                        break;
+                    }
+                }
+            }
+
+
+            var firstLocations = FirstSchedule.getAllLocations();
+            var secondLocations = SecondSchedule.getAllLocations();
+            retValue &= firstLocations.Count() == secondLocations.Count();
+            if (retValue)
+            {
+                foreach (Location firsLocation in firstLocations)
+                {
+                    var secondLocation = SecondSchedule.getLocation(firsLocation.Description);
+                    retValue = secondLocation != null;
+                    if (retValue)
+                    {
+                        retValue = secondLocation.isTestEquivalent(firsLocation);
+                        Assert.IsTrue(retValue);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+
+            Assert.IsTrue(retValue);
+            return retValue;
+        }
+
         public static bool isTestEquivalent(this CalendarEvent firstCalEvent, CalendarEvent secondCalEvent)
         {
             bool retValue = true;
@@ -624,7 +674,7 @@ namespace TilerTests
                     && (locationA.Description == locationB.Description)
                     && (locationA.Id == locationB.Id)
                     && (locationA.Latitude == locationB.Latitude)
-                    && (locationA.Longitude == locationB.Longitude)
+                    && (Math.Round(locationA.Longitude, 6) == Math.Round(locationB.Longitude, 6))
                     && (locationA.UserId == locationB.UserId))
                     {
                         retValue = true;

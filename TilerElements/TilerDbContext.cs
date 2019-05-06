@@ -47,6 +47,7 @@ namespace TilerElements
         virtual public System.Data.Entity.DbSet<RestrictionTimeLine> RestrictionTimeLines { get; set; }
         virtual public System.Data.Entity.DbSet<ThirdPartyTilerUser> ThirdPartyTilerUsers { get; set; }
         virtual public System.Data.Entity.DbSet<TilerUserGroup> TilerUserGroups { get; set; }
+        virtual public System.Data.Entity.DbSet<ScheduleDump> ScheduleDumps{ get; set; }
 
         public static TilerDbContext Create()
         {

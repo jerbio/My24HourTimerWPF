@@ -13,9 +13,10 @@ namespace TilerTests
     class TestSchedule : DB_Schedule
     {
         protected DateTimeOffset StartOfDay;
-        public TestSchedule(UserAccount AccountEntry, DateTimeOffset referenceNow, DateTimeOffset startOfDay, uint LatestId = 0) : base(AccountEntry, referenceNow)
+        public TestSchedule(UserAccount AccountEntry, DateTimeOffset referenceNow, DateTimeOffset startOfDay, uint LatestId = 0, DataRetrivalOption retrievalOption = DataRetrivalOption.Evaluation) : base(AccountEntry, referenceNow, retrievalOption)
         {
             StartOfDay = startOfDay;
+            this.retrievalOption = retrievalOption;
             Initialize(referenceNow, StartOfDay).Wait();
             myAccount = AccountEntry;
             if (LatestId != 0)
@@ -23,7 +24,7 @@ namespace TilerTests
                 EventID.Initialize(LatestId);
             }
         }
-        public TestSchedule(UserAccount AccountEntry, DateTimeOffset referenceNow, uint LatestId = 0) : base(AccountEntry, referenceNow)
+        public TestSchedule(UserAccount AccountEntry, DateTimeOffset referenceNow, uint LatestId = 0, DataRetrivalOption retrievalOption = DataRetrivalOption.Evaluation) : base(AccountEntry, referenceNow, retrievalOption)
         {
             if (LatestId != 0)
             {
@@ -57,9 +58,21 @@ namespace TilerTests
             TilerUser = myAccount.getTilerUser();
         }
 
-        public TestSchedule(IEnumerable<CalendarEvent> calendarEvents ,UserAccount AccountEntry, DateTimeOffset referenceNow, uint LatestId = 0) : base(AccountEntry, referenceNow)
+        public TestSchedule(IEnumerable<CalendarEvent> calendarEvents ,UserAccount AccountEntry, DateTimeOffset referenceNow, IEnumerable<Location> Locations, uint LatestId = 0) : base(AccountEntry, referenceNow)
         {
             AllEventDictionary =  calendarEvents.ToDictionary(calEvent => calEvent.Calendar_EventID.getCalendarEventComponent(), calEvent => calEvent);
+            this.Locations = Locations.ToDictionary(obj => obj.Description, obj => obj);
+            if (LatestId != 0)
+            {
+                EventID.Initialize(LatestId);
+            }
+        }
+
+        public TestSchedule(ScheduleDump scheduleDump, UserAccount AccountEntry, uint LatestId = 0) : base(AccountEntry, scheduleDump.CurentNow)
+        {
+            AllEventDictionary = AccountEntry.ScheduleLogControl.getAllCalendarFromXml(scheduleDump);
+            this.Locations = AccountEntry.ScheduleLogControl.getLocationCache(scheduleDump);
+            _Now = new ReferenceNow(scheduleDump.CurentNow, scheduleDump.StartOfDay);
             if (LatestId != 0)
             {
                 EventID.Initialize(LatestId);

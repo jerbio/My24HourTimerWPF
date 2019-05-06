@@ -667,17 +667,17 @@ namespace TilerElements
             }
         }
 
-        public ICollection<Location> LocationCluster
-        {
-            get
-            {
-                return _LocationCluster;
-            }
-            set
-            {
-                _LocationCluster = value.ToList();
-            }
-        }
+        //public ICollection<Location> LocationCluster
+        //{
+        //    get
+        //    {
+        //        return _LocationCluster;
+        //    }
+        //    set
+        //    {
+        //        _LocationCluster = value.ToList();
+        //    }
+        //}
 
         //[XmlAttribute(DataType = "Option")]
         override public Options Option {

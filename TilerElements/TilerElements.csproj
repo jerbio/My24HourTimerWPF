@@ -108,7 +108,9 @@
     <Compile Include="BusyTimeLine.cs" />
     <Compile Include="CalendarEvent.cs" />
     <Compile Include="CalendarEventRestricted.cs" />
+    <Compile Include="DataRetrivalOption.cs" />
     <Compile Include="IHasId.cs" />
+    <Compile Include="ScheduleDump.cs" />
     <Compile Include="SubEventDictionary.cs" />
     <Compile Include="TilerDbContext.cs" />
     <Compile Include="Fluent\TilerEventMapping.cs" />

@@ -208,9 +208,16 @@ namespace TilerTests
             string testEVentId1 = testEvent1.Id;
             TestSchedule Schedule1 = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.UiAll);
             Schedule1.AddToScheduleAndCommit(testEvent1).Wait();
-            Task<ScheduleDump> dumpWait1 = Schedule1.CreateAndPersistScheduleDump();
+            Task<ScheduleDump> tempScheduleDumpTask = Schedule1.CreateScheduleDump();
+            tempScheduleDumpTask.Wait();
+            ScheduleDump tempScheduleDump = tempScheduleDumpTask.Result;
+            Task <ScheduleDump> dumpWait1 = Schedule1.CreateAndPersistScheduleDump(tempScheduleDump);
             dumpWait1.Wait();
             ScheduleDump scheduleDump1 = dumpWait1.Result;
+
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
 
             var mockContext1 = user.ScheduleLogControl.Database;
 

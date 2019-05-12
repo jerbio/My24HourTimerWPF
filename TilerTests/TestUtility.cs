@@ -444,6 +444,15 @@ namespace TilerTests
             return retValue;
         }
 
+        public static bool isTestEquivalent(this ReferenceNow firstReferenceNow, ReferenceNow secondReferenceNow)
+        {
+            bool retValue = true;
+            retValue &= firstReferenceNow.constNow == secondReferenceNow.constNow;
+            retValue &= firstReferenceNow.consttDayIndex == secondReferenceNow.consttDayIndex;
+            Assert.IsTrue(retValue);
+            return retValue;
+        }
+
         public static bool isTestEquivalent(this Schedule FirstSchedule, Schedule SecondSchedule)
         {
             bool retValue = false;
@@ -488,7 +497,7 @@ namespace TilerTests
                     }
                 }
             }
-
+            retValue &= FirstSchedule.Now.isTestEquivalent(SecondSchedule.Now);
             Assert.IsTrue(retValue);
             return retValue;
         }

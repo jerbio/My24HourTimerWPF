@@ -14,7 +14,7 @@ namespace TilerElements
     {
         protected string _Id = Guid.NewGuid().ToString();
         protected string _UserId;
-        protected string _ScheduleXmlString { get; set; } = "";
+        protected string _ScheduleXmlString { get; set; }
         public DateTimeOffset DateOfCreation { get; set; } = DateTimeOffset.UtcNow;
         [Required]
         public DateTimeOffset StartOfDay { get; set; }
@@ -78,7 +78,6 @@ namespace TilerElements
                 _Id = hash;
             }
         }
-
         public string ScheduleXmlString
         {
             get
@@ -88,7 +87,7 @@ namespace TilerElements
             set
             {
                 _ScheduleXmlString = value;
-                updaeteId();
+                //updaeteId();
             }
         }
 

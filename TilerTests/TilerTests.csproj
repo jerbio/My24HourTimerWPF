@@ -113,6 +113,10 @@
     <Compile Include="Migrations\201905060855337_scheduleDumpPropertyTrim.Designer.cs">
       <DependentUpon>201905060855337_scheduleDumpPropertyTrim.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201905112347152_nvarcharmax.cs" />
+    <Compile Include="Migrations\201905112347152_nvarcharmax.Designer.cs">
+      <DependentUpon>201905112347152_nvarcharmax.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
     <Compile Include="SetEventAsNowTests.cs" />
@@ -221,6 +225,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201905060855337_scheduleDumpPropertyTrim.resx">
       <DependentUpon>201905060855337_scheduleDumpPropertyTrim.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201905112347152_nvarcharmax.resx">
+      <DependentUpon>201905112347152_nvarcharmax.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Choose>

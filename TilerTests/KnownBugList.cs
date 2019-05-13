@@ -29,7 +29,7 @@ namespace TilerTests
             TimeLine timeLine = new TimeLine();
             timeLine.AddBusySlots(allSubEvents.Select(subEvent => subEvent.ActiveSlot));
             List<BlobSubCalendarEvent> interferringSubEvents =  Utility.getConflictingEvents(allSubEvents);
-            Assert.IsTrue(interferringSubEvents.Count == 0);
+            Assert.IsTrue(interferringSubEvents.Count == 0);//this is known to fail
         }
 
 

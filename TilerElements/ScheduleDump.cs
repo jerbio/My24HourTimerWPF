@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -25,6 +26,17 @@ namespace TilerElements
         public DateTimeOffset ReferenceNow { get; set; }
         protected string _Notes { get; set; }
         protected TilerUser _User { get; set; }
+
+        public ScheduleDump()
+        {
+
+        }
+        public ScheduleDump (string xmlString)
+        {
+            _ScheduleXmlString = xmlString;
+        }
+
+
         public string Id
         {
             get
@@ -88,12 +100,26 @@ namespace TilerElements
             set
             {
                 _ScheduleXmlString = value;
-                updaeteId();
+                //updaeteId();
             }
         }
-
+        [NotMapped]
         public XmlDocument XmlDoc
         {
+            set
+            {
+                _ScheduleXmlString = value.InnerXml;
+                string timeInString = value.SelectSingleNode("/ScheduleLog/referenceDay").InnerText;
+                StartOfDay = DateTimeOffset.Parse(timeInString);
+                XmlNode lastScheduleUpdateNode = value.SelectSingleNode("/ScheduleLog/lastUpdated");
+                if(lastScheduleUpdateNode != null) {
+                    string lastScheduleUpdate = value.SelectSingleNode("/ScheduleLog/lastUpdated").InnerText;
+                    this.ReferenceNow = DateTimeOffset.Parse(lastScheduleUpdate);
+                } else
+                {
+                    StartOfDay = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
+                }
+            }
             get
             {
                 XmlDocument retValue = new XmlDocument();

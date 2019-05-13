@@ -22,7 +22,7 @@ namespace TilerTests
         */
         public LogControlTest(TilerUser User, TilerDbContext dbContext = null):base(User, null)
         {
-            _Context = dbContext ?? new ApplicationDbContext();
+            _Context = dbContext ?? new TilerDbContext();
         }
 
         public override bool Status

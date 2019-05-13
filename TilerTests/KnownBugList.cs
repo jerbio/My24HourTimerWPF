@@ -12,10 +12,27 @@ namespace TilerTests
     [TestClass]
     public class KnownBugList
     {
+        
         /*
          * This test evaluates the sleep spacing.
          * The 
         */
+
+        [TestMethod]
+        public void file_c3eb92()
+        {
+            Location homeLocation = TestUtility.getLocations()[0];
+            string userId = "d17ca35d-2803-4deb-b4ab-25825c5715b6";
+            Schedule schedule = TestUtility.getSchedule(userId);
+            schedule.FindMeSomethingToDo(homeLocation).Wait();
+            List<SubCalendarEvent> allSubEvents = schedule.getAllCalendarEvents().Where(calEvent => calEvent.isActive).SelectMany(calEvent => calEvent.ActiveSubEvents).ToList();
+            TimeLine timeLine = new TimeLine();
+            timeLine.AddBusySlots(allSubEvents.Select(subEvent => subEvent.ActiveSlot));
+            List<BlobSubCalendarEvent> interferringSubEvents =  Utility.getConflictingEvents(allSubEvents);
+            Assert.IsTrue(interferringSubEvents.Count == 0);
+        }
+
+
 
         /// <summary>
         /// This test evaluates the sleep spacing available between Dec 31 2017 and jan 1 2018. 

@@ -13,6 +13,8 @@ using TilerTests.Models;
 using System.Globalization;
 using System.Data.Entity.Core.Objects;
 using TilerCore;
+using System.Xml;
+using System.IO;
 
 namespace TilerTests
 {
@@ -339,6 +341,30 @@ namespace TilerTests
             TilerUser tilerUser = _Context.Users.Find(userId);
             UserAccount userAccount = new UserAccountTest(tilerUser, _Context);
             return userAccount;
+        }
+
+        public static Schedule getSchedule(string userId, bool copyTestFolder = true)
+        {
+            string currDir = Directory.GetCurrentDirectory();
+            string sourceFile = currDir +"\\"+ "WagTapCalLogs\\" + userId + "\\" + userId + ".xml";
+            if (userId != testUserId && copyTestFolder)
+            {
+                string destinationFile = currDir + "\\" + "WagTapCalLogs\\" + userId + ".xml";
+                System.IO.File.Copy(sourceFile, destinationFile, true);
+            }
+
+
+            ScheduleDump dump = new ScheduleDump();
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.Load(sourceFile);
+            dump.XmlDoc = xmlDoc;
+
+            TilerUser User = new TilerUser() { UserName = userId + "@tiler-test.com", Id = userId };
+            UserAccountDump accDebug = new UserAccountDump(User);
+
+
+            Schedule retValue = new TestSchedule(dump, accDebug);
+            return retValue;
         }
 
         public static void RefreshAll(TilerDbContext context)

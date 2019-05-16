@@ -95,6 +95,7 @@
     <Compile Include="AsyncDataAccessor.cs" />
     <Compile Include="Creation.cs" />
     <Compile Include="KnownBugList.cs" />
+    <Compile Include="LogControlDump.cs" />
     <Compile Include="LogControlTest.cs" />
     <Compile Include="LogicTest.cs" />
     <Compile Include="Migrations\201905041722103_scheduleDum.cs" />
@@ -139,6 +140,7 @@
     <Compile Include="DeletionTest.cs" />
     <Compile Include="ConflictResolution.cs" />
     <Compile Include="PerformanceTest.cs" />
+    <Compile Include="UserAccountDump.cs" />
     <Compile Include="UserAccountTest.cs" />
     <Compile Include="WhatIfTest.cs" />
   </ItemGroup>
@@ -180,6 +182,7 @@
     <Content Include="WagTapCalLogs\6439fc14-ad0d-419f-acc8-86b17cc100c2\6439fc14-ad0d-419f-acc8-86b17cc100c2.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="WagTapCalLogs\69e9166b-6754-46cf-b384-66c5557048f8\69e9166b-6754-46cf-b384-66c5557048f8.xml" />
     <Content Include="WagTapCalLogs\712dd797-8991-4f79-90c1-7b51c744c4bd\712dd797-8991-4f79-90c1-7b51c744c4bd.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

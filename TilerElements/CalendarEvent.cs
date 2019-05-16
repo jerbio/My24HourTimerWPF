@@ -1493,6 +1493,8 @@ namespace TilerElements
                 SubCalendarEvent newSubCalEvent = new SubCalendarEvent(this, getCreator, _Users,_TimeZone, _AverageTimePerSplit, this.getName, (EndDateTime - _AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), RigidSchedule, this.isEnabled, this._UiParams, this.Notes, this._Complete, _LocationInfo, this.RangeTimeLine);
                 SubEvents.Add(newSubCalEvent.Id, newSubCalEvent);
                 _EventDuration = _EventDuration.Add(newSubCalEvent.getActiveDuration);
+                newSubCalEvent.UiParamsId = this.UiParamsId;
+                newSubCalEvent.DataBlobId = this.DataBlobId;
             }
             _Splits += (int)delta;
             UpdateTimePerSplit();

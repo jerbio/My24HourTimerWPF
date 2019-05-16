@@ -280,6 +280,9 @@ namespace TilerElements
                 DateTimeOffset SubEnd = SubStart.Add(_AverageTimePerSplit);
                 SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(this, this.getCreator, this._Users, UniqueID.ToString(), this.getName, SubStart, SubEnd, _ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), RigidSchedule, _PrepTime, _EventPreDeadline, _LocationInfo, _UiParams, _DataBlob, _Now, _Priority, ThirdPartyID);
                 SubEvents.Add(newEvent.Id, newEvent);
+                newEvent.UiParamsId = this.UiParamsId;
+                newEvent.DataBlobId = this.DataBlobId;
+
             }
             _Splits += (int)delta;
             _EventDuration = TimeSpan.FromTicks(SubEvents.Values.Sum(subEvent => subEvent.getActiveDuration.Ticks));

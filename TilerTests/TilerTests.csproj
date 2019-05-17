@@ -98,26 +98,6 @@
     <Compile Include="LogControlDump.cs" />
     <Compile Include="LogControlTest.cs" />
     <Compile Include="LogicTest.cs" />
-    <Compile Include="Migrations\201905041722103_scheduleDum.cs" />
-    <Compile Include="Migrations\201905041722103_scheduleDum.Designer.cs">
-      <DependentUpon>201905041722103_scheduleDum.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201905041806274_scheduleDumpVisibility.cs" />
-    <Compile Include="Migrations\201905041806274_scheduleDumpVisibility.Designer.cs">
-      <DependentUpon>201905041806274_scheduleDumpVisibility.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201905060535057_scheduleDumpReferenceNow.cs" />
-    <Compile Include="Migrations\201905060535057_scheduleDumpReferenceNow.Designer.cs">
-      <DependentUpon>201905060535057_scheduleDumpReferenceNow.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201905060855337_scheduleDumpPropertyTrim.cs" />
-    <Compile Include="Migrations\201905060855337_scheduleDumpPropertyTrim.Designer.cs">
-      <DependentUpon>201905060855337_scheduleDumpPropertyTrim.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201905112347152_nvarcharmax.cs" />
-    <Compile Include="Migrations\201905112347152_nvarcharmax.Designer.cs">
-      <DependentUpon>201905112347152_nvarcharmax.cs</DependentUpon>
-    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
     <Compile Include="SetEventAsNowTests.cs" />
@@ -215,23 +195,6 @@
     <Content Include="WagTapCalLogs\e94713a5-9ab6-4c6b-9b46-edafa4b0dafc\e94713a5-9ab6-4c6b-9b46-edafa4b0dafc.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\201905041722103_scheduleDum.resx">
-      <DependentUpon>201905041722103_scheduleDum.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201905041806274_scheduleDumpVisibility.resx">
-      <DependentUpon>201905041806274_scheduleDumpVisibility.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201905060535057_scheduleDumpReferenceNow.resx">
-      <DependentUpon>201905060535057_scheduleDumpReferenceNow.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201905060855337_scheduleDumpPropertyTrim.resx">
-      <DependentUpon>201905060855337_scheduleDumpPropertyTrim.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201905112347152_nvarcharmax.resx">
-      <DependentUpon>201905112347152_nvarcharmax.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

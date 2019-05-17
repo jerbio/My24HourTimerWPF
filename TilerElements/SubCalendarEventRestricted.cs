@@ -54,7 +54,7 @@ namespace TilerElements
             _EventDuration = EndDateTime - StartDateTime;
             UniqueID = null;
             _ProfileOfRestriction = null;
-            HardCalendarEventRange = new TimeLine();
+            HardCalendarEventRange = null;
             _LastReasonStartTimeChanged = this.Start;
         }
         #endregion
@@ -479,7 +479,8 @@ namespace TilerElements
                 }
                 else
                 {
-                    this.HardCalendarEventRange = new TimeLine(this.HardCalendarEventRange.Start, value);
+                    this.HardCalendarEventRange = new TimeLine(value, this.HardCalendarEventRange.End);
+                    
                 }
             }
         }
@@ -498,7 +499,7 @@ namespace TilerElements
                 }
                 else
                 {
-                    this.HardCalendarEventRange = new TimeLine(value, this.HardCalendarEventRange.End);
+                    this.HardCalendarEventRange = new TimeLine(this.HardCalendarEventRange.Start, value);
                 };
             }
         }

@@ -119,6 +119,7 @@ namespace TilerTests
             var verificationEventPulled = mockContext.SubEvents
                                             .Include(subEvent => subEvent.ParentCalendarEvent)
                                             .Include(subEvent => subEvent.ParentCalendarEvent.Procrastination_EventDB)
+                                            .Include(subEvent => subEvent.ParentCalendarEvent.ProfileOfNow_EventDB)
                                             .FirstOrDefault(subevent => subevent.Id == testEventId);
 
             Assert.IsNotNull(testEvent);

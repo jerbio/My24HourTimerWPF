@@ -229,7 +229,7 @@ namespace TilerElements
             copy._Name = this.getName.createCopy();
             copy._EventPreDeadline = this._EventPreDeadline;
             copy.EventScore = this.EventScore;
-            copy.HardCalendarEventRange = this.HardCalendarEventRange.CreateCopy();
+            copy.HardCalendarEventRange = this.HardCalendarEventRange?.CreateCopy();
             copy.isRestricted = this.isRestricted;
             copy.Vestige = this.Vestige;
             copy._LocationInfo = this._LocationInfo.CreateCopy();

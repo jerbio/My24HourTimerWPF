@@ -916,7 +916,7 @@ namespace TilerElements
 
          }
 
-        internal void changeCalendarEventRange(IDefinedRange newTimeLine, bool resetCalculationTimeLine = true)
+        internal virtual void changeCalendarEventRange(IDefinedRange newTimeLine, bool resetCalculationTimeLine = true)
         {
             _CalendarEventRange = newTimeLine.RangeTimeLine.CreateCopy();
             if(resetCalculationTimeLine)
@@ -1268,7 +1268,7 @@ namespace TilerElements
         {
             get
             {
-                return ParentCalendarEvent.getNowInfo;
+                return _ProfileOfNow?? ParentCalendarEvent.getNowInfo;
             }
         }
         #endregion

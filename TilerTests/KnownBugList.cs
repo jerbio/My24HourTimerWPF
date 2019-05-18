@@ -14,9 +14,10 @@ namespace TilerTests
     {
         
         /*
-         * This test evaluates the sleep spacing.
+         * This test tries to see that there is sufficent diversity. Read notes scheule dump nodes
          * The 
         */
+
         /// <summary>
         /// This test evaluates the sleep spacing available between Dec 31 2017 and jan 1 2018. 
         /// When the shuffle is hit there should be a spacing of at least five hours hours somewhere in the schedule however for some reason the best spacing 50 mins

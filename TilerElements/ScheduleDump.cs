@@ -123,6 +123,9 @@ namespace TilerElements
             {
                 XmlDocument retValue = new XmlDocument();
                 retValue.LoadXml(ScheduleXmlString);
+                XmlNode scheduleNotesNode = retValue.CreateElement("ScheduleNotes");
+                scheduleNotesNode.InnerText = this.Notes;
+                retValue.DocumentElement.PrependChild(scheduleNotesNode);
                 return retValue;
             }
         }

@@ -1091,11 +1091,8 @@ namespace TilerCore
             return retValue;
         }
 
-        public CustomErrors AddToSchedule(CalendarEvent NewEvent)
+        public CustomErrors AddToSchedule(CalendarEvent NewEvent, bool optimizeSchedule = true)
         {
-#if enableTimer
-            myWatch.Start();
-#endif
             Now.InitializeParameters();
             //HashSet<SubCalendarEvent> NotdoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
             HashSet<SubCalendarEvent> NotdoneYet = new HashSet<SubCalendarEvent>();// getNoneDoneYetBetweenNowAndReerenceStartTIme();
@@ -1127,14 +1124,7 @@ namespace TilerCore
                 LogStatus(NewEvent, "Adding New Event");
             }
 
-            try
-            {
-                AllEventDictionary.Add(NewEvent.Calendar_EventID.getCalendarEventComponent(), NewEvent);
-            }
-            catch
-            {
-                AllEventDictionary[NewEvent.getId] = NewEvent;
-            }
+            AllEventDictionary.Add(NewEvent.Calendar_EventID.getCalendarEventComponent(), NewEvent);
 
             return NewEvent.Error;
         }

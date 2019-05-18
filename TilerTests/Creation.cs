@@ -212,7 +212,7 @@ namespace TilerTests
             Task<ScheduleDump> tempScheduleDumpTask = Schedule1.CreateScheduleDump();
             tempScheduleDumpTask.Wait();
             ScheduleDump tempScheduleDump = tempScheduleDumpTask.Result;
-            Task <ScheduleDump> dumpWait1 = Schedule1.CreateAndPersistScheduleDump(tempScheduleDump);
+            Task<ScheduleDump> dumpWait1 = Schedule1.CreateAndPersistScheduleDump(tempScheduleDump);
             dumpWait1.Wait();
             ScheduleDump scheduleDump1 = dumpWait1.Result;
 
@@ -236,6 +236,93 @@ namespace TilerTests
             Schedule scheduleFromDump1 = new TestSchedule(retrievedDump1, user);
 
             Assert.IsTrue(scheduleFromDump1.isTestEquivalent(Schedule1));
+        }
+
+
+
+
+        [TestMethod]
+        public void sameScheduleChangeAfterSameInput()
+        {
+            TilerUser tilerUser = TestUtility.createUser();
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
+            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.UiAll);
+            TimeSpan duration = TimeSpan.FromHours(4);
+
+            TimeLine timeLine = TestUtility.getTimeFrames(refNow, duration).First();
+            TilerColor tilerColor = new TilerColor(255, 255, 0, 1, 5);
+            EventDisplay eventdisplay = new EventDisplay(true, tilerColor);
+
+            Location location = TestUtility.getLocations()[0];
+            location.Validate();
+
+            // Adding event one
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.Add(duration);
+            TimeLine repetitionRange = new TimeLine(start, start.AddDays(13).AddHours(-23));
+            DayOfWeek startingWeekDay = start.DayOfWeek;
+            Repetition repetition = new Repetition();
+            CalendarEventRestricted testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end,4, false, restrictionProfile: new RestrictionProfile(start, duration + duration), now: Schedule.Now) as CalendarEventRestricted;
+            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+
+            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.UiAll);
+            Location location1 = TestUtility.getLocations()[1];
+            TilerColor tilerColor1 = new TilerColor(255, 255, 0, 1, 5);
+            EventDisplay eventdisplay1 = new EventDisplay(true, tilerColor1);
+            CalendarEvent testEvent1 = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), timeLine.Start, timeLine.End, 1, false, eventDisplay: eventdisplay1, location: location1);
+            Schedule.AddToScheduleAndCommit(testEvent1).Wait();
+
+
+            Task<ScheduleDump> dumpWait = Schedule.CreateAndPersistScheduleDump();
+            dumpWait.Wait();
+            ScheduleDump scheduleDump = dumpWait.Result;
+            var mockContext = user.ScheduleLogControl.Database;
+
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+            mockContext = user.ScheduleLogControl.Database;
+            ScheduleDump retrievedDump = mockContext.ScheduleDumps.Find(scheduleDump.Id);
+
+            TestSchedule ScheduleFromRDBMS = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.UiAll);
+
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+            TestSchedule scheduleFromDump = new TestSchedule(retrievedDump, user);
+
+            Assert.IsTrue(scheduleFromDump.isTestEquivalent(ScheduleFromRDBMS));
+
+            // Adding event two
+            Location location2 = TestUtility.getLocations()[2];
+            TilerColor tilerColor2 = new TilerColor(255, 255, 0, 1, 5);
+            EventDisplay eventdisplay2 = new EventDisplay(true, tilerColor2);
+
+            CalendarEvent testEvent2 = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(5), new Repetition(), timeLine.Start, timeLine.End, 4, false, eventDisplay: eventdisplay2, location: location2);
+            CalendarEvent testEvent2Cpy = testEvent2.createCopy();
+
+            ScheduleFromRDBMS = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.UiAll);
+            ScheduleFromRDBMS.AddToScheduleAndCommit(testEvent2).Wait();
+            scheduleFromDump.AddToSchedule(testEvent2Cpy);
+            List<SubCalendarEvent> dumpSubEvents = scheduleFromDump.getAllCalendarEvents().Where(calEvent => calEvent.isActive).SelectMany(calEvent => calEvent.AllSubEvents).OrderBy(subEvent=> subEvent.Start).ToList();
+            List<SubCalendarEvent> rdbmsSubEvents = ScheduleFromRDBMS.getAllCalendarEvents().Where(calEvent => calEvent.isActive).SelectMany(calEvent => calEvent.AllSubEvents).OrderBy(subEvent => subEvent.Start).ToList();
+
+
+            Assert.IsTrue(dumpSubEvents.Count == rdbmsSubEvents.Count);
+            for (int i=0; i< dumpSubEvents.Count;i++)
+            {
+                SubCalendarEvent dumpSubEvent = dumpSubEvents[i];
+                SubCalendarEvent rdbmsSubEvent = rdbmsSubEvents[i];
+                Assert.IsTrue(dumpSubEvent.Start == rdbmsSubEvent.Start);
+                Assert.IsTrue(dumpSubEvent.End== rdbmsSubEvent.End);
+            }
         }
 
 

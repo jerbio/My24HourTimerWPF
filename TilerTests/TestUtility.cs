@@ -94,8 +94,8 @@ namespace TilerTests
 
         public static CalendarEvent createProcrastinateCalendarEvent(TilerUser user)
         {
-            DateTimeOffset now = DateTimeOffset.UtcNow;
-            CalendarEvent procrastinateCalEvent = ProcrastinateCalendarEvent.generateProcrastinateAll(now, user, TimeSpan.FromSeconds(1), "UTC");
+            DateTimeOffset now = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
+            CalendarEvent procrastinateCalEvent = ProcrastinateCalendarEvent.generateProcrastinateAll(now, user, TimeSpan.FromSeconds(0), "UTC");
             return procrastinateCalEvent;
         }
 
@@ -343,7 +343,7 @@ namespace TilerTests
             return userAccount;
         }
 
-        public static Schedule getSchedule(string userId, bool copyTestFolder = true)
+        public static Tuple<Schedule, ScheduleDump> getSchedule(string userId, bool copyTestFolder = true)
         {
             string currDir = Directory.GetCurrentDirectory();
             string sourceFile = currDir +"\\"+ "WagTapCalLogs\\" + userId + "\\" + userId + ".xml";
@@ -358,12 +358,16 @@ namespace TilerTests
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(sourceFile);
             dump.XmlDoc = xmlDoc;
+            string notes = dump.XmlDoc.DocumentElement.SelectSingleNode("/ScheduleLog/scheduleNotes").InnerText;
+            dump.Notes = notes;
+
 
             TilerUser User = new TilerUser() { UserName = userId + "@tiler-test.com", Id = userId };
             UserAccountDump accDebug = new UserAccountDump(User);
 
 
-            Schedule retValue = new TestSchedule(dump, accDebug);
+            Schedule schedule = new TestSchedule(dump, accDebug);
+            Tuple<Schedule, ScheduleDump> retValue = new Tuple<Schedule, ScheduleDump>(schedule, dump);
             return retValue;
         }
 
@@ -424,25 +428,25 @@ namespace TilerTests
 
             //isInitialized = false;
         }
-        public static bool isTestEquivalent(this TilerEvent firstCalEvent, TilerEvent secondCalEvent)
+        public static bool isTestEquivalent(this TilerEvent firstTilerEvent, TilerEvent secondTilerEvent)
         {
             bool retValue = true;
             string format = "MM/dd/yyyy HH:mm";
-            DateTimeOffset firstStart = TestUtility.parseAsUTC( firstCalEvent.Start.ToString(format));
-            DateTimeOffset firstEnd = TestUtility.parseAsUTC(firstCalEvent.End.ToString(format));
-            DateTimeOffset secondStart = TestUtility.parseAsUTC(secondCalEvent.Start.ToString(format));
-            DateTimeOffset secondEnd = TestUtility.parseAsUTC(secondCalEvent.End.ToString(format));
-            Type eventType = secondCalEvent.GetType();
+            DateTimeOffset firstStart = TestUtility.parseAsUTC( firstTilerEvent.Start.ToString(format));
+            DateTimeOffset firstEnd = TestUtility.parseAsUTC(firstTilerEvent.End.ToString(format));
+            DateTimeOffset secondStart = TestUtility.parseAsUTC(secondTilerEvent.Start.ToString(format));
+            DateTimeOffset secondEnd = TestUtility.parseAsUTC(secondTilerEvent.End.ToString(format));
+            Type eventType = secondTilerEvent.GetType();
             {
-                if (firstCalEvent.getId == secondCalEvent.getId)
+                if (firstTilerEvent.getId == secondTilerEvent.getId)
                 {
                     if ((firstStart == secondStart) && (firstEnd == secondEnd))
                     {
-                        if (firstCalEvent.getProcrastinationInfo.isTestEquivalent(secondCalEvent.getProcrastinationInfo) 
-                            && firstCalEvent.getNowInfo.isTestEquivalent(secondCalEvent.getNowInfo)
-                            && firstCalEvent.Location.isTestEquivalent(secondCalEvent.Location))
+                        if (firstTilerEvent.getProcrastinationInfo.isTestEquivalent(secondTilerEvent.getProcrastinationInfo) 
+                            && firstTilerEvent.getNowInfo.isTestEquivalent(secondTilerEvent.getNowInfo)
+                            && firstTilerEvent.Location.isTestEquivalent(secondTilerEvent.Location))
                         {
-                            if ((firstCalEvent.getIsComplete == secondCalEvent.getIsComplete) && (firstCalEvent.isEnabled == secondCalEvent.isEnabled))
+                            if ((firstTilerEvent.getIsComplete == secondTilerEvent.getIsComplete) && (firstTilerEvent.isEnabled == secondTilerEvent.isEnabled))
                             {
                                 retValue = true;
                             }

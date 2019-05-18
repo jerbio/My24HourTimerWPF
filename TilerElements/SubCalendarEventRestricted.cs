@@ -455,6 +455,12 @@ namespace TilerElements
             retValue.shiftEvent(SpanShift, true);
             return retValue;
         }
+
+        internal override void changeCalendarEventRange(IDefinedRange newTimeLine, bool resetCalculationTimeLine = true)
+        {
+            base.changeCalendarEventRange(newTimeLine, resetCalculationTimeLine);
+            this.HardCalendarEventRange = _CalendarEventRange;
+        }
         //*/
         #endregion
 

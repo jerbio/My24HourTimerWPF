@@ -3552,7 +3552,7 @@ namespace TilerCore
             }
             
 
-            TimeSpan bufferPerMile = new TimeSpan(0, 12, 0);
+            TimeSpan bufferPerMile = new TimeSpan(0, 4, 0);
             
             Dictionary<Tuple<SubCalendarEvent, SubCalendarEvent>, double> beforeAfterDistance = new Dictionary<Tuple<SubCalendarEvent, SubCalendarEvent>, double>();
             Dictionary<SubCalendarEvent, mTuple<DateTimeOffset, DateTimeOffset>> beforeFailing = new Dictionary<SubCalendarEvent, mTuple<DateTimeOffset, DateTimeOffset>>();

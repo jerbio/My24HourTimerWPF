@@ -35,12 +35,12 @@ namespace TilerCore
             TimeOfDayPreferrence.SingleTimeOfDayPreference nonePreference = singleTimeOfDayPreferences.Single(obj => obj.DaySection == TimeOfDayPreferrence.DaySection.None);
             List<TimeOfDayPreferrence.SingleTimeOfDayPreference> noNone = singleTimeOfDayPreferences.Where(obj => obj != nonePreference).ToList();
 
-            AllGroupings.Add(nonePreference.DaySection, new OptimizedGrouping(nonePreference, TotalDuration, home));
+            AllGroupings.Add(nonePreference.DaySection, new OptimizedGrouping(nonePreference, TotalDuration, home, home));
 
             if (noNone.Count > 0)
             {
                 TimeOfDayPreferrence.SingleTimeOfDayPreference firstTimeOfDayPreference = noNone.First();
-                OptimizedGrouping firstGrouping = new OptimizedGrouping(firstTimeOfDayPreference, TotalDuration, DefaultLocation.CreateCopy());
+                OptimizedGrouping firstGrouping = new OptimizedGrouping(firstTimeOfDayPreference, TotalDuration, DefaultLocation.CreateCopy(), home);
                 firstGrouping.setLeftStitch(beginLocation);
                 AllGroupings.Add(firstTimeOfDayPreference.DaySection, firstGrouping);
                 noNone.Remove(firstTimeOfDayPreference);
@@ -49,7 +49,7 @@ namespace TilerCore
             if(noNone.Count > 0)
             {
                 TimeOfDayPreferrence.SingleTimeOfDayPreference lastTimeOfDayPreference = noNone.Last();
-                OptimizedGrouping lastGrouping = new OptimizedGrouping(lastTimeOfDayPreference, TotalDuration, DefaultLocation.CreateCopy());
+                OptimizedGrouping lastGrouping = new OptimizedGrouping(lastTimeOfDayPreference, TotalDuration, DefaultLocation.CreateCopy(), home);
                 lastGrouping.setRightStitch(endLocation);
                 AllGroupings.Add(lastTimeOfDayPreference.DaySection, lastGrouping);
                 noNone.Remove(lastTimeOfDayPreference);
@@ -59,7 +59,7 @@ namespace TilerCore
 
             foreach (TimeOfDayPreferrence.SingleTimeOfDayPreference singleTimeOfDayPreference in noNone)
             {
-                AllGroupings.Add(singleTimeOfDayPreference.DaySection, new OptimizedGrouping(singleTimeOfDayPreference, TotalDuration, DefaultLocation.CreateCopy()));
+                AllGroupings.Add(singleTimeOfDayPreference.DaySection, new OptimizedGrouping(singleTimeOfDayPreference, TotalDuration, DefaultLocation.CreateCopy(), home));
             }
             assignRigidsToTimeGroupings(DayInfo.getSubEventsInTimeLine(), DayInfo);
         }

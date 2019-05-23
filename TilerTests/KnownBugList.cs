@@ -12,16 +12,25 @@ namespace TilerTests
     [TestClass]
     public class KnownBugList
     {
-        
+
         /*
          * This test tries to see that there is sufficent diversity. Read notes scheule dump nodes
          * The 
         */
-
         /// <summary>
-        /// This test evaluates the sleep spacing available between Dec 31 2017 and jan 1 2018. 
-        /// When the shuffle is hit there should be a spacing of at least five hours hours somewhere in the schedule however for some reason the best spacing 50 mins
+        /// Template for running test environment through log files
         /// </summary>
+        //[TestMethod]
+        //public void file_f64b4f1c()
+        //{
+        //    string scheduleId = "f64b4f1c-1d15-4b03-81fd-6b5c0e6d451b";
+        //    Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+        //    var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+        //    Schedule schedule = scheduleAndDump.Item1;
+        //    schedule.FindMeSomethingToDo(currentLocation).Wait();
+        //}
+
+
         //[TestMethod]
         //public void file_e94713a5()
         //{

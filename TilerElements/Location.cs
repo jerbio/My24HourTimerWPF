@@ -61,7 +61,7 @@ namespace TilerElements
         protected bool _UndoDefaultFlag = false;
 #endregion
         protected string _Id = Guid.NewGuid().ToString();
-
+#region Constructor
         public Location()
         {
             _Latitude = defaultXValue;
@@ -144,7 +144,7 @@ namespace TilerElements
                 _Id = ID;
             }
         }
-
+#endregion
         /// <summary>
         /// function tries to verify that the address provide exists in external service
         /// </summary>
@@ -252,12 +252,13 @@ namespace TilerElements
             TimeSpan retValue = new TimeSpan(-1);
             if(!first.isNull && !second.isNull)
             {
-                
+                string apiKey = ConfigurationManager.AppSettings["googleMapsApiKey"];
                 DirectionsRequest directionsRequest = new DirectionsRequest()
                 {
                     Origin = first.justLongLatString(),
                     Destination = second.justLongLatString(),
-                    TravelMode = travelMode
+                    TravelMode = travelMode,
+                    ApiKey = apiKey
                 };
                 try
                 {

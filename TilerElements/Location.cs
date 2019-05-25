@@ -39,6 +39,7 @@ namespace TilerElements
         protected double _Latitude;
         protected double _Longitude;
         protected string _TaggedDescription = "";
+        protected string _SearchdDescription = "";
         protected string _TaggedAddress = "";
         protected string _UndoId = "";
         protected TilerUser _User;
@@ -105,6 +106,12 @@ namespace TilerElements
             _Longitude = MyyValue;
             _TaggedAddress = AddressEntry;
             _TaggedDescription = AddressDescription;
+            _SearchdDescription = _TaggedDescription;
+            
+            if (!string.IsNullOrEmpty(_SearchdDescription) && !string.IsNullOrWhiteSpace(_SearchdDescription))
+            {
+                _SearchdDescription = _SearchdDescription.Trim().ToLower();
+            }
             _NullLocation = isNull;
             if (string.IsNullOrEmpty(ID))
             {
@@ -135,6 +142,12 @@ namespace TilerElements
             _NullLocation = true;
             _TaggedAddress = Address;
             _TaggedDescription = tag;
+
+            _SearchdDescription = _TaggedDescription;
+            if (!string.IsNullOrEmpty(_SearchdDescription) && !string.IsNullOrWhiteSpace(_SearchdDescription))
+            {
+                _SearchdDescription = _SearchdDescription.Trim().ToLower();
+            }
             if (string.IsNullOrEmpty(ID))
             {
                 _Id = Guid.NewGuid().ToString();
@@ -467,7 +480,7 @@ namespace TilerElements
             _ApiKey = key;
         }
 
-        public static  string ApiKey
+        public static string ApiKey
         {
             get
             {
@@ -534,8 +547,10 @@ namespace TilerElements
 
 
         #region Properties
-
-        [MaxLength(256), Index("UserIdAndDesciption", Order = 1, IsUnique = true)]
+        /// <summary>
+        /// NOTE DO NOT FORGET TO SAVE TO SearchdDescription. This is for performace reasons
+        /// 
+        /// </summary>
         public string Description
         {
             set
@@ -545,6 +560,27 @@ namespace TilerElements
             get
             {
                 return _TaggedDescription;
+            }
+        }
+
+        /// <summary>
+        /// Holds description that is to be used for indexing and loacations loook up
+        /// </summary>
+        [MaxLength(256), Index("UserIdAndDesciption", Order = 1, IsUnique = true)]
+        public string SearchdDescription
+        {
+            protected set
+            {
+                _SearchdDescription = value;
+            }
+            get
+            {
+                string retValue = _SearchdDescription;
+                if(string.IsNullOrEmpty(retValue) || string.IsNullOrWhiteSpace(retValue))
+                {
+                    retValue = _TaggedDescription;
+                }
+                return retValue;
             }
         }
 

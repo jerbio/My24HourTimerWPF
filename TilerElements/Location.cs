@@ -106,12 +106,7 @@ namespace TilerElements
             _Longitude = MyyValue;
             _TaggedAddress = AddressEntry;
             _TaggedDescription = AddressDescription;
-            _SearchdDescription = _TaggedDescription;
-            
-            if (!string.IsNullOrEmpty(_SearchdDescription) && !string.IsNullOrWhiteSpace(_SearchdDescription))
-            {
-                _SearchdDescription = _SearchdDescription.Trim().ToLower();
-            }
+            updateSearchedLocation();
             _NullLocation = isNull;
             if (string.IsNullOrEmpty(ID))
             {
@@ -143,11 +138,7 @@ namespace TilerElements
             _TaggedAddress = Address;
             _TaggedDescription = tag;
 
-            _SearchdDescription = _TaggedDescription;
-            if (!string.IsNullOrEmpty(_SearchdDescription) && !string.IsNullOrWhiteSpace(_SearchdDescription))
-            {
-                _SearchdDescription = _SearchdDescription.Trim().ToLower();
-            }
+            updateSearchedLocation();
             if (string.IsNullOrEmpty(ID))
             {
                 _Id = Guid.NewGuid().ToString();
@@ -208,7 +199,18 @@ namespace TilerElements
             {
                 initializeWithNull();
             }
+            updateSearchedLocation();
             return retValue;
+        }
+
+        protected void updateSearchedLocation()
+        {
+            _SearchdDescription = _TaggedDescription;
+
+            if (!string.IsNullOrEmpty(_SearchdDescription) && !string.IsNullOrWhiteSpace(_SearchdDescription))
+            {
+                _SearchdDescription = _SearchdDescription.Trim().ToLower();
+            }
         }
 
         void initializeWithNull()

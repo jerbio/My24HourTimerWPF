@@ -10,7 +10,7 @@ using NodaTime;
 
 namespace TilerElements
 {
-    public class TilerUser : IdentityUser
+    public class TilerUser : IdentityUser, IHasId
     {
 
         public static TilerUser autoUser = new TilerUser()
@@ -24,10 +24,18 @@ namespace TilerElements
             _Id = "googleUser",
             Email = "googleUser@tiler.com"
         };
-        public string FullName { get; set; }
+        public string FullName {
+            get {
+                return FirstName + " " + OtherName ?? "" + LastName;
+            }
+        }
+        public string FirstName { get; set; } = "";
+        public string LastName { get; set; } = "";
+        public string OtherName { get; set; } = "";
         public DateTimeOffset EndfOfDay { get; set; }
         public DateTimeOffset LastScheduleModification { get; set; }
         public string ClearAllId { get; set; }
+        public string LatestId { get; set; }
         public string CalendarType { get; set; } = ThirdPartyControl.CalendarTool.tiler.ToString();
         protected string _Id{get;set;}
         public override string Id

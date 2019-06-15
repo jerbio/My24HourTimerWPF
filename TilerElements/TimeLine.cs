@@ -478,12 +478,6 @@ namespace TilerElements
                     int j = i + 1;
                     for (j = i + 1; j < ActiveTimeSlots.Length; j++)
                     {
-                        //if (flip)
-                        //{
-                        //    flip = false;
-                        //    break;
-                        //}
-
                         if (MyBustTimeLine.doesTimeLineInterfere(ActiveTimeSlots[j]))
                         {
                             InterferringBusyTimeLines.Add(ActiveTimeSlots[j]);
@@ -491,20 +485,14 @@ namespace TilerElements
 
                     }
 
-                    //if (InterferringBusyTimeLines.Count > 0)
+                    if (DictionaryOfClashingTimelines.ContainsKey(i))
                     {
-                        if (DictionaryOfClashingTimelines.ContainsKey(i))
-                        {
-                            DictionaryOfClashingTimelines[i] = InterferringBusyTimeLines;
-                        }
-                        else
-                        {
-                            DictionaryOfClashingTimelines.Add(i, InterferringBusyTimeLines);
-                        }
+                        DictionaryOfClashingTimelines[i] = InterferringBusyTimeLines;
                     }
-
-
-
+                    else
+                    {
+                        DictionaryOfClashingTimelines.Add(i, InterferringBusyTimeLines);
+                    }
                 }
 
                 return DictionaryOfClashingTimelines;

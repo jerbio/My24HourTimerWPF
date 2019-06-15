@@ -7,7 +7,7 @@ namespace TilerElements
 {
     public class BusyTimeLine : EventTimeLine
     {
-        TimeSpan BusySpan;
+        TimeSpan _BusySpan;
 
         public BusyTimeLine()
             : base()
@@ -16,22 +16,30 @@ namespace TilerElements
         }
         public BusyTimeLine(TimeSpan MyBusySpan)
         {
-            BusySpan = MyBusySpan;
+            _BusySpan = MyBusySpan;
             TimeLineEventID = null;
         }
         public BusyTimeLine(string MyEventID, DateTimeOffset MyStartTime, DateTimeOffset MyEndTime)
         {
-            StartTime = MyStartTime;
-            EndTime = MyEndTime;
-            BusySpan = EndTime - StartTime;
-            TimeLineEventID = MyEventID;
+            if(!String.IsNullOrEmpty(MyEventID))
+            {
+                StartTime = MyStartTime;
+                EndTime = MyEndTime;
+                _BusySpan = EndTime - StartTime;
+                TimeLineEventID = MyEventID;
+            }
+            else
+            {
+                throw new ArgumentNullException("MyEventID");
+            }
+            
         }
 
         public BusyTimeLine(string eventID, TimeLine timeLine)
         {
             StartTime = timeLine.Start;
             EndTime = timeLine.End;
-            BusySpan = EndTime - StartTime;
+            _BusySpan = EndTime - StartTime;
             TimeLineEventID = eventID;
         }
 
@@ -63,7 +71,7 @@ namespace TilerElements
         {
             get
             {
-                return BusySpan;
+                return _BusySpan;
             }
         }
 
@@ -90,6 +98,39 @@ namespace TilerElements
                 return EndTime;
             }
         }
+
+        public TimeSpan BusyTimeSpan_DB
+        {
+            get
+            {
+                return _BusySpan;
+            }
+            set
+            {
+                _BusySpan = value;
+            }
+        }
+
+        public TimeSpan UndoBusyTimeSpan_DB;
+
+        public override void undo(string undoId)
+        {
+            if(this._UndoId == undoId)
+            {
+                base.undo(undoId);
+                Utility.Swap(ref UndoBusyTimeSpan_DB, ref _BusySpan);
+            }
+        }
+
+        public override void redo(string undoId)
+        {
+            if (this._UndoId == undoId)
+            {
+                base.undo(undoId);
+                Utility.Swap(ref UndoBusyTimeSpan_DB, ref _BusySpan);
+            }
+        }
+
         #endregion
     }
 }

@@ -127,8 +127,8 @@ namespace TilerElements
 
 
         private void AddNewComponentID(int index)
-        { 
-            string id= EventIDGenerator.generate().ToString();
+        {
+            string id = Guid.NewGuid().ToString();
             LayerID[index] = id;
             s_FullID = string.Join(delimiter, LayerID);
         }

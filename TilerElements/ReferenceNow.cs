@@ -7,7 +7,8 @@ namespace TilerElements
 {
     public class ReferenceNow
     {
-        public static DateTimeOffset StartOfTime;
+        protected static DateTimeOffset _StartOfTime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, new TimeSpan());
+        public DateTimeOffset StarTime;
         DateTimeOffset CalculationNow;
         DateTimeOffset ImmutableNow;
         const int numberOfDfDays = 90;
@@ -25,7 +26,7 @@ namespace TilerElements
 
         public ReferenceNow(DateTimeOffset Now, DateTimeOffset StartOfDay)
         {
-            StartOfTime = new DateTimeOffset(1970, 1, 1, StartOfDay.Hour, StartOfDay.Minute, 0, new TimeSpan());
+            StarTime = new DateTimeOffset(1970, 1, 1, StartOfDay.Hour, StartOfDay.Minute, 0, new TimeSpan());
             Now = new DateTimeOffset(Now.Year, Now.Month, Now.Day, Now.Hour, Now.Minute, 0, new TimeSpan());
             CalculationNow = Now;
             ImmutableNow = CalculationNow;
@@ -40,11 +41,9 @@ namespace TilerElements
             DateTimeOffset refDayStart = CalculationNow;// < IndifferentStartOfDay ? CalculationNow : IndifferentStartOfDay;
             DateTimeOffset refDayEnd = CalculationNow < IndifferentStartOfDay ?refDayStart :refDayStart .AddDays(1);
             refDayEnd = new DateTimeOffset(refDayEnd.Year, refDayEnd.Month, refDayEnd.Day, startOfDay.Hour, startOfDay.Minute, 0, new TimeSpan());
-            refFirstDay = new DayTimeLine(refDayStart, refDayEnd, (ulong)(refDayStart - StartOfTime).TotalDays,0);
+            refFirstDay = new DayTimeLine(refDayStart, refDayEnd, (ulong)(refDayStart - StarTime).TotalDays,0);
 
-            new DateTimeOffset(1970, 1, 1, 0, 0, 0, new TimeSpan()); 
-            
-            ImmutableDayIndex = (ulong)(refDayStart - StartOfTime).TotalDays;
+            ImmutableDayIndex = (ulong)(refDayStart - StarTime).TotalDays;
             ComputationBound = new TimeLine(CalculationNow, CalculationNow.Add(ConstOfCalculation));
             InitializeAllDays();
         }
@@ -182,11 +181,10 @@ namespace TilerElements
         /// This returns the universal index relative to the start of time. which in this case is supposed to be 1970 ,1,1. Note all calculations are done using the utc timezone
         /// </summary>
         /// <param name="myDay">the time to be used as the reference day. This will be the beginning of the utc day</param>
-        /// <returns></returns>
-        static public ulong getDayIndexFromStartOfTime(DateTimeOffset myDay)
+        /// <returns></returns
+        public ulong getDayIndexFromStartOfTime(DateTimeOffset myDay)
         {
-            myDay = myDay.LocalDateTime;
-            ulong retValue = (ulong)((myDay - StartOfTime).TotalDays);
+            ulong retValue = (ulong)((myDay - StarTime).TotalDays);
             return retValue;
         }
 
@@ -251,6 +249,13 @@ namespace TilerElements
             }
         }
 
+        public static DateTimeOffset StartOfTimeUTC
+        {
+            get
+            {
+                return _StartOfTime;
+            }
+        }
 
     }
 

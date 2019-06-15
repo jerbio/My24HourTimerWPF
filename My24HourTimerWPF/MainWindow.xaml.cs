@@ -178,6 +178,7 @@ namespace My24HourTimerWPF
             string EventID = textBox9.Text;
             SubCalendarEvent MySubcal= MySchedule.getSubCalendarEvent(EventID);
             CalendarEvent myCalEvent = MySchedule.getCalendarEvent(MySubcal.SubEvent_ID.getCalendarEventID());
+
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> result =MySchedule.BundleChangeUpdate(EventID,myCalEvent.getName,MySubcal.Start,MySubcal.End,MySubcal.getCalendarEventRange.Start,EndDate,myCalEvent.NumberOfSplit, myCalEvent.Notes.UserNote);
 
             //"BundleChangeUpdate"
@@ -188,7 +189,7 @@ namespace My24HourTimerWPF
             //DateTimeOffset fullDate = new DateTimeOffset(EndDate.Year, EndDate.Month, EndDate.Day, EndTime.Hour, EndTime.Minute, EndTime.Second, new TimeSpan());
             //Tuple<CustomErrors, Dictionary<string, CalendarEvent>>result= MySchedule.UpdateDeadLine(EventID, fullDate);
 
-            await MySchedule.UpdateWithDifferentSchedule(result.Item2).ConfigureAwait(false);
+            await MySchedule.persistToDB().ConfigureAwait(false);
 
         }
 
@@ -494,7 +495,7 @@ namespace My24HourTimerWPF
         async private void button5_Click_2(object sender, RoutedEventArgs e)
         {
             
-            EventName eventName = new EventName( textBox1.Text);
+            EventName eventName = new EventName(null, null, textBox1.Text);
             string LocationString  = textBox8.Text.Trim();
             /*if (LocationString != "")
             {
@@ -616,8 +617,9 @@ namespace My24HourTimerWPF
                     //EventID.GenerateCalendarEvent(), 
                     eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, splitCount, MyRepetition, var0, UiData, NoteData, null,new NowProfile(), true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), "UTC", null);
             }
-            
-            
+
+            eventName.Creator_EventDB = ScheduleUpdated.getCreator;
+            eventName.AssociatedEvent = ScheduleUpdated;
             if (RestrictedCheckbox.IsChecked.Value)
             {
                 string TimeString = eventStartDate.Date.ToShortDateString() + " " + eventStartTime+" +00:00";
@@ -665,7 +667,7 @@ namespace My24HourTimerWPF
 
 
 
-                ScheduleUpdated = new CalendarEventRestricted(new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), eventName, StartDateTime, EndDateTime, myRestrictionProfile, TimeSpan.Parse(EventDuration), MyRepetition, false, true, Convert.ToInt32(eventSplit), RigidFlag, new Location(), TimeSpan.Parse(eventPrepTime), TimeSpan.Parse(PreDeadlineTime), null, UiData, NoteData);
+                ScheduleUpdated = new CalendarEventRestricted(new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), eventName, StartDateTime, EndDateTime, myRestrictionProfile, TimeSpan.Parse(EventDuration), MyRepetition, false, true, Convert.ToInt32(eventSplit), RigidFlag, new Location(), TimeSpan.Parse(eventPrepTime), TimeSpan.Parse(PreDeadlineTime), null, MySchedule.Now, UiData, NoteData);
             }
             
             ScheduleUpdated.Repeat.PopulateRepetitionParameters(ScheduleUpdated);
@@ -696,7 +698,7 @@ namespace My24HourTimerWPF
         async private void PeekIntoFuture(object sender, RoutedEventArgs e)
         {
 
-            EventName eventName = new EventName( textBox1.Text);
+            EventName eventName = new EventName(null, null, textBox1.Text);
             string LocationString = textBox8.Text.Trim();
             /*if (LocationString != "")
             {
@@ -815,6 +817,9 @@ namespace My24HourTimerWPF
                 ScheduleUpdated = new CalendarEvent(//EventID.GenerateCalendarEvent(), 
                     eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, splitCount, MyRepetition, var0, UiData, NoteData, null, new NowProfile(), true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), "UTC", null);
             }
+
+            eventName.Creator_EventDB = ScheduleUpdated.getCreator;
+            eventName.AssociatedEvent = ScheduleUpdated;
             if (RestrictedCheckbox.IsChecked.Value)
             {
                 string TimeString = eventStartDate.Date.ToShortDateString() + " " + eventStartTime + " +00:00";
@@ -862,7 +867,7 @@ namespace My24HourTimerWPF
 
 
 
-                ScheduleUpdated = new CalendarEventRestricted(new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), eventName, StartDateTime, EndDateTime, myRestrictionProfile, TimeSpan.Parse(EventDuration), MyRepetition, false, true, Convert.ToInt32(eventSplit), RigidFlag, new Location(), TimeSpan.Parse(eventPrepTime), TimeSpan.Parse(PreDeadlineTime), null, UiData, NoteData);
+                ScheduleUpdated = new CalendarEventRestricted(new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), eventName, StartDateTime, EndDateTime, myRestrictionProfile, TimeSpan.Parse(EventDuration), MyRepetition, false, true, Convert.ToInt32(eventSplit), RigidFlag, new Location(), TimeSpan.Parse(eventPrepTime), TimeSpan.Parse(PreDeadlineTime), null, MySchedule.Now, UiData, NoteData);
             }
 
             ScheduleUpdated.Repeat.PopulateRepetitionParameters(ScheduleUpdated);
@@ -1213,13 +1218,13 @@ namespace My24HourTimerWPF
                 
                 if (result == MessageBoxResult.Yes)
                 {
-                    await MySchedule.UpdateWithDifferentSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
+                    await MySchedule.persistToDB().ConfigureAwait(false);
                 }
             }
             else
             {
 
-                await MySchedule.UpdateWithDifferentSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
+                await MySchedule.persistToDB().ConfigureAwait(false);
 
                 textBlock9.Text = "Schedule updated no clash detected";
             }
@@ -1239,9 +1244,9 @@ namespace My24HourTimerWPF
         {
             string EventID = textBox9.Text.Trim();
             ///*
-            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ScheduleUpdateMessage=MySchedule.SetCalendarEventAsNow(EventID);
+            var ScheduleUpdateMessage=MySchedule.SetCalendarEventAsNow(EventID);
 
-             await MySchedule.UpdateWithDifferentSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
+             await MySchedule.persistToDB().ConfigureAwait(false);
              return;
             //*///
             /*
@@ -1258,18 +1263,18 @@ namespace My24HourTimerWPF
                             if (result == MessageBoxResult.Yes)
                             {
                                 ScheduleUpdateMessage=MySchedule.SetEventAsNow(EventID, true); ;
-                                await MySchedule.UpdateWithDifferentSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
+                                await MySchedule.persistToDB().ConfigureAwait(false);
                             }
                         }
                         break;
                     default://hack alert we need to figure out how to fix this error
-                        await MySchedule.UpdateWithDifferentSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
+                        await MySchedule.persistToDB().ConfigureAwait(false);
                         break;
                 }
             }
             else
             {
-                await MySchedule.UpdateWithDifferentSchedule(ScheduleUpdateMessage.Item2).ConfigureAwait(false);
+                await MySchedule.persistToDB().ConfigureAwait(false);
             }
             
         }
@@ -1285,10 +1290,10 @@ namespace My24HourTimerWPF
 
                 TilerFront.Models.AuthorizedUser AuthorizeUser = new TilerFront.Models.AuthorizedUser() { UserID = "d350ba4d-fe0b-445c-bed6-b6411c2156b3", UserName = "jerbio" };
 
-                TilerFront.UserAccount currentUser = await AuthorizeUser.getUserAccountDebug();
+                TilerFront.UserAccount currentUser = await AuthorizeUser.getUserAccount();
                 //MySchedule = new Schedule(currentUser,DateTimeOffset.UtcNow);
 
-                EventName eventName = new EventName( textBox1.Text);
+                EventName eventName = new EventName(null, null, textBox1.Text);
                 string LocationString = textBox8.Text.Trim();
                 /*if (LocationString != "")
                 {
@@ -1406,7 +1411,8 @@ namespace My24HourTimerWPF
                         eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, splitCount, MyRepetition, var0, UiData, NoteData, null, new NowProfile(),  true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), "UTC", null);
                 }
                 ScheduleUpdated.Repeat.PopulateRepetitionParameters(ScheduleUpdated);
-                
+                eventName.Creator_EventDB = ScheduleUpdated.getCreator;
+                eventName.AssociatedEvent = ScheduleUpdated;
                 Stopwatch snugarrayTester = new Stopwatch();
                 snugarrayTester.Start();
                 //CustomErrors ScheduleUpdateMessage = await MySchedule.AddToScheduleAndCommit(ScheduleUpdated);
@@ -1476,7 +1482,7 @@ namespace My24HourTimerWPF
 
             TilerFront.Models.LoginViewModel myLogin = new TilerFront.Models.LoginViewModel() { Username = UserNameTextBox.Text, Password = PasswordTextBox.Text, RememberMe = true };
             TilerFront.Models.AuthorizedUser AuthorizeUser = new TilerFront.Models.AuthorizedUser(){UserID="d350ba4d-fe0b-445c-bed6-b6411c2156b3",UserName="jerbio"};
-            TilerFront.UserAccount currentUser = await AuthorizeUser.getUserAccountDebug();
+            TilerFront.UserAccount currentUser = await AuthorizeUser.getUserAccount();
 
 
             currentUser.getTilerUser().EndfOfDay = DateTimeOffset.Parse("2:00am");
@@ -1486,7 +1492,8 @@ namespace My24HourTimerWPF
 
             Stopwatch timer = new Stopwatch();
             timer.Start();
-            Dictionary<string, CalendarEvent> allEventDictionary = currentUser.ScheduleData.getAllCalendarFromXml(new TimeLine(refNow.AddDays(-90), refNow.AddDays(90)));
+            ReferenceNow _Now = new ReferenceNow(refNow, currentUser.getTilerUser().EndfOfDay);
+            Dictionary<string, CalendarEvent> allEventDictionary = await currentUser.ScheduleData.getAllCalendarFromXml(new TimeLine(refNow.AddDays(-90), refNow.AddDays(90)), _Now).ConfigureAwait(false);
             Dictionary<string, Location> LocationCache = new Dictionary<string, Location>();
 
             MySchedule = new WPF_Schedule(allEventDictionary, currentUser.getTilerUser().EndfOfDay, LocationCache, refNow, currentUser);

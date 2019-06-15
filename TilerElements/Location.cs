@@ -13,10 +13,12 @@ using GoogleMapsApi;
 using GoogleMapsApi.Entities.Geocoding.Response;
 using GoogleMapsApi.Entities.Directions.Request;
 using GoogleMapsApi.Entities.Directions.Response;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 
 namespace TilerElements
 {
-    public class Location
+    public class Location: IUndoable, IHasId
     {
         public static int LastLocationId = 1;
         public static double MaxLongitude = 181;
@@ -34,61 +36,87 @@ namespace TilerElements
         static protected double defaultXValue = 105.2705;
         static protected double defaultYValue = 40.0150;
 
-        protected double xValue;
-        protected double yValue;
-        protected string TaggedDescription = "";
-        protected string TaggedAddress = "";
+        protected double _Latitude;
+        protected double _Longitude;
+        protected string _TaggedDescription = "";
+        protected string _SearchdDescription = "";
+        protected string _TaggedAddress = "";
+        protected string _UndoId = "";
+        protected TilerUser _User;
 
         /// <summary>
         /// was tiler able to pull location from google maps. If tiler fails to pull location from google maps then this location is null.
         /// </summary>
-        protected bool NullLocation = true;
+        protected bool _NullLocation = true;
         /// <summary>
         /// is the current object the default location, which will initially boulder co, before recalculation based on user locations
         /// </summary>
-        protected bool DefaultFlag = false;
-        protected string LocationID = Guid.NewGuid().ToString();
+        protected bool _DefaultFlag = false;
 
+        #region undoDatamembers
+        protected double _UndoLatitude;
+        protected double _UndoLongitude;
+        protected string _UndoTaggedDescription = "";
+        protected string _UndoTaggedAddress = "";
+        protected bool _UndoNullLocation = true;
+        protected bool _UndoDefaultFlag = false;
+#endregion
+        protected string _Id = Guid.NewGuid().ToString();
+#region Constructor
         public Location()
         {
-            xValue = defaultXValue;
-            yValue = defaultYValue;
-            NullLocation = true;
+            _Latitude = defaultXValue;
+            _Longitude = defaultYValue;
+            _NullLocation = true;
         }
 
+        protected TilerEvent _Event;
+        [NotMapped]
+        public TilerEvent AssociatedEvent
+        {
+            get
+            {
+                return _Event;
+            }
+            set
+            {
+                _Event = value;
+            }
+        }
 
         public Location(double MyxValue, double MyyValue, string Id = "")
         {
-            xValue = MyxValue;
-            yValue = MyyValue;
-            NullLocation = false;
+            _Latitude = MyxValue;
+            _Longitude = MyyValue;
+            _NullLocation = false;
             if (!string.IsNullOrEmpty(Id))
             {
                 Guid validId;
                 bool IdParseSuccess = Guid.TryParse(Id, out validId);
                 if (IdParseSuccess)
                 {
-                    LocationID = Id;
+                    _Id = Id;
                 }
             }
         }
 
         public Location(double MyxValue, double MyyValue, string AddressEntry, string AddressDescription, bool isNull, bool isDefaultFlag, string ID = "")
         {
-            xValue = MyxValue;
-            yValue = MyyValue;
-            TaggedAddress = AddressEntry;
-            TaggedDescription = AddressDescription;
-            NullLocation = isNull;
+            _Latitude = MyxValue;
+            _Longitude = MyyValue;
+            _TaggedAddress = AddressEntry;
+            _TaggedDescription = AddressDescription;
+            updateSearchedLocation();
+            _NullLocation = isNull;
             if (string.IsNullOrEmpty(ID))
             {
-                LocationID = Guid.NewGuid().ToString();
+                _Id = Guid.NewGuid().ToString();
             }
             else
             {
-                LocationID = ID;
+                _Id = ID;
             }
-            DefaultFlag = isDefaultFlag;
+            _DefaultFlag = isDefaultFlag;
         }
 
         public Location(string Address, string tag = "", string ID = "")
@@ -106,19 +134,21 @@ namespace TilerElements
 
 
             Address = Address.Trim();
-            NullLocation = true;
-            TaggedAddress = Address;
-            TaggedDescription = tag;
+            _NullLocation = true;
+            _TaggedAddress = Address;
+            _TaggedDescription = tag;
+
+            updateSearchedLocation();
             if (string.IsNullOrEmpty(ID))
             {
-                LocationID = Guid.NewGuid().ToString();
+                _Id = Guid.NewGuid().ToString();
             }
             else
             {
-                LocationID = ID;
+                _Id = ID;
             }
         }
-
+#endregion
         /// <summary>
         /// function tries to verify that the address provide exists in external service
         /// </summary>
@@ -126,61 +156,80 @@ namespace TilerElements
         public bool Validate()
         {
             bool retValue = false;
-            TaggedAddress = TaggedAddress.Trim();
+            _TaggedAddress = _TaggedAddress.Trim();
             try
             {
-                GeocodingRequest request = new GeocodingRequest();
-                request.Address = TaggedAddress;
-                request.Sensor = true;
-                request.ApiKey = Location.ApiKey;
-
-                var geocodingEngine = GoogleMaps.Geocode;
-                GeocodingResponse geocode = geocodingEngine.Query(request);
-
-                if (geocode.Status == Status.OK)
+                
+                if(!String.IsNullOrEmpty(_TaggedAddress))
                 {
-                    if (string.IsNullOrEmpty(TaggedDescription))
+                    GeocodingRequest request = new GeocodingRequest();
+                    request.Address = _TaggedAddress;
+                    request.Sensor = true;
+                    request.ApiKey = Location.ApiKey;
+
+                    var geocodingEngine = GoogleMaps.Geocode;
+                    GeocodingResponse geocode = geocodingEngine.Query(request);
+
+                    if (geocode.Status == Status.OK)
                     {
-                        TaggedDescription = TaggedAddress;
+                        if (string.IsNullOrEmpty(_TaggedDescription))
+                        {
+                            _TaggedDescription = _TaggedAddress;
+                        }
+                        var result = geocode.Results.First();
+                        _TaggedAddress = result.FormattedAddress.ToLower();
+                        _Latitude = Convert.ToDouble(result.Geometry.Location.Latitude);
+                        _Longitude = Convert.ToDouble(result.Geometry.Location.Longitude);
+                        _NullLocation = false;
+                        retValue = true;
                     }
-                    var result = geocode.Results.First();
-                    TaggedAddress = result.FormattedAddress.ToLower();
-                    xValue = Convert.ToDouble(result.Geometry.Location.Latitude);
-                    yValue = Convert.ToDouble(result.Geometry.Location.Longitude);
-                    NullLocation = false;
-                    retValue = true;
+                    else
+                    {
+                        Console.WriteLine(geocode.Status);
+                        initializeWithNull();
+                    }
                 }
                 else
                 {
-                    Console.WriteLine(geocode.Status);
                     initializeWithNull();
                 }
+                
             }
             catch
             {
                 initializeWithNull();
             }
-
+            updateSearchedLocation();
             return retValue;
+        }
+
+        protected void updateSearchedLocation()
+        {
+            _SearchdDescription = _TaggedDescription;
+
+            if (!string.IsNullOrEmpty(_SearchdDescription) && !string.IsNullOrWhiteSpace(_SearchdDescription))
+            {
+                _SearchdDescription = _SearchdDescription.Trim().ToLower();
+            }
         }
 
         void initializeWithNull()
         {
-            xValue = MaxLatitude;
-            yValue = MaxLongitude;
-            if (string.IsNullOrEmpty(TaggedDescription) && !string.IsNullOrEmpty(TaggedAddress))
+            _Latitude = MaxLatitude;
+            _Longitude = MaxLongitude;
+            if (string.IsNullOrEmpty(_TaggedDescription) && !string.IsNullOrEmpty(_TaggedAddress))
             {
-                TaggedDescription = TaggedAddress.ToLower();
+                _TaggedDescription = _TaggedAddress.ToLower();
             }
 
             else
             {
-                if (string.IsNullOrEmpty(TaggedAddress) && !string.IsNullOrEmpty(TaggedDescription))
+                if (string.IsNullOrEmpty(_TaggedAddress) && !string.IsNullOrEmpty(_TaggedDescription))
                 {
-                    TaggedAddress = TaggedDescription.ToLower();
+                    _TaggedAddress = _TaggedDescription.ToLower();
                 }
             }
-            NullLocation = true;
+            _NullLocation = true;
         }
 
         #region Functions
@@ -193,8 +242,16 @@ namespace TilerElements
         public static Location getDefaultLocation()
         {
             Location RetValue = new Location(defaultXValue, defaultYValue);
-            RetValue.DefaultFlag = true;
-            RetValue.NullLocation = false;
+            RetValue._DefaultFlag = true;
+            RetValue._NullLocation = false;
+            return RetValue;
+        }
+
+        public static Location getNullLocation()
+        {
+            Location RetValue = new Location();
+            RetValue._DefaultFlag = true;
+            RetValue._NullLocation = true;
             return RetValue;
         }
 
@@ -210,12 +267,13 @@ namespace TilerElements
             TimeSpan retValue = new TimeSpan(-1);
             if(!first.isNull && !second.isNull)
             {
-                
+                string apiKey = ConfigurationManager.AppSettings["googleMapsApiKey"];
                 DirectionsRequest directionsRequest = new DirectionsRequest()
                 {
                     Origin = first.justLongLatString(),
                     Destination = second.justLongLatString(),
-                    TravelMode = travelMode
+                    TravelMode = travelMode,
+                    ApiKey = apiKey
                 };
                 try
                 {
@@ -249,15 +307,15 @@ namespace TilerElements
         {
             //note .... this function does not take into consideration the calendar event. So if there are two locations of the same calendarevent they will get scheduled right next to each other
             double maxDividedByTwo = MaxLongitude;
-            if ((Location24A.xValue >= 180) || (Location24B.xValue > 180) || (Location24A.isNull) || (Location24B.isNull) || (Location24A.isDefault) || (Location24B.isDefault))
+            if ((Location24A == null)|| (Location24B == null) || (Location24A._Latitude >= 180) || (Location24B._Latitude > 180) || (Location24A.isNull) || (Location24B.isNull) || (Location24A.isDefault) || (Location24B.isDefault))
             {
                 return Worst;
             }
             double R = 6371; // Radius of earth in KM
-            double dLat = toRad(Location24A.xValue - Location24B.xValue);
-            double dLon = toRad(Location24A.yValue - Location24B.yValue);
+            double dLat = toRad(Location24A._Latitude - Location24B._Latitude);
+            double dLon = toRad(Location24A._Longitude - Location24B._Longitude);
             double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
-                    Math.Cos(toRad(Location24A.xValue)) * Math.Cos(toRad(Location24A.xValue)) *
+                    Math.Cos(toRad(Location24A._Latitude)) * Math.Cos(toRad(Location24A._Latitude)) *
                     Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
             double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
             double d = R * c;
@@ -327,32 +385,25 @@ namespace TilerElements
 
         public void update(Location location)
         {
-            this.TaggedAddress = location.TaggedAddress;
-            this.TaggedDescription = location.TaggedDescription;
-            this.xValue = location.xValue;
-            this.yValue = location.yValue;
-            this.NullLocation = location.NullLocation;
-            this.DefaultFlag = location.DefaultFlag;
+            this._TaggedAddress = location._TaggedDescription;
+            this._TaggedDescription = location._TaggedDescription;
+            this._Latitude = location._Latitude;
+            this._Longitude = location._Longitude;
+            this._NullLocation = location._NullLocation;
+            this._DefaultFlag = location._DefaultFlag;
         }
 
         public Location CreateCopy()
         {
             Location this_cpy = new Location();
-            this_cpy.TaggedAddress = this.TaggedAddress;
-            this_cpy.TaggedDescription = this.TaggedDescription;
-            this_cpy.xValue = this.xValue;
-            this_cpy.yValue = this.yValue;
-            this_cpy.NullLocation = this.NullLocation;
-            this_cpy.LocationID = this.LocationID;
+            this_cpy._TaggedAddress = this._TaggedAddress;
+            this_cpy._TaggedDescription = this._TaggedDescription;
+            this_cpy._Latitude = this._Latitude;
+            this_cpy._Longitude = this._Longitude;
+            this_cpy._NullLocation = this._NullLocation;
+            this_cpy._Id = this._Id;
+            this_cpy.User = this.User;
             return this_cpy;
-        }
-
-        public Location_struct toStruct()
-        {
-            Location_struct retValue = new Location_struct();
-            retValue.xValue = (float)xValue;
-            retValue.yValue = (float)yValue;
-            return retValue;
         }
 
         /// <summary>
@@ -363,7 +414,7 @@ namespace TilerElements
         /// <returns></returns>
         static public Location AverageGPSLocation(IEnumerable<Location> Locations, bool useDefaultLocation=true)
         {
-            Locations = Locations.Where(obj => !obj.isNull).ToList();
+            Locations = Locations.Where(obj => obj!=null  && !obj.isNull).ToList();
             Location retValue;
             Locations = Locations.Where(location => !location.isDefault && !location.isNull).ToList();
             if (Locations.Count() > 0)
@@ -379,8 +430,8 @@ namespace TilerElements
 
                 foreach (var geoCoordinate in Locations)
                 {
-                    var latitude = geoCoordinate.XCoordinate * Math.PI / 180;
-                    var longitude = geoCoordinate.YCoordinate * Math.PI / 180;
+                    var latitude = geoCoordinate.Latitude * Math.PI / 180;
+                    var longitude = geoCoordinate.Longitude * Math.PI / 180;
 
                     x += Math.Cos(latitude) * Math.Cos(longitude);
                     y += Math.Cos(latitude) * Math.Sin(longitude);
@@ -404,7 +455,7 @@ namespace TilerElements
                 if (useDefaultLocation)
                 {
                     retValue = getDefaultLocation();
-                    retValue.DefaultFlag = true;
+                    retValue._DefaultFlag = true;
                 }
                 else
                 {
@@ -418,12 +469,12 @@ namespace TilerElements
 
         public override string ToString()
         {
-            return Address + "||" + xValue + "," + yValue;
+            return Address + "||" + _Latitude + "," + _Longitude;
         }
 
         public string justLongLatString()
         {
-            return  xValue + "," + yValue+"\n";
+            return  _Latitude + "," + _Longitude+"\n";
         }
 
         public static void updateApiKey(string key)
@@ -431,7 +482,7 @@ namespace TilerElements
             _ApiKey = key;
         }
 
-        public static  string ApiKey
+        public static string ApiKey
         {
             get
             {
@@ -456,80 +507,249 @@ namespace TilerElements
             return RetValue;
         }
 
-        #endregion 
+        public void undoUpdate(Undo undo)
+        {
+            _UndoLatitude = _Latitude;
+            _UndoLongitude = _Longitude;
+            _UndoTaggedDescription = _TaggedDescription;
+            _UndoTaggedAddress = _TaggedAddress;
+            _UndoNullLocation = _NullLocation;
+            _UndoDefaultFlag = _DefaultFlag;
+            FirstInstantiation = false;
+            _UndoId = undo.id;
+        }
+
+        public void undo(string undoId)
+        {
+            if (undoId == this.UndoId)
+            {
+                Utility.Swap(ref _UndoLatitude, ref _Latitude);
+                Utility.Swap(ref _UndoLongitude, ref _Longitude);
+                Utility.Swap(ref _UndoTaggedDescription, ref _TaggedDescription);
+                Utility.Swap(ref _UndoTaggedAddress, ref _TaggedAddress);
+                Utility.Swap(ref _UndoNullLocation, ref _NullLocation);
+                Utility.Swap(ref _UndoDefaultFlag, ref _DefaultFlag);
+            }
+        }
+
+        public void redo(string undoId)
+        {
+            if (undoId == this.UndoId)
+            {
+                Utility.Swap(ref _UndoLatitude, ref _Latitude);
+                Utility.Swap(ref _UndoLongitude, ref _Longitude);
+                Utility.Swap(ref _UndoTaggedDescription, ref _TaggedDescription);
+                Utility.Swap(ref _UndoTaggedAddress, ref _TaggedAddress);
+                Utility.Swap(ref _UndoNullLocation, ref _NullLocation);
+                Utility.Swap(ref _UndoDefaultFlag, ref _DefaultFlag);
+            }
+        }
+
+        #endregion
 
 
         #region Properties
-
+        /// <summary>
+        /// NOTE DO NOT FORGET TO SAVE TO SearchdDescription. This is for performace reasons
+        /// 
+        /// </summary>
         public string Description
         {
+            set
+            {
+                _TaggedDescription = value;
+            }
             get
             {
-                return TaggedDescription;
+                return _TaggedDescription;
+            }
+        }
+
+        /// <summary>
+        /// Holds description that is to be used for indexing and loacations loook up
+        /// </summary>
+        [MaxLength(256), Index("UserIdAndDesciption", Order = 1, IsUnique = true)]
+        public string SearchdDescription
+        {
+            protected set
+            {
+                _SearchdDescription = value;
+            }
+            get
+            {
+                string retValue = _SearchdDescription;
+                if(string.IsNullOrEmpty(retValue) || string.IsNullOrWhiteSpace(retValue))
+                {
+                    retValue = _TaggedDescription;
+                }
+                return retValue;
             }
         }
 
         public string Address
         {
+            set
+            {
+                _TaggedAddress = value;
+            }
             get
             {
-                return TaggedAddress;
+                return _TaggedAddress;
             }
         }
 
-        public double XCoordinate
+        public double Latitude
         {
+            set
+            {
+                _Latitude = value;
+            }
             get
-            { return xValue; }
+            { return _Latitude; }
 
         }
 
 
-        public double YCoordinate
+        public double Longitude
         {
+            set
+            {
+                _Longitude = value;
+            }
             get
             {
-                return yValue;
+                return _Longitude;
             }
         }
 
         public bool isNull
         {
+            set
+            {
+                _NullLocation = value;
+            }
             get
             {
-                return NullLocation;
+                return _NullLocation;
             }
         }
 
         public bool isDefault
         {
+            set
+            {
+                _DefaultFlag = value;
+            }
             get
             {
-                return DefaultFlag;
+                return _DefaultFlag;
             }
         }
 
-        public string ID
+        public string Id
         {
             get
             {
-                return LocationID;
+                return _Id;
+            }
+            set
+            {
+                _Id = value;
+            }
+        }
+
+        public virtual bool FirstInstantiation { get; set; } = true;
+
+        public string UndoId
+        {
+            get
+            {
+                return _UndoId;
+            }
+            set
+            {
+                _UndoId = value;
+            }
+        }
+
+        public double UndoLatitude
+        {
+            get {
+                return _UndoLatitude;
+            }
+            set {
+                _UndoLatitude = value;
+            }
+        }
+        public double UndoLongitude
+        {
+            get
+            {
+                return _UndoLatitude;
+            }
+            set
+            {
+                _UndoLatitude = value;
+            }
+        }
+        public string UndoTaggedDescription
+        {
+            get
+            {
+                return _UndoTaggedDescription;
+            }
+            set
+            {
+                _UndoTaggedDescription = value;
+            }
+        }
+        public string UndoTaggedAddress
+        {
+            get
+            {
+                return _UndoTaggedDescription;
+            }
+            set
+            {
+                _UndoTaggedDescription = value;
+            }
+        }
+        public bool UndoNullLocation
+        {
+            get
+            {
+                return _UndoNullLocation;
+            }
+            set
+            {
+                _UndoNullLocation = value;
+            }
+        }
+        public bool UndoDefaultFlag
+        {
+            get
+            {
+                return _UndoDefaultFlag;
+            }
+            set
+            {
+                _UndoDefaultFlag = value;
+            }
+        }
+        [Index("UserIdAndDesciption", Order = 0, IsUnique = true)]
+        public string UserId { get; set; }
+        [Required, ForeignKey("UserId")]
+        public TilerUser User
+        {
+            get
+            {
+                return _User;
+            }
+            set
+            {
+                _User = value;
             }
         }
         #endregion
     }
-}
-
-
-public struct Location_struct
-{
-    public float xValue;
-    public float yValue;
-    public int Number;
-    /*
-    public override string ToString()
-    {
-        return yValue + "," + xValue;
-    }
-    */
 }

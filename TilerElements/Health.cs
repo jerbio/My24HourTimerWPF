@@ -85,7 +85,7 @@ namespace TilerElements
                 );
                 SubCalendarEvent firstSUbEvent = relevantSubCalendarEventList[0];
                 DateTimeOffset refTIme = CalculationTimeline.IsDateTimeWithin(firstSUbEvent.Start) ? firstSUbEvent.Start : firstSUbEvent.End;
-                ulong dayIndex = ReferenceNow.getDayIndexFromStartOfTime(refTIme);
+                ulong dayIndex = Now.getDayIndexFromStartOfTime(refTIme);
                 SubCalendarEvent previousSubCalendarEvent = relevantSubCalendarEventList[0];
                 List<double> distances = new List<double>();
                 ulong currentDayIndex = dayIndex;
@@ -95,7 +95,7 @@ namespace TilerElements
 
                     SubCalendarEvent currentSubEvent = relevantSubCalendarEventList[index];
                     refTIme = CalculationTimeline.IsDateTimeWithin(currentSubEvent.Start) ? currentSubEvent.Start : currentSubEvent.End;
-                    ulong subEventDayIndex = ReferenceNow.getDayIndexFromStartOfTime(refTIme);
+                    ulong subEventDayIndex = Now.getDayIndexFromStartOfTime(refTIme);
                     if (subEventDayIndex != dayIndex)
                     {
                         if(includeReturnHome)
@@ -170,7 +170,7 @@ namespace TilerElements
                    
                     totalTravelSpan = totalTravelSpan.Add(timeSpan);
                     TimeSpan TravelTimeAfter = before.TravelTimeAfter;
-                    if(TravelTimeAfter.Ticks == -1)
+                    if(TravelTimeAfter.Ticks == 1)
                     {
                         TravelTimeAfter = TimeSpan.FromMinutes( Location.calculateDistance(before.Location, after.Location, 30) *12);
                     }

@@ -10,9 +10,13 @@ namespace TilerElements
         public enum Errors {
             Success = 0,
             cannotAuthenticate = 1,
+            UnknownError = 500,
+            TimelineFittabilityIssue = 40000000,
             cannotFitWithinTimeline = 40000001,
             procrastinationPastDeadline = 40000002,
-            procrastinationBeforeNow = 40000003
+            procrastinationBeforeNow = 40000003,
+            TilerConfigEventError = 50000000,
+            TilerConfig_Zero_SplitCount= 50000001
         };
         static Dictionary<Errors, String> errorMessage = new Dictionary<Errors, string>()
         {
@@ -20,7 +24,9 @@ namespace TilerElements
             {Errors.cannotAuthenticate, "Failed to authenticate user account" },
             {Errors.cannotFitWithinTimeline, "Cannot fit the sub event within the timeline" },
             {Errors.procrastinationPastDeadline, "Procrastination of the tile will put it past the deadline of the tile" },
-            {Errors.procrastinationBeforeNow, "Cannot go back in time, if you're from the future, please tell us how tiler is doing" }
+            {Errors.procrastinationBeforeNow, "Cannot go back in time, if you're from the future, please tell us how tiler is doing" },
+            //{Errors.TilerConfig_GenericError, "Error in tiler event configuration"},
+            {Errors.TilerConfig_Zero_SplitCount, "Cannot create or modify with a final state with zero events"}
         };
         string ErrorMessage;
         TilerEvent TilerEvent;

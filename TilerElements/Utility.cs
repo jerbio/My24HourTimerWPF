@@ -838,6 +838,40 @@ namespace TilerElements
             return num;
         }
 
+        public static int MinIndex(this IEnumerable<double> sequence)
+        {
+            int num = -1;
+            double other = sequence.First();
+            int num2 = 0;
+            foreach (double local2 in sequence)
+            {
+                if (!double.IsNaN(local2) && ((local2 < other) || (num == -1)))
+                {
+                    num = num2;
+                    other = local2;
+                }
+                num2++;
+            }
+            return num;
+        }
+
+        public static int MaxIndex(this IEnumerable<double> sequence)
+        {
+            int num = -1;
+            double other = sequence.First();
+            int num2 = 0;
+            foreach (double local2 in sequence)
+            {
+                if (!double.IsNaN(local2) && ((local2 > other) || (num == -1)))
+                {
+                    num = num2;
+                    other = local2;
+                }
+                num2++;
+            }
+            return num;
+        }
+
 
         public static SubCalendarEvent getClosestSubCalendarEvent(IEnumerable<SubCalendarEvent> AllSubCalEvents, Location ReferenceSubEvent)
         {
@@ -1178,24 +1212,6 @@ namespace TilerElements
             return retValue;
         }
 
-
-
-        //public static List<T> RandomizeIEnumerable<T>(List<T> EntryList)
-        //{
-        //    //EntryList=EntryList.ToList();
-        //    List<T> retValue = EntryList.ToList();
-        //    Random myRand = new Random(1);
-        //    for (int i = 0; i < EntryList.Count; i++)
-        //    {
-        //        int MyNumb = myRand.Next(0, EntryList.Count);
-        //        T Temp = retValue[i];
-        //        retValue[i] = retValue[MyNumb];
-        //        retValue[MyNumb] = Temp;
-        //    }
-
-        //    return retValue;
-        //}
-
         static public List<mTuple<T, SubCalendarEvent>> SubCalEventsTomTuple<T>(IEnumerable<SubCalendarEvent> ListOfMTuples, T DefaultValue)
         {
             List<mTuple<T, SubCalendarEvent>> retValue = new System.Collections.Generic.List<mTuple<T, SubCalendarEvent>>();
@@ -1323,15 +1339,88 @@ namespace TilerElements
             return (T)Enum.Parse(typeof(T), value, true);
         }
 
+
+        public static void Swap<T>(ref T lhs, ref T rhs)
+        {
+            T temp;
+            temp = lhs;
+            lhs = rhs;
+            rhs = temp;
+        }
         public static long toJSMilliseconds(this DateTimeOffset time)
         {
-            long retValue = (long)(time - ReferenceNow.StartOfTime).TotalMilliseconds;
+            long retValue = (long)(time - ReferenceNow.StartOfTimeUTC).TotalMilliseconds;
             return retValue;
         }
 
         public static long toJSMilliseconds(this DateTime time)
         {
-            long retValue = (long)(time.ToUniversalTime() - ReferenceNow.StartOfTime).TotalMilliseconds;
+            long retValue = (long)(time - ReferenceNow.StartOfTimeUTC).TotalMilliseconds;
+            return retValue;
+        }
+
+        public static List<double> EvaluateTimeLines(IEnumerable<TimelineWithSubcalendarEvents> timeLines, TilerEvent tilerEvent)
+        {
+            List<IList<double>> multiDimensionalCalculation = new List<IList<double>>();
+            List<TimelineWithSubcalendarEvents> validTimeLine = timeLines.Select(timeLine => {
+                if(tilerEvent!=null)
+                {
+                    if (timeLine.doesTimeLineInterfere(tilerEvent.RangeTimeLine))
+                    {
+                        return timeLine;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                } else
+                {
+                    return timeLine;
+                }
+                
+            }).ToList();
+            TimeSpan totalAvailableSpan = TimeSpan.FromTicks(timeLines.Sum(timeLine => timeLine.TimelineSpan.Ticks));
+
+            foreach (TimelineWithSubcalendarEvents timeline in validTimeLine)
+            {
+                if (timeline != null)
+                {
+                    double occupancy = (double)timeline.Occupancy;
+                    
+                    IList<double> dimensionsPerDay = new List<double>() { occupancy };
+                    if(tilerEvent !=null)
+                    {
+                        List<TimeLine> interferringTImeLines = tilerEvent.getInterferringWithTimeLine(timeline);
+                        TimeSpan totalInterferringSpan = TimeSpan.FromTicks(interferringTImeLines.Sum(objTimeLine => objTimeLine.TimelineSpan.Ticks));
+                        double availableSpanRatio = (double)totalInterferringSpan.Ticks / totalAvailableSpan.Ticks;
+                        double distance = Location.calculateDistance(timeline.averageLocation, tilerEvent.Location, 0);
+                        double tickRatio = (double)tilerEvent.getActiveDuration.Ticks / totalInterferringSpan.Ticks;
+                        dimensionsPerDay.Add(distance);
+                        dimensionsPerDay.Add(tickRatio);
+                        dimensionsPerDay.Add(availableSpanRatio);
+                    }
+                    multiDimensionalCalculation.Add(dimensionsPerDay);
+                }
+                else
+                {
+                    multiDimensionalCalculation.Add(null);
+                }
+            }
+            var NotNullMultidimenstionValues = multiDimensionalCalculation.Where(obj => obj != null).ToList();
+            List<double> foundIndexes = Utility.multiDimensionCalculationNormalize(NotNullMultidimenstionValues);
+            List<double> retValue = new List<double>();
+            int notNullCounter = 0;
+            foreach (var coordinates in multiDimensionalCalculation)
+            {
+                if (coordinates != null)
+                {
+                    retValue.Add(foundIndexes[notNullCounter++]);
+                }
+                else
+                {
+                    retValue.Add(double.NaN);
+                }
+            }
             return retValue;
         }
 

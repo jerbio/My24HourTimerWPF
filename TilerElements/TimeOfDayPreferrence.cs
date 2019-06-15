@@ -153,7 +153,6 @@ namespace TilerElements
         {
             PreferenceOrder.RemoveAll(daySector => daySector.Item2 == daySection);
         }
-
         public class SingleTimeOfDayPreference
         {
             TimeOfDayPreferrence.DaySection _Section;

@@ -9,7 +9,6 @@ namespace TilerElements
     public class RigidCalendarEvent: CalendarEvent
     {
         public RigidCalendarEvent(
-            //EventID eventId, 
             EventName NameEntry, 
             DateTimeOffset StartData, 
             DateTimeOffset EndData, 
@@ -18,19 +17,19 @@ namespace TilerElements
             TimeSpan PreDeadlineTimeSpan, 
             Repetition EventRepetitionEntry, 
             Location EventLocation, 
-            EventDisplay UiData, MiscData NoteData, bool EnabledEventFlag, bool CompletionFlag, TilerUser creator, TilerUserGroup users, string timeZone, EventID eventId,bool initializeSubCalendarEvents = true)
-            :base(
-                 NameEntry, StartData, EndData, EventDuration, eventPrepTime, PreDeadlineTimeSpan, 1, EventRepetitionEntry, UiData, NoteData, EnabledEventFlag, CompletionFlag, null, null, EventLocation, creator, users, false, DateTimeOffset.UtcNow, timeZone)
+            EventDisplay UiData, MiscData NoteData, bool EnabledEventFlag, bool CompletionFlag, TilerUser creator, TilerUserGroup users, string timeZone, EventID eventId,bool initializeSubCalendarEvents = true, Classification semantics = null)
+            : base(
+                 NameEntry, StartData, EndData, EventDuration, eventPrepTime, PreDeadlineTimeSpan, 1, EventRepetitionEntry, UiData, NoteData, EnabledEventFlag, CompletionFlag, null, null, EventLocation, creator, users, false, DateTimeOffset.UtcNow, timeZone, semantics)
         {
             UniqueID = eventId ?? this.UniqueID; /// already initialized by parent initialization
             RigidSchedule = true;
-            if (EventRepetition.Enable)
+            if (IsRepeat)
             {
                 _AverageTimePerSplit = new TimeSpan();
             }
             else
             {
-                _AverageTimePerSplit = TimeSpan.FromTicks(((EventDuration.Ticks / Splits)));
+                _AverageTimePerSplit = TimeSpan.FromTicks(((EventDuration.Ticks / _Splits)));
             }
             if (initializeSubCalendarEvents)
             {
@@ -41,6 +40,11 @@ namespace TilerElements
             //UpdateLocationMatrix(LocationInfo);
         }
 
+        protected RigidCalendarEvent():base()
+        {
+            RigidSchedule = true;
+        }
+
         public RigidCalendarEvent(CalendarEvent MyUpdated, SubCalendarEvent[] MySubEvents) : base(MyUpdated, MySubEvents)
         {
             RigidSchedule = true;
@@ -48,12 +52,12 @@ namespace TilerElements
 
         public override void initializeSubEvents()
         {
-            SubEvents = new Dictionary<EventID, SubCalendarEvent>();
-            for (int i = 0; i < Splits; i++)
+            SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
+            for (int i = 0; i < _Splits; i++)
             {
-                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(getCreator, _Users, _TimeZone, _AverageTimePerSplit, this.getName, (EndDateTime - _AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), RigidSchedule, this.Enabled, this.UiParams, this.Notes, this.Complete, this.LocationInfo, this.RangeTimeLine);
+                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(this, getCreator, _Users, _TimeZone, _AverageTimePerSplit, this.getName, (EndDateTime - _AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), RigidSchedule, this._Enabled, this._UiParams, this.Notes, this._Complete, this._LocationInfo, this.RangeTimeLine);
                 newSubCalEvent.TimeCreated = this.TimeCreated;
-                SubEvents.Add(newSubCalEvent.SubEvent_ID, newSubCalEvent);
+                SubEvents.Add(newSubCalEvent.Id, newSubCalEvent);
             }
         }
     }

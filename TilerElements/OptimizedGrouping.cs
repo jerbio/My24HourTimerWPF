@@ -25,16 +25,18 @@ namespace TilerElements
         Location LeftStitch = new Location();
         Location RightStitch = new Location();
         Location DefaultLocation;
+        Location HomeLocation;
         TimeSpan TotalDuration;
         OptimizedAverage AverageOfStitched;
 
-        public OptimizedGrouping(TimeOfDayPreferrence.SingleTimeOfDayPreference SectionData, TimeSpan SubeventDurationSum, Location DefaultLocation)
+        public OptimizedGrouping(TimeOfDayPreferrence.SingleTimeOfDayPreference SectionData, TimeSpan SubeventDurationSum, Location DefaultLocation, Location HomeLocation)
         {
             Section = SectionData;
             AcknowlegdedEvents = new HashSet<SubCalendarEvent>();
             PathStitchedSubEvents = new HashSet<SubCalendarEvent>();
             PathStitchedSubEventsList = new List<SubCalendarEvent>();
             TotalDuration = SubeventDurationSum;
+            this.HomeLocation = HomeLocation;
             this.DefaultLocation = DefaultLocation;
             AverageOfStitched = new OptimizedAverage(new HashSet<SubCalendarEvent>(), SectionData.Timeline);
         }
@@ -257,7 +259,19 @@ namespace TilerElements
         {
             get
             {
+                if(LeftStitch.isNull)
+                {
+                    if(HomeLocation == null || HomeLocation.isNull)
+                    {
+                        return DefaultLocation;
+                    }else
+                    {
+                        return HomeLocation;
+                    }
+                }
+
                 return LeftStitch;
+                
             }
         }
 
@@ -265,6 +279,18 @@ namespace TilerElements
         {
             get
             {
+                if (RightStitch.isNull)
+                {
+                    if (HomeLocation == null || HomeLocation.isNull)
+                    {
+                        return DefaultLocation;
+                    }
+                    else
+                    {
+                        return HomeLocation;
+                    }
+                }
+
                 return RightStitch;
             }
         }

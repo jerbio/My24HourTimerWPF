@@ -18,6 +18,7 @@ namespace TilerElements
         double _PositioningScore { get; set; }
         List<TimeSpan> _SleepSchedule { get; set; }
         TravelTime _TravelTimeAnalysis { get; set; }
+        DateTimeOffset _TimeOfAnalysis = DateTimeOffset.UtcNow;
         public HealthEvaluation(Health health)
         {
             this.ScheduleHealth = health;
@@ -56,6 +57,10 @@ namespace TilerElements
 
         public List<BlobSubCalendarEvent> ConflictingEvents
         {
+            set
+            {
+                _ConflictingEvents = value;
+            }
             get
             {
                 return _ConflictingEvents;
@@ -63,6 +68,10 @@ namespace TilerElements
         }
         public double TotalDistance
         {
+            set
+            {
+                _TotalDistance = value;
+            }
             get
             {
                 return _TotalDistance;
@@ -70,6 +79,10 @@ namespace TilerElements
         }
         public double PositioningScore
         {
+            set
+            {
+                _PositioningScore = value;
+            }
             get
             {
                 return _PositioningScore;

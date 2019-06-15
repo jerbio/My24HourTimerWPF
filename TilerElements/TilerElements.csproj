@@ -82,8 +82,8 @@
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="NodaTime, Version=2.4.1.0, Culture=neutral, PublicKeyToken=4226afe0d9b296d1, processorArchitecture=MSIL">
-      <HintPath>..\packages\NodaTime.2.4.1\lib\net45\NodaTime.dll</HintPath>
+    <Reference Include="NodaTime, Version=2.4.2.0, Culture=neutral, PublicKeyToken=4226afe0d9b296d1, processorArchitecture=MSIL">
+      <HintPath>..\packages\NodaTime.2.4.2\lib\net45\NodaTime.dll</HintPath>
     </Reference>
     <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
@@ -94,6 +94,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Windows.Forms" />
@@ -108,8 +109,15 @@
     <Compile Include="BusyTimeLine.cs" />
     <Compile Include="CalendarEvent.cs" />
     <Compile Include="CalendarEventRestricted.cs" />
+    <Compile Include="DataRetrivalOption.cs" />
+    <Compile Include="IHasId.cs" />
+    <Compile Include="ScheduleDump.cs" />
+    <Compile Include="SubEventDictionary.cs" />
+    <Compile Include="TilerDbContext.cs" />
+    <Compile Include="Fluent\TilerEventMapping.cs" />
     <Compile Include="HealthEvaluation.cs" />
     <Compile Include="IJson.cs" />
+    <Compile Include="IUndoable.cs" />
     <Compile Include="OptimizedGrouping.cs" />
     <Compile Include="TempTilerEventChanges.cs" />
     <Compile Include="ThirdPartyTilerUser.cs" />
@@ -123,7 +131,6 @@
     <Compile Include="IWhy.cs" />
     <Compile Include="MultidimensionalCalculation.cs" />
     <Compile Include="NowProfile.cs" />
-    <Compile Include="PauseProfile.cs" />
     <Compile Include="Procrastination.cs" />
     <Compile Include="Reason.cs" />
     <Compile Include="ReferenceNow.cs" />
@@ -138,7 +145,6 @@
     <Compile Include="CustomErrors.cs" />
     <Compile Include="EventDisplay.cs" />
     <Compile Include="EventID.cs" />
-    <Compile Include="EventIDGenerator.cs" />
     <Compile Include="EventTimeLine.cs" />
     <Compile Include="IDefinedRange.cs" />
     <Compile Include="Location.cs" />
@@ -159,6 +165,7 @@
     <Compile Include="TimeOfDayPreferrence.cs" />
     <Compile Include="TimeSpanWithID.cs" />
     <Compile Include="TravelTime.cs" />
+    <Compile Include="Undo.cs" />
     <Compile Include="UserActivity.cs" />
     <Compile Include="Utility.cs" />
   </ItemGroup>

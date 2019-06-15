@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,7 +20,7 @@ namespace TilerElements
     [XmlInclude(typeof(DayOfWeekReason))]
 
     [Serializable]
-    public abstract class Reason
+    public abstract class Reason: IUndoable
     {
         public enum Options {
             [XmlEnum(Name = "None")]
@@ -84,7 +85,12 @@ namespace TilerElements
             DayOfWeek
         }
         protected Options _Option;
+        public string _UndoId;
+        protected string _Id = Guid.NewGuid().ToString();
 
+        #region undoMembers
+        public string UndoOption;
+        #endregion
         virtual public Options Topic
         {
             get
@@ -92,7 +98,8 @@ namespace TilerElements
                 return _Option;
             }
         }
-        //[XmlAttribute(DataType = "Option")]
+
+        [NotMapped]
         virtual public Options Option {
             get
             {
@@ -104,6 +111,67 @@ namespace TilerElements
             }
         }
 
+        virtual public string Option_DB
+        {
+            get
+            {
+                return _Option.ToString();
+            }
+            set
+            {
+                _Option = Utility.ParseEnum<Options>(value);
+            }
+        }
+
+        public virtual bool FirstInstantiation { get; set; } = true;
+        public virtual string UndoId
+        {
+            get
+            {
+                return _UndoId;
+            }
+            set
+            {
+                _UndoId = value;
+            }
+        }
+
+        public string Id
+        {
+            get
+            {
+                return _Id ?? (_Id = Guid.NewGuid().ToString());
+            }
+            set
+            {
+                _Id = value;
+            }
+        }
+
+        public virtual void undoUpdate(Undo undo)
+        {
+            this._UndoId = undo.id;
+            this.FirstInstantiation = false;
+        }
+        public virtual void redo(string undoId)
+        {
+            if (this._UndoId == undoId)
+            {
+                Options optionsConverted = Utility.ParseEnum<Options>(UndoOption);
+                Utility.Swap(ref _Option, ref optionsConverted);
+                UndoOption = optionsConverted.ToString();
+            }
+        }
+
+        public virtual void undo(string undoId)
+        {
+            if (this._UndoId == undoId)
+            {
+                Options optionsConverted = Utility.ParseEnum<Options>(UndoOption);
+                Utility.Swap(ref _Option, ref optionsConverted);
+                UndoOption = optionsConverted.ToString();
+            }
+        }
     }
 
     [Serializable]
@@ -112,6 +180,13 @@ namespace TilerElements
         DayOfWeek WeekDay;
         DateTimeOffset DesiredDate;
         DateTimeOffset ReferenceTime;
+
+        #region undoMembers
+        public string UndoWeekDay;
+        public DateTimeOffset UndoDesiredDate;
+        public DateTimeOffset UndoReferenceTime;
+        #endregion
+        public override bool FirstInstantiation { get; set; } = true;
 
         protected DayOfWeekReason()
         {
@@ -150,11 +225,44 @@ namespace TilerElements
             return retValue;
 
         }
+
+        public override void undoUpdate(Undo undo)
+        {
+            UndoDesiredDate = DesiredDate;
+            UndoReferenceTime = ReferenceTime;
+            UndoWeekDay = WeekDay.ToString();
+            this._UndoId = undo.id;
+        }
+
+        public override void undo(string undoId)
+        {
+            if (this._UndoId == undoId)
+            {
+                Utility.Swap(ref UndoDesiredDate, ref DesiredDate);
+                Utility.Swap(ref UndoReferenceTime, ref ReferenceTime);
+                DayOfWeek weekdayConverted = Utility.ParseEnum<DayOfWeek>(UndoWeekDay);
+                Utility.Swap(ref weekdayConverted, ref WeekDay);
+                UndoWeekDay = weekdayConverted.ToString();
+            }
+        }
+
+        public override void redo(string undoId)
+        {
+            if (this._UndoId == undoId)
+            {
+                Utility.Swap(ref UndoDesiredDate, ref DesiredDate);
+                Utility.Swap(ref UndoReferenceTime, ref ReferenceTime);
+                DayOfWeek weekdayConverted = Utility.ParseEnum<DayOfWeek>(UndoWeekDay);
+                Utility.Swap(ref weekdayConverted, ref WeekDay);
+                UndoWeekDay = weekdayConverted.ToString();
+            }
+        }
     }
 
-[Serializable]
+    [Serializable]
     public class WeatherReason : Reason
     {
+
         public enum Bounds
         {
             TooMuch,
@@ -166,10 +274,18 @@ namespace TilerElements
         {
             this._Option = Options.Weather;
         }
-        public double Top { get; set; }
-        public double Bottom { get; set; }
-        public bool IsCelcius { get; set; }
-        public Bounds WeatherBounds { get; set; }
+        public double Top;
+        public double Bottom;
+        public bool IsCelcius;
+        public Bounds WeatherBounds;
+
+        #region undoMembers
+        public double UndoTop;
+        public double UndoBottom;
+        public bool UndoIsCelcius;
+        public string UndoWeatherBounds;
+        #endregion
+        public override bool FirstInstantiation { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public WeatherReason(Options weatherOption, Bounds weatherBounds , double top = 70, double bottom = 90, bool isCelcius = true)
         {
@@ -179,6 +295,41 @@ namespace TilerElements
             this.WeatherBounds = weatherBounds;
             this._Option = weatherOption;
         }
+
+        public override void undoUpdate(Undo undo)
+        {
+            base.undoUpdate(undo);
+            UndoTop = Top;
+            UndoBottom = Bottom;
+            UndoIsCelcius = IsCelcius;
+            UndoWeatherBounds = WeatherBounds.ToString();
+    }
+
+        public override void undo(string undoId)
+        {
+            if (this._UndoId == undoId)
+            {
+                Utility.Swap(ref UndoTop, ref Top);
+                Utility.Swap(ref UndoBottom, ref Bottom);
+                Utility.Swap(ref UndoIsCelcius, ref IsCelcius);
+                Bounds boundsConverted = Utility.ParseEnum<Bounds>(UndoWeatherBounds);
+                Utility.Swap(ref boundsConverted, ref WeatherBounds);
+                UndoWeatherBounds = boundsConverted.ToString();
+            }
+        }
+
+        public override void redo(string undoId)
+        {
+            if (this._UndoId == undoId)
+            {
+                Utility.Swap(ref UndoTop, ref Top);
+                Utility.Swap(ref UndoBottom, ref Bottom);
+                Utility.Swap(ref UndoIsCelcius, ref IsCelcius);
+                Bounds boundsConverted = Utility.ParseEnum<Bounds>(UndoWeatherBounds);
+                Utility.Swap(ref boundsConverted, ref WeatherBounds);
+                UndoWeatherBounds = boundsConverted.ToString();
+            }
+        }
     }
 
     public class InitialReason:Reason
@@ -186,6 +337,26 @@ namespace TilerElements
         public InitialReason()
         {
             this.Option = Options.Initial;
+        }
+
+        public override void redo(string undoId)
+        {
+            if (this._UndoId == undoId)
+            {
+                Options optionsConverted = Utility.ParseEnum<Options>(UndoOption);
+                Utility.Swap(ref _Option, ref optionsConverted);
+                UndoOption = optionsConverted.ToString();
+            }
+        }
+
+        public override void undo(string undoId)
+        {
+            if (this._UndoId == undoId)
+            {
+                Options optionsConverted = Utility.ParseEnum<Options>(UndoOption);
+                Utility.Swap(ref _Option, ref optionsConverted);
+                UndoOption = optionsConverted.ToString();
+            }
         }
     }
 
@@ -203,6 +374,49 @@ namespace TilerElements
         [XmlIgnore]
         protected TimeSpan _CurrentUse;
 
+        [XmlIgnore]
+        public TimeSpan UndoUsedUp;
+        [XmlIgnore]
+        public TimeSpan UndoAvailable;
+        [XmlIgnore]
+        public TimeSpan UndoCurrentUse;
+
+        public TimeSpan UsedUp_DB
+        {
+            get
+            {
+                return _UsedUp;
+            }
+            set
+            {
+                _UsedUp = value;
+            }
+        }
+
+        public TimeSpan Available_DB
+        {
+            get
+            {
+                return _Available;
+            }
+            set
+            {
+                _Available = value;
+            }
+        }
+
+        public TimeSpan CurrentUse_DB
+        {
+            get
+            {
+                return _CurrentUse;
+            }
+            set
+            {
+                _CurrentUse = value;
+            }
+        }
+
         //[XmlAttribute(DataType = "UsedUp")]
         public string UsedUp { get { return XmlConvert.ToString(_UsedUp); } set { _UsedUp = String.IsNullOrEmpty(value) ? TimeSpan.Zero : XmlConvert.ToTimeSpan(value); } }
         //[XmlAttribute(DataType = "Available")]
@@ -216,20 +430,86 @@ namespace TilerElements
             this._Available = available;
             this._CurrentUse = currentUse;
         }
+
+        public override void undo(string undoId)
+        {
+            if (undoId == UndoId)
+            {
+                Utility.Swap(ref UndoUsedUp, ref _UsedUp);
+                Utility.Swap(ref UndoAvailable, ref _Available);
+                Utility.Swap(ref UndoCurrentUse, ref _CurrentUse);
+            }
+            base.undo(undoId);
+        }
+
+        public override void redo(string undoId)
+        {
+            if (undoId == UndoId)
+            {
+                Utility.Swap(ref UndoUsedUp, ref _UsedUp);
+                Utility.Swap(ref UndoAvailable, ref _Available);
+                Utility.Swap(ref UndoCurrentUse, ref _CurrentUse);
+            }
+            base.undo(undoId);
+        }
+
+        public override void undoUpdate(Undo undo)
+        {
+            UndoUsedUp = _UsedUp;
+            UndoAvailable = _Available;
+            UndoCurrentUse = _CurrentUse;
+            base.undoUpdate(undo);
+        }
     }
 
     [Serializable]
     public class DeadlineApproaching : Reason
     {
-        DateTimeOffset Deadline;
+        DateTimeOffset _Deadline;
+        public DateTimeOffset UndoDeadline;
         protected DeadlineApproaching()
         {
 
         }
+        public DateTimeOffset Deadline
+        {
+            get
+            {
+                return _Deadline;
+            }
+            set
+            {
+                _Deadline = value;
+            }
+        }
         public DeadlineApproaching(DateTimeOffset deadLine)
         {
-            this.Deadline = deadLine;
+            this._Deadline = deadLine;
             this._Option = Options.DeadlineApproaching;
+        }
+
+        public override void undoUpdate(Undo undo)
+        {
+            UndoDeadline = _Deadline;
+            base.undoUpdate(undo);
+        }
+
+        public override void undo(string undoId)
+        {
+            base.undo(undoId);
+            if(undoId == _UndoId)
+            {
+                Utility.Swap(ref UndoDeadline, ref _Deadline);
+            }
+        }
+
+        public override void redo(string undoId)
+        {
+            base.redo(undoId);
+            if (undoId == _UndoId)
+            {
+                Utility.Swap(ref UndoDeadline, ref _Deadline);
+            }
         }
     }
 
@@ -259,7 +539,7 @@ namespace TilerElements
         [Serializable]
     public class PreservedOrder : Reason
     {
-        List<EventID> IdOrders;
+        List<EventID> _IdOrders;
         protected PreservedOrder()
         {
 
@@ -267,23 +547,86 @@ namespace TilerElements
 
         public PreservedOrder(List<EventID> eventIds)
         {
-            IdOrders = eventIds.ToList();
+            _IdOrders = eventIds.ToList();
             this._Option = Options.PreservedOrder;
+        }
+
+        public string IdOrders
+        {
+            get
+            {
+                string result = "";
+                int lastCommaIndex = _IdOrders.Count - 1;
+                for (int index = 0; index  < _IdOrders.Count; index++)
+                {
+                    string id = _IdOrders[index].ToString();
+                    result += id;
+                    if (lastCommaIndex != index)
+                    {
+                        result += ",";
+                    }
+                }
+                return result;
+            }
+            set
+            {
+                _IdOrders = value.Split(',').Select((id) =>
+                {
+                    return new EventID(id);
+                }).ToList();
+            }
         }
     }
 
     [Serializable]
     public class DurationReason : Reason
     {
-        TimeSpan Duration;
+        TimeSpan _Duration;
+        public TimeSpan UndoDuration;
         protected DurationReason()
         {
 
         }
         public DurationReason(TimeSpan duration)
         {
-            this.Duration = duration;
+            this._Duration = duration;
             this._Option = Options.Occupancy;
+        }
+
+        public override void undoUpdate(Undo undo)
+        {
+            UndoDuration = _Duration;
+            base.undoUpdate(undo);
+        }
+
+        public override void undo(string undoId)
+        {
+            base.undo(undoId);
+            if (undoId == _UndoId)
+            {
+                Utility.Swap(ref UndoDuration, ref _Duration);
+            }
+        }
+
+        public TimeSpan Duration
+        {
+            get
+            {
+                return _Duration;
+            }
+            set
+            {
+                _Duration = value;
+            }
+        }
+
+        public override void redo(string undoId)
+        {
+            base.redo(undoId);
+            if (undoId == _UndoId)
+            {
+                Utility.Swap(ref UndoDuration, ref _Duration);
+            }
         }
     }
 
@@ -324,20 +667,20 @@ namespace TilerElements
             }
         }
 
-        public List<Location> LocationCluster
-        {
-            get
-            {
-                return _LocationCluster;
-            }
-            set
-            {
-                _LocationCluster = value;
-            }
-        }
+        //public ICollection<Location> LocationCluster
+        //{
+        //    get
+        //    {
+        //        return _LocationCluster;
+        //    }
+        //    set
+        //    {
+        //        _LocationCluster = value.ToList();
+        //    }
+        //}
 
         //[XmlAttribute(DataType = "Option")]
-        virtual public Options Option {
+        override public Options Option {
             get
             {
                 return _Option;

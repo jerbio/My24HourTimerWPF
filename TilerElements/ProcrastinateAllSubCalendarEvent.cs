@@ -8,10 +8,15 @@ namespace TilerElements
 {
     public class ProcrastinateAllSubCalendarEvent:SubCalendarEvent
     {
+        protected ProcrastinateAllSubCalendarEvent():base()
+        {
+            _isProcrastinateEvent = true;
+            this.RigidSchedule = true;
+        }
         public ProcrastinateAllSubCalendarEvent(TilerUser user, TilerUserGroup group, string timeZone, TimeLine timeLine, EventID calendarEventId, Location location, ProcrastinateCalendarEvent calendarEvent):base()
         {
-            this._Name = calendarEvent.getName;
-            this.LocationInfo = location;
+            this.Name = calendarEvent.getName;
+            this._LocationInfo = location;
             this._TimeZone = timeZone;
             this.StartDateTime = timeLine.Start;
             this.EndDateTime = timeLine.End;
@@ -19,13 +24,13 @@ namespace TilerElements
             this.UniqueID = EventID.GenerateSubCalendarEvent(calendarEventId);
             this._Creator = user;
             this._Users = group;
-            this.ProfileOfNow = new NowProfile();
-            this.ProfileOfProcrastination = new Procrastination(new DateTimeOffset(), new TimeSpan());
-            isProcrastinateEvent = true;
-            this.CalendarEventRange = calendarEvent.RangeTimeLine;
+            this._ProfileOfNow = new NowProfile();
+            this._ProfileOfProcrastination = new Procrastination(new DateTimeOffset(), new TimeSpan());
+            _isProcrastinateEvent = true;
+            this._CalendarEventRange = calendarEvent.RangeTimeLine;
             this.BusyFrame = new BusyTimeLine(this.UniqueID.ToString(), Start, End);
-            this.EventDuration = this.BusyFrame.BusyTimeSpan;
-            this.DataBlob = new MiscData();
+            this._EventDuration = this.BusyFrame.BusyTimeSpan;
+            this._DataBlob = new MiscData();
         }
     }
 }

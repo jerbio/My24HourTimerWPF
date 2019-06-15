@@ -233,7 +233,7 @@ namespace TilerElements
         /// <returns></returns>
         public override bool IsDateTimeWithin(DateTimeOffset MyDateTime)
         {
-            TimeLine timeFrame = RestrictionInfo.getEarliestStartTimeWithinAFrameAfterRefTime(MyDateTime);
+            TimeLine timeFrame = RestrictionInfo.getEarliestStartTimeWithinAFrameAfterRefTime(MyDateTime).Item1;
             TimeLine tempFrame = new TimeLine(this.Start, this.EndTime);
             tempFrame = tempFrame.InterferringTimeLine(timeFrame);
             if (tempFrame!=null)

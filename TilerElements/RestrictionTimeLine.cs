@@ -9,13 +9,21 @@ namespace TilerElements
     /// <summary>
     /// represents the Timeline of restriction
     /// </summary>
-    public class RestrictionTimeLine
+    public class RestrictionTimeLine: IUndoable
     {
         //ToDo restriction timeline needs to include a day component
+        string _Id;
         static TimeSpan TwentyFourHourTImeSpan = TimeSpan.FromDays(1);
         protected DateTimeOffset StartTimeOfDay;
-        protected TimeSpan RangeTimeSpan;
+        protected TimeSpan RangeTimeSpan;   
         protected DateTimeOffset EndTimeOfDay;
+
+        #region undoMembers
+        public DateTimeOffset UndoStartTimeOfDay;
+        public TimeSpan UndoRangeTimeSpan;
+        public DateTimeOffset UndoEndTimeOfDay;
+        public string _UndoId;
+        #endregion
 
         protected RestrictionTimeLine()
         {
@@ -98,9 +106,42 @@ namespace TilerElements
 
         }
 
+        public void undoUpdate(Undo undo)
+        {
+            UndoStartTimeOfDay = StartTimeOfDay;
+            UndoRangeTimeSpan = RangeTimeSpan;
+            UndoEndTimeOfDay = EndTimeOfDay;
+            _UndoId = undo.id;
+            FirstInstantiation = false;
+        }
+
+        public void undo(string undoId)
+        {
+            if(undoId == UndoId)
+            {
+                Utility.Swap(ref UndoStartTimeOfDay, ref StartTimeOfDay);
+                Utility.Swap(ref UndoRangeTimeSpan, ref RangeTimeSpan);
+                Utility.Swap(ref UndoEndTimeOfDay, ref EndTimeOfDay);
+            }
+        }
+
+        public void redo(string undoId)
+        {
+            if (undoId == UndoId)
+            {
+                Utility.Swap(ref UndoStartTimeOfDay, ref StartTimeOfDay);
+                Utility.Swap(ref UndoRangeTimeSpan, ref RangeTimeSpan);
+                Utility.Swap(ref UndoEndTimeOfDay, ref EndTimeOfDay);
+            }
+        }
+
         #region Properties
         public DateTimeOffset Start
         {
+            set
+            {
+                StartTimeOfDay = value;
+            }
             get 
             {
                 return StartTimeOfDay;
@@ -109,6 +150,10 @@ namespace TilerElements
 
         public TimeSpan Span
         {
+            set
+            {
+                RangeTimeSpan = value;
+            }
             get
             {
                 return RangeTimeSpan;
@@ -117,9 +162,39 @@ namespace TilerElements
 
         public DateTimeOffset End
         {
+            set
+            {
+                EndTimeOfDay = value;
+            }
             get
             {
                 return EndTimeOfDay;
+            }
+        }
+
+        public string Id
+        {
+            get
+            {
+                return _Id ?? (_Id = Guid.NewGuid().ToString());
+            }
+            set
+            {
+                _Id = value;
+            }
+        }
+
+        public virtual bool FirstInstantiation { get; set; } = true;
+
+        public string UndoId
+        {
+            set
+            {
+                _UndoId = value;
+            }
+            get
+            {
+                return _UndoId;
             }
         }
         #endregion

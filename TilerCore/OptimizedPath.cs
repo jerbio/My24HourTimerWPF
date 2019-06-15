@@ -35,12 +35,12 @@ namespace TilerCore
             TimeOfDayPreferrence.SingleTimeOfDayPreference nonePreference = singleTimeOfDayPreferences.Single(obj => obj.DaySection == TimeOfDayPreferrence.DaySection.None);
             List<TimeOfDayPreferrence.SingleTimeOfDayPreference> noNone = singleTimeOfDayPreferences.Where(obj => obj != nonePreference).ToList();
 
-            AllGroupings.Add(nonePreference.DaySection, new OptimizedGrouping(nonePreference, TotalDuration, home));
+            AllGroupings.Add(nonePreference.DaySection, new OptimizedGrouping(nonePreference, TotalDuration, home, home));
 
             if (noNone.Count > 0)
             {
                 TimeOfDayPreferrence.SingleTimeOfDayPreference firstTimeOfDayPreference = noNone.First();
-                OptimizedGrouping firstGrouping = new OptimizedGrouping(firstTimeOfDayPreference, TotalDuration, DefaultLocation.CreateCopy());
+                OptimizedGrouping firstGrouping = new OptimizedGrouping(firstTimeOfDayPreference, TotalDuration, DefaultLocation.CreateCopy(), home);
                 firstGrouping.setLeftStitch(beginLocation);
                 AllGroupings.Add(firstTimeOfDayPreference.DaySection, firstGrouping);
                 noNone.Remove(firstTimeOfDayPreference);
@@ -49,7 +49,7 @@ namespace TilerCore
             if(noNone.Count > 0)
             {
                 TimeOfDayPreferrence.SingleTimeOfDayPreference lastTimeOfDayPreference = noNone.Last();
-                OptimizedGrouping lastGrouping = new OptimizedGrouping(lastTimeOfDayPreference, TotalDuration, DefaultLocation.CreateCopy());
+                OptimizedGrouping lastGrouping = new OptimizedGrouping(lastTimeOfDayPreference, TotalDuration, DefaultLocation.CreateCopy(), home);
                 lastGrouping.setRightStitch(endLocation);
                 AllGroupings.Add(lastTimeOfDayPreference.DaySection, lastGrouping);
                 noNone.Remove(lastTimeOfDayPreference);
@@ -59,7 +59,7 @@ namespace TilerCore
 
             foreach (TimeOfDayPreferrence.SingleTimeOfDayPreference singleTimeOfDayPreference in noNone)
             {
-                AllGroupings.Add(singleTimeOfDayPreference.DaySection, new OptimizedGrouping(singleTimeOfDayPreference, TotalDuration, DefaultLocation.CreateCopy()));
+                AllGroupings.Add(singleTimeOfDayPreference.DaySection, new OptimizedGrouping(singleTimeOfDayPreference, TotalDuration, DefaultLocation.CreateCopy(), home));
             }
             assignRigidsToTimeGroupings(DayInfo.getSubEventsInTimeLine(), DayInfo);
         }
@@ -80,7 +80,7 @@ namespace TilerCore
                     TimeLine interferringTimeline = subEventToViableTimeLine[subEvent];
                     if (interferringTimeline != null)
                     {
-                        SubCalendarEvent slicedValidSubEvent = new SubCalendarEvent(TilerUser.autoUser, new TilerUserGroup(), subEvent.getTimeZone, subEvent.getId, subEvent.getName, interferringTimeline.Start, interferringTimeline.End, new BusyTimeLine(subEvent.getId, interferringTimeline.Start, interferringTimeline.End), subEvent.isLocked, subEvent.isEnabled, subEvent.getUIParam, subEvent.Notes, subEvent.getIsComplete, subEvent.Location, subEvent.getCalendarEventRange, subEvent.Conflicts);
+                        SubCalendarEvent slicedValidSubEvent = new SubCalendarEvent(subEvent.ParentCalendarEvent, TilerUser.autoUser, new TilerUserGroup(), subEvent.getTimeZone, subEvent.Id, subEvent.getName, interferringTimeline.Start, interferringTimeline.End, new BusyTimeLine(subEvent.Id, interferringTimeline.Start, interferringTimeline.End), subEvent.isRigid, subEvent.isEnabled, subEvent.getUIParam, subEvent.Notes, subEvent.getIsComplete, subEvent.Location, subEvent.getCalendarEventRange, subEvent.Conflicts);
                         tempSubEvents.Add(slicedValidSubEvent);
                     }
                     else
@@ -516,7 +516,7 @@ namespace TilerCore
                 List<KeyValuePair<TilerEvent, double>> subEventsEvaluated = evaluatedEvents.OrderBy(obj => obj.Value).ToList();
 
                 IEnumerable<SubCalendarEvent> subEvents = (IEnumerable<SubCalendarEvent>)evaluatedEvents.OrderBy(obj => obj.Value).Select(obj => (SubCalendarEvent)obj.Key);
-                List<String> locations = subEvents.Select(obj => "" + obj.Location.XCoordinate + "," + obj.Location.YCoordinate).ToList();
+                List<String> locations = subEvents.Select(obj => "" + obj.Location.Latitude + "," + obj.Location.Longitude).ToList();
                 Subevents = subEvents.Take(5).ToList();
                 //Subevents= Utility.getBestPermutation(Subevents.ToList(), double.MaxValue, new Tuple<Location_Elements, Location_Elements>(Grouping.LeftBorder, Grouping.RightBorder)).ToList();
                 Tuple<Location, Location> borderElements = new Tuple<Location, Location>(Grouping.LeftBorder, Grouping.RightBorder);

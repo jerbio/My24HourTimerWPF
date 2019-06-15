@@ -23,21 +23,32 @@ namespace TilerElements
         {
             _Users = users.ToList();
         }
-
-        virtual public string getId
+        #region properties
+        #region dbproperties
+        virtual public string id
         {
+            set
+            {
+                _Id = value;
+            }
             get
             {
                 return _Id;
             }
         }
 
-        virtual public ICollection<TilerUser> getUsers
+        virtual public ICollection<TilerUser> users
         {
+            set
+            {
+                _Users = value;
+            }
             get
             {
                 return _Users;
             }
         }
+        #endregion
+        #endregion
     }
 }

@@ -20,15 +20,34 @@ namespace TilerTests
         /// <summary>
         /// Template for running test environment through log files
         /// </summary>
-        //[TestMethod]
-        //public void file_f64b4f1c()
-        //{
-        //    string scheduleId = "f64b4f1c-1d15-4b03-81fd-6b5c0e6d451b";
-        //    Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
-        //    var scheduleAndDump = TestUtility.getSchedule(scheduleId);
-        //    Schedule schedule = scheduleAndDump.Item1;
-        //    schedule.FindMeSomethingToDo(currentLocation).Wait();
-        //}
+        [TestMethod]
+        public void dump_template()
+        {
+            string scheduleId = "cff69e0a-d501-4eba-8a56-64999d5641b1";
+            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+            ScheduleDump dump = scheduleAndDump.Item2;
+            TestSchedule schedule = scheduleAndDump.Item1 as TestSchedule;
+            string date = "" + schedule.Now.constNow.Month + "/" + schedule.Now.constNow.Day + "/" + schedule.Now.constNow.Year;
+            TimeLine timeLine = new TimeLine(TestUtility.parseAsUTC("3:00pm " + date), TestUtility.parseAsUTC("11:00pm " + date));
+            TimeLine rangeOfTempGoogleEvent = new TimeLine(timeLine.Start, timeLine.Start.AddYears(1));
+            int[] weekDays = (new List<int>() { 1, 2, 3, 4, 5 }).ToArray();
+            EventName eventName = new EventName(null, null, "google-made-up");
+            Repetition repeat = new Repetition(true, rangeOfTempGoogleEvent, Repetition.Frequency.WEEKLY, timeLine, weekDays);
+            CalendarEvent googleCalSimulation = TestUtility.generateCalendarEvent(
+                schedule.User,
+                TimeSpan.FromHours(8),
+                repeat,
+                rangeOfTempGoogleEvent.Start,
+                rangeOfTempGoogleEvent.End,
+                1,
+                true);
+
+            schedule.AddToSchedule(googleCalSimulation);
+
+            schedule.FindMeSomethingToDo(currentLocation).Wait();
+            schedule.WriteFullScheduleToOutlook();
+        }
 
 
         //[TestMethod]

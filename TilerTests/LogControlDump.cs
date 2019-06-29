@@ -6,6 +6,7 @@ using System.IO;
 using TilerElements;
 using System.Threading.Tasks;
 using System.Xml;
+using TilerTests.Models;
 
 namespace TilerTests
 {
@@ -20,6 +21,7 @@ namespace TilerTests
         */
         public LogControlDump(TilerUser User, string logLocation=""):base(User, null)
         {
+            _Context = new TestDBContext();
         }
 
 

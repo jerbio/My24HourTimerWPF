@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TilerFront.Models;
 using System.Data.Entity;
+using TilerTests.Models;
 
 namespace TilerTests
 {
@@ -22,7 +23,7 @@ namespace TilerTests
         */
         public LogControlTest(TilerUser User, TilerDbContext dbContext = null):base(User, null)
         {
-            _Context = dbContext ?? new TilerDbContext();
+            _Context = dbContext ?? new TestDBContext();
         }
 
         public override bool Status

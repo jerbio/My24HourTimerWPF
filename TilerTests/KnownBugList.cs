@@ -28,11 +28,11 @@ namespace TilerTests
         //    var scheduleAndDump = TestUtility.getSchedule(scheduleId);
         //    ScheduleDump dump = scheduleAndDump.Item2;
         //    TestSchedule schedule = scheduleAndDump.Item1 as TestSchedule;
-        //    add9_5WOrkSchedule(schedule);
+        //    add9_5WorkSchedule(schedule);
         //    schedule.WriteFullScheduleToOutlook();
         //}
 
-        public void add9_5WOrkSchedule (Schedule schedule)
+        public void add9_5WorkSchedule (Schedule schedule)
         {
             string date = "" + schedule.Now.constNow.Month + "/" + schedule.Now.constNow.Day + "/" + schedule.Now.constNow.Year;
             TimeLine timeLine = new TimeLine(TestUtility.parseAsUTC("3:00pm " + date), TestUtility.parseAsUTC("11:00pm " + date));

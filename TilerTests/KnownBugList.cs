@@ -20,14 +20,20 @@ namespace TilerTests
         /// <summary>
         /// Template for running test environment through log files
         /// </summary>
-        [TestMethod]
-        public void dump_template()
+        //[TestMethod]
+        //public void dump_template()
+        //{
+        //    string scheduleId = "87ea0a48-4429-4cee-9107-70c1b014f83e";
+        //    Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+        //    var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+        //    ScheduleDump dump = scheduleAndDump.Item2;
+        //    TestSchedule schedule = scheduleAndDump.Item1 as TestSchedule;
+        //    add9_5WOrkSchedule(schedule);
+        //    schedule.WriteFullScheduleToOutlook();
+        //}
+
+        public void add9_5WOrkSchedule (Schedule schedule)
         {
-            string scheduleId = "87ea0a48-4429-4cee-9107-70c1b014f83e";
-            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
-            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
-            ScheduleDump dump = scheduleAndDump.Item2;
-            TestSchedule schedule = scheduleAndDump.Item1 as TestSchedule;
             string date = "" + schedule.Now.constNow.Month + "/" + schedule.Now.constNow.Day + "/" + schedule.Now.constNow.Year;
             TimeLine timeLine = new TimeLine(TestUtility.parseAsUTC("3:00pm " + date), TestUtility.parseAsUTC("11:00pm " + date));
             TimeLine rangeOfTempGoogleEvent = new TimeLine(timeLine.Start, timeLine.Start.AddYears(1));
@@ -42,11 +48,7 @@ namespace TilerTests
                 rangeOfTempGoogleEvent.End,
                 1,
                 true);
-
             schedule.AddToSchedule(googleCalSimulation);
-
-            schedule.FindMeSomethingToDo(currentLocation).Wait();
-            schedule.WriteFullScheduleToOutlook();
         }
 
 

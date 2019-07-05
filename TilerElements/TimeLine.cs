@@ -499,12 +499,9 @@ namespace TilerElements
             }
         }
 
-        public void Empty()
+        public virtual void Empty()
         {
-            
-            {
-                ActiveTimeSlots = new ConcurrentBag<BusyTimeLine>();
-            }
+            ActiveTimeSlots = new ConcurrentBag<BusyTimeLine>();
         }
 
         public JObject ToJson()

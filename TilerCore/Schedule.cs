@@ -2085,6 +2085,10 @@ namespace TilerCore
 
 
             DayTimeLine[] AllDayTImeLine = Now.getAllDaysLookup().Select(obj => obj.Value).ToArray();
+            foreach(DayTimeLine dayTimeLine in AllDayTImeLine)
+            {
+                dayTimeLine.Empty();
+            }
             ParallelizeCallsToDay(SortedInterFerringCalendarEvents_Deadline, ArrayOfInterferringSubEvents, AllDayTImeLine, callLocation, OptimizeFirstTwentyFour, preserveFirstTwentyFourHours);
 
             foreach (BlobSubCalendarEvent eachSubCalEvent in preppedDataForNExtStage.Item2)
@@ -2718,6 +2722,9 @@ namespace TilerCore
             int optimizedDayLimit = 10;
             IDictionary<DayTimeLine, OptimizedPath> dayToOptimization = null;
             List<DayTimeLine> OptimizedDays = AllDayTImeLine.Take(optimizedDayLimit).ToList();
+            List<BlobSubCalendarEvent> afterPathOptimizationConflictingEvetns = Utility.getConflictingEvents(TotalActiveEvents.OrderBy(obj => obj.Start).ToList());
+            List<SubCalendarEvent> ordereByStartTime = TotalActiveEvents.OrderBy(SubEvent => SubEvent.Start).ToList();
+            tryToRemoveConflicts(ordereByStartTime, AllDayTImeLine, callLocation);
             if (Optimize)
             {
                 ulong FirstIndex = AllDayTImeLine[0].UniversalIndex;
@@ -2743,10 +2750,7 @@ namespace TilerCore
                     throw E;
                 } 
             }
-            TimeLine computationRange = Now.ComputationRange;
-            List<BlobSubCalendarEvent> afterPathOptimizationConflictingEvetns = Utility.getConflictingEvents(TotalActiveEvents.OrderBy(obj => obj.Start).ToList());
-            List<SubCalendarEvent> ordereByStartTime = TotalActiveEvents.OrderBy(SubEvent => SubEvent.Start).ToList();
-            tryToRemoveConflicts(ordereByStartTime, AllDayTImeLine);
+            
 
 
             return totalNumberOfEvents;
@@ -2759,11 +2763,12 @@ namespace TilerCore
         /// </summary>
         /// <param name="ordereByStartTime"></param>
         /// <param name="AllDayTImeLine"></param>
-        void tryToRemoveConflicts (List<SubCalendarEvent> ordereByStartTime, DayTimeLine[] AllDayTImeLine)
+        void tryToRemoveConflicts (List<SubCalendarEvent> ordereByStartTime, DayTimeLine[] AllDayTImeLine, Location callLocation)
         {
             List<SubCalendarEvent> undesignatedSubevents = new List<SubCalendarEvent>();
             List<SubCalendarEvent> designatedSubevents = new List<SubCalendarEvent>();
             IEnumerable<SubCalendarEvent> AllNonRigids = ordereByStartTime.Where(subEvent => !subEvent.isLocked);
+            HashSet<DayTimeLine> reOptimizedDays = new HashSet<DayTimeLine>();
             foreach (SubCalendarEvent subEvent in AllNonRigids)
             {
                 if (subEvent.isDesignated)
@@ -2790,20 +2795,25 @@ namespace TilerCore
                         var timeLineAndSubEvents = getThreeContinuousDay(AllDayTImeLine, index);
                         TimelineWithSubcalendarEvents timeLine = timeLineAndSubEvents.Item1;
                         List<SubCalendarEvent> singleTonList = new List<SubCalendarEvent> { subEvent };
-                        IEnumerable<SubCalendarEvent> alreadyAssignedSubEvens = timeLine.getSubEventsInTimeLine().Where(subEvemt => !subEvemt.isLocked).OrderBy(obj => obj.Start);
-                        List<SubCalendarEvent> Reassigned = stitchUnRestrictedSubCalendarEvent(timeLine, alreadyAssignedSubEvens, alreadyAssignedSubEvens.Concat(singleTonList));
+                        IEnumerable<SubCalendarEvent> alreadyAssignedSubEvens = timeLine.getSubEventsInTimeLine()
+                            .OrderBy(obj => obj.Start);
+
+                        List<SubCalendarEvent> Reassigned = StitchUnrestricted(timeLine, alreadyAssignedSubEvens.ToList(), alreadyAssignedSubEvens.Concat(singleTonList).ToList());
                         if (Reassigned.Contains(subEvent))
                         {
                             DayTimeLine startDayTimeLine = Now.getDayTimeLineByTime(subEvent.Start);
                             DayTimeLine endDayTimeLine = Now.getDayTimeLineByTime(subEvent.End);
                             startDayTimeLine.AddToSubEventList(subEvent);
                             endDayTimeLine.AddToSubEventList(subEvent);
+                            reOptimizedDays.Add(startDayTimeLine);
+                            reOptimizedDays.Add(endDayTimeLine);
                         }
 
                     }
                 );
 
             }
+            
 
         }
         /// <summary>

@@ -127,6 +127,14 @@ namespace TilerElements
             return RetValue;
         }
 
+        public override void Empty()
+        {
+            AllocatedSubEvents = new ConcurrentDictionary<string, SubCalendarEvent>();
+            ActiveTimeSlots = new ConcurrentBag<BusyTimeLine>();
+            updateOccupancyOfTimeLine();
+            updateAverageLocation();
+        }
+
         #endregion
 
         #region Properties

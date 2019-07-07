@@ -16,6 +16,7 @@ namespace TilerElements
         static uint[] fibonacciValues = new uint[fibonnaciLimit];
         public static DateTimeOffset JSStartTime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, new TimeSpan());
         public static DateTimeOffset BeginningOfTime = new DateTimeOffset();
+        public readonly static Random rng = new Random();
         static Utility()
         {
             initializeFibonacci();
@@ -415,23 +416,6 @@ namespace TilerElements
         }
 
 
-        /*public static List<SubCalendarEvent> ListIntersection(List<SubCalendarEvent> ListToCheck, List<SubCalendarEvent> MyCurrentList)
-        {
-            List<SubCalendarEvent> InListElements = new List<SubCalendarEvent>();
-
-            foreach (SubCalendarEvent MySubCalendarEvent0 in ListToCheck)
-            {
-                foreach (SubCalendarEvent MySubCalendarEvent1 in MyCurrentList)
-                {
-                    if (MySubCalendarEvent1.ID == MySubCalendarEvent0.ID)
-                    {
-                        InListElements.Add(MySubCalendarEvent1);
-                    }
-                }
-            }
-            return InListElements;
-        }*/
-
         private static long Factorial(int N)
         {
             long num = 1;
@@ -489,45 +473,6 @@ namespace TilerElements
 
             return OriginalPermutation;
         }
-
-
-        /*
-        public static int[] generatePermutation(int[] OriginalPermutation, long CurrentIndex, long CurrentCycle, long NumberOfPermutation, int SizeOfArray, int boundSelect)
-        {
-            long num = NumberOfPermutation / (SizeOfArray - CurrentCycle);
-            if (boundSelect == 1)
-            {
-                CurrentCycle = boundSelect;
-            }
-            if (boundSelect == 2)
-            {
-                SizeOfArray--;
-            }
-            if (boundSelect == 3)
-            {
-                CurrentCycle = 1;
-                SizeOfArray--;
-            }
-            while (CurrentCycle < SizeOfArray)
-            {
-                num = NumberOfPermutation / (SizeOfArray - CurrentCycle);
-                long num2 = 0;
-                while ((num2 * num) <= CurrentIndex)
-                {
-                    num2++;
-                }
-                num2--;
-                long index = num2 + CurrentCycle;
-                int num4 = OriginalPermutation[index];
-                long num5 = CurrentCycle;
-                OriginalPermutation[index] = OriginalPermutation[num5];
-                OriginalPermutation[num5] = num4;
-                CurrentIndex -= num2 * num;
-                NumberOfPermutation /= SizeOfArray - CurrentCycle;
-                CurrentCycle++;
-            }
-            return OriginalPermutation;
-        }*/
 
         public static SubCalendarEvent[] getBestPermutation(
             List<SubCalendarEvent> AllEvents,
@@ -1326,6 +1271,19 @@ namespace TilerElements
 
             retValue = new DateTimeOffset(retValue.Year, retValue.Month, retValue.Day, retValue.Hour, retValue.Minute,0, new TimeSpan());
             return retValue;
+        }
+
+        public static void Shuffle<T>(this IList<T> list)
+        {
+            int n = list.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = rng.Next(n + 1);
+                T value = list[k];
+                list[k] = list[n];
+                list[n] = value;
+            }
         }
         /// <summary>
         /// got from http://stackoverflow.com/questions/16100/how-do-i-convert-a-string-to-an-enum-in-c

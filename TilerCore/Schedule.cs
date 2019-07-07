@@ -2593,6 +2593,17 @@ namespace TilerCore
 
             ulong dayCounterSpreadout = 0;
 
+            List<IList<double>> allCalEventsFeatureCalibrations = generateMultiDimensionalParams(AllCalEvents);
+            List<double> scores = Utility.multiDimensionCalculationNormalize(allCalEventsFeatureCalibrations);
+            List<Tuple<double, CalendarEvent>> scoreAndCalEvnt = scores.Select(
+                (score, i) =>
+                    {
+                        return new Tuple<double, CalendarEvent>(score, AllCalEvents[i]);
+                    }
+                ).ToList();
+
+            AllCalEvents = scoreAndCalEvnt.OrderBy(calEvent => calEvent.Item1).Select(calEvent => calEvent.Item2).ToList();
+
             while ((totalDaysAvailable>0)&&(totalNumberOfEvents>0))
             {
                 long OldNumberOfAssignedElements = -1;
@@ -3016,6 +3027,33 @@ namespace TilerCore
                 i++;
             }
             Tuple<TimeLine, Double> retValue = new Tuple<TimeLine, double>(BestTimeLine.Value, LongestDistance.Value);
+            return retValue;
+        }
+
+
+        /// <summary>
+        /// FUnction generates a multidimesional array that generates the feature set of each calendar event.
+        /// Below the options with * means not implemented but can be imimplemented in the future
+        /// Feaure set includes the time of creation, completion ratio, duration of calEvent, time till deadline, *distance from home
+        /// </summary>
+        /// <param name="allCalEvents"></param>
+        /// <returns></returns>
+        List<IList<double>> generateMultiDimensionalParams (List<CalendarEvent> allCalEvents)
+        {
+            List<IList<double>> retValue = new List<IList<double>>();
+
+            foreach(CalendarEvent calEvent in allCalEvents)
+            {
+                TimeSpan span = Now.constNow - calEvent.TimeCreated;
+                double spanHours = Math.Abs(span.TotalHours);
+                spanHours = spanHours == 0 ? 100000 : 1.0 / spanHours;
+                double completionCount = (double)calEvent.CompletionCount < 1 ? 0.001 : calEvent.CompletionCount;
+                double completionRatio = calEvent.CompletionCount / calEvent.NumberOfSplit;
+                double duration = calEvent.AverageTimeSpanPerSubEvent.TotalHours * (calEvent.NumberOfSplit - calEvent.CompletionCount);
+                duration = 1 / duration;
+                List<double> features = new List<double>() { spanHours , completionRatio, completionCount, duration };
+                retValue.Add(features);
+            }
             return retValue;
         }
 

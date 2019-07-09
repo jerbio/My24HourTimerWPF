@@ -12,27 +12,6 @@ namespace TilerTests
     [TestClass]
     public class KnownBugList
     {
-
-        /*
-         * This test tries to see that there is sufficent diversity. Read notes scheule dump nodes
-         * The 
-        */
-        /// <summary>
-        /// Template for running test environment through log files
-        /// </summary>
-        [TestMethod]
-        public void dump_template()
-        {
-            string scheduleId = "cff69e0a-d501-4eba-8a56-64999d5641b1";
-            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
-            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
-            ScheduleDump dump = scheduleAndDump.Item2;
-            TestSchedule schedule = scheduleAndDump.Item1 as TestSchedule;
-            add9_5WorkSchedule(schedule);
-
-            schedule.FindMeSomethingToDo(currentLocation).Wait();
-            schedule.WriteFullScheduleToOutlook();
-        }
         //[TestMethod]
         //public void dump_template()
         //{

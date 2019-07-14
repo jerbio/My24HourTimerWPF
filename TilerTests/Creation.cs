@@ -920,6 +920,12 @@ namespace TilerTests
             Assert.AreEqual(renamedEvent.Notes.UserNote, newNoteName);
         }
 
+        [TestMethod]
+        public void thirdPartyScheduling ()
+        {
+
+        }
+
         [TestCleanup]
         public void cleanUpForEachTest()
         {

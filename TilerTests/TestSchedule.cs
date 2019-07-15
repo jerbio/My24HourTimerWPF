@@ -72,7 +72,9 @@ namespace TilerTests
         {
             _Now = new ReferenceNow(scheduleDump.ReferenceNow, scheduleDump.StartOfDay);
             this.myAccount.ScheduleLogControl.Now = _Now;
-            AllEventDictionary = AccountEntry.ScheduleLogControl.getAllCalendarFromXml(scheduleDump);
+            var scheduleData = AccountEntry.ScheduleLogControl.getAllCalendarFromXml(scheduleDump);
+            AllEventDictionary = scheduleData.Item1;
+            ThirdPartyCalendars = scheduleData.Item2;
             this.Locations = AccountEntry.ScheduleLogControl.getLocationCache(scheduleDump);
             if (LatestId != 0)
             {

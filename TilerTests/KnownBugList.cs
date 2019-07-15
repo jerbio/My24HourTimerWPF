@@ -20,15 +20,15 @@ namespace TilerTests
         /// <summary>
         /// Template for running test environment through log files
         /// </summary>
-        //[TestMethod]
-        //public void file_f64b4f1c()
-        //{
-        //    string scheduleId = "f64b4f1c-1d15-4b03-81fd-6b5c0e6d451b";
-        //    Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
-        //    var scheduleAndDump = TestUtility.getSchedule(scheduleId);
-        //    Schedule schedule = scheduleAndDump.Item1;
-        //    schedule.FindMeSomethingToDo(currentLocation).Wait();
-        //}
+        [TestMethod]
+        public void file_f64b4f1c()
+        {
+            string scheduleId = "2694d3bf-cf8d-43a9-9877-e7d168119f74";
+            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+            Schedule schedule = scheduleAndDump.Item1;
+            schedule.FindMeSomethingToDo(currentLocation).Wait();
+        }
 
 
         //[TestMethod]

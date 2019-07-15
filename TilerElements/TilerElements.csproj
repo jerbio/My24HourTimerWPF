@@ -110,9 +110,13 @@
     <Compile Include="CalendarEvent.cs" />
     <Compile Include="CalendarEventRestricted.cs" />
     <Compile Include="DataRetrivalOption.cs" />
+    <Compile Include="GoogleCalendarEvent.cs" />
+    <Compile Include="GoogleSubCalendarEvent.cs" />
     <Compile Include="IHasId.cs" />
     <Compile Include="ScheduleDump.cs" />
+    <Compile Include="SubCalEvent.cs" />
     <Compile Include="SubEventDictionary.cs" />
+    <Compile Include="ThirdPartyCalendarEvent.cs" />
     <Compile Include="TilerDbContext.cs" />
     <Compile Include="Fluent\TilerEventMapping.cs" />
     <Compile Include="HealthEvaluation.cs" />

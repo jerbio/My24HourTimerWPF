@@ -228,6 +228,7 @@ namespace TilerElements
             _Users = MyUpdated._Users;
             _TimeZone = MyUpdated._TimeZone;
             _isProcrastinateEvent = MyUpdated._isProcrastinateEvent;
+            ThirdPartyTypeInfo = MyUpdated.ThirdPartyTypeInfo;
         }
         #endregion
 

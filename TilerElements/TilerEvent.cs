@@ -328,7 +328,7 @@ namespace TilerElements
             }
         }
 
-        public ThirdPartyControl.CalendarTool ThirdpartyType
+        public virtual ThirdPartyControl.CalendarTool ThirdpartyType
         {
             get 
             {

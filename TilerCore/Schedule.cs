@@ -263,11 +263,43 @@ namespace TilerCore
             retrievedThirdParty = true;
         }
 
+        public void updateDataSetWithThirdPartyData(Tuple<ThirdPartyControl.CalendarTool, CalendarEvent> ThirdPartyData)
+        {
+            if (ThirdPartyData != null)
+            {
+                List<CalendarEvent> CalEvents;
+                if(ThirdPartyCalendars.ContainsKey(ThirdPartyData.Item1))
+                {
+                    CalEvents = ThirdPartyCalendars[ThirdPartyData.Item1];
+                    CalEvents.Add(ThirdPartyData.Item2);
+                }
+                else
+                {
+                    CalEvents = new List<CalendarEvent>();
+                    CalEvents.Add(ThirdPartyData.Item2);
+                    ThirdPartyCalendars.Add(ThirdPartyData.Item1, CalEvents);
+                }
+
+                string id = ThirdPartyData.Item2.Calendar_EventID.getCalendarEventComponent();
+
+                if (AllEventDictionary.ContainsKey(id))
+                {
+                    AllEventDictionary[id] = ThirdPartyData.Item2;
+                }
+                else
+                {
+                    AllEventDictionary.Add(id, ThirdPartyData.Item2);
+                }
+            }
+
+            retrievedThirdParty = true;
+        }
+
+        
+
         protected void initializeThirdPartyCalendars()
         {
             ThirdPartyCalendars = new Dictionary<ThirdPartyControl.CalendarTool, List<CalendarEvent>>();
-
-            
         }
 
         public void updateThirdPartyCalendars(ThirdPartyControl.CalendarTool calendarOption, IEnumerable<CalendarEvent> calendarEvents)
@@ -329,6 +361,11 @@ namespace TilerCore
             return myCalendarEvent.getSubEvent(new EventID(EventID));
         }
 
+        public IEnumerable<CalendarEvent> getGoogleCalendarEvents()
+        {
+            List<CalendarEvent> retValue = this.ThirdPartyCalendars[ThirdPartyControl.CalendarTool.google];
+            return retValue;
+        }
 
         public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> UpdateCalEventTimeLine(CalendarEvent myCalendarEvent, TimeLine NewTimeLine)
         {

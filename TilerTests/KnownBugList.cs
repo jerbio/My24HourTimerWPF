@@ -12,17 +12,23 @@ namespace TilerTests
     [TestClass]
     public class KnownBugList
     {
-        //[TestMethod]
-        //public void dump_template()
-        //{
-        //    string scheduleId = "87ea0a48-4429-4cee-9107-70c1b014f83e";
-        //    Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
-        //    var scheduleAndDump = TestUtility.getSchedule(scheduleId);
-        //    ScheduleDump dump = scheduleAndDump.Item2;
-        //    TestSchedule schedule = scheduleAndDump.Item1 as TestSchedule;
-        //    add9_5WorkSchedule(schedule);
-        //    schedule.WriteFullScheduleToOutlook();
-        //}
+
+        /*
+         * This test tries to see that there is sufficent diversity. Read notes scheule dump nodes
+         * The 
+        */
+        /// <summary>
+        /// Template for running test environment through log files
+        /// </summary>
+        [TestMethod]
+        public void file_f64b4f1c()
+        {
+            string scheduleId = "2694d3bf-cf8d-43a9-9877-e7d168119f74";
+            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+            Schedule schedule = scheduleAndDump.Item1;
+            schedule.FindMeSomethingToDo(currentLocation).Wait();
+        }
 
         public void add9_5WorkSchedule (Schedule schedule)
         {

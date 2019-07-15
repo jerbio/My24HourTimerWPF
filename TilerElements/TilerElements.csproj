@@ -109,6 +109,7 @@
     <Compile Include="BusyTimeLine.cs" />
     <Compile Include="CalendarEvent.cs" />
     <Compile Include="CalendarEventRestricted.cs" />
+    <Compile Include="CalEvent.cs" />
     <Compile Include="DataRetrivalOption.cs" />
     <Compile Include="GoogleCalendarEvent.cs" />
     <Compile Include="GoogleSubCalendarEvent.cs" />

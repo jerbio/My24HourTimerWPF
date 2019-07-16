@@ -2769,8 +2769,6 @@ namespace TilerCore
             IDictionary<DayTimeLine, OptimizedPath> dayToOptimization = null;
             List<DayTimeLine> OptimizedDays = AllDayTImeLine.Take(optimizedDayLimit).ToList();
             List<BlobSubCalendarEvent> afterPathOptimizationConflictingEvetns = Utility.getConflictingEvents(TotalActiveEvents.OrderBy(obj => obj.Start).ToList());
-            List<SubCalendarEvent> ordereByStartTime = TotalActiveEvents.OrderBy(SubEvent => SubEvent.Start).ToList();
-            tryToRemoveConflicts(ordereByStartTime, AllDayTImeLine, callLocation);
             if (Optimize)
             {
                 ulong FirstIndex = AllDayTImeLine[0].UniversalIndex;
@@ -2796,7 +2794,18 @@ namespace TilerCore
                     throw E;
                 } 
             }
-            
+            List<SubCalendarEvent> ordereByStartTime = TotalActiveEvents.OrderBy(SubEvent => SubEvent.Start).ToList();
+            List<BlobSubCalendarEvent> blobSubEvents = Utility.getConflictingEvents(ordereByStartTime);
+            List<SubCalendarEvent> subEventsUnOptimized = blobSubEvents.SelectMany(blobEvent => blobEvent.getSubCalendarEventsInBlob()).Where(subEvent => !subEvent.isOptimized).ToList();
+            subEventsUnOptimized.ForEach(subEvent =>
+            {
+                DayTimeLine dayTimeLine = Now.getDayTimeLineByDayIndex(subEvent.UniversalDayIndex);
+                subEvent.ParentCalendarEvent.undesignateSubEvent(subEvent);
+                dayTimeLine.RemoveSubEvent(subEvent.Id);
+
+            });
+
+            tryToRemoveConflicts(ordereByStartTime, AllDayTImeLine, callLocation);
 
 
             return totalNumberOfEvents;
@@ -2841,8 +2850,8 @@ namespace TilerCore
                         var timeLineAndSubEvents = getThreeContinuousDay(AllDayTImeLine, index);
                         TimelineWithSubcalendarEvents timeLine = timeLineAndSubEvents.Item1;
                         List<SubCalendarEvent> singleTonList = new List<SubCalendarEvent> { subEvent };
-                        IEnumerable<SubCalendarEvent> alreadyAssignedSubEvens = timeLine.getSubEventsInTimeLine()
-                            .OrderBy(obj => obj.Start);
+                        List<SubCalendarEvent> alreadyAssignedSubEvens = timeLine.getSubEventsInTimeLine()
+                            .OrderBy(obj => obj.Start).ToList();
 
                         List<SubCalendarEvent> Reassigned = StitchUnrestricted(timeLine, alreadyAssignedSubEvens.ToList(), alreadyAssignedSubEvens.Concat(singleTonList).ToList());
                         if (Reassigned.Contains(subEvent))
@@ -2888,9 +2897,9 @@ namespace TilerCore
                 indexes[1] = beforeIndex;
                 indexes[2] = index;
             }
-            TimelineWithSubcalendarEvents first = orderedTimeLines[0];
-            TimelineWithSubcalendarEvents second = orderedTimeLines[1];
-            TimelineWithSubcalendarEvents third = orderedTimeLines[2];
+            TimelineWithSubcalendarEvents first = orderedTimeLines[indexes[0]];
+            TimelineWithSubcalendarEvents second = orderedTimeLines[indexes[1]];
+            TimelineWithSubcalendarEvents third = orderedTimeLines[indexes[2]];
             IEnumerable<SubCalendarEvent> allSubEVents = first.getSubEventsInTimeLine().Concat(second.getSubEventsInTimeLine()).Concat(third.getSubEventsInTimeLine());
             TimelineWithSubcalendarEvents retValue = new TimelineWithSubcalendarEvents(first.Start, third.End, allSubEVents) ;
             return new Tuple<TimelineWithSubcalendarEvents, IEnumerable<SubCalendarEvent>>(retValue, allSubEVents);

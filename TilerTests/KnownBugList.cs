@@ -20,14 +20,32 @@ namespace TilerTests
         /// <summary>
         /// Template for running test environment through log files
         /// </summary>
+
+        //[TestMethod]
+        //public void file_template()
+        //{
+        //    string scheduleId = "bee315a3-14fd-448a-83e4-d1caff27bdab";
+        //    Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+        //    var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+        //    Schedule schedule = scheduleAndDump.Item1;
+        //    schedule.FindMeSomethingToDo(currentLocation).Wait();
+        //}
+
+
         [TestMethod]
         public void file_f64b4f1c()
         {
-            string scheduleId = "2694d3bf-cf8d-43a9-9877-e7d168119f74";
+            string scheduleId = "bee315a3-14fd-448a-83e4-d1caff27bdab";
             Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
             var scheduleAndDump = TestUtility.getSchedule(scheduleId);
             Schedule schedule = scheduleAndDump.Item1;
             schedule.FindMeSomethingToDo(currentLocation).Wait();
+            DateTimeOffset currDay = schedule.Now.constNow.AddDays(2);
+            DayTimeLine dayTimeLine = schedule.Now.getDayTimeLineByTime(currDay);
+            //(schedule as TestSchedule).WriteFullScheduleToOutlook();
+            var confilctBlob = Utility.getConflictingEvents(dayTimeLine.getSubEventsInTimeLine());
+            Assert.IsFalse(confilctBlob.Count >= 1);
+
         }
 
         public void add9_5WorkSchedule (Schedule schedule)

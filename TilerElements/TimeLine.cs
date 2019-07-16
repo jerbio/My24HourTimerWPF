@@ -166,6 +166,15 @@ namespace TilerElements
             }
         }
 
+        /// <summary>
+        /// function removes a busytimeline to the active time slot of a timeline. It checks if the busyTImeLine will interfer. It only adds the section or frame that interfers. Any excess is cut out
+        /// </summary>
+        /// <param name="busyTimeLine"></param>
+        virtual public void RemoveBusySlots(BusyTimeLine busyTimeLine)//Hack Alert further update will be to check if it interferes
+        {
+            ActiveTimeSlots = new ConcurrentBag<BusyTimeLine>(ActiveTimeSlots.Where(timeLine => busyTimeLine != timeLine));
+        }
+
         virtual public void AddBusySlots(IEnumerable<BusyTimeLine> MyBusySlot)//Hack Alert further update will be to check if it busy slots fall within range of the timeLine
         {
             IEnumerable<BusyTimeLine> AllBusyTImeLine = MyBusySlot.Where(obj => obj.doesTimeLineInterfere(this));

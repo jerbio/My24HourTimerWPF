@@ -13,6 +13,8 @@ namespace TilerElements
         public static TimeSpan ZeroTimeSpan = new TimeSpan(0);
         protected DateTimeOffset StartDateTime;
         protected DateTimeOffset EndDateTime;
+        protected DateTimeOffset TempStartDateTime;
+        protected DateTimeOffset TempEndDateTime;
         protected bool _Complete = false;
         protected bool _Enabled = true;
         protected bool _UserDeleted = false;
@@ -162,6 +164,18 @@ namespace TilerElements
                 List<OptimizedGrouping> updatedGroupingOrder = evaluateDayPreference(validGroupings);
                 DaySectionPreference.setPreferenceOrder(updatedGroupingOrder.Select(group => group.DaySector).ToList());
             }
+        }
+
+        public virtual void storeTimeLine()
+        {
+            TempStartDateTime = StartDateTime;
+            TempEndDateTime = EndDateTime;
+        }
+
+        public virtual void restoreTimeLine()
+        {
+            StartDateTime = TempStartDateTime;
+            EndDateTime = TempEndDateTime;
         }
 
         #region undoFunctions

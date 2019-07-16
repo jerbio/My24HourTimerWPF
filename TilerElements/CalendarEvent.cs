@@ -1631,6 +1631,12 @@ namespace TilerElements
                 }
             }
         }
+
+        public virtual void undesignateSubEvent(SubCalendarEvent subEvent)
+        {
+            UnDesignables.Add(subEvent);
+            subEvent.undesignate();
+        }
         #endregion
 
         #region Properties

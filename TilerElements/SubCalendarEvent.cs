@@ -9,6 +9,7 @@ namespace TilerElements
     {
         public static DateTimeOffset InitialPauseTime  = new DateTimeOffset();
         protected BusyTimeLine BusyFrame;
+        protected BusyTimeLine TempBusyFrame;
         protected TimeLine _CalendarEventRange;
         protected DateTimeOffset _CalendarEventRangeStart;
         protected DateTimeOffset _CalendarEventRangeEnd;
@@ -224,6 +225,17 @@ namespace TilerElements
             }
         }
 
+        public override void storeTimeLine()
+        {
+            base.storeTimeLine();
+            TempBusyFrame = BusyFrame;
+        }
+
+        public override void restoreTimeLine()
+        {
+            base.restoreTimeLine();
+            BusyFrame = TempBusyFrame;
+        }
 
         public void tempLockSubEvent()
         {
@@ -361,6 +373,11 @@ namespace TilerElements
         public void updateDayIndex(ulong DayIndex)
         {
             this.preferredDayIndex = DayIndex;
+        }
+
+        internal void undesignate()
+        {
+            this.preferredDayIndex = 0;
         }
 
         public static void updateDayIndex(ulong DayIndex, IEnumerable<SubCalendarEvent> AllSUbevents)

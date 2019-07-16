@@ -127,6 +127,20 @@ namespace TilerElements
             return RetValue;
         }
 
+        public virtual void RemoveSubEvent(string subEventId)
+        {
+            EventID eventId = new EventID(subEventId);
+            SubCalendarEvent subEvent = SubCalendarEvent.getEmptySubCalendarEvent(eventId);
+            bool removeSuccess = false;
+            while(!removeSuccess)
+            {
+                removeSuccess = AllocatedSubEvents.TryRemove(subEventId, out subEvent);
+            }
+            base.RemoveBusySlots(subEvent.ActiveSlot);
+            updateOccupancyOfTimeLine();
+            updateAverageLocation();
+        }
+
         public override void Empty()
         {
             AllocatedSubEvents = new ConcurrentDictionary<string, SubCalendarEvent>();

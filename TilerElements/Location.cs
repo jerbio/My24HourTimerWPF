@@ -385,7 +385,7 @@ namespace TilerElements
 
         public void update(Location location)
         {
-            this._TaggedAddress = location._TaggedDescription;
+            this._TaggedAddress = location._TaggedAddress;
             this._TaggedDescription = location._TaggedDescription;
             this._Latitude = location._Latitude;
             this._Longitude = location._Longitude;

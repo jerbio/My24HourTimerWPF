@@ -111,9 +111,11 @@
     <Compile Include="CalendarEventRestricted.cs" />
     <Compile Include="CalEvent.cs" />
     <Compile Include="DataRetrivalOption.cs" />
+    <Compile Include="DayConfig.cs" />
     <Compile Include="GoogleCalendarEvent.cs" />
     <Compile Include="GoogleSubCalendarEvent.cs" />
     <Compile Include="IHasId.cs" />
+    <Compile Include="EventPreference.cs" />
     <Compile Include="ScheduleDump.cs" />
     <Compile Include="SubCalEvent.cs" />
     <Compile Include="SubEventDictionary.cs" />

@@ -2618,6 +2618,7 @@ namespace TilerCore
 
             
             AllCalEvents.AsParallel().ForAll(obj => obj.initializeCalculablesAndUndesignables());
+            AllCalEvents.AsParallel().ForAll(obj => obj.DayPreference.init());
             Dictionary<string, CalendarEvent> DictOfCalEvents = AllCalEvents.ToDictionary(obj => obj.getId, obj => obj);
             Dictionary<string, SubCalendarEvent> DictOfSubEvents = TotalActiveEvents.ToDictionary(obj => obj.getId, obj => obj);
             

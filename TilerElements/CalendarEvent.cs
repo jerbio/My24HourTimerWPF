@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -17,6 +18,7 @@ namespace TilerElements
         protected TimeSpan _AverageTimePerSplit;
         protected int _CompletedCount;
         protected int _DeletedCount;
+        public EventPreference _EventDayPreference;
         protected SubEventDictionary<string, SubCalendarEvent> SubEvents;
 
         CustomErrors CalendarError = null;
@@ -1655,7 +1657,15 @@ namespace TilerElements
                 return UniqueID;
             }
         }
-        
+
+        public EventPreference DayPreference
+        {
+            get
+            {
+                return this._EventDayPreference;
+            }
+        }
+
         public bool isCalculableInitialized
         {
             get
@@ -1794,6 +1804,23 @@ namespace TilerElements
             }
         }
 
+        public string DayPreferenceId
+        {
+            get;set;
+        }
+
+        [ForeignKey("DayPreferenceId")]
+        virtual public EventPreference DayPreference_DB
+        {
+            get
+            {
+                return _EventDayPreference;
+            }
+            set
+            {
+                _EventDayPreference = value;
+            }
+        }
         virtual public double AverageTimeSpanPerSubEvent_DB
         {
             set

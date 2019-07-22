@@ -18,19 +18,26 @@ namespace TilerElements
         TimeLine ComputationBound;// = new TimeLine(new DateTimeOffset(DateTimeOffset.UtcNow.Year, DateTimeOffset.UtcNow.Month, DateTimeOffset.UtcNow.Day, 0, 0, 0, new TimeSpan()), new DateTimeOffset(DateTimeOffset.UtcNow.Year, DateTimeOffset.UtcNow.Month, DateTimeOffset.UtcNow.Day, 0, 0, 0, new TimeSpan()).AddDays(90));
         DateTimeOffset startOfDay;
         DayTimeLine refFirstDay;
+        DayOfWeek _ConstDayOfTheWeek;// this should be day of the week that constNow falls into. This belongs to the day of the week the of the timezone the request is coming from and not the time zone of the machine
         protected DayTimeLine[] AllDays;
         Dictionary<ulong, DayTimeLine> DayLookUp;
         public TimeSpan SleepSpan = new TimeSpan(0, 8, 0, 0, 0);
+        protected TimeSpan TimeZoneDiff;
         ulong lastDayIndex = 0;
         uint DayCount;
 
-        public ReferenceNow(DateTimeOffset Now, DateTimeOffset StartOfDay)
+        public ReferenceNow(DateTimeOffset Now, DateTimeOffset StartOfDay, TimeSpan timeDifference)
         {
             StarTime = new DateTimeOffset(1970, 1, 1, StartOfDay.Hour, StartOfDay.Minute, 0, new TimeSpan());
             Now = new DateTimeOffset(Now.Year, Now.Month, Now.Day, Now.Hour, Now.Minute, 0, new TimeSpan());
             CalculationNow = Now;
             ImmutableNow = CalculationNow;
             this.startOfDay = StartOfDay;
+            DateTimeOffset currentTime = new DateTimeOffset(ImmutableNow.Year, ImmutableNow.Month, ImmutableNow.Day, 0,0,0, new TimeSpan());
+            DayOfWeek currentDayOfWeek = currentTime.DayOfWeek;
+            DateTimeOffset startTimeForDayOfweek = currentTime.Subtract(timeDifference);
+            TimeZoneDiff = timeDifference;
+            _ConstDayOfTheWeek = getDayOfTheWeek(ImmutableNow).Item1;
             InitializeParameters();
             
         }
@@ -123,6 +130,82 @@ namespace TilerElements
             throw new Exception(errorMessage);
         }
 
+        /// <summary>
+        /// This function tries to get the day of the for which "time" is provided. Note this is based on the timezone for which this got instantiated so for example if the data member "TimeZoneDiff" is -9:00 and current time is on Saturday 7/20/2019 1:00AM (UTC) this is saturday in UTC
+        /// but still Friday 7/20/2019 3:00PM (-9:00UTC) this function will return friday and the full 24 hours of the friday.
+        /// The timeline will be based on timezondiff, meaning shifted accordingly. SO if the data member "TimeZoneDiff" is -9:00 and current time is on Saturday 7/20/2019 1:00AM (UTC)
+        /// The timeline will be 7/20/2019 9:00AM - 7/21/2019 9:00AM This is the UTC date shifted but represents the friday frame of the -9:00 time zone 
+        /// </summary>
+        /// <param name="time"></param>
+        /// <returns></returns>
+        public Tuple<DayOfWeek, TimeLine> getDayOfTheWeek (DateTimeOffset time)
+        {
+            Tuple<DayOfWeek, TimeLine> retValue;
+            DateTimeOffset currentTime = new DateTimeOffset(time.Year, time.Month, time.Day, 0, 0, 0, new TimeSpan());
+            DayOfWeek currentDayOfWeek = currentTime.DayOfWeek;
+            DateTimeOffset startTimeForDayOfweek = currentTime.Subtract(this.TimeZoneDiff);
+            TimeLine fullDayTime = new TimeLine(startTimeForDayOfweek, startTimeForDayOfweek.AddDays(1));
+            if (fullDayTime.IsDateTimeWithin(time))
+            {
+                retValue = new Tuple<DayOfWeek, TimeLine>(currentDayOfWeek, fullDayTime) ;
+            }
+            else
+            {
+                if (time < fullDayTime.Start)
+                {
+                    DayOfWeek weekDay = (DayOfWeek)((((int)currentDayOfWeek - 1) + 7) % 7);
+
+                    retValue = new Tuple<DayOfWeek, TimeLine>(weekDay, new TimeLine(fullDayTime.Start.AddDays(-1), fullDayTime.End.AddDays(-1)));
+                }
+                else
+                {
+                    DayOfWeek weekDay = (DayOfWeek)((((int)currentDayOfWeek + 1) + 7) % 7);
+                    retValue = new Tuple<DayOfWeek, TimeLine>(weekDay, new TimeLine(fullDayTime.Start.AddDays(1), fullDayTime.End.AddDays(1)));
+                }
+            }
+
+            return retValue;
+        }
+        /// <summary>
+        /// This function gets the day of the week for which the timeline mostly conflicts with.
+        /// </summary>
+        /// <param name="time"></param>
+        /// <returns></returns>
+        public TimeLine getDayOfTheWeekTimeLine(DateTimeOffset time)
+        {
+            return getDayOfTheWeek(time).Item2;
+        }
+
+        public DayOfWeek getDayOfTheWeek(TimeLine timeLine)
+        {
+            var startOfTimeLine = getDayOfTheWeek(timeLine.Start);
+            var endTimeLine = getDayOfTheWeek(timeLine.End);
+            DayOfWeek retValue;
+            if (startOfTimeLine.Item1 == endTimeLine.Item1)
+            {
+                retValue = startOfTimeLine.Item1;
+            } else {
+                TimeLine startInterferring = startOfTimeLine.Item2.InterferringTimeLine(timeLine);
+                TimeLine endInterferring = endTimeLine.Item2.InterferringTimeLine(timeLine);
+                if(startInterferring !=null && endInterferring !=null)
+                {
+                    if (startInterferring.TimelineSpan >= endInterferring.TimelineSpan)
+                    {
+                        retValue = startOfTimeLine.Item1;
+                    }
+                    else
+                    {
+                        retValue = endTimeLine.Item1;
+                    }
+                } else
+                {
+                    retValue = startInterferring != null ? startOfTimeLine.Item1 : endTimeLine.Item1;
+                }
+            }
+
+            return retValue;
+        }
+
         public IEnumerable<DayTimeLine> getAllDaysCount(uint NumberOfDays)
         {
             List<DayTimeLine> RetValue = AllDays.Take((int)NumberOfDays).ToList();
@@ -186,6 +269,21 @@ namespace TilerElements
         {
             ulong retValue = (ulong)((myDay - StarTime).TotalDays);
             return retValue;
+        }
+
+        public DayOfWeek ConstDayOfWeek
+        {
+            get {
+                return _ConstDayOfTheWeek;
+            }
+        }
+
+        public TimeSpan TimeZoneDifference
+        {
+            get
+            {
+                return TimeZoneDiff;
+            }
         }
 
         public DateTimeOffset constNow

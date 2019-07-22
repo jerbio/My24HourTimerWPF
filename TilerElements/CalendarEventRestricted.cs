@@ -71,6 +71,7 @@ namespace TilerElements
             this._TimeZone = timeZone;
             _Now = now;
             _LocationInfo.User = this.getCreator;
+            _EventDayPreference = new EventPreference();
             InstantiateSubEvents();
         }
 
@@ -108,6 +109,7 @@ namespace TilerElements
             this._TimeZone = timeZone;
             _Now = now;
             _LocationInfo.User = this.getCreator;
+            _EventDayPreference = new EventPreference();
             InstantiateSubEvents();
         }
 
@@ -133,6 +135,7 @@ namespace TilerElements
             retValue._UiParams = UiSettings;
             retValue._PrepTime = preparation;
             retValue._Now = now;
+            retValue._EventDayPreference = new EventPreference();
             //retValue.UpdateLocationMatrix(Location);
             retValue.InstantiateSubEvents();
             
@@ -170,6 +173,7 @@ namespace TilerElements
             MyCalendarEventCopy._Semantics = this._Semantics?.createCopy();
             MyCalendarEventCopy._Now = this._Now;
             MyCalendarEventCopy._UsedTime = this._UsedTime;
+            MyCalendarEventCopy._EventDayPreference = this.DayPreference?.createCopy();
             if (eventId != null)
             {
                 MyCalendarEventCopy.UniqueID = eventId;

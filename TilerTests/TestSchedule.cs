@@ -35,9 +35,10 @@ namespace TilerTests
         async override protected Task Initialize(DateTimeOffset referenceNow)
         {
             DateTimeOffset StartOfDay = myAccount.ScheduleData.getDayReferenceTime();
-            _Now = new ReferenceNow(referenceNow, StartOfDay);
+            _Now = new ReferenceNow(referenceNow, StartOfDay, myAccount.getTilerUser().TimeZoneDifference);
             TimeLine RangeOfLookup = null;
             Tuple<Dictionary<string, CalendarEvent>, DateTimeOffset, Dictionary<string, Location>> profileData = await myAccount.ScheduleData.getProfileInfo(RangeOfLookup, _Now, retrievalOption).ConfigureAwait(false);
+            myAccount.Now = _Now;
             if (profileData != null)
             {
                 DateTimeOffset referenceDayTimeNow = new DateTimeOffset(Now.calculationNow.Year, Now.calculationNow.Month, Now.calculationNow.Day, profileData.Item2.Hour, profileData.Item2.Minute, profileData.Item2.Second, new TimeSpan());// profileData.Item2;
@@ -70,7 +71,7 @@ namespace TilerTests
 
         public TestSchedule(ScheduleDump scheduleDump, UserAccount AccountEntry, uint LatestId = 0) : base(AccountEntry, scheduleDump.ReferenceNow)
         {
-            _Now = new ReferenceNow(scheduleDump.ReferenceNow, scheduleDump.StartOfDay);
+            _Now = new ReferenceNow(scheduleDump.ReferenceNow, scheduleDump.StartOfDay, myAccount.getTilerUser().TimeZoneDifference);
             this.myAccount.ScheduleLogControl.Now = _Now;
             var scheduleData = AccountEntry.ScheduleLogControl.getAllCalendarFromXml(scheduleDump);
             AllEventDictionary = scheduleData.Item1;

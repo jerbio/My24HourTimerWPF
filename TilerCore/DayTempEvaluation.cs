@@ -19,7 +19,8 @@ namespace TilerCore
 
         public double [] toMultiArrayDict()
         {
-            return new double[] { Diff, DayIndex, TimeLineScore };
+            return new double[] { Diff, DayIndex, TimeLineScore
+                , TimeLineScore };// artificially giving the score more importance
         }
     }
 }

@@ -188,7 +188,7 @@ namespace TilerElements
             }
             else
             {
-                ReferenceNow now = new ReferenceNow(_initializingRange.Start, MyParentEvent.getCreator.EndfOfDay);
+                ReferenceNow now = new ReferenceNow(_initializingRange.Start, MyParentEvent.getCreator.EndfOfDay, new TimeSpan());
                 TimeLine dayTImeLine = now.getDayTimeLineByTime(_initializingRange.Start);
                 EachRepeatCalendarStart = dayTImeLine.Start;//Start DateTimeOffset Object for each recurring Calendar Event
                 EachRepeatCalendarEnd = IncreaseByFrequency(dayTImeLine.Start, getFrequency, MyParentEvent.getCreator.TimeZone);//  we want the calendar event range to end based on what repeat frequency is selected. E.g if the Calendar event is WEEKLY and the initial range from 10/14/2018 - 10/23/2018(which is over a week), then the we want each calendar event to weekly, so the first calendar event will be 10/14/2018 12:00am - 10/21/2018 11:59PM
@@ -220,14 +220,18 @@ namespace TilerElements
             {
                 MyArrayOfRepeatingCalendarEvents.Add(MyRepeatCalendarEvent);
                 _DictionaryOfIDAndCalendarEvents.Add(MyRepeatCalendarEvent.getId, MyRepeatCalendarEvent);
+                TimeSpan repeatSpan = EachRepeatCalendarEnd - EachRepeatCalendarStart;
                 EachRepeatCalendarStart = IncreaseByFrequency(EachRepeatCalendarStart, getFrequency); ;
                 EachRepeatCalendarEnd = IncreaseByFrequency(EachRepeatCalendarEnd, getFrequency);
+                TimeSpan nextCalTimeSpan = EachRepeatCalendarEnd - EachRepeatCalendarStart;
                 if (EachRepeatCalendarEnd > MyParentEvent.Repeat.Range.End)
                 {
                     EachRepeatCalendarEnd = MyParentEvent.Repeat.Range.End;
                 }
 
-                if (EachRepeatCalendarStart > MyParentEvent.Repeat.Range.End || ((EachRepeatCalendarEnd - EachRepeatCalendarStart) < MyRepeatCalendarEvent.AverageTimeSpanPerSubEvent))
+                if (EachRepeatCalendarStart > MyParentEvent.Repeat.Range.End ||  // if start time is past the repeat timeline
+                    ((EachRepeatCalendarEnd - EachRepeatCalendarStart) < MyRepeatCalendarEvent.AverageTimeSpanPerSubEvent) || // if timespan is less than time span of sub events
+                    nextCalTimeSpan < repeatSpan) // if next timeline span is less than span meant for each calendar event
                 {
                     break;
                 }
@@ -265,7 +269,7 @@ namespace TilerElements
                 return;
             }
 
-            ReferenceNow now = new ReferenceNow(_initializingRange.Start, MyParentEvent.getCreator.EndfOfDay);
+            ReferenceNow now = new ReferenceNow(_initializingRange.Start, MyParentEvent.getCreator.EndfOfDay, new TimeSpan());
             TimeLine dayTImeLine = now.getDayTimeLineByTime(_initializingRange.Start);
             DateTimeOffset EachRepeatCalendarStart = dayTImeLine.Start;//Start DateTimeOffset Object for each recurring Calendar Event
             DateTimeOffset EachRepeatCalendarEnd = IncreaseByFrequency(dayTImeLine.Start, getFrequency, MyParentEvent.getCreator.TimeZone);//  we want the calendar event range to end based on what repeat frequency is selected. E.g if the Calendar event is WEEKLY and the initial range from 10/14/2018 - 10/23/2018(which is over a week), then the we want each calendar event to weekly, so the first calendar event will be 10/14/2018 12:00am - 10/21/2018 11:59PM

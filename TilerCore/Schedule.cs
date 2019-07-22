@@ -67,6 +67,7 @@ namespace TilerCore
         protected TilerUser TilerUser;
         protected int LatesMainID;
         string CurrentTimeZone = "UTC";
+        TimeSpan TimeZoneDifference = new TimeSpan();
         protected Location CurrentLocation;
 
         protected double PercentageOccupancy = 0;
@@ -108,7 +109,8 @@ namespace TilerCore
         {
             AllEventDictionary = allEventDictionary;
             TilerUser = user;
-            _Now = new ReferenceNow(referenceNow, starOfDay);
+            TimeZoneDifference = user.TimeZoneDifference;
+            _Now = new ReferenceNow(referenceNow, starOfDay, TimeZoneDifference);
             this.Locations = locations;
         }
 
@@ -191,7 +193,7 @@ namespace TilerCore
             CalendarEvent calEvent = getCalendarEvent(eventId);
             DateTimeOffset newStartTime= Now.constNow + pushSpan;
 
-            var beforeNow = new ReferenceNow(Now.constNow, Now.StartOfDay);
+            var beforeNow = new ReferenceNow(Now.constNow, Now.StartOfDay, Now.TimeZoneDifference);
             Health beforeChange = new Health(getAllCalendarEvents().Where(obj => obj.isActive).Select(obj => obj.createCopy()), beforeNow.constNow, assessmentWindow.TimelineSpan, beforeNow, this.getHomeLocation);
             if (CurrentLocation == null)
             {
@@ -228,7 +230,7 @@ namespace TilerCore
             {
                 CurrentTimeZone = "UTC";
             }
-            var beforeNow = new ReferenceNow(Now.constNow, Now.StartOfDay);
+            var beforeNow = new ReferenceNow(Now.constNow, Now.StartOfDay, Now.TimeZoneDifference);
             var beforeCalevents = getAllCalendarEvents().Where(obj => obj.isActive).Select(obj => obj.createCopy());
             List<SubCalendarEvent> subEVents = beforeCalevents.SelectMany(calEvent => calEvent.ActiveSubEvents).Where(subEvent => !subEvent.isDesignated).ToList();
             var orderedDayTimeLines = beforeNow.getAllDaysLookup().OrderBy(obj => obj.Key).Select(obj => obj.Value);
@@ -237,7 +239,7 @@ namespace TilerCore
             var  procradstinateResult = this.ProcrastinateAll(pushSpan);
 
             var afterSubEVents = procradstinateResult.Item2.Values.Where(obj => obj.isActive).SelectMany(calEvent => calEvent.ActiveSubEvents).Where(subEvent => { subEvent.resetAndgetUnUsableIndex(); return true; });//.Where(subEvent => !subEvent.isDesignated).ToList();
-            var afterNow = new ReferenceNow(Now.constNow, Now.StartOfDay);
+            var afterNow = new ReferenceNow(Now.constNow, Now.StartOfDay, Now.TimeZoneDifference);
             var afterCalevents = procradstinateResult.Item2.Values.Where(obj => obj.isActive);
             var afterorderedDayTimeLines = afterNow.getAllDaysLookup().OrderBy(obj => obj.Key).Select(obj => obj.Value);
             DesignateSubEventsToDayTimeLine(afterorderedDayTimeLines.ToArray(), afterSubEVents);
@@ -561,7 +563,7 @@ namespace TilerCore
 
         public Location getLocation(string locationDescription)
         {
-            Location retValue = this.Locations[locationDescription];
+            Location retValue = this.Locations[locationDescription.ToLower()];
             return retValue;
         }
 
@@ -1011,8 +1013,8 @@ namespace TilerCore
 
         public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> SetCalendarEventAsNow(string CalendarID, bool Force = false)
         {
-            CalendarEvent CalendarEvent = getCalendarEvent(CalendarID);
-            IEnumerable<SubCalendarEvent> orderedSubEvents = CalendarEvent.ActiveSubEvents.OrderBy(obj => obj.Start);
+            CalendarEvent calendarEvent = getCalendarEvent(CalendarID);
+            IEnumerable<SubCalendarEvent> orderedSubEvents = calendarEvent.ActiveSubEvents.OrderBy(obj => obj.Start);
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(new CustomErrors("No Active Event Found", 100), null);
             if (orderedSubEvents.Count() > 0)
             {
@@ -1027,7 +1029,9 @@ namespace TilerCore
         {
             CalendarEvent referenceCalendarEvent = getCalendarEvent(EventID);
             SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
-
+            referenceCalendarEvent.DayPreference.init();
+            var dayPreference = referenceCalendarEvent.DayPreference[Now.ConstDayOfWeek];
+            ++dayPreference.Count;
             NowProfile myNow = new NowProfile(Now.constNow, true);
             
             EventID SubEventID = new EventID(EventID);
@@ -3124,6 +3128,7 @@ namespace TilerCore
         {
             
             List<Tuple<ulong,SubCalendarEvent>> retValue = new List<Tuple<ulong,SubCalendarEvent>>();
+            List<TimeLine> daysSelected = new List<TimeLine>();
             if (AllSubEvents.Count > 0)
             {
                 Procrastination procrastinationProfile = AllSubEvents[0].getProcrastinationInfo;
@@ -3146,8 +3151,10 @@ namespace TilerCore
 
                 List<mTuple<bool, DayTimeLine>> beforeProcrastination = OptimizedDayTimeLine.Where(obj => !obj.Item1).ToList();
                 OptimizedDayTimeLine = OptimizedDayTimeLine.GetRange(beforeProcrastination.Count, OptimizedDayTimeLine.Count - beforeProcrastination.Count).Concat(beforeProcrastination).ToList();// this reorders all the days with before or on procrastination to the back of list
-                List<DayBag> dayBags = bagsPerDay.DayBags().GetRange(OptimizedDayTimeLine.First().Item2.BoundedIndex, OptimizedDayTimeLine.Count);
-                List<double> timeLineScores = calEvent.EvaluateTimeLines(OptimizedDayTimeLine.Select(timeLine => (TimelineWithSubcalendarEvents)timeLine.Item2).ToList());
+                int bagCount = bagsPerDay.DayBags().Count;
+                List<DayBag> dayBags = bagsPerDay.DayBags().GetRange(OptimizedDayTimeLine.First().Item2.BoundedIndex, bagCount - OptimizedDayTimeLine.First().Item2.BoundedIndex)
+                    .Concat(bagsPerDay.DayBags().GetRange(0, OptimizedDayTimeLine.First().Item2.BoundedIndex + 1)).ToList();
+                List<double> timeLineScores = calEvent.EvaluateTimeLines(OptimizedDayTimeLine.Select(timeLine => (TimelineWithSubcalendarEvents)timeLine.Item2).ToList(), Now);
 
                 List<IList<double>> combinedDOubles = timeLineScores.Select((score, i) => {
                     IList<double> comValue = new List<double> { score, dayBags[i].Score };
@@ -3189,13 +3196,15 @@ namespace TilerCore
                 };
 
                 List<mTuple<double, DayTimeLine>> orderedOnEvaluation = dayIndexToTImeLine.Where(tuple => !double.IsNaN(tuple.Item2)).OrderBy(tuple => tuple.Item2).Select(tuple => new mTuple<double, DayTimeLine>(tuple.Item2, tuple.Item3)).ToList();
-                List<ulong> dayIndexes = orderedOnEvaluation.Select(obj => obj.Item2.UniversalIndex).OrderBy(dayIndex => dayIndex).ToList();
+                List<ulong> dayIndexes = orderedOnEvaluation.Select(obj => obj.Item2.UniversalIndex).ToList();
                 List<DayTimeLine> useUpOrder = new List<DayTimeLine>();
                 mTuple<double, DayTimeLine> lastDaySelected = orderedOnEvaluation.FirstOrDefault();
+
                 if(lastDaySelected != null)
                 {
                     ulong selectedDayIndex = lastDaySelected.Item2.UniversalIndex;
                     SubCalendarEvent subEvent = AllSubEvents.First();
+                    daysSelected.Add(lastDaySelected.Item2);
                     retValue.Add(new Tuple<ulong, SubCalendarEvent>(selectedDayIndex, subEvent));
                     useUpOrder.Add(lastDaySelected.Item2);
                     if (orderedOnEvaluation.Count != 0)
@@ -3234,6 +3243,7 @@ namespace TilerCore
                                 int lowestIndex = values.MinIndex();
                                 lastDaySelected = orderedOnEvaluation[lowestIndex];
                                 DayTimeLine minDayTimeLine = lastDaySelected.Item2;
+                                daysSelected.Add(lastDaySelected.Item2);
                                 retValue.Add(new Tuple<ulong, SubCalendarEvent>(minDayTimeLine.UniversalIndex, subEvent));
                                 orderedOnEvaluation.RemoveAt(lowestIndex);
                                 selectedDayIndex = lastDaySelected.Item2.UniversalIndex;

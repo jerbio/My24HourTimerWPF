@@ -1492,7 +1492,7 @@ namespace My24HourTimerWPF
 
             Stopwatch timer = new Stopwatch();
             timer.Start();
-            ReferenceNow _Now = new ReferenceNow(refNow, currentUser.getTilerUser().EndfOfDay);
+            ReferenceNow _Now = new ReferenceNow(refNow, currentUser.getTilerUser().EndfOfDay, new TimeSpan());
             Dictionary<string, CalendarEvent> allEventDictionary = await currentUser.ScheduleData.getAllCalendarFromXml(new TimeLine(refNow.AddDays(-90), refNow.AddDays(90)), _Now).ConfigureAwait(false);
             Dictionary<string, Location> LocationCache = new Dictionary<string, Location>();
 

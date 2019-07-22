@@ -131,6 +131,7 @@ namespace TilerElements
             this.TimeCreated = DateTimeOffset.UtcNow;
             this._Semantics = semantics ?? new Classification(this);
             _LocationInfo.User = this.getCreator;
+            _EventDayPreference = new EventPreference();
         }
 
         public CalendarEvent(
@@ -231,6 +232,7 @@ namespace TilerElements
             _TimeZone = MyUpdated._TimeZone;
             _isProcrastinateEvent = MyUpdated._isProcrastinateEvent;
             ThirdPartyTypeInfo = MyUpdated.ThirdPartyTypeInfo;
+            _EventDayPreference = MyUpdated._EventDayPreference;
         }
         #endregion
 
@@ -402,6 +404,7 @@ namespace TilerElements
             this.TimeCreated = DateTimeOffset.UtcNow;
             _Semantics = new Classification(this);
             _LocationInfo.User = this.getCreator;
+            _EventDayPreference = new EventPreference();
         }
 
         /// <summary>
@@ -498,6 +501,7 @@ namespace TilerElements
             MyCalendarEventCopy._otherPartyID = _otherPartyID == null ? null : _otherPartyID.ToString();
             MyCalendarEventCopy._Users = this._Users;
             MyCalendarEventCopy.DaySectionPreference = this.DaySectionPreference;
+            MyCalendarEventCopy._EventDayPreference = this.DayPreference?.createCopy();
             return MyCalendarEventCopy;
         }
 
@@ -938,7 +942,7 @@ namespace TilerElements
         /// <param name="timeLines"></param>
         /// <param name="borderLocations"></param>
         /// <returns></returns>
-        public override List<double> EvaluateTimeLines(List<TimelineWithSubcalendarEvents> timeLines, List<Tuple<Location, Location>> borderLocations = null)
+        public virtual List<double> EvaluateTimeLines(List<TimelineWithSubcalendarEvents> timeLines, ReferenceNow referenceNow, List<Tuple<Location, Location>> borderLocations = null)
         {
             List<IList<double>> multiDimensionalCalculation = new List<IList<double>>();
             List<TimelineWithSubcalendarEvents> validTimeLine = timeLines.Select(timeLine => {
@@ -961,7 +965,10 @@ namespace TilerElements
                     double tickRatio = (double)this.getActiveDuration.Ticks / totalInterferringSpan.Ticks;
                     double occupancy = (double)timeline.Occupancy;
                     double availableSpanRatio = (double)totalInterferringSpan.Ticks / totalAvailableSpan.Ticks;
-                    IList<double> dimensionsPerDay = new List<double>() { distance, tickRatio, occupancy };
+                    DayOfWeek weekDay = referenceNow.getDayOfTheWeek(timeline);
+                    int dayIndexScore =  DayPreference.OrderedDayConfigs.FindIndex(obj => obj.WeekDay == weekDay);
+
+                    IList<double> dimensionsPerDay = new List<double>() { distance, tickRatio, occupancy, dayIndexScore };
                     multiDimensionalCalculation.Add(dimensionsPerDay);
                 }
                 else

@@ -757,7 +757,7 @@ namespace TilerTests
         }
 
         /// <summary>
-        /// Test creates a scenario where the origin calendar event has timeline that is wider than a day, but greater than repeat range
+        /// Test creates a scenario where the origin calendar event has timeline that is wider than a day, and greater than repeat range
         /// </summary>
         [TestMethod]
         public void TestCreationCalendarEvent ()
@@ -786,7 +786,8 @@ namespace TilerTests
             DayOfWeek dayOfWeek = repetitionRange.Start.DayOfWeek;
             for (int index = 0; index < subEvents.Count; index++)
             {
-                Assert.AreEqual(subEvents[index].Start.DayOfWeek, dayOfWeek);
+                var subEvent = subEvents[index];
+                Assert.IsTrue(subEvent.End < repetitionRange.End);
             }
         }
 

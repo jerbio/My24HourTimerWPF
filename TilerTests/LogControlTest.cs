@@ -84,20 +84,11 @@ namespace TilerTests
                                 .Select(subEvent => subEvent.UiParams_EventDB))
                             .Include(calEvent => calEvent.AllSubEvents_DB
                                 .Select(subEvent => subEvent.UiParams_EventDB.UIColor)
-                            );
+                            ).Include(calEvent => calEvent.DayPreference_DB); ;
                     }
-                    else if (retrievalOption == DataRetrivalOption.UiSingle)
+                    else if (retrievalOption == DataRetrivalOption.Evaluation)
                     {
-                        if (!string.IsNullOrEmpty(singleCalEventId) && !string.IsNullOrWhiteSpace(singleCalEventId))
-                        {
-                            calEVents = calEVents.Where(calEvent => calEvent.Id == singleCalEventId)
-                            .Include(calEvent => calEvent.UiParams_EventDB)
-                            .Include(calEvent => calEvent.AllSubEvents_DB.Select(subEvent => subEvent.UiParams_EventDB));
-                        }
-                        else
-                        {
-                            throw new ArgumentException("singleCalEventId cannot be null, empty or white space");
-                        }
+                        calEVents = calEVents.Include(calEvent => calEvent.DayPreference_DB);
                     }
                 }
                 Dictionary<string, CalendarEvent> MyCalendarEventDictionary = calEVents

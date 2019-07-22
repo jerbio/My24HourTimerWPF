@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace TilerElements
 {
+    [Serializable]
     public class EventPreference
     {
         string _Id { get; set; }
@@ -70,67 +73,168 @@ namespace TilerElements
         public double SaturdayEveningCount { get; set; } = 0;
         public double SaturdayNightCount { get; set; } = 0;
 
+        [XmlIgnore]
         DayConfig _SundayPreference;
+        [XmlIgnore]
         DayConfig _MondayPreference;
+        [XmlIgnore]
         DayConfig _TuesdayPreference;
+        [XmlIgnore]
         DayConfig _WednesdayPreference;
+        [XmlIgnore]
         DayConfig _ThursdayPreference;
+        [XmlIgnore]
         DayConfig _FridayPreference;
+        [XmlIgnore]
         DayConfig _SaturdayPreference;
-        public List<DayConfig> DayConfigs;
+        protected List<DayConfig> _DayConfigs;
+        protected List<DayConfig> _OrderedDayConfigs;
 
         public void init ()
         {
-            _SundayPreference = new SundayConfig();
-            _MondayPreference = new MondayConfig();
-            _TuesdayPreference = new TuesdayConfig();
-            _WednesdayPreference = new WednesdayConfig();
-            _ThursdayPreference = new ThursdayConfig();
-            _FridayPreference = new FridayConfig();
-            _SaturdayPreference = new SaturdayConfig();
+            _SundayPreference = new SundayConfig() { Preference = this };
+            _MondayPreference = new MondayConfig() { Preference = this };
+            _TuesdayPreference = new TuesdayConfig() { Preference = this };
+            _WednesdayPreference = new WednesdayConfig() { Preference = this };
+            _ThursdayPreference = new ThursdayConfig() { Preference = this };
+            _FridayPreference = new FridayConfig() { Preference = this };
+            _SaturdayPreference = new SaturdayConfig() { Preference = this };
 
-            DayConfigs = new List<DayConfig>()
+            _DayConfigs = new List<DayConfig>()
             {
                 _SundayPreference, _MondayPreference, _TuesdayPreference, _WednesdayPreference, _ThursdayPreference, _FridayPreference, _SaturdayPreference
             };
+
+            updateConfigOrder();
+        }
+
+        public EventPreference createCopy(string eventId = null)
+        {
+            EventPreference retValue = new EventPreference();
+            retValue.SundayLastTimeUpdated = this.SundayLastTimeUpdated;
+            retValue.SundayCount = this.SundayCount;
+            retValue.SundayDawnCount = this.SundayDawnCount;
+            retValue.SundayMorningCount = this.SundayMorningCount;
+            retValue.SundayAfterNoonCount = this.SundayAfterNoonCount;
+            retValue.SundayEveningCount = this.SundayEveningCount;
+            retValue.SundayNightCount = this.SundayNightCount;
+            retValue.MondayLastTimeUpdated = this.MondayLastTimeUpdated;
+            retValue.MondayCount = this.MondayCount;
+            retValue.MondayDawnCount = this.MondayDawnCount;
+            retValue.MondayMorningCount = this.MondayMorningCount;
+            retValue.MondayAfterNoonCount = this.MondayAfterNoonCount;
+            retValue.MondayEveningCount = this.MondayEveningCount;
+            retValue.MondayNightCount = this.MondayNightCount;
+            retValue.TuesdayLastTimeUpdated = this.TuesdayLastTimeUpdated;
+            retValue.TuesdayCount = this.TuesdayCount;
+            retValue.TuesdayDawnCount = this.TuesdayDawnCount;
+            retValue.TuesdayMorningCount = this.TuesdayMorningCount;
+            retValue.TuesdayAfterNoonCount = this.TuesdayAfterNoonCount;
+            retValue.TuesdayEveningCount = this.TuesdayEveningCount;
+            retValue.TuesdayNightCount = this.TuesdayNightCount;
+            retValue.WednesdayLastTimeUpdated = this.WednesdayLastTimeUpdated;
+            retValue.WednesdayCount = this.WednesdayCount;
+            retValue.WednesdayDawnCount = this.WednesdayDawnCount;
+            retValue.WednesdayMorningCount = this.WednesdayMorningCount;
+            retValue.WednesdayAfterNoonCount = this.WednesdayAfterNoonCount;
+            retValue.WednesdayEveningCount = this.WednesdayEveningCount;
+            retValue.WednesdayNightCount = this.WednesdayNightCount;
+            retValue.ThursdayLastTimeUpdated = this.ThursdayLastTimeUpdated;
+            retValue.ThursdayCount = this.ThursdayCount;
+            retValue.ThursdayDawnCount = this.ThursdayDawnCount;
+            retValue.ThursdayMorningCount = this.ThursdayMorningCount;
+            retValue.ThursdayAfterNoonCount = this.ThursdayAfterNoonCount;
+            retValue.ThursdayEveningCount = this.ThursdayEveningCount;
+            retValue.ThursdayNightCount = this.ThursdayNightCount;
+            retValue.FridayLastTimeUpdated = this.FridayLastTimeUpdated;
+            retValue.FridayCount = this.FridayCount;
+            retValue.FridayDawnCount = this.FridayDawnCount;
+            retValue.FridayMorningCount = this.FridayMorningCount;
+            retValue.FridayAfterNoonCount = this.FridayAfterNoonCount;
+            retValue.FridayEveningCount = this.FridayEveningCount;
+            retValue.FridayNightCount = this.FridayNightCount;
+            retValue.SaturdayLastTimeUpdated = this.SaturdayLastTimeUpdated;
+            retValue.SaturdayCount = this.SaturdayCount;
+            retValue.SaturdayDawnCount = this.SaturdayDawnCount;
+            retValue.SaturdayMorningCount = this.SaturdayMorningCount;
+            retValue.SaturdayAfterNoonCount = this.SaturdayAfterNoonCount;
+            retValue.SaturdayEveningCount = this.SaturdayEveningCount;
+            retValue.SaturdayNightCount = this.SaturdayNightCount;
+            retValue.init();
+            return retValue;
+        }
+
+        public void updateConfigOrder()
+        {
+            _OrderedDayConfigs = _DayConfigs.OrderByDescending(dayConfig => dayConfig.Count).ToList();
         }
 
         public DayConfig this[int i]
         {
             get
             {
-                return DayConfigs[i];
+                if(_DayConfigs ==null)
+                {
+                    init();
+                }
+                return _DayConfigs[i];
             }
         }
-
+        [NotMapped, XmlIgnore]
+        public List<DayConfig> DayConfigs
+        {
+            get
+            {
+                return _DayConfigs;
+            }
+        }
+        [XmlIgnore]
+        public List<DayConfig> OrderedDayConfigs
+        {
+            get
+            {
+                return _OrderedDayConfigs;
+            }
+        }
+        [XmlIgnore]
         public DayConfig this[DayOfWeek dayOfWeek]
         {
             get
             {
-                return DayConfigs[(int)dayOfWeek];
+                if (_DayConfigs == null)
+                {
+                    init();
+                }
+                return _DayConfigs[(int)dayOfWeek];
             }
         }
-
+        [XmlIgnore]
         DayConfig SundayPreference
         {
             get { return _SundayPreference; }
         }
+        [XmlIgnore]
         DayConfig MondayPreference
         {
             get { return _MondayPreference; }
         }
+        [XmlIgnore]
         DayConfig TuesdayPreference {
             get { return _TuesdayPreference; }
         }
+        [XmlIgnore]
         DayConfig WednesdayPreference { get
             { return _WednesdayPreference; }
         }
+        [XmlIgnore]
         DayConfig ThursdayPreference{
             get { return _ThursdayPreference; }
         }
+        [XmlIgnore]
         DayConfig FridayPreference {
             get { return _FridayPreference; }
         }
+        [XmlIgnore]
         DayConfig SaturdayPreference {
             get { return _SaturdayPreference; }
         }

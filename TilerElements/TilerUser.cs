@@ -37,7 +37,9 @@ namespace TilerElements
         public string ClearAllId { get; set; }
         public string LatestId { get; set; }
         public string CalendarType { get; set; } = ThirdPartyControl.CalendarTool.tiler.ToString();
+        protected TimeSpan _TimeZoneDifference;
         protected string _Id{get;set;}
+
         public override string Id
         {
             get
@@ -71,6 +73,31 @@ namespace TilerElements
             {
                 _TimeZone = value;
             }
+        }
+
+        public TimeSpan TimeZoneDifference
+        {
+            get
+            {
+                return _TimeZoneDifference;
+            }
+        }
+
+        virtual public double TimeZoneDifferenceMS_DB
+        {
+            set
+            {
+                _TimeZoneDifference = TimeSpan.FromMilliseconds(value);
+            }
+            get
+            {
+                return _TimeZoneDifference.TotalMilliseconds;
+            }
+        }
+
+        public void updateTimeZoneDifference(TimeSpan timeZoneDifference)
+        {
+            this._TimeZoneDifference = timeZoneDifference;
         }
 
         public DayOfWeek BeginningOfWeek { get; set; } = DayOfWeek.Sunday;

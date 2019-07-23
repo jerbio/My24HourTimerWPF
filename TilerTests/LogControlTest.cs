@@ -34,7 +34,7 @@ namespace TilerTests
             }
         }
 
-        public override Task<Dictionary<string, CalendarEvent>> getAllCalendarFromXml(TimeLine RangeOfLookUP, ReferenceNow Now, bool includeSubEvents = true, DataRetrivalOption retrievalOption = DataRetrivalOption.Evaluation, string singleCalEventId = null)
+        public override Task<Dictionary<string, CalendarEvent>> getAllEnabledCalendarFromXml(TimeLine RangeOfLookUP, ReferenceNow Now, bool includeSubEvents = true, DataRetrivalOption retrievalOption = DataRetrivalOption.Evaluation, string singleCalEventId = null)
         {
             if(RangeOfLookUP == null)
             {
@@ -116,7 +116,7 @@ namespace TilerTests
                 return retTask;
             } else
             {
-                return base.getAllCalendarFromXml(RangeOfLookUP, Now);
+                return base.getAllEnabledCalendarFromXml(RangeOfLookUP, Now);
             }
         }
 

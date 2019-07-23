@@ -58,9 +58,7 @@ namespace TilerTests
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 2, false);
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
 
-            user = TestUtility.getTestUser(userId: tilerUser.Id);
-            tilerUser = user.getTilerUser();
-            user.Login().Wait();
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
 
             Schedule = new TestSchedule(user, refNow);
             string deletedSubEventId = testEvent.AllSubEvents[0].getId;
@@ -71,8 +69,7 @@ namespace TilerTests
             CalendarEvent retrievedCalendarEvent = TestUtility.getCalendarEventById(id.getRepeatCalendarEventID(), user);
             Assert.IsFalse(retrievedCalendarEvent.isEnabled);
 
-            user = TestUtility.getTestUser(userId: tilerUser.Id);
-            tilerUser = user.getTilerUser();
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent calEventLoadedIntoScheduleMemory = Schedule.getCalendarEvent(id);
             

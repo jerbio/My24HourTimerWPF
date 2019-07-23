@@ -2804,9 +2804,13 @@ namespace TilerCore
             List<SubCalendarEvent> subEventsUnOptimized = blobSubEvents.SelectMany(blobEvent => blobEvent.getSubCalendarEventsInBlob()).Where(subEvent => !subEvent.isOptimized).ToList();
             subEventsUnOptimized.ForEach(subEvent =>
             {
-                DayTimeLine dayTimeLine = Now.getDayTimeLineByDayIndex(subEvent.UniversalDayIndex);
-                subEvent.ParentCalendarEvent.undesignateSubEvent(subEvent);
-                dayTimeLine.RemoveSubEvent(subEvent.Id);
+                if(subEvent.isDesignated)
+                {
+                    DayTimeLine dayTimeLine = Now.getDayTimeLineByDayIndex(subEvent.UniversalDayIndex);
+                    subEvent.ParentCalendarEvent.undesignateSubEvent(subEvent);
+                    dayTimeLine.RemoveSubEvent(subEvent.Id);
+                }
+                
 
             });
 

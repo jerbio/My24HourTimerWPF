@@ -151,7 +151,7 @@ namespace TilerTests
             UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
             user.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
             refNow = refNow.removeSecondsAndMilliseconds();
             TimeSpan duration = TimeSpan.FromHours(2);
             DateTimeOffset start = refNow;
@@ -245,6 +245,7 @@ namespace TilerTests
             CalendarEventRestricted testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 1, false, restrictionProfile: restrictionProfile, now: Schedule.Now) as CalendarEventRestricted;
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
             DateTimeOffset newRefNow = start.AddHours(1);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, newRefNow);
             var setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
             Schedule.persistToDB().Wait();

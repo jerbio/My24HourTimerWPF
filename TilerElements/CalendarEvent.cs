@@ -1391,6 +1391,7 @@ namespace TilerElements
             RetValue._ProfileOfNow = this._ProfileOfNow?.CreateCopy();
             RetValue._otherPartyID = this.ThirdPartyID;// == this.null ? null : otherPartyID.ToString();
             RetValue._Users = this._Users;
+            RetValue._EventDayPreference = this._EventDayPreference.createCopy();
             //RetValue.UpdateLocationMatrix(RetValue.LocationInfo);
             return RetValue;
         }

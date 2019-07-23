@@ -189,50 +189,54 @@ namespace TilerElements
         {
             int counter = collection.Count;
             List<double> retValue = (new double[counter]).ToList();
-            int length = collection.First().Count();
-            if (origin == null)
-            {
-                origin = new List<double>();
-                for (int i = 0; i < length; i++)
-                {
-                    origin.Add(0);
-                }
-            }
 
-            if (normalizedFields == null)
+            if (collection.Count > 0)
             {
-                normalizedFields = new double[length];
-                for (int i = 0; i < normalizedFields.Count; i++)
+                int length = collection.First().Count();
+                if (origin == null)
                 {
-                    normalizedFields[i] = collection.Select(obj => obj[i]).Max();
-                    normalizedFields[i] = normalizedFields[i] == 0 ? 1 : normalizedFields[i];
+                    origin = new List<double>();
+                    for (int i = 0; i < length; i++)
+                    {
+                        origin.Add(0);
+                    }
                 }
-            }
 
-            //maxIndexes = normalizedFields.ToArray();
-            for (int j = 0; j < collection.Count; j++)
-            {
-                IList<double> row = collection[j];
-                for (int i = 0; i < normalizedFields.Count; i++)
+                if (normalizedFields == null)
                 {
-                    row[i] = row[i] / normalizedFields[i];
+                    normalizedFields = new double[length];
+                    for (int i = 0; i < normalizedFields.Count; i++)
+                    {
+                        normalizedFields[i] = collection.Select(obj => obj[i]).Max();
+                        normalizedFields[i] = normalizedFields[i] == 0 ? 1 : normalizedFields[i];
+                    }
                 }
-            }
 
-            for (int i = 0; i < counter; i++)
-            {
-                IList<double> calculationSet = collection[i];
-                double sum = 0;
-                if ((length != calculationSet.Count()) || (origin.Count != length))
+                //maxIndexes = normalizedFields.ToArray();
+                for (int j = 0; j < collection.Count; j++)
                 {
-                    throw new Exception("Oops seems like you are trying to run pythagoras on sets of different sizes");
+                    IList<double> row = collection[j];
+                    for (int i = 0; i < normalizedFields.Count; i++)
+                    {
+                        row[i] = row[i] / normalizedFields[i];
+                    }
                 }
-                for (int j = 0; j < calculationSet.Count; j++)
+
+                for (int i = 0; i < counter; i++)
                 {
-                    double delta = (calculationSet[j] - origin[j]);
-                    sum += (delta * delta);
+                    IList<double> calculationSet = collection[i];
+                    double sum = 0;
+                    if ((length != calculationSet.Count()) || (origin.Count != length))
+                    {
+                        throw new Exception("Oops seems like you are trying to run pythagoras on sets of different sizes");
+                    }
+                    for (int j = 0; j < calculationSet.Count; j++)
+                    {
+                        double delta = (calculationSet[j] - origin[j]);
+                        sum += (delta * delta);
+                    }
+                    retValue[i] = Math.Sqrt(sum);
                 }
-                retValue[i] = Math.Sqrt(sum);
             }
             return retValue;
         }

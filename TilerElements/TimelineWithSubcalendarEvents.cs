@@ -132,9 +132,16 @@ namespace TilerElements
             EventID eventId = new EventID(subEventId);
             SubCalendarEvent subEvent = SubCalendarEvent.getEmptySubCalendarEvent(eventId);
             bool removeSuccess = false;
+            bool retry = false;
             while(!removeSuccess)
             {
-                removeSuccess = AllocatedSubEvents.TryRemove(subEventId, out subEvent);
+                if(AllocatedSubEvents.ContainsKey(subEventId))
+                {
+                    removeSuccess = AllocatedSubEvents.TryRemove(subEventId, out subEvent);
+                } else
+                {
+                    removeSuccess = true;
+                }
             }
             base.RemoveBusySlots(subEvent.ActiveSlot);
             updateOccupancyOfTimeLine();

@@ -152,6 +152,13 @@ namespace TilerTests
             }
         }
 
+        public static void reloadTilerUser( ref UserAccount userAccount, ref TilerUser tilerUser)
+        {
+            userAccount = getTestUser(userId: tilerUser.Id);
+            tilerUser = userAccount.getTilerUser();
+            userAccount.Login().Wait();
+        }
+
         public static void initializeLocation ()
         {
             string apiKey = "AIzaSyDXrtMxPbt6Dqlllpm77AQ47vcCFxZ4oUU";

@@ -30,10 +30,12 @@ namespace TilerTests
         //    Schedule schedule = scheduleAndDump.Item1;
         //    schedule.FindMeSomethingToDo(currentLocation).Wait();
         //}
+        
+        
 
-
+        /// simple test tries to see the backwarss compatibility of loading older xml files
         [TestMethod]
-        public void file_f64b4f1c()
+        public void read_old_xml_log_breaking_effects()
         {
             string scheduleId = "bee315a3-14fd-448a-83e4-d1caff27bdab";
             Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
@@ -45,7 +47,6 @@ namespace TilerTests
             //(schedule as TestSchedule).WriteFullScheduleToOutlook();
             var confilctBlob = Utility.getConflictingEvents(dayTimeLine.getSubEventsInTimeLine());
             Assert.IsFalse(confilctBlob.Count >= 1);
-
         }
 
         public void add9_5WorkSchedule (Schedule schedule)

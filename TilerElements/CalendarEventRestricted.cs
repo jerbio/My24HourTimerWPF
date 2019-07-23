@@ -173,7 +173,7 @@ namespace TilerElements
             MyCalendarEventCopy._Semantics = this._Semantics?.createCopy();
             MyCalendarEventCopy._Now = this._Now;
             MyCalendarEventCopy._UsedTime = this._UsedTime;
-            MyCalendarEventCopy._EventDayPreference = this.DayPreference?.createCopy();
+            MyCalendarEventCopy._EventDayPreference = this._EventDayPreference?.createCopy();
             if (eventId != null)
             {
                 MyCalendarEventCopy.UniqueID = eventId;
@@ -270,6 +270,7 @@ namespace TilerElements
             RetValue._Users = this.getAllUsers();//.ToList();
             RetValue._ProfileOfNow = this._ProfileOfNow?.CreateCopy();
             RetValue._ProfileOfRestriction = this._ProfileOfRestriction?.createCopy();
+            RetValue._EventDayPreference = this._EventDayPreference?.createCopy();
             RetValue._Now = this._Now;
             return RetValue;
         }

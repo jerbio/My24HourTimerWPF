@@ -52,7 +52,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.SundayLastTimeUpdated = value;
+                if(!Preference.isNull)
+                {
+                    Preference.SundayLastTimeUpdated = value;
+                }
+                
             }
         }
 
@@ -64,8 +68,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.SundayCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.SundayCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double DawnCount
@@ -76,8 +83,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.SundayDawnCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.SundayDawnCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double MorningCount
@@ -88,8 +98,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.SundayMorningCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.SundayMorningCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double AfterNoonCount
@@ -100,8 +113,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.SundayAfterNoonCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.SundayAfterNoonCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double EveningCount
@@ -112,8 +128,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.SundayEveningCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.SundayEveningCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double NightCount
@@ -124,8 +143,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.SundayNightCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.SundayNightCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
     }
@@ -141,7 +163,10 @@ namespace TilerElements
             }
             set
             {
-                Preference.MondayLastTimeUpdated = value;
+                if (!Preference.isNull)
+                {
+                    Preference.MondayLastTimeUpdated = value;
+                }
             }
         }
         public override double Count
@@ -152,8 +177,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.MondayCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.MondayCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double DawnCount
@@ -164,8 +192,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.MondayDawnCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.MondayDawnCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double MorningCount
@@ -176,8 +207,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.MondayMorningCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.MondayMorningCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double AfterNoonCount
@@ -188,8 +222,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.MondayAfterNoonCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.MondayAfterNoonCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double EveningCount
@@ -200,8 +237,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.MondayEveningCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.MondayEveningCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double NightCount
@@ -212,8 +252,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.MondayNightCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.MondayNightCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
     }
@@ -229,7 +272,10 @@ namespace TilerElements
             }
             set
             {
-                Preference.TuesdayLastTimeUpdated = value;
+                if (!Preference.isNull)
+                {
+                    Preference.TuesdayLastTimeUpdated = value;
+                }
             }
         }
         public override double Count
@@ -240,8 +286,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.TuesdayCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.TuesdayCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double DawnCount
@@ -252,8 +301,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.TuesdayDawnCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.TuesdayDawnCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double MorningCount
@@ -264,8 +316,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.TuesdayMorningCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.TuesdayMorningCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double AfterNoonCount
@@ -276,8 +331,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.TuesdayAfterNoonCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.TuesdayAfterNoonCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double EveningCount
@@ -288,8 +346,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.TuesdayEveningCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.TuesdayEveningCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double NightCount
@@ -300,8 +361,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.TuesdayNightCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.TuesdayNightCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
     }
@@ -318,7 +382,10 @@ namespace TilerElements
             }
             set
             {
-                Preference.WednesdayLastTimeUpdated = value;
+                if (!Preference.isNull)
+                {
+                    Preference.WednesdayLastTimeUpdated = value;
+                }
             }
         }
         public override double Count
@@ -329,8 +396,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.WednesdayCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.WednesdayCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double DawnCount
@@ -341,8 +411,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.WednesdayDawnCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.WednesdayDawnCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double MorningCount
@@ -353,8 +426,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.WednesdayMorningCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.WednesdayMorningCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double AfterNoonCount
@@ -365,8 +441,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.WednesdayAfterNoonCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.WednesdayAfterNoonCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double EveningCount
@@ -377,8 +456,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.WednesdayEveningCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.WednesdayEveningCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double NightCount
@@ -389,8 +471,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.WednesdayNightCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.WednesdayNightCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
     }
@@ -407,7 +492,10 @@ namespace TilerElements
             }
             set
             {
-                Preference.ThursdayLastTimeUpdated = value;
+                if (!Preference.isNull)
+                {
+                    Preference.ThursdayLastTimeUpdated = value;
+                }
             }
         }
 
@@ -419,8 +507,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.ThursdayCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.ThursdayCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double DawnCount
@@ -431,8 +522,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.ThursdayDawnCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.ThursdayDawnCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double MorningCount
@@ -443,8 +537,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.ThursdayMorningCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.ThursdayMorningCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double AfterNoonCount
@@ -455,8 +552,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.ThursdayAfterNoonCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.ThursdayAfterNoonCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double EveningCount
@@ -467,8 +567,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.ThursdayEveningCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.ThursdayEveningCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double NightCount
@@ -479,8 +582,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.ThursdayNightCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.ThursdayNightCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
     }
@@ -496,7 +602,10 @@ namespace TilerElements
             }
             set
             {
-                Preference.FridayLastTimeUpdated = value;
+                if (!Preference.isNull)
+                {
+                    Preference.FridayLastTimeUpdated = value;
+                }
             }
         }
         public override double Count
@@ -507,8 +616,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.FridayCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.FridayCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double DawnCount
@@ -519,8 +631,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.FridayDawnCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.FridayDawnCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double MorningCount
@@ -531,8 +646,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.FridayMorningCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.FridayMorningCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double AfterNoonCount
@@ -543,8 +661,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.FridayAfterNoonCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.FridayAfterNoonCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double EveningCount
@@ -555,8 +676,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.FridayEveningCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.FridayEveningCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double NightCount
@@ -567,8 +691,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.FridayNightCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.FridayNightCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
     }
@@ -584,7 +711,10 @@ namespace TilerElements
             }
             set
             {
-                Preference.SaturdayLastTimeUpdated = value;
+                if (!Preference.isNull)
+                {
+                    Preference.SaturdayLastTimeUpdated = value;
+                }
             }
         }
 
@@ -596,8 +726,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.SaturdayCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.SaturdayCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double DawnCount
@@ -608,8 +741,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.SaturdayDawnCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.SaturdayDawnCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double MorningCount
@@ -620,8 +756,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.SaturdayMorningCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.SaturdayMorningCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double AfterNoonCount
@@ -632,8 +771,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.SaturdayAfterNoonCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.SaturdayAfterNoonCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double EveningCount
@@ -644,8 +786,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.SaturdayEveningCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.SaturdayEveningCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
         public override double NightCount
@@ -656,8 +801,11 @@ namespace TilerElements
             }
             set
             {
-                Preference.SaturdayNightCount = value;
-				Preference.updateConfigOrder();
+                if (!Preference.isNull)
+                {
+                    Preference.SaturdayNightCount = value;
+                    Preference.updateConfigOrder();
+                }
             }
         }
     }

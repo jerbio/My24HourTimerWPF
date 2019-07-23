@@ -35,7 +35,7 @@ namespace TilerElements
             this.startOfDay = StartOfDay;
             DateTimeOffset currentTime = new DateTimeOffset(ImmutableNow.Year, ImmutableNow.Month, ImmutableNow.Day, 0,0,0, new TimeSpan());
             DayOfWeek currentDayOfWeek = currentTime.DayOfWeek;
-            DateTimeOffset startTimeForDayOfweek = currentTime.Subtract(timeDifference);
+            DateTimeOffset startTimeForDayOfweek = currentTime.Add(timeDifference);
             TimeZoneDiff = timeDifference;
             _ConstDayOfTheWeek = getDayOfTheWeek(ImmutableNow).Item1;
             InitializeParameters();
@@ -143,7 +143,7 @@ namespace TilerElements
             Tuple<DayOfWeek, TimeLine> retValue;
             DateTimeOffset currentTime = new DateTimeOffset(time.Year, time.Month, time.Day, 0, 0, 0, new TimeSpan());
             DayOfWeek currentDayOfWeek = currentTime.DayOfWeek;
-            DateTimeOffset startTimeForDayOfweek = currentTime.Subtract(this.TimeZoneDiff);
+            DateTimeOffset startTimeForDayOfweek = currentTime.Add(this.TimeZoneDiff);
             TimeLine fullDayTime = new TimeLine(startTimeForDayOfweek, startTimeForDayOfweek.AddDays(1));
             if (fullDayTime.IsDateTimeWithin(time))
             {

@@ -1391,7 +1391,7 @@ namespace TilerElements
             RetValue._ProfileOfNow = this._ProfileOfNow?.CreateCopy();
             RetValue._otherPartyID = this.ThirdPartyID;// == this.null ? null : otherPartyID.ToString();
             RetValue._Users = this._Users;
-            RetValue._EventDayPreference = this._EventDayPreference.createCopy();
+            RetValue._EventDayPreference = this._EventDayPreference?.createCopy();
             //RetValue.UpdateLocationMatrix(RetValue.LocationInfo);
             return RetValue;
         }
@@ -1670,6 +1670,10 @@ namespace TilerElements
         {
             get
             {
+                if(string.IsNullOrEmpty(DayPreferenceId) && this._EventDayPreference == null)
+                {
+                    _EventDayPreference = new EventPreference();
+                }
                 return this._EventDayPreference;
             }
         }
@@ -1822,7 +1826,14 @@ namespace TilerElements
         {
             get
             {
-                return _EventDayPreference;
+                if (_EventDayPreference == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return _EventDayPreference.isNull ? null : _EventDayPreference;
+                }
             }
             set
             {

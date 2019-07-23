@@ -72,7 +72,14 @@ namespace TilerElements
         public double SaturdayAfterNoonCount { get; set; } = 0;
         public double SaturdayEveningCount { get; set; } = 0;
         public double SaturdayNightCount { get; set; } = 0;
-
+        [NotMapped]
+        public bool _isNull = false;
+        public bool isNull {
+            get
+                {
+                return _isNull;
+            }
+        }
         [XmlIgnore]
         DayConfig _SundayPreference;
         [XmlIgnore]
@@ -237,6 +244,23 @@ namespace TilerElements
         [XmlIgnore]
         DayConfig SaturdayPreference {
             get { return _SaturdayPreference; }
+        }
+
+        public static EventPreference NullPreference ()
+        {
+            EventPreference retValue = new EventPreference();
+            retValue._isNull = true;
+            retValue._Id = "NULL INSTANCE";
+            return retValue;
+        }
+
+        readonly static EventPreference _NullInstance = NullPreference();
+        public static EventPreference NullInstance
+        {
+            get
+            {
+                return _NullInstance;
+            }
         }
     }
 

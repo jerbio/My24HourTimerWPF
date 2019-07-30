@@ -663,7 +663,14 @@ namespace TilerElements
         {
             get
             {
-                return _ProfileOfProcrastination;
+                if (_ProfileOfProcrastination == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return _ProfileOfProcrastination.isNull ? null : _ProfileOfProcrastination;
+                }
             }
             set
             {

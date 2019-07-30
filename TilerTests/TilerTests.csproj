@@ -120,14 +120,6 @@
     <Compile Include="LogControlDump.cs" />
     <Compile Include="LogControlTest.cs" />
     <Compile Include="LogicTest.cs" />
-    <Compile Include="Migrations\201907271817093_init.cs" />
-    <Compile Include="Migrations\201907271817093_init.Designer.cs">
-      <DependentUpon>201907271817093_init.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201907271847070_evaluationRemoval.cs" />
-    <Compile Include="Migrations\201907271847070_evaluationRemoval.Designer.cs">
-      <DependentUpon>201907271847070_evaluationRemoval.cs</DependentUpon>
-    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
     <Compile Include="Models\TestGoogleEvent.cs" />
@@ -236,14 +228,6 @@
     <Content Include="WagTapCalLogs\f64b4f1c-1d15-4b03-81fd-6b5c0e6d451b\f64b4f1c-1d15-4b03-81fd-6b5c0e6d451b.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\201907271817093_init.resx">
-      <DependentUpon>201907271817093_init.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201907271847070_evaluationRemoval.resx">
-      <DependentUpon>201907271847070_evaluationRemoval.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

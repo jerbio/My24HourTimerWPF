@@ -120,13 +120,13 @@
     <Compile Include="LogControlDump.cs" />
     <Compile Include="LogControlTest.cs" />
     <Compile Include="LogicTest.cs" />
-    <Compile Include="Migrations\201907200738202_TimeZoneUpdate.cs" />
-    <Compile Include="Migrations\201907200738202_TimeZoneUpdate.Designer.cs">
-      <DependentUpon>201907200738202_TimeZoneUpdate.cs</DependentUpon>
+    <Compile Include="Migrations\201907271817093_init.cs" />
+    <Compile Include="Migrations\201907271817093_init.Designer.cs">
+      <DependentUpon>201907271817093_init.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201907202258371_TimeZoneUpdateDayconfigs.cs" />
-    <Compile Include="Migrations\201907202258371_TimeZoneUpdateDayconfigs.Designer.cs">
-      <DependentUpon>201907202258371_TimeZoneUpdateDayconfigs.cs</DependentUpon>
+    <Compile Include="Migrations\201907271847070_evaluationRemoval.cs" />
+    <Compile Include="Migrations\201907271847070_evaluationRemoval.Designer.cs">
+      <DependentUpon>201907271847070_evaluationRemoval.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
@@ -238,11 +238,11 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201907200738202_TimeZoneUpdate.resx">
-      <DependentUpon>201907200738202_TimeZoneUpdate.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201907271817093_init.resx">
+      <DependentUpon>201907271817093_init.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201907202258371_TimeZoneUpdateDayconfigs.resx">
-      <DependentUpon>201907202258371_TimeZoneUpdateDayconfigs.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201907271847070_evaluationRemoval.resx">
+      <DependentUpon>201907271847070_evaluationRemoval.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Choose>

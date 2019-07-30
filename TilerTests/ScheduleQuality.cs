@@ -106,8 +106,7 @@ namespace TilerTests
         {
             DB_Schedule Schedule;
             int splitCount = 8;
-            DateTimeOffset refNow = DateTimeOffset.UtcNow.Date;
-            refNow = new DateTimeOffset(refNow.Year, refNow.Month, 1, 0, 0, 0, new TimeSpan());
+            DateTimeOffset refNow = TestUtility.parseAsUTC("7/7/2019 12:00:00 AM");
             TilerUser tilerUser = TestUtility.createUser();
             UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
@@ -136,7 +135,7 @@ namespace TilerTests
 
             DayOfWeek firstDayOfWeek = firstDayFromStart.DayOfWeek;
             DayOfWeek secondDayOfWeek = secondDayFromStart.DayOfWeek;
-
+            HashSet<DayOfWeek> repeatDays = new HashSet<DayOfWeek>() { firstDayOfWeek, secondDayOfWeek };
 
             Schedule = new TestSchedule(user, refNow);
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
@@ -179,17 +178,31 @@ namespace TilerTests
             Schedule.persistToDB().Wait();
 
             List<SubCalendarEvent> subEvents = Schedule.getCalendarEvent(testEvent.Id).ActiveSubEvents.ToList();
-            List<DayOfWeek> daysOfWeek = subEvents.Select(tilerEvent => tilerEvent.Start.DayOfWeek).ToList();
-            int count = 0;
-            foreach (DayOfWeek weekDay in daysOfWeek)
+            List<DateTimeOffset> allCorrespondingRepeatDays = new List<DateTimeOffset>();
+            List<DateTimeOffset> repeatDates = new List<DateTimeOffset>() { firstDayFromStart, secondDayFromStart };
+            TimeLine activeTImeLine = new TimeLine(Schedule.Now.constNow, testEvent.End);
+
+            repeatDates.ForEach((weekDay) =>
             {
-                if (weekDay == firstDayOfWeek || weekDay == secondDayOfWeek)
+                var correspondinWeekDays = getCorrespondingWeekdays(activeTImeLine, weekDay.DayOfWeek);
+                allCorrespondingRepeatDays.AddRange(correspondinWeekDays);
+            });
+
+            List<DayOfWeek> repeatDaysOfWeek = subEvents.Select(tilerEvent => tilerEvent.Start.DayOfWeek).ToList();
+
+
+            int repeatCount = 0;
+            foreach (DayOfWeek weekDay in repeatDaysOfWeek)
+            {
+                if (repeatDays.Contains(weekDay))
                 {
-                    count++;
+                    repeatCount++;
                 }
             }
 
-            Assert.AreEqual(count, subEvents.Count);
+            int validatingCount = subEvents.Count < allCorrespondingRepeatDays.Count ? subEvents.Count : allCorrespondingRepeatDays.Count;
+
+            Assert.AreEqual(repeatCount, validatingCount);
         }
         [TestMethod]
         public void RepetitionMultipleEventWithDifferentDayPreferences()

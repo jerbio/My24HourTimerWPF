@@ -30,6 +30,8 @@ namespace TilerElements
         public double SundayAfterNoonCount { get; set; } = 0;
         public double SundayEveningCount { get; set; } = 0;
         public double SundayNightCount { get; set; } = 0;
+        [NotMapped]
+        public double SundayEvaluation { get; set; } = 0;
         public DateTimeOffset MondayLastTimeUpdated { get; set; } = Utility.JSStartTime;
         public double MondayCount { get; set; } = 0;
         public double MondayDawnCount { get; set; } = 0;
@@ -37,6 +39,8 @@ namespace TilerElements
         public double MondayAfterNoonCount { get; set; } = 0;
         public double MondayEveningCount { get; set; } = 0;
         public double MondayNightCount { get; set; } = 0;
+        [NotMapped]
+        public double MondayEvaluation { get; set; } = 0;
         public DateTimeOffset TuesdayLastTimeUpdated { get; set; } = Utility.JSStartTime;
         public double TuesdayCount { get; set; } = 0;
         public double TuesdayDawnCount { get; set; } = 0;
@@ -44,6 +48,8 @@ namespace TilerElements
         public double TuesdayAfterNoonCount { get; set; } = 0;
         public double TuesdayEveningCount { get; set; } = 0;
         public double TuesdayNightCount { get; set; } = 0;
+        [NotMapped]
+        public double TuesdayEvaluation { get; set; } = 0;
         public DateTimeOffset WednesdayLastTimeUpdated { get; set; } = Utility.JSStartTime;
         public double WednesdayCount { get; set; } = 0;
         public double WednesdayDawnCount { get; set; } = 0;
@@ -51,6 +57,8 @@ namespace TilerElements
         public double WednesdayAfterNoonCount { get; set; } = 0;
         public double WednesdayEveningCount { get; set; } = 0;
         public double WednesdayNightCount { get; set; } = 0;
+        [NotMapped]
+        public double WednesdayEvaluation { get; set; } = 0;
         public DateTimeOffset ThursdayLastTimeUpdated { get; set; } = Utility.JSStartTime;
         public double ThursdayCount { get; set; } = 0;
         public double ThursdayDawnCount { get; set; } = 0;
@@ -58,6 +66,8 @@ namespace TilerElements
         public double ThursdayAfterNoonCount { get; set; } = 0;
         public double ThursdayEveningCount { get; set; } = 0;
         public double ThursdayNightCount { get; set; } = 0;
+        [NotMapped]
+        public double ThursdayEvaluation { get; set; } = 0;
         public DateTimeOffset FridayLastTimeUpdated { get; set; } = Utility.JSStartTime;
         public double FridayCount { get; set; } = 0;
         public double FridayDawnCount { get; set; } = 0;
@@ -65,6 +75,8 @@ namespace TilerElements
         public double FridayAfterNoonCount { get; set; } = 0;
         public double FridayEveningCount { get; set; } = 0;
         public double FridayNightCount { get; set; } = 0;
+        [NotMapped]
+        public double FridayEvaluation { get; set; } = 0;
         public DateTimeOffset SaturdayLastTimeUpdated { get; set; } = Utility.JSStartTime;
         public double SaturdayCount { get; set; } = 0;
         public double SaturdayDawnCount { get; set; } = 0;
@@ -72,6 +84,8 @@ namespace TilerElements
         public double SaturdayAfterNoonCount { get; set; } = 0;
         public double SaturdayEveningCount { get; set; } = 0;
         public double SaturdayNightCount { get; set; } = 0;
+        [NotMapped]
+        public double SaturdayEvaluation { get; set; } = 0;
         [NotMapped]
         public bool _isNull = false;
         public bool isNull {
@@ -92,9 +106,10 @@ namespace TilerElements
         DayConfig _ThursdayPreference;
         [XmlIgnore]
         DayConfig _FridayPreference;
-        [XmlIgnore]
+        [XmlIgnore, NotMapped]
         DayConfig _SaturdayPreference;
         protected List<DayConfig> _DayConfigs;
+        [NotMapped]
         protected List<DayConfig> _OrderedDayConfigs;
 
         public void init ()
@@ -173,7 +188,12 @@ namespace TilerElements
 
         public void updateConfigOrder()
         {
-            _OrderedDayConfigs = _DayConfigs.OrderByDescending(dayConfig => dayConfig.Count).ToList();
+            double sum = _DayConfigs.Select(dayConfig => dayConfig.Count).Sum() + _DayConfigs.Count;
+            _DayConfigs.ForEach((dayConfig) =>
+            {
+                dayConfig.EvaluationScore = sum/ (dayConfig.Count + 1.0);
+            });
+            _OrderedDayConfigs = _DayConfigs.OrderBy(dayConfig => dayConfig.EvaluationScore).ToList();
         }
 
         public DayConfig this[int i]

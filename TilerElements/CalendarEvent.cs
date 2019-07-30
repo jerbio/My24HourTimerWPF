@@ -638,6 +638,11 @@ namespace TilerElements
             }
         }
         
+        virtual public void setDayPreference(EventPreference dayPreference)
+        {
+            this._EventDayPreference = dayPreference;
+        }
+
         /// <summary>
         /// Pauses a sub event in the calendar event
         /// </summary>
@@ -966,7 +971,7 @@ namespace TilerElements
                     double occupancy = (double)timeline.Occupancy;
                     double availableSpanRatio = (double)totalInterferringSpan.Ticks / totalAvailableSpan.Ticks;
                     DayOfWeek weekDay = referenceNow.getDayOfTheWeek(timeline);
-                    int dayIndexScore =  DayPreference.OrderedDayConfigs.FindIndex(obj => obj.WeekDay == weekDay);
+                    double dayIndexScore = DayPreference[weekDay].EvaluationScore;
 
                     IList<double> dimensionsPerDay = new List<double>() { distance, tickRatio, occupancy, dayIndexScore };
                     multiDimensionalCalculation.Add(dimensionsPerDay);

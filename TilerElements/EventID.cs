@@ -269,12 +269,12 @@ namespace TilerElements
 
         public string getRepeatCalendarEventComponent()
         {
-            return getLevelID(1);
+            return getLevelID(2); 
         }
 
         public string getRepeatDayCalendarEventComponent()
         {
-            return getLevelID(2);
+            return getLevelID(1);
         }
 
         public string getSubCalendarEventComponent()

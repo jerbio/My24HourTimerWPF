@@ -18,6 +18,7 @@ namespace TilerElements
         public abstract double AfterNoonCount { get; set; }
         public abstract double EveningCount { get; set; }
         public abstract double NightCount { get; set; }
+        public abstract double EvaluationScore { get; set; }
         public EventPreference Preference { get; set; }
         protected virtual DayOfWeek _WeekDay { get; set; }
         public virtual DayOfWeek WeekDay
@@ -150,6 +151,18 @@ namespace TilerElements
                 }
             }
         }
+
+        public override double EvaluationScore
+        {
+            get
+            {
+                return Preference.SundayEvaluation;
+            }
+            set
+            {
+                Preference.SundayEvaluation = value;
+            }
+        }
     }
 
     public class MondayConfig : DayConfig
@@ -257,6 +270,18 @@ namespace TilerElements
                     Preference.MondayNightCount = value;
                     Preference.updateConfigOrder();
                 }
+            }
+        }
+
+        public override double EvaluationScore
+        {
+            get
+            {
+                return Preference.MondayEvaluation;
+            }
+            set
+            {
+                Preference.MondayEvaluation = value;
             }
         }
     }
@@ -368,6 +393,18 @@ namespace TilerElements
                 }
             }
         }
+
+        public override double EvaluationScore
+        {
+            get
+            {
+                return Preference.TuesdayEvaluation;
+            }
+            set
+            {
+                Preference.TuesdayEvaluation = value;
+            }
+        }
     }
 
     public class WednesdayConfig : DayConfig
@@ -476,6 +513,18 @@ namespace TilerElements
                     Preference.WednesdayNightCount = value;
                     Preference.updateConfigOrder();
                 }
+            }
+        }
+
+        public override double EvaluationScore
+        {
+            get
+            {
+                return Preference.WednesdayEvaluation;
+            }
+            set
+            {
+                Preference.WednesdayEvaluation = value;
             }
         }
     }
@@ -589,6 +638,18 @@ namespace TilerElements
                 }
             }
         }
+
+        public override double EvaluationScore
+        {
+            get
+            {
+                return Preference.ThursdayEvaluation;
+            }
+            set
+            {
+                Preference.ThursdayEvaluation = value;
+            }
+        }
     }
 
     public class FridayConfig : DayConfig
@@ -696,6 +757,18 @@ namespace TilerElements
                     Preference.FridayNightCount = value;
                     Preference.updateConfigOrder();
                 }
+            }
+        }
+
+        public override double EvaluationScore
+        {
+            get
+            {
+                return Preference.FridayEvaluation;
+            }
+            set
+            {
+                Preference.FridayEvaluation = value;
             }
         }
     }
@@ -806,6 +879,18 @@ namespace TilerElements
                     Preference.SaturdayNightCount = value;
                     Preference.updateConfigOrder();
                 }
+            }
+        }
+
+        public override double EvaluationScore
+        {
+            get
+            {
+                return Preference.SaturdayEvaluation;
+            }
+            set
+            {
+                Preference.SaturdayEvaluation = value;
             }
         }
     }

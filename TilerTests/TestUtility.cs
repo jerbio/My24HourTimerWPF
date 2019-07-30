@@ -575,19 +575,24 @@ namespace TilerTests
                 retValue = false;
             }
 
-            Assert.IsTrue(retValue && 
-                isTestEquivalent(firstCalEvent as TilerEvent, secondCalEvent as TilerEvent)
-                && (firstCalEvent.IsRepeat == secondCalEvent.IsRepeat ?
+            retValue &= isTestEquivalent(firstCalEvent as TilerEvent, secondCalEvent as TilerEvent);
+            Assert.IsTrue(retValue);
+            retValue &= (firstCalEvent.IsRepeat == secondCalEvent.IsRepeat ?
                     (firstCalEvent.IsRepeat ? isTestEquivalent(firstCalEvent.Repeat, secondCalEvent.Repeat) : true) : //if repeat is enabled the run equivalecy test else then passing test
-                    false) // if calendar repeat flags aren't the same then the calEvents are not equal
-                && (firstCalEvent.getIsEventRestricted == secondCalEvent.getIsEventRestricted ?
+                    false); // if calendar repeat flags aren't the same then the calEvents are not equal
+            Assert.IsTrue(retValue);
+            retValue &= (firstCalEvent.getIsEventRestricted == secondCalEvent.getIsEventRestricted ?
                     (firstCalEvent.getIsEventRestricted ? isTestEquivalent((firstCalEvent as CalendarEventRestricted).RetrictionProfile, (secondCalEvent as CalendarEventRestricted).RetrictionProfile) : true) : //if restriction profile is enabled the run equivalecy test else then passing test
-                    false)
-                && (firstCalEvent.getUIParam.isTestEquivalent(secondCalEvent.getUIParam))
-                && (firstCalEvent.DayPreference.isTestEquivalent(secondCalEvent.DayPreference))
+                    false);
+            Assert.IsTrue(retValue);
+            retValue &= (firstCalEvent.getUIParam.isTestEquivalent(secondCalEvent.getUIParam));
+            Assert.IsTrue(retValue);
+            retValue &= (firstCalEvent.DayPreference.isTestEquivalent(secondCalEvent.DayPreference));
+            Assert.IsTrue(retValue);
 
-                );
-            return true;
+
+            Assert.IsTrue(retValue);
+            return retValue;
         }
 
         public static bool isTestEquivalent(this Repetition firstRepetition, Repetition secondRepetition)

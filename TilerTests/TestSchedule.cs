@@ -13,7 +13,7 @@ namespace TilerTests
     class TestSchedule : DB_Schedule
     {
         protected DateTimeOffset StartOfDay;
-        public TestSchedule(UserAccount AccountEntry, DateTimeOffset referenceNow, DateTimeOffset startOfDay, uint LatestId = 0, DataRetrivalOption retrievalOption = DataRetrivalOption.Evaluation) : base(AccountEntry, referenceNow, retrievalOption)
+        public TestSchedule(UserAccount AccountEntry, DateTimeOffset referenceNow, DateTimeOffset startOfDay, uint LatestId = 0, DataRetrivalOption retrievalOption = DataRetrivalOption.Evaluation, TimeLine rangeOfLookup = null) : base(AccountEntry, referenceNow, retrievalOption, rangeOfLookup)
         {
             StartOfDay = startOfDay;
             this.retrievalOption = retrievalOption;
@@ -24,7 +24,7 @@ namespace TilerTests
                 EventID.Initialize(LatestId);
             }
         }
-        public TestSchedule(UserAccount AccountEntry, DateTimeOffset referenceNow, uint LatestId = 0, DataRetrivalOption retrievalOption = DataRetrivalOption.Evaluation) : base(AccountEntry, referenceNow, retrievalOption)
+        public TestSchedule(UserAccount AccountEntry, DateTimeOffset referenceNow, uint LatestId = 0, DataRetrivalOption retrievalOption = DataRetrivalOption.Evaluation, TimeLine rangeOfLookup = null) : base(AccountEntry, referenceNow, retrievalOption, rangeOfLookup)
         {
             if (LatestId != 0)
             {
@@ -36,7 +36,7 @@ namespace TilerTests
         {
             DateTimeOffset StartOfDay = myAccount.ScheduleData.getDayReferenceTime();
             _Now = new ReferenceNow(referenceNow, StartOfDay, myAccount.getTilerUser().TimeZoneDifference);
-            TimeLine RangeOfLookup = null;
+
             Tuple<Dictionary<string, CalendarEvent>, DateTimeOffset, Dictionary<string, Location>> profileData = await myAccount.ScheduleData.getProfileInfo(RangeOfLookup, _Now, retrievalOption).ConfigureAwait(false);
             myAccount.Now = _Now;
             if (profileData != null)
@@ -46,13 +46,10 @@ namespace TilerTests
                 AllEventDictionary = profileData.Item1;
                 if (AllEventDictionary != null)
                 {
-                    //setAsComplete();
                     EventID.Initialize((uint)(myAccount.LastEventTopNodeID));
                     initializeThirdPartyCalendars();
                     updateThirdPartyCalendars(ThirdPartyControl.CalendarTool.outlook, new List<CalendarEvent>() { });
                     CompleteSchedule = getTimeLine();
-
-                    //EventIDGenerator.Initialize((uint)(this.LastScheduleIDNumber));
                 }
                 Locations = profileData.Item3;
             }

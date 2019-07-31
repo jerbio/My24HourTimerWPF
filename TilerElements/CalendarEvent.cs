@@ -1678,6 +1678,18 @@ namespace TilerElements
                 if(string.IsNullOrEmpty(DayPreferenceId) && this._EventDayPreference == null)
                 {
                     _EventDayPreference = new EventPreference();
+                    if(this.IsRepeat)
+                    {
+                        foreach(CalendarEvent calEvent in this.Repeat.RecurringCalendarEvents())
+                        {
+                            if((calEvent._EventDayPreference == null || calEvent.DayPreference != _EventDayPreference) 
+                                && (string.IsNullOrEmpty(calEvent.DayPreferenceId) || calEvent.DayPreferenceId!=this.DayPreferenceId) 
+                                && calEvent.DayPreference.isNull)
+                            {
+                                calEvent._EventDayPreference = _EventDayPreference;
+                            }
+                        }
+                    }
                 }
                 return this._EventDayPreference;
             }

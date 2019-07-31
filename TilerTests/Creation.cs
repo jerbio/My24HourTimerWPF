@@ -1077,6 +1077,60 @@ namespace TilerTests
 
         }
 
+        /// <summary>
+        /// Test verifies that schedule can be operated on even though full calendar event isn't loaded into memmory
+        /// </summary>
+        [TestMethod]
+        public void testOutOfRangeOfScheduleLoad ()
+        {
+            DB_Schedule Schedule;
+            int splitCount = 8;
+            DateTimeOffset refNow = TestUtility.parseAsUTC("7/7/2019 12:00:00 AM");
+            refNow = new DateTimeOffset(refNow.Year, refNow.Month, 1, 0, 0, 0, new TimeSpan());
+            TilerUser tilerUser = TestUtility.createUser();
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+            refNow = refNow.removeSecondsAndMilliseconds();
+            TimeSpan duration = TimeSpan.FromHours(2);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.AddDays(28);
+
+            TimeLine repeatTimeLine = new TimeLine(start, end.AddDays(200));
+            TimeLine calTimeLine = repeatTimeLine.CreateCopy();
+            Repetition repetition = new Repetition(true, repeatTimeLine, Repetition.Frequency.WEEKLY, calTimeLine);
+            int repeatSplitCount = 2;
+            CalendarEvent repeatEvent = TestUtility
+                .generateCalendarEvent(tilerUser, duration, repetition, calTimeLine.Start, calTimeLine.End, repeatSplitCount, false);
+            int initialCount = repeatEvent.AllSubEvents.Count();
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.AddToScheduleAndCommit(repeatEvent).Wait();
+            const int dayDelta = 7;
+            TimeLine lookupWindow = new TimeLine(refNow.AddDays(-dayDelta), refNow.AddDays(dayDelta*2));
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow, rangeOfLookup: lookupWindow);
+            Location location = TestUtility.getLocations()[0];
+            Schedule.FindMeSomethingToDo(location).Wait();
+            Schedule.persistToDB().Wait();
+            CalendarEvent calEvent = Schedule.getCalendarEvent(repeatEvent.Calendar_EventID);
+            Assert.IsTrue(calEvent.ActiveSubEvents.Count() == 4);
+
+            UserAccount userAcc = TestUtility.getTestUser(userId: tilerUser.Id);
+            Task<CalendarEvent> waitVar = userAcc.ScheduleLogControl.getCalendarEventWithID(repeatEvent.Id);
+            waitVar.Wait();
+            CalendarEvent verificationEventPulled = waitVar.Result;
+            Assert.IsTrue(verificationEventPulled.ActiveSubEvents.Count() == initialCount);
+
+
+            lookupWindow = new TimeLine(refNow, repeatTimeLine.End);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All, rangeOfLookup: lookupWindow);
+            CalendarEvent repeatFromSchedule = Schedule.getCalendarEvent(repeatEvent.Id);
+            Assert.IsTrue(repeatFromSchedule.isTestEquivalent(verificationEventPulled));
+        }
+
         [TestCleanup]
         public void cleanUpForEachTest()
         {

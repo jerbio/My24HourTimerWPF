@@ -1,6 +1,7 @@
 ﻿#define StitcohRestrictedFromLeft
 #define useLockedImplementation
 #define useNonLockedImplementation
+//#define INPROD
 //#define EnableRestrictedLocationOptimization
 
 //#define createCopyOfImplementation
@@ -49,7 +50,7 @@ namespace TilerCore
 {
     public class Schedule : IWhy
     {
-        
+        public const int TimeLookUpDayCount = 90;
         protected Dictionary<string, CalendarEvent> AllEventDictionary;
         protected DateTimeOffset ReferenceDayTIime;
         protected Dictionary<string, Location> Locations;
@@ -61,6 +62,7 @@ namespace TilerCore
         protected Dictionary<ThirdPartyControl.CalendarTool, List<CalendarEvent>> ThirdPartyCalendars = new Dictionary<ThirdPartyControl.CalendarTool, List<CalendarEvent>>();
         protected DateTimeOffset StartofDay;
         protected bool retrievedThirdParty = false;
+        protected TimeLine RangeOfLookup = null;
 
         protected bool UseTilerFront = false;
         Stopwatch myWatch = new Stopwatch();
@@ -105,12 +107,13 @@ namespace TilerCore
         {
         }
 
-        public Schedule(Dictionary<string, CalendarEvent> allEventDictionary, DateTimeOffset starOfDay, Dictionary<string, Location> locations,  DateTimeOffset referenceNow, TilerUser user): base()
+        public Schedule(Dictionary<string, CalendarEvent> allEventDictionary, DateTimeOffset starOfDay, Dictionary<string, Location> locations,  DateTimeOffset referenceNow, TilerUser user, TimeLine rangeOfLookup): base()
         {
             AllEventDictionary = allEventDictionary;
             TilerUser = user;
             TimeZoneDifference = user.TimeZoneDifference;
             _Now = new ReferenceNow(referenceNow, starOfDay, TimeZoneDifference);
+            this.RangeOfLookup = rangeOfLookup;
             this.Locations = locations;
         }
 
@@ -1999,6 +2002,10 @@ namespace TilerCore
                 //CannotFitInAnyFreespot = CannotFitInAnyFreespot.Except(CannotFitInAnyFreespot.Where(obj => obj.canExistWithinTimeLine(eachTimeLine))).ToList();
             }
 
+            IEnumerable<SubCalendarEvent> willNotFit = CannotFitInAnyFreespot.ToList();
+#if INPROD
+
+#else
             Dictionary<SubCalendarEvent, List<TimeLine>> NoFreeSpaceToConflictingSpaces= new Dictionary<SubCalendarEvent,List<TimeLine>>();
 
             foreach (SubCalendarEvent eachSubCalendarEvent in CannotFitInAnyFreespot)//builds dictionary NoFreeSpaceToConflictingSpaces by getting all the non free spots possible withing the attained freespots
@@ -2014,15 +2021,16 @@ namespace TilerCore
                 if (AllAvailableTimeLines.Value.Count > 0)
                 {
                     TimeLine MaxFreeSpotAvailable = AllAvailableTimeLines.Value.First();
-                    if (!AllAvailableTimeLines.Key.PinToPossibleLimit(MaxFreeSpotAvailable))
+                    if (AllAvailableTimeLines.Key.PinToPossibleLimit(MaxFreeSpotAvailable))// this should never be true because it should not be able to fit within any time lines. CannotFitInAnyFreespot already checks if it fits in anytime line. This is most likely redundant code that should be delted for prod
                     {
                         throw new Exception("There is an error in PrepareElementsThatWillNotFit PinToPossibleLimit");
                     }
                 }
             }
+            willNotFit = NoFreeSpaceToConflictingSpaces.Keys;
+#endif
 
-
-            List<BlobSubCalendarEvent> AllConflictingEvents = Utility.getConflictingEvents(AllRigidEvents.Concat(NoFreeSpaceToConflictingSpaces.Keys));
+            List<BlobSubCalendarEvent> AllConflictingEvents = Utility.getConflictingEvents(AllRigidEvents.Concat(willNotFit));
 
             List<CalendarEvent> allCalEvent = AllConflictingEvents.Select(obj => CalendarEvent.getEmptyCalendarEvent(new EventID(obj.SubEvent_ID.getCalendarEventID()), obj.Start, obj.End)).ToList();
             

@@ -45,5 +45,6 @@ namespace TilerElements
         public string ThirdPartyUserID { get; set; }
         public string ThirdPartyType { get; set; }
         public string Notes { get; set; }
+        public CalEvent CalEvent { get; set; }
     }
 }

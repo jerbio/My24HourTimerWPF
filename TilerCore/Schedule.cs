@@ -2864,22 +2864,26 @@ namespace TilerCore
                     {
                         List<double> result = Utility.EvaluateTimeLines(AllDayTImeLine, subEvent);
                         int index = result.MinIndex();
-                        var timeLineAndSubEvents = getThreeContinuousDay(AllDayTImeLine, index);
-                        TimelineWithSubcalendarEvents timeLine = timeLineAndSubEvents.Item1;
-                        List<SubCalendarEvent> singleTonList = new List<SubCalendarEvent> { subEvent };
-                        List<SubCalendarEvent> alreadyAssignedSubEvens = timeLine.getSubEventsInTimeLine()
-                            .OrderBy(obj => obj.Start).ToList();
-
-                        List<SubCalendarEvent> Reassigned = StitchUnrestricted(timeLine, alreadyAssignedSubEvens.ToList(), alreadyAssignedSubEvens.Concat(singleTonList).ToList());
-                        if (Reassigned.Contains(subEvent))
+                        if(index >=0 )
                         {
-                            DayTimeLine startDayTimeLine = Now.getDayTimeLineByTime(subEvent.Start);
-                            DayTimeLine endDayTimeLine = Now.getDayTimeLineByTime(subEvent.End);
-                            startDayTimeLine.AddToSubEventList(subEvent);
-                            endDayTimeLine.AddToSubEventList(subEvent);
-                            reOptimizedDays.Add(startDayTimeLine);
-                            reOptimizedDays.Add(endDayTimeLine);
+                            var timeLineAndSubEvents = getThreeContinuousDay(AllDayTImeLine, index);
+                            TimelineWithSubcalendarEvents timeLine = timeLineAndSubEvents.Item1;
+                            List<SubCalendarEvent> singleTonList = new List<SubCalendarEvent> { subEvent };
+                            List<SubCalendarEvent> alreadyAssignedSubEvens = timeLine.getSubEventsInTimeLine()
+                                .OrderBy(obj => obj.Start).ToList();
+
+                            List<SubCalendarEvent> Reassigned = StitchUnrestricted(timeLine, alreadyAssignedSubEvens.ToList(), alreadyAssignedSubEvens.Concat(singleTonList).ToList());
+                            if (Reassigned.Contains(subEvent))
+                            {
+                                DayTimeLine startDayTimeLine = Now.getDayTimeLineByTime(subEvent.Start);
+                                DayTimeLine endDayTimeLine = Now.getDayTimeLineByTime(subEvent.End);
+                                startDayTimeLine.AddToSubEventList(subEvent);
+                                endDayTimeLine.AddToSubEventList(subEvent);
+                                reOptimizedDays.Add(startDayTimeLine);
+                                reOptimizedDays.Add(endDayTimeLine);
+                            }
                         }
+                        
 
                     }
                 );

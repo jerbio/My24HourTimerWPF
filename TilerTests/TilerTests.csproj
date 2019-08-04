@@ -120,6 +120,18 @@
     <Compile Include="LogControlDump.cs" />
     <Compile Include="LogControlTest.cs" />
     <Compile Include="LogicTest.cs" />
+    <Compile Include="Migrations\201908031528265_fixRepetition.cs" />
+    <Compile Include="Migrations\201908031528265_fixRepetition.Designer.cs">
+      <DependentUpon>201908031528265_fixRepetition.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201908031714162_fixRepetitionParent.cs" />
+    <Compile Include="Migrations\201908031714162_fixRepetitionParent.Designer.cs">
+      <DependentUpon>201908031714162_fixRepetitionParent.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201908032053494_fixRepetitionParent_ForSubalendarEvemt.cs" />
+    <Compile Include="Migrations\201908032053494_fixRepetitionParent_ForSubalendarEvemt.Designer.cs">
+      <DependentUpon>201908032053494_fixRepetitionParent_ForSubalendarEvemt.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
     <Compile Include="Models\TestGoogleEvent.cs" />
@@ -228,6 +240,17 @@
     <Content Include="WagTapCalLogs\f64b4f1c-1d15-4b03-81fd-6b5c0e6d451b\f64b4f1c-1d15-4b03-81fd-6b5c0e6d451b.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201908031528265_fixRepetition.resx">
+      <DependentUpon>201908031528265_fixRepetition.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201908031714162_fixRepetitionParent.resx">
+      <DependentUpon>201908031714162_fixRepetitionParent.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201908032053494_fixRepetitionParent_ForSubalendarEvemt.resx">
+      <DependentUpon>201908032053494_fixRepetitionParent_ForSubalendarEvemt.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

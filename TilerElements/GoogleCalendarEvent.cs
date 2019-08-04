@@ -40,6 +40,7 @@ namespace TilerElements
             _DataBlob = new MiscData();
             _ProfileOfNow = new NowProfile();
             SubCalendarEvent mySubCal = GoogleSubCalendarEvent.convertFromGoogleToSubCalendarEvent( SubCalData, _LocationInfo);//.convertFromGoogleToSubCalendarEvent();
+            mySubCal.ParentCalendarEvent = this;
             SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
             SubEvents.Collection.Add(mySubCal.Id, mySubCal);
         }

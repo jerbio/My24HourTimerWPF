@@ -10,7 +10,7 @@ namespace TilerElements
         protected BlobSubCalendarEvent():base()
         {
             BlobEvent = true;
-            RigidSchedule = true;
+            _RigidSchedule = true;
         }
         HashSet<SubCalendarEvent> EventClumps;
 
@@ -22,7 +22,7 @@ namespace TilerElements
             BusyFrame = new BusyTimeLine(UniqueID.ToString(), StartDateTime, EndDateTime);
             _CalendarEventRange = new TimeLine(StartDateTime,EndDateTime);
             CalendarEvent nullEvent = CalendarEvent.getEmptyCalendarEvent(UniqueID, StartDateTime, EndDateTime);
-            RigidSchedule = true;
+            _RigidSchedule = true;
             double halfDouble=Double.MaxValue/2;
             _LocationInfo = Location.AverageGPSLocation(InterFerringEvents.Where(Obj => Obj.Location.Latitude < halfDouble).Select(obj => obj.Location));
             EventScore = 0;

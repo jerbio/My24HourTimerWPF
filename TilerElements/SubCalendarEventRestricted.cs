@@ -28,7 +28,7 @@ namespace TilerElements
             initializeCalendarEventRange(_ProfileOfRestriction,HardCalendarEventRange);
             BusyFrame = new BusyTimeLine(UniqueID.ToString(),StartDateTime, EndDateTime);
             _Users = new TilerUserGroup();
-            RigidSchedule = RigidFlag;
+            _RigidSchedule = RigidFlag;
             _Complete = isComplete;
             _Enabled = isEnabled;
             _EventPreDeadline = PreDeadline;
@@ -239,7 +239,7 @@ namespace TilerElements
             copy._PrepTime = this._PrepTime;
             copy._Priority = this._Priority;
             copy._ProfileOfRestriction = this._ProfileOfRestriction.createCopy();
-            copy.RigidSchedule = this.RigidSchedule;
+            copy._RigidSchedule = this._RigidSchedule;
             copy.StartDateTime = this.StartDateTime;
             copy._UiParams = this._UiParams?.createCopy();
 
@@ -409,7 +409,7 @@ namespace TilerElements
             retValue._Priority = this.getEventPriority;
             retValue._ProfileOfNow = this._ProfileOfNow?.CreateCopy();
             retValue._ProfileOfProcrastination = this._ProfileOfProcrastination?.CreateCopy();
-            retValue.RigidSchedule = this.RigidSchedule;
+            retValue._RigidSchedule = this._RigidSchedule;
             retValue.StartDateTime = this.Start;
             retValue._UiParams = this.getUIParam;
             retValue.UniqueID = this.SubEvent_ID;
@@ -429,7 +429,7 @@ namespace TilerElements
             TimeSpan SpanShift = NowData.PreferredTime - retValue.Start;
             retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventID.ToString());
             retValue.shiftEvent(SpanShift, true);
-            retValue.RigidSchedule = true;
+            retValue._RigidSchedule = true;
             return retValue;
         }
 

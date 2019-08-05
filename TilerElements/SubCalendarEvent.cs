@@ -85,7 +85,7 @@ namespace TilerElements
             BusyFrame = new BusyTimeLine(this.getId, StartDateTime, EndDateTime);//this is because in current implementation busy frame is the same as CalEvent frame
             this._LocationInfo = EventLocation;
 //            EventSequence = new EventTimeLine(UniqueID.ToString(), StartDateTime, EndDateTime);
-            RigidSchedule = Rigid;
+            _RigidSchedule = Rigid;
             this._Enabled = Enabled;
             _LastReasonStartTimeChanged = this.Start;
             _calendarEvent = calendarEvent;
@@ -112,7 +112,7 @@ namespace TilerElements
             EndDateTime = EventDeadline;
             _EventDuration = SubEventBusy.TimelineSpan;
             BusyFrame = SubEventBusy;
-            RigidSchedule = Rigid;
+            _RigidSchedule = Rigid;
             this._Enabled = Enabled;
             this._LocationInfo = EventLocation;
             _UiParams = UiParam;
@@ -245,7 +245,7 @@ namespace TilerElements
 
         public void resetTempUnlock()
         {
-            RigidSchedule = true;
+            tempLock = false;
         }
 
         virtual public void addReasons(Reason eventReason)
@@ -313,11 +313,11 @@ namespace TilerElements
         {
             SubCalendarEvent retValue = new SubCalendarEvent();
             retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventId.ToString());
-            retValue.StartDateTime = DateTimeOffset.UtcNow;
-            retValue.EndDateTime = DateTimeOffset.UtcNow;
+            retValue.StartDateTime = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
+            retValue.EndDateTime = retValue.StartDateTime;
             retValue._EventDuration = new TimeSpan(0);
             
-            retValue.RigidSchedule= true;
+            retValue._RigidSchedule= true;
             retValue._Complete = true;
             retValue._Enabled = false;
             return retValue;
@@ -345,7 +345,7 @@ namespace TilerElements
             {
                 Id = this.getId;
             }
-            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ParentCalendarEvent, getCreator, _Users, this._TimeZone, Id, this.getName.createCopy(), Start, End, BusyFrame.CreateCopy(), this.RigidSchedule, this.isEnabled, this._UiParams?.createCopy(), this.Notes?.createCopy(), this._Complete, this._LocationInfo, new TimeLine(getCalendarEventRange.Start, getCalendarEventRange.End), ConflictingEvents?.CreateCopy());
+            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ParentCalendarEvent, getCreator, _Users, this._TimeZone, Id, this.getName.createCopy(), Start, End, BusyFrame.CreateCopy(), this._RigidSchedule, this.isEnabled, this._UiParams?.createCopy(), this.Notes?.createCopy(), this._Complete, this._LocationInfo, new TimeLine(getCalendarEventRange.Start, getCalendarEventRange.End), ConflictingEvents?.CreateCopy());
             MySubCalendarEventCopy.ThirdPartyID = this.ThirdPartyID;
             MySubCalendarEventCopy._UserDeleted = this._UserDeleted;
             MySubCalendarEventCopy.isRestricted = this.isRestricted;
@@ -555,7 +555,7 @@ namespace TilerElements
         virtual public SubCalendarEvent getNowCopy(EventID CalendarEventID, NowProfile NowData)
         {
             SubCalendarEvent retValue = getCalulationCopy();
-            retValue.RigidSchedule = true;
+            retValue._RigidSchedule = true;
             TimeSpan SpanShift = NowData.PreferredTime - retValue.Start;
             retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventID.ToString());
             retValue.shiftEvent(SpanShift, true);
@@ -585,7 +585,7 @@ namespace TilerElements
             retValue._PrepTime = this.getPreparation;
             retValue._Priority = this.getEventPriority;
             retValue._ProfileOfNow = this._ProfileOfNow;
-            retValue.RigidSchedule = this.RigidSchedule;
+            retValue._RigidSchedule = this._RigidSchedule;
             retValue.StartDateTime = this.Start;
             retValue._UiParams = this.getUIParam;
             retValue.UniqueID = this.SubEvent_ID;
@@ -965,6 +965,62 @@ namespace TilerElements
         {
             SubEVents.AsParallel().ForAll(obj=>{obj.UnUsableIndex=UnwantedIndex;});
         }
+
+        /// <summary>
+        /// Function sets the subevent as Rigid. Note: this can be different from locked
+        /// </summary>
+        /// <param name="calEvent"></param>
+        internal void RigidizeEvent(CalendarEvent calEvent)
+        {
+            bool lockChangeAllowed = false;
+            if((calEvent)!=null 
+                && (
+                    ((ParentCalendarEvent!=null) && ParentCalendarEvent.Id == calEvent.Id ) || 
+                    ((RepeatParentEvent != null) && RepeatParentEvent.Id == calEvent.Id)
+                )
+            )
+            {
+                lockChangeAllowed = true;
+            }
+
+            if(lockChangeAllowed)
+            {
+                _RigidSchedule = true;
+            }
+            else
+            {
+                throw new Exception("Tried modifying the rigid status, but cannot validate the ParentCalendar Event or Repeat parent calendarevent");
+            }
+        }
+
+        /// <summary>
+        /// Function makes subevent non rigid. Note: this can be different from locked
+        /// </summary>
+        /// <param name="calEvent"></param>
+        internal void UnRigidizeEvent(CalendarEvent calEvent)
+        {
+            bool lockChangeAllowed = false;
+            if ((calEvent) != null
+                && (
+                    ((ParentCalendarEvent != null) && ParentCalendarEvent.Id == calEvent.Id) ||
+                    ((RepeatParentEvent != null) && RepeatParentEvent.Id == calEvent.Id)
+                )
+            )
+            {
+                lockChangeAllowed = true;
+            }
+
+            if (lockChangeAllowed)
+            {
+                _RigidSchedule = false;
+            }
+            else
+            {
+                throw new Exception("Tried modifying the rigid status, but cannot validate the ParentCalendar Event or Repeat parent calendarevent");
+            }
+
+            
+        }
         #endregion
 
         #region Class Properties
@@ -1287,6 +1343,10 @@ namespace TilerElements
             }
         }
 
+        /// <summary>
+        /// SInce the function shiftSUbEventsByTimeAndId reorders all sub events by time and Id, meaning the subevent withe lowest alphabetically ordered id gets the earliesttime
+        /// This ensures that when the "shiftSUbEventsByTimeAndId" is called the subevent doesn't get reordered from the id.
+        /// </summary>
         public virtual bool LockToId
         {
             get

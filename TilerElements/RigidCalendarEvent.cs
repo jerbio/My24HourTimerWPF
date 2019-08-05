@@ -22,7 +22,7 @@ namespace TilerElements
                  NameEntry, StartData, EndData, EventDuration, eventPrepTime, PreDeadlineTimeSpan, 1, EventRepetitionEntry, UiData, NoteData, EnabledEventFlag, CompletionFlag, null, null, EventLocation, creator, users, false, DateTimeOffset.UtcNow, timeZone, semantics)
         {
             UniqueID = eventId ?? this.UniqueID; /// already initialized by parent initialization
-            RigidSchedule = true;
+            _RigidSchedule = true;
             if (IsRepeat)
             {
                 _AverageTimePerSplit = new TimeSpan();
@@ -42,12 +42,12 @@ namespace TilerElements
 
         protected RigidCalendarEvent():base()
         {
-            RigidSchedule = true;
+            _RigidSchedule = true;
         }
 
         public RigidCalendarEvent(CalendarEvent MyUpdated, SubCalendarEvent[] MySubEvents) : base(MyUpdated, MySubEvents)
         {
-            RigidSchedule = true;
+            _RigidSchedule = true;
         }
 
         public override void initializeSubEvents()
@@ -55,7 +55,7 @@ namespace TilerElements
             SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
             for (int i = 0; i < _Splits; i++)
             {
-                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(this, getCreator, _Users, _TimeZone, _AverageTimePerSplit, this.getName, (EndDateTime - _AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), RigidSchedule, this._Enabled, this._UiParams, this.Notes, this._Complete, this._LocationInfo, this.RangeTimeLine);
+                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(this, getCreator, _Users, _TimeZone, _AverageTimePerSplit, this.getName, (EndDateTime - _AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), _RigidSchedule, this._Enabled, this._UiParams, this.Notes, this._Complete, this._LocationInfo, this.RangeTimeLine);
                 newSubCalEvent.TimeCreated = this.TimeCreated;
                 SubEvents.Add(newSubCalEvent.Id, newSubCalEvent);
             }

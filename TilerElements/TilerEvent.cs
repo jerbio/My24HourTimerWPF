@@ -22,7 +22,7 @@ namespace TilerElements
         protected EventDisplay _UiParams;
         protected MiscData _DataBlob;
         protected Repetition _EventRepetition;
-        protected bool RigidSchedule;
+        protected bool _RigidSchedule;
         protected TimeSpan _EventDuration;
         protected string _otherPartyID;
         protected TimeSpan _EventPreDeadline;
@@ -190,7 +190,7 @@ namespace TilerElements
             _UiParams.undoUpdate(undo);
             _DataBlob.undoUpdate(undo);
             _EventRepetition.undoUpdate(undo);
-            UndoRigidSchedule = RigidSchedule;
+            UndoRigidSchedule = _RigidSchedule;
             UndoEventDuration = _EventDuration;
             UndootherPartyID = _otherPartyID;
             UndoEventPreDeadline = _EventPreDeadline;
@@ -224,7 +224,7 @@ namespace TilerElements
                 _UiParams.undo(undoId);
                 _DataBlob.undo(undoId);
                 _EventRepetition.undo(undoId);
-                Utility.Swap(ref UndoRigidSchedule, ref RigidSchedule);
+                Utility.Swap(ref UndoRigidSchedule, ref _RigidSchedule);
                 Utility.Swap(ref UndoEventDuration, ref _EventDuration);
                 Utility.Swap(ref UndootherPartyID, ref _otherPartyID);
                 Utility.Swap(ref UndoEventPreDeadline, ref _EventPreDeadline);
@@ -257,7 +257,7 @@ namespace TilerElements
                 _UiParams.undo(undoId);
                 _DataBlob.undo(undoId);
                 _EventRepetition.undo(undoId);
-                Utility.Swap(ref UndoRigidSchedule, ref RigidSchedule);
+                Utility.Swap(ref UndoRigidSchedule, ref _RigidSchedule);
                 Utility.Swap(ref UndoEventDuration, ref _EventDuration);
                 Utility.Swap(ref UndootherPartyID, ref _otherPartyID);
                 Utility.Swap(ref UndoEventPreDeadline, ref _EventPreDeadline);
@@ -625,11 +625,11 @@ namespace TilerElements
         {
             get
             {
-                return this.RigidSchedule;
+                return this._RigidSchedule;
             }
             set
             {
-                this.RigidSchedule = value;
+                this._RigidSchedule = value;
             }
         }
 
@@ -970,7 +970,7 @@ namespace TilerElements
         {
             get
             {
-                return RigidSchedule;
+                return _RigidSchedule;
             }
         }
 

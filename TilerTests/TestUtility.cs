@@ -42,7 +42,20 @@ namespace TilerTests
             initializeLocation();
         }
 
+        public static Packet CreatePacket()
+        {
+            var tuple = createContextAndUser();
+            Packet retValue = new Packet(tuple.Item2, tuple.Item1);
+            return retValue;
+        }
+
         public static TilerUser createUser (string userId = "", string userName = "", string password = "", string email = "")
+        {
+            var tuple = createContextAndUser(userId, userName, password, email);
+            return tuple.Item2;
+        }
+
+        private static Tuple<DbContext, TilerUser> createContextAndUser(string userId = "", string userName = "", string password = "", string email = "")
         {
             if (string.IsNullOrEmpty(userId))
             {
@@ -58,7 +71,7 @@ namespace TilerTests
             {
                 password = userId + "password";
             }
-            if(string.IsNullOrEmpty(email))
+            if (string.IsNullOrEmpty(email))
             {
                 email = userId + "@testuser.com";
             }
@@ -75,19 +88,19 @@ namespace TilerTests
             TilerUser user2 = new TilerUser()
             {
                 Id = Guid.NewGuid().ToString(),
-                UserName = userName+ Guid.NewGuid().ToString(),
+                UserName = userName + Guid.NewGuid().ToString(),
                 Email = email + Guid.NewGuid().ToString(),
                 PasswordHash = password + Guid.NewGuid().ToString()
             };
             TestDBContext context = new TestDBContext();
             CalendarEvent calEvent = createProcrastinateCalendarEvent(user);
-            //CalendarEvent calEvent2 = generateCalendarEvent(user, TimeSpan.FromSeconds(1), new Repetition(), DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.AddHours(1));
 
             context.Users.Add(user);
             context.CalEvents.Add(calEvent);
-            //context.CalEvents.Add(calEvent2);
             context.SaveChanges();
-            TilerUser retValue = context.Users.Find(userId);
+            TilerUser retrivedUser = context.Users.Find(userId);
+
+            Tuple<DbContext, TilerUser> retValue = new Tuple<DbContext, TilerUser>(context, retrivedUser);
 
             return retValue;
         }
@@ -944,6 +957,42 @@ namespace TilerTests
         public static DateTimeOffset parseAsUTC(string dateString)
         {
             return DateTimeOffset.Parse(dateString, null, DateTimeStyles.AssumeUniversal);
+        }
+
+        public class Packet
+        {
+            TilerUser _User;
+            DbContext _Context;
+            UserAccount _Account;
+            public UserAccount Account
+            {
+                get
+                {
+                    return _Account;
+                }
+            }
+            public TilerUser User { get {
+                    return _User;
+                }
+            }
+            public DbContext Context
+            {
+                get
+                {
+                    return _Context;
+                }
+            }
+            internal Packet (TilerUser user, DbContext context)
+            {
+                _User = user;
+                _Context = context;
+                _Account = getTestUser(userId: _User.Id);
+            }
+
+            public void reloadAll ()
+            {
+                TestUtility.reloadTilerUser(ref _Account, ref _User);
+            }
         }
     }
 }

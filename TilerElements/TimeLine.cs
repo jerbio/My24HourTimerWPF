@@ -321,21 +321,7 @@ namespace TilerElements
                 return EndTime - StartTime;
             }
         }
-
-        public virtual TimeSpan TimeTillEnd
-        {
-            get
-            {
-                return EndTime - DateTimeOffset.UtcNow;
-            }
-        }
-        public virtual TimeSpan TimeTillStart
-        {
-            get
-            {
-                return StartTime - DateTimeOffset.UtcNow;
-            }
-        }
+        
 
         public virtual TimeSpan TotalFreeSpotAvailable
         {

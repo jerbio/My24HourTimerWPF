@@ -177,7 +177,7 @@ namespace TilerElements
 
             for (int i = 0; i < _Splits; i++)// This is still is still called when dealing with repeat events. Meaning repeat calendar events all have an unnecessary extra subevent
             {
-                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(this, getCreator, _Users, _TimeZone, _AverageTimePerSplit, this.getName, (EndDateTime - _AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), RigidSchedule, this._Enabled, this._UiParams, this.Notes, this._Complete, this._LocationInfo, this.RangeTimeLine);
+                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(this, getCreator, _Users, _TimeZone, _AverageTimePerSplit, this.getName, (EndDateTime - _AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), _RigidSchedule, this._Enabled, this._UiParams, this.Notes, this._Complete, this._LocationInfo, this.RangeTimeLine);
                 newSubCalEvent.TimeCreated = this.TimeCreated;
                 SubEvents.Add(newSubCalEvent.Id, newSubCalEvent);
             }
@@ -194,7 +194,7 @@ namespace TilerElements
             _Splits = MyUpdated._Splits;
             _PrepTime = MyUpdated._PrepTime;
             _EventPreDeadline = MyUpdated.getPreDeadline;
-            RigidSchedule = MyUpdated.RigidSchedule;
+            _RigidSchedule = MyUpdated._RigidSchedule;
             _userLocked = MyUpdated.userLocked;
             _AverageTimePerSplit = MyUpdated._AverageTimePerSplit;
             _Enabled = MyUpdated.isEnabled;
@@ -390,7 +390,7 @@ namespace TilerElements
             _PrepTime = new TimeSpan();
             _Priority = 0;
             _EventRepetition = new Repetition();
-            RigidSchedule = false;
+            _RigidSchedule = false;
             _Splits = 1;
             _LocationInfo = new Location();
             UniqueID = EventID.GenerateCalendarEvent();
@@ -464,7 +464,7 @@ namespace TilerElements
             MyCalendarEventCopy._Priority = _Priority;
             MyCalendarEventCopy._EventRepetition = _EventRepetition?.CreateCopy();
             MyCalendarEventCopy._Complete = this._Complete;
-            MyCalendarEventCopy.RigidSchedule = RigidSchedule;//hack
+            MyCalendarEventCopy._RigidSchedule = _RigidSchedule;//hack
             MyCalendarEventCopy._Splits = _Splits;
             MyCalendarEventCopy._userLocked = this._userLocked;
             MyCalendarEventCopy._AverageTimePerSplit = new TimeSpan(_AverageTimePerSplit.Ticks);
@@ -522,7 +522,7 @@ namespace TilerElements
             SubCalendarEvent emptySubEvent = SubCalendarEvent.getEmptySubCalendarEvent(retValue.UniqueID);
             retValue.SubEvents.Add(emptySubEvent.Id, emptySubEvent);
             retValue._Splits = 1;
-            retValue.RigidSchedule = true;
+            retValue._RigidSchedule = true;
             retValue._Complete = true;
 
             retValue._Enabled = false;
@@ -587,6 +587,34 @@ namespace TilerElements
             if (goDeep)
             {
                 EnableSubEvents(AllSubEvents);
+            }
+        }
+
+        virtual public void RigidizeSubEvent(EventID subEventId)
+        {
+            RigidizeSubEvent(subEventId.ToString());
+        }
+
+        virtual public void UnRigidizeSubEvent(EventID subEventId)
+        {
+            UnRigidizeSubEvent(subEventId.ToString());
+        }
+
+        virtual public void RigidizeSubEvent(string subEventId)
+        {
+            SubCalendarEvent subEVent = getSubEvent(subEventId);
+            if (subEVent != null)
+            {
+                subEVent.RigidizeEvent(this);
+            }
+        }
+
+        virtual public void UnRigidizeSubEvent(string subEventId)
+        {
+            SubCalendarEvent subEVent = getSubEvent(subEventId);
+            if (subEVent != null)
+            {
+                subEVent.UnRigidizeEvent(this);
             }
         }
 
@@ -1112,7 +1140,7 @@ namespace TilerElements
                 _Priority=CalendarEventEntry._Priority;
                 _EventRepetition=CalendarEventEntry._EventRepetition;
                 _Complete = CalendarEventEntry._Complete;
-                RigidSchedule = CalendarEventEntry.RigidSchedule;
+                _RigidSchedule = CalendarEventEntry._RigidSchedule;
                 _Splits=CalendarEventEntry._Splits;
                 _AverageTimePerSplit=CalendarEventEntry._AverageTimePerSplit;
                 UniqueID=CalendarEventEntry.UniqueID;
@@ -1379,7 +1407,7 @@ namespace TilerElements
             RetValue._Priority = this.getEventPriority;
             RetValue._EventRepetition = this.Repeat;// EventRepetition != this.null ? EventRepetition.CreateCopy() : EventRepetition;
             RetValue._Complete = this.getIsComplete;
-            RetValue.RigidSchedule = this.RigidSchedule;//hack
+            RetValue._RigidSchedule = this._RigidSchedule;//hack
             RetValue._Splits = this._Splits;
             RetValue._AverageTimePerSplit = this.AverageTimeSpanPerSubEvent;
             RetValue.UniqueID = EventID.GenerateCalendarEvent();
@@ -1428,7 +1456,7 @@ namespace TilerElements
             SubCalendarEvent ProcrastinatonCopy = this.ActiveSubEvents[0].getNowCopy(retValue.UniqueID, NowProfileData);
             ProcrastinatonCopy.ParentCalendarEvent = retValue;
             retValue.EndDateTime = ProcrastinatonCopy.End;
-            retValue.RigidSchedule = true;
+            retValue._RigidSchedule = true;
             retValue.SubEvents.Add(ProcrastinatonCopy.Id, ProcrastinatonCopy);
             return retValue;
         }
@@ -1506,7 +1534,7 @@ namespace TilerElements
             List<SubCalendarEvent> newSubs = new List<SubCalendarEvent>();
             for (int i = 0; i < delta; i++)
             {
-                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(this, getCreator, _Users,_TimeZone, _AverageTimePerSplit, this.getName, (EndDateTime - _AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), RigidSchedule, this.isEnabled, this._UiParams, this.Notes, this._Complete, _LocationInfo, this.RangeTimeLine);
+                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(this, getCreator, _Users,_TimeZone, _AverageTimePerSplit, this.getName, (EndDateTime - _AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), _RigidSchedule, this.isEnabled, this._UiParams, this.Notes, this._Complete, _LocationInfo, this.RangeTimeLine);
                 SubEvents.Add(newSubCalEvent.Id, newSubCalEvent);
                 _EventDuration = _EventDuration.Add(newSubCalEvent.getActiveDuration);
                 newSubCalEvent.UiParamsId = this.UiParamsId;

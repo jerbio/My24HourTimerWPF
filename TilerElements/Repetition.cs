@@ -179,7 +179,7 @@ namespace TilerElements
 
 
 
-            if (MyParentEvent.isLocked)
+            if (MyParentEvent.isRigid)
             {
                 
                 EachRepeatCalendarStart = _initializingRange.Start;
@@ -242,7 +242,7 @@ namespace TilerElements
                 }
 
                 MyEventCalendarID = EventID.GenerateRepeatCalendarEvent(MyParentEvent.getId);
-                if (MyRepeatCalendarEvent.isLocked)
+                if (MyRepeatCalendarEvent.isRigid)
                 {
                     MyRepeatCalendarEvent = new RigidCalendarEvent(MyRepeatCalendarEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyRepeatCalendarEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyRepeatCalendarEvent.Repeat,MyParentEvent.Location,  MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID);
                 } else
@@ -351,7 +351,7 @@ namespace TilerElements
             this._RepetitionRange = repetitionTimeline;
             EventID MyEventCalendarID = EventID.GenerateRepeatDayCalendarEvent(MyParentEvent.getId, WeekDay);
             CalendarEvent MyRepeatCalendarEvent;
-            if (MyParentEvent.isLocked)
+            if (MyParentEvent.isRigid)
             {
                 MyRepeatCalendarEvent = new RigidCalendarEvent(MyParentEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, repetitionData, MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.isEnabled,  MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID);
             }

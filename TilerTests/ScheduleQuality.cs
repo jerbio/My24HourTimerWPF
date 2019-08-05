@@ -47,7 +47,7 @@ namespace TilerTests
             refNow = firstDayFromStart;
             Schedule = new TestSchedule(user, refNow);
             SubCalendarEvent subEvent = testEvent.ActiveSubEvents.First();
-            Schedule.SetEventAsNow(subEvent.Id);
+            Schedule.SetSubeventAsNow(subEvent.Id);
             Schedule.persistToDB().Wait();
 
 
@@ -66,7 +66,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             subEvent = testEvent.ActiveSubEvents.First();
             testEvent = Schedule.getCalendarEvent(testEvent.Id);
-            Schedule.SetEventAsNow(subEvent.Id);
+            Schedule.SetSubeventAsNow(subEvent.Id);
             Schedule.persistToDB().Wait();
 
 
@@ -143,13 +143,15 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             refNow = firstDayFromStart;
             Schedule = new TestSchedule(user, refNow);
-            SubCalendarEvent subEvent = testEvent.ActiveSubEvents.First();
-            Schedule.SetEventAsNow(subEvent.Id);
+            testEvent = Schedule.getCalendarEvent(testEvent.Id);
+            SubCalendarEvent subEvent = testEvent.ActiveSubEvents.OrderBy(sub => sub.Start).First();
+            Schedule.SetSubeventAsNow(subEvent.Id);
             Schedule.persistToDB().Wait();
 
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
+            testEvent = Schedule.getCalendarEvent(testEvent.Id);
             Schedule.markSubEventAsComplete(subEvent.Id).Wait();
             Schedule.persistToDB().Wait();
 
@@ -157,16 +159,17 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             refNow = secondDayFromStart;
             Schedule = new TestSchedule(user, refNow);
-            subEvent = testEvent.ActiveSubEvents.First();
             testEvent = Schedule.getCalendarEvent(testEvent.Id);
-            Schedule.SetEventAsNow(subEvent.Id);
+            subEvent = testEvent.ActiveSubEvents.OrderBy(sub => sub.Start).First();
+            testEvent = Schedule.getCalendarEvent(testEvent.Id);
+            Schedule.SetSubeventAsNow(subEvent.Id);
             Schedule.persistToDB().Wait();
 
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
             testEvent = Schedule.getCalendarEvent(testEvent.Id);
-            subEvent = testEvent.ActiveSubEvents.First();
+            subEvent = testEvent.ActiveSubEvents.OrderBy(sub => sub.Start).First();
             Schedule.markSubEventAsComplete(subEvent.Id).Wait();
             Schedule.persistToDB().Wait();
 
@@ -264,7 +267,7 @@ namespace TilerTests
                 refNow = repeatDates[i];
                 Schedule = new TestSchedule(user, refNow);
                 SubCalendarEvent subEvent = repeatEvent.ActiveSubEvents.First();
-                Schedule.SetEventAsNow(subEvent.Id);
+                Schedule.SetSubeventAsNow(subEvent.Id);
                 Schedule.persistToDB().Wait();
 
 
@@ -280,7 +283,7 @@ namespace TilerTests
                 refNow = testEvent0Dates[i];
                 Schedule = new TestSchedule(user, refNow);
                 SubCalendarEvent subEvent = testEvent0.ActiveSubEvents.First();
-                Schedule.SetEventAsNow(subEvent.Id);
+                Schedule.SetSubeventAsNow(subEvent.Id);
                 Schedule.persistToDB().Wait();
 
 

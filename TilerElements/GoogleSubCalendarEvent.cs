@@ -22,7 +22,7 @@ namespace TilerElements
             BusyFrame = new BusyTimeLine(SubCalData.ID, Start, End);
             _CalendarEventRange = new TimeLine(Start, End);
             UniqueID = new EventID(SubCalData.ID);
-            RigidSchedule = true;
+            _RigidSchedule = true;
             _EventPreDeadline = new TimeSpan();
             _Priority = SubCalData.Priority;
             ConflictingEvents = new ConflictProfile();

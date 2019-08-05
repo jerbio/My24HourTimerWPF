@@ -1262,7 +1262,7 @@ namespace My24HourTimerWPF
                             MessageBoxResult result = MessageBox.Show(ScheduleUpdateMessage.Item1.Message, "Do you want to continue with this collision? ", MessageBoxButton.YesNo, MessageBoxImage.Question);
                             if (result == MessageBoxResult.Yes)
                             {
-                                ScheduleUpdateMessage=MySchedule.SetEventAsNow(EventID, true); ;
+                                ScheduleUpdateMessage=MySchedule.SetSubeventAsNow(EventID, true); ;
                                 await MySchedule.persistToDB().ConfigureAwait(false);
                             }
                         }

@@ -22,9 +22,9 @@ namespace TilerElements
             StartDateTime = Start;
             EndDateTime = End;
             _Splits = 1;
-            RigidSchedule = true;
+            _RigidSchedule = true;
             UniqueID = new EventID(new EventID(SubCalData.ID).getRepeatCalendarEventID());
-            RigidSchedule = true;
+            _RigidSchedule = true;
 
             _EventPreDeadline = new TimeSpan();
             _Priority = SubCalData.Priority;

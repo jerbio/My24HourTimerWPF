@@ -51,6 +51,18 @@ namespace TilerCore
     public class Schedule : IWhy
     {
         public const int TimeLookUpDayCount = 90;
+        string _Id { get; set; }
+        public string Id
+        {
+            get
+            {
+                return _Id ?? (_Id = Guid.NewGuid().ToString());
+            }
+            set
+            {
+                _Id = value;
+            }
+        }
         protected Dictionary<string, CalendarEvent> AllEventDictionary;
         protected DateTimeOffset ReferenceDayTIime;
         protected Dictionary<string, Location> Locations;
@@ -435,6 +447,7 @@ namespace TilerCore
                 if (!isFromRigidEvent)
                 {
                     mySubCalEvent.UpdateThis(ChangedSubCal);
+                    myCalendarEvent.RigidizeSubEvent(mySubCalEvent.Id);
                     mySubCalEvent.tempLockSubEvent();
                 }
                 else
@@ -1023,12 +1036,12 @@ namespace TilerCore
             {
                 Dictionary<string, CalendarEvent> AllEventDictionary_Cpy = AllEventDictionary.ToDictionary(obj => obj.Key, obj => obj.Value.createCopy());
                 SubCalendarEvent mySubCalendarEvent = orderedSubEvents.First();
-                retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(SetEventAsNow(mySubCalendarEvent.getId, true).Item1, AllEventDictionary_Cpy);
+                retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(SetSubeventAsNow(mySubCalendarEvent.getId, true).Item1, AllEventDictionary_Cpy);
             }
             return retValue;
         }
 
-        public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> SetEventAsNow(string EventID,bool Force=false)
+        public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> SetSubeventAsNow(string EventID,bool Force=false)
         {
             CalendarEvent referenceCalendarEvent = getCalendarEvent(EventID);
             SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
@@ -1168,15 +1181,7 @@ namespace TilerCore
 
             return NewEvent.Error;
         }
-
-        public void updateSubEventLock (string subeventID, bool lockStatus)
-        {
-            SubCalendarEvent subEvent = getSubCalendarEvent(subeventID);
-            if(!subEvent.isRigid && !subEvent.isThirdParty)
-            {
-                subEvent.userLocked = lockStatus;
-            }
-        }
+        
 
         /// <summary>
         /// FUnction atttempts to get the best next event for the current user on major factors affecting schedule. e.g Based on location wweather, time of day and oth

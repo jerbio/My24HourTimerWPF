@@ -11,7 +11,7 @@ namespace TilerElements
         protected ProcrastinateAllSubCalendarEvent():base()
         {
             _isProcrastinateEvent = true;
-            this.RigidSchedule = true;
+            this._RigidSchedule = true;
         }
         public ProcrastinateAllSubCalendarEvent(TilerUser user, TilerUserGroup group, string timeZone, TimeLine timeLine, EventID calendarEventId, Location location, ProcrastinateCalendarEvent calendarEvent):base()
         {
@@ -20,7 +20,7 @@ namespace TilerElements
             this._TimeZone = timeZone;
             this.StartDateTime = timeLine.Start;
             this.EndDateTime = timeLine.End;
-            this.RigidSchedule = true;
+            this._RigidSchedule = true;
             this.UniqueID = EventID.GenerateSubCalendarEvent(calendarEventId);
             this._Creator = user;
             this._Users = group;

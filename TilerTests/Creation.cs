@@ -784,7 +784,10 @@ namespace TilerTests
             DayOfWeek startingWeekDay = start.DayOfWeek;
             Location location = TestUtility.getLocations()[0];
             location.Validate();
-            Repetition repetition = new Repetition(true, repetitionRange, Repetition.Frequency.DAILY, repetitionRange.CreateCopy());
+            List<DayOfWeek> weekDays = new List<DayOfWeek>() { start.DayOfWeek, (DayOfWeek)(((int)start.DayOfWeek + 2) % 7), (DayOfWeek)(((int)start.DayOfWeek + 4) % 7) };
+            //List<DayOfWeek> weekDays = new List<DayOfWeek>() { DayOfWeek.Sunday, DayOfWeek.Monday ,DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday};
+            List<int> weekDaysAsInt = weekDays.Select(obj => (int)obj).ToList();
+            Repetition repetition = new Repetition(true, repetitionRange, Repetition.Frequency.DAILY, repetitionRange.CreateCopy(), weekDaysAsInt.ToArray());
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 1, false, location, restrictionProfile: new RestrictionProfile(start, duration + duration), now: Schedule.Now);
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
             user = TestUtility.getTestUser(true, userId: tilerUser.Id);
@@ -797,6 +800,10 @@ namespace TilerTests
             List <SubCalendarEvent> subEvents = newlyaddedevent.AllSubEvents.OrderBy(subEvent => subEvent.Start).ToList();
 
             Assert.IsTrue(testEvent.isTestEquivalent(newlyaddedevent));
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            CalendarEvent calendarEventFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
+            Assert.IsTrue(testEvent.isTestEquivalent(calendarEventFromSchedule));
             int currentDayIndex = (int)repetitionRange.Start.DayOfWeek;
             for (int index = 0; index < subEvents.Count; index++)
             {

@@ -7,6 +7,7 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using System.Security.Claims;
 using Microsoft.AspNet.Identity;
 using NodaTime;
+using NodaTime;
 
 namespace TilerElements
 {
@@ -32,7 +33,9 @@ namespace TilerElements
         public string FirstName { get; set; } = "";
         public string LastName { get; set; } = "";
         public string OtherName { get; set; } = "";
-        public DateTimeOffset EndfOfDay { get; set; }
+        protected DateTimeOffset _EndfOfDay { get; set; }
+        protected string _EndfOfDayString { get; set; } = "10:00pm";
+        
         public DateTimeOffset LastScheduleModification { get; set; }
         public string ClearAllId { get; set; }
         public string LatestId { get; set; }
@@ -95,9 +98,40 @@ namespace TilerElements
             }
         }
 
-        public void updateTimeZoneDifference(TimeSpan timeZoneDifference)
+        public DateTimeOffset EndfOfDay
+        {
+            get
+            {
+                return _EndfOfDay;
+            }
+            set
+            {
+                _EndfOfDay = value;
+            }
+        } public string EndfOfDayString
+        {
+            get
+            {
+                return _EndfOfDayString;
+            }
+            set
+            {
+                _EndfOfDayString = value;
+            }
+        }
+
+        public void updateTimeZoneTimeSpan(TimeSpan timeZoneDifference)
         {
             this._TimeZoneDifference = timeZoneDifference;
+        }
+
+
+        public void updateTimeZone()
+        {
+            DateTimeZone userTimeZone = DateTimeZoneProviders.Tzdb[this.TimeZone];
+            DateTimeOffset localDate = DateTimeOffset.Parse(this._EndfOfDayString).removeSecondsAndMilliseconds();
+            LocalDateTime time = new LocalDateTime(localDate.Year, localDate.Month, localDate.Day, localDate.Hour, localDate.Minute);
+            _EndfOfDay = userTimeZone.AtStrictly(time).ToDateTimeUtc();
         }
 
         public DayOfWeek BeginningOfWeek { get; set; } = DayOfWeek.Sunday;

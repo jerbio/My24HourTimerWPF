@@ -24,6 +24,7 @@ namespace TilerTests
         public LogControlTest(TilerUser User, TilerDbContext dbContext = null):base(User, null)
         {
             _Context = dbContext ?? new TestDBContext();
+            this._UpdateBigData = false;
         }
 
         public override bool Status

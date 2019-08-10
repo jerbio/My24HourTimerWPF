@@ -122,7 +122,7 @@ namespace TilerTests
 
             TimeLine repeatTimeLine = new TimeLine(testEvent0.Start, testEvent0.End.AddDays(14));
             TimeLine calTimeLine = repeatTimeLine.CreateCopy();
-            Repetition repetition = new Repetition(true, repeatTimeLine, Repetition.Frequency.WEEKLY, calTimeLine);
+            Repetition repetition = new Repetition(repeatTimeLine, Repetition.Frequency.WEEKLY, calTimeLine);
             int repeatSplitCount = 2;
             CalendarEvent testEvent = TestUtility
                 .generateCalendarEvent(tilerUser, duration, repetition, calTimeLine.Start, calTimeLine.End, repeatSplitCount, false);
@@ -229,7 +229,7 @@ namespace TilerTests
 
             TimeLine repeatTimeLine = new TimeLine(testEvent0.Start, testEvent0.End.AddDays(14));
             TimeLine calTimeLine = repeatTimeLine.CreateCopy();
-            Repetition repetition = new Repetition(true, repeatTimeLine, Repetition.Frequency.WEEKLY, calTimeLine);
+            Repetition repetition = new Repetition(repeatTimeLine, Repetition.Frequency.WEEKLY, calTimeLine);
             int repeatSplitCount = 2;
             CalendarEvent repeatEvent = TestUtility
                 .generateCalendarEvent(tilerUser, duration, repetition, calTimeLine.Start, calTimeLine.End, repeatSplitCount, false);

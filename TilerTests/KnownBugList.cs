@@ -31,32 +31,14 @@ namespace TilerTests
         //    schedule.FindMeSomethingToDo(currentLocation).Wait();
         //}
         
-        
-
-        /// simple test tries to see the backwarss compatibility of loading older xml files
-        [TestMethod]
-        public void read_old_xml_log_breaking_effects()
-        {
-            string scheduleId = "bee315a3-14fd-448a-83e4-d1caff27bdab";
-            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
-            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
-            Schedule schedule = scheduleAndDump.Item1;
-            schedule.FindMeSomethingToDo(currentLocation).Wait();
-            DateTimeOffset currDay = schedule.Now.constNow.AddDays(2);
-            DayTimeLine dayTimeLine = schedule.Now.getDayTimeLineByTime(currDay);
-            //(schedule as TestSchedule).WriteFullScheduleToOutlook();
-            var confilctBlob = Utility.getConflictingEvents(dayTimeLine.getSubEventsInTimeLine());
-            Assert.IsFalse(confilctBlob.Count >= 1);
-        }
-
         public void add9_5WorkSchedule (Schedule schedule)
         {
             string date = "" + schedule.Now.constNow.Month + "/" + schedule.Now.constNow.Day + "/" + schedule.Now.constNow.Year;
             TimeLine timeLine = new TimeLine(TestUtility.parseAsUTC("3:00pm " + date), TestUtility.parseAsUTC("11:00pm " + date));
             TimeLine rangeOfTempGoogleEvent = new TimeLine(timeLine.Start, timeLine.Start.AddYears(1));
-            int[] weekDays = (new List<int>() { 1, 2, 3, 4, 5 }).ToArray();
+            DayOfWeek[] weekDays = (new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday }).ToArray();
             EventName eventName = new EventName(null, null, "google-made-up");
-            Repetition repeat = new Repetition(true, rangeOfTempGoogleEvent, Repetition.Frequency.WEEKLY, timeLine, weekDays);
+            Repetition repeat = new Repetition(rangeOfTempGoogleEvent, Repetition.Frequency.WEEKLY, timeLine, weekDays);
             CalendarEvent googleCalSimulation = TestUtility.generateCalendarEvent(
                 schedule.User,
                 TimeSpan.FromHours(8),

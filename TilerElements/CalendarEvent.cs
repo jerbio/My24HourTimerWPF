@@ -275,7 +275,7 @@ namespace TilerElements
             TimeLine subEventActiveTime = subEvent.RangeTimeLine;
             TimeSpan dayDiffSpan = timeLine.Start.Date - subEventActiveTime.Start.Date;
             TimeLine subEvenRangeReadjustedToexpectedTimeLine = new TimeLine(subEventActiveTime.Start.Add(dayDiffSpan), subEventActiveTime.End.Add(dayDiffSpan));
-            calEvent._EventRepetition = new Repetition(true, timeLine, Repetition.Frequency.YEARLY, subEvenRangeReadjustedToexpectedTimeLine);
+            calEvent._EventRepetition = new Repetition(timeLine, Repetition.Frequency.YEARLY, subEvenRangeReadjustedToexpectedTimeLine);
             calEvent._EventRepetition.PopulateRepetitionParameters(calEvent);
             CalendarEvent calEventCpy = calEvent.Repeat.RecurringCalendarEvents().Single();// using ssingle because this must always return a single calendarevent. Because we generated a repeat event which should only have one calendar event;
             SubCalendarEvent subEventCopy = calEventCpy.AllSubEvents.First();
@@ -329,7 +329,7 @@ namespace TilerElements
                 TimeLine subEvenRangeReadjustedToexpectedTimeLine = new TimeLine(
                     startTime,
                     subEventActiveTime.End);
-                calEvent._EventRepetition = new Repetition(true,
+                calEvent._EventRepetition = new Repetition(
                     timeLine,
                     Repetition.Frequency.YEARLY,
                     subEvenRangeReadjustedToexpectedTimeLine);

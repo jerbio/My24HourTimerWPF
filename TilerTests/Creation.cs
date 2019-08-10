@@ -160,7 +160,9 @@ namespace TilerTests
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(verificationEventPulled.isTestEquivalent(loadedFromSchedule));
         }
-
+        /// <summary>
+        /// UTC TimeZone Required
+        /// </summary>
         [TestMethod]
         public void storeScheudlueDumpToDB()
         {
@@ -247,7 +249,9 @@ namespace TilerTests
 
 
 
-
+        /// <summary>
+        /// UTC TimeZone Required
+        /// </summary>
         [TestMethod]
         public void sameScheduleChangeAfterSameInput()
         {
@@ -409,7 +413,7 @@ namespace TilerTests
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(duration);
             TimeLine repetitionRange = new TimeLine(start, start.AddDays(14));
-            Repetition repetition = new Repetition(true, repetitionRange, Repetition.Frequency.DAILY, new TimeLine(start, end));
+            Repetition repetition = new Repetition(repetitionRange, Repetition.Frequency.DAILY, new TimeLine(start, end));
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 1, true);
             string testEVentId = testEvent.getId;
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
@@ -621,9 +625,9 @@ namespace TilerTests
                 DayOfWeek dayOfWeek = (DayOfWeek)currentDayIndex;
                 weekDays.Add(dayOfWeek);
             }
-            List<int> weekDaysAsInt = weekDays.Select(obj => (int)obj).ToList();
+            List<DayOfWeek> weekDaysAsInt = weekDays.Select(obj => (int)obj).Select(num => (DayOfWeek)num).ToList();
             DayOfWeek startingWeekDay = start.DayOfWeek;
-            Repetition repetition = new Repetition(true, repetitionRange, Repetition.Frequency.WEEKLY, new TimeLine(start, end), weekDaysAsInt.ToArray());
+            Repetition repetition = new Repetition(repetitionRange, Repetition.Frequency.WEEKLY, new TimeLine(start, end), weekDaysAsInt.ToArray());
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 1, true);
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
 
@@ -663,9 +667,9 @@ namespace TilerTests
             DateTimeOffset end = refNow.Add(duration);
             TimeLine repetitionRange = new TimeLine(start, start.AddDays(13).AddHours(-23));
             List<DayOfWeek> weekDays = new List<DayOfWeek>() { start.DayOfWeek, (DayOfWeek)(((int)start.DayOfWeek + 2)%7), (DayOfWeek)(((int)start.DayOfWeek + 4)%7)};
-            List<int> weekDaysAsInt = weekDays.Select(obj => (int)obj).ToList();
+            List<DayOfWeek> weekDaysAsInt = weekDays.ToList();
             DayOfWeek startingWeekDay = start.DayOfWeek;
-            Repetition repetition = new Repetition(true, repetitionRange, Repetition.Frequency.WEEKLY, new TimeLine(start, end), weekDaysAsInt.ToArray());
+            Repetition repetition = new Repetition(repetitionRange, Repetition.Frequency.WEEKLY, new TimeLine(start, end), weekDaysAsInt.ToArray());
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, repetitionRange.Start, repetitionRange.End, 1, false);
             Schedule = new TestSchedule(user, refNow);
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
@@ -709,7 +713,7 @@ namespace TilerTests
             TimeLine repetitionRange = new TimeLine(start, start.AddDays(13).AddHours(-23));
             //List<DayOfWeek> weekDays = new List<DayOfWeek>() { DayOfWeek.Sunday, DayOfWeek.Monday ,DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday};
             DayOfWeek startingWeekDay = start.DayOfWeek;
-            Repetition repetition = new Repetition(true, repetitionRange, Repetition.Frequency.DAILY, new TimeLine(start, end));
+            Repetition repetition = new Repetition(repetitionRange, Repetition.Frequency.DAILY, new TimeLine(start, end));
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, repetitionRange.Start, repetitionRange.End, 1, false);
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
             CalendarEvent newlyaddedevent = Schedule.getCalendarEvent(testEvent.Calendar_EventID);
@@ -745,7 +749,7 @@ namespace TilerTests
             TimeLine repetitionRange = new TimeLine(start, start.AddDays(13).AddHours(-23));
             //List<DayOfWeek> weekDays = new List<DayOfWeek>() { DayOfWeek.Sunday, DayOfWeek.Monday ,DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday};
             DayOfWeek startingWeekDay = start.DayOfWeek;
-            Repetition repetition = new Repetition(true, repetitionRange, Repetition.Frequency.DAILY, repetitionRange.CreateCopy());
+            Repetition repetition = new Repetition(repetitionRange, Repetition.Frequency.DAILY, repetitionRange.CreateCopy());
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 1, false);
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
             CalendarEvent newlyaddedevent = Schedule.getCalendarEvent(testEvent.Calendar_EventID);
@@ -785,8 +789,8 @@ namespace TilerTests
             location.Validate();
             List<DayOfWeek> weekDays = new List<DayOfWeek>() { start.DayOfWeek, (DayOfWeek)(((int)start.DayOfWeek + 2) % 7), (DayOfWeek)(((int)start.DayOfWeek + 4) % 7) };
             //List<DayOfWeek> weekDays = new List<DayOfWeek>() { DayOfWeek.Sunday, DayOfWeek.Monday ,DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday};
-            List<int> weekDaysAsInt = weekDays.Select(obj => (int)obj).ToList();
-            Repetition repetition = new Repetition(true, repetitionRange, Repetition.Frequency.DAILY, repetitionRange.CreateCopy(), weekDaysAsInt.ToArray());
+            List<DayOfWeek> weekDaysAsInt = weekDays.ToList();
+            Repetition repetition = new Repetition(repetitionRange, Repetition.Frequency.DAILY, repetitionRange.CreateCopy(), weekDaysAsInt.ToArray());
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 1, false, location, restrictionProfile: new RestrictionProfile(start, duration + duration), now: Schedule.Now);
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
             user = TestUtility.getTestUser(true, userId: tilerUser.Id);
@@ -836,7 +840,7 @@ namespace TilerTests
             //List<DayOfWeek> weekDays = new List<DayOfWeek>() { start.DayOfWeek, (DayOfWeek)(((int)start.DayOfWeek + 2) % 7), (DayOfWeek)(((int)start.DayOfWeek + 4) % 7) };
             ////List<DayOfWeek> weekDays = new List<DayOfWeek>() { DayOfWeek.Sunday, DayOfWeek.Monday ,DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday};
             //List<int> weekDaysAsInt = weekDays.Select(obj => (int)obj).ToList();
-            Repetition repetition = new Repetition(true, repetitionRange, Repetition.Frequency.DAILY, repetitionRange.CreateCopy());
+            Repetition repetition = new Repetition(repetitionRange, Repetition.Frequency.DAILY, repetitionRange.CreateCopy());
             int subEventCount = 3;
             var restrictionProfile = new RestrictionProfile(1, DayOfWeek.Monday, start, start.AddHours(8));
             int numberOfWeeks = (repetitionRange.TimelineSpan.Days / 7);
@@ -895,7 +899,7 @@ namespace TilerTests
             TimeLine repetitionRange = new TimeLine(start, end.AddDays(-5).AddHours(-23));
             //List<DayOfWeek> weekDays = new List<DayOfWeek>() { DayOfWeek.Sunday, DayOfWeek.Monday ,DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday};
             DayOfWeek startingWeekDay = start.DayOfWeek;
-            Repetition repetition = new Repetition(true, repetitionRange, Repetition.Frequency.WEEKLY, repetitionRange.CreateCopy());
+            Repetition repetition = new Repetition(repetitionRange, Repetition.Frequency.WEEKLY, repetitionRange.CreateCopy());
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser,duration, repetition, start, end, 1, false);
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
             Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
@@ -1071,6 +1075,9 @@ namespace TilerTests
             Assert.IsTrue(renamedEvent.isTestEquivalent(loadedFromSchedule));
         }
 
+        /// <summary>
+        /// UTC TimeZone Required
+        /// </summary>
         [TestMethod]
         public void thirdPartyScheduling ()
         {
@@ -1167,7 +1174,7 @@ namespace TilerTests
 
             TimeLine repeatTimeLine = new TimeLine(start, end.AddDays(200));
             TimeLine calTimeLine = repeatTimeLine.CreateCopy();
-            Repetition repetition = new Repetition(true, repeatTimeLine, Repetition.Frequency.WEEKLY, calTimeLine);
+            Repetition repetition = new Repetition(repeatTimeLine, Repetition.Frequency.WEEKLY, calTimeLine);
             int repeatSplitCount = 2;
             CalendarEvent repeatEvent = TestUtility
                 .generateCalendarEvent(tilerUser, duration, repetition, calTimeLine.Start, calTimeLine.End, repeatSplitCount, false);

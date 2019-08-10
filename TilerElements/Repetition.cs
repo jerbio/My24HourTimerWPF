@@ -54,29 +54,40 @@ namespace TilerElements
             _DictionaryOfWeekDayToRepetition = new SubEventDictionary<int, Repetition>();
         }
 
-
-        public Repetition(bool EnableFlag, TimeLine RepetitionRange_Entry, Frequency frequency, TimeLine EventActualRange, int[] WeekDayData)
+        /// <summary>
+        /// RepetitionRange_Entry is the timeline from the start time till when the repetition is supposed to stop repeating
+        /// Frequency is the repetition frequency. Note if it is daily, WeekDayData will be ignored
+        /// </summary>
+        /// <param name="RepetitionRange_Entry"></param>
+        /// <param name="frequency"></param>
+        /// <param name="EventActualRange"></param>
+        /// <param name="WeekDayData"></param>
+        public Repetition(TimeLine RepetitionRange_Entry, Frequency frequency, TimeLine EventActualRange, DayOfWeek[] WeekDayData)
         {
             _RepetitionRange = RepetitionRange_Entry;
             _RepetitionFrequency = frequency;
-            _EnableRepeat = EnableFlag;
+            _EnableRepeat = true;
             _Location = new Location();
             _DictionaryOfIDAndCalendarEvents = new SubEventDictionary<string, CalendarEvent>();
             _DictionaryOfWeekDayToRepetition = new SubEventDictionary<int, Repetition>();
             _initializingRange = EventActualRange;
-            foreach (int eachWeekDay in WeekDayData)
+            if(_RepetitionFrequency != Frequency.DAILY)
             {
-                Repetition repetition = new Repetition(EnableFlag, RepetitionRange_Entry.CreateCopy(), frequency, EventActualRange.CreateCopy(), eachWeekDay);
-                repetition.parentRepetition = this;
-                _DictionaryOfWeekDayToRepetition.Add(eachWeekDay, repetition);
+                foreach (DayOfWeek dayOfWeek in WeekDayData)
+                {
+                    int eachWeekDay = (int)dayOfWeek;
+                    Repetition repetition = new Repetition(RepetitionRange_Entry.CreateCopy(), frequency, EventActualRange.CreateCopy(), eachWeekDay);
+                    repetition.parentRepetition = this;
+                    _DictionaryOfWeekDayToRepetition.Add(eachWeekDay, repetition);
+                }
             }
         }
         
-        public Repetition(bool EnableFlag, TimeLine RepetitionRange_Entry, Frequency frequency, TimeLine EventActualRange, int WeekDayData=7 )
+        public Repetition(TimeLine RepetitionRange_Entry, Frequency frequency, TimeLine EventActualRange, int WeekDayData=7 )
         {
             _RepetitionRange = RepetitionRange_Entry;
             _RepetitionFrequency = frequency;
-            _EnableRepeat = EnableFlag;
+            _EnableRepeat = true;
             _Location = new Location();
             _DictionaryOfIDAndCalendarEvents = new SubEventDictionary<string, CalendarEvent>();
             _DictionaryOfWeekDayToRepetition = new SubEventDictionary<int, Repetition>();
@@ -344,7 +355,7 @@ namespace TilerElements
             TimeLine repetitionTimeline= new TimeLine(EachRepeatCalendarStart,EachRepeatCalendarEnd);
             TimeLine ActiveTimeline = new TimeLine(StartTimeLineForActity, EndTimeLineForActity);
 
-            Repetition repetitionData = new Repetition(MyParentEvent.isEnabled, repetitionTimeline, this.getFrequency, ActiveTimeline,7);
+            Repetition repetitionData = new Repetition(repetitionTimeline, this.getFrequency, ActiveTimeline,7);
             repetitionData.ParentEvent = MyParentEvent;
 
             this.ParentEvent = MyParentEvent;
@@ -383,7 +394,7 @@ namespace TilerElements
             TimeLine ActiveTimeline = new TimeLine(StartTimeLineForActity, EndTimeLineForActity);
             this.ParentEvent = MyParentEvent;
 
-            Repetition repetitionData = new Repetition(MyParentEvent.isEnabled, repetitionTimeline, this.getFrequency, ActiveTimeline, 7);
+            Repetition repetitionData = new Repetition(repetitionTimeline, this.getFrequency, ActiveTimeline, 7);
             repetitionData.ParentEvent = MyParentEvent;
 
             this._initializingRange = ActiveTimeline;

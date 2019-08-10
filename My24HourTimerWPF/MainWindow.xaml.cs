@@ -566,13 +566,13 @@ namespace My24HourTimerWPF
                 DateTimeOffset FullStartTime = DateTimeOffset.Parse(eventStartDate.Date.ToShortDateString() + " " + eventStartTime);
                 DateTimeOffset FullEndTime = DateTimeOffset.Parse(eventEndDate.Date.ToShortDateString() + " " + eventEndTime);
 
-                List<int> selectedDaysOftheweek = getDaysOfWeek();
+                List<DayOfWeek> selectedDaysOftheweek = getDaysOfWeek().Select(num => (DayOfWeek)num).ToList();
 
 
                 RepeatStart = DateTimeOffset.Parse(eventStartTime);
                 RepeatEnd = (DateTimeOffset)calendar4.SelectedDate.Value;
                 RepetitionFlag = true;
-                MyRepetition = new Repetition(RepetitionFlag, new TimeLine(RepeatStart, RepeatEnd), Utility.ParseEnum<Repetition.Frequency>(RepeatFrequency.ToUpper()), new TimeLine((FullStartTime), (FullEndTime)), selectedDaysOftheweek.ToArray());
+                MyRepetition = new Repetition(new TimeLine(RepeatStart, RepeatEnd), Utility.ParseEnum<Repetition.Frequency>(RepeatFrequency.ToUpper()), new TimeLine((FullStartTime), (FullEndTime)), selectedDaysOftheweek.ToArray());
                 //eventStartDate = RepeatStart;
                 eventEndDate = RepeatEnd;
             }
@@ -769,13 +769,13 @@ namespace My24HourTimerWPF
                 DateTimeOffset FullStartTime = DateTimeOffset.Parse(eventStartDate.Date.ToShortDateString() + " " + eventStartTime);
                 DateTimeOffset FullEndTime = DateTimeOffset.Parse(eventEndDate.Date.ToShortDateString() + " " + eventEndTime);
 
-                List<int> selectedDaysOftheweek = getDaysOfWeek();
+                List<DayOfWeek> selectedDaysOftheweek = getDaysOfWeek().Select(num => (DayOfWeek)num).ToList();
 
 
                 RepeatStart = DateTimeOffset.Parse(eventStartTime);
                 RepeatEnd = (DateTimeOffset)calendar4.SelectedDate.Value;
                 RepetitionFlag = true;
-                MyRepetition = new Repetition(RepetitionFlag, new TimeLine(RepeatStart, RepeatEnd), Utility.ParseEnum<Repetition.Frequency>(RepeatFrequency.ToUpper()), new TimeLine((FullStartTime), (FullEndTime)), selectedDaysOftheweek.ToArray());
+                MyRepetition = new Repetition(new TimeLine(RepeatStart, RepeatEnd), Utility.ParseEnum<Repetition.Frequency>(RepeatFrequency.ToUpper()), new TimeLine((FullStartTime), (FullEndTime)), selectedDaysOftheweek.ToArray());
                 //eventStartDate = RepeatStart;
                 eventEndDate = RepeatEnd;
             }
@@ -1362,7 +1362,7 @@ namespace My24HourTimerWPF
                     DateTimeOffset FullStartTime = DateTimeOffset.Parse(eventStartDate + " " + eventStartTime);
                     DateTimeOffset FullEndTime = DateTimeOffset.Parse(eventEndDate + " " + eventEndTime);
 
-                    List<int> selectedDaysOftheweek = getDaysOfWeek();
+                    List<DayOfWeek> selectedDaysOftheweek = getDaysOfWeek().Select(num => (DayOfWeek)num).ToList();
 
                     //RepeatStart = (DateTimeOffset)calendar3.SelectedDate.Value;
                     RepeatStart = DateTimeOffset.Parse(eventStartTime);
@@ -1370,7 +1370,7 @@ namespace My24HourTimerWPF
                     //RepeatEnd = (DateTimeOffset.UtcNow).AddDays(7);
                     RepetitionFlag = true;
                                                 //(bool EnableFlag, TimeLine RepetitionRange_Entry, string Frequency, TimeLine EventActualRange, int[] WeekDayData)
-                    MyRepetition = new Repetition(RepetitionFlag, new TimeLine(RepeatStart, RepeatEnd), Utility.ParseEnum<Repetition.Frequency>(RepeatFrequency.ToUpper()), new TimeLine((FullStartTime), (FullEndTime)), selectedDaysOftheweek.ToArray());
+                    MyRepetition = new Repetition(new TimeLine(RepeatStart, RepeatEnd), Utility.ParseEnum<Repetition.Frequency>(RepeatFrequency.ToUpper()), new TimeLine((FullStartTime), (FullEndTime)), selectedDaysOftheweek.ToArray());
 
                     //eventStartDate = RepeatStart;
                     eventEndDate = RepeatStart;

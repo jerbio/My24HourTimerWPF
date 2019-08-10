@@ -326,7 +326,13 @@ namespace TilerTests
 
             if (repetition.EnableRepeat)
             {
-                repetition.PopulateRepetitionParameters(RetValue);
+                if (RetValue.getIsEventRestricted) {
+                    repetition.PopulateRepetitionParameters(RetValue as CalendarEventRestricted);
+                } else
+                {
+                    repetition.PopulateRepetitionParameters(RetValue);
+                }
+                    
             }
             return RetValue;
         }

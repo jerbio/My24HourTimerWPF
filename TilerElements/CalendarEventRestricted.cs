@@ -113,7 +113,7 @@ namespace TilerElements
             InstantiateSubEvents();
         }
 
-        static public CalendarEventRestricted InstantiateRepeatedCandidate(EventName Name, DateTimeOffset Start, DateTimeOffset End, EventID CalendarEventID, RestrictionProfile restrictionProfile, TimeSpan Duration, int division, Location Location,EventDisplay UiSettings,bool RigidFlag,TimeSpan preparation, string thirdPartyID, ReferenceNow now)
+        static public CalendarEventRestricted InstantiateRepeatedCandidate(EventName Name, DateTimeOffset Start, DateTimeOffset End, EventID CalendarEventID, RestrictionProfile restrictionProfile, TimeSpan Duration, int division, Location Location,EventDisplay UiSettings,bool RigidFlag,TimeSpan preparation, string thirdPartyID, ReferenceNow now, TilerUser tilerUser)
         { 
             CalendarEventRestricted retValue = new CalendarEventRestricted();
             retValue .UniqueID = EventID.GenerateRepeatCalendarEvent(CalendarEventID.ToString());
@@ -136,7 +136,7 @@ namespace TilerElements
             retValue._PrepTime = preparation;
             retValue._Now = now;
             retValue._EventDayPreference = new EventPreference();
-            //retValue.UpdateLocationMatrix(Location);
+            retValue._Creator = tilerUser;
             retValue.InstantiateSubEvents();
             
             return retValue;

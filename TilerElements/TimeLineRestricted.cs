@@ -25,6 +25,10 @@ namespace TilerElements
             initialize();
         }
 
+        public TimeLineRestricted(TimeLine timeLine, RestrictionProfile RestrictionData, ReferenceNow now):this(timeLine.Start, timeLine.End, RestrictionData, now)
+        {
+        }
+
         void initialize()
         {
             isPlausible = false;

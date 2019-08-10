@@ -838,7 +838,7 @@ namespace TilerTests
             //List<int> weekDaysAsInt = weekDays.Select(obj => (int)obj).ToList();
             Repetition repetition = new Repetition(true, repetitionRange, Repetition.Frequency.DAILY, repetitionRange.CreateCopy());
             int subEventCount = 3;
-            var restrictionProfile = new RestrictionProfile(1, DayOfWeek.Sunday, start, start.AddHours(8));
+            var restrictionProfile = new RestrictionProfile(1, DayOfWeek.Monday, start, start.AddHours(8));
             int numberOfWeeks = (repetitionRange.TimelineSpan.Days / 7);
             int totalNumberOfEvents = restrictionProfile.NoNull_DaySelections.Count * subEventCount* numberOfWeeks;
 
@@ -860,12 +860,20 @@ namespace TilerTests
             CalendarEvent calendarEventFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(calendarEventFromSchedule));
             int currentDayIndex = (int)repetitionRange.Start.DayOfWeek;
+            List<RestrictionDay> daySelections = restrictionProfile.NoNull_DaySelections as List<RestrictionDay>;
             for (int index = 0; index < subEvents.Count; index++)
             {
-                DayOfWeek dayOfWeek = (DayOfWeek)currentDayIndex;
-                Assert.AreEqual(subEvents[index].Start.DayOfWeek, dayOfWeek);
-                currentDayIndex += 1;
-                currentDayIndex %= 7;
+                for(int j= 0; j < restrictionProfile.NoNull_DaySelections.Count; j++)
+                {
+                    DayOfWeek dayOfWeek = daySelections[j].WeekDay;
+                    for (int i = 0; i < subEventCount; i++, index++)
+                    {
+
+                        Assert.AreEqual(subEvents[index].Start.DayOfWeek, dayOfWeek);
+
+                    }
+                }
+                --index;
             }
         }
 

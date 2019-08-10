@@ -38,7 +38,7 @@ namespace TilerElements
         {
 
         }
-        public RestrictionProfile(int typeOfRestriction, DayOfWeek beginningDayOfWeek, DateTimeOffset Start, DateTimeOffset End)
+        public RestrictionProfile(int typeOfRestriction, DayOfWeek beginningDayOfWorkWeek, DateTimeOffset Start, DateTimeOffset End)
         {
             _DaySelection = new RestrictionDay[7].ToList();
             switch (typeOfRestriction)
@@ -46,12 +46,12 @@ namespace TilerElements
                 case 0://Work week
                     {
                         TimeSpan FiveDays = new TimeSpan(4, 0, 0, 0);
-                        Start = new DateTimeOffset(SundayDate.Year, SundayDate.Month, SundayDate.Day, Start.Hour, Start.Minute, Start.Second, new TimeSpan()).AddDays((int)beginningDayOfWeek);
+                        Start = new DateTimeOffset(SundayDate.Year, SundayDate.Month, SundayDate.Day, Start.Hour, Start.Minute, Start.Second, new TimeSpan()).AddDays((int)beginningDayOfWorkWeek);
                         DateTimeOffset tempEnd = Start.Add(FiveDays);
                         tempEnd = new DateTimeOffset(tempEnd.Year, tempEnd.Month, tempEnd.Day, End.Hour, End.Minute, End.Second, new TimeSpan());
                         FiveDays = tempEnd - Start;
                         _NoNull_DaySelections = new RestrictionDay[1].ToList();
-                        for (int i = (int)beginningDayOfWeek; i < 2; i++)//starting i from 1 because workweek starts on Monday and Monday index is 1
+                        for (int i = (int)beginningDayOfWorkWeek; i < 2; i++)//starting i from 1 because workweek starts on Monday and Monday index is 1
                         {
                             _DaySelection[i] = new RestrictionDay(AllDaysOfWeek[i], new RestrictionTimeLine(Start, FiveDays));
                             _NoNull_DaySelections[0] = _DaySelection[i];
@@ -61,7 +61,7 @@ namespace TilerElements
                 default://Work week and Office Hours
                     {
                         _NoNull_DaySelections = new RestrictionDay[5].ToList();
-                        for (int i = (int)beginningDayOfWeek, j = 0; j < _NoNull_DaySelections.Count; i++, j++)//starting i from 1 because workweek starts on Monday and Monday index is 1
+                        for (int i = (int)beginningDayOfWorkWeek, j = 0; j < _NoNull_DaySelections.Count; i++, j++)//starting i from 1 because workweek starts on Monday and Monday index is 1
                         {
                             _DaySelection[i] = new RestrictionDay(AllDaysOfWeek[i], new RestrictionTimeLine(Start, End));
                             _NoNull_DaySelections[j] = _DaySelection[i];

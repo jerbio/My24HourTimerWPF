@@ -111,7 +111,6 @@ namespace TilerCore
                 }
             }
         }
-        static string stageOfProgram = "";
         int DebugCounter = 0;
 
         #region Constructor
@@ -2608,7 +2607,8 @@ namespace TilerCore
             EventDayBags bagsPerDay = new EventDayBags(TotalDays);
             TotalActiveEvents.AsParallel().ForAll(subEvent => { subEvent.isWake = false; subEvent.isSleep = false; });
             TotalActiveEvents.ForEach((subEvent) => ConflictinSubEvents.Add(subEvent));
-            AllCalEvents.AsParallel().ForAll
+            AllCalEvents.ForEach
+                //.AsParallel().ForAll
                 (obj => {
                 obj.resetDesignationAllActiveEventsInCalculables();
                 obj.InitialCalculationLookupDays(AllDayTImeLine, this.Now); });
@@ -4093,9 +4093,6 @@ namespace TilerCore
             return retavlue;
         }
 
-        Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> InterferringTimeSpanWithStringID_Cpy = new System.Collections.Generic.Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>();
-
-
         List<List<SubCalendarEvent>> TossScheduleTOTHeEnd(List<List<SubCalendarEvent>>AllSubCalEvents, List<TimeLine>AllFreeSpots)
         {
             List<SubCalendarEvent> AllEventsSerialized= AllSubCalEvents.SelectMany(obj=>obj).ToList();
@@ -4241,10 +4238,7 @@ namespace TilerCore
             CompleteReassignedElements = CompleteReassignedElements.OrderBy(obj => obj.Start).ToList();
             return CompleteReassignedElements;
         }
-
-
-        TimeSpan MinutesPerMile = new TimeSpan(0, 15,0);
-
+        
         public List<SubCalendarEvent> StitchUnrestricted(TimeLine ReferenceTImeLine, List<SubCalendarEvent> orderedCOnstrictingevents, List<SubCalendarEvent> PossibleSubcalevents, bool EnableBetterOptimization=true)
         {
             Dictionary<TimeSpan, Dictionary<string, mTuple<bool, SubCalendarEvent>>> PossibleEntries = new Dictionary<TimeSpan, Dictionary<string, mTuple<bool, SubCalendarEvent>>>();
@@ -7690,7 +7684,6 @@ namespace TilerCore
         }
 
 
-        int HighestSum = 0;
         List<List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>>> generateTreeCallsToSnugArray(Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>> AvailableSubCalendarEvents, List<TimeLine> AllTimeLines, int TimeLineIndex, List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>> SubCalendarEventsPopulatedIntoTimeLineIndex_SoFar, Dictionary<TimeLine, Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>> DictionaryOfTimelineAndSubcalendarEvents, Dictionary<TimeLine, Tuple<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>, Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>>> DictionaryOfTimelineAndConstrainedElements)//, List<SubCalendarEvent> usedSubCalendarEvensts)
         {
             /*
@@ -7721,17 +7714,6 @@ namespace TilerCore
             {
                 LargestTimeIndex = TimeLineIndex;
             }
-
-            int indexChecker = 14;
-            /*if (TimeLineIndex == indexChecker)
-            {
-                mTuple<bool, List<TimeSpanWithStringID>> statusOfError=Utility.isViolatingTimeSpanString(InterferringTimeSpanWithStringID_Cpy, SubCalendarEventsPopulatedIntoTimeLineIndex_SoFar);
-
-                if (statusOfError.Item1 )
-                {
-                    ;
-                }
-            }*/
 
             List<List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>>> ListOfAllSnugPossibilitiesInRespectiveTImeLines = new List<List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>>>();
             if (AllTimeLines.Count < 1)
@@ -8078,8 +8060,6 @@ namespace TilerCore
         }
 
         int MaxNumberOfInterferringSubcalEvents = 0;
-        int maxHackConstant = 2;
-        List<List<List<SubCalendarEvent>>> ListOfAllSnugPossibilitiesInRespectiveTImeLines_hack = new System.Collections.Generic.List<System.Collections.Generic.List<System.Collections.Generic.List<SubCalendarEvent>>>();
 
         int LargestTimeIndex = -1;
 

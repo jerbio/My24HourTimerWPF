@@ -206,8 +206,10 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             Schedule.deleteSubCalendarEventAndReadjust(testSubEvent.getId).Wait();
             Schedule.persistToDB().Wait();
+            //testEvent = TestUtility.getCalendarEventById(testEvent.Id, user);
+            //testSubEvent = testEvent.ActiveSubEvents[0];
             testSubEvent = TestUtility.getSubEVentById(testSubEvent.getId, user);
-            List<EventID> subEventIds = new List<EventID>() { testSubEvent.SubEvent_ID, testSubEvent0.SubEvent_ID, testSubEvent1.SubEvent_ID };
+            List<EventID> subEventIds = new List<EventID>() { testSubEvent.SubEvent_ID, testSubEvent0.SubEvent_ID, testSubEvent1.SubEvent_ID };// This tries to redelete testSubEvent.SubEvent_ID and that should have no effect so the count should stay the same
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
             Schedule = new TestSchedule(user, refNow);
@@ -232,17 +234,7 @@ namespace TilerTests
             Assert.AreEqual(retrievedCalendarEvent1.DeletionCount, 1);
 
 
-
-            /// Re running just to prevent duplicate additions
-            user = TestUtility.getTestUser(userId: tilerUser.Id);
-            tilerUser = user.getTilerUser();
-            Schedule = new TestSchedule(user, refNow);
-            Schedule.deleteSubCalendarEvents(subEventIds.Select(subeventid => subeventid.ToString())).Wait();
-            Schedule.persistToDB().Wait();
-
-            user = TestUtility.getTestUser(userId: tilerUser.Id);
-            tilerUser = user.getTilerUser();
-            Schedule = new TestSchedule(user, refNow);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             testSubEvent = TestUtility.getSubEVentById(testSubEvent.getId, user);
             testSubEvent0 = TestUtility.getSubEVentById(testSubEvent0.getId, user);
             testSubEvent1 = TestUtility.getSubEVentById(testSubEvent1.getId, user);

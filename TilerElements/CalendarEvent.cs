@@ -18,7 +18,6 @@ namespace TilerElements
         protected TimeSpan _AverageTimePerSplit;
         protected int _CompletedCount;
         protected int _DeletedCount;
-        public EventPreference _EventDayPreference;
         protected SubEventDictionary<string, SubCalendarEvent> SubEvents;
 
         CustomErrors CalendarError = null;
@@ -31,6 +30,7 @@ namespace TilerElements
         protected Dictionary<ulong, DayTimeLine> CalculationLimitation;
         protected Dictionary<ulong, DayTimeLine> FreeDaysLimitation;
         protected List<SubCalendarEvent> _RemovedSubEvents = new List<SubCalendarEvent>();
+        protected EventPreference _EventDayPreference;
 
         #region undoMembers
         public int UndoSplits;
@@ -1699,30 +1699,6 @@ namespace TilerElements
             }
         }
 
-        public EventPreference DayPreference
-        {
-            get
-            {
-                if(string.IsNullOrEmpty(DayPreferenceId) && this._EventDayPreference == null)
-                {
-                    _EventDayPreference = new EventPreference();
-                    if(this.IsRepeat)
-                    {
-                        foreach(CalendarEvent calEvent in this.Repeat.RecurringCalendarEvents())
-                        {
-                            if((calEvent._EventDayPreference == null || calEvent.DayPreference != _EventDayPreference) 
-                                && (string.IsNullOrEmpty(calEvent.DayPreferenceId) || calEvent.DayPreferenceId!=this.DayPreferenceId) 
-                                && calEvent.DayPreference.isNull)
-                            {
-                                calEvent._EventDayPreference = _EventDayPreference;
-                            }
-                        }
-                    }
-                }
-                return this._EventDayPreference;
-            }
-        }
-
         public bool isCalculableInitialized
         {
             get
@@ -1861,11 +1837,11 @@ namespace TilerElements
             }
         }
 
+
         public string DayPreferenceId
         {
-            get;set;
+            get; set;
         }
-
         [ForeignKey("DayPreferenceId")]
         virtual public EventPreference DayPreference_DB
         {
@@ -1885,6 +1861,8 @@ namespace TilerElements
                 _EventDayPreference = value;
             }
         }
+
+
         virtual public double AverageTimeSpanPerSubEvent_DB
         {
             set
@@ -2012,6 +1990,29 @@ namespace TilerElements
             }
         }
 
+        public EventPreference DayPreference
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(DayPreferenceId) && this._EventDayPreference == null)
+                {
+                    _EventDayPreference = new EventPreference();
+                    if (this.IsRepeat)
+                    {
+                        foreach (CalendarEvent calEvent in this.Repeat.RecurringCalendarEvents())
+                        {
+                            if ((calEvent._EventDayPreference == null || calEvent.DayPreference != _EventDayPreference)
+                                && (string.IsNullOrEmpty(calEvent.DayPreferenceId) || calEvent.DayPreferenceId != this.DayPreferenceId)
+                                && calEvent.DayPreference.isNull)
+                            {
+                                calEvent._EventDayPreference = _EventDayPreference;
+                            }
+                        }
+                    }
+                }
+                return this._EventDayPreference;
+            }
+        }
         #endregion
 
     }

@@ -64,6 +64,7 @@ namespace TilerTests
             user.Login().Wait();
             refNow = secondDayFromStart;
             Schedule = new TestSchedule(user, refNow);
+            testEvent = TestUtility.getCalendarEventById(testEvent.Id, user);
             subEvent = testEvent.ActiveSubEvents.First();
             testEvent = Schedule.getCalendarEvent(testEvent.Id);
             Schedule.SetSubeventAsNow(subEvent.Id);
@@ -265,6 +266,7 @@ namespace TilerTests
             {
                 TestUtility.reloadTilerUser(ref user, ref tilerUser);
                 refNow = repeatDates[i];
+                repeatEvent = TestUtility.getCalendarEventById(repeatEvent.Id, user);
                 Schedule = new TestSchedule(user, refNow);
                 SubCalendarEvent subEvent = repeatEvent.ActiveSubEvents.First();
                 Schedule.SetSubeventAsNow(subEvent.Id);
@@ -281,6 +283,7 @@ namespace TilerTests
             {
                 TestUtility.reloadTilerUser(ref user, ref tilerUser);
                 refNow = testEvent0Dates[i];
+                testEvent0 = TestUtility.getCalendarEventById(testEvent0.Id, user);
                 Schedule = new TestSchedule(user, refNow);
                 SubCalendarEvent subEvent = testEvent0.ActiveSubEvents.First();
                 Schedule.SetSubeventAsNow(subEvent.Id);
@@ -363,7 +366,8 @@ namespace TilerTests
                 }
             }
 
-            Assert.AreEqual(repeatCount, allCorrespondingRepeatDays.Count);
+            int count = allCorrespondingRepeatDays.Count - repeatSplitCount;// this should be 8 because the first week in the repeat sequence is 7/1/2019 - 7/8/2019 which leaves only one day after "refnow" which is 7/7/2019 so it cannot be assigned to one of the preference days
+            Assert.AreEqual(repeatCount, count);
         }
 
         public List<DateTimeOffset> getCorrespondingWeekdays(TimeLine timeLine, DayOfWeek dayOfWeek)

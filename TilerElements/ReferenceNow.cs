@@ -63,10 +63,11 @@ namespace TilerElements
             //AllDayTImeLine.Add(FirstDay);
             DateTimeOffset ComputationStart = refFirstDay.Start;
             DateTimeOffset ComputationEnd = refFirstDay.End;
+            TimeSpan oneMinute = TimeSpan.FromMinutes(1);
             for (int i = 0; ComputationStart < ComputationBound.End; i++)
             {
                 ulong myIndeUniversalIndex = getDayIndexFromStartOfTime(ComputationStart);
-                AllDayTImeLine.Add( new DayTimeLine(ComputationStart, ComputationEnd, myIndeUniversalIndex, i));
+                AllDayTImeLine.Add( new DayTimeLine(ComputationStart, ComputationEnd.Subtract(oneMinute), myIndeUniversalIndex, i));
                 ComputationStart = ComputationEnd;
                 ComputationEnd = ComputationEnd.AddDays(1);
                 if(lastDayIndex < myIndeUniversalIndex)

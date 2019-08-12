@@ -843,7 +843,7 @@ namespace TilerElements
             repetition_cpy._Location = _Location?.CreateCopy();
             repetition_cpy._EnableRepeat = _EnableRepeat;
             repetition_cpy.RepetitionWeekDay = RepetitionWeekDay;
-            repetition_cpy._DictionaryOfIDAndCalendarEvents = new SubEventDictionary<string, CalendarEvent>(_DictionaryOfIDAndCalendarEvents.Values.Select(obj => obj.createCopy()));
+            repetition_cpy._DictionaryOfIDAndCalendarEvents = new SubEventDictionary<string, CalendarEvent>(_DictionaryOfIDAndCalendarEvents?.Values.Select(obj => obj.createCopy()));
             repetition_cpy._DictionaryOfWeekDayToRepetition = new SubEventDictionary<int, Repetition>();
 
             repetition_cpy._DictionaryOfWeekDayToRepetition.Collection = _DictionaryOfWeekDayToRepetition?.Collection.AsParallel().ToDictionary(obj => obj.Key, obj1 => obj1.Value.CreateCopy());

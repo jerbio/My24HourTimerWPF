@@ -17,10 +17,14 @@ namespace TilerElements
         }
         public SubEventDictionary(IEnumerable<TValue> data)
         {
-            foreach (TValue value in data)
+            if(data!=null)
             {
-                this.Add(value);
+                foreach (TValue value in data)
+                {
+                    this.Add(value);
+                }
             }
+            
         }
 
         public TValue this[string key] { get => Data[key]; set => Data[key] = value; }

@@ -102,8 +102,11 @@ namespace TilerTests
             TimeSpan duration = TimeSpan.FromHours(2);
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.AddHours(7);
+            TimeLine repeatTimeLine = new TimeLine(start, end.AddDays(21));
+            TimeLine calTimeLine = new TimeLine(start, start.Add(duration));
+            Repetition repetition = new Repetition(repeatTimeLine, Repetition.Frequency.WEEKLY, calTimeLine);
             Schedule = new TestSchedule(user, refNow);
-            CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser,duration, new Repetition(), start, end, 2, false);
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser,duration, repetition, start, end, 2, false);
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
@@ -183,18 +186,27 @@ namespace TilerTests
             TimeSpan duration = TimeSpan.FromHours(2);
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.AddHours(7);
-            CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser,duration, new Repetition(), start, end, 2, false);
+
+            TimeLine repeatTimeLine = new TimeLine(start, end.AddDays(21));
+            TimeLine calTimeLine = new TimeLine(start, start.Add(duration));
+            Repetition repetition = new Repetition(repeatTimeLine, Repetition.Frequency.WEEKLY, calTimeLine, new DayOfWeek[] {DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Friday});
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser,duration, repetition, start, end, 2, false);
             Schedule = new TestSchedule(user, refNow);
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
             var setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
             Schedule.persistToDB().Wait();
             user = TestUtility.getTestUser(true, userId: tilerUser.Id);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
             TimeSpan procrastinationSpan = TimeSpan.FromHours(2);
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> procrastinateResult = Schedule.ProcrastinateAll(procrastinationSpan);
             Assert.IsNull(procrastinateResult.Item1);
             Schedule.persistToDB().Wait();
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
             EventID procrastinateId = new EventID(user.getTilerUser().ClearAllId);
             CalendarEvent procrastinationEvent = TestUtility.getCalendarEventById(procrastinateId.getCalendarEventID(), user);
@@ -211,11 +223,13 @@ namespace TilerTests
             // Procrastinate  all that over laps. RefNow is  1 hour after the previous refnow. There should be just one single subevent during overlaps
 
             DateTimeOffset refNow0 = refNow.AddHours(1);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow0);
             TimeSpan additionalProcrastinationSpan = TimeSpan.FromHours(2);
             procrastinateResult = Schedule.ProcrastinateAll(additionalProcrastinationSpan);
             Assert.IsNull(procrastinateResult.Item1);
             Schedule.persistToDB().Wait();
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow0);
             procrastinateId = new EventID(user.getTilerUser().ClearAllId);
             procrastinationEvent = TestUtility.getCalendarEventById(procrastinateId.getCalendarEventID(), user);
@@ -230,10 +244,12 @@ namespace TilerTests
             Assert.AreEqual(procrastinationEvent.ActiveSubEvents.Length, numberOfBlockedOfTimeSlots);
 
             /// if the user choses to use the edit fields as opposed to the normal procrastinate scroll wheel. And the edit range is less than the already established range of procrastinate calendar sub events
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow0);
             DateTimeOffset startOfProcrastinateAll = refNow.AddHours(.5);
             DateTimeOffset newEndOfProcrastinateAll = refNow.AddHours(2.5);
             procrastinationEvent = TestUtility.getCalendarEventById(user.getTilerUser().getClearAllEventsId(), user);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
             procrastinationEvent = TestUtility.getCalendarEventById(user.getTilerUser().getClearAllEventsId(), user);
             SubCalendarEvent firstClearedBlock = procrastinationEvent.ActiveSubEvents.OrderBy(obj => obj.Start).First();
@@ -241,6 +257,7 @@ namespace TilerTests
 
             Assert.IsNull(procrastinateResult.Item1);
             Schedule.persistToDB().Wait();
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow0);
             procrastinateId = new EventID(user.getTilerUser().ClearAllId);
             procrastinationEvent = TestUtility.getCalendarEventById(procrastinateId.getCalendarEventID(), user);
@@ -257,6 +274,7 @@ namespace TilerTests
 
             // Procrastinate all if there are no overlaps then we should have multiple active all events
             DateTimeOffset refNow1 = refNow.AddHours(4);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow1);
             
             TimeSpan additionalProcrastinationSpan0 = TimeSpan.FromHours(1);
@@ -266,6 +284,7 @@ namespace TilerTests
             Task updateWait = Schedule.persistToDB();
             
             updateWait.Wait();
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow1);
             procrastinateId = new EventID(user.getTilerUser().ClearAllId);
             procrastinationEvent = TestUtility.getCalendarEventById(procrastinateId.getCalendarEventID(), user);
@@ -278,11 +297,13 @@ namespace TilerTests
 
 
             /// if the user choses to use the edit fields as opposed to the normal procrastinate scroll wheel. And the edit is creates a conflict in procrastinateall subcaledar events. It should generaate one contigous block
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow1);
             startOfProcrastinateAll = refNow.AddHours(.5);
             newEndOfProcrastinateAll = refNow.AddHours(4.5);
             procrastinationEvent = TestUtility.getCalendarEventById(user.getTilerUser().getClearAllEventsId(), user);
             DateTimeOffset desiredEndTIme = procrastinationEvent.End;
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
             procrastinationEvent = TestUtility.getCalendarEventById(user.getTilerUser().getClearAllEventsId(), user);
             firstClearedBlock = procrastinationEvent.ActiveSubEvents.OrderBy(obj => obj.Start).First();
@@ -290,6 +311,7 @@ namespace TilerTests
 
             Assert.IsNull(procrastinateResult.Item1);
             Schedule.persistToDB().Wait();
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow0);
             procrastinateId = new EventID(user.getTilerUser().ClearAllId);
             procrastinationEvent = TestUtility.getCalendarEventById(procrastinateId.getCalendarEventID(), user);

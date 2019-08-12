@@ -443,7 +443,7 @@ namespace TilerElements
 
         public bool isExtraLayers()
         {
-            return _DictionaryOfWeekDayToRepetition.Count > 0;
+            return _DictionaryOfWeekDayToRepetition !=null && _DictionaryOfWeekDayToRepetition.Count > 0;
         }
 
         public List<Repetition> getDayRepetitions()

@@ -18,19 +18,21 @@ namespace TilerTests
          * The 
         */
         /// <summary>
-        /// Template for running test environment through log files
+        /// Template for running test environment through log files.
+        /// You need to run this in UTC TimeZone
         /// </summary>
 
-        //[TestMethod]
-        //public void file_template()
-        //{
-        //    string scheduleId = "bee315a3-14fd-448a-83e4-d1caff27bdab";
-        //    Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
-        //    var scheduleAndDump = TestUtility.getSchedule(scheduleId);
-        //    Schedule schedule = scheduleAndDump.Item1;
-        //    schedule.FindMeSomethingToDo(currentLocation).Wait();
-        //}
-        
+        [TestMethod]
+        public void file_template()
+        {
+            string scheduleId = "6bc6992f-3222-4fd8-9e2b-b94eba2fb717";
+            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+            Schedule schedule = scheduleAndDump.Item1;
+            schedule.FindMeSomethingToDo(currentLocation).Wait();
+            ((TestSchedule)schedule).WriteFullScheduleToLogAndOutlook().Wait();
+        }
+
         public void add9_5WorkSchedule (Schedule schedule)
         {
             string date = "" + schedule.Now.constNow.Month + "/" + schedule.Now.constNow.Day + "/" + schedule.Now.constNow.Year;

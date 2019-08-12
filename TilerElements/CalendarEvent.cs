@@ -1559,8 +1559,14 @@ namespace TilerElements
         public virtual short UpdateTimePerSplit()
         {
             short retValue = 0;
-            _EventDuration = TimeSpan.FromTicks(SubEvents.Values.Sum(subEvent => subEvent.getActiveDuration.Ticks));
-            _AverageTimePerSplit = TimeSpan.FromTicks(_EventDuration.Ticks / _Splits);
+            var pertinentSubEvents = SubEvents.Values.Where(SubEvent => SubEvent.isRigid == this.isRigid);
+            if(pertinentSubEvents.Count()==0)
+            {
+                pertinentSubEvents = SubEvents.Values;
+            }
+            int count = pertinentSubEvents.Count();
+            _EventDuration = TimeSpan.FromTicks(pertinentSubEvents.Sum(subEvent => subEvent.getActiveDuration.Ticks));            
+            _AverageTimePerSplit = TimeSpan.FromMinutes( Math.Round( TimeSpan.FromTicks(_EventDuration.Ticks / count).TotalMinutes));
             return retValue;
         }
 

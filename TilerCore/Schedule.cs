@@ -1795,7 +1795,7 @@ namespace TilerCore
             HashSet<SubCalendarEvent> subEventsInSet = new HashSet<SubCalendarEvent>(AllEventDictionary.Values.Concat(InitializingCalEvents).Where(calEvent => calEvent.isActive)
                 .SelectMany(calEvent => calEvent.ActiveSubEvents).AsParallel().
                 Where(subEvent => subEvent.getCalendarEventRange.End > NowTIme).
-                Where(subEvent => subEvent.canExistWithinTimeLine(CalculationTImeLine) || subEvent.getIsProcrastinateCalendarEvent));
+                Where(subEvent => (subEvent.isRigid && subEvent.ActiveSlot.IsDateTimeWithin(NowTIme)) || subEvent.canExistWithinTimeLine(CalculationTImeLine) || subEvent.getIsProcrastinateCalendarEvent)) ;
             ConcurrentBag<SubCalendarEvent> subEvents = new ConcurrentBag<SubCalendarEvent>();
             subEventsInSet.AsParallel().ForAll((subEvent) =>
             {
@@ -2604,6 +2604,7 @@ namespace TilerCore
         {
             uint TotalDays = (uint)AllDayTImeLine.Length;
             ulong DayIndex = Now.consttDayIndex;
+            double occupancyThreshold = 0.8;
             EventDayBags bagsPerDay = new EventDayBags(TotalDays);
             TotalActiveEvents.AsParallel().ForAll(subEvent => { subEvent.isWake = false; subEvent.isSleep = false; });
             TotalActiveEvents.ForEach((subEvent) => ConflictinSubEvents.Add(subEvent));
@@ -2699,7 +2700,7 @@ namespace TilerCore
                                     if (CurrDaysToUse.Count > UndesignatedEvents.Count)
                                     {
                                         DaysToUse = CurrDaysToUse;
-                                        CurrDaysToUse = eachCal.getDayTimeLineWhereOccupancyIsLess(0, false, CurrDaysToUse);
+                                        CurrDaysToUse = eachCal.getDayTimeLineWhereOccupancyIsLess(occupancyThreshold, false, CurrDaysToUse);
                                         if (CurrDaysToUse.Count > UndesignatedEvents.Count)
                                         {
                                             DaysToUse = CurrDaysToUse;
@@ -2724,7 +2725,7 @@ namespace TilerCore
                                     if (CurrDaysToUse.Count > UndesignatedEvents.Count)
                                     {
                                         DaysToUse = CurrDaysToUse;
-                                        CurrDaysToUse = eachCal.getDayTimeLineWhereOccupancyIsLess(0, false);
+                                        CurrDaysToUse = eachCal.getDayTimeLineWhereOccupancyIsLess(occupancyThreshold, false);
                                         if (CurrDaysToUse.Count > UndesignatedEvents.Count)
                                         {
                                             DaysToUse = CurrDaysToUse;
@@ -2737,7 +2738,7 @@ namespace TilerCore
 
                         if (DaysToUse.Count > 0)
                         {
-                            ulong preferredIndex = DayIndex + (dayCounterSpreadout % 7);
+                            ulong preferredIndex = DayIndex;
                             List<Tuple<ulong, SubCalendarEvent>> AllEvents = EvaluateEachDayIndexForEvent(UndesignatedEvents, DaysToUse, eachCal, bagsPerDay, preferredIndex);
                             if (AllEvents.Count != 0)
                             {
@@ -2755,7 +2756,7 @@ namespace TilerCore
                         {
                             UnUsableCalEvents.Add(eachCal);
                         }
-                        ++dayCounterSpreadout;
+                        //++dayCounterSpreadout;
                     }
                     AllCalEvents = AllCalEvents.Except(UnUsableCalEvents).ToList();
 
@@ -3174,7 +3175,7 @@ namespace TilerCore
                 List<mTuple<bool, DayTimeLine>> OptimizedDayTimeLine  = AllDays.Select(obj => new mTuple<bool, DayTimeLine>(((long)(obj.UniversalIndex - PreferrdDayIndex) >= 0), obj)).ToList();//this line orders Daytimeline by  if they are after the procrastination day.
 
                 List<mTuple<bool, DayTimeLine>> beforeProcrastination = OptimizedDayTimeLine.Where(obj => !obj.Item1).ToList();
-                OptimizedDayTimeLine = OptimizedDayTimeLine.GetRange(beforeProcrastination.Count, OptimizedDayTimeLine.Count - beforeProcrastination.Count).Concat(beforeProcrastination).ToList();// this reorders all the days with before or on procrastination to the back of list
+                OptimizedDayTimeLine = OptimizedDayTimeLine.GetRange(beforeProcrastination.Count, OptimizedDayTimeLine.Count - beforeProcrastination.Count);// this reorders all the days with before or on procrastination to the back of list
                 int bagCount = bagsPerDay.DayBags().Count;
                 List<DayBag> dayBags = bagsPerDay.DayBags().GetRange(OptimizedDayTimeLine.First().Item2.BoundedIndex, bagCount - OptimizedDayTimeLine.First().Item2.BoundedIndex)
                     .Concat(bagsPerDay.DayBags().GetRange(0, OptimizedDayTimeLine.First().Item2.BoundedIndex + 1)).ToList();

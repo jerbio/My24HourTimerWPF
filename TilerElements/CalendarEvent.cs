@@ -28,7 +28,7 @@ namespace TilerElements
         protected bool isUnDesignableInitialized = false;
         protected Dictionary<ulong, DayTimeLine> CalculationLimitationWithUnUsables;
         protected Dictionary<ulong, DayTimeLine> CalculationLimitation;
-        protected Dictionary<ulong, DayTimeLine> FreeDaysLimitation;
+        protected Dictionary<ulong, DayTimeLine> FreeDaysLimitation;// Holds days that do not contain subevents within this time line
         protected List<SubCalendarEvent> _RemovedSubEvents = new List<SubCalendarEvent>();
         protected EventPreference _EventDayPreference;
 
@@ -203,6 +203,7 @@ namespace TilerElements
             for (int i = 0; i < MySubEvents.Length; i++)//using MySubEvents.length for the scenario of the call for repeat event. Remember the parent event does not generate subevents
             {
                 SubCalendarEvent newSubCalEvent = MySubEvents[i];
+                newSubCalEvent.ParentCalendarEvent = this;
                 newSubCalEvent.TimeCreated = this.TimeCreated;
                 if (SubEvents.ContainsKey(newSubCalEvent.Id))
                 { 
@@ -1326,8 +1327,14 @@ namespace TilerElements
 
         public List<DayTimeLine> getTimeLineWithoutMySubEventsAndEnoughDuration(bool forceUpdateFreeTimeLine = true, List<DayTimeLine> AllFreeDayTIme = null)
         {
-
-            AllFreeDayTIme = AllFreeDayTIme ?? FreeDaysLimitation.Values.ToList();
+            if (AllFreeDayTIme == null)
+            {
+                AllFreeDayTIme = FreeDaysLimitation.Values.ToList();
+            }
+            else
+            {
+                AllFreeDayTIme = AllFreeDayTIme.Where(day => FreeDaysLimitation.ContainsKey(day.UniversalIndex)).ToList();
+            }
             if (forceUpdateFreeTimeLine)
             {
                 AllFreeDayTIme.AsParallel().ForAll(obj => { obj.updateOccupancyOfTimeLine(); });

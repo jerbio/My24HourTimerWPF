@@ -1035,12 +1035,12 @@ namespace TilerCore
             {
                 Dictionary<string, CalendarEvent> AllEventDictionary_Cpy = AllEventDictionary.ToDictionary(obj => obj.Key, obj => obj.Value.createCopy());
                 SubCalendarEvent mySubCalendarEvent = orderedSubEvents.First();
-                retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(SetSubeventAsNow(mySubCalendarEvent.getId, true).Item1, AllEventDictionary_Cpy);
+                retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(SetSubeventAsNow(mySubCalendarEvent.getId, true, false).Item1, AllEventDictionary_Cpy);
             }
             return retValue;
         }
 
-        public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> SetSubeventAsNow(string EventID,bool Force=false)
+        public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> SetSubeventAsNow(string EventID,bool Force=false, bool lockToId = true)
         {
             CalendarEvent referenceCalendarEvent = getCalendarEvent(EventID);
             SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
@@ -1052,13 +1052,23 @@ namespace TilerCore
             EventID SubEventID = new EventID(EventID);
 
 
-            bool InitialRigid = ReferenceSubEvent.isLocked;
+            bool InitialRigid = ReferenceSubEvent.isRigid;
 
-            if (!ReferenceSubEvent.shiftEvent(Now.calculationNow - ReferenceSubEvent.Start) && !Force)
+            if (!ReferenceSubEvent.shiftEvent(Now.calculationNow - ReferenceSubEvent.Start, Force, lockToId: lockToId) && !Force)
             {
                 return new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(new CustomErrors("You will be going outside the limits of this event, Is that Ok?",5), null);
             }
 
+
+            if(ReferenceSubEvent.End > referenceCalendarEvent.End)
+            {
+                referenceCalendarEvent.updateTimeLine(new TimeLine(referenceCalendarEvent.Start, ReferenceSubEvent.End));
+            }
+
+            if(!InitialRigid)
+            {
+                referenceCalendarEvent.RigidizeSubEvent(ReferenceSubEvent.Id);
+            }
 
             if (referenceCalendarEvent.IsRepeat)
             {
@@ -1066,56 +1076,17 @@ namespace TilerCore
             }
 
             Dictionary<string, CalendarEvent> AllEventDictionary_Cpy = AllEventDictionary.ToDictionary(obj => obj.Key, obj => obj.Value.createCopy());
-
-            List<SubCalendarEvent> AllValidSubCalEvents = new List<SubCalendarEvent>() { ReferenceSubEvent };// ProcrastinateEvent.AllActiveSubEvents.Where(obj => obj.End > ReferenceSubEvent.Start).ToList();
-
-            DateTimeOffset StartTime = Now.calculationNow;
-            DateTimeOffset EndTime = StartTime.Add(ReferenceSubEvent.getActiveDuration); ;
-
-
             
-            
-            
-            TimeSpan TotalActiveDuration = Utility.SumOfActiveDuration(AllValidSubCalEvents);
-            CalendarEvent ScheduleUpdated = referenceCalendarEvent.getNowCalculationCopy(myNow);//.getNowCalculationCopy(myNow);
-            referenceCalendarEvent.DisableSubEvents(AllValidSubCalEvents);
-            SubCalendarEvent RigidizedEvent = ScheduleUpdated.ActiveSubEvents[0];
-
-            //RigidizedEvent.shiftEvent(Now.calculationNow - RigidizedEvent.Start, Force);//remember to fix shift force option
-
-
-            //SubCalendarEvent RigidSubCalendarEvent = new SubCalendarEvent(RigidizedEvent.ID, RigidizedEvent.Start, RigidizedEvent.End, RigidizedEvent.ActiveSlot, true, RigidizedEvent.isEnabled, ReferenceSubEvent.UIParam, ReferenceSubEvent.Notes, ReferenceSubEvent.isComplete, RigidizedEvent.myLocation, RigidizedEvent.getCalendarEventRange);
-            //RigidizedEvent.UpdateThis(RigidSubCalendarEvent);
-            string IDOfRigidized = RigidizedEvent.getId;
+            CalendarEvent ScheduleUpdated = CalendarEvent.getEmptyCalendarEvent(new EventID());
             HashSet<SubCalendarEvent> NotDOneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
 
 
             ScheduleUpdated = EvaluateTotalTimeLineAndAssignValidTimeSpots(ScheduleUpdated,NotDOneYet ,null, null, 1);
-
-            SubCalendarEvent[] UpdatedSubCalevents = ScheduleUpdated.ActiveSubEvents;
-            DateTimeOffset updatedEndTime = referenceCalendarEvent.End;
-            for (int i = 0; i < AllValidSubCalEvents.Count; i++)//updates the subcalevents
+            if(!InitialRigid)
             {
-                bool Rigid = AllValidSubCalEvents[i].isLocked;
-                if (IDOfRigidized == AllValidSubCalEvents[i].getId)
-                { 
-                    Rigid=InitialRigid;
-                }
-
-                SubCalendarEvent updatedSubCal = new SubCalendarEvent(AllValidSubCalEvents[i].ParentCalendarEvent, AllValidSubCalEvents[i].getCreator, AllValidSubCalEvents[i].getAllUsers(), AllValidSubCalEvents[i].getId, AllValidSubCalEvents[i].getTimeZone, UpdatedSubCalevents[i].getName, UpdatedSubCalevents[i].Start, UpdatedSubCalevents[i].End, UpdatedSubCalevents[i].ActiveSlot, Rigid, AllValidSubCalEvents[i].isEnabled, AllValidSubCalEvents[i].getUIParam, AllValidSubCalEvents[i].Notes, AllValidSubCalEvents[i].getIsComplete, AllValidSubCalEvents[i].Location, referenceCalendarEvent.RangeTimeLine);
-                if(updatedSubCal.End > updatedEndTime)
-                {
-                    updatedEndTime = updatedSubCal.End;
-                }
-                AllValidSubCalEvents[i].shiftEvent(updatedSubCal.Start - AllValidSubCalEvents[i].Start, true, true);///not using update this because of possible issues with subevent not being restricted
+                referenceCalendarEvent.UnRigidizeSubEvent(ReferenceSubEvent.Id);
             }
 
-            referenceCalendarEvent.EnableSubEvents(AllValidSubCalEvents);
-            referenceCalendarEvent.UpdateNowProfile(myNow);
-            if(updatedEndTime > referenceCalendarEvent.End)
-            {
-                referenceCalendarEvent.updateTimeLine(new TimeLine(referenceCalendarEvent.Start, updatedEndTime));
-            }
 
             if (ScheduleUpdated.Error!=null)
             {
@@ -2437,6 +2408,7 @@ namespace TilerCore
                 myDays.Add(SubCalFirstIndex);
                 OrderedyAscendingAllDays[BoundedIndex].AddToSubEventList(eachSubCalendarEvent);
                 eachSubCalendarEvent.updateDayIndex(SubCalFirstIndex);
+                eachSubCalendarEvent.ParentCalendarEvent.removeDayTimesFromFreeUpdays(SubCalFirstIndex);
                 for (ulong i = SubCalFirstIndex + 1, j = 0; j < DayDiff; j++, i++)
                 {
                     BoundedIndex = (int)(i - First);
@@ -2614,7 +2586,7 @@ namespace TilerCore
                 obj.resetDesignationAllActiveEventsInCalculables();
                 obj.InitialCalculationLookupDays(AllDayTImeLine, this.Now); });
             ILookup<ulong, SubCalendarEvent> SetForFirstDay = (new List<SubCalendarEvent>()).ToLookup(obj => (ulong)0, obj => obj);
-            preserveFirttwentyFourHours = false;
+            preserveFirttwentyFourHours &= !shuffle;
             if (preserveFirttwentyFourHours)
             {
                 SetForFirstDay = PrepFirstTwentyFOurHours(AllCalEvents, AllDayTImeLine[0].getJustTimeLine());

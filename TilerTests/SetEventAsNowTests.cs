@@ -53,6 +53,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
             DateTimeOffset newRefNow = end.AddDays(1);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, newRefNow);
             var setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
             Schedule.persistToDB().Wait();
@@ -103,9 +104,11 @@ namespace TilerTests
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
             SubCalendarEvent subEvent = testEvent.ActiveSubEvents[1];
             DateTimeOffset newRefNow = end.AddDays(1);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, newRefNow);
             var setAsNowResult = Schedule.SetSubeventAsNow(subEvent.Id, true);
             Schedule.persistToDB().Wait();
+            subEvent = Schedule.getCalendarEvent(subEvent.getId).ActiveSubEvents.OrderBy(obj => obj.Start).Last();// this sorting is needed because of the extra sorting by id that occurs on the front end to ensure ids are sorted alphabetically
             SubCalendarEvent testSubEvent = TestUtility.getSubEVentById(subEvent.getId, user);
             testEvent = TestUtility.getCalendarEventById(testEvent.getId, user);
             Assert.IsTrue(testSubEvent.Start == newRefNow);
@@ -133,6 +136,7 @@ namespace TilerTests
             SubCalendarEvent subEvent = testEvent.ActiveSubEvents[1];
             CalendarEvent beforeSetAsNowCalendarEvent = TestUtility.getCalendarEventById(testEvent.getId, user);
             DateTimeOffset newRefNow = end.AddDays(1);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, newRefNow);
             var setAsNowResult = Schedule.SetSubeventAsNow(subEvent.Id, true);
             Schedule.persistToDB(false).Wait();
@@ -161,6 +165,7 @@ namespace TilerTests
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
             CalendarEvent beforeSetAsNowCalendarEvent = TestUtility.getCalendarEventById(testEvent.getId, user);
             DateTimeOffset newRefNow = end.AddDays(1);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, newRefNow);
             var setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
             Schedule.persistToDB(false).Wait();
@@ -188,6 +193,7 @@ namespace TilerTests
             CalendarEventRestricted testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 1, false, restrictionProfile: restrictionProfile, now: Schedule.Now) as CalendarEventRestricted;
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
             DateTimeOffset newRefNow = end.AddHours(1);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, newRefNow);
             var setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
             Schedule.persistToDB().Wait();
@@ -216,6 +222,7 @@ namespace TilerTests
             CalendarEventRestricted testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 1, false, restrictionProfile: restrictionProfile, now: Schedule.Now) as CalendarEventRestricted;
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
             DateTimeOffset newRefNow = start.AddHours(1);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, newRefNow);
             SubCalendarEvent subEvent = testEvent.ActiveSubEvents.First();
             var setAsNowResult = Schedule.SetSubeventAsNow(subEvent.getId);
@@ -275,6 +282,7 @@ namespace TilerTests
             CalendarEventRestricted testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 1, false, restrictionProfile: restrictionProfile, now: Schedule.Now) as CalendarEventRestricted;
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
             DateTimeOffset newRefNow = start.AddHours(1);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, newRefNow);
             SubCalendarEvent subEvent = testEvent.ActiveSubEvents.First();
             var setAsNowResult = Schedule.SetSubeventAsNow(subEvent.getId, true);

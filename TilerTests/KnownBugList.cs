@@ -25,11 +25,33 @@ namespace TilerTests
         [TestMethod]
         public void file_template()
         {
-            string scheduleId = "6bc6992f-3222-4fd8-9e2b-b94eba2fb717";
+            string scheduleId = "24fe78f8-b9a9-4ca3-b4a1-cf5d458fe385";
             Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
             var scheduleAndDump = TestUtility.getSchedule(scheduleId);
             Schedule schedule = scheduleAndDump.Item1;
-            schedule.FindMeSomethingToDo(currentLocation).Wait();
+            ((TestSchedule)schedule).WriteFullScheduleToOutlook();
+        }
+
+
+        /// <summary>
+        /// Bug creates a scenario where hitting "do now" some how creates multiple subevents of the same calendar events on the same day
+        /// </summary>
+        [TestMethod]
+        public void file_24fe78f8()
+        {
+            string scheduleId = "24fe78f8-b9a9-4ca3-b4a1-cf5d458fe385";
+            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+            Schedule schedule = scheduleAndDump.Item1;
+
+            TimeLine timeLine = new TimeLine(schedule.Now.constNow, schedule.Now.constNow.AddHours(3));
+            var subEvents = schedule.getAllCalendarEvents().SelectMany(cal => cal.ActiveSubEvents).Where(obj => obj.canExistWithinTimeLine(timeLine)).ToList();
+            var setAsNowCalEvent = subEvents.Where(sub => sub.Name.Name.ToLower().Contains("work")).First();
+            var asNowResult = schedule.SetCalendarEventAsNow(setAsNowCalEvent.Id);
+            var calendarEvent = schedule.getCalendarEvent(setAsNowCalEvent.Id);
+            var interferringSubEvents = schedule.getAllCalendarEvents().SelectMany(cal => cal.ActiveSubEvents).Where(obj => obj.ActiveSlot.doesTimeLineInterfere(schedule.Now.firstDay)).ToList();
+            var subeventsOfTheSameCalendar = interferringSubEvents.Where(subEvent => calendarEvent.getTilerID.getCalendarEventComponent() == subEvent.getTilerID.getCalendarEventComponent());
+            Assert.IsTrue(subeventsOfTheSameCalendar.Count() == 1);
             ((TestSchedule)schedule).WriteFullScheduleToOutlook();
         }
 

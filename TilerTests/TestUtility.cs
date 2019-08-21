@@ -352,13 +352,13 @@ namespace TilerTests
                     RefreshAll(_Context);
                 }
                 _Context = new TestDBContext();
-                _Context.Database.Log = s => System.Diagnostics.Debug.WriteLine(s);
+                //_Context.Database.Log = s => System.Diagnostics.Debug.WriteLine(s);
                 UserToContext[userId] = _Context;
             }
             else
             {
                 _Context = new TestDBContext();
-                _Context.Database.Log = s => System.Diagnostics.Debug.WriteLine(s);
+                //_Context.Database.Log = s => System.Diagnostics.Debug.WriteLine(s);
                 UserToContext.Add(userId, _Context);
             }
 

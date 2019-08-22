@@ -471,7 +471,11 @@ namespace TilerCore
                 myCalendarEvent.updateNumberOfSplits(newSplitCount);
                 if (triggerSubEvent != null)
                 {
-                    myCalendarEvent.updateTimeLine(triggerSubEvent, new TimeLine(newStart, newEnd)); 
+                    myCalendarEvent.updateTimeLine(triggerSubEvent, new TimeLine(newStart, newEnd));
+                    if (triggerSubEvent.Start < Now.constNow && triggerSubEvent.isLocked)
+                    {
+                        throw new CustomErrors(CustomErrors.Errors.eventUpdateBeforeNow);
+                    }
                 }
                 else
                 {

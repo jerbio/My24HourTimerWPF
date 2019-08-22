@@ -41,8 +41,8 @@ namespace TilerElements
             _ProfileOfNow = new NowProfile();
             SubCalendarEvent mySubCal = GoogleSubCalendarEvent.convertFromGoogleToSubCalendarEvent( SubCalData, _LocationInfo);//.convertFromGoogleToSubCalendarEvent();
             mySubCal.ParentCalendarEvent = this;
-            SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
-            SubEvents.Collection.Add(mySubCal.Id, mySubCal);
+            _SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
+            _SubEvents.Collection.Add(mySubCal.Id, mySubCal);
         }
 
         public GoogleCalendarEvent(IEnumerable<CalendarEvent> AllCalendarEvent, TilerUser user)
@@ -67,7 +67,7 @@ namespace TilerElements
             this._DataBlob = new MiscData();
             this._ProfileOfNow = new NowProfile();
             this.ThirdPartyTypeInfo = ThirdPartyControl.CalendarTool.google;
-            SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
+            _SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
         }
 
 

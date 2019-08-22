@@ -697,6 +697,65 @@ namespace TilerTests
             Assert.IsTrue(verificationEventPulled.isTestEquivalent(loadedFromSchedule));
         }
 
+        [TestMethod]
+        public void TestCreationOfSubeventVerifyWebRetrievaMatchesEvaluationRetrieva()
+        {
+            TilerUser tilerUser = TestUtility.createUser();
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
+            user.Login().Wait();
+            Schedule = new TestSchedule(user, refNow);
+            TimeSpan duration = TimeSpan.FromHours(4);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.Add(duration);
+            TimeLine repetitionRange = new TimeLine(start, start.AddDays(13).AddHours(-23));
+            List<DayOfWeek> weekDays = new List<DayOfWeek>() { start.DayOfWeek, (DayOfWeek)(((int)start.DayOfWeek + 2) % 7), (DayOfWeek)(((int)start.DayOfWeek + 4) % 7) };
+            List<DayOfWeek> weekDaysAsInt = weekDays.ToList();
+            DayOfWeek startingWeekDay = start.DayOfWeek;
+            Repetition repetition = new Repetition(repetitionRange, Repetition.Frequency.WEEKLY, new TimeLine(start, end), weekDaysAsInt.ToArray());
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, repetitionRange.Start, repetitionRange.End, 1, false);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            TimeLine rangeOfLookup = new TimeLine(refNow, testEvent.End);
+            LogControl LogAccess = user.ScheduleLogControl;
+
+            var task = LogAccess.getAllEnabledSubCalendarEvent(rangeOfLookup, Schedule.Now, retrievalOption: DataRetrivalOption.Ui);
+            task.Wait();
+            var allSubs = task.Result.ToList();
+
+            var taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, Schedule.Now, retrievalOption: DataRetrivalOption.Ui);
+            taskCal.Wait();
+            var allCals = taskCal.Result.ToList();
+            var calSubEVents = allCals.Select(obj => obj.Value).SelectMany(obj => obj.AllSubEvents).ToList();
+
+
+            Assert.AreEqual(allSubs.Count, calSubEVents.Count);
+
+            //var checkingNull = testEvent.getRepeatedCalendarEvent(testEvent.ActiveSubEvents.First().SubEvent_ID.getIDUpToRepeatCalendarEvent());
+            //var all = testEvent.AllSubEvents;
+            //Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
+            //waitVar.Wait();
+            //CalendarEvent verificationEventPulled = waitVar.Result;
+            //Assert.IsTrue(testEvent.isTestEquivalent(verificationEventPulled));
+            //List<SubCalendarEvent> subEvents = verificationEventPulled.AllSubEvents.OrderBy(subEvent => subEvent.Start).ToList();
+            //for (int index = 0; index < subEvents.Count; index++)
+            //{
+            //    int currentDayIndex = index % weekDays.Count;
+            //    DayOfWeek dayOfWeek = weekDays[currentDayIndex];
+            //    Assert.AreEqual(subEvents[index].Start.DayOfWeek, dayOfWeek);
+            //}
+
+
+            //TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            //Schedule = new TestSchedule(user, refNow);
+            //CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
+            //Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
+            //Assert.IsTrue(verificationEventPulled.isTestEquivalent(loadedFromSchedule));
+        }
+
 
         [TestMethod]
         public void TestCreationOfDailyRepeatNonRigidIsLessThanADayEvent()

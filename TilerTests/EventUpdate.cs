@@ -391,6 +391,7 @@ namespace TilerTests
 
         //// Test group test the change of the Range time line of the calendar event
         [TestMethod]
+        [ExpectedException(typeof (CustomErrors), "The select time slot for the schedule change does is before the current time, try loading a schedule which includes the current time")]
         public void RangeTimeLineRigidSubEventUpdate()
         {
             // increases the range
@@ -398,7 +399,8 @@ namespace TilerTests
             UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
             user.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            DateTimeOffset iniRefNow = TestUtility.parseAsUTC("8/21/2019 11:21:46 PM +00:00");
+            DateTimeOffset refNow = iniRefNow;
             DateTimeOffset startOfDay = TestUtility.parseAsUTC("10:00 pm");
             TestSchedule schedule = new TestSchedule(user, refNow, startOfDay);
             TimeSpan duration = TimeSpan.FromHours(1);
@@ -406,9 +408,11 @@ namespace TilerTests
             DateTimeOffset end = start.Add(duration);
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 1, true);
             schedule.AddToScheduleAndCommit(testEvent).Wait();
-            TestSchedule scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
+
             DateTimeOffset newStart = testEvent.Start.Add(-TimeSpan.FromTicks((long)duration.Ticks / 2));
             DateTimeOffset newDeadline = testEvent.End.Add(duration);
+            refNow = newStart;
+            TestSchedule scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
             var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.ActiveSubEvents.First().getId, testEvent.getName, newStart, newDeadline, newStart, newDeadline, testEvent.NumberOfSplit, testEvent.Notes.UserNote);
 
             scheduleReloaded.persistToDB().Wait();
@@ -421,11 +425,14 @@ namespace TilerTests
             Assert.IsFalse(retrievedCalendarEvent.End == end);// this should evaluate to false because we have modified the deadline of the original calendar event
 
             // decreases the range
-            scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
             newStart = newStart.Add(-duration);
             newDeadline = newDeadline.Add(-TimeSpan.FromTicks((long)(duration.Ticks * 2)));
-            scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.ActiveSubEvents.First().getId, testEvent.getName, newStart, newDeadline, newStart, newDeadline, testEvent.NumberOfSplit, testEvent.Notes.UserNote);
+            scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
+            scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.ActiveSubEvents.First().getId, testEvent.getName, newStart, 
+                newDeadline, newStart, newDeadline, testEvent.NumberOfSplit, testEvent.Notes.UserNote);//this should throw an error because newStart is before refnow
 
+            refNow = newStart;
+            scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
             scheduleReloaded.persistToDB().Wait();
             scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
             retrievedCalendarEvent = TestUtility.getCalendarEventById(testEvent.Calendar_EventID, user);

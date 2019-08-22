@@ -36,7 +36,7 @@ namespace TilerElements
             this._DataBlob = new MiscData();
             this._ProfileOfNow = new NowProfile();
             this.ThirdPartyTypeInfo = ThirdPartyControl.CalendarTool.google;
-            SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
+            _SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
         }
     }
 }

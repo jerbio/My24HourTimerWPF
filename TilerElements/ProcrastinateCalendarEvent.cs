@@ -33,14 +33,14 @@ namespace TilerElements
 
         public override void initializeSubEvents()
         {
-            SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
+            _SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
             for (int i = 0; i < _Splits; i++)
             {
                 TimeLine procrastinationTimeLine = new TimeLine(StartDateTime, EndDateTime);
                 SubCalendarEvent newSubCalEvent = new ProcrastinateAllSubCalendarEvent(getCreator, _Users, _TimeZone, procrastinationTimeLine, this.UniqueID, this._LocationInfo, this);
                 newSubCalEvent.TimeCreated = this.TimeCreated;
 
-                SubEvents.Add(newSubCalEvent.Id, newSubCalEvent);
+                _SubEvents.Add(newSubCalEvent.Id, newSubCalEvent);
             }
         }
 

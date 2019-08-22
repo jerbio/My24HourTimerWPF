@@ -63,7 +63,14 @@ namespace TilerElements
             _LocationInfo = Location;
             
             _EventDuration = Duration;
-            _AverageTimePerSplit = TimeSpan.FromTicks(_EventDuration.Ticks / _Splits);
+            if (_Splits != 0)
+            {
+                _AverageTimePerSplit = TimeSpan.FromTicks(_EventDuration.Ticks / _Splits);
+            }
+            else
+            {
+                _AverageTimePerSplit = new TimeSpan();
+            }
             isRestricted = true;
             _ProfileOfNow = new NowProfile();
             this._Creator = creator;
@@ -102,7 +109,13 @@ namespace TilerElements
             _ProfileOfNow = new NowProfile();
             isRestricted = true;
             _EventDuration = Duration;
-            _AverageTimePerSplit = TimeSpan.FromTicks(_EventDuration.Ticks / _Splits);
+            if (_Splits != 0) {
+                _AverageTimePerSplit = TimeSpan.FromTicks(_EventDuration.Ticks / _Splits);
+            } else
+            {
+                _AverageTimePerSplit = new TimeSpan();
+            }
+            
             _LocationInfo = Location;
             this._Creator = creator;
             this._Users = userGroup;
@@ -158,7 +171,7 @@ namespace TilerElements
             MyCalendarEventCopy._Splits = _Splits;
             MyCalendarEventCopy._AverageTimePerSplit = new TimeSpan(_AverageTimePerSplit.Ticks);
             MyCalendarEventCopy.EventSequence = EventSequence.CreateCopy();
-            MyCalendarEventCopy.SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
+            MyCalendarEventCopy._SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
             MyCalendarEventCopy._UiParams = this._UiParams?.createCopy();
             MyCalendarEventCopy._DataBlob = this._DataBlob?.createCopy();
             MyCalendarEventCopy._Enabled = this._Enabled;
@@ -185,7 +198,7 @@ namespace TilerElements
 
             foreach (SubCalendarEventRestricted eachSubCalendarEvent in this.SubEvents.Values)
             {
-                MyCalendarEventCopy.SubEvents.Add(eachSubCalendarEvent.Id, eachSubCalendarEvent.createCopy(EventID.GenerateSubCalendarEvent(MyCalendarEventCopy.UniqueID) ));
+                MyCalendarEventCopy._SubEvents.Add(eachSubCalendarEvent.Id, eachSubCalendarEvent.createCopy(EventID.GenerateSubCalendarEvent(MyCalendarEventCopy.UniqueID) ));
             }
 
             MyCalendarEventCopy._otherPartyID = _otherPartyID == null ? null : _otherPartyID.ToString();
@@ -196,7 +209,7 @@ namespace TilerElements
 
         void InstantiateSubEvents()
         {
-            SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
+            _SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
             TimeLine eachStart = _ProfileOfRestriction.getEarliestStartTimeWithinAFrameAfterRefTime(this.Start).Item1;
             for (int i = 0; i < _Splits; i++)
             {
@@ -204,7 +217,7 @@ namespace TilerElements
                 DateTimeOffset SubEnd = SubStart.Add(_AverageTimePerSplit);
                 SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(this, this.getCreator, this._Users, UniqueID.ToString(), this.getName, SubStart, SubEnd, _ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), _RigidSchedule, _PrepTime, _EventPreDeadline, _LocationInfo, _UiParams, _DataBlob, _Now, _Priority, ThirdPartyID);
                 newEvent.TimeCreated = this.TimeCreated;
-                SubEvents.Add(newEvent.Id, newEvent);
+                _SubEvents.Add(newEvent.Id, newEvent);
             }
         }
 
@@ -255,7 +268,7 @@ namespace TilerElements
             RetValue._AverageTimePerSplit = this.AverageTimeSpanPerSubEvent;
             RetValue.UniqueID = EventID.GenerateCalendarEvent();
             //RetValue.EventSequence = this.EventSequence;
-            RetValue.SubEvents = new SubEventDictionary<string,SubCalendarEvent>();
+            RetValue._SubEvents = new SubEventDictionary<string,SubCalendarEvent>();
             RetValue._UiParams = this.getUIParam?.createCopy();
             RetValue._DataBlob = this.Notes;
             RetValue._Enabled = this.isEnabled;
@@ -284,13 +297,13 @@ namespace TilerElements
                 DateTimeOffset SubStart = eachStart.Start;
                 DateTimeOffset SubEnd = SubStart.Add(_AverageTimePerSplit);
                 SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(this, this.getCreator, this._Users, UniqueID.ToString(), this.getName, SubStart, SubEnd, _ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), _RigidSchedule, _PrepTime, _EventPreDeadline, _LocationInfo, _UiParams, _DataBlob, _Now, _Priority, ThirdPartyID);
-                SubEvents.Add(newEvent.Id, newEvent);
+                _SubEvents.Add(newEvent.Id, newEvent);
                 newEvent.UiParamsId = this.UiParamsId;
                 newEvent.DataBlobId = this.DataBlobId;
 
             }
             _Splits += (int)delta;
-            _EventDuration = TimeSpan.FromTicks(SubEvents.Values.Sum(subEvent => subEvent.getActiveDuration.Ticks));
+            _EventDuration = TimeSpan.FromTicks(_SubEvents.Values.Sum(subEvent => subEvent.getActiveDuration.Ticks));
         }
 
         public override void UpdateThis(CalendarEvent CalendarEventEntry)

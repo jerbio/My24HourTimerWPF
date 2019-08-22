@@ -178,6 +178,7 @@ namespace TilerElements
                 {
                     eachKeyValuePair.Value.PopulateRepetitionParameters(MyParentEvent, Convert.ToInt32(eachKeyValuePair.Key));
                 }
+                MyParentEvent.deleteAllSubCalendarEvents();
                 return;
             }
             this.ParentEvent = MyParentEvent;
@@ -221,6 +222,7 @@ namespace TilerElements
             }
             MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
             MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
+            MyRepeatCalendarEvent.setRepeatParent(MyParentEvent);
             foreach (SubCalendarEvent subEvent in MyRepeatCalendarEvent.AllSubEvents)
             {
                 subEvent.RepeatParentEvent = MyParentEvent;
@@ -267,6 +269,7 @@ namespace TilerElements
                     subEvent.RepeatParentEvent = MyParentEvent;
                 }
                 MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
+                MyRepeatCalendarEvent.setRepeatParent(MyParentEvent);
             }
         }
 
@@ -286,6 +289,7 @@ namespace TilerElements
                 {
                     eachKeyValuePair.Value.PopulateRepetitionParameters(MyParentEvent, Convert.ToInt32(eachKeyValuePair.Key));
                 }
+                MyParentEvent.deleteAllSubCalendarEvents();
                 return;
             }
             this.ParentEvent = MyParentEvent;
@@ -319,6 +323,7 @@ namespace TilerElements
                     }
                     MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
                     MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
+                    MyRepeatCalendarEvent.setRepeatParent(MyParentEvent);
                     MyRepeatCalendarEvent.Location = MyParentEvent.Location;
                 }
                 EachRepeatCalendarStart = IncreaseByFrequency(EachRepeatCalendarStart, getFrequency); ;
@@ -373,11 +378,13 @@ namespace TilerElements
             }
             MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
             MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
-            foreach(SubCalendarEvent subEvent in MyRepeatCalendarEvent.AllSubEvents)
+            MyRepeatCalendarEvent.setRepeatParent(MyParentEvent);
+            foreach (SubCalendarEvent subEvent in MyRepeatCalendarEvent.AllSubEvents)
             {
                 subEvent.RepeatParentEvent = MyParentEvent;
             }
             this.PopulateRepetitionParameters(MyRepeatCalendarEvent);
+            MyRepeatCalendarEvent.deleteAllSubCalendarEvents();
         }
 
         private void PopulateRepetitionParameters(CalendarEventRestricted MyParentEvent, int WeekDay)
@@ -404,11 +411,13 @@ namespace TilerElements
             MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
             MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
             MyRepeatCalendarEvent.Location = MyParentEvent.Location;
+            MyRepeatCalendarEvent.setRepeatParent(MyParentEvent);
             foreach (SubCalendarEvent subEvent in MyRepeatCalendarEvent.AllSubEvents)
             {
                 subEvent.RepeatParentEvent = MyParentEvent;
             }
             this.PopulateRepetitionParameters(MyRepeatCalendarEvent);
+            MyRepeatCalendarEvent.deleteAllSubCalendarEvents();
         }
         DateTimeOffset IncreaseByFrequency(DateTimeOffset MyTime, Frequency Frequency, string timeZone = "UTC")
         {

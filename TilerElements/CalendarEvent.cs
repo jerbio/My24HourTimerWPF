@@ -1702,6 +1702,13 @@ namespace TilerElements
 
         public virtual void deleteAllSubCalendarEvents()
         {
+            foreach(var subEvent in this.SubEvents.Values)
+            {
+                subEvent.RepeatParentEvent = null;
+                subEvent.RepeatParentEventId = null;
+                subEvent.ParentCalendarEvent = null;
+                subEvent.CalendarEventId = null;
+            }
             this._SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
             _CompletedCount = 0;
             _Splits = 0;

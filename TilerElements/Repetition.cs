@@ -271,6 +271,7 @@ namespace TilerElements
                 MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
                 MyRepeatCalendarEvent.setRepeatParent(MyParentEvent);
             }
+            MyParentEvent.deleteAllSubCalendarEvents();
         }
 
 
@@ -326,10 +327,11 @@ namespace TilerElements
                     MyRepeatCalendarEvent.setRepeatParent(MyParentEvent);
                     MyRepeatCalendarEvent.Location = MyParentEvent.Location;
                 }
-                EachRepeatCalendarStart = IncreaseByFrequency(EachRepeatCalendarStart, getFrequency); ;
+                EachRepeatCalendarStart = IncreaseByFrequency(EachRepeatCalendarStart, getFrequency);
                 EachRepeatCalendarEnd = IncreaseByFrequency(EachRepeatCalendarEnd, getFrequency);
                 calendarTimeLine = new TimeLine(EachRepeatCalendarStart, EachRepeatCalendarEnd);
             }
+            MyParentEvent.deleteAllSubCalendarEvents();
         }
         
         private DateTimeOffset getStartTimeForAppropriateWeek(DateTimeOffset refTime, DayOfWeek SearchedDayOfweek)

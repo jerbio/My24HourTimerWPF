@@ -2869,7 +2869,7 @@ namespace TilerCore
                 int retryCount = 0;
                 while(!breakLoop && retryCount++ < count)
                 {
-                    TimeLine timeLine = getMiddleTimeLine(dayTimeLine, middleDuration);
+                    TimeLine timeLine = Utility.CentralizeYourSelfWithinRange(dayTimeLine, middleDuration);
                     foreach(SubCalendarEvent subEvent in AllRigids)
                     {
                         if (!timeLine.IsTimeLineWithin(subEvent.ActiveSlot))
@@ -2906,6 +2906,7 @@ namespace TilerCore
                     else
                     {
                         breakLoop = allIsReasisgned;
+                        CreateBufferForEachEvent(subEvents.OrderBy(obj => obj.Start).ToList(), timeLine, false);
                         return;
                     }
                 }
@@ -2916,18 +2917,6 @@ namespace TilerCore
             }
 
             
-        }
-
-        TimeLine getMiddleTimeLine (TimeLine timeLine, TimeSpan duration)
-        {
-            if(timeLine.TimelineSpan >= duration)
-            {
-                DateTimeOffset middlePoint = timeLine.Start + (TimeSpan.FromMinutes(Math.Floor( timeLine.TimelineSpan.TotalMinutes / 2)));
-                DateTimeOffset startTimeOfMiddleTImeLine = middlePoint - TimeSpan.FromMinutes(Math.Floor(duration.TotalMinutes / 2));
-                TimeLine retValue = new TimeLine(startTimeOfMiddleTImeLine, startTimeOfMiddleTImeLine.Add(duration));
-                return retValue;
-            }
-            throw new Exception("Duration cannot be more than the actual TimeLineDuration");
         }
 
         /// <summary>
@@ -3751,7 +3740,7 @@ namespace TilerCore
         /// </summary>
         /// <param name="AllEvents"></param>
         /// <param name="restrictingTimeline"></param>
-        void CreateBufferForEachEvent(List<SubCalendarEvent> AllEvents, TimeLine restrictingTimeline)
+        void CreateBufferForEachEvent(List<SubCalendarEvent> AllEvents, TimeLine restrictingTimeline, bool calculateRemoely = true)
         {
             if (AllEvents.Count < 1)
             {
@@ -3806,8 +3795,12 @@ namespace TilerCore
             {
                 j = i + 1;
                 Tuple<SubCalendarEvent, SubCalendarEvent> myCoEvents = new Tuple<SubCalendarEvent, SubCalendarEvent>(AllEvents[i], AllEvents[j]);
+                TimeSpan bufferSpan = new TimeSpan(-1);
+                if (calculateRemoely)
+                {
+                    bufferSpan = Location.getDrivingTimeFromWeb(myCoEvents.Item1.Location, myCoEvents.Item2.Location);
+                }
                 
-                TimeSpan bufferSpan = Location.getDrivingTimeFromWeb(myCoEvents.Item1.Location, myCoEvents.Item2.Location);
                 if (bufferSpan.Ticks < 0)
                 {
                     double distance = SubCalendarEvent.CalculateDistance(myCoEvents.Item1, myCoEvents.Item2, -1);

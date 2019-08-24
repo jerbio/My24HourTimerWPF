@@ -121,13 +121,14 @@ namespace TilerElements
         {
             TimeSpan Difference = Range.TimelineSpan - Centralized;
             TimeLine CentralizedTimeline = new TimeLine();
-            if (Difference.TotalMilliseconds < 0)
+            if (Difference.TotalMilliseconds >= 0)
             {
-                throw (new System.Exception("Cannot generate CentralizeYourSelfWithinRange TimeLine Because Difference is less than zero.\nWill Not Fit!!!"));
+                DateTimeOffset MyStart = Range.Start.Add(TimeSpan.FromMinutes(Math.Floor(Difference.TotalMinutes / 2)));
+                CentralizedTimeline = new TimeLine(MyStart, MyStart.Add(Centralized));
+                return CentralizedTimeline;
             }
-            DateTimeOffset MyStart = Range.Start.AddSeconds(Difference.TotalSeconds / 2);
-            CentralizedTimeline = new TimeLine(MyStart, MyStart.Add(Centralized));
-            return CentralizedTimeline;
+            throw (new System.Exception("Duration is larger than timeline"));
+            
         }
 
         static public List<double> getOriginFromDimensions(IList<IList<double>> collection)

@@ -33,7 +33,8 @@ namespace TilerTests
         }
 
         /// <summary>
-        /// Bug creates a scenario where hitting "do now" some how creates multiple subevents of the same calendar events on the same day
+        /// This is a schedule health bug, on 08/18/2019 the events were scheduled towards the end of the day instead of towards the middle of the day
+        /// THis test verifies the events are within the middle of the day
         /// </summary>
         [TestMethod]
         public void file_59754086()

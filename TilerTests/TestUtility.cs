@@ -533,8 +533,8 @@ namespace TilerTests
             }
 
 
-            var firstLocations = FirstSchedule.getAllLocations();
-            var secondLocations = SecondSchedule.getAllLocations();
+            var firstLocations = FirstSchedule.getAllLocations().Where(obj => !obj.isNull && !obj.isDefault);
+            var secondLocations = SecondSchedule.getAllLocations().Where(obj => !obj.isNull && !obj.isDefault);
             retValue &= firstLocations.Count() == secondLocations.Count();
             if (retValue)
             {

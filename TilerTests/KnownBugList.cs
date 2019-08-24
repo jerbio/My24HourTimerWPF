@@ -25,33 +25,32 @@ namespace TilerTests
         [TestMethod]
         public void file_template()
         {
-            string scheduleId = "24fe78f8-b9a9-4ca3-b4a1-cf5d458fe385";
-            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
-            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
-            Schedule schedule = scheduleAndDump.Item1;
-            ((TestSchedule)schedule).WriteFullScheduleToOutlook();
+            //string scheduleId = "24fe78f8-b9a9-4ca3-b4a1-cf5d458fe385";
+            //Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+            //var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+            //Schedule schedule = scheduleAndDump.Item1;
+            //((TestSchedule)schedule).WriteFullScheduleToOutlook();
         }
-
 
         /// <summary>
         /// Bug creates a scenario where hitting "do now" some how creates multiple subevents of the same calendar events on the same day
         /// </summary>
         [TestMethod]
-        public void file_24fe78f8()
+        public void file_59754086()
         {
-            string scheduleId = "24fe78f8-b9a9-4ca3-b4a1-cf5d458fe385";
+            string scheduleId = "59754086-6192-4364-a364-dffb4c71d7b6";
             Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
             var scheduleAndDump = TestUtility.getSchedule(scheduleId);
             Schedule schedule = scheduleAndDump.Item1;
+            schedule.FindMeSomethingToDo(currentLocation).Wait();
+            DateTimeOffset referenceDay = TestUtility.parseAsUTC("08/18/2019");
 
-            TimeLine timeLine = new TimeLine(schedule.Now.constNow, schedule.Now.constNow.AddHours(3));
-            var subEvents = schedule.getAllCalendarEvents().SelectMany(cal => cal.ActiveSubEvents).Where(obj => obj.canExistWithinTimeLine(timeLine)).ToList();
-            var setAsNowCalEvent = subEvents.Where(sub => sub.Name.Name.ToLower().Contains("work")).First();
-            var asNowResult = schedule.SetCalendarEventAsNow(setAsNowCalEvent.Id);
-            var calendarEvent = schedule.getCalendarEvent(setAsNowCalEvent.Id);
-            var interferringSubEvents = schedule.getAllCalendarEvents().SelectMany(cal => cal.ActiveSubEvents).Where(obj => obj.ActiveSlot.doesTimeLineInterfere(schedule.Now.firstDay)).ToList();
-            var subeventsOfTheSameCalendar = interferringSubEvents.Where(subEvent => calendarEvent.getTilerID.getCalendarEventComponent() == subEvent.getTilerID.getCalendarEventComponent());
-            Assert.IsTrue(subeventsOfTheSameCalendar.Count() == 1);
+            DayTimeLine dayTimeLine = schedule.Now.getDayTimeLineByTime(referenceDay);
+            TimeLine middleOfDay = new TimeLine(dayTimeLine.Start.AddHours(8), dayTimeLine.End.AddHours(-8));
+            List<SubCalendarEvent>allSubEvents = dayTimeLine.getSubEventsInTimeLine();
+            List<SubCalendarEvent> allSubEventsWithinTimeline = allSubEvents.Where(subEvent => middleOfDay.IsTimeLineWithin(subEvent.ActiveSlot)).ToList();
+            Assert.AreEqual(allSubEvents.Count, allSubEventsWithinTimeline.Count);
+
             ((TestSchedule)schedule).WriteFullScheduleToOutlook();
         }
 

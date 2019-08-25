@@ -30,12 +30,12 @@ namespace TilerElements
         {
             StarTime = new DateTimeOffset(1970, 1, 1, StartOfDay.Hour, StartOfDay.Minute, 0, new TimeSpan());
             Now = new DateTimeOffset(Now.Year, Now.Month, Now.Day, Now.Hour, Now.Minute, 0, new TimeSpan());
-            CalculationNow = Now;
+            CalculationNow = Now.removeSecondsAndMilliseconds();
             ImmutableNow = CalculationNow;
             this.startOfDay = StartOfDay;
             DateTimeOffset currentTime = new DateTimeOffset(ImmutableNow.Year, ImmutableNow.Month, ImmutableNow.Day, 0,0,0, new TimeSpan());
             DayOfWeek currentDayOfWeek = currentTime.DayOfWeek;
-            DateTimeOffset startTimeForDayOfweek = currentTime.Add(timeDifference);
+            DateTimeOffset startTimeForDayOfweek = currentTime.Add(timeDifference).removeSecondsAndMilliseconds();
             TimeZoneDiff = timeDifference;
             _ConstDayOfTheWeek = getDayOfTheWeek(ImmutableNow).Item1;
             InitializeParameters();

@@ -208,6 +208,7 @@ namespace TilerTests
 
             Assert.AreEqual(repeatCount, validatingCount);
         }
+
         [TestMethod]
         public void RepetitionMultipleEventWithDifferentDayPreferences()
         {
@@ -297,25 +298,6 @@ namespace TilerTests
             }
 
 
-
-
-            //TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            //refNow = repeatSecondDayFromStart;
-            //Schedule = new TestSchedule(user, refNow);
-            //subEvent = repeatEvent.ActiveSubEvents.First();
-            //repeatEvent = Schedule.getCalendarEvent(repeatEvent.Id);
-            //Schedule.SetEventAsNow(subEvent.Id);
-            //Schedule.persistToDB().Wait();
-
-
-            //TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            //Schedule = new TestSchedule(user, refNow);
-            //repeatEvent = Schedule.getCalendarEvent(repeatEvent.Id);
-            //subEvent = repeatEvent.ActiveSubEvents.First();
-            //Schedule.markSubEventAsComplete(subEvent.Id).Wait();
-            //Schedule.persistToDB().Wait();
-
-
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
             Schedule.FindMeSomethingToDo(new Location()).Wait();
@@ -368,6 +350,41 @@ namespace TilerTests
 
             int count = allCorrespondingRepeatDays.Count - repeatSplitCount;// this should be 8 because the first week in the repeat sequence is 7/1/2019 - 7/8/2019 which leaves only one day after "refnow" which is 7/7/2019 so it cannot be assigned to one of the preference days
             Assert.AreEqual(repeatCount, count);
+        }
+
+        [TestMethod]
+        public void InterfereWithNowEventsShouldStayInSameLocation()
+        {
+            var packet = TestUtility.CreatePacket();
+            UserAccount user = packet.Account;
+            TilerUser tilerUser = packet.User;
+
+            DateTimeOffset iniRefNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
+            DateTimeOffset refNow = iniRefNow;
+
+            TimeSpan duration = TimeSpan.FromHours(2);
+            DateTimeOffset start = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
+            DateTimeOffset end = start.AddDays(15);
+            int splitCount = 8;
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            CalendarEvent testEvent = TestUtility
+                .generateCalendarEvent(tilerUser, duration, null, start, end, splitCount, false);
+            TestSchedule schedule = new TestSchedule(user, refNow);
+            schedule.AddToScheduleAndCommit(testEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            testEvent = TestUtility.getCalendarEventById(testEvent.Id, user);
+            SubCalendarEvent subEvent = testEvent.ActiveSubEvents.OrderBy(obj => obj.Start).First();
+            refNow = subEvent.Start.Add(TimeSpan.FromMinutes(Math.Floor(subEvent.getActiveDuration.TotalMinutes / 2)));
+
+
+            schedule = new TestSchedule(user, refNow);
+            CalendarEvent testEvent1 = TestUtility
+                .generateCalendarEvent(tilerUser, duration, null, start, end, splitCount, false);
+            schedule.AddToScheduleAndCommit(testEvent1).Wait();
+            SubCalendarEvent subEventInMemory = schedule.getSubCalendarEvent(subEvent.Id);
+            Assert.IsTrue( subEventInMemory.RangeTimeLine.isEqualStartAndEnd(subEvent.RangeTimeLine));
+
         }
 
         public List<DateTimeOffset> getCorrespondingWeekdays(TimeLine timeLine, DayOfWeek dayOfWeek)

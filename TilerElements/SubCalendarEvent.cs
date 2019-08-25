@@ -36,7 +36,7 @@ namespace TilerElements
         public TimeSpan TravelTimeAfter { get; set; } = new TimeSpan(1);
         public bool isWake { get; set; } = false;
         public bool isSleep { get; set; } = false;
-        protected bool tempLock { get; set; } = false;
+        protected bool tempLock { get; set; } = false;// This should never get persisted
         /// <summary>
         /// This holds the current session reasons. It will updated based on data and calculation optimizations from HistoricalCurrentPosition
         /// </summary>

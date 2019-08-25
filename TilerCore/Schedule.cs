@@ -1685,7 +1685,13 @@ namespace TilerCore
         /// <param name="FlagType"></param>
         /// <param name="ExemptFromCalculation"></param>
         /// <param name="iniTimeLine"></param>
-        /// <returns></returns>
+        /// <returns>
+        /// A Quadruple
+        /// Item1 = The time line ideal for the calculation based on iniTimeLine
+        /// Item2 = List of subevents that can be used in the evaluation, they shouldn't include events interferring with now
+        /// Item3 = A CustomError object in the scenario where the sum of the duration of all the sub events is more than the CalculationTimeline. Note CalculationTimeline!=iniTimeLine it's  Now.CalcutionNow - iniTimeLine.End
+        /// Item4 = Subevents interferring with the current time
+        /// </returns>
         Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> getAllInterferringEventsAndTimeLineInCurrentEvaluation(CalendarEvent initializingCalendarEvent, List<CalendarEvent> NoneCommitedCalendarEventsEvents, int FlagType, HashSet<SubCalendarEvent> ExemptFromCalculation, TimeLine iniTimeLine)
         {
             TimeLine RangeOfCalculation = iniTimeLine != null ? iniTimeLine : initializingCalendarEvent.RangeTimeLine;
@@ -1737,7 +1743,11 @@ namespace TilerCore
                     break;
             }
 
-            Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> retValue = new Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>>(CalculationTImeLine, SubEventsForCalculation, retCustomErrors, interferringWithNow);
+            Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> retValue = new Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>>(
+                CalculationTImeLine, 
+                SubEventsForCalculation, 
+                retCustomErrors, 
+                interferringWithNow);
             return retValue;
 
         }
@@ -1747,11 +1757,26 @@ namespace TilerCore
         /// </summary>
         /// <param name="AllSubevents"></param>
         /// <param name="nowTime"></param>
-        /// <returns></returns>
+        /// <returns>
+        /// an mtuple the first is a list of interffing elements
+        /// THe latest end time of the subcalendar events interferring with now
+        /// </returns>
         mTuple< List<SubCalendarEvent>,DateTimeOffset> getElementsThatInterferWithNow(IEnumerable<SubCalendarEvent> AllSubevents,DateTimeOffset nowTime )
         {
-            List<SubCalendarEvent>InterFerringEvents= AllSubevents.Where(obj => obj.Start < nowTime).Where(obj => obj.IsDateTimeWithin(nowTime)).ToList();
-            mTuple<List<SubCalendarEvent>, DateTimeOffset> retValue = new mTuple<List<SubCalendarEvent>, DateTimeOffset>(InterFerringEvents, nowTime);
+            DateTimeOffset latestTime = nowTime;
+            List<SubCalendarEvent>InterFerringEvents= AllSubevents
+                .Where(obj => obj.Start < nowTime)
+                .Where(obj => obj.IsDateTimeWithin(nowTime))
+                .Select(obj =>
+                {
+                    if (obj.End > latestTime)
+                    {
+                        latestTime = obj.End;
+                    }
+                    return obj;
+                })
+                .ToList();
+            mTuple<List<SubCalendarEvent>, DateTimeOffset> retValue = new mTuple<List<SubCalendarEvent>, DateTimeOffset>(InterFerringEvents, latestTime);
             return retValue;
         }
 
@@ -2078,7 +2103,7 @@ namespace TilerCore
                 }
 
             }
-            //Now.UpdateNow(RangeForScheduleUpdate.Start);
+            Now.UpdateNow(RangeForScheduleUpdate.Start);
 
 
             TimeSpan SumOfAllEventsTimeSpan = Utility.SumOfActiveDuration(ArrayOfInterferringSubEvents);

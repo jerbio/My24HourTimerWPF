@@ -287,6 +287,11 @@ namespace TilerTests
                 location = new Location();
             }
 
+            if(repetition == null)
+            {
+                repetition = new Repetition();
+            }
+
             note = note ?? new MiscData();
             CalendarEvent RetValue;
             eventDisplay = eventDisplay ?? new EventDisplay();

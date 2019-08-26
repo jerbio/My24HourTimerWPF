@@ -1742,7 +1742,8 @@ namespace TilerCore
                     }
                     break;
             }
-
+            //throw new Exception("You need to lock events that cannot exist within calculation timeline");
+            //SubEventsForCalculation = SubEventsForCalculation.Where(obj => obj.canExistWithinTimeLine(CalculationTImeLine)).ToList();
             Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> retValue = new Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>>(
                 CalculationTImeLine, 
                 SubEventsForCalculation, 
@@ -2027,7 +2028,14 @@ namespace TilerCore
                     TimeLine MaxFreeSpotAvailable = AllAvailableTimeLines.Value.First();
                     if (AllAvailableTimeLines.Key.PinToPossibleLimit(MaxFreeSpotAvailable))// this should never be true because it should not be able to fit within any time lines. CannotFitInAnyFreespot already checks if it fits in anytime line. This is most likely redundant code that should be delted for prod
                     {
-                        throw new Exception("There is an error in PrepareElementsThatWillNotFit PinToPossibleLimit");
+                        try
+                        {
+                            throw new Exception("There is an error in PrepareElementsThatWillNotFit PinToPossibleLimit. Seems like none of the tiles will fit in any of the available freespots event id " + AllAvailableTimeLines.Key.Id);
+                        } catch(Exception e)
+                        {// Swallowing exception this should only be thrown when sub events cannot but should interrupt scheduling
+                            Console.Error.WriteLine("There is an error in PrepareElementsThatWillNotFit PinToPossibleLimit. Seems like none of the tiles will fit in any of the available freespots event id " + AllAvailableTimeLines.Key.Id);
+                        }
+                        
                     }
                 }
             }

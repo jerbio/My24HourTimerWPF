@@ -362,10 +362,10 @@ namespace TilerTests
             DateTimeOffset iniRefNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
             DateTimeOffset refNow = iniRefNow;
 
-            TimeSpan duration = TimeSpan.FromHours(2);
+            TimeSpan duration = TimeSpan.FromHours(4);
             DateTimeOffset start = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
-            DateTimeOffset end = start.AddDays(15);
-            int splitCount = 8;
+            DateTimeOffset end = start.AddHours(4);
+            int splitCount = 2;
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             CalendarEvent testEvent = TestUtility
                 .generateCalendarEvent(tilerUser, duration, null, start, end, splitCount, false);
@@ -383,7 +383,42 @@ namespace TilerTests
                 .generateCalendarEvent(tilerUser, duration, null, start, end, splitCount, false);
             schedule.AddToScheduleAndCommit(testEvent1).Wait();
             SubCalendarEvent subEventInMemory = schedule.getSubCalendarEvent(subEvent.Id);
-            Assert.IsTrue( subEventInMemory.RangeTimeLine.isEqualStartAndEnd(subEvent.RangeTimeLine));
+            Assert.IsTrue(subEventInMemory.RangeTimeLine.isEqualStartAndEnd(subEvent.RangeTimeLine));
+
+
+
+            TimeSpan rigidDuration = TimeSpan.FromHours(2);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            DateTimeOffset rigidStart = refNow.AddHours(4);
+            DateTimeOffset rigidEnd = rigidStart.Add(rigidDuration);
+            TimeLine timeLine = new TimeLine(rigidStart, rigidStart.AddDays(27));
+            Repetition repetition = new Repetition(timeLine, Repetition.Frequency.DAILY, new TimeLine(rigidStart, rigidEnd));
+            CalendarEvent rigidEvent1 = TestUtility
+                .generateCalendarEvent(tilerUser, rigidDuration, repetition, rigidStart, rigidEnd, splitCount, true);
+            schedule = new TestSchedule(user, refNow);
+            schedule.AddToScheduleAndCommit(rigidEvent1).Wait();
+
+            DateTimeOffset rigidStart2 = rigidStart.AddMinutes(30);
+            DateTimeOffset rigidEnd2 = rigidStart2.Add(rigidDuration);
+            TimeLine timeLine2 = new TimeLine(rigidStart2, rigidStart2.AddDays(27));
+            Repetition repetition1 = new Repetition(timeLine2, Repetition.Frequency.DAILY, new TimeLine(rigidStart2, rigidEnd2));
+            CalendarEvent rigidEvent2 = TestUtility
+                .generateCalendarEvent(tilerUser, rigidDuration, repetition1, rigidStart2, rigidEnd2, splitCount, true);
+            refNow = rigidStart2;
+
+
+            schedule = new TestSchedule(user, refNow);
+            schedule.AddToScheduleAndCommit(rigidEvent2).Wait();
+
+            schedule = new TestSchedule(user, refNow);
+            schedule.FindMeSomethingToDo(new Location()).Wait();
+
+
+            SubCalendarEvent subEventFromTestEvent = testEvent.ActiveSubEvents.First();
+            refNow = refNow.AddMinutes(5);
+            schedule = new TestSchedule(user, refNow);
+            schedule.markAsCompleteCalendarEventAndReadjust(subEventFromTestEvent.Id).Wait();
+            subEventInMemory = schedule.getSubCalendarEvent(subEvent.Id);
 
         }
 

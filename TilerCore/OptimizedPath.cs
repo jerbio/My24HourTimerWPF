@@ -181,7 +181,13 @@ namespace TilerCore
                     List<SubCalendarEvent> reOptimizdSubevents = optimizeDisabledEvent(DayInfo, correctlyAssignedevents, disabledSubEvent);
                     if (Utility.PinSubEventsToStart(reOptimizdSubevents, DayInfo))
                     {
+                        if(correctlyAssignedevents.Count == reOptimizdSubevents.Count)
+                        {
+                            disabledSubEvent.ParentCalendarEvent.undesignateSubEvent(disabledSubEvent);
+                            DayInfo.RemoveSubEvent(disabledSubEvent.Id);
+                        }
                         correctlyAssignedevents = reOptimizdSubevents.ToList();
+                        
                     }
                     else
                     {
@@ -854,7 +860,7 @@ namespace TilerCore
             else
             {
                 List<SubCalendarEvent> recursionSubEvents = SubEvents.ToList();
-                List<SubCalendarEvent> NonRigidis = recursionSubEvents.Where(obj => (!obj.isLocked) && (!obj.isOptimized)).OrderBy(obj => obj.getActiveDuration).ToList();
+                List<SubCalendarEvent> NonRigidis = recursionSubEvents.Where(obj => (!obj.isLocked) && (!obj.isOptimized)).OrderByDescending(obj => obj.Score).ToList();
                 SubCalendarEvent UnwantedEvent = NonRigidis[0];
                 //UnwantedEvent.getDaySection().rejectCurrentPreference();
                 recursionSubEvents.Remove(UnwantedEvent);

@@ -196,6 +196,9 @@
     <Content Include="WagTapCalLogs\7e65ea64-7a35-4895-b97f-f2d748773a8e\7e65ea64-7a35-4895-b97f-f2d748773a8e.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="WagTapCalLogs\92207108-8796-4f67-a945-5018db4ffb9d\92207108-8796-4f67-a945-5018db4ffb9d.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="WagTapCalLogs\982935bc-f5bc-4d5e-a372-7a5d5e40cfa0.xml" />
     <Content Include="WagTapCalLogs\982935bc-f5bc-4d5e-a372-7a5d5e40cfa0\982935bc-f5bc-4d5e-a372-7a5d5e40cfa0.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

@@ -73,7 +73,11 @@ namespace TilerElements
             {
                 kvp.Key.DefaultLocation = kvp.Value;
             }
-            List<KeyValuePair<OptimizedGrouping, Location>> OrderedAvergeLocation = Groupings.Select(obj => new KeyValuePair<OptimizedGrouping, Location>(obj, AverageLocation[obj])).ToList();
+            List<OptimizedGrouping> groupReordered = Groupings.OrderBy(obj => (int)obj.DaySector).ToList();
+            groupReordered.Swap(0, groupReordered.Count - 1);
+
+
+            List<KeyValuePair<OptimizedGrouping, Location>> OrderedAvergeLocation = groupReordered.Select(obj => new KeyValuePair<OptimizedGrouping, Location>(obj, AverageLocation[obj])).ToList();
             for (int i = 0; i < OrderedAvergeLocation.Count; i++)
             {
                 if ((i != 0) && (i != AverageLocation.Count - 1))

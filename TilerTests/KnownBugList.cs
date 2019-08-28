@@ -55,6 +55,27 @@ namespace TilerTests
             ((TestSchedule)schedule).WriteFullScheduleToOutlook();
         }
 
+        /// <summary>
+        /// "Tope in colorado" event fix. This test captures a scenario where an event with an earlier deadline but lesser duration was creating a conflict. 
+        /// The tope in colorado event was scheduled to have less than a day in calendarevent rangetimeline duration and it also had a duration of about 1hour 30 mins.
+        /// A conflict was created because it wasn't being prioritized because it had a duration of 1hour 30 minute event around 2 hour events. 
+        /// However, it should have gotten higher priority because of the time chunk available for it to get scheduled. It was a 1hr30 min only available for less than a day while the 2 hour events had the rest of the week as possible days
+        /// </summary>
+        [TestMethod]
+        public void file_92207108_Tope_In_Colorado()
+        {
+            string scheduleId = "92207108-8796-4f67-a945-5018db4ffb9d";
+            string subEventId = "7e6771cc-d6c8-41f1-8c37-ca54de5ed00c_7_0_d60e3b98-ee6a-49e2-b568-ecc6167441a8";
+            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+            Schedule schedule = scheduleAndDump.Item1;
+            schedule.FindMeSomethingToDo(currentLocation).Wait();
+            SubCalendarEvent conflictingSubEvent = schedule.getSubCalendarEvent(subEventId);
+            List<SubCalendarEvent> subEvents = schedule.getAllCalendarEvents().SelectMany(cal => cal.ActiveSubEvents).Where(subEvent => subEvent.RangeTimeLine.doesTimeLineInterfere(conflictingSubEvent.RangeTimeLine)).ToList();
+            Assert.AreEqual(subEvents.Count, 1);// the look up should only conflict with itself
+            ((TestSchedule)schedule).WriteFullScheduleToOutlook();
+        }
+
         public void add9_5WorkSchedule (Schedule schedule)
         {
             string date = "" + schedule.Now.constNow.Month + "/" + schedule.Now.constNow.Day + "/" + schedule.Now.constNow.Year;

@@ -8,6 +8,7 @@ namespace TilerElements
     public class ReferenceNow
     {
         protected static DateTimeOffset _StartOfTime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, new TimeSpan());
+        public static readonly ulong UndesignatedDayIndex = 0;
         public DateTimeOffset StarTime;
         DateTimeOffset CalculationNow;
         DateTimeOffset ImmutableNow;

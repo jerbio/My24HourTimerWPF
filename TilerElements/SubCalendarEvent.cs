@@ -200,11 +200,6 @@ namespace TilerElements
             this._Enabled = true;
         }
 
-        public void resetPreferredDayIndex()
-        {
-            preferredDayIndex = 0;
-        }
-
         public void updateDayIndex(ulong dayIndex, CalendarEvent myCalEvent)
         {
             preferredDayIndex = dayIndex;
@@ -378,7 +373,7 @@ namespace TilerElements
 
         internal void undesignate()
         {
-            this.preferredDayIndex = 0;
+            this.preferredDayIndex = ReferenceNow.UndesignatedDayIndex;
         }
 
         public static void updateDayIndex(ulong DayIndex, IEnumerable<SubCalendarEvent> AllSUbevents)
@@ -1049,7 +1044,7 @@ namespace TilerElements
         {
             get
             {
-                bool retValue = preferredDayIndex != 0;
+                bool retValue = preferredDayIndex != ReferenceNow.UndesignatedDayIndex;
                 return retValue;
             }
         }

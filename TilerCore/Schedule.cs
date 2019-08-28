@@ -2613,7 +2613,7 @@ namespace TilerCore
         {
             uint TotalDays = (uint)AllDayTImeLine.Length;
             ulong DayIndex = Now.consttDayIndex;
-            double occupancyThreshold = 0.8;
+            double occupancyThreshold = 0.67;// this placies a soft threshold for the occupancy that different cal events would use to determine if they should continue
             EventDayBags bagsPerDay = new EventDayBags(TotalDays);
             TotalActiveEvents.AsParallel().ForAll(subEvent => { subEvent.isWake = false; subEvent.isSleep = false; });
             TotalActiveEvents.ForEach((subEvent) => ConflictinSubEvents.Add(subEvent));
@@ -3103,7 +3103,7 @@ namespace TilerCore
             }
 
             //List<SubCalendarEvent> retValue = PreserveFirstTwentyFourHours(PopulatedSubcals, OrderedPreviousTwentyfour, FirstTwentyFour);
-            possibleCalEvents.AsParallel().ForAll(obj => obj.ActiveSubEvents.AsParallel().ForAll(obj1 => obj1.resetPreferredDayIndex()));
+            possibleCalEvents.AsParallel().ForAll(obj => obj.ActiveSubEvents.AsParallel().ForAll(obj1 => obj1.ParentCalendarEvent.undesignateSubEvent(obj1)));
             retValue.ForEach(obj => {
                 ulong dayIndex = Now.getDayIndexFromStartOfTime(obj.Start);
                 obj.updateDayIndex(dayIndex, (IDToCalendarEvent[obj.SubEvent_ID.getRepeatCalendarEventID()]));

@@ -1253,7 +1253,7 @@ namespace TilerElements
 
         virtual public void resetDesignationAllActiveEventsInCalculables()
         {
-            CalculableSubEvents.AsParallel().ForAll(obj => obj.resetPreferredDayIndex());
+            CalculableSubEvents.AsParallel().ForAll(obj => obj.undesignate());
             return;
         }
 

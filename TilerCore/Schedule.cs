@@ -3242,7 +3242,12 @@ namespace TilerCore
                 double completionRatio = calEvent.CompletionCount / calEvent.NumberOfSplit;
                 double duration = calEvent.AverageTimeSpanPerSubEvent.TotalHours * (calEvent.NumberOfSplit - calEvent.CompletionCount);
                 duration = 1 / duration;
-                List<double> features = new List<double>() { spanHours , completionRatio, completionCount, duration };
+
+                TimeSpan timeSpanToDeadline = Now.constNow - calEvent.End;
+                double timeTillDeadline = Math.Abs(timeSpanToDeadline.TotalHours);
+                timeTillDeadline = double.IsNaN(timeTillDeadline) ? double .MaxValue - allCalEvents.Count: timeTillDeadline;
+
+                List<double> features = new List<double>() { spanHours , completionRatio, completionCount, duration, timeTillDeadline};
                 retValue.Add(features);
             }
             return retValue;

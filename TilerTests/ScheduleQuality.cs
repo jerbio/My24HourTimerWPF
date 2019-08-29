@@ -422,6 +422,31 @@ namespace TilerTests
 
         }
 
+        /// <summary>
+        /// Test verifies that calendar events with deadlines far out dont get scheduled within a busy chunk of time that is earlier in the schedule
+        /// The event named "one percenter" has a deadline that is 19 days out but is scheduled within the "first week" of events. First week in this context means constNow till the first saturday
+        /// I say "first saturday" because I tend to schedule events with a saturday deadline. Meaning a lot of events have a saturday as their deadline. Consequentially means the congestions tend to batch up and end on saturdays.
+        /// The "first week" has a fairly high occupancy so the event "one percenter" should ideally find a slot outside the first week.
+        /// </summary>
+        [TestMethod]
+        public void file_One_Percent_calevent_Late_Deadline_f06bc15b()
+        {
+            string scheduleId = "f06bc15b-1b00-435a-8210-e88ad523beda";
+            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+            Schedule schedule = scheduleAndDump.Item1;
+            schedule.FindMeSomethingToDo(currentLocation).Wait();
+
+            int dayDiff = DayOfWeek.Saturday - schedule.Now.constNow.DayOfWeek;
+            DayTimeLine saturdayTImeLine = schedule.Now.getDayTimeLineByTime(schedule.Now.constNow.AddDays(dayDiff));
+            TimeLine oneWeekTImeLine = new TimeLine(schedule.Now.constNow, saturdayTImeLine.End);
+            DateTimeOffset lastDay = oneWeekTImeLine.End.AddDays(7);
+            var subCalendarEvents = schedule.getAllCalendarEvents().SelectMany(cal => cal.ActiveSubEvents).Where(obj => obj.ActiveSlot.doesTimeLineInterfere(oneWeekTImeLine)).Where(obj => obj.ParentCalendarEvent.End > lastDay);
+            Assert.IsTrue(subCalendarEvents.Count() == 0);
+
+            ((TestSchedule)schedule).WriteFullScheduleToOutlook();
+        }
+
         public List<DateTimeOffset> getCorrespondingWeekdays(TimeLine timeLine, DayOfWeek dayOfWeek)
         {
             List<DateTimeOffset> retValue = new List<DateTimeOffset>();

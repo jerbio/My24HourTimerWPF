@@ -14,6 +14,7 @@ namespace TilerCore
         Location DefaultLocation = new Location();
         Dictionary<SubCalendarEvent, Dictionary<Reason.Options, Reason>> subEventToReason = new Dictionary<SubCalendarEvent, Dictionary<Reason.Options, Reason>>();
         Dictionary<SubCalendarEvent, Dictionary<TimeOfDayPreferrence.DaySection, Dictionary<int, HashSet<int>>>> subEvent_Dict_To_DaySecion = new Dictionary<SubCalendarEvent, Dictionary<TimeOfDayPreferrence.DaySection, Dictionary<int, HashSet<int>>>>();
+        protected List<SubCalendarEvent> UnassignedSubevents = new List<SubCalendarEvent>();// These are disabled events, events that could not find a slot
         /// <summary>
         /// This holds the subevents that cannot fit anywhere within this and also have no partial timefram that works
         /// </summary>
@@ -185,6 +186,7 @@ namespace TilerCore
                         {
                             disabledSubEvent.ParentCalendarEvent.undesignateSubEvent(disabledSubEvent);
                             DayInfo.RemoveSubEvent(disabledSubEvent.Id);
+                            UnassignedSubevents.Add(disabledSubEvent);
                         }
                         correctlyAssignedevents = reOptimizdSubevents.ToList();
                         
@@ -883,5 +885,15 @@ namespace TilerCore
             ILookup<TimeOfDayPreferrence.DaySection, SubCalendarEvent> RetValue = SubEvents.ToLookup(obj => obj.getDaySection().getCurrentDayPreference(), obj => obj);
             return RetValue;
         }
+
+        #region 
+        public IEnumerable<SubCalendarEvent> UnassignedSubEvents
+        {
+            get
+            {
+                return UnassignedSubevents.ToList();
+            }
+        }
+        #endregion
     }
 }

@@ -33,6 +33,30 @@ namespace TilerTests
         }
 
         /// <summary>
+        /// Test catches scenario where trying to reschedule an event name "Get a hair cut" caused the server to crash.
+        /// This was caused by the inappropriate undesignation of a subevent
+        /// Note the image https://drive.google.com/file/d/1UK8HgDeFRH5Ffz7QiR7ke9sQB5FmdNip/view is no longer valid. 
+        /// However, It is still the same reschedule error, the updated deadline should be 11:59pm 09/01/2019 instead of Aug 25 as suggested in the email
+        /// </summary>
+
+        [TestMethod]
+        public void file_Undesignate_calEvent_causes_conflict_resolution_0e062820()
+        {
+            string scheduleId = "0e062820-967c-4afc-aa45-9ffd9a0a3e3d";
+            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+            Schedule schedule = scheduleAndDump.Item1;
+            string eventId = "0ada4cb8-844e-41cb-a3c3-e2b7863e365a_7_0_0";
+            CalendarEvent calendarEvent = schedule.getCalendarEvent(eventId);
+            SubCalendarEvent subEvent = calendarEvent.ActiveSubEvents.First();
+            DateTimeOffset end = calendarEvent.End;
+            DateTimeOffset updatedEndTIme = new DateTimeOffset(end.Year, 9, 1, end.Hour, end.Minute, end.Second, new TimeSpan());
+            EventName eventName = calendarEvent.Name.createCopy();
+            schedule.BundleChangeUpdate(subEvent.Id, eventName, subEvent.Start, subEvent.End, calendarEvent.Start, updatedEndTIme, calendarEvent.NumberOfSplit, calendarEvent.Notes.UserNote);
+            ((TestSchedule)schedule).WriteFullScheduleToOutlook();
+        }
+
+        /// <summary>
         /// This is a schedule health bug, on 08/18/2019 the events were scheduled towards the end of the day instead of towards the middle of the day
         /// THis test verifies the events are within the middle of the day
         /// </summary>

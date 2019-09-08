@@ -644,12 +644,79 @@ namespace TilerTests
         }
 
         [TestMethod]
-        public void RepeatNonRigidSubEventUpdate()
+        public void RestrictedSubEventUpdate()
         {
+            //DB_Schedule Schedule;
+            DateTimeOffset iniRefNow = TestUtility.parseAsUTC("9:00 am");
+            DateTimeOffset refNow = iniRefNow;
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("10:00 pm");
+            var packet = TestUtility.CreatePacket();
+            TilerUser tilerUser = packet.User;
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+
+            TimeSpan duration = TimeSpan.FromHours(1);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = start.AddDays(21);
+
+
+            TimeSpan timeSPanPerSubEvent = duration;
+            Location location = TestUtility.getLocations()[1];
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            DB_Schedule Schedule = new TestSchedule(user, refNow, startOfDay);
+            RestrictionProfile restrictionProfile = new RestrictionProfile(start.Add(duration), TimeSpan.FromSeconds(duration.TotalSeconds * 4));
+            CalendarEvent nonResrictedCalendarEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 5, false, null, restrictionProfile, now: Schedule.Now);            
+            Schedule.AddToScheduleAndCommit(nonResrictedCalendarEvent).Wait();
+            nonResrictedCalendarEvent = Schedule.getCalendarEvent(nonResrictedCalendarEvent.Id);
+
+
+            SubCalendarEvent testSubEvent = nonResrictedCalendarEvent.ActiveSubEvents.OrderBy(sub => sub.Start).ToList()[2];// the ordeing is needed because you might get a sub event thats at the edge of the calendarEvent timeline. I selected index 2 just because ;)
+            DateTimeOffset newStart = testSubEvent.Start.AddDays(10);
+            DateTimeOffset newEnd = newStart.Add(duration);
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow, startOfDay);
+            var scheduleUpdated = Schedule.BundleChangeUpdate(testSubEvent.getId, testSubEvent.getName, newStart, newEnd, nonResrictedCalendarEvent.Start, nonResrictedCalendarEvent.End, nonResrictedCalendarEvent.NumberOfSplit, testSubEvent.Notes.UserNote);
+            Schedule.persistToDB().Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Task<SubCalendarEvent> subEentTask = user.ScheduleLogControl.getSubEventWithID(testSubEvent.Id);
+            subEentTask.Wait();
+            SubCalendarEvent subEvent = subEentTask.Result;
+            Assert.IsTrue(subEvent.Start == newStart);
+            Assert.IsTrue(subEvent.End == newEnd);
+            Assert.IsTrue(subEvent.isLocked);
+
+            List<TimeLine> timeLines = TestUtility.getTimeFrames(refNow, duration).GetRange(0, 10);
+            foreach (TimeLine eachTimeLine in timeLines)
+            {
+                TestUtility.reloadTilerUser(ref user, ref tilerUser);
+                DateTimeOffset TimeCreation = DateTimeOffset.UtcNow;
+                CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), eachTimeLine.Start, eachTimeLine.End, 1, false);
+                testEvent.TimeCreated = TimeCreation;
+                Schedule = new TestSchedule(user, refNow);
+                Schedule.AddToScheduleAndCommit(testEvent).Wait();
+                TestUtility.reloadTilerUser(ref user, ref tilerUser);
+                string testEVentId = testEvent.getId;
+                Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEVentId);
+                waitVar.Wait();
+                CalendarEvent newlyaddedevent = waitVar.Result;
+                Assert.AreEqual(testEvent.getId, newlyaddedevent.getId);
+                Assert.AreEqual(testEvent.TimeCreated, TimeCreation);
+            }
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            subEentTask = user.ScheduleLogControl.getSubEventWithID(testSubEvent.Id);
+            subEentTask.Wait();
+            subEvent = subEentTask.Result;
+            Assert.IsTrue(subEvent.Start == newStart);
+            Assert.IsTrue(subEvent.End == newEnd);
+            Assert.IsTrue(subEvent.isLocked);
         }
 
         [TestMethod]
-        public void RestrictedSubEventUpdate()
+        public void RepeatNonRigidSubEventUpdate()
         {
         }
 

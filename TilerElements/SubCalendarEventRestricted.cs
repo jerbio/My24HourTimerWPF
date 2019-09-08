@@ -14,14 +14,36 @@ namespace TilerElements
         public RestrictionProfile UndoProfileOfRestriction;
         protected ReferenceNow _Now;
         #region Constructor
-        public SubCalendarEventRestricted(CalendarEventRestricted calendarEvent, TilerUser creator, TilerUserGroup users,  string CalEventID, EventName name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile constrictionProgile, TimeLine HardCalEventTimeRange, bool isEnabled, bool isComplete, ConflictProfile conflictingEvents, bool RigidFlag,TimeSpan PrepTimeData ,TimeSpan PreDeadline, Location Locationdata, EventDisplay UiData, MiscData Notes, ReferenceNow now, int Priority = 0, string thirdPartyID = "", ConflictProfile conflicts = null )
+        public SubCalendarEventRestricted(CalendarEventRestricted calendarEvent, 
+            TilerUser creator, 
+            TilerUserGroup users,  
+            string CalEventID, 
+            EventName name, 
+            DateTimeOffset Start, 
+            DateTimeOffset End, 
+            RestrictionProfile constrictionProgile, 
+            TimeLine HardCalEventTimeRange, 
+            bool isEnabled, 
+            bool isComplete, 
+            ConflictProfile conflictingEvents, 
+            bool RigidFlag,
+            TimeSpan PrepTimeData,
+            TimeSpan PreDeadline, 
+            Location Locationdata,
+            EventDisplay UiData,
+            MiscData Notes,
+            ReferenceNow now,
+            int Priority = 0,
+            string thirdPartyID = "",
+            string subEventID = ""
+            )
         { 
             isRestricted =true;
             StartDateTime = Start;
             EndDateTime = End;
             _EventDuration = EndDateTime - StartDateTime;
             _Name = name;
-            UniqueID = EventID.GenerateSubCalendarEvent(CalEventID);
+            UniqueID = !string.IsNullOrEmpty(subEventID) && !string.IsNullOrWhiteSpace(subEventID) ? new EventID(subEventID) : EventID.GenerateSubCalendarEvent(CalEventID);
             _ProfileOfRestriction = constrictionProgile;
             HardCalendarEventRange = HardCalEventTimeRange;
             _Now = now;
@@ -36,10 +58,9 @@ namespace TilerElements
             this._LocationInfo = Locationdata;
             _otherPartyID = thirdPartyID;
             this._UiParams = UiData;
-            this.ConflictingEvents = conflicts;
+            this.ConflictingEvents = conflictingEvents ?? new ConflictProfile();
             _DataBlob = Notes;
             _PrepTime = PrepTimeData;
-            ConflictingEvents = new ConflictProfile();
             _LastReasonStartTimeChanged = this.Start;
             this._Creator = creator;
             this._Users = users;

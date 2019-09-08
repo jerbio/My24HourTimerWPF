@@ -32,6 +32,19 @@ namespace TilerTests
             //((TestSchedule)schedule).WriteFullScheduleToOutlook();
         }
 
+        [TestMethod]
+        public void file_cannot_update_restricted_subevent_aad38888()
+        {
+            string scheduleId = "aad38888-ed1d-435f-a814-0152c0fe8128";
+            string subEventId = "721935a5-e51a-4399-9337-e12d13c92c03_7_ae10acca-247b-4502-b9a8-744219717cac_57ab1560-deca-4985-bdb1-1f4262229b9f";
+            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+            Schedule schedule = scheduleAndDump.Item1;
+            SubCalendarEvent subEvent = schedule.getSubCalendarEvent(subEventId);
+            DateTimeOffset newSubEventEndTime = subEvent.End.AddHours(2);
+            schedule.BundleChangeUpdate(subEventId, subEvent.Name.createCopy(), subEvent.Start, newSubEventEndTime, subEvent.ParentCalendarEvent.Start, subEvent.ParentCalendarEvent.End, subEvent.ParentCalendarEvent.NumberOfSplit, subEvent.ParentCalendarEvent.Notes.UserNote);
+        }
+
         /// <summary>
         /// Test catches scenario where trying to reschedule an event name "Get a hair cut" caused the server to crash.
         /// This was caused by the inappropriate undesignation of a subevent

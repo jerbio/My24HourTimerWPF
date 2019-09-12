@@ -44,7 +44,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             
             Schedule.markSubEventAsComplete(completedSubEventId).Wait();
-            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
+            Schedule.WriteFullScheduleToLog().Wait();
             SubCalendarEvent subEvent = TestUtility.getSubEVentById(completedSubEventId, user);
             Assert.IsTrue(subEvent.getIsComplete);
         }
@@ -71,7 +71,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             string completedSubEventId = testEvent.AllSubEvents[0].getId;
             Schedule.markAsCompleteCalendarEventAndReadjust(completedSubEventId).Wait();
-            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
+            Schedule.WriteFullScheduleToLog().Wait();
             EventID evenId = new EventID(completedSubEventId);
             
             CalendarEvent retrievedCalendarEvent = TestUtility.getCalendarEventById(evenId.getCalendarEventID(), user);
@@ -125,7 +125,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             string completedSubEventId = testEvent.AllSubEvents[0].getId;
             Schedule.markSubEventAsCompleteCalendarEventAndReadjust(completedSubEventId);
-            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
+            Schedule.WriteFullScheduleToLog().Wait();
             SubCalendarEvent subEvent = TestUtility.getSubEVentById(completedSubEventId, user);
             Assert.IsTrue(subEvent.getIsComplete);
 
@@ -137,7 +137,7 @@ namespace TilerTests
             // Running completion on the same subEvent, we should get the same completion count
             Schedule = new TestSchedule(user, refNow);
             Schedule.markSubEventAsComplete(completedSubEventId).Wait();
-            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
+            Schedule.WriteFullScheduleToLog().Wait();
             subEvent = TestUtility.getSubEVentById(completedSubEventId, user);
             Assert.IsTrue(subEvent.getIsComplete);
             evenId = new EventID(completedSubEventId);
@@ -193,7 +193,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             string completedSubEventId = testEvent.AllSubEvents[0].getId;
             Schedule.markSubEventAsCompleteCalendarEventAndReadjust(completedSubEventId);
-            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
+            Schedule.WriteFullScheduleToLog().Wait();
             SubCalendarEvent subEvent = TestUtility.getSubEVentById(completedSubEventId, user);
             Assert.IsTrue(subEvent.getIsComplete);
 
@@ -204,7 +204,7 @@ namespace TilerTests
             // Running completion on the same subEvent, we should get the same completion count
             Schedule = new TestSchedule(user, refNow);
             Schedule.markSubEventAsCompleteCalendarEventAndReadjust(completedSubEventId);
-            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
+            Schedule.WriteFullScheduleToLog().Wait();
             subEvent = TestUtility.getSubEVentById(completedSubEventId, user);
             Assert.IsTrue(subEvent.getIsComplete);
             evenId = new EventID(completedSubEventId);
@@ -271,7 +271,7 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
             Schedule.markSubEventAsComplete(testSubEvent.getId).Wait();
-            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
+            Schedule.WriteFullScheduleToLog().Wait();
             testSubEvent = TestUtility.getSubEVentById(testSubEvent.getId, user);
 
 
@@ -280,7 +280,7 @@ namespace TilerTests
 
             Schedule = new TestSchedule(user, refNow);
             Schedule.markSubEventsAsComplete(subEventIds.Select(subeventid => subeventid.ToString())).Wait();
-            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
+            Schedule.WriteFullScheduleToLog().Wait();
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
@@ -300,7 +300,7 @@ namespace TilerTests
 
             Schedule = new TestSchedule(user, refNow);
             Schedule.markSubEventsAsComplete(subEventIds.Select(subeventid => subeventid.ToString())).Wait();
-            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
+            Schedule.WriteFullScheduleToLog().Wait();
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);

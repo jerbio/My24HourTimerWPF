@@ -3017,6 +3017,11 @@ namespace TilerCore
                             List<SubCalendarEvent> singleTonList = new List<SubCalendarEvent> { subEvent };
                             List<SubCalendarEvent> alreadyAssignedSubEvens = timeLine.getSubEventsInTimeLine()
                                 .OrderBy(obj => obj.Start).ToList();
+                            SubCalendarEvent firstSubEvent = alreadyAssignedSubEvens.First();
+                            SubCalendarEvent lastSubEvent = alreadyAssignedSubEvens.Last();
+                            DateTimeOffset timeLineStart = timeLine.Start < firstSubEvent.Start ? timeLine.Start : firstSubEvent.Start;
+                            DateTimeOffset timeLineEnd = timeLine.End < lastSubEvent.End ? lastSubEvent.End: timeLine.End;
+                            timeLine = new TimelineWithSubcalendarEvents(timeLineStart, timeLineEnd, timeLine.getSubEventsInTimeLine());//this is necessary because a preceding iteration can cause subevent to move into another time line which is not within the three-day limit. e.g iteration0 uses day0, day1 and day2 with initial subEventA in day2 but after calling StitchUnrestricted it caused subEventA to move into both day0 and day1. Now when iteration 2 runs and picks  day2, day3, day4 now part of sub event a isn't fully part of day2 this fixes that scenario
 
                             List<SubCalendarEvent> Reassigned = StitchUnrestricted(timeLine, alreadyAssignedSubEvens.ToList(), alreadyAssignedSubEvens.Concat(singleTonList).ToList());
                             if (Reassigned.Contains(subEvent))

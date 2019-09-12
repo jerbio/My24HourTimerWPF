@@ -368,7 +368,7 @@ namespace TilerTests
             Schedule.AddToScheduleAndCommit(testEvent1).Wait();
             Schedule = new TestSchedule(user, refNow.AddHours(5));
             Schedule.FindMeSomethingToDo(new Location()).Wait();
-            Schedule.WriteFullScheduleToLogAndOutlook().Wait();
+            Schedule.WriteFullScheduleToLog().Wait();
         }
     }
 }

@@ -32,6 +32,20 @@ namespace TilerTests
             //((TestSchedule)schedule).WriteFullScheduleToOutlook();
         }
 
+        /// <summary>
+        /// Test captures the scenario where a subevent shifts between multiple daytimeline caused by tryconflict resolution
+        /// </summary>
+        [TestMethod]
+        public void file_conflictResolution_shifting_event_e8642806()
+        {
+            string scheduleId = "e8642806-2a88-4443-aa3a-f19dca5d37c2";
+            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+            Schedule schedule = scheduleAndDump.Item1;
+            schedule.ProcrastinateAll(TimeSpan.FromMinutes(30));
+            ((TestSchedule)schedule).WriteFullScheduleToOutlook();
+        }
+
         [TestMethod]
         public void file_cannot_update_restricted_subevent_aad38888()
         {

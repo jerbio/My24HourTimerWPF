@@ -676,8 +676,9 @@ namespace My24HourTimerWPF
             snugarrayTester.Start();
             ///*
             CustomErrors ScheduleUpdateMessage = MySchedule.AddToSchedule(ScheduleUpdated);
-            await MySchedule.WriteFullScheduleToLogAndOutlook().ConfigureAwait(false);
-             //*/
+            await MySchedule.WriteFullScheduleToLog().ConfigureAwait(false);
+            MySchedule.WriteFullScheduleToOutlook();
+            //*/
 
             //CustomErrors ScheduleUpdateMessage = MySchedule.AddToSchedule(ScheduleUpdated);
             snugarrayTester.Stop();
@@ -1183,7 +1184,8 @@ namespace My24HourTimerWPF
         private void button7_Click(object sender, RoutedEventArgs e)
         {
             MySchedule.removeAllFromOutlook();
-            MySchedule.WriteFullScheduleToLogAndOutlook();
+            MySchedule.WriteFullScheduleToLog();
+            MySchedule.WriteFullScheduleToOutlook();
         }
 
 
@@ -1237,7 +1239,8 @@ namespace My24HourTimerWPF
             string EventID = textBox9.Text.Trim();
             //MySchedule.markAsCompleteCalendarEventAndReadjust(EventID);
             MySchedule.markSubEventAsCompleteCalendarEventAndReadjust(EventID);
-            MySchedule.WriteFullScheduleToLogAndOutlook();
+            MySchedule.WriteFullScheduleToLog();
+            MySchedule.WriteFullScheduleToOutlook();
         }
 
         async private void NowButtonClick(object sender, RoutedEventArgs e)
@@ -1589,7 +1592,8 @@ namespace My24HourTimerWPF
         {
             Location locationdata = new Location();
             MySchedule.FindMeSomethingToDo(locationdata).Wait();
-            MySchedule.WriteFullScheduleToLogAndOutlook().Wait();
+            MySchedule.WriteFullScheduleToLog();
+            MySchedule.WriteFullScheduleToOutlook();
         }
     }
 

@@ -77,7 +77,10 @@ namespace TilerElements
             this._Users = userGroup;
             this._TimeZone = timeZone;
             _Now = now;
-            _LocationInfo.User = this.getCreator;
+            if (this.Location_DB != null)
+            {
+                _LocationInfo.User = this.getCreator;
+            }
             _EventDayPreference = new EventPreference();
             InstantiateSubEvents();
         }
@@ -121,12 +124,15 @@ namespace TilerElements
             this._Users = userGroup;
             this._TimeZone = timeZone;
             _Now = now;
-            _LocationInfo.User = this.getCreator;
+            if (this.Location_DB != null)
+            {
+                _LocationInfo.User = this.getCreator;
+            }
             _EventDayPreference = new EventPreference();
             InstantiateSubEvents();
         }
 
-        static public CalendarEventRestricted InstantiateRepeatedCandidate(EventName Name, DateTimeOffset Start, DateTimeOffset End, EventID CalendarEventID, RestrictionProfile restrictionProfile, TimeSpan Duration, int division, Location Location,EventDisplay UiSettings,bool RigidFlag,TimeSpan preparation, string thirdPartyID, ReferenceNow now, TilerUser tilerUser)
+        static public CalendarEventRestricted InstantiateRepeatedCandidate(EventName Name, DateTimeOffset Start, DateTimeOffset End, EventID CalendarEventID, RestrictionProfile restrictionProfile, TimeSpan Duration, int division, Location Location,EventDisplay UiSettings,bool RigidFlag,TimeSpan preparation, string thirdPartyID, ReferenceNow now, TilerUser tilerUser, MiscData miscData)
         { 
             CalendarEventRestricted retValue = new CalendarEventRestricted();
             retValue .UniqueID = EventID.GenerateRepeatCalendarEvent(CalendarEventID.ToString());
@@ -150,6 +156,7 @@ namespace TilerElements
             retValue._Now = now;
             retValue._EventDayPreference = new EventPreference();
             retValue._Creator = tilerUser;
+            retValue._DataBlob = miscData;
             retValue.InstantiateSubEvents();
             
             return retValue;

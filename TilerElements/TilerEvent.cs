@@ -437,7 +437,7 @@ namespace TilerElements
                 }
                 else
                 {
-                    return _LocationInfo.isNull ? null : _LocationInfo;
+                    return _LocationInfo.isNull || _LocationInfo.isDefault? null : _LocationInfo;
                 }
             }
         }

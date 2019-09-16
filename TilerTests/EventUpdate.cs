@@ -644,6 +644,369 @@ namespace TilerTests
         }
 
         [TestMethod]
+        public void DeadlineUpdateBySubEventChange()
+        {
+            //DB_Schedule Schedule;
+            DateTimeOffset refNow = TestUtility.parseAsUTC("9:00 am");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("10:00 pm");
+            var packet = TestUtility.CreatePacket();
+            TilerUser tilerUser = packet.User;
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+
+            TimeSpan duration = TimeSpan.FromHours(1);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = start.AddDays(10);
+
+
+            TimeSpan timeSPanPerSubEvent = duration;
+            Location location = TestUtility.getLocations()[1];
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            CalendarEvent nonRigidCalendarEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 5, false);
+            DB_Schedule Schedule = new TestSchedule(user, refNow, startOfDay);
+            Schedule.AddToScheduleAndCommit(nonRigidCalendarEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow, startOfDay);
+            nonRigidCalendarEvent = Schedule.getCalendarEvent(nonRigidCalendarEvent.Id);
+            SubCalendarEvent testSubEvent = nonRigidCalendarEvent.ActiveSubEvents.OrderBy(subEventIter => subEventIter.Start).First();
+
+            DateTimeOffset tileNewStart = start.AddDays(1);
+            DateTimeOffset tileNewEnd = tileNewStart.Add(duration);
+            var scheduleUpdated = Schedule.BundleChangeUpdate(testSubEvent.getId, testSubEvent.getName, tileNewStart, tileNewEnd, nonRigidCalendarEvent.Start, nonRigidCalendarEvent.End, nonRigidCalendarEvent.NumberOfSplit, testSubEvent.Notes.UserNote);
+            Schedule.persistToDB().Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+
+            SubCalendarEvent testSubEventRetrieved = TestUtility.getSubEventById(testSubEvent.Id, user);
+            CalendarEvent nonRigidCalendarEventRetrieved = TestUtility.getCalendarEventById(testSubEvent.Id, user);
+            Assert.IsTrue(testSubEventRetrieved.Start == tileNewStart);
+            Assert.IsTrue(testSubEventRetrieved.End == tileNewEnd);
+            Assert.IsTrue(testSubEventRetrieved.isLocked);
+            Assert.IsTrue(nonRigidCalendarEventRetrieved.Start == start);
+            Assert.IsTrue(nonRigidCalendarEventRetrieved.End == end);
+
+
+            DateTimeOffset rigidStart = refNow.AddDays(1);
+            DateTimeOffset rigidEnd = rigidStart.AddHours(5);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            CalendarEvent RigidCalendarEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), rigidStart, rigidEnd, 1, true);
+            Schedule = new TestSchedule(user, refNow, startOfDay);
+            Schedule.AddToScheduleAndCommit(RigidCalendarEvent).Wait();
+            RigidCalendarEvent = Schedule.getCalendarEvent(RigidCalendarEvent.Id);
+            Assert.IsTrue(RigidCalendarEvent.Start == rigidStart);
+            Assert.IsTrue(RigidCalendarEvent.End == rigidEnd);
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow, startOfDay);
+            DateTimeOffset rigidNewStart = rigidStart.AddDays(1);
+            DateTimeOffset rigidNewEnd = rigidNewStart.Add(duration);
+            testSubEvent = RigidCalendarEvent.ActiveSubEvents.OrderBy(subEventIter => subEventIter.Start).First();
+            scheduleUpdated = Schedule.BundleChangeUpdate(testSubEvent.getId, testSubEvent.getName, rigidNewStart, rigidNewEnd, RigidCalendarEvent.Start, RigidCalendarEvent.End, RigidCalendarEvent.NumberOfSplit, testSubEvent.Notes.UserNote);
+            Schedule.persistToDB().Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            testSubEventRetrieved = TestUtility.getSubEventById(testSubEvent.Id, user);
+            CalendarEvent RigidCalendarEventRetrieved = TestUtility.getCalendarEventById(testSubEvent.Id, user);
+            Assert.IsTrue(testSubEventRetrieved.Start == rigidNewStart);
+            Assert.IsTrue(testSubEventRetrieved.End == rigidNewEnd);
+            Assert.IsTrue(testSubEventRetrieved.isLocked);
+            Assert.IsTrue(RigidCalendarEventRetrieved.Start == rigidNewStart);
+            Assert.IsTrue(RigidCalendarEventRetrieved.End == rigidNewEnd);
+
+
+
+            DateTimeOffset restrictedStart = refNow.AddDays(1);
+            DateTimeOffset restrictedEnd = restrictedStart.AddDays(10);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            RestrictionProfile restrictionProfile = new RestrictionProfile(restrictedStart.Add(duration), TimeSpan.FromMinutes(duration.TotalMinutes * 4));
+            CalendarEvent restrictedCalendarEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), restrictedStart, restrictedEnd, 1, false);
+            Schedule = new TestSchedule(user, refNow, startOfDay);
+            Schedule.AddToScheduleAndCommit(restrictedCalendarEvent).Wait();
+            restrictedCalendarEvent = Schedule.getCalendarEvent(restrictedCalendarEvent.Id);
+            Assert.IsTrue(restrictedCalendarEvent.Start == restrictedStart);
+            Assert.IsTrue(restrictedCalendarEvent.End == restrictedEnd);
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow, startOfDay);
+            DateTimeOffset restrictedNewStart = restrictedStart.AddDays(1);
+            DateTimeOffset restrictedNewEnd = restrictedNewStart.Add(duration);
+            testSubEvent = restrictedCalendarEvent.ActiveSubEvents.OrderBy(subEventIter => subEventIter.Start).First();
+            scheduleUpdated = Schedule.BundleChangeUpdate(testSubEvent.getId, testSubEvent.getName, restrictedNewStart, restrictedNewEnd, restrictedCalendarEvent.Start, restrictedCalendarEvent.End, restrictedCalendarEvent.NumberOfSplit, testSubEvent.Notes.UserNote);
+            Schedule.persistToDB().Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            testSubEventRetrieved = TestUtility.getSubEventById(testSubEvent.Id, user);
+            CalendarEvent restrictedCalendarEventRetrieved = TestUtility.getCalendarEventById(testSubEvent.Id, user);
+            Assert.IsTrue(testSubEventRetrieved.Start == restrictedNewStart);
+            Assert.IsTrue(testSubEventRetrieved.End == restrictedNewEnd);
+            Assert.IsTrue(testSubEventRetrieved.isLocked);
+            Assert.IsTrue(restrictedCalendarEventRetrieved.Start == restrictedStart);
+            Assert.IsTrue(restrictedCalendarEventRetrieved.End == restrictedEnd);
+
+
+            ////////////////////////////////////////////////////////////////////AfterDeadline////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow, startOfDay);
+            testSubEvent = nonRigidCalendarEventRetrieved.ActiveSubEvents.First();
+            tileNewStart = nonRigidCalendarEventRetrieved.End.AddDays(1);
+            tileNewEnd = tileNewStart.Add(testSubEvent.getActiveDuration);
+            scheduleUpdated = Schedule.BundleChangeUpdate(testSubEvent.getId, testSubEvent.getName, tileNewStart, tileNewEnd, nonRigidCalendarEvent.Start, nonRigidCalendarEvent.End, nonRigidCalendarEvent.NumberOfSplit, testSubEvent.Notes.UserNote);
+            Schedule.persistToDB().Wait();
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow, startOfDay);
+            DateTimeOffset nonRigidOldStart = nonRigidCalendarEventRetrieved.Start;
+            testSubEvent = nonRigidCalendarEventRetrieved.ActiveSubEvents.First();
+            tileNewStart = nonRigidCalendarEventRetrieved.End.AddDays(1);
+            tileNewEnd = tileNewStart.Add(testSubEvent.getActiveDuration);
+            scheduleUpdated = Schedule.BundleChangeUpdate(testSubEvent.getId, testSubEvent.getName, tileNewStart, tileNewEnd, nonRigidCalendarEvent.Start, nonRigidCalendarEvent.End, nonRigidCalendarEvent.NumberOfSplit, testSubEvent.Notes.UserNote);
+            Schedule.persistToDB().Wait();
+            testSubEventRetrieved = TestUtility.getSubEventById(testSubEvent.Id, user);
+            nonRigidCalendarEventRetrieved = TestUtility.getCalendarEventById(testSubEvent.Id, user);
+            Assert.IsTrue(testSubEventRetrieved.Start == tileNewStart);
+            Assert.IsTrue(testSubEventRetrieved.End == tileNewEnd);
+            Assert.IsTrue(testSubEventRetrieved.isLocked);
+            Assert.IsTrue(nonRigidCalendarEventRetrieved.Start == nonRigidOldStart);
+            Assert.IsTrue(nonRigidCalendarEventRetrieved.End == testSubEventRetrieved.End);
+
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow, startOfDay);
+            testSubEvent = RigidCalendarEventRetrieved.ActiveSubEvents.First();
+            tileNewStart = RigidCalendarEventRetrieved.End.AddDays(1);
+            tileNewEnd = tileNewStart.Add(testSubEvent.getActiveDuration);
+            scheduleUpdated = Schedule.BundleChangeUpdate(testSubEvent.getId, testSubEvent.getName, tileNewStart, tileNewEnd, 
+                RigidCalendarEventRetrieved.Start, RigidCalendarEventRetrieved.End, RigidCalendarEventRetrieved.NumberOfSplit, testSubEvent.Notes.UserNote);
+            Schedule.persistToDB().Wait();
+            testSubEventRetrieved = TestUtility.getSubEventById(testSubEvent.Id, user);
+            RigidCalendarEventRetrieved = TestUtility.getCalendarEventById(testSubEvent.Id, user);
+            Assert.IsTrue(testSubEventRetrieved.Start == tileNewStart);
+            Assert.IsTrue(testSubEventRetrieved.End == tileNewEnd);
+            Assert.IsTrue(testSubEventRetrieved.isLocked);
+            Assert.IsTrue(RigidCalendarEventRetrieved.Start == testSubEventRetrieved.Start);
+            Assert.IsTrue(RigidCalendarEventRetrieved.End == testSubEventRetrieved.End);
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow, startOfDay);
+            DateTimeOffset restrictedOldStart = restrictedCalendarEventRetrieved.Start;
+            testSubEvent = restrictedCalendarEventRetrieved.ActiveSubEvents.First();
+            tileNewStart = restrictedCalendarEventRetrieved.End.AddDays(1);
+            tileNewEnd = tileNewStart.Add(testSubEvent.getActiveDuration);
+            scheduleUpdated = Schedule.BundleChangeUpdate(testSubEvent.getId, testSubEvent.getName, tileNewStart, tileNewEnd,
+                restrictedCalendarEventRetrieved.Start, restrictedCalendarEventRetrieved.End, restrictedCalendarEventRetrieved.NumberOfSplit, testSubEvent.Notes.UserNote);
+            Schedule.persistToDB().Wait();
+            testSubEventRetrieved = TestUtility.getSubEventById(testSubEvent.Id, user);
+            restrictedCalendarEventRetrieved = TestUtility.getCalendarEventById(testSubEvent.Id, user);
+            Assert.IsTrue(testSubEventRetrieved.Start == tileNewStart);
+            Assert.IsTrue(testSubEventRetrieved.End == tileNewEnd);
+            Assert.IsTrue(testSubEventRetrieved.isLocked);
+            Assert.IsTrue(restrictedCalendarEventRetrieved.Start == restrictedOldStart);
+            Assert.IsTrue(restrictedCalendarEventRetrieved.End == testSubEventRetrieved.End);
+        }
+
+
+        [TestMethod]
+        public void DeadlineUpdateBySubEventChange_Repeat()
+        {
+            //DB_Schedule Schedule;
+            DateTimeOffset refNow = TestUtility.parseAsUTC("9:00 am");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("10:00 pm");
+            var packet = TestUtility.CreatePacket();
+            TilerUser tilerUser = packet.User;
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+
+            TimeSpan duration = TimeSpan.FromHours(1);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = start.AddDays(10);
+
+
+            TimeSpan timeSPanPerSubEvent = duration;
+            Location location = TestUtility.getLocations()[1];
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            TimeLine repeatTimeLine = new TimeLine(start, start.AddDays(21));
+            TimeLine actualRangeTimeLine = new TimeLine(start, end);
+            Repetition repeat = new Repetition(repeatTimeLine, Repetition.Frequency.DAILY, actualRangeTimeLine);
+            CalendarEvent nonRigidCalendarEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repeat, start, end, 5, false);
+            DB_Schedule Schedule = new TestSchedule(user, refNow, startOfDay);
+            Schedule.AddToScheduleAndCommit(nonRigidCalendarEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow, startOfDay);
+            nonRigidCalendarEvent = Schedule.getCalendarEvent(nonRigidCalendarEvent.Id);
+            SubCalendarEvent testSubEvent = nonRigidCalendarEvent.ActiveSubEvents.OrderBy(subEventIter => subEventIter.Start).First();
+
+            DateTimeOffset tileNewStart = start.AddDays(1);
+            DateTimeOffset tileNewEnd = tileNewStart.Add(duration);
+            var scheduleUpdated = Schedule.BundleChangeUpdate(testSubEvent.getId, testSubEvent.getName, tileNewStart, tileNewEnd, testSubEvent.ParentCalendarEvent.Start, testSubEvent.ParentCalendarEvent.End, nonRigidCalendarEvent.NumberOfSplit, testSubEvent.Notes.UserNote);
+            Schedule.persistToDB().Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+
+            SubCalendarEvent testSubEventRetrieved = TestUtility.getSubEventById(testSubEvent.Id, user);
+            CalendarEvent nonRigidCalendarEventRetrieved = TestUtility.getCalendarEventById(testSubEvent.Id, user);
+            CalendarEvent parentNonRigidCalendarEventRetrieved = TestUtility.getCalendarEventById(testSubEvent.getTilerID.getCalendarEventID(), user);
+            Assert.IsTrue(testSubEventRetrieved.Start == tileNewStart);
+            Assert.IsTrue(testSubEventRetrieved.End == tileNewEnd);
+            Assert.IsTrue(testSubEventRetrieved.isLocked);
+            Assert.IsTrue(nonRigidCalendarEventRetrieved.Start == testSubEvent.ParentCalendarEvent.Start);
+            Assert.IsTrue(nonRigidCalendarEventRetrieved.End == tileNewEnd);
+            Assert.IsTrue(parentNonRigidCalendarEventRetrieved.Start == start);
+            Assert.IsTrue(parentNonRigidCalendarEventRetrieved.End == end);
+
+
+            DateTimeOffset rigidStart = refNow.AddDays(1);
+            DateTimeOffset rigidEnd = rigidStart.AddHours(5);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            TimeLine RigidActualRangeTimeLine = new TimeLine(rigidStart, rigidEnd);
+            Repetition rigidRepeat = new Repetition(repeatTimeLine, Repetition.Frequency.DAILY, RigidActualRangeTimeLine);
+            CalendarEvent RigidCalendarEvent = TestUtility.generateCalendarEvent(tilerUser, duration, rigidRepeat, rigidStart, rigidEnd, 1, true);
+            Schedule = new TestSchedule(user, refNow, startOfDay);
+            Schedule.AddToScheduleAndCommit(RigidCalendarEvent).Wait();
+            RigidCalendarEvent = Schedule.getCalendarEvent(RigidCalendarEvent.Id);
+            Assert.IsTrue(RigidCalendarEvent.Start == rigidStart);
+            Assert.IsTrue(RigidCalendarEvent.End == rigidEnd);
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow, startOfDay);
+            DateTimeOffset rigidNewStart = rigidStart.AddDays(1);
+            DateTimeOffset rigidNewEnd = rigidNewStart.Add(duration);
+            testSubEvent = RigidCalendarEvent.ActiveSubEvents.OrderBy(subEventIter => subEventIter.Start).First();
+            scheduleUpdated = Schedule.BundleChangeUpdate(testSubEvent.getId, testSubEvent.getName, rigidNewStart, rigidNewEnd, testSubEvent.ParentCalendarEvent.Start, testSubEvent.ParentCalendarEvent.End, RigidCalendarEvent.NumberOfSplit, testSubEvent.Notes.UserNote);
+            Schedule.persistToDB().Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            testSubEventRetrieved = TestUtility.getSubEventById(testSubEvent.Id, user);
+            CalendarEvent RigidCalendarEventRetrieved = TestUtility.getCalendarEventById(testSubEvent.Id, user);
+            CalendarEvent parentRigidCalendarEventRetrieved = TestUtility.getCalendarEventById(testSubEvent.getTilerID.getCalendarEventID(), user);
+            Assert.IsTrue(testSubEventRetrieved.Start == rigidNewStart);
+            Assert.IsTrue(testSubEventRetrieved.End == rigidNewEnd);
+            Assert.IsTrue(testSubEventRetrieved.isLocked);
+            Assert.IsTrue(RigidCalendarEventRetrieved.Start == rigidNewStart);
+            Assert.IsTrue(RigidCalendarEventRetrieved.End == rigidNewEnd);
+            Assert.IsTrue(parentRigidCalendarEventRetrieved.Start == rigidStart);
+            Assert.IsTrue(parentRigidCalendarEventRetrieved.End == rigidEnd);
+
+
+
+            DateTimeOffset restrictedStart = refNow.AddDays(1);
+            DateTimeOffset restrictedEnd = restrictedStart.AddDays(10);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            TimeLine restrictedActualRangeTimeLine = new TimeLine(rigidStart, rigidEnd);
+            Repetition restrictedRepeat = new Repetition(repeatTimeLine, Repetition.Frequency.DAILY, restrictedActualRangeTimeLine);
+            RestrictionProfile restrictionProfile = new RestrictionProfile(restrictedStart.Add(duration), TimeSpan.FromMinutes(duration.TotalMinutes * 4));
+            CalendarEvent restrictedCalendarEvent = TestUtility.generateCalendarEvent(tilerUser, duration, restrictedRepeat, restrictedStart, restrictedEnd, 1, false);
+            Schedule = new TestSchedule(user, refNow, startOfDay);
+            Schedule.AddToScheduleAndCommit(restrictedCalendarEvent).Wait();
+            restrictedCalendarEvent = Schedule.getCalendarEvent(restrictedCalendarEvent.Id);
+            Assert.IsTrue(restrictedCalendarEvent.Start == restrictedStart);
+            Assert.IsTrue(restrictedCalendarEvent.End == restrictedEnd);
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow, startOfDay);
+            DateTimeOffset restrictedNewStart = restrictedStart.AddDays(1);
+            DateTimeOffset restrictedNewEnd = restrictedNewStart.Add(duration);
+            testSubEvent = restrictedCalendarEvent.ActiveSubEvents.OrderBy(subEventIter => subEventIter.Start).First();
+            scheduleUpdated = Schedule.BundleChangeUpdate(testSubEvent.getId, testSubEvent.getName, restrictedNewStart, restrictedNewEnd, testSubEvent.ParentCalendarEvent.Start, testSubEvent.ParentCalendarEvent.End, restrictedCalendarEvent.NumberOfSplit, testSubEvent.Notes.UserNote);
+            Schedule.persistToDB().Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            testSubEventRetrieved = TestUtility.getSubEventById(testSubEvent.Id, user);
+            CalendarEvent restrictedCalendarEventRetrieved = TestUtility.getCalendarEventById(testSubEvent.Id, user);
+            CalendarEvent parentRestrictedCalendarEventRetrieved = TestUtility.getCalendarEventById(testSubEvent.getTilerID.getCalendarEventID(), user);
+            Assert.IsTrue(testSubEventRetrieved.Start == restrictedNewStart);
+            Assert.IsTrue(testSubEventRetrieved.End == restrictedNewEnd);
+            Assert.IsTrue(testSubEventRetrieved.isLocked);
+            Assert.IsTrue(restrictedCalendarEventRetrieved.Start == restrictedStart);
+            Assert.IsTrue(restrictedCalendarEventRetrieved.End == restrictedNewEnd);
+            Assert.IsTrue(parentRestrictedCalendarEventRetrieved.Start == restrictedStart);
+            Assert.IsTrue(parentRestrictedCalendarEventRetrieved.End == restrictedEnd);
+
+
+            ////////////////////////////////////////////////////////////////////AfterDeadline////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow, startOfDay);
+            testSubEvent = parentNonRigidCalendarEventRetrieved.ActiveSubEvents.First();
+            tileNewStart = parentNonRigidCalendarEventRetrieved.End.AddDays(1);
+            tileNewEnd = tileNewStart.Add(testSubEvent.getActiveDuration);
+            scheduleUpdated = Schedule.BundleChangeUpdate(testSubEvent.getId, testSubEvent.getName, tileNewStart, tileNewEnd, 
+                testSubEvent.ParentCalendarEvent.Start, testSubEvent.ParentCalendarEvent.End, nonRigidCalendarEvent.NumberOfSplit, testSubEvent.Notes.UserNote);
+            Schedule.persistToDB().Wait();
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow, startOfDay);
+            DateTimeOffset nonRigidOldStart = nonRigidCalendarEventRetrieved.Start;
+            testSubEvent = nonRigidCalendarEventRetrieved.ActiveSubEvents.OrderByDescending(obj => obj.End).First();
+            tileNewStart = testSubEvent.End.AddDays(10);
+            tileNewEnd = tileNewStart.Add(testSubEvent.getActiveDuration);
+            scheduleUpdated = Schedule.BundleChangeUpdate(testSubEvent.getId, testSubEvent.getName, tileNewStart, tileNewEnd, 
+                testSubEvent.ParentCalendarEvent.Start, testSubEvent.ParentCalendarEvent.End, nonRigidCalendarEvent.NumberOfSplit, testSubEvent.Notes.UserNote);
+            Schedule.persistToDB().Wait();
+            testSubEventRetrieved = TestUtility.getSubEventById(testSubEvent.Id, user);
+            nonRigidCalendarEventRetrieved = TestUtility.getCalendarEventById(testSubEvent.Id, user);
+            parentNonRigidCalendarEventRetrieved = TestUtility.getCalendarEventById(testSubEvent.getTilerID.getCalendarEventID(), user);
+            Assert.IsTrue(testSubEventRetrieved.Start == tileNewStart);
+            Assert.IsTrue(testSubEventRetrieved.End == tileNewEnd);
+            Assert.IsTrue(testSubEventRetrieved.isLocked);
+            Assert.IsTrue(nonRigidCalendarEventRetrieved.Start == nonRigidOldStart);
+            Assert.IsTrue(nonRigidCalendarEventRetrieved.End == testSubEventRetrieved.End);
+            Assert.IsTrue(parentNonRigidCalendarEventRetrieved.Start == start);
+            Assert.IsTrue(parentNonRigidCalendarEventRetrieved.End == end);
+
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow, startOfDay);
+            testSubEvent = RigidCalendarEventRetrieved.ActiveSubEvents.OrderByDescending(obj => obj.End).First();
+            tileNewStart = testSubEvent.End.AddDays(10);
+            tileNewEnd = tileNewStart.Add(testSubEvent.getActiveDuration);
+            scheduleUpdated = Schedule.BundleChangeUpdate(testSubEvent.getId, testSubEvent.getName, tileNewStart, tileNewEnd,
+                RigidCalendarEventRetrieved.Start, RigidCalendarEventRetrieved.End, RigidCalendarEventRetrieved.NumberOfSplit, testSubEvent.Notes.UserNote);
+            Schedule.persistToDB().Wait();
+            testSubEventRetrieved = TestUtility.getSubEventById(testSubEvent.Id, user);
+            RigidCalendarEventRetrieved = TestUtility.getCalendarEventById(testSubEvent.Id, user);
+            parentRigidCalendarEventRetrieved = TestUtility.getCalendarEventById(testSubEvent.getTilerID.getCalendarEventID(), user);
+            Assert.IsTrue(testSubEventRetrieved.Start == tileNewStart);
+            Assert.IsTrue(testSubEventRetrieved.End == tileNewEnd);
+            Assert.IsTrue(testSubEventRetrieved.isLocked);
+            Assert.IsTrue(RigidCalendarEventRetrieved.Start == testSubEventRetrieved.Start);
+            Assert.IsTrue(RigidCalendarEventRetrieved.End == testSubEventRetrieved.End);
+            Assert.IsTrue(parentRigidCalendarEventRetrieved.Start == rigidStart);
+            Assert.IsTrue(parentRigidCalendarEventRetrieved.End == rigidEnd);
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow, startOfDay);
+            DateTimeOffset restrictedOldStart = restrictedCalendarEventRetrieved.Start;
+            testSubEvent = restrictedCalendarEventRetrieved.ActiveSubEvents.First();
+            tileNewStart = restrictedCalendarEventRetrieved.End.AddDays(1);
+            tileNewEnd = tileNewStart.Add(testSubEvent.getActiveDuration);
+            scheduleUpdated = Schedule.BundleChangeUpdate(testSubEvent.getId, testSubEvent.getName, tileNewStart, tileNewEnd,
+                testSubEvent.ParentCalendarEvent.Start, testSubEvent.ParentCalendarEvent.End, restrictedCalendarEventRetrieved.NumberOfSplit, testSubEvent.Notes.UserNote);
+            Schedule.persistToDB().Wait();
+            testSubEventRetrieved = TestUtility.getSubEventById(testSubEvent.Id, user);
+            restrictedCalendarEventRetrieved = TestUtility.getCalendarEventById(testSubEvent.Id, user);
+            parentRestrictedCalendarEventRetrieved = TestUtility.getCalendarEventById(testSubEvent.getTilerID.getCalendarEventID(), user);
+            Assert.IsTrue(testSubEventRetrieved.Start == tileNewStart);
+            Assert.IsTrue(testSubEventRetrieved.End == tileNewEnd);
+            Assert.IsTrue(testSubEventRetrieved.isLocked);
+            Assert.IsTrue(restrictedCalendarEventRetrieved.Start == restrictedOldStart);
+            Assert.IsTrue(restrictedCalendarEventRetrieved.End == testSubEventRetrieved.End);
+            Assert.IsTrue(parentRestrictedCalendarEventRetrieved.Start == restrictedStart);
+            Assert.IsTrue(parentRestrictedCalendarEventRetrieved.End == restrictedEnd);
+        }
+
+
+        [TestMethod]
         public void RestrictedSubEventUpdate()
         {
             //DB_Schedule Schedule;
@@ -713,6 +1076,72 @@ namespace TilerTests
             Assert.IsTrue(subEvent.Start == newStart);
             Assert.IsTrue(subEvent.End == newEnd);
             Assert.IsTrue(subEvent.isLocked);
+        }
+
+        /// <summary>
+        /// Function runs an update on all possible types of tiler events
+        /// </summary>
+        //[TestMethod]
+        public void eventUpdateAllEventTypes()
+        {
+
+            string dateString = "9/13/2019 6:49:00 AM +00:00";
+            DateTimeOffset iniRefNow;
+
+            if (string.IsNullOrEmpty(dateString))
+            {
+                iniRefNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
+            } else
+            {
+                iniRefNow = DateTimeOffset.Parse(dateString);
+            }
+             
+            var packet = TestUtility.CreatePacket();
+            TilerUser tilerUser = packet.User;
+            UserAccount user = packet.Account;
+            DateTimeOffset start = iniRefNow;
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            TestSchedule schedule = new TestSchedule(user, iniRefNow);
+            TimeSpan duration = TimeSpan.FromHours(1);
+            List<CalendarEvent> calEvents = TestUtility.generateAllCalendarEvent(schedule, duration, start, tilerUser, user, 10);
+            List<SubCalendarEvent> allFirstActiveSubEvents = calEvents.Select(obj => obj.ActiveSubEvents.First()).ToList();
+            DateTimeOffset refNow = iniRefNow;
+            DateTimeOffset startOfDay = iniRefNow.AddHours(1);
+            SubCalendarEvent previousSubEvent = null;
+            string newNote = Guid.NewGuid().ToString();
+            DateTimeOffset previousStart = Utility.BeginningOfTime;
+            DateTimeOffset previousEnd = Utility.BeginningOfTime;
+            string previousNote = "";
+            foreach (SubCalendarEvent testSubEvent in allFirstActiveSubEvents)
+            {
+                
+                DateTimeOffset newStart = testSubEvent.Start.AddDays(10);
+                DateTimeOffset newEnd = newStart.Add(duration);
+                TestUtility.reloadTilerUser(ref user, ref tilerUser);
+                schedule = new TestSchedule(user, refNow, startOfDay);
+                if (previousSubEvent != null)
+                {
+                    SubCalendarEvent previousInMemory = schedule.getSubCalendarEvent(previousSubEvent.Id);
+                    previousInMemory.isTestEquivalent(previousSubEvent);
+                    Assert.AreEqual(previousInMemory.Notes.UserNote, previousNote);
+                    Assert.AreEqual(previousInMemory.Start, previousStart);
+                    Assert.AreEqual(previousInMemory.End, previousEnd);
+
+                }
+
+                CalendarEvent calEVent = testSubEvent.ParentCalendarEvent;
+                var scheduleUpdated = schedule.BundleChangeUpdate(testSubEvent.getId, testSubEvent.getName, newStart, newEnd, calEVent.Start, calEVent.End, calEVent.NumberOfSplit, newNote);
+                previousSubEvent = schedule.getSubCalendarEvent(testSubEvent.getId);
+                previousStart = newStart;
+                previousEnd = newEnd;
+                previousNote = newNote;
+                schedule.persistToDB().Wait();
+            }
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            TestSchedule schedule2Outlook = new TestSchedule(user, iniRefNow);
+            schedule2Outlook.WriteFullScheduleToOutlook();
         }
 
         [TestMethod]

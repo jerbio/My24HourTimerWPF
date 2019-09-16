@@ -564,13 +564,15 @@ namespace TilerElements
         }
 
         /// <summary>
-        /// function tries to select earliest time after or at the RefStart time that as is within any of the restriction frame. So Assuming you had frame Nov 11 2015 Mon 11a-2p, Nov 13 2015 Wed 11a-2p. And RefStart is Nov 11 2015 Mon 12p, it'll pick Nov 11 2015 Mon 12a because its within the Mon Frame.
+        /// function tries to select earliest time after or at the RefStart time that as is within any of the restriction frame. 
+        /// So Assuming you had frame Nov 11 2015 Mon 11a-2p, Nov 13 2015 Wed 11a-2p. And RefStart is Nov 11 2015 Mon 12p, it'll pick Nov 11 2015 Mon 12a because its within the Mon Frame.
         /// </summary>
         /// <param name="StartData"></param>
         /// <returns>
         /// Tuple<TimeLine, DateTimeOffset> where Item1 is the timeline and Item2 is the day with which the timeline belongs.
         /// The latter item is mostly crucial when dealing with a RestrictionDay that curs through multiple days.
-        /// So for example if Item1 is a timeline 4/6/2019 1:00am - 3:00am, which is on Saturday but it is based on a Friday restriction Day which is from 1:00pm -3:00am. Notice this resriction day cuts across multiple days.
+        /// So for example if Item1 is a timeline 4/6/2019 1:00am - 3:00am, which is on Saturday but it is based on a Friday restriction Day which is from 1:00pm -3:00am.
+        /// Notice this resriction day cuts across multiple days.
         /// Based on this item2 needs to be 4/05/2019 1:00pm.
         /// </returns>
 

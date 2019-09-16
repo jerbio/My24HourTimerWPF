@@ -36,7 +36,7 @@ namespace TilerTests
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
             Schedule = new TestSchedule(user, refNow);
-            SubCalendarEvent subEvent = TestUtility.getSubEVentById(deletedSubEventId, user);
+            SubCalendarEvent subEvent = TestUtility.getSubEventById(deletedSubEventId, user);
             Assert.IsFalse(subEvent.isEnabled);
         }
 
@@ -124,7 +124,7 @@ namespace TilerTests
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
             Schedule = new TestSchedule(user, refNow);
-            SubCalendarEvent subEvent = TestUtility.getSubEVentById(deletedSubEventId, user);
+            SubCalendarEvent subEvent = TestUtility.getSubEventById(deletedSubEventId, user);
             Assert.IsFalse(subEvent.isEnabled);
             CalendarEvent calendarEvent = TestUtility.getCalendarEventById(new EventID( deletedSubEventId).getCalendarEventID(), user);
             Assert.AreEqual(calendarEvent.DeletionCount, 1);
@@ -136,7 +136,7 @@ namespace TilerTests
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
             Schedule = new TestSchedule(user, refNow);
-            subEvent = TestUtility.getSubEVentById(deletedSubEventId, user);
+            subEvent = TestUtility.getSubEventById(deletedSubEventId, user);
             Assert.IsFalse(subEvent.isEnabled);
             calendarEvent = TestUtility.getCalendarEventById(new EventID(deletedSubEventId).getRepeatCalendarEventID(), user);
             Assert.AreEqual(calendarEvent.DeletionCount, 1);
@@ -208,7 +208,7 @@ namespace TilerTests
             Schedule.persistToDB().Wait();
             //testEvent = TestUtility.getCalendarEventById(testEvent.Id, user);
             //testSubEvent = testEvent.ActiveSubEvents[0];
-            testSubEvent = TestUtility.getSubEVentById(testSubEvent.getId, user);
+            testSubEvent = TestUtility.getSubEventById(testSubEvent.getId, user);
             List<EventID> subEventIds = new List<EventID>() { testSubEvent.SubEvent_ID, testSubEvent0.SubEvent_ID, testSubEvent1.SubEvent_ID };// This tries to redelete testSubEvent.SubEvent_ID and that should have no effect so the count should stay the same
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
@@ -219,9 +219,9 @@ namespace TilerTests
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
             Schedule = new TestSchedule(user, refNow);
-            testSubEvent = TestUtility.getSubEVentById(testSubEvent.getId, user);
-            testSubEvent0 = TestUtility.getSubEVentById(testSubEvent0.getId, user);
-            testSubEvent1 = TestUtility.getSubEVentById(testSubEvent1.getId, user);
+            testSubEvent = TestUtility.getSubEventById(testSubEvent.getId, user);
+            testSubEvent0 = TestUtility.getSubEventById(testSubEvent0.getId, user);
+            testSubEvent1 = TestUtility.getSubEventById(testSubEvent1.getId, user);
             Assert.IsTrue(testSubEvent.getIsDeleted);
             Assert.IsTrue(testSubEvent0.getIsDeleted);
             Assert.IsTrue(testSubEvent1.getIsDeleted);
@@ -235,9 +235,9 @@ namespace TilerTests
 
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            testSubEvent = TestUtility.getSubEVentById(testSubEvent.getId, user);
-            testSubEvent0 = TestUtility.getSubEVentById(testSubEvent0.getId, user);
-            testSubEvent1 = TestUtility.getSubEVentById(testSubEvent1.getId, user);
+            testSubEvent = TestUtility.getSubEventById(testSubEvent.getId, user);
+            testSubEvent0 = TestUtility.getSubEventById(testSubEvent0.getId, user);
+            testSubEvent1 = TestUtility.getSubEventById(testSubEvent1.getId, user);
             Assert.IsTrue(testSubEvent.getIsDeleted);
             Assert.IsTrue(testSubEvent0.getIsDeleted);
             Assert.IsTrue(testSubEvent1.getIsDeleted);

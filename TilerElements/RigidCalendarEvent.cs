@@ -60,5 +60,10 @@ namespace TilerElements
                 _SubEvents.Add(newSubCalEvent.Id, newSubCalEvent);
             }
         }
+
+        public override short updateNumberOfSplits(int SplitCOunt)
+        {
+            return base.updateNumberOfSplits(1);
+        }
     }
 }

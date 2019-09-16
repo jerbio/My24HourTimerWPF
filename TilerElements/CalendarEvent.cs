@@ -130,7 +130,10 @@ namespace TilerElements
             this._TimeZone = timeZoneOrigin;
             this.TimeCreated = DateTimeOffset.UtcNow;
             this._Semantics = semantics ?? new Classification(this);
-            _LocationInfo.User = this.getCreator;
+            if(this.Location_DB!=null) {
+                _LocationInfo.User = this.getCreator;
+            }
+            
             _EventDayPreference = new EventPreference();
         }
 
@@ -410,7 +413,10 @@ namespace TilerElements
             _Name = new EventName(_Creator, this);
             this.TimeCreated = DateTimeOffset.UtcNow;
             _Semantics = new Classification(this);
-            _LocationInfo.User = this.getCreator;
+            if (this.Location_DB != null)
+            {
+                _LocationInfo.User = this.getCreator;
+            }
             _EventDayPreference = new EventPreference();
         }
 
@@ -1474,7 +1480,12 @@ namespace TilerElements
             return retValue;
         }
 
-        public short updateNumberOfSplits(int SplitCOunt)
+        public virtual short updateNumberOfSplits(int SplitCOunt)
+        {
+            return updateSplitCount(SplitCOunt);
+        }
+
+        protected short updateSplitCount(int SplitCOunt)
         {
             if (NumberOfSplit == SplitCOunt)
             {
@@ -1700,7 +1711,7 @@ namespace TilerElements
             subEvent.undesignate();
         }
 
-        public virtual void deleteAllSubCalendarEvents()
+        public virtual void deleteAllSubCalendarEventsFromRepeatParentCalendarEvent()
         {
             foreach(var subEvent in this.SubEvents.Values)
             {
@@ -1711,8 +1722,6 @@ namespace TilerElements
             }
             this._SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
             _CompletedCount = 0;
-            _Splits = 0;
-            _AverageTimePerSplit = new TimeSpan();
             _DeletedCount = 0;
         }
 

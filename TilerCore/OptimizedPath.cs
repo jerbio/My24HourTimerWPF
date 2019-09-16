@@ -166,6 +166,9 @@ namespace TilerCore
             }
         }
 
+        /// <summary>
+        /// Function tries to find the best spot for a disabled subevent. If it can't a conflict is created. The disabled sub event is undesignated from its daytimeline
+        /// </summary>
         void optimizeDisabledEvents()
         {
             List<SubCalendarEvent> disabledSubEvents = DayInfo.getSubEventsInTimeLine().Where(subEvent => subEvent.getDaySection().getCurrentDayPreference() == TimeOfDayPreferrence.DaySection.Disabled).ToList();
@@ -179,21 +182,18 @@ namespace TilerCore
 
                 foreach (SubCalendarEvent disabledSubEvent in subEventsEvaluated.Select(obj => obj.Key))
                 {
-                    List<SubCalendarEvent> reOptimizdSubevents = optimizeDisabledEvent(DayInfo, correctlyAssignedevents, disabledSubEvent);
-                    if (Utility.PinSubEventsToStart(reOptimizdSubevents, DayInfo))
+                    List<SubCalendarEvent> reOptimizedSubevents = optimizeDisabledEvent(DayInfo, correctlyAssignedevents, disabledSubEvent);
+                    if (Utility.PinSubEventsToStart(reOptimizedSubevents, DayInfo))
                     {
-                        if(correctlyAssignedevents.Count == reOptimizdSubevents.Count)
-                        {
-                            disabledSubEvent.ParentCalendarEvent.undesignateSubEvent(disabledSubEvent);
-                            DayInfo.RemoveSubEvent(disabledSubEvent.Id);
-                            UnassignedSubevents.Add(disabledSubEvent);
-                        }
-                        correctlyAssignedevents = reOptimizdSubevents.ToList();
+                        correctlyAssignedevents = reOptimizedSubevents.ToList();
                         
                     }
                     else
                     {
-                        throw new Exception("there seems to be an error with pinning subevents in a disabled list");
+                        disabledSubEvent.setAsUnOptimized();
+                        disabledSubEvent.ParentCalendarEvent.undesignateSubEvent(disabledSubEvent);
+                        DayInfo.RemoveSubEvent(disabledSubEvent.Id);
+                        UnassignedSubevents.Add(disabledSubEvent);
                     }
                 }
             }
@@ -249,7 +249,7 @@ namespace TilerCore
 
 
                 List<int> invalidIndexes = new List<int>();
-                for (i = 0; i < correctlyAssignedevents.Count + 1; i++)
+                for (i = 0; i < correctlyAssignedevents.Count + 1; i++)// for loop builds the invalid indexes, if an index is not in the orderedIndexes it is added to the invalidIndexes. Remmber orderedIndexes is sorted
                 {
                     if (orderedIndexes.Count > 0)
                     {
@@ -273,58 +273,6 @@ namespace TilerCore
                     index = getBestPosition(timeLine, disabledSubEvent, correctlyAssignedevents, new HashSet<int>());
                 }
                 subEventsReadjusted.Insert(index, disabledSubEvent);
-
-                if (!Utility.PinSubEventsToStart(subEventsReadjusted, timeLine))// try to pin subevent for readjust
-                {
-                    DateTimeOffset start = timeLine.Start;
-                    DateTimeOffset end = timeLine.End;
-                    if (index == 0)// if it is the new starting element then pin to beginning
-                    {
-                        TimeLine revisedTimeLine = new TimeLine(start, end);
-                        revisedTimeLine = disabledSubEvent.getTimeLineInterferringWithCalEvent(revisedTimeLine).FirstOrDefault();
-                        if (revisedTimeLine != null)
-                        {
-                            disabledSubEvent.shiftEvent(revisedTimeLine.Start);
-                            subEventsReadjusted = ConvertInterFerringEventsToBlobAndsubEvent(subEventsReadjusted);//
-                        }
-                        else
-                        {
-                            throw new Exception("there is an issue with pathoptimization of a disabled event");
-                        }
-                    }
-                    else
-                    {
-                        if (index == subEventsReadjusted.Count - 1)// if is the last element, then pin it to the end
-                        {
-                            TimeLine revisedTimeLine = new TimeLine(start, end);
-                            revisedTimeLine = disabledSubEvent.getTimeLineInterferringWithCalEvent(revisedTimeLine).LastOrDefault();
-                            if (revisedTimeLine != null)
-                            {
-                                disabledSubEvent.shiftEvent(revisedTimeLine.End - disabledSubEvent.getActiveDuration);
-                                subEventsReadjusted = ConvertInterFerringEventsToBlobAndsubEvent(subEventsReadjusted);
-                            }
-                            else
-                            {
-                                throw new Exception("there is an issue with pathoptimization of a disabled event");
-                            }
-                        }
-                        else
-                        {
-                            int beforeIndex = index - 1;
-                            int afterIndex = index + 1;
-                            SubCalendarEvent before = subEventsReadjusted[beforeIndex];
-                            SubCalendarEvent after = subEventsReadjusted[afterIndex];
-                            TimeLine relevantTimeline = new TimeLine(before.Start, after.End);
-                            TimeLine revisedOverlappingTImeline = disabledSubEvent.getTimeLineInterferringWithCalEvent(relevantTimeline).FirstOrDefault();
-                            if (revisedOverlappingTImeline != null)
-                            {
-                                TimeLine centralizedTimeLine = Utility.CentralizeYourSelfWithinRange(revisedOverlappingTImeline, disabledSubEvent.getActiveDuration);
-                                disabledSubEvent.shiftEvent(centralizedTimeLine.Start);
-                                subEventsReadjusted = ConvertInterFerringEventsToBlobAndsubEvent(subEventsReadjusted);
-                            }
-                        }
-                    }
-                }
                 return subEventsReadjusted;
             }
 

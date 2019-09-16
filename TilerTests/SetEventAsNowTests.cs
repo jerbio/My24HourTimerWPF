@@ -83,7 +83,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             var setAsNowResult = Schedule.SetSubeventAsNow(subEvent.Id);
             Schedule.persistToDB().Wait();
-            SubCalendarEvent testSubEvent = TestUtility.getSubEVentById(subEvent.getId, user);
+            SubCalendarEvent testSubEvent = TestUtility.getSubEventById(subEvent.getId, user);
             Assert.IsTrue(testSubEvent.Start == refNow);
         }
         [TestMethod]
@@ -109,7 +109,7 @@ namespace TilerTests
             var setAsNowResult = Schedule.SetSubeventAsNow(subEvent.Id, true);
             Schedule.persistToDB().Wait();
             subEvent = Schedule.getCalendarEvent(subEvent.getId).ActiveSubEvents.OrderBy(obj => obj.Start).Last();// this sorting is needed because of the extra sorting by id that occurs on the front end to ensure ids are sorted alphabetically
-            SubCalendarEvent testSubEvent = TestUtility.getSubEVentById(subEvent.getId, user);
+            SubCalendarEvent testSubEvent = TestUtility.getSubEventById(subEvent.getId, user);
             testEvent = TestUtility.getCalendarEventById(testEvent.getId, user);
             Assert.IsTrue(testSubEvent.Start == newRefNow);
             Assert.IsTrue(testSubEvent.End == testEvent.End);
@@ -140,7 +140,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, newRefNow);
             var setAsNowResult = Schedule.SetSubeventAsNow(subEvent.Id, true);
             Schedule.persistToDB(false).Wait();
-            SubCalendarEvent testSubEvent = TestUtility.getSubEVentById(subEvent.getId, user);
+            SubCalendarEvent testSubEvent = TestUtility.getSubEventById(subEvent.getId, user);
             CalendarEvent afterSetAsNowCalendarEvent = TestUtility.getCalendarEventById(testEvent.getId, user);
             Assert.IsTrue( testSubEvent.isTestEquivalent(subEvent));
             Assert.IsTrue(afterSetAsNowCalendarEvent.isTestEquivalent(beforeSetAsNowCalendarEvent));
@@ -227,7 +227,7 @@ namespace TilerTests
             SubCalendarEvent subEvent = testEvent.ActiveSubEvents.First();
             var setAsNowResult = Schedule.SetSubeventAsNow(subEvent.getId);
             Schedule.persistToDB().Wait();
-            SubCalendarEvent subCalendarEventNow = TestUtility.getSubEVentById(subEvent.getId, user);
+            SubCalendarEvent subCalendarEventNow = TestUtility.getSubEventById(subEvent.getId, user);
             Assert.IsTrue(subCalendarEventNow.Start == newRefNow);
         }
 
@@ -287,7 +287,7 @@ namespace TilerTests
             SubCalendarEvent subEvent = testEvent.ActiveSubEvents.First();
             var setAsNowResult = Schedule.SetSubeventAsNow(subEvent.getId, true);
             Schedule.persistToDB().Wait();
-            SubCalendarEvent subCalendarEventNow = TestUtility.getSubEVentById(subEvent.getId, user);
+            SubCalendarEvent subCalendarEventNow = TestUtility.getSubEventById(subEvent.getId, user);
             Assert.IsTrue(subCalendarEventNow.Start == newRefNow);
         }
     }

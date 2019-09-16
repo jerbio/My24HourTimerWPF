@@ -10,7 +10,7 @@ using GoogleMapsApi.Entities.Directions.Request;
 
 namespace TilerTests
 {
-    class TestSchedule : DB_Schedule
+    internal class TestSchedule : DB_Schedule
     {
         protected DateTimeOffset StartOfDay;
         public TestSchedule(UserAccount AccountEntry, DateTimeOffset referenceNow, DateTimeOffset startOfDay, uint LatestId = 0, DataRetrivalOption retrievalOption = DataRetrivalOption.Evaluation, TimeLine rangeOfLookup = null) : base(AccountEntry, referenceNow, retrievalOption, rangeOfLookup)

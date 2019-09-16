@@ -178,7 +178,7 @@ namespace TilerElements
                 {
                     eachKeyValuePair.Value.PopulateRepetitionParameters(MyParentEvent, Convert.ToInt32(eachKeyValuePair.Key));
                 }
-                MyParentEvent.deleteAllSubCalendarEvents();
+                MyParentEvent.deleteAllSubCalendarEventsFromRepeatParentCalendarEvent();
                 return;
             }
             this.ParentEvent = MyParentEvent;
@@ -271,7 +271,7 @@ namespace TilerElements
                 MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
                 MyRepeatCalendarEvent.setRepeatParent(MyParentEvent);
             }
-            MyParentEvent.deleteAllSubCalendarEvents();
+            MyParentEvent.deleteAllSubCalendarEventsFromRepeatParentCalendarEvent();
         }
 
 
@@ -290,7 +290,7 @@ namespace TilerElements
                 {
                     eachKeyValuePair.Value.PopulateRepetitionParameters(MyParentEvent, Convert.ToInt32(eachKeyValuePair.Key));
                 }
-                MyParentEvent.deleteAllSubCalendarEvents();
+                MyParentEvent.deleteAllSubCalendarEventsFromRepeatParentCalendarEvent();
                 return;
             }
             this.ParentEvent = MyParentEvent;
@@ -314,7 +314,7 @@ namespace TilerElements
                 {
                     
                     MyEventCalendarID = EventID.GenerateRepeatCalendarEvent(MyParentEvent.getId);
-                    CalendarEventRestricted MyRepeatCalendarEvent = CalendarEventRestricted.InstantiateRepeatedCandidate(MyParentEvent.getName, calendarTimeLine.Start, calendarTimeLine.End, MyParentEvent.Calendar_EventID, MyParentEvent.RetrictionProfile, MyParentEvent.getActiveDuration, MyParentEvent.NumberOfSplit, MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.isLocked, MyParentEvent.getPreparation, MyParentEvent.ThirdPartyID, MyParentEvent.Now, MyParentEvent.getCreator); //new CalendarEvent(MyEventCalendarID, MyRepeatCalendarEvent.Name, MyRepeatCalendarEvent.ActiveDuration, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyRepeatCalendarEvent.Preparation, MyRepeatCalendarEvent.PreDeadline, MyRepeatCalendarEvent.Rigid, MyRepeatCalendarEvent.Repeat, MyRepeatCalendarEvent.NumberOfSplit, MyParentEvent.myLocation, MyParentEvent.isEnabled, MyParentEvent.UIParam, MyParentEvent.Notes, MyParentEvent.isComplete);
+                    CalendarEventRestricted MyRepeatCalendarEvent = CalendarEventRestricted.InstantiateRepeatedCandidate(MyParentEvent.getName, calendarTimeLine.Start, calendarTimeLine.End, MyParentEvent.Calendar_EventID, MyParentEvent.RetrictionProfile, MyParentEvent.getActiveDuration, MyParentEvent.NumberOfSplit, MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.isLocked, MyParentEvent.getPreparation, MyParentEvent.ThirdPartyID, MyParentEvent.Now, MyParentEvent.getCreator, MyParentEvent.Notes); //new CalendarEvent(MyEventCalendarID, MyRepeatCalendarEvent.Name, MyRepeatCalendarEvent.ActiveDuration, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyRepeatCalendarEvent.Preparation, MyRepeatCalendarEvent.PreDeadline, MyRepeatCalendarEvent.Rigid, MyRepeatCalendarEvent.Repeat, MyRepeatCalendarEvent.NumberOfSplit, MyParentEvent.myLocation, MyParentEvent.isEnabled, MyParentEvent.UIParam, MyParentEvent.Notes, MyParentEvent.isComplete);
                     MyArrayOfRepeatingCalendarEvents.Add(MyRepeatCalendarEvent);
                     _DictionaryOfIDAndCalendarEvents.Add(MyRepeatCalendarEvent.getId, MyRepeatCalendarEvent);
                     MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
@@ -331,7 +331,7 @@ namespace TilerElements
                 EachRepeatCalendarEnd = IncreaseByFrequency(EachRepeatCalendarEnd, getFrequency);
                 calendarTimeLine = new TimeLine(EachRepeatCalendarStart, EachRepeatCalendarEnd);
             }
-            MyParentEvent.deleteAllSubCalendarEvents();
+            MyParentEvent.deleteAllSubCalendarEventsFromRepeatParentCalendarEvent();
         }
         
         private DateTimeOffset getStartTimeForAppropriateWeek(DateTimeOffset refTime, DayOfWeek SearchedDayOfweek)
@@ -386,7 +386,7 @@ namespace TilerElements
                 subEvent.RepeatParentEvent = MyParentEvent;
             }
             this.PopulateRepetitionParameters(MyRepeatCalendarEvent);
-            MyRepeatCalendarEvent.deleteAllSubCalendarEvents();
+            MyRepeatCalendarEvent.deleteAllSubCalendarEventsFromRepeatParentCalendarEvent();
         }
 
         private void PopulateRepetitionParameters(CalendarEventRestricted MyParentEvent, int WeekDay)
@@ -419,7 +419,7 @@ namespace TilerElements
                 subEvent.RepeatParentEvent = MyParentEvent;
             }
             this.PopulateRepetitionParameters(MyRepeatCalendarEvent);
-            MyRepeatCalendarEvent.deleteAllSubCalendarEvents();
+            MyRepeatCalendarEvent.deleteAllSubCalendarEventsFromRepeatParentCalendarEvent();
         }
         DateTimeOffset IncreaseByFrequency(DateTimeOffset MyTime, Frequency Frequency, string timeZone = "UTC")
         {

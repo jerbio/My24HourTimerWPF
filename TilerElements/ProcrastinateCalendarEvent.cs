@@ -91,7 +91,12 @@ namespace TilerElements
             this.UpdateTimePerSplit();
         }
 
-public static CalendarEvent generateProcrastinateAll(DateTimeOffset referenceNow, TilerUser user, TimeSpan DelaySpan, string timeZone, ProcrastinateCalendarEvent procrastinateEvent = null, string NameOfEvent = "BLOCKED OUT")
+        public override short updateNumberOfSplits(int SplitCOunt)
+        {
+            return this.updateSplitCount(SplitCOunt);
+        }
+
+        public static CalendarEvent generateProcrastinateAll(DateTimeOffset referenceNow, TilerUser user, TimeSpan DelaySpan, string timeZone, ProcrastinateCalendarEvent procrastinateEvent = null, string NameOfEvent = "BLOCKED OUT")
         {
             EventName blockName = new EventName(user, null, NameOfEvent);
             EventID clearAllEventsId = new EventID(user.getClearAllEventsId());

@@ -160,6 +160,27 @@ namespace TilerTests
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(verificationEventPulled.isTestEquivalent(loadedFromSchedule));
         }
+
+
+        [TestMethod]
+        public void createAllPossibleCalendarEventToSchedule()
+        {
+            DateTimeOffset iniRefNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
+            var packet = TestUtility.CreatePacket();
+            TilerUser tilerUser = packet.User;
+            UserAccount user = packet.Account;
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            TestSchedule schedule = new TestSchedule(user, iniRefNow);
+            TimeSpan duration = TimeSpan.FromHours(1);
+            List<CalendarEvent> calEvents = TestUtility.generateAllCalendarEventVaraints(schedule,duration, iniRefNow, tilerUser, user);
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            TestSchedule schedule2Outlook = new TestSchedule(user, iniRefNow);
+            schedule2Outlook.WriteFullScheduleToOutlook();
+
+        }
         /// <summary>
         /// UTC TimeZone Required
         /// </summary>
@@ -881,12 +902,14 @@ namespace TilerTests
             //List<DayOfWeek> weekDays = new List<DayOfWeek>() { DayOfWeek.Sunday, DayOfWeek.Monday ,DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday};
             List<DayOfWeek> weekDaysAsInt = weekDays.ToList();
             Repetition repetition = new Repetition(repetitionRange, Repetition.Frequency.DAILY, repetitionRange.CreateCopy(), weekDaysAsInt.ToArray());
-            CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 1, false, location, restrictionProfile: new RestrictionProfile(start, duration + duration), now: Schedule.Now);
+            int splitCount = 1;
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, splitCount, false, location, restrictionProfile: new RestrictionProfile(start, duration + duration), now: Schedule.Now);
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
             user = TestUtility.getTestUser(true, userId: tilerUser.Id);
             Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEvent.Id);
             waitVar.Wait();
             CalendarEvent newlyaddedevent = waitVar.Result;
+            Assert.IsTrue(newlyaddedevent.NumberOfSplit == splitCount);
             Assert.AreEqual(testEvent.getId, newlyaddedevent.getId);
             string repatCalEventId = newlyaddedevent.Calendar_EventID.getIDUpToRepeatCalendarEvent();
 

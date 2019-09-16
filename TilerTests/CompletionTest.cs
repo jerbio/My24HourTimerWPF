@@ -45,7 +45,7 @@ namespace TilerTests
             
             Schedule.markSubEventAsComplete(completedSubEventId).Wait();
             Schedule.WriteFullScheduleToLog().Wait();
-            SubCalendarEvent subEvent = TestUtility.getSubEVentById(completedSubEventId, user);
+            SubCalendarEvent subEvent = TestUtility.getSubEventById(completedSubEventId, user);
             Assert.IsTrue(subEvent.getIsComplete);
         }
 
@@ -126,7 +126,7 @@ namespace TilerTests
             string completedSubEventId = testEvent.AllSubEvents[0].getId;
             Schedule.markSubEventAsCompleteCalendarEventAndReadjust(completedSubEventId);
             Schedule.WriteFullScheduleToLog().Wait();
-            SubCalendarEvent subEvent = TestUtility.getSubEVentById(completedSubEventId, user);
+            SubCalendarEvent subEvent = TestUtility.getSubEventById(completedSubEventId, user);
             Assert.IsTrue(subEvent.getIsComplete);
 
             EventID evenId = new EventID(completedSubEventId);
@@ -138,7 +138,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             Schedule.markSubEventAsComplete(completedSubEventId).Wait();
             Schedule.WriteFullScheduleToLog().Wait();
-            subEvent = TestUtility.getSubEVentById(completedSubEventId, user);
+            subEvent = TestUtility.getSubEventById(completedSubEventId, user);
             Assert.IsTrue(subEvent.getIsComplete);
             evenId = new EventID(completedSubEventId);
             user = TestUtility.getTestUser(userId: tilerUser.Id, reloadTilerContext: true);
@@ -194,7 +194,7 @@ namespace TilerTests
             string completedSubEventId = testEvent.AllSubEvents[0].getId;
             Schedule.markSubEventAsCompleteCalendarEventAndReadjust(completedSubEventId);
             Schedule.WriteFullScheduleToLog().Wait();
-            SubCalendarEvent subEvent = TestUtility.getSubEVentById(completedSubEventId, user);
+            SubCalendarEvent subEvent = TestUtility.getSubEventById(completedSubEventId, user);
             Assert.IsTrue(subEvent.getIsComplete);
 
             EventID evenId = new EventID(completedSubEventId);
@@ -205,7 +205,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             Schedule.markSubEventAsCompleteCalendarEventAndReadjust(completedSubEventId);
             Schedule.WriteFullScheduleToLog().Wait();
-            subEvent = TestUtility.getSubEVentById(completedSubEventId, user);
+            subEvent = TestUtility.getSubEventById(completedSubEventId, user);
             Assert.IsTrue(subEvent.getIsComplete);
             evenId = new EventID(completedSubEventId);
             retrievedCalendarEvent = TestUtility.getCalendarEventById(evenId.getCalendarEventID(), user);
@@ -259,9 +259,9 @@ namespace TilerTests
             SubCalendarEvent testSubEvent = testEvent.ActiveSubEvents[0];
             SubCalendarEvent testSubEvent0 = testEvent0.ActiveSubEvents[0];
             SubCalendarEvent testSubEvent1 = testEvent1.ActiveSubEvents[0];
-            testSubEvent = TestUtility.getSubEVentById(testSubEvent.getId, user);
-            testSubEvent0 = TestUtility.getSubEVentById(testSubEvent0.getId, user);
-            testSubEvent1 = TestUtility.getSubEVentById(testSubEvent1.getId, user);
+            testSubEvent = TestUtility.getSubEventById(testSubEvent.getId, user);
+            testSubEvent0 = TestUtility.getSubEventById(testSubEvent0.getId, user);
+            testSubEvent1 = TestUtility.getSubEventById(testSubEvent1.getId, user);
             Assert.IsFalse(testSubEvent.getIsComplete);
             Assert.IsFalse(testSubEvent0.getIsComplete);
             Assert.IsFalse(testSubEvent1.getIsComplete);
@@ -272,7 +272,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             Schedule.markSubEventAsComplete(testSubEvent.getId).Wait();
             Schedule.WriteFullScheduleToLog().Wait();
-            testSubEvent = TestUtility.getSubEVentById(testSubEvent.getId, user);
+            testSubEvent = TestUtility.getSubEventById(testSubEvent.getId, user);
 
 
             List<EventID> subEventIds = new List<EventID>() { testSubEvent.SubEvent_ID, testSubEvent0.SubEvent_ID, testSubEvent1.SubEvent_ID };
@@ -284,9 +284,9 @@ namespace TilerTests
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
-            testSubEvent = TestUtility.getSubEVentById(testSubEvent.getId, user);
-            testSubEvent0 = TestUtility.getSubEVentById(testSubEvent0.getId, user);
-            testSubEvent1 = TestUtility.getSubEVentById(testSubEvent1.getId, user);
+            testSubEvent = TestUtility.getSubEventById(testSubEvent.getId, user);
+            testSubEvent0 = TestUtility.getSubEventById(testSubEvent0.getId, user);
+            testSubEvent1 = TestUtility.getSubEventById(testSubEvent1.getId, user);
             Assert.IsTrue(testSubEvent.getIsComplete);
             Assert.IsTrue(testSubEvent0.getIsComplete);
             Assert.IsTrue(testSubEvent1.getIsComplete);
@@ -304,9 +304,9 @@ namespace TilerTests
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
-            testSubEvent = TestUtility.getSubEVentById(testSubEvent.getId, user);
-            testSubEvent0 = TestUtility.getSubEVentById(testSubEvent0.getId, user);
-            testSubEvent1 = TestUtility.getSubEVentById(testSubEvent1.getId, user);
+            testSubEvent = TestUtility.getSubEventById(testSubEvent.getId, user);
+            testSubEvent0 = TestUtility.getSubEventById(testSubEvent0.getId, user);
+            testSubEvent1 = TestUtility.getSubEventById(testSubEvent1.getId, user);
             Assert.IsTrue(testSubEvent.getIsComplete);
             Assert.IsTrue(testSubEvent0.getIsComplete);
             Assert.IsTrue(testSubEvent1.getIsComplete);

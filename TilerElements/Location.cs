@@ -393,7 +393,7 @@ namespace TilerElements
             this._DefaultFlag = location._DefaultFlag;
         }
 
-        public Location CreateCopy()
+        public Location CreateCopy(string id=null)
         {
             Location this_cpy = new Location();
             this_cpy._TaggedAddress = this._TaggedAddress;
@@ -401,7 +401,7 @@ namespace TilerElements
             this_cpy._Latitude = this._Latitude;
             this_cpy._Longitude = this._Longitude;
             this_cpy._NullLocation = this._NullLocation;
-            this_cpy._Id = this._Id;
+            this_cpy._Id = id?? this._Id;
             this_cpy.User = this.User;
             return this_cpy;
         }

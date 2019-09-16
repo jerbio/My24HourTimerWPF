@@ -89,7 +89,19 @@ namespace TilerElements
             else
             {
                 if (PossibleTimeLine.doesTimeLineInterfere(this))
-                return PossibleTimeLine.InterferringTimeLine(this);//checks if PossibleTimeLine is the same as or bigger than "this" timeline
+                {
+                    return PossibleTimeLine.InterferringTimeLine(this);//checks if PossibleTimeLine is the same as or bigger than "this" timeline
+                }
+                else
+                {
+                    if(PossibleTimeLine.TimelineSpan.Ticks == 0)
+                    {
+                        if(this.Start == PossibleTimeLine.Start || this.End== PossibleTimeLine.Start)
+                        {
+                            return new TimeLine(PossibleTimeLine.Start, PossibleTimeLine.End);
+                        }
+                    }
+                }
             }
 
             return null;
@@ -101,10 +113,14 @@ namespace TilerElements
             if((this.Start < TimeLine0.End) && (this.End > TimeLine0.Start)){
                 retValue = true;
             }
-            //if (IsDateTimeWithin(TimeLine0.End) || IsDateTimeWithin(TimeLine0.Start) || ((this.Start == TimeLine0.Start) && (this.End == TimeLine0.End)))
-            //{
-            //    return true;
-            //}
+
+            if (TimeLine0.TimelineSpan.Ticks == 0)
+            {
+                if (this.Start == TimeLine0.Start || this.End == TimeLine0.Start)
+                {
+                    retValue = true;
+                }
+            }
 
             return retValue;
         }

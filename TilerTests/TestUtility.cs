@@ -124,6 +124,7 @@ namespace TilerTests
         {
             get
             {
+                //return DateTimeOffset.Parse("6/13/2019 6:53:59 AM +00:00");
                 return _Start;
             }
         }
@@ -305,13 +306,11 @@ namespace TilerTests
                 if (rigidFlags)
                 {
                     RetValue = new RigidCalendarEvent(
-                        //EventID.GenerateCalendarEvent(), 
                         name, Start, End, duration, new TimeSpan(), new TimeSpan(), repetition, location, eventDisplay, note, true, false, testUser, new TilerUserGroup(), "UTC", null);
                 }
                 else
                 {
                     RetValue = new CalendarEvent(
-                        //EventID.GenerateCalendarEvent(), 
                         name, Start, End, duration, new TimeSpan(), new TimeSpan(), splitCount , repetition, location, eventDisplay, note, null, new NowProfile(), true, false, testUser, new TilerUserGroup(), "UTC", null);
                 }
                 name.Creator_EventDB = RetValue.getCreator;
@@ -423,7 +422,7 @@ namespace TilerTests
             return retValue;
         }
 
-        public static SubCalendarEvent getSubEVentById(string subEventId, UserAccount user)
+        public static SubCalendarEvent getSubEventById(string subEventId, UserAccount user)
         {
             Task<SubCalendarEvent> waitVar = user.ScheduleLogControl.getSubEventWithID(subEventId);
             waitVar.Wait();
@@ -431,6 +430,268 @@ namespace TilerTests
             return retValue;
         }
 
+
+        internal static List<CalendarEvent> generateAllCalendarEventVaraints(TestSchedule schedule, TimeSpan duration, DateTimeOffset start, TilerUser testUser, UserAccount userAccount, Location location = null)
+        {
+            List<CalendarEvent> oneSubEvents = generateAllCalendarEvent(schedule, duration, start, testUser, userAccount, 1, location);
+            List<CalendarEvent> twoSubEvents = generateAllCalendarEvent(schedule, duration, start, testUser, userAccount, 2, location);
+            List<CalendarEvent> tenSubEvents = generateAllCalendarEvent(schedule, duration, start, testUser, userAccount, 10, location);
+            List<CalendarEvent> retValue = oneSubEvents.Concat(twoSubEvents).Concat(tenSubEvents).ToList();
+            return retValue;
+        }
+
+        internal static List<CalendarEvent> generateAllCalendarEvent(TestSchedule schedule, TimeSpan duration, DateTimeOffset start, TilerUser testUser, UserAccount userAccount, int split, Location location = null)
+        {
+            if(location == null)
+            {
+                List<Location> locaitions = TestUtility.getLocations();
+                location = Location.getDefaultLocation();
+            }
+            DateTimeOffset nowTime = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
+
+            if (start.isBeginningOfTime())
+            {
+                start = nowTime;
+            }
+            
+            ReferenceNow now = new ReferenceNow(DateTimeOffset.UtcNow.removeSecondsAndMilliseconds(), nowTime, new TimeSpan());
+
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            schedule = new TestSchedule(userAccount, nowTime);
+            DateTimeOffset end = start.Add(duration).Add(duration).Add(duration);
+            CalendarEvent simpleCalEvent = generateCalendarEvent(testUser, duration, new Repetition(), start, end, split, false, Location.getDefaultLocation());
+            schedule.AddToScheduleAndCommit(simpleCalEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            schedule = new TestSchedule(userAccount, nowTime);
+            TimeLine dailyTimeLine = new TimeLine(start, start.AddDays(7));
+            TimeLine dailyActiveTimeLine = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
+            Repetition dailyRepetion = new Repetition(dailyTimeLine, Repetition.Frequency.DAILY, dailyActiveTimeLine);
+            CalendarEvent dailyCalEvent = generateCalendarEvent(testUser, duration, dailyRepetion, start, end, split, false, Location.getDefaultLocation());
+            schedule.AddToScheduleAndCommit(dailyCalEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            schedule = new TestSchedule(userAccount, nowTime);
+            TimeLine weeklyTimeLine = new TimeLine(start, start.AddDays(28));
+            TimeLine weeklyActiveTimeLine = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
+            Repetition weeklyRepetion = new Repetition(dailyTimeLine, Repetition.Frequency.WEEKLY, weeklyActiveTimeLine);
+            CalendarEvent weeklyCalEvent = generateCalendarEvent(testUser, duration, weeklyRepetion, start, end, split, false, Location.getDefaultLocation());
+            schedule.AddToScheduleAndCommit(weeklyCalEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            schedule = new TestSchedule(userAccount, nowTime);
+            TimeLine weekdayWeeklyTimeLine = new TimeLine(start, start.AddDays(28));
+            TimeLine weekdayWeeklyActiveTimeLine = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
+            List<DayOfWeek> weekDays = new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Sunday, DayOfWeek.Wednesday, DayOfWeek.Saturday };
+            Repetition weekdayWeeklyRepetion = new Repetition(dailyTimeLine, Repetition.Frequency.WEEKLY, weeklyActiveTimeLine, weekDays.ToArray());
+            CalendarEvent weekdayWeeklyCalEvent = generateCalendarEvent(testUser, duration, weekdayWeeklyRepetion, start, end, split, false, Location.getDefaultLocation());
+            schedule.AddToScheduleAndCommit(weekdayWeeklyCalEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            schedule = new TestSchedule(userAccount, nowTime);
+            TimeLine monthlyTimeLine = new TimeLine(start, start.AddDays(180));
+            TimeLine monthlyActiveTimeLine = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
+            Repetition monthlyRepetion = new Repetition(monthlyTimeLine, Repetition.Frequency.MONTHLY, monthlyActiveTimeLine);
+            CalendarEvent monthlyCalEvent = generateCalendarEvent(testUser, duration, monthlyRepetion, start, end, split, false, Location.getDefaultLocation());
+            schedule.AddToScheduleAndCommit(monthlyCalEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            schedule = new TestSchedule(userAccount, nowTime);
+            TimeLine monthlyWeekdayTimeLine = new TimeLine(start, start.AddDays(180));
+            TimeLine monthlyWeekdayActiveTimeLine = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
+            List<DayOfWeek> monthlyWeekDays = new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Sunday, DayOfWeek.Wednesday, DayOfWeek.Saturday };
+            Repetition monthlyWeekdayRepetion = new Repetition(monthlyWeekdayTimeLine, Repetition.Frequency.MONTHLY, monthlyWeekdayActiveTimeLine, monthlyWeekDays.ToArray());
+            CalendarEvent weekDayMonthlyCalEvent = generateCalendarEvent(testUser, duration, monthlyWeekdayRepetion, start, end, split, false, Location.getDefaultLocation());
+            schedule.AddToScheduleAndCommit(weekDayMonthlyCalEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            schedule = new TestSchedule(userAccount, nowTime);
+            TimeLine yearlyTimeLine = new TimeLine(start, start.AddYears(2));
+            TimeLine yearlyActiveTimeLine = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
+            Repetition yearlyWeekdayRepetion = new Repetition(monthlyWeekdayTimeLine, Repetition.Frequency.YEARLY, yearlyActiveTimeLine);
+            CalendarEvent yearlyCalEvent = generateCalendarEvent(testUser, duration, yearlyWeekdayRepetion, start, end, split, false, Location.getDefaultLocation());
+            schedule.AddToScheduleAndCommit(yearlyCalEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            schedule = new TestSchedule(userAccount, nowTime);
+            TimeLine weekdayYearlyTimeLine = new TimeLine(start, start.AddYears(2));
+            TimeLine weekdayYearlyActiveTimeLine = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
+            List<DayOfWeek> yearlyWeekDays = new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Sunday, DayOfWeek.Wednesday, DayOfWeek.Saturday };
+            Repetition weekdayYearlyWeekdayRepetion = new Repetition(weekdayYearlyTimeLine, Repetition.Frequency.YEARLY, weekdayYearlyActiveTimeLine, yearlyWeekDays.ToArray());
+            CalendarEvent weekDayMYearlyCalEvent = generateCalendarEvent(testUser, duration, weekdayYearlyWeekdayRepetion, start, end, split, false, Location.getDefaultLocation());
+            schedule.AddToScheduleAndCommit(weekDayMYearlyCalEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            schedule = new TestSchedule(userAccount, nowTime);
+            DateTimeOffset restrictionStart = start.Add(TimeSpan.FromMinutes(((long)duration.Minutes / 2)));
+            TimeSpan restrictedDurationSpan = (duration) + (duration);
+            RestrictionProfile restrictionProfile = new RestrictionProfile(restrictionStart, restrictedDurationSpan);
+
+            CalendarEvent restrictedCalEvent = generateCalendarEvent(testUser, duration, new Repetition(), start, end, split, false, Location.getDefaultLocation(), restrictionProfile.createCopy(), now: now);
+            schedule.AddToScheduleAndCommit(restrictedCalEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            schedule = new TestSchedule(userAccount, nowTime);
+            TimeLine dailyTimeLineRestriction = new TimeLine(start, start.AddDays(7));
+            TimeLine dailyActiveTimeLineRestriction = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
+            Repetition dailyRepetionRestriction = new Repetition(dailyTimeLine, Repetition.Frequency.DAILY, dailyActiveTimeLine);
+            CalendarEvent restrictedDailyCalEvent = generateCalendarEvent(testUser, duration, dailyRepetionRestriction, start, end, split, false, Location.getDefaultLocation(), restrictionProfile.createCopy(), now: now);
+            schedule.AddToScheduleAndCommit(restrictedDailyCalEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            schedule = new TestSchedule(userAccount, nowTime);
+            TimeLine weeklyTimeLineRestriction = new TimeLine(start, start.AddDays(28));
+            TimeLine weeklyActiveTimeLineRestriction = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
+            Repetition weeklyRepetionRestriction = new Repetition(weeklyTimeLineRestriction, Repetition.Frequency.WEEKLY, weeklyActiveTimeLineRestriction);
+            CalendarEvent restrictedWeeklyCalEvent = generateCalendarEvent(testUser, duration, weeklyRepetionRestriction, start, end, split, false, Location.getDefaultLocation(), restrictionProfile.createCopy(), now: now);
+            schedule.AddToScheduleAndCommit(restrictedWeeklyCalEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            schedule = new TestSchedule(userAccount, nowTime);
+            TimeLine weekdayWeeklyTimeLineRestriction = new TimeLine(start, start.AddDays(28));
+            TimeLine weekdayWeeklyActiveTimeLineRestriction = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
+            List<DayOfWeek> weekDaysRestriction = new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Sunday, DayOfWeek.Wednesday, DayOfWeek.Saturday };
+            Repetition weekdayWeeklyRepetionRestriction = new Repetition(weekdayWeeklyTimeLineRestriction, Repetition.Frequency.WEEKLY, weekdayWeeklyActiveTimeLineRestriction, weekDays.ToArray());
+            CalendarEvent restrictedWeekdayWeeklyCalEvent = generateCalendarEvent(testUser, duration, weekdayWeeklyRepetionRestriction, start, end, split, false, Location.getDefaultLocation(), restrictionProfile.createCopy(), now: now);
+            schedule.AddToScheduleAndCommit(restrictedWeekdayWeeklyCalEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            schedule = new TestSchedule(userAccount, nowTime);
+            TimeLine monthlyTimeLineRestriction = new TimeLine(start, start.AddDays(180));
+            TimeLine monthlyActiveTimeLineRestriction = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
+            Repetition monthlyRepetionRestriction = new Repetition(monthlyTimeLineRestriction, Repetition.Frequency.MONTHLY, monthlyActiveTimeLineRestriction);
+            CalendarEvent restrictedMonthlyCalEvent = generateCalendarEvent(testUser, duration, monthlyRepetionRestriction, start, end, split, false, Location.getDefaultLocation(), restrictionProfile.createCopy(), now: now);
+            schedule.AddToScheduleAndCommit(restrictedMonthlyCalEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            schedule = new TestSchedule(userAccount, nowTime);
+            TimeLine monthlyWeekdayTimeLineRestriction = new TimeLine(start, start.AddDays(180));
+            TimeLine monthlyWeekdayActiveTimeLineRestriction = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
+            List<DayOfWeek> monthlyWeekDaysRestriction = new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Sunday, DayOfWeek.Wednesday, DayOfWeek.Saturday };
+            Repetition monthlyWeekdayRepetionRestriction = new Repetition(monthlyWeekdayTimeLineRestriction, Repetition.Frequency.MONTHLY, monthlyWeekdayActiveTimeLineRestriction, monthlyWeekDays.ToArray());
+            CalendarEvent restrictedWeekdayMonthlyCalEvent = generateCalendarEvent(testUser, duration, monthlyWeekdayRepetionRestriction, start, end, split, false, Location.getDefaultLocation(), restrictionProfile.createCopy(), now: now);
+            schedule.AddToScheduleAndCommit(restrictedWeekdayMonthlyCalEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            schedule = new TestSchedule(userAccount, nowTime);
+            TimeLine yearlyTimeLineRestriction = new TimeLine(start, start.AddYears(2));
+            TimeLine yearlyActiveTimeLineRestriction = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
+            Repetition yearlyRepetionRestriction = new Repetition(yearlyTimeLineRestriction, Repetition.Frequency.YEARLY, yearlyActiveTimeLineRestriction);
+            CalendarEvent restrictedYearlyCalEvent = generateCalendarEvent(testUser, duration, yearlyRepetionRestriction, start, end, split, false, Location.getDefaultLocation(), restrictionProfile.createCopy(), now: now);
+            schedule.AddToScheduleAndCommit(restrictedYearlyCalEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            schedule = new TestSchedule(userAccount, nowTime);
+            TimeLine weekdayYearlyTimeLineRestriction = new TimeLine(start, start.AddYears(2));
+            TimeLine weekdayYearlyActiveTimeLineRestriction = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
+            List<DayOfWeek> yearlyWeekDaysRestriction = new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Sunday, DayOfWeek.Wednesday, DayOfWeek.Saturday };
+            Repetition weekdayYearlyWeekdayRepetionRestriction = new Repetition(weekdayYearlyTimeLineRestriction, Repetition.Frequency.YEARLY, weekdayYearlyActiveTimeLineRestriction, yearlyWeekDays.ToArray());
+            CalendarEvent restrictedWeekdayYearlyCalEvent = generateCalendarEvent(testUser, duration, weekdayYearlyWeekdayRepetionRestriction, start, end, split, false, Location.getDefaultLocation(), restrictionProfile.createCopy(), now: now);
+            schedule.AddToScheduleAndCommit(restrictedWeekdayYearlyCalEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            schedule = new TestSchedule(userAccount, nowTime);
+            CalendarEvent rigidCalEvent = generateCalendarEvent(testUser, duration, new Repetition(), start, end, 1, true, Location.getDefaultLocation());
+            schedule.AddToScheduleAndCommit(rigidCalEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            schedule = new TestSchedule(userAccount, nowTime);
+            TimeLine rigidDailyTimeLine = new TimeLine(start, start.AddDays(7));
+            TimeLine rigidDailyActiveTimeLine = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
+            Repetition rigidDailyRepetion = new Repetition(rigidDailyTimeLine, Repetition.Frequency.DAILY, rigidDailyActiveTimeLine);
+            CalendarEvent rigidDailyCalEvent = generateCalendarEvent(testUser, duration, rigidDailyRepetion, start, end, 1, true, Location.getDefaultLocation());
+            schedule.AddToScheduleAndCommit(rigidDailyCalEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            schedule = new TestSchedule(userAccount, nowTime);
+            TimeLine rigidWeeklyTimeLine = new TimeLine(start, start.AddDays(28));
+            TimeLine rigidWeeklyActiveTimeLine = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
+            Repetition rigidWeeklyRepetion = new Repetition(rigidWeeklyTimeLine, Repetition.Frequency.WEEKLY, rigidWeeklyActiveTimeLine);
+            CalendarEvent rigidWeeklyCalEvent = generateCalendarEvent(testUser, duration, rigidWeeklyRepetion, start, end, 1, true, Location.getDefaultLocation());
+            schedule.AddToScheduleAndCommit(rigidWeeklyCalEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            schedule = new TestSchedule(userAccount, nowTime);
+            TimeLine rigidWeekdayWeeklyTimeLine = new TimeLine(start, start.AddDays(28));
+            TimeLine rigidWeekdayWeeklyActiveTimeLine = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
+            List<DayOfWeek> rigidWeekDays = new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Sunday, DayOfWeek.Wednesday, DayOfWeek.Saturday };
+            Repetition rigidWeekdayWeeklyRepetion = new Repetition(rigidWeekdayWeeklyTimeLine, Repetition.Frequency.WEEKLY, rigidWeekdayWeeklyActiveTimeLine, rigidWeekDays.ToArray());
+            CalendarEvent rigidWeekdayWeeklyCalEvent = generateCalendarEvent(testUser, duration, rigidWeekdayWeeklyRepetion, start, end, 1, true, Location.getDefaultLocation());
+            schedule.AddToScheduleAndCommit(rigidWeekdayWeeklyCalEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            schedule = new TestSchedule(userAccount, nowTime);
+            TimeLine rigidMonthlyTimeLine = new TimeLine(start, start.AddDays(180));
+            TimeLine rigidMonthlyActiveTimeLine = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
+            Repetition rigidMonthlyRepetion = new Repetition(rigidMonthlyTimeLine, Repetition.Frequency.MONTHLY, rigidMonthlyActiveTimeLine);
+            CalendarEvent rigidMonthlyCalEvent = generateCalendarEvent(testUser, duration, rigidMonthlyRepetion, start, end, 1, true, Location.getDefaultLocation());
+            schedule.AddToScheduleAndCommit(rigidMonthlyCalEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            schedule = new TestSchedule(userAccount, nowTime);
+            TimeLine rigidMonthlyWeekdayTimeLine = new TimeLine(start, start.AddDays(180));
+            TimeLine rigidMonthlyWeekdayActiveTimeLine = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
+            List<DayOfWeek> rigidMonthlyWeekDays = new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Sunday, DayOfWeek.Wednesday, DayOfWeek.Saturday };
+            Repetition rigidMonthlyWeekdayRepetion = new Repetition(monthlyWeekdayTimeLine, Repetition.Frequency.MONTHLY, monthlyWeekdayActiveTimeLine, rigidMonthlyWeekDays.ToArray());
+            CalendarEvent rigidWeekdayMonthlyCalEvent = generateCalendarEvent(testUser, duration, rigidMonthlyWeekdayRepetion, start, end, 1, true, Location.getDefaultLocation());
+            schedule.AddToScheduleAndCommit(rigidWeekdayMonthlyCalEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            schedule = new TestSchedule(userAccount, nowTime);
+            TimeLine rigidYearlyTimeLine = new TimeLine(start, start.AddYears(2));
+            TimeLine rigidYearlyActiveTimeLine = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
+            Repetition rigidYearlyWeekdayRepetion = new Repetition(rigidYearlyTimeLine, Repetition.Frequency.YEARLY, rigidYearlyActiveTimeLine);
+            CalendarEvent rigidYearlyCalEvent = generateCalendarEvent(testUser, duration, rigidYearlyWeekdayRepetion, start, end, 1, true, Location.getDefaultLocation());
+            schedule.AddToScheduleAndCommit(rigidYearlyCalEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            schedule = new TestSchedule(userAccount, nowTime);
+            TimeLine rigidWeekdayYearlyTimeLine = new TimeLine(start, start.AddYears(2));
+            TimeLine rigidWeekdayYearlyActiveTimeLine = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
+            List<DayOfWeek> rigidWearlyWeekDays = new List<DayOfWeek>() { DayOfWeek.Monday, DayOfWeek.Sunday, DayOfWeek.Wednesday, DayOfWeek.Saturday };
+            Repetition rigidWeekdayYearlyWeekdayRepetion = new Repetition(rigidWeekdayYearlyTimeLine, Repetition.Frequency.YEARLY, rigidWeekdayYearlyActiveTimeLine, rigidWearlyWeekDays.ToArray());
+            CalendarEvent rigidWeekdayYearlyCalEvent = generateCalendarEvent(testUser, duration, rigidWeekdayYearlyWeekdayRepetion, start, end, 1, true, Location.getDefaultLocation());
+            schedule.AddToScheduleAndCommit(rigidWeekdayYearlyCalEvent).Wait();
+
+
+            List<CalendarEvent> retValue = new List<CalendarEvent>()
+            {
+                simpleCalEvent, dailyCalEvent, weeklyCalEvent, weekdayWeeklyCalEvent,monthlyCalEvent, weekDayMonthlyCalEvent, yearlyCalEvent, weekDayMYearlyCalEvent,
+                //restrictedCalEvent, restrictedDailyCalEvent, restrictedWeeklyCalEvent, restrictedWeekdayWeeklyCalEvent, restrictedMonthlyCalEvent, restrictedWeekdayMonthlyCalEvent,
+                restrictedYearlyCalEvent, restrictedWeekdayYearlyCalEvent,
+                rigidCalEvent, rigidDailyCalEvent, rigidWeeklyCalEvent, rigidWeekdayWeeklyCalEvent, rigidMonthlyCalEvent, rigidWeekdayMonthlyCalEvent, rigidYearlyCalEvent, rigidWeekdayYearlyCalEvent
+            };
+
+            //IEnumerable<CalendarEvent> allCalEvents = retValue;
+            //allCalEvents = allCalEvents.Except(new List<CalendarEvent>() { simpleCalEvent });
+            //foreach (CalendarEvent calEvent in  retValue)
+            //{
+            //    if(calEvent.IsRepeat)
+            //    {
+            //        allCalEvents = allCalEvents.Concat(calEvent.Repeat.RecurringCalendarEvents());
+            //    }
+            //}
+            
+            //foreach (CalendarEvent calEvent in allCalEvents)
+            //{
+            //    calEvent.CreatorId = testUser.Id;
+            //    calEvent.Creator_EventDB = null;
+            //    calEvent.LocationId = location.Id;
+            //    //calEvent.Location = null;
+                
+            //    foreach (TilerEvent tilerEvent in calEvent.AllSubEvents)
+            //    {
+            //        tilerEvent.CreatorId = testUser.Id;
+            //        tilerEvent.Creator_EventDB = null;
+            //        tilerEvent.LocationId = location.Id;
+            //        //tilerEvent.Location = null;
+            //    }
+
+
+            //}
+
+            return retValue;
+        }
 
         static public void cleanupDB ()
         {

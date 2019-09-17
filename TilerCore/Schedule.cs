@@ -50,7 +50,16 @@ namespace TilerCore
 {
     public class Schedule : IWhy
     {
-        public const int TimeLookUpDayCount = 90;
+        public static int TimeLookUpDayStart {
+            get {
+                return Utility.defaultBeginDay;
+            }
+        }
+        public static int TimeLookUpDayEnd {
+            get {
+                return Utility.defaultEndDay;
+            }
+        }
         string _Id { get; set; }
         public string Id
         {

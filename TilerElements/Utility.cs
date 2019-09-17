@@ -18,6 +18,8 @@ namespace TilerElements
         public static TimeSpan StartOfTimeTimeSpan = JSStartTime - new DateTimeOffset(0, new TimeSpan());
         public readonly static DateTimeOffset BeginningOfTime = new DateTimeOffset();
         public readonly static Random rng = new Random();
+        public readonly static int defaultBeginDay = -15;
+        public readonly static int defaultEndDay = 90;
         static Utility()
         {
             initializeFibonacci();

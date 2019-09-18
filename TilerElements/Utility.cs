@@ -910,6 +910,21 @@ namespace TilerElements
             return new Tuple<int, List<List<Dictionary<T, mTuple<int, U>>>>>(HighstSum, retValue);
         }
 
+        static public bool tryPinSubEventsToStart(IEnumerable<SubCalendarEvent> arg1, TimeLine Arg2)
+        {
+            var dictOfSubEvents = arg1.ToDictionary(sub => sub, sub => sub.ActiveSlot.CreateCopy());
+            var retValue = PinSubEventsToStart(arg1.ToArray(), Arg2);
+
+            if(!retValue)
+            {
+                foreach (var kvp in dictOfSubEvents)
+                {
+                    kvp.Key.shiftEvent(kvp.Value.Start);
+                }
+            }
+            return retValue;
+        }
+
         static public bool PinSubEventsToStart(IEnumerable<SubCalendarEvent> arg1, TimeLine Arg2)
         {
             return PinSubEventsToStart_NoEdit(arg1.ToArray(), Arg2);
@@ -963,6 +978,21 @@ namespace TilerElements
             return retValue;
         }
 
+
+        static public bool tryPinSubEventsToEnd(IEnumerable<SubCalendarEvent> arg1, TimeLine Arg2)
+        {
+            var dictOfSubEvents = arg1.ToDictionary(sub => sub, sub => sub.ActiveSlot.CreateCopy());
+            var retValue = PinSubEventsToEnd(arg1.ToArray(), Arg2);
+
+            if (!retValue)
+            {
+                foreach (var kvp in dictOfSubEvents)
+                {
+                    kvp.Key.shiftEvent(kvp.Value.Start);
+                }
+            }
+            return retValue;
+        }
 
         /// <summary>
         /// Pin Sub Events to the end of the TimeLine Each SubCalendarEvent Stays within the confines of its Calendar Event. The pinning starts from the last SubCalevent in the list

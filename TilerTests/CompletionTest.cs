@@ -69,6 +69,7 @@ namespace TilerTests
             Schedule.AddToScheduleAndCommit(testEvent).Wait();
 
             Schedule = new TestSchedule(user, refNow);
+            int beforeCompletionCount = Schedule.getAllCalendarEvents().Count();
             string completedSubEventId = testEvent.AllSubEvents[0].getId;
             Schedule.markAsCompleteCalendarEventAndReadjust(completedSubEventId).Wait();
             Schedule.WriteFullScheduleToLog().Wait();
@@ -76,6 +77,74 @@ namespace TilerTests
             
             CalendarEvent retrievedCalendarEvent = TestUtility.getCalendarEventById(evenId.getCalendarEventID(), user);
             Assert.IsTrue(retrievedCalendarEvent.getIsComplete);
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            int afterCompletionCount = Schedule.getAllCalendarEvents().Count();
+            Assert.AreEqual(beforeCompletionCount, afterCompletionCount + 1);
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            TestUtility.isSubCalendarEventUIEquivalenToScheduleLoaded(user, Schedule.Now);
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            TimeLine RepetitionTImeLine = new TimeLine(start, start.AddDays(21));
+            TimeLine RepetitionActualTImeLine = new TimeLine(start, end);
+            Repetition repetition = new Repetition(RepetitionTImeLine, Repetition.Frequency.DAILY, RepetitionActualTImeLine);
+            CalendarEvent repeatTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 2, false);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.AddToScheduleAndCommit(repeatTestEvent).Wait();
+            int beforeRepeatCompletionCount = Schedule.getAllCalendarEvents().Count();
+
+            string completedRepeatSubEventId = repeatTestEvent.AllSubEvents[0].getId;
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.markAsCompleteCalendarEventAndReadjust(repeatTestEvent.Id).Wait();
+            Schedule.WriteFullScheduleToLog().Wait();
+
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            int afterRepeatCompletionCount = Schedule.getAllCalendarEvents().Count();
+            Assert.AreEqual(beforeRepeatCompletionCount, afterRepeatCompletionCount + 1);
+            EventID repeatEventId = new EventID(completedRepeatSubEventId);
+            CalendarEvent retrievedRepeatCalendarEvent = TestUtility.getCalendarEventById(repeatEventId.getCalendarEventID(), user);
+            Assert.IsTrue(retrievedRepeatCalendarEvent.getIsComplete);
+            TestUtility.isSubCalendarEventUIEquivalenToScheduleLoaded(user, Schedule.Now);
+
+
+
+
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            TimeLine RigidRepetitionTImeLine = new TimeLine(start, start.AddDays(21));
+            TimeLine RigidRepetitionActualTImeLine = new TimeLine(start, start.AddHours(4));
+            Repetition RigidRepetition = new Repetition(RigidRepetitionTImeLine, Repetition.Frequency.DAILY, RigidRepetitionActualTImeLine);
+            CalendarEvent RigidRepeatTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, RigidRepetition, start, RigidRepetitionActualTImeLine.End, 1, true);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.AddToScheduleAndCommit(RigidRepeatTestEvent).Wait();
+            int beforeRigidRepeatCompletionCount = Schedule.getAllCalendarEvents().Count();
+
+            string completedRigidRepeatSubEventId = RigidRepeatTestEvent.AllSubEvents[0].getId;
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.markAsCompleteCalendarEventAndReadjust(RigidRepeatTestEvent.Id).Wait();
+            Schedule.WriteFullScheduleToLog().Wait();
+
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            int afterRigidRepeatCompletionCount = Schedule.getAllCalendarEvents().Count();
+            Assert.AreEqual(beforeRigidRepeatCompletionCount, afterRigidRepeatCompletionCount + 1);
+            EventID RigidRepeatEventId = new EventID(completedRigidRepeatSubEventId);
+            CalendarEvent retrievedRigidRepeatCalendarEvent = TestUtility.getCalendarEventById(RigidRepeatEventId.getCalendarEventID(), user);
+            Assert.IsTrue(retrievedRigidRepeatCalendarEvent.getIsComplete);
+            TestUtility.isSubCalendarEventUIEquivalenToScheduleLoaded(user, Schedule.Now);
         }
 
         [TestMethod]

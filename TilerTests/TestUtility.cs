@@ -431,6 +431,26 @@ namespace TilerTests
         }
 
 
+        public static void isSubCalendarEventUIEquivalenToScheduleLoaded(UserAccount useraccount, ReferenceNow now, TimeLine timeLine=null)
+        {
+            LogControl LogAccess = useraccount.ScheduleLogControl;
+            TimeLine rangeOfLookup = timeLine ?? new TimeLine(now.constNow.AddDays(Utility.defaultBeginDay), now.constNow.AddDays(Utility.defaultEndDay));
+            var task = LogAccess.getAllEnabledSubCalendarEvent(rangeOfLookup, now, retrievalOption: DataRetrivalOption.Ui);
+            task.Wait();
+            var allSubs = task.Result.ToList();
+
+            var taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, now, retrievalOption: DataRetrivalOption.Ui);
+            taskCal.Wait();
+            var allCals = taskCal.Result.ToList();
+            var calSubEVents = allCals.Select(obj => obj.Value).SelectMany(obj => obj.ActiveSubEvents).ToList();
+
+            Schedule schedule = new TestSchedule(useraccount, now.constNow);
+            IEnumerable<CalendarEvent> allCalendarEvents = schedule.getOnlyTilerCalendarEvents();
+            var schedSubEvents = allCalendarEvents.SelectMany(calEvent => calEvent.ActiveSubEvents);
+            Assert.AreEqual(allSubs.Count, calSubEVents.Count);
+            Assert.AreEqual(allSubs.Count, schedSubEvents.Count());
+        }
+
         internal static List<CalendarEvent> generateAllCalendarEventVaraints(TestSchedule schedule, TimeSpan duration, DateTimeOffset start, TilerUser testUser, UserAccount userAccount, Location location = null)
         {
             List<CalendarEvent> oneSubEvents = generateAllCalendarEvent(schedule, duration, start, testUser, userAccount, 1, location);

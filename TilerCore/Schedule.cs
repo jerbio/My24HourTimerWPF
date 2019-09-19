@@ -633,6 +633,15 @@ namespace TilerCore
         /// Gets current Calendar events in Memory. It does not retrieve data from DB
         /// </summary>
         /// <returns></returns>
+        public IEnumerable<CalendarEvent> getOnlyTilerCalendarEvents()
+        {
+            return AllEventDictionary.Values.Where(calEvent => calEvent.ThirdpartyType == ThirdPartyControl.CalendarTool.tiler);
+        }
+
+        /// <summary>
+        /// Gets current Calendar events in Memory. It does not retrieve data from DB
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<Location> getAllLocations()
         {
             return this.Locations.Values;
@@ -820,7 +829,10 @@ namespace TilerCore
 
         public async Task<CustomErrors> deleteCalendarEventAndReadjust(string EventId)
         {
-            CalendarEvent CalendarEventTOBeRemoved = getCalendarEvent(EventId);
+            CalendarEvent removedCalEvent = getCalendarEvent(EventId);
+            CalendarEvent CalendarEventTOBeRemoved = removedCalEvent;
+
+
             CalendarEventTOBeRemoved.Disable(false);
             //CalendarEventTOBeRemoved.DisableSubEvents(CalendarEventTOBeRemoved.ActiveSubEvents);
             if (CalendarEventTOBeRemoved.isLocked)
@@ -1091,7 +1103,11 @@ namespace TilerCore
         public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> SetCalendarEventAsNow(string CalendarID, bool Force = false)
         {
             CalendarEvent calendarEvent = getCalendarEvent(CalendarID);
-            IEnumerable<SubCalendarEvent> orderedSubEvents = calendarEvent.ActiveSubEvents.OrderBy(obj => obj.Start);
+            IEnumerable<SubCalendarEvent> orderedSubEvents = calendarEvent.ActiveSubEvents.Where(obj => obj.End > Now.constNow );
+            if(orderedSubEvents.Count() < 1)
+            {
+                orderedSubEvents = calendarEvent.ActiveSubEvents.OrderByDescending(obj => obj.End);
+            }
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(new CustomErrors("No Active Event Found", 100), null);
             if (orderedSubEvents.Count() > 0)
             {
@@ -2910,7 +2926,7 @@ namespace TilerCore
 
             });
 
-            //tryToRemoveConflicts(ordereByStartTime, AllDayTImeLine, callLocation);
+            tryToRemoveConflicts(ordereByStartTime, AllDayTImeLine, callLocation);
 
 
             return totalNumberOfEvents;

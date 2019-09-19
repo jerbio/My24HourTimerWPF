@@ -48,6 +48,7 @@ namespace TilerElements
         protected EventName _Name;
         protected string _UndoId;
         protected bool _IsRepeat = false;
+        protected CalendarEvent _RepeatParentEvent;
 
         #region undoParameters
         public DateTimeOffset UndoStartDateTime;
@@ -983,6 +984,25 @@ namespace TilerElements
             set
             {
                 _userLocked = value;
+            }
+        }
+
+        public virtual string RepeatParentEventId { get; set; }
+        /// <summary>
+        /// I chose to the class TilerEvent as the type for this Data memeber because if I use calendarevent(as one might assume),
+        /// entity framework would try to create one to many relationship with the "AllSubevents_DB" data meber in calendarEvent which isnt what we're going for.
+        /// This Data member only stores the CalendarEvent from which repetition was created
+        /// </summary>
+        [ForeignKey("RepeatParentEventId")]
+        public virtual TilerEvent RepeatParentEvent
+        {
+            get
+            {
+                return _RepeatParentEvent;
+            }
+            set
+            {
+                _RepeatParentEvent = value as CalendarEvent;
             }
         }
 

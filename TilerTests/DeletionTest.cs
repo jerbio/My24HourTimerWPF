@@ -61,6 +61,7 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
 
             Schedule = new TestSchedule(user, refNow);
+            int beforeDeletionCount = Schedule.getAllCalendarEvents().Count();
             string deletedSubEventId = testEvent.AllSubEvents[0].getId;
             Schedule.deleteCalendarEventAndReadjust(deletedSubEventId).Wait();
             Schedule.persistToDB().Wait();
@@ -71,8 +72,133 @@ namespace TilerTests
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
+            int afterDeletionCount = Schedule.getAllCalendarEvents().Count();
+            Assert.AreEqual(beforeDeletionCount, afterDeletionCount + 1);
             CalendarEvent calEventLoadedIntoScheduleMemory = Schedule.getCalendarEvent(id);
-            
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            afterDeletionCount = Schedule.getAllCalendarEvents().Count();
+            Assert.AreEqual(beforeDeletionCount, afterDeletionCount + 1);
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            TestUtility.isSubCalendarEventUIEquivalenToScheduleLoaded(user, Schedule.Now);
+
+            /////////////////Week day repeat/////////////////////////////////
+            List<DayOfWeek> weekDays = new List<DayOfWeek>() { start.DayOfWeek, (DayOfWeek)(((int)start.DayOfWeek + 2) % 7), (DayOfWeek)(((int)start.DayOfWeek + 4) % 7) };
+            List<DayOfWeek> weekDaysAsInt = weekDays.ToList();
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            TimeLine RepetitionTImeLine = new TimeLine(start, start.AddDays(21));
+            TimeLine RepetitionActualTImeLine = new TimeLine(start, end);
+            Repetition repetition = new Repetition(RepetitionTImeLine, Repetition.Frequency.WEEKLY, RepetitionActualTImeLine, weekDaysAsInt.ToArray());
+            CalendarEvent repeatTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 2, false);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.AddToScheduleAndCommit(repeatTestEvent).Wait();
+            int beforeRepeatDeletionCount = Schedule.getAllCalendarEvents().Count();
+            string DeletedRepeatSubEventId = repeatTestEvent.AllSubEvents[0].getId;
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.deleteCalendarEventAndReadjust(repeatTestEvent.Id).Wait();
+            Schedule.WriteFullScheduleToLog().Wait();
+
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            int afterRepeatDeletionCount = Schedule.getAllCalendarEvents().Count();
+            Assert.AreEqual(beforeRepeatDeletionCount, afterRepeatDeletionCount + 1);
+            EventID repeatEventId = new EventID(DeletedRepeatSubEventId);
+            CalendarEvent retrievedRepeatCalendarEvent = TestUtility.getCalendarEventById(repeatEventId.getCalendarEventID(), user);
+            Assert.IsFalse(retrievedRepeatCalendarEvent.isEnabled);
+            TestUtility.isSubCalendarEventUIEquivalenToScheduleLoaded(user, Schedule.Now);
+
+
+            ///////////////////////Repeat daily ////////////////
+
+            repetition = new Repetition(RepetitionTImeLine, Repetition.Frequency.DAILY, RepetitionActualTImeLine);
+            repeatTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 2, false);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.AddToScheduleAndCommit(repeatTestEvent).Wait();
+            beforeRepeatDeletionCount = Schedule.getAllCalendarEvents().Count();
+            DeletedRepeatSubEventId = repeatTestEvent.AllSubEvents[0].getId;
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.deleteCalendarEventAndReadjust(repeatTestEvent.Id).Wait();
+            Schedule.WriteFullScheduleToLog().Wait();
+
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            afterRepeatDeletionCount = Schedule.getAllCalendarEvents().Count();
+            Assert.AreEqual(beforeRepeatDeletionCount, afterRepeatDeletionCount + 1);
+            repeatEventId = new EventID(DeletedRepeatSubEventId);
+            retrievedRepeatCalendarEvent = TestUtility.getCalendarEventById(repeatEventId.getCalendarEventID(), user);
+            Assert.IsFalse(retrievedRepeatCalendarEvent.isEnabled);
+            TestUtility.isSubCalendarEventUIEquivalenToScheduleLoaded(user, Schedule.Now);
+
+
+
+
+            //////////////////////////Weekday repeat rigid//////////////////////////////
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            TimeLine RigidRepetitionTImeLine = new TimeLine(start, start.AddDays(21));
+            TimeLine RigidRepetitionActualTImeLine = new TimeLine(start, start.AddHours(4));
+            Repetition RigidRepetition = new Repetition(RigidRepetitionTImeLine, Repetition.Frequency.WEEKLY, RigidRepetitionActualTImeLine, weekDaysAsInt.ToArray());
+            CalendarEvent RigidRepeatTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, RigidRepetition, start, RigidRepetitionActualTImeLine.End, 1, true);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.AddToScheduleAndCommit(RigidRepeatTestEvent).Wait();
+            int beforeRigidRepeatDeletionCount = Schedule.getAllCalendarEvents().Count();
+
+            string DeletedRigidRepeatSubEventId = RigidRepeatTestEvent.AllSubEvents[0].getId;
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.deleteCalendarEventAndReadjust(RigidRepeatTestEvent.Id).Wait();
+            Schedule.WriteFullScheduleToLog().Wait();
+
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            int afterRigidRepeatDeletionCount = Schedule.getAllCalendarEvents().Count();
+            Assert.AreEqual(beforeRigidRepeatDeletionCount, afterRigidRepeatDeletionCount + 1);
+            EventID RigidRepeatEventId = new EventID(DeletedRigidRepeatSubEventId);
+            CalendarEvent retrievedRigidRepeatCalendarEvent = TestUtility.getCalendarEventById(RigidRepeatEventId.getCalendarEventID(), user);
+            Assert.IsFalse(retrievedRigidRepeatCalendarEvent.isEnabled);
+            TestUtility.isSubCalendarEventUIEquivalenToScheduleLoaded(user, Schedule.Now);
+
+
+            //////////////////////////Daily repeat rigid//////////////////////////////
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            RigidRepetitionTImeLine = new TimeLine(start, start.AddDays(21));
+            RigidRepetitionActualTImeLine = new TimeLine(start, start.AddHours(4));
+            RigidRepetition = new Repetition(RigidRepetitionTImeLine, Repetition.Frequency.DAILY, RigidRepetitionActualTImeLine);
+            RigidRepeatTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, RigidRepetition, start, RigidRepetitionActualTImeLine.End, 1, true);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.AddToScheduleAndCommit(RigidRepeatTestEvent).Wait();
+            beforeRigidRepeatDeletionCount = Schedule.getAllCalendarEvents().Count();
+
+            DeletedRigidRepeatSubEventId = RigidRepeatTestEvent.AllSubEvents[0].getId;
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.deleteCalendarEventAndReadjust(RigidRepeatTestEvent.Id).Wait();
+            Schedule.WriteFullScheduleToLog().Wait();
+
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            afterRigidRepeatDeletionCount = Schedule.getAllCalendarEvents().Count();
+            Assert.AreEqual(beforeRigidRepeatDeletionCount, afterRigidRepeatDeletionCount + 1);
+            RigidRepeatEventId = new EventID(DeletedRigidRepeatSubEventId);
+            retrievedRigidRepeatCalendarEvent = TestUtility.getCalendarEventById(RigidRepeatEventId.getCalendarEventID(), user);
+            Assert.IsFalse(retrievedRigidRepeatCalendarEvent.isEnabled);
+            TestUtility.isSubCalendarEventUIEquivalenToScheduleLoaded(user, Schedule.Now);
+
         }
 
         [TestMethod]

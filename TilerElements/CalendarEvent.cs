@@ -31,7 +31,6 @@ namespace TilerElements
         protected Dictionary<ulong, DayTimeLine> FreeDaysLimitation;// Holds days that do not contain subevents within this time line
         protected List<SubCalendarEvent> _RemovedSubEvents = new List<SubCalendarEvent>();
         protected EventPreference _EventDayPreference;
-        protected CalendarEvent _RepeatParent;
         #region undoMembers
         public int UndoSplits;
         public TimeSpan UndoAverageTimePerSplit;
@@ -1910,18 +1909,24 @@ namespace TilerElements
 
         public string RepeatParentId
         {
-            get; set;
+            get {
+                return this.RepeatParentEventId;
+            }
+            set
+            {
+                this.RepeatParentEventId = value;
+            }
         }
         [ForeignKey("RepeatParentId")]
         virtual public CalendarEvent RepeatParent_DB
         {
             get
             {
-                return _RepeatParent;
+                return _RepeatParentEvent;
             }
             set
             {
-                _RepeatParent = value;
+                _RepeatParentEvent = value;
             }
         }
 
@@ -2011,7 +2016,7 @@ namespace TilerElements
             {
                 currentParent = currentParent.RepeatParent_DB;
             }
-            _RepeatParent = currentParent;
+            _RepeatParentEvent = currentParent;
         }
 
         protected SubEventDictionary<string, SubCalendarEvent> SubEvents

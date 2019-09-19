@@ -28,7 +28,6 @@ namespace TilerElements
         protected DateTimeOffset _LastReasonStartTimeChanged;
         protected TimeLine CalculationTimeLine = null;
         protected CalendarEvent _calendarEvent;
-        protected CalendarEvent _RepeatParentEvent;
         protected bool _LockToId = false;
         [NotMapped]
         public TimeSpan TravelTimeBefore { get; set; } = new TimeSpan(1);
@@ -1150,19 +1149,6 @@ namespace TilerElements
                 return _calendarEvent;
             }
         }
-
-        public string RepeatParentEventId { get; set; }
-        /// <summary>
-        /// I chose to the class TilerEvent as the type for this Data memeber because if I use calendarevent(as one might assume),
-        /// entity framework would try to create one to many relationship with the "AllSubevents_DB" data meber in calendarEvent which isnt what we're going for.
-        /// This Data member only stores the CalendarEvent from which repetition was created
-        /// </summary>
-        [ForeignKey("RepeatParentEventId")]
-        public TilerEvent RepeatParentEvent { get {
-                return _RepeatParentEvent;
-            } set {
-                _RepeatParentEvent = value as CalendarEvent;
-            } }
 
         virtual public DateTimeOffset CalendarEventRangeStart
         {

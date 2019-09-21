@@ -58,7 +58,7 @@ namespace TilerElements
             this._LocationInfo = Locationdata;
             _otherPartyID = thirdPartyID;
             this._UiParams = UiData;
-            this.ConflictingEvents = conflictingEvents ?? new ConflictProfile();
+            this._ConflictingEvents = conflictingEvents ?? new ConflictProfile();
             _DataBlob = Notes;
             _PrepTime = PrepTimeData;
             _LastReasonStartTimeChanged = this.Start;
@@ -242,7 +242,7 @@ namespace TilerElements
             copy.BusyFrame = this.BusyFrame.CreateCopy();
             copy._CalendarEventRange = getCalendarEventRange.CreateCopy();
             copy._Complete = _Complete;
-            copy.ConflictingEvents = this.ConflictingEvents.CreateCopy();
+            copy._ConflictingEvents = this._ConflictingEvents.CreateCopy();
             copy._DataBlob = this._DataBlob?.createCopy();
             copy._Enabled = this._Enabled;
             copy.EndDateTime = this.EndDateTime;
@@ -375,7 +375,7 @@ namespace TilerElements
                 this._Name = SubEventEntry.getName;
                 this._EventDuration = SubEventEntry.getActiveDuration;
                 this._Complete = SubEventEntry.getIsComplete;
-                this.ConflictingEvents = SubEventEntry.Conflicts;
+                this._ConflictingEvents = SubEventEntry.Conflicts;
                 this._DataBlob = SubEventEntry.Notes;
                 this._Enabled = SubEventEntry.isEnabled;
                 this.EndDateTime = SubEventEntry.End;
@@ -415,7 +415,7 @@ namespace TilerElements
             retValue._Name = this.getName.createCopy();
             retValue._EventDuration = this.getActiveDuration;
             retValue._Complete = this.getIsComplete;
-            retValue.ConflictingEvents = this.Conflicts;
+            retValue._ConflictingEvents = this.Conflicts;
             retValue._DataBlob = this.Notes;
             retValue._Enabled = this.isEnabled;
             retValue.EndDateTime = this.End;

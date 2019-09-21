@@ -29,7 +29,7 @@ namespace TilerElements
             EventClumps = new HashSet<SubCalendarEvent>(InterFerringEvents);
             _EventDuration = TimeSpan.FromTicks( InterFerringEvents.Sum(obj => obj.getActiveDuration.Ticks));
             
-            ConflictingEvents = new ConflictProfile();
+            _ConflictingEvents = new ConflictProfile();
             BlobEvent = true;
             _Name = new EventName(null, this);
         }
@@ -52,7 +52,7 @@ namespace TilerElements
         {
             get
             {
-                return ConflictingEvents;
+                return _ConflictingEvents;
             }
         }
         #endregion

@@ -82,17 +82,17 @@ namespace TilerTests
             DateTimeOffset end = refNow.AddDays(4);
             CalendarEvent testEventA = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(20), new Repetition(), start, end, 5, false, restrictionProfile: restrictionProfile, now: Schedule.Now);
             testEventA.TimeCreated = TimeCreation;
-            Schedule.AddToScheduleAndCommit(testEventA).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEventA).Wait();
 
             CalendarEvent testEventB = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(20), new Repetition(), start, end, 10, false, restrictionProfile: restrictionProfile, now: Schedule.Now);
             testEventB.TimeCreated = TimeCreation;
             Schedule = new TestSchedule(user, refNow);
-            Schedule.AddToScheduleAndCommit(testEventB).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEventB).Wait();
 
             TimeSpan duration = TimeSpan.FromHours(20);
             CalendarEventRestricted testEventResticted = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end.AddDays(-2), 10, false, restrictionProfile: restrictionProfile, now: Schedule.Now) as CalendarEventRestricted;
             Schedule = new TestSchedule(user, refNow);
-            Schedule.AddToScheduleAndCommit(testEventResticted).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEventResticted).Wait();
         }
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace TilerTests
             List<RestrictionTimeLine> restrictedTimeLines = new List<RestrictionTimeLine>() { new RestrictionTimeLine(TestUtility.parseAsUTC("1/1/0001 8:00:00 AM +00:00"), TestUtility.parseAsUTC("1/1/0001 6:00:00 PM +00:00")) };
             RestrictionProfile restrictionProfile = new RestrictionProfile(daysOfWeek, restrictedTimeLines);
             CalendarEvent increaseSplitCountTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 2, false, location, restrictionProfile, now: schedule.Now);
-            schedule.AddToScheduleAndCommit(increaseSplitCountTestEvent).Wait();
+            schedule.AddToScheduleAndCommitAsync(increaseSplitCountTestEvent).Wait();
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             TestSchedule scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
             int newSplitCount = increaseSplitCountTestEvent.NumberOfSplit + 2;

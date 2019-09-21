@@ -14,7 +14,7 @@ namespace TilerElements
         protected DateTimeOffset _CalendarEventRangeStart;
         protected DateTimeOffset _CalendarEventRangeEnd;
         protected double EventScore;
-        protected ConflictProfile ConflictingEvents = new ConflictProfile();
+        protected ConflictProfile _ConflictingEvents = new ConflictProfile();
         protected ulong preferredDayIndex=0;
         protected int MiscIntData;
         protected bool Vestige = false;
@@ -67,7 +67,7 @@ namespace TilerElements
             {
                 conflicts = new ConflictProfile();
             }
-            ConflictingEvents = conflicts;
+            _ConflictingEvents = conflicts;
             _CalendarEventRange = calendarEventRange;
             StartDateTime = EventStart;
             EndDateTime = EventDeadline;
@@ -104,7 +104,7 @@ namespace TilerElements
             {
                 conflicts = new ConflictProfile();
             }
-            ConflictingEvents = conflicts;
+            _ConflictingEvents = conflicts;
             _CalendarEventRange = calendarEventRange;
             UniqueID = new EventID(MySubEventID);
             StartDateTime = EventStart;
@@ -339,7 +339,7 @@ namespace TilerElements
             {
                 Id = this.getId;
             }
-            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ParentCalendarEvent, getCreator, _Users, this._TimeZone, Id, this.getName.createCopy(), Start, End, BusyFrame.CreateCopy(), this._RigidSchedule, this.isEnabled, this._UiParams?.createCopy(), this.Notes?.createCopy(), this._Complete, this._LocationInfo, new TimeLine(getCalendarEventRange.Start, getCalendarEventRange.End), ConflictingEvents?.CreateCopy());
+            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ParentCalendarEvent, getCreator, _Users, this._TimeZone, Id, this.getName.createCopy(), Start, End, BusyFrame.CreateCopy(), this._RigidSchedule, this.isEnabled, this._UiParams?.createCopy(), this.Notes?.createCopy(), this._Complete, this._LocationInfo, new TimeLine(getCalendarEventRange.Start, getCalendarEventRange.End), _ConflictingEvents?.CreateCopy());
             MySubCalendarEventCopy.ThirdPartyID = this.ThirdPartyID;
             MySubCalendarEventCopy._UserDeleted = this._UserDeleted;
             MySubCalendarEventCopy.isRestricted = this.isRestricted;
@@ -501,7 +501,7 @@ namespace TilerElements
                 this._Name = SubEventEntry.getName;
                 this._EventDuration = SubEventEntry.getActiveDuration;
                 this._Complete = SubEventEntry.getIsComplete;
-                this.ConflictingEvents = SubEventEntry.Conflicts;
+                this._ConflictingEvents = SubEventEntry.Conflicts;
                 this._DataBlob = SubEventEntry.Notes;
                 this._Enabled = SubEventEntry.isEnabled;
                 this.EndDateTime = SubEventEntry.End;
@@ -565,7 +565,7 @@ namespace TilerElements
             retValue._Name = this.getName;
             retValue._EventDuration = this.getActiveDuration;
             retValue._Complete = this.getIsComplete;
-            retValue.ConflictingEvents = this.Conflicts;
+            retValue._ConflictingEvents = this.Conflicts;
             retValue._DataBlob = this.Notes;
             retValue._Enabled = this.isEnabled;
             retValue.EndDateTime = this.End;
@@ -1047,13 +1047,27 @@ namespace TilerElements
                 return retValue;
             }
         }
-         public ConflictProfile Conflicts
+        [NotMapped]// temporary for now, seems to causing db failure, I thik I need to fully make Conflictprofile inline with entity framework
+         public virtual ConflictProfile Conflicts
          {
+            set
+            {
+                _ConflictingEvents = value;
+            }
              get
              {
-                 return ConflictingEvents;
+                 return _ConflictingEvents;
              }
          }
+
+        public int conflictLevel
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            
+        }
 
         public TimeLine getCalculationRange
         {

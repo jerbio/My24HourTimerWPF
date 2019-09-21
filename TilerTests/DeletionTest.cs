@@ -27,7 +27,7 @@ namespace TilerTests
             DateTimeOffset end = refNow.AddHours(7);
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 2, false);
-            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
 
             Schedule = new TestSchedule(user, refNow);
             string deletedSubEventId = testEvent.AllSubEvents[0].getId;
@@ -56,7 +56,7 @@ namespace TilerTests
             DateTimeOffset end = refNow.AddHours(7);
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 2, false);
-            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
 
@@ -93,7 +93,7 @@ namespace TilerTests
             Repetition repetition = new Repetition(RepetitionTImeLine, Repetition.Frequency.WEEKLY, RepetitionActualTImeLine, weekDaysAsInt.ToArray());
             CalendarEvent repeatTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 2, false);
             Schedule = new TestSchedule(user, refNow);
-            Schedule.AddToScheduleAndCommit(repeatTestEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(repeatTestEvent).Wait();
             int beforeRepeatDeletionCount = Schedule.getAllCalendarEvents().Count();
             string DeletedRepeatSubEventId = repeatTestEvent.AllSubEvents[0].getId;
 
@@ -119,7 +119,7 @@ namespace TilerTests
             repetition = new Repetition(RepetitionTImeLine, Repetition.Frequency.DAILY, RepetitionActualTImeLine);
             repeatTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 2, false);
             Schedule = new TestSchedule(user, refNow);
-            Schedule.AddToScheduleAndCommit(repeatTestEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(repeatTestEvent).Wait();
             beforeRepeatDeletionCount = Schedule.getAllCalendarEvents().Count();
             DeletedRepeatSubEventId = repeatTestEvent.AllSubEvents[0].getId;
 
@@ -149,7 +149,7 @@ namespace TilerTests
             Repetition RigidRepetition = new Repetition(RigidRepetitionTImeLine, Repetition.Frequency.WEEKLY, RigidRepetitionActualTImeLine, weekDaysAsInt.ToArray());
             CalendarEvent RigidRepeatTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, RigidRepetition, start, RigidRepetitionActualTImeLine.End, 1, true);
             Schedule = new TestSchedule(user, refNow);
-            Schedule.AddToScheduleAndCommit(RigidRepeatTestEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(RigidRepeatTestEvent).Wait();
             int beforeRigidRepeatDeletionCount = Schedule.getAllCalendarEvents().Count();
 
             string DeletedRigidRepeatSubEventId = RigidRepeatTestEvent.AllSubEvents[0].getId;
@@ -178,7 +178,7 @@ namespace TilerTests
             RigidRepetition = new Repetition(RigidRepetitionTImeLine, Repetition.Frequency.DAILY, RigidRepetitionActualTImeLine);
             RigidRepeatTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, RigidRepetition, start, RigidRepetitionActualTImeLine.End, 1, true);
             Schedule = new TestSchedule(user, refNow);
-            Schedule.AddToScheduleAndCommit(RigidRepeatTestEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(RigidRepeatTestEvent).Wait();
             beforeRigidRepeatDeletionCount = Schedule.getAllCalendarEvents().Count();
 
             DeletedRigidRepeatSubEventId = RigidRepeatTestEvent.AllSubEvents[0].getId;
@@ -217,7 +217,7 @@ namespace TilerTests
             DateTimeOffset end = refNow.AddHours(7);
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, numberOfSubEvent, false);
-            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             user.Login().Wait();
@@ -229,7 +229,7 @@ namespace TilerTests
             tilerUser = user.getTilerUser();
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent0 = TestUtility.generateCalendarEvent(tilerUser, duration0, new Repetition(), start0, end0, numberOfSubEvent, false);
-            Schedule.AddToScheduleAndCommit(testEvent0).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent0).Wait();
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             user.Login().Wait();
@@ -241,7 +241,7 @@ namespace TilerTests
             tilerUser = user.getTilerUser();
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent1 = TestUtility.generateCalendarEvent(tilerUser, duration1, new Repetition(), start1, end1, numberOfSubEvent, false);
-            Schedule.AddToScheduleAndCommit(testEvent1).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent1).Wait();
 
             Schedule = new TestSchedule(user, refNow);
             string deletedSubEventId = testEvent.AllSubEvents[0].getId;
@@ -285,7 +285,7 @@ namespace TilerTests
             DateTimeOffset end = refNow.AddHours(7);
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, numberOfSubEvent, false);
-            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             user.Login().Wait();
@@ -297,7 +297,7 @@ namespace TilerTests
             tilerUser = user.getTilerUser();
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent0 = TestUtility.generateCalendarEvent(tilerUser, duration0, new Repetition(), start0, end0, numberOfSubEvent, false);
-            Schedule.AddToScheduleAndCommit(testEvent0).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent0).Wait();
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             user.Login().Wait();
@@ -309,7 +309,7 @@ namespace TilerTests
             tilerUser = user.getTilerUser();
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent1 = TestUtility.generateCalendarEvent(tilerUser, duration1, new Repetition(), start1, end1, numberOfSubEvent, false);
-            Schedule.AddToScheduleAndCommit(testEvent1).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent1).Wait();
 
             Schedule = new TestSchedule(user, refNow);
             string deletedSubEventId = testEvent.AllSubEvents[0].getId;

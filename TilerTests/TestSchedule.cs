@@ -80,9 +80,9 @@ namespace TilerTests
             }
         }
 
-        public override Task<CustomErrors> AddToScheduleAndCommit(CalendarEvent NewEvent, bool optimizeSchedule = false)
+        public override Task<CustomErrors> AddToScheduleAndCommitAsync(CalendarEvent NewEvent, bool optimizeSchedule = false)
         {
-            return base.AddToScheduleAndCommit(NewEvent, optimizeSchedule);
+            return base.AddToScheduleAndCommitAsync(NewEvent, optimizeSchedule);
         }
 
 

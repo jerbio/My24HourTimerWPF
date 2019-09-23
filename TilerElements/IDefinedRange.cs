@@ -19,13 +19,10 @@ namespace TilerElements
             get;
         }
 
-        TimeLine RangeTimeLine
+        TimeLine StartToEnd
         {
             get;
         }
-
-        
-
-       bool IsDateTimeWithin(DateTimeOffset DateTimeEntry);
+        bool IsDateTimeWithin(DateTimeOffset DateTimeEntry);
     }
 }

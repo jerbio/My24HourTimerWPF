@@ -185,7 +185,7 @@ namespace TilerElements
 
             for (int i = 0; i < _Splits; i++)// This is still is still called when dealing with repeat events. Meaning repeat calendar events all have an unnecessary extra subevent
             {
-                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(this, getCreator, _Users, _TimeZone, _AverageTimePerSplit, this.getName, (EndDateTime - _AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), _RigidSchedule, this._Enabled, this._UiParams, this.Notes, this._Complete, this._LocationInfo, this.RangeTimeLine);
+                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(this, getCreator, _Users, _TimeZone, _AverageTimePerSplit, this.getName, (EndDateTime - _AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), _RigidSchedule, this._Enabled, this._UiParams, this.Notes, this._Complete, this._LocationInfo, this.StartToEnd);
                 newSubCalEvent.TimeCreated = this.TimeCreated;
                 _SubEvents.Add(newSubCalEvent.Id, newSubCalEvent);
             }
@@ -281,14 +281,14 @@ namespace TilerElements
 
 
             subEvent.TempChanges.allChanges.Add(subEvent);
-            TimeLine subEventActiveTime = subEvent.RangeTimeLine;
+            TimeLine subEventActiveTime = subEvent.StartToEnd;
             TimeSpan dayDiffSpan = timeLine.Start.Date - subEventActiveTime.Start.Date;
             TimeLine subEvenRangeReadjustedToexpectedTimeLine = new TimeLine(subEventActiveTime.Start.Add(dayDiffSpan), subEventActiveTime.End.Add(dayDiffSpan));
             calEvent._EventRepetition = new Repetition(timeLine, Repetition.Frequency.YEARLY, subEvenRangeReadjustedToexpectedTimeLine);
             calEvent._EventRepetition.PopulateRepetitionParameters(calEvent);
             CalendarEvent calEventCpy = calEvent.Repeat.RecurringCalendarEvents().Single();// using ssingle because this must always return a single calendarevent. Because we generated a repeat event which should only have one calendar event;
             SubCalendarEvent subEventCopy = calEventCpy.AllSubEvents.First();
-            SubCalendarEvent duplicateOfOriginal = subEvent.createCopy(subEventCopy.SubEvent_ID);
+            SubCalendarEvent duplicateOfOriginal = subEvent.CreateCopy(subEventCopy.SubEvent_ID);
 
             subEventCopy.UpdateThis(duplicateOfOriginal);
             //calEventCpy.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
@@ -331,10 +331,10 @@ namespace TilerElements
 
             SubCalendarEvent subEvent = getSubEvent(eventId);
             subEvent.TempChanges.allChanges.Add(subEvent);
-            TimeLine timeLine = new TimeLine(startTime, calEvent.RangeTimeLine.End);
+            TimeLine timeLine = new TimeLine(startTime, calEvent.StartToEnd.End);
             if (timeLine.TimelineSpan >= subEvent.RangeSpan)
             {
-                TimeLine subEventActiveTime = subEvent.RangeTimeLine;
+                TimeLine subEventActiveTime = subEvent.StartToEnd;
                 TimeLine subEvenRangeReadjustedToexpectedTimeLine = new TimeLine(
                     startTime,
                     subEventActiveTime.End);
@@ -345,7 +345,7 @@ namespace TilerElements
                 calEvent._EventRepetition.PopulateRepetitionParameters(calEvent);
                 CalendarEvent calEventCpy = calEvent.Repeat.RecurringCalendarEvents().Single();// using ssingle because this must always return a single calendarevent. Because we generated a repeat event which should only have one calendar event;
                 SubCalendarEvent subEventCopy = calEventCpy.AllSubEvents.First();
-                SubCalendarEvent duplicateOfOriginal = subEvent.createCopy(subEventCopy.SubEvent_ID);
+                SubCalendarEvent duplicateOfOriginal = subEvent.CreateCopy(subEventCopy.SubEvent_ID);
 
                 subEventCopy.UpdateThis(duplicateOfOriginal);
 
@@ -506,7 +506,7 @@ namespace TilerElements
 
             foreach (SubCalendarEvent eachSubCalendarEvent in this.SubEvents.Values)
             {
-                MyCalendarEventCopy._SubEvents.Add(eachSubCalendarEvent.Id, eachSubCalendarEvent.createCopy(EventID.GenerateSubCalendarEvent(MyCalendarEventCopy.UniqueID)));
+                MyCalendarEventCopy._SubEvents.Add(eachSubCalendarEvent.Id, eachSubCalendarEvent.CreateCopy(EventID.GenerateSubCalendarEvent(MyCalendarEventCopy.UniqueID)));
             }
 
             //MyCalendarEventCopy.SchedulStatus = SchedulStatus;
@@ -713,7 +713,7 @@ namespace TilerElements
 
         public bool IsDateTimeWithin(DateTimeOffset DateTimeEntry)
         {
-            return RangeTimeLine.IsDateTimeWithin(DateTimeEntry);
+            return StartToEnd.IsDateTimeWithin(DateTimeEntry);
         }
 
         public void completeSubEvent(SubCalendarEvent mySubEvent)
@@ -991,7 +991,7 @@ namespace TilerElements
         {
             List<IList<double>> multiDimensionalCalculation = new List<IList<double>>();
             List<TimelineWithSubcalendarEvents> validTimeLine = timeLines.Select(timeLine => {
-                if (timeLine.doesTimeLineInterfere(this.RangeTimeLine)) {
+                if (timeLine.doesTimeLineInterfere(this.StartToEnd)) {
                     return timeLine;
                 }
                 else {
@@ -1132,7 +1132,7 @@ namespace TilerElements
             {
                 if (mySubCalendarEvent != null)
                 {
-                    EventSequence.MergeTimeLineBusySlots(mySubCalendarEvent.RangeTimeLine);
+                    EventSequence.MergeTimeLineBusySlots(mySubCalendarEvent.StartToEnd);
                 }
 
             }
@@ -1194,7 +1194,7 @@ namespace TilerElements
             bool retValue = true;
             foreach (SubCalendarEvent eachSubCalendarEvent in UpdatedSubCalEvents)//test if the updated locations for the subevents fall within the shifted timeline
             {
-                if (!(UpdatedTimeLine.IsTimeLineWithin(eachSubCalendarEvent.RangeTimeLine)))
+                if (!(UpdatedTimeLine.IsTimeLineWithin(eachSubCalendarEvent.StartToEnd)))
                 {
                     return false;
                 }
@@ -1265,7 +1265,7 @@ namespace TilerElements
         public virtual void InitialCalculationLookupDays(IEnumerable<DayTimeLine> RelevantDays, ReferenceNow now = null)
         {
             CalculationLimitation = RelevantDays.Where(obj => {
-                var timeLine = obj.InterferringTimeLine(RangeTimeLine);
+                var timeLine = obj.InterferringTimeLine(StartToEnd);
                 if (timeLine != null && timeLine.TimelineSpan >= _AverageTimePerSplit)
                 {
                     return true;
@@ -1378,7 +1378,7 @@ namespace TilerElements
             }
 
             List<DayTimeLine> retValue = AllFreeDayTIme.Where(obj => obj.TotalFreeSpotAvailable > _AverageTimePerSplit).Where(dayTimeLine => {
-                TimeLine timeLine = dayTimeLine.InterferringTimeLine(this.RangeTimeLine);
+                TimeLine timeLine = dayTimeLine.InterferringTimeLine(this.StartToEnd);
                 if (timeLine != null)
                 {
                     return timeLine.TimelineSpan >= _AverageTimePerSplit;
@@ -1557,7 +1557,7 @@ namespace TilerElements
             List<SubCalendarEvent> newSubs = new List<SubCalendarEvent>();
             for (int i = 0; i < delta; i++)
             {
-                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(this, getCreator, _Users, _TimeZone, _AverageTimePerSplit, this.getName, (EndDateTime - _AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), _RigidSchedule, this.isEnabled, this._UiParams, this.Notes, this._Complete, _LocationInfo, this.RangeTimeLine);
+                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(this, getCreator, _Users, _TimeZone, _AverageTimePerSplit, this.getName, (EndDateTime - _AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), _RigidSchedule, this.isEnabled, this._UiParams, this.Notes, this._Complete, _LocationInfo, this.StartToEnd);
                 _SubEvents.Add(newSubCalEvent.Id, newSubCalEvent);
                 _EventDuration = _EventDuration.Add(newSubCalEvent.getActiveDuration);
                 newSubCalEvent.UiParamsId = this.UiParamsId;
@@ -1983,7 +1983,7 @@ namespace TilerElements
             }
 
         }
-        override public TimeLine RangeTimeLine
+        override public TimeLine StartToEnd
         {
             get
             {
@@ -2030,7 +2030,7 @@ namespace TilerElements
         {
             get
             {
-                return this.RangeTimeLine.TimelineSpan;
+                return this.StartToEnd.TimelineSpan;
             }
         }
         

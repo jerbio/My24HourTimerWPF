@@ -890,7 +890,7 @@ namespace TilerElements
 
         public virtual List<TimeLine> getInterferringWithTimeLine(TimeLine timeLine)
         {
-            TimeLine interFerringTimeLine = this.RangeTimeLine.InterferringTimeLine(timeLine);
+            TimeLine interFerringTimeLine = this.StartToEnd.InterferringTimeLine(timeLine);
             return new List<TimeLine>() { interFerringTimeLine };
         }
 
@@ -1006,7 +1006,7 @@ namespace TilerElements
             }
         }
 
-        virtual public TimeLine RangeTimeLine
+        virtual public TimeLine StartToEnd
         {
             get
             {

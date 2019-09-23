@@ -25,7 +25,7 @@ namespace TilerElements
             _RigidSchedule = true;
             _EventPreDeadline = new TimeSpan();
             _Priority = SubCalData.Priority;
-            ConflictingEvents = new ConflictProfile();
+            _ConflictingEvents = new ConflictProfile();
             _Enabled = true;
             _Complete = false;
             _EventDuration = BusyFrame.TimelineSpan;

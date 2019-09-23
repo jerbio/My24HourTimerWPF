@@ -122,7 +122,7 @@ namespace TilerTests
             Schedule schedule = scheduleAndDump.Item1;
             schedule.FindMeSomethingToDo(currentLocation).Wait();
             SubCalendarEvent conflictingSubEvent = schedule.getSubCalendarEvent(subEventId);
-            List<SubCalendarEvent> subEvents = schedule.getAllCalendarEvents().SelectMany(cal => cal.ActiveSubEvents).Where(subEvent => subEvent.RangeTimeLine.doesTimeLineInterfere(conflictingSubEvent.RangeTimeLine)).ToList();
+            List<SubCalendarEvent> subEvents = schedule.getAllCalendarEvents().SelectMany(cal => cal.ActiveSubEvents).Where(subEvent => subEvent.StartToEnd.doesTimeLineInterfere(conflictingSubEvent.StartToEnd)).ToList();
             Assert.AreEqual(subEvents.Count, 1);// the look up should only conflict with itself
             ((TestSchedule)schedule).WriteFullScheduleToOutlook();
         }

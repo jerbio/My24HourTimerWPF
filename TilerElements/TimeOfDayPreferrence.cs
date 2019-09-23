@@ -62,7 +62,7 @@ namespace TilerElements
             {
                 List<Tuple<int, DaySection, bool, TimeLine>> preferenceOrderCopy = DefaultOrder.ToList();
                 preferenceOrderCopy.RemoveAll(preferenceOrder => preferenceOrder.Item2 == DaySection.None);
-                List<TimeLine> timeLines = preferenceOrderCopy.Select(timeLine => timeLine.Item4.InterferringTimeLine(ControlEvent.RangeTimeLine)).ToList();
+                List<TimeLine> timeLines = preferenceOrderCopy.Select(timeLine => timeLine.Item4.InterferringTimeLine(ControlEvent.StartToEnd)).ToList();
                 PreferenceOrder = new List<Tuple<int, DaySection, bool, TimeLine>>();
                 for (int i = 0; i < timeLines.Count; i++)
                 {

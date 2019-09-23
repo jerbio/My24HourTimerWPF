@@ -67,7 +67,7 @@ namespace TilerElements
             TimeLine oldTimeLine = new TimeLine(blobOfAllSubEvents.Start, blobOfAllSubEvents.End);
             DateTimeOffset start = subEvent.Start < oldTimeLine.Start ? subEvent.Start : oldTimeLine.Start;
             DateTimeOffset end = subEvent.End > oldTimeLine.End ? subEvent.End : oldTimeLine.End;
-            List<SubCalendarEvent> interferringWithSubEvents = ActiveSubEvents.Where(procrastinateEvent => procrastinateEvent.getId != subEvent.getId).Where(procrastinateEvent => procrastinateEvent.RangeTimeLine.doesTimeLineInterfere(subEvent.ActiveSlot)).ToList();
+            List<SubCalendarEvent> interferringWithSubEvents = ActiveSubEvents.Where(procrastinateEvent => procrastinateEvent.getId != subEvent.getId).Where(procrastinateEvent => procrastinateEvent.StartToEnd.doesTimeLineInterfere(subEvent.ActiveSlot)).ToList();
             if (interferringWithSubEvents.Count > 0)
             {
                 BlobSubCalendarEvent blobSubEvent = new BlobSubCalendarEvent(interferringWithSubEvents);
@@ -131,7 +131,7 @@ namespace TilerElements
                 else
                 {
                     procrastinateAll.IncreaseSplitCount(1, new List<SubCalendarEvent>() { subEvent });
-                    procrastinateAll.AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(procrastinateAll));
+                    procrastinateAll.AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(procrastinateAll.StartToEnd));
                 }
             }
             blockName.Creator_EventDB = procrastinateAll.getCreator;

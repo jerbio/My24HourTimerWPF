@@ -29,7 +29,15 @@ namespace TilerElements
             this._DayOfWeek = dayOfWeek;
             this._RestrictionTimeLine = restrictionTimeLine;
         }
-        #endregion 
+        #endregion
+        #region functions
+        public override string ToString()
+        {
+            string retValue = "" + this.DayOfWeekString + "||" + _RestrictionTimeLine.Start + " - " + _RestrictionTimeLine.End;
+            return retValue;
+        }
+        #endregion
+
         #region properties
         [NotMapped]
         public DayOfWeek WeekDay

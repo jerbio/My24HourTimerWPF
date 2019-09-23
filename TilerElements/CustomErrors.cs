@@ -16,6 +16,7 @@ namespace TilerElements
             procrastinationPastDeadline = 40000002,
             procrastinationBeforeNow = 40000003,
             eventUpdateBeforeNow = 40000005,
+            restrictedTimeLineUpdateInValid = 40000006,
             TilerConfigEventError = 50000000,
             TilerConfig_Zero_SplitCount= 50000001
         };
@@ -28,7 +29,8 @@ namespace TilerElements
             {Errors.procrastinationPastDeadline, "Procrastination of the tile will put it past the deadline of the tile" },
             {Errors.procrastinationBeforeNow, "Cannot go back in time, if you're from the future, please tell us how tiler is doing" },
             {Errors.eventUpdateBeforeNow, "The select time slot for the schedule change does is before the current time, try loading a schedule which includes the current time"},
-            {Errors.TilerConfig_Zero_SplitCount, "Cannot create or modify with a final state with zero events"}
+            {Errors.TilerConfig_Zero_SplitCount, "Cannot create or modify with a final state with zero events"},
+            {Errors.restrictedTimeLineUpdateInValid, "The restricted time line update is invalid"}
         };
         string ErrorMessage;
         TilerEvent TilerEvent;

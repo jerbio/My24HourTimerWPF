@@ -314,7 +314,7 @@ namespace TilerElements
             {
                 SubCalendarEvent refSubCalendarEvent = AllSubEvents_List[i];
                 List<SubCalendarEvent> possibleInterferring = AllSubEvents_List.Where(obj => obj != refSubCalendarEvent).ToList();
-                List<SubCalendarEvent> InterferringEvents = possibleInterferring.AsParallel().Where(obj => obj.RangeTimeLine.doesTimeLineInterfere(refSubCalendarEvent.RangeTimeLine)).ToList();
+                List<SubCalendarEvent> InterferringEvents = possibleInterferring.AsParallel().Where(obj => obj.StartToEnd.doesTimeLineInterfere(refSubCalendarEvent.StartToEnd)).ToList();
                 if (InterferringEvents.Count() > 0)//this tries to select the rest of 
                 {
                     List<SubCalendarEvent> ExtraInterferringEVents = new List<SubCalendarEvent>();
@@ -323,7 +323,7 @@ namespace TilerElements
                         AllSubEvents_List = AllSubEvents_List.Except(InterferringEvents).ToList();
                         DateTimeOffset LatestEndTime = InterferringEvents.Max(obj => obj.End);
                         TimeLine possibleInterferringTimeLine = new TimeLine(refSubCalendarEvent.Start, LatestEndTime);
-                        ExtraInterferringEVents = AllSubEvents_List.AsParallel().Where(obj => obj.RangeTimeLine.doesTimeLineInterfere(possibleInterferringTimeLine)).ToList();
+                        ExtraInterferringEVents = AllSubEvents_List.AsParallel().Where(obj => obj.StartToEnd.doesTimeLineInterfere(possibleInterferringTimeLine)).ToList();
                         InterferringEvents = InterferringEvents.Concat(ExtraInterferringEVents).ToList();
                     }
                     while (ExtraInterferringEVents.Count > 0);
@@ -351,7 +351,7 @@ namespace TilerElements
                 ConflctingDefinedRanges = evaluation.Item2;
             }
 
-            public ConflictEvaluation(IEnumerable<IDefinedRange> timeEvents, IDefinedRange timeLineFOrCheck): this(timeEvents.Where(timeline => timeLineFOrCheck.RangeTimeLine.doesTimeLineInterfere(timeline.RangeTimeLine)))
+            public ConflictEvaluation(IEnumerable<IDefinedRange> timeEvents, IDefinedRange timeLineFOrCheck): this(timeEvents.Where(timeline => timeLineFOrCheck.StartToEnd.doesTimeLineInterfere(timeline.StartToEnd)))
             {
                 ;
             }
@@ -363,7 +363,7 @@ namespace TilerElements
             /// <returns></returns>
             Tuple<IEnumerable<IDefinedRange>, IEnumerable<IDefinedRange>> getConflictingRangeElements(IEnumerable<IDefinedRange> elements)
             {
-                elements = elements.Where(element => element.RangeTimeLine.TimelineSpan.Ticks > 0).OrderBy(obj => obj.Start);
+                elements = elements.Where(element => element.StartToEnd.TimelineSpan.Ticks > 0).OrderBy(obj => obj.Start);
                 List<IDefinedRange> EventsWithTImeline = elements.ToList();
                 List<TimeLine> retValue_ItemA = new List<TimeLine>();
 
@@ -374,7 +374,7 @@ namespace TilerElements
                 {
                     IDefinedRange refEvent = EventsWithTImeline[i];
                     EventsWithTImeline.Remove(refEvent);
-                    IEnumerable<IDefinedRange> InterferringEvents = EventsWithTImeline.Where(obj => obj.RangeTimeLine.doesTimeLineInterfere(refEvent.RangeTimeLine));
+                    IEnumerable<IDefinedRange> InterferringEvents = EventsWithTImeline.Where(obj => obj.StartToEnd.doesTimeLineInterfere(refEvent.StartToEnd));
                     bool AddrefTOretValue_ItemB = true;//flag will be set if refEvent is conflicitng
                     while (true && InterferringEvents.LongCount() > 0)
                     {
@@ -385,7 +385,7 @@ namespace TilerElements
                         DateTimeOffset refEndTIme = refEvent.End <= LatesInterferingEndTime ? LatesInterferingEndTime : refEvent.End;
                         TimeLine refTimeLineForInterferrers = new TimeLine(refStartTIme, refEndTIme);
                         EventsWithTImeline = EventsWithTImeline.Except(InterferringEvents).ToList();
-                        IEnumerable<IDefinedRange> ExtraInterferringEvents = EventsWithTImeline.Where(obj => obj.RangeTimeLine.doesTimeLineInterfere (refTimeLineForInterferrers));
+                        IEnumerable<IDefinedRange> ExtraInterferringEvents = EventsWithTImeline.Where(obj => obj.StartToEnd.doesTimeLineInterfere (refTimeLineForInterferrers));
                         if (ExtraInterferringEvents.LongCount() < 1)
                         {
                             retValue_ItemA.Add(refTimeLineForInterferrers);
@@ -1244,7 +1244,7 @@ namespace TilerElements
             Dictionary<EventID, SubCalendarEvent> eventIdToSubEvent = subEvents.ToDictionary(subEvent => subEvent.SubEvent_ID, subEvent => subEvent);
             Dictionary<EventID, DateTimeOffset> startTimes = new Dictionary<EventID, DateTimeOffset>();
             Dictionary<EventID, DateTimeOffset> endTimes = new Dictionary<EventID, DateTimeOffset>();
-            List<SubCalendarEvent> ordedsubEvents = subEvents.Select(subEvent => subEvent.createCopy(subEvent.SubEvent_ID)).ToList();// the ordered passed in is preserved. We don't care about the time frame
+            List<SubCalendarEvent> ordedsubEvents = subEvents.Select(subEvent => subEvent.CreateCopy(subEvent.SubEvent_ID)).ToList();// the ordered passed in is preserved. We don't care about the time frame
             Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> retValue = new Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>>();
             TimeLine timeLine = new TimeLine();
             DateTimeOffset start = maxTImeLine.Start;
@@ -1366,7 +1366,7 @@ namespace TilerElements
             List<TimelineWithSubcalendarEvents> validTimeLine = timeLines.Select(timeLine => {
                 if(tilerEvent!=null)
                 {
-                    if (timeLine.doesTimeLineInterfere(tilerEvent.RangeTimeLine))
+                    if (timeLine.doesTimeLineInterfere(tilerEvent.StartToEnd))
                     {
                         return timeLine;
                     }

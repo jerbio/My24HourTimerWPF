@@ -40,7 +40,7 @@ namespace TilerElements
             IEnumerable<SubCalendarEvent> SubEvents = AllEvents;
             EvaluationSpan = evaluationSpan;
             CalculationTimeline = new TimeLine(startTime, startTime.Add(EvaluationSpan));
-            _orderedByStartThenEndSubEvents = SubEvents.Where(SubEvent => SubEvent.RangeTimeLine.InterferringTimeLine(CalculationTimeline) != null).OrderBy(obj => obj.Start).ThenByDescending(tilerEvent => tilerEvent.End).ToList();
+            _orderedByStartThenEndSubEvents = SubEvents.Where(SubEvent => SubEvent.StartToEnd.InterferringTimeLine(CalculationTimeline) != null).OrderBy(obj => obj.Start).ThenByDescending(tilerEvent => tilerEvent.End).ToList();
             _conflictingEvents = Utility.getConflictingEvents(_orderedByStartThenEndSubEvents);
             Now = now;
             this._TravelMode = travelmode;

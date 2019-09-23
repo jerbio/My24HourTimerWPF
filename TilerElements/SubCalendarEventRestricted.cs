@@ -58,7 +58,7 @@ namespace TilerElements
             this._LocationInfo = Locationdata;
             _otherPartyID = thirdPartyID;
             this._UiParams = UiData;
-            this.ConflictingEvents = conflictingEvents ?? new ConflictProfile();
+            this._ConflictingEvents = conflictingEvents ?? new ConflictProfile();
             _DataBlob = Notes;
             _PrepTime = PrepTimeData;
             _LastReasonStartTimeChanged = this.Start;
@@ -125,7 +125,7 @@ namespace TilerElements
 
             if (this.isLocked)
             {
-                return (LimitingTimeLineData.IsTimeLineWithin(this.RangeTimeLine));
+                return (LimitingTimeLineData.IsTimeLineWithin(this.StartToEnd));
             }
             List<TimeLine> allPossibleTimelines = _ProfileOfRestriction.getAllNonPartialTimeFrames(LimitingTimeLine).Where(obj => obj.TimelineSpan >= getActiveDuration).OrderByDescending(obj => obj.End).ToList();
             if (allPossibleTimelines.Count > 0)
@@ -160,7 +160,7 @@ namespace TilerElements
 
             if (this.isLocked)
             {
-                return (MyTimeLineEntry.IsTimeLineWithin(this.RangeTimeLine));
+                return (MyTimeLineEntry.IsTimeLineWithin(this.StartToEnd));
             }
 
             List<TimeLine> allPossibleTimelines = _ProfileOfRestriction.getAllNonPartialTimeFrames(MyTimeLine).Where(obj=>obj.TimelineSpan>=getActiveDuration).OrderBy(obj=>obj.Start).ToList();
@@ -236,13 +236,13 @@ namespace TilerElements
             return base.canExistWithinTimeLine(PossibleTimeLine);
         }
 
-        public override SubCalendarEvent createCopy(EventID eventId )
+        public override SubCalendarEvent CreateCopy(EventID eventId )
         {
             SubCalendarEventRestricted copy = new SubCalendarEventRestricted();
             copy.BusyFrame = this.BusyFrame.CreateCopy();
             copy._CalendarEventRange = getCalendarEventRange.CreateCopy();
             copy._Complete = _Complete;
-            copy.ConflictingEvents = this.ConflictingEvents.CreateCopy();
+            copy._ConflictingEvents = this._ConflictingEvents.CreateCopy();
             copy._DataBlob = this._DataBlob?.createCopy();
             copy._Enabled = this._Enabled;
             copy.EndDateTime = this.EndDateTime;
@@ -375,7 +375,7 @@ namespace TilerElements
                 this._Name = SubEventEntry.getName;
                 this._EventDuration = SubEventEntry.getActiveDuration;
                 this._Complete = SubEventEntry.getIsComplete;
-                this.ConflictingEvents = SubEventEntry.Conflicts;
+                this._ConflictingEvents = SubEventEntry.Conflicts;
                 this._DataBlob = SubEventEntry.Notes;
                 this._Enabled = SubEventEntry.isEnabled;
                 this.EndDateTime = SubEventEntry.End;
@@ -415,7 +415,7 @@ namespace TilerElements
             retValue._Name = this.getName.createCopy();
             retValue._EventDuration = this.getActiveDuration;
             retValue._Complete = this.getIsComplete;
-            retValue.ConflictingEvents = this.Conflicts;
+            retValue._ConflictingEvents = this.Conflicts;
             retValue._DataBlob = this.Notes;
             retValue._Enabled = this.isEnabled;
             retValue.EndDateTime = this.End;
@@ -469,15 +469,15 @@ namespace TilerElements
             SubCalendarEventRestricted retValue = (SubCalendarEventRestricted)thisCopy;
 
 
-            retValue.HardCalendarEventRange= new TimeLineRestricted(ProcrastinationData.PreferredStartTime, CalendarEventData.RangeTimeLine.End,retValue._ProfileOfRestriction, _Now);
+            retValue.HardCalendarEventRange= new TimeLineRestricted(ProcrastinationData.PreferredStartTime, CalendarEventData.StartToEnd.End,retValue._ProfileOfRestriction, _Now);
             TimeSpan SpanShift = ProcrastinationData.PreferredStartTime - retValue.Start;
             retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventData.getId);
-            retValue.initializeCalendarEventRange(retValue._ProfileOfRestriction, CalendarEventData.RangeTimeLine);
+            retValue.initializeCalendarEventRange(retValue._ProfileOfRestriction, CalendarEventData.StartToEnd);
             retValue.shiftEvent(SpanShift, true);
             return retValue;
         }
 
-        internal override void changeCalendarEventRange(IDefinedRange newTimeLine, bool resetCalculationTimeLine = true)
+        internal override void changeCalendarEventRange(TimeLine newTimeLine, bool resetCalculationTimeLine = true)
         {
             base.changeCalendarEventRange(newTimeLine, resetCalculationTimeLine);
             this.HardCalendarEventRange = _CalendarEventRange;

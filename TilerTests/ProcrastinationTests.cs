@@ -29,7 +29,7 @@ namespace TilerTests
             DateTimeOffset end = refNow.AddHours(7);
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser,duration, new Repetition(), start, end, 2, false);
             Schedule = new TestSchedule(user, refNow);
-            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
             Schedule = new TestSchedule(user, refNow);
             var setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
             Schedule.persistToDB().Wait();
@@ -69,7 +69,7 @@ namespace TilerTests
             TimeSpan fullDuration = duration + duration;
             var restrictionProfile = new RestrictionProfile(start.AddHours(2), fullDuration);
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 4, false, restrictionProfile: restrictionProfile, now: Schedule.Now) as CalendarEventRestricted;
-            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
             var setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
@@ -108,7 +108,7 @@ namespace TilerTests
             Repetition repetition = new Repetition(repeatTimeLine, Repetition.Frequency.WEEKLY, calTimeLine);
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser,duration, repetition, start, end, 2, false);
-            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             user.Login().Wait();
@@ -118,7 +118,7 @@ namespace TilerTests
             DateTimeOffset end0 = refNow.AddHours(7);
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent0 = TestUtility.generateCalendarEvent(tilerUser,duration0, new Repetition(), start0, end0, 2, false);
-            Schedule.AddToScheduleAndCommit(testEvent0).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent0).Wait();
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             user.Login().Wait();
@@ -128,7 +128,7 @@ namespace TilerTests
             DateTimeOffset end1 = refNow.AddHours(7);
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent1 = TestUtility.generateCalendarEvent(tilerUser,duration1, new Repetition(), start1, end1, 2, false);
-            Schedule.AddToScheduleAndCommit(testEvent1).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent1).Wait();
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             user.Login().Wait();
@@ -165,7 +165,7 @@ namespace TilerTests
             DateTimeOffset end = refNow.AddDays(7);
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser,duration, new Repetition(), start, end, 1, false);
             Schedule = new TestSchedule(user, refNow);
-            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
             CalendarEvent testEventCopy = TestUtility.getCalendarEventById(testEvent.getId, user);
             Schedule = new TestSchedule(user, refNow);
             TimeSpan procrastinationSpan = TimeSpan.FromDays(10);
@@ -195,7 +195,7 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser,duration, repetition, start, end, 2, false);
             Schedule = new TestSchedule(user, refNow);
-            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
             var setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
@@ -344,7 +344,7 @@ namespace TilerTests
             DateTimeOffset end = refNow.AddHours(7);
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser,duration, new Repetition(), start, end, 2, false);
             Schedule = new TestSchedule(user, refNow);
-            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
             Schedule = new TestSchedule(user, refNow);
             var setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
             Schedule.persistToDB().Wait();
@@ -362,10 +362,10 @@ namespace TilerTests
             Assert.IsTrue(testEventCopy.ActiveSubEvents.First().Start >= latestTime);
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent0 = TestUtility.generateCalendarEvent(tilerUser,duration, new Repetition(), start, end.AddDays(1), 2, false);
-            Schedule.AddToScheduleAndCommit(testEvent0).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent0).Wait();
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent1 = TestUtility.generateCalendarEvent(tilerUser,duration, new Repetition(), start, end.AddDays(1), 2, false);
-            Schedule.AddToScheduleAndCommit(testEvent1).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent1).Wait();
             Schedule = new TestSchedule(user, refNow.AddHours(5));
             Schedule.FindMeSomethingToDo(new Location()).Wait();
             Schedule.WriteFullScheduleToLog().Wait();

@@ -62,7 +62,7 @@ namespace TilerElements
             this._DeletedCount = 1;
             this._CompletedCount = 1;
             this._Creator = user;
-            this._EventRepetition = new Repetition(true, this.RangeTimeLine, "Daily", AllCalendarEvent.ToArray());
+            this._EventRepetition = new Repetition(true, this.StartToEnd, "Daily", AllCalendarEvent.ToArray());
             this._Name = new EventName(user, this, "GOOGLE MOTHER EVENT");
             this._DataBlob = new MiscData();
             this._ProfileOfNow = new NowProfile();

@@ -205,7 +205,7 @@ namespace TilerElements
 
             foreach (SubCalendarEventRestricted eachSubCalendarEvent in this.SubEvents.Values)
             {
-                MyCalendarEventCopy._SubEvents.Add(eachSubCalendarEvent.Id, eachSubCalendarEvent.createCopy(EventID.GenerateSubCalendarEvent(MyCalendarEventCopy.UniqueID) ));
+                MyCalendarEventCopy._SubEvents.Add(eachSubCalendarEvent.Id, eachSubCalendarEvent.CreateCopy(EventID.GenerateSubCalendarEvent(MyCalendarEventCopy.UniqueID) ));
             }
 
             MyCalendarEventCopy._otherPartyID = _otherPartyID == null ? null : _otherPartyID.ToString();
@@ -222,7 +222,7 @@ namespace TilerElements
             {
                 DateTimeOffset SubStart = eachStart.Start;
                 DateTimeOffset SubEnd = SubStart.Add(_AverageTimePerSplit);
-                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(this, this.getCreator, this._Users, UniqueID.ToString(), this.getName, SubStart, SubEnd, _ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), _RigidSchedule, _PrepTime, _EventPreDeadline, _LocationInfo, _UiParams, _DataBlob, _Now, _Priority, ThirdPartyID);
+                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(this, this.getCreator, this._Users, UniqueID.ToString(), this.getName, SubStart, SubEnd, _ProfileOfRestriction, this.StartToEnd, true, false, new ConflictProfile(), _RigidSchedule, _PrepTime, _EventPreDeadline, _LocationInfo, _UiParams, _DataBlob, _Now, _Priority, ThirdPartyID);
                 newEvent.TimeCreated = this.TimeCreated;
                 _SubEvents.Add(newEvent.Id, newEvent);
             }
@@ -303,7 +303,7 @@ namespace TilerElements
             {
                 DateTimeOffset SubStart = eachStart.Start;
                 DateTimeOffset SubEnd = SubStart.Add(_AverageTimePerSplit);
-                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(this, this.getCreator, this._Users, UniqueID.ToString(), this.getName, SubStart, SubEnd, _ProfileOfRestriction, this.RangeTimeLine, true, false, new ConflictProfile(), _RigidSchedule, _PrepTime, _EventPreDeadline, _LocationInfo, _UiParams, _DataBlob, _Now, _Priority, ThirdPartyID);
+                SubCalendarEventRestricted newEvent = new SubCalendarEventRestricted(this, this.getCreator, this._Users, UniqueID.ToString(), this.getName, SubStart, SubEnd, _ProfileOfRestriction, this.StartToEnd, true, false, new ConflictProfile(), _RigidSchedule, _PrepTime, _EventPreDeadline, _LocationInfo, _UiParams, _DataBlob, _Now, _Priority, ThirdPartyID);
                 _SubEvents.Add(newEvent.Id, newEvent);
                 newEvent.UiParamsId = this.UiParamsId;
                 newEvent.DataBlobId = this.DataBlobId;
@@ -342,7 +342,7 @@ namespace TilerElements
 
         public override void InitialCalculationLookupDays(IEnumerable<DayTimeLine> RelevantDays, ReferenceNow now = null)
         {
-            TimeLineRestricted RangeTimeLine = new TimeLineRestricted(this.RangeTimeLine.Start, this.RangeTimeLine.End, _ProfileOfRestriction, now);
+            TimeLineRestricted RangeTimeLine = new TimeLineRestricted(this.StartToEnd.Start, this.StartToEnd.End, _ProfileOfRestriction, now);
             this.CalculationLimitation = RelevantDays.Where(obj => {
                 var timeLine = obj.InterferringTimeLine(RangeTimeLine);
                 if (timeLine != null && timeLine.TimelineSpan >= _AverageTimePerSplit)
@@ -353,6 +353,61 @@ namespace TilerElements
             }).ToDictionary(obj => obj.UniversalIndex, obj => obj);
             FreeDaysLimitation = CalculationLimitation.ToDictionary(obj => obj.Key, obj => obj.Value);
             CalculationLimitationWithUnUsables = CalculationLimitation.ToDictionary(obj => obj.Key, obj => obj.Value);
+        }
+
+        override public void updateTimeLine(TimeLine timeLine)
+        {
+            TimeLineRestricted newTimeLine = new TimeLineRestricted(timeLine.Start, timeLine.End, this._ProfileOfRestriction, _Now);
+            if(newTimeLine.IsViable)
+            {
+                TimeLine oldTimeLine = new TimeLineRestricted(this.Start, this.End, this._ProfileOfRestriction, _Now);
+                AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(newTimeLine));
+                bool worksForAllSubevents = true;
+                SubCalendarEvent failingSubEvent = SubCalendarEvent.getEmptySubCalendarEvent(this.Calendar_EventID);
+                TimeLine newTimeLineUpdated = newTimeLine;
+                foreach (var obj in AllSubEvents)
+                {
+                    if (obj.isLocked)
+                    {
+                        newTimeLineUpdated = new TimeLine(newTimeLine.StartToEnd.Start, newTimeLine.StartToEnd.End);
+                    }
+                    if (!obj.canExistWithinTimeLine(newTimeLineUpdated))
+                    {
+                        worksForAllSubevents = false;
+                        failingSubEvent = obj;
+                    }
+                }
+                if (worksForAllSubevents)
+                {
+                    TimeLine startAndEndTimeLine = newTimeLineUpdated.StartToEnd;
+                    StartDateTime = startAndEndTimeLine.Start;
+                    EndDateTime = startAndEndTimeLine.End;
+                    if (this.isLocked)
+                    {
+                        _EventDuration = EndDateTime - StartDateTime;
+                    }
+                }
+                else
+                {
+                    AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(oldTimeLine));
+                    CustomErrors customError = new CustomErrors("Cannot update the timeline for the calendar event with sub event " + failingSubEvent.getId + ". Most likely because the new time line won't fit the sub event", 40000001);
+                    throw customError;
+                }
+            } else
+            {
+                CustomErrors customError = new CustomErrors(CustomErrors.Errors.restrictedTimeLineUpdateInValid, "The restricted timeline update cannot contain restriction time frames");
+                throw customError;
+            }
+            
+        }
+
+        public override TimeLine StartToEnd
+        {
+            get
+            {
+                TimeLine timeLine = new TimeLine(this.Start, this.End);
+                return timeLine;
+            }
         }
     }
 }

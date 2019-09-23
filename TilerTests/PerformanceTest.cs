@@ -109,7 +109,7 @@ namespace TilerTests
                 Repetition repetition = new Repetition(repetitionTimeLine, Repetition.Frequency.DAILY, eachRepeatFrame);
                 CalendarEventRestricted testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 5, false, restrictionProfile: new RestrictionProfile(start, duration + duration), now: Schedule.Now) as CalendarEventRestricted;
                 allCalendarEvents.Add(testEvent);
-                Schedule.AddToScheduleAndCommit(testEvent).Wait();
+                Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
             }
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);

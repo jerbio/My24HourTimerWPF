@@ -413,7 +413,7 @@ namespace TilerElements
             get
             {
                 Utility.ConflictEvaluation ConflictEvaluation = new Utility.ConflictEvaluation(this.OccupiedSlots);
-                TimeSpan totalSpan = TimeSpan.FromTicks(ConflictEvaluation.ConflictingTimeRange.Concat(ConflictEvaluation.NonConflictingTimeRange).Select(timeRange => timeRange.RangeTimeLine.TimelineSpan).Sum(timeSpan => timeSpan.Ticks));
+                TimeSpan totalSpan = TimeSpan.FromTicks(ConflictEvaluation.ConflictingTimeRange.Concat(ConflictEvaluation.NonConflictingTimeRange).Select(timeRange => timeRange.StartToEnd.TimelineSpan).Sum(timeSpan => timeSpan.Ticks));
                 return totalSpan;
             }
         }
@@ -524,11 +524,14 @@ namespace TilerElements
             return retValue;
         }
 
-        public TimeLine RangeTimeLine
+        /// <summary>
+        /// Returns just the start and end time timeline, no busy slots, just the beginning and end
+        /// </summary>
+        public virtual TimeLine StartToEnd
         {
             get 
             {
-                return this;
+                return new TimeLine(this.Start, this.End);
             }
         }
 

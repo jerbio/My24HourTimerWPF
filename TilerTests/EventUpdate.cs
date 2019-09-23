@@ -55,7 +55,7 @@ namespace TilerTests
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(duration);
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 1, true);
-            schedule.AddToScheduleAndCommit(testEvent).Wait();
+            schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
             CalendarEvent retrievedCalendarEvent = TestUtility.getCalendarEventById(testEvent.Calendar_EventID, user);
             TestSchedule scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
             var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, new EventName(user.getTilerUser(), retrievedCalendarEvent, newName), retrievedCalendarEvent.Start, retrievedCalendarEvent.End, testEvent.NumberOfSplit, retrievedCalendarEvent.Notes.UserNote);
@@ -85,7 +85,7 @@ namespace TilerTests
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(duration.Add(duration));
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 1, false);
-            schedule.AddToScheduleAndCommit(testEvent).Wait();
+            schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
             TestSchedule scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
             var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, new EventName(user.getTilerUser(), testEvent, newName), testEvent.Start, testEvent.End, testEvent.NumberOfSplit, testEvent.Notes.UserNote);
             scheduleReloaded.persistToDB().Wait();
@@ -116,7 +116,7 @@ namespace TilerTests
             DateTimeOffset end = refNow.Add(duration.Add(duration).Add(duration).Add(duration));
             RestrictionProfile restrictionProfile = new RestrictionProfile(start.Add(duration), duration.Add(duration));
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 1, false, null, restrictionProfile, now: schedule.Now);
-            schedule.AddToScheduleAndCommit(testEvent).Wait();
+            schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
             TestSchedule scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
             var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, new EventName(user.getTilerUser(), testEvent, newName), testEvent.Start, testEvent.End, testEvent.NumberOfSplit, testEvent.Notes.UserNote);
             scheduleReloaded.persistToDB().Wait();
@@ -155,7 +155,7 @@ namespace TilerTests
             TimeSpan timeSPanPerSubEvent = duration;
             Location location = TestUtility.getLocations()[1];
             CalendarEvent increaseSplitCountTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 1, false, location);
-            schedule.AddToScheduleAndCommit(increaseSplitCountTestEvent).Wait();
+            schedule.AddToScheduleAndCommitAsync(increaseSplitCountTestEvent).Wait();
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             TestSchedule scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
             int newSplitCount = increaseSplitCountTestEvent.NumberOfSplit + 1;
@@ -179,7 +179,7 @@ namespace TilerTests
             schedule = new TestSchedule(user, refNow, startOfDay);
             location = TestUtility.getLocations()[2];
             CalendarEvent decreaseSplitCountTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 3, false, location);
-            schedule.AddToScheduleAndCommit(decreaseSplitCountTestEvent).Wait();
+            schedule.AddToScheduleAndCommitAsync(decreaseSplitCountTestEvent).Wait();
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             user.Login().Wait();
             tilerUser = user.getTilerUser();
@@ -220,7 +220,7 @@ namespace TilerTests
             DateTimeOffset end = refNow.Add(TimeSpan.FromTicks(duration.Ticks * 5));
             RestrictionProfile restrictionProfile = new RestrictionProfile(start.Add(duration), duration.Add(duration));
             CalendarEvent increaseSplitCountTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 1, false, null, restrictionProfile, now: schedule.Now);
-            schedule.AddToScheduleAndCommit(increaseSplitCountTestEvent).Wait();
+            schedule.AddToScheduleAndCommitAsync(increaseSplitCountTestEvent).Wait();
             TestSchedule scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
             int newSplitCount = increaseSplitCountTestEvent.NumberOfSplit + 1;
             var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(increaseSplitCountTestEvent.getId, increaseSplitCountTestEvent.getName, increaseSplitCountTestEvent.Start, increaseSplitCountTestEvent.End, newSplitCount, increaseSplitCountTestEvent.Notes.UserNote);
@@ -234,7 +234,7 @@ namespace TilerTests
 
             /// Reducing the split count
             CalendarEvent decreaseSplitCountTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 3, false, null, restrictionProfile, now: schedule.Now);
-            schedule.AddToScheduleAndCommit(decreaseSplitCountTestEvent).Wait();
+            schedule.AddToScheduleAndCommitAsync(decreaseSplitCountTestEvent).Wait();
             scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
             newSplitCount = decreaseSplitCountTestEvent.NumberOfSplit - 1;
             scheduleUpdated = scheduleReloaded.BundleChangeUpdate(decreaseSplitCountTestEvent.getId, decreaseSplitCountTestEvent.getName, decreaseSplitCountTestEvent.Start, decreaseSplitCountTestEvent.End, newSplitCount, decreaseSplitCountTestEvent.Notes.UserNote);
@@ -270,7 +270,7 @@ namespace TilerTests
             DateTimeOffset end = refNow.Add(duration);
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 1, true);
             CalendarEvent testEventCopy = testEvent.createCopy();
-            schedule.AddToScheduleAndCommit(testEvent).Wait();
+            schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
             TestSchedule scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
             DateTimeOffset newDeadline = testEvent.End.Add(duration);
             var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.ActiveSubEvents.First().getId, testEvent.getName, testEvent.Start, newDeadline, testEvent.Start, newDeadline, testEvent.NumberOfSplit, testEvent.Notes.UserNote);
@@ -313,7 +313,7 @@ namespace TilerTests
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(duration);
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 1, false);
-            schedule.AddToScheduleAndCommit(testEvent).Wait();
+            schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
             TestSchedule scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
             DateTimeOffset newDeadline = testEvent.End.Add(duration);
             var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, testEvent.getName, testEvent.Start, newDeadline, testEvent.NumberOfSplit, testEvent.Notes.UserNote);
@@ -359,7 +359,7 @@ namespace TilerTests
             DateTimeOffset end = start.Add(TimeSpan.FromTicks(duration.Ticks * 5));
             RestrictionProfile restrictionProfile = new RestrictionProfile(start.Add(duration), duration.Add(duration));
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 1, false, null, restrictionProfile, now: schedule.Now);
-            schedule.AddToScheduleAndCommit(testEvent).Wait();
+            schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
             TestSchedule scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
             DateTimeOffset newDeadline = end.Add(duration);
             var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, testEvent.getName, testEvent.Start, newDeadline, testEvent.NumberOfSplit, testEvent.Notes.UserNote);
@@ -391,7 +391,6 @@ namespace TilerTests
 
         //// Test group test the change of the Range time line of the calendar event
         [TestMethod]
-        [ExpectedException(typeof (CustomErrors), "The select time slot for the schedule change does is before the current time, try loading a schedule which includes the current time")]
         public void RangeTimeLineRigidSubEventUpdate()
         {
             // increases the range
@@ -407,30 +406,34 @@ namespace TilerTests
             DateTimeOffset start = refNow;
             DateTimeOffset end = start.Add(duration);
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 1, true);
-            schedule.AddToScheduleAndCommit(testEvent).Wait();
+            schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
 
             DateTimeOffset newStart = testEvent.Start.Add(-TimeSpan.FromTicks((long)duration.Ticks / 2));
             DateTimeOffset newDeadline = testEvent.End.Add(duration);
             refNow = newStart;
             TestSchedule scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
             var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.ActiveSubEvents.First().getId, testEvent.getName, newStart, newDeadline, newStart, newDeadline, testEvent.NumberOfSplit, testEvent.Notes.UserNote);
-
+            Assert.IsTrue(scheduleReloaded.IsScheduleModified);
             scheduleReloaded.persistToDB().Wait();
             scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
             CalendarEvent retrievedCalendarEvent = TestUtility.getCalendarEventById(testEvent.Calendar_EventID, user);
             TimeSpan OneMinuteDiff = TimeSpan.FromMinutes(1);
             Assert.AreEqual(retrievedCalendarEvent.getActiveDuration, newDeadline - newStart);
             Assert.IsTrue((newDeadline - retrievedCalendarEvent.getDeadline) < OneMinuteDiff);/// doing this because of the rounding that occurs
-            Assert.IsTrue((retrievedCalendarEvent.Start - newStart) < OneMinuteDiff);/// doing this because of the rounding that occurs
-            Assert.IsFalse(retrievedCalendarEvent.End == end);// this should evaluate to false because we have modified the deadline of the original calendar event
+            Assert.IsTrue((retrievedCalendarEvent.StartToEnd.Start - newStart) < OneMinuteDiff);/// doing this because of the rounding that occurs
+            Assert.IsFalse(retrievedCalendarEvent.StartToEnd.End == end);// this should evaluate to false because we have modified the deadline of the original calendar event
 
             // decreases the range
             newStart = newStart.Add(-duration);
             newDeadline = newDeadline.Add(-TimeSpan.FromTicks((long)(duration.Ticks * 2)));
+            TimeLine shiftedTImeLine = new TimeLine(newStart, newDeadline);
+            TimeSpan shiftSpan = refNow - shiftedTImeLine.End;
+            newStart = shiftedTImeLine.Start.Add(shiftSpan).removeSecondsAndMilliseconds();
+            newDeadline = shiftedTImeLine.End.Add(shiftSpan).removeSecondsAndMilliseconds();
             scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
             scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.ActiveSubEvents.First().getId, testEvent.getName, newStart, 
-                newDeadline, newStart, newDeadline, testEvent.NumberOfSplit, testEvent.Notes.UserNote);//this should throw an error because newStart is before refnow
-
+                newDeadline, newStart, newDeadline, testEvent.NumberOfSplit, testEvent.Notes.UserNote);//this should not make any modification to the schedule since the event is moved to a time earlier than now
+            Assert.IsFalse(scheduleReloaded.IsScheduleModified);
             refNow = newStart;
             scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
             scheduleReloaded.persistToDB().Wait();
@@ -463,7 +466,7 @@ namespace TilerTests
             DateTimeOffset start = refNow;
             DateTimeOffset end = start.Add(duration);
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 1, false);
-            schedule.AddToScheduleAndCommit(testEvent).Wait();
+            schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
             TestSchedule scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
             DateTimeOffset newStart = start.Add(-TimeSpan.FromTicks((long)duration.Ticks / 2));
             DateTimeOffset newDeadline = end.Add(duration);
@@ -504,7 +507,7 @@ namespace TilerTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(CustomErrors), "Timeline is to small to fit subevent")]
+        [ExpectedException(typeof(CustomErrors), "The restricted timeline update cannot contain restriction time frames")]
         public void RangeTimeLineRestrictedSubEventUpdate()
         {
             // increases the range
@@ -520,7 +523,7 @@ namespace TilerTests
             DateTimeOffset end = start.Add(duration.Add(duration).Add(duration));
             RestrictionProfile restrictionProfile = new RestrictionProfile(start.Add(duration), duration.Add(duration));
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 1, false, null, restrictionProfile, now: schedule.Now);
-            schedule.AddToScheduleAndCommit(testEvent).Wait();
+            schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
             TestSchedule scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
             DateTimeOffset newStart = start.Add(-TimeSpan.FromTicks((long)duration.Ticks / 2));
             DateTimeOffset newDeadline = end.Add(duration);
@@ -595,7 +598,7 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             CalendarEvent nonRigidCalendarEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 5, false, location);
             DB_Schedule Schedule = new TestSchedule(user, refNow, startOfDay);
-            Schedule.AddToScheduleAndCommit(nonRigidCalendarEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(nonRigidCalendarEvent).Wait();
             nonRigidCalendarEvent = Schedule.getCalendarEvent(nonRigidCalendarEvent.Id);
 
 
@@ -624,7 +627,7 @@ namespace TilerTests
                 CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), eachTimeLine.Start, eachTimeLine.End, 1, false);
                 testEvent.TimeCreated = TimeCreation;
                 Schedule = new TestSchedule(user, refNow);
-                Schedule.AddToScheduleAndCommit(testEvent).Wait();
+                Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
                 TestUtility.reloadTilerUser(ref user, ref tilerUser);
                 string testEVentId = testEvent.getId;
                 Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEVentId);
@@ -665,7 +668,7 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             CalendarEvent nonRigidCalendarEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 5, false);
             DB_Schedule Schedule = new TestSchedule(user, refNow, startOfDay);
-            Schedule.AddToScheduleAndCommit(nonRigidCalendarEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(nonRigidCalendarEvent).Wait();
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow, startOfDay);
@@ -693,7 +696,7 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             CalendarEvent RigidCalendarEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), rigidStart, rigidEnd, 1, true);
             Schedule = new TestSchedule(user, refNow, startOfDay);
-            Schedule.AddToScheduleAndCommit(RigidCalendarEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(RigidCalendarEvent).Wait();
             RigidCalendarEvent = Schedule.getCalendarEvent(RigidCalendarEvent.Id);
             Assert.IsTrue(RigidCalendarEvent.Start == rigidStart);
             Assert.IsTrue(RigidCalendarEvent.End == rigidEnd);
@@ -723,7 +726,7 @@ namespace TilerTests
             RestrictionProfile restrictionProfile = new RestrictionProfile(restrictedStart.Add(duration), TimeSpan.FromMinutes(duration.TotalMinutes * 4));
             CalendarEvent restrictedCalendarEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), restrictedStart, restrictedEnd, 1, false);
             Schedule = new TestSchedule(user, refNow, startOfDay);
-            Schedule.AddToScheduleAndCommit(restrictedCalendarEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(restrictedCalendarEvent).Wait();
             restrictedCalendarEvent = Schedule.getCalendarEvent(restrictedCalendarEvent.Id);
             Assert.IsTrue(restrictedCalendarEvent.Start == restrictedStart);
             Assert.IsTrue(restrictedCalendarEvent.End == restrictedEnd);
@@ -836,7 +839,7 @@ namespace TilerTests
             Repetition repeat = new Repetition(repeatTimeLine, Repetition.Frequency.DAILY, actualRangeTimeLine);
             CalendarEvent nonRigidCalendarEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repeat, start, end, 5, false);
             DB_Schedule Schedule = new TestSchedule(user, refNow, startOfDay);
-            Schedule.AddToScheduleAndCommit(nonRigidCalendarEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(nonRigidCalendarEvent).Wait();
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow, startOfDay);
@@ -869,7 +872,7 @@ namespace TilerTests
             Repetition rigidRepeat = new Repetition(repeatTimeLine, Repetition.Frequency.DAILY, RigidActualRangeTimeLine);
             CalendarEvent RigidCalendarEvent = TestUtility.generateCalendarEvent(tilerUser, duration, rigidRepeat, rigidStart, rigidEnd, 1, true);
             Schedule = new TestSchedule(user, refNow, startOfDay);
-            Schedule.AddToScheduleAndCommit(RigidCalendarEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(RigidCalendarEvent).Wait();
             RigidCalendarEvent = Schedule.getCalendarEvent(RigidCalendarEvent.Id);
             Assert.IsTrue(RigidCalendarEvent.Start == rigidStart);
             Assert.IsTrue(RigidCalendarEvent.End == rigidEnd);
@@ -904,7 +907,7 @@ namespace TilerTests
             RestrictionProfile restrictionProfile = new RestrictionProfile(restrictedStart.Add(duration), TimeSpan.FromMinutes(duration.TotalMinutes * 4));
             CalendarEvent restrictedCalendarEvent = TestUtility.generateCalendarEvent(tilerUser, duration, restrictedRepeat, restrictedStart, restrictedEnd, 1, false);
             Schedule = new TestSchedule(user, refNow, startOfDay);
-            Schedule.AddToScheduleAndCommit(restrictedCalendarEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(restrictedCalendarEvent).Wait();
             restrictedCalendarEvent = Schedule.getCalendarEvent(restrictedCalendarEvent.Id);
             Assert.IsTrue(restrictedCalendarEvent.Start == restrictedStart);
             Assert.IsTrue(restrictedCalendarEvent.End == restrictedEnd);
@@ -1030,7 +1033,7 @@ namespace TilerTests
             DB_Schedule Schedule = new TestSchedule(user, refNow, startOfDay);
             RestrictionProfile restrictionProfile = new RestrictionProfile(start.Add(duration), TimeSpan.FromSeconds(duration.TotalSeconds * 4));
             CalendarEvent nonResrictedCalendarEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 5, false, null, restrictionProfile, now: Schedule.Now);            
-            Schedule.AddToScheduleAndCommit(nonResrictedCalendarEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(nonResrictedCalendarEvent).Wait();
             nonResrictedCalendarEvent = Schedule.getCalendarEvent(nonResrictedCalendarEvent.Id);
 
 
@@ -1059,7 +1062,7 @@ namespace TilerTests
                 CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), eachTimeLine.Start, eachTimeLine.End, 1, false);
                 testEvent.TimeCreated = TimeCreation;
                 Schedule = new TestSchedule(user, refNow);
-                Schedule.AddToScheduleAndCommit(testEvent).Wait();
+                Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
                 TestUtility.reloadTilerUser(ref user, ref tilerUser);
                 string testEVentId = testEvent.getId;
                 Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEVentId);

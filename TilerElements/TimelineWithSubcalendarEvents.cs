@@ -69,7 +69,7 @@ namespace TilerElements
             OccupiedSlots = AllocatedSubEvents.Select(obj => obj.Value.ActiveSlot).ToArray();
             List<TimeLine> onlyValidSlots = OccupiedSlots.Select(timeSlot => timeSlot.InterferringTimeLine(this)).Where(interFerringSlot => interFerringSlot != null).ToList();
             Utility.ConflictEvaluation ConflictEvaluation = new Utility.ConflictEvaluation(onlyValidSlots);
-            _TotalActiveSpan = TimeSpan.FromTicks(ConflictEvaluation.ConflictingTimeRange.Concat(ConflictEvaluation.NonConflictingTimeRange).Select(timeRange => timeRange.RangeTimeLine.TimelineSpan).Sum(timeSpan => timeSpan.Ticks));
+            _TotalActiveSpan = TimeSpan.FromTicks(ConflictEvaluation.ConflictingTimeRange.Concat(ConflictEvaluation.NonConflictingTimeRange).Select(timeRange => timeRange.StartToEnd.TimelineSpan).Sum(timeSpan => timeSpan.Ticks));
             OccupancyOfTImeLine = ((double)(SubCalendarEvent.TotalActiveDuration(AllocatedSubEvents.Values).Ticks) / (double)TimelineSpan.Ticks);
             freeSpace = TimelineSpan - _TotalActiveSpan;
             

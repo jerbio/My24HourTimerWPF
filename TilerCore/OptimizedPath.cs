@@ -72,7 +72,7 @@ namespace TilerCore
             List<SubCalendarEvent> subEventsThatCannotExist = DayData.getSubEventsInTimeLine().Where(subEvent => !subEvent.canExistWithinTimeLine(DayData)).ToList();
             if (subEventsThatCannotExist.Count > 0)
             {
-                Dictionary<SubCalendarEvent, TimeLine> subEventToViableTimeLine = subEventsThatCannotExist.ToDictionary(SubEvent => SubEvent, SubEvent => DayData.InterferringTimeLine(SubEvent.RangeTimeLine));
+                Dictionary<SubCalendarEvent, TimeLine> subEventToViableTimeLine = subEventsThatCannotExist.ToDictionary(SubEvent => SubEvent, SubEvent => DayData.InterferringTimeLine(SubEvent.StartToEnd));
                 HashSet<SubCalendarEvent> allSubEvents = new HashSet<SubCalendarEvent>(DayData.getSubEventsInTimeLine());
                 HashSet<SubCalendarEvent> tempSubEvents = new HashSet<SubCalendarEvent>();
                 foreach (SubCalendarEvent subEvent in subEventToViableTimeLine.Keys)
@@ -604,7 +604,7 @@ namespace TilerCore
             {
                 foreach (TimeLine timeLineWork in timeLineWorks)
                 {
-                    pinnedToStart.AddRange(CurrentList.Where(obj => obj.RangeTimeLine.doesTimeLineInterfere(timeLineWork)).OrderBy(obj => obj.Start));
+                    pinnedToStart.AddRange(CurrentList.Where(obj => obj.StartToEnd.doesTimeLineInterfere(timeLineWork)).OrderBy(obj => obj.Start));
                 }
             }
 
@@ -612,7 +612,7 @@ namespace TilerCore
             {
                 foreach (TimeLine timeLineWork in timeLineWorks)
                 {
-                    pinnedToEnd.AddRange(CurrentList.Where(obj => obj.RangeTimeLine.doesTimeLineInterfere(timeLineWork)).OrderBy(obj => obj.End));
+                    pinnedToEnd.AddRange(CurrentList.Where(obj => obj.StartToEnd.doesTimeLineInterfere(timeLineWork)).OrderBy(obj => obj.End));
                 }
             }
             List<mTuple<SubCalendarEvent, int>> subEventsWithIndexes = new List<mTuple<SubCalendarEvent, int>>();

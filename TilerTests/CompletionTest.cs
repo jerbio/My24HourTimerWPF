@@ -37,7 +37,7 @@ namespace TilerTests
             DateTimeOffset end = refNow.AddHours(7);
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 2, false);
-            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
             string completedSubEventId = testEvent.AllSubEvents[0].getId;
             SubCalendarEvent initialSubEVent = testEvent.AllSubEvents[0];
             Assert.IsFalse(initialSubEVent.getIsComplete);
@@ -66,7 +66,7 @@ namespace TilerTests
             DateTimeOffset end = refNow.AddHours(7);
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 2, false);
-            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
 
             Schedule = new TestSchedule(user, refNow);
             int beforeCompletionCount = Schedule.getAllCalendarEvents().Count();
@@ -93,7 +93,7 @@ namespace TilerTests
             Repetition repetition = new Repetition(RepetitionTImeLine, Repetition.Frequency.DAILY, RepetitionActualTImeLine);
             CalendarEvent repeatTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 2, false);
             Schedule = new TestSchedule(user, refNow);
-            Schedule.AddToScheduleAndCommit(repeatTestEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(repeatTestEvent).Wait();
             int beforeRepeatCompletionCount = Schedule.getAllCalendarEvents().Count();
 
             string completedRepeatSubEventId = repeatTestEvent.AllSubEvents[0].getId;
@@ -125,7 +125,7 @@ namespace TilerTests
             Repetition RigidRepetition = new Repetition(RigidRepetitionTImeLine, Repetition.Frequency.DAILY, RigidRepetitionActualTImeLine);
             CalendarEvent RigidRepeatTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, RigidRepetition, start, RigidRepetitionActualTImeLine.End, 1, true);
             Schedule = new TestSchedule(user, refNow);
-            Schedule.AddToScheduleAndCommit(RigidRepeatTestEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(RigidRepeatTestEvent).Wait();
             int beforeRigidRepeatCompletionCount = Schedule.getAllCalendarEvents().Count();
 
             string completedRigidRepeatSubEventId = RigidRepeatTestEvent.AllSubEvents[0].getId;
@@ -164,7 +164,7 @@ namespace TilerTests
             DateTimeOffset end = refNow.AddHours(7);
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, numberOfSubEvent, false);
-            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
@@ -174,7 +174,7 @@ namespace TilerTests
             DateTimeOffset end0 = refNow.AddHours(7);
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent0 = TestUtility.generateCalendarEvent(tilerUser, duration0, new Repetition(), start0, end0, numberOfSubEvent, false);
-            Schedule.AddToScheduleAndCommit(testEvent0).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent0).Wait();
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
@@ -184,7 +184,7 @@ namespace TilerTests
             DateTimeOffset end1 = refNow.AddHours(7);
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent1 = TestUtility.generateCalendarEvent(tilerUser, duration1, new Repetition(), start1, end1, numberOfSubEvent, false);
-            Schedule.AddToScheduleAndCommit(testEvent1).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent1).Wait();
 
             CalendarEvent retrievedCalendarEvent = TestUtility.getCalendarEventById(testEvent.Id, user);
             Assert.AreEqual(retrievedCalendarEvent.CompletionCount, 0);
@@ -232,7 +232,7 @@ namespace TilerTests
             DateTimeOffset end = refNow.AddHours(7);
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, numberOfSubEvent, false);
-            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
@@ -242,7 +242,7 @@ namespace TilerTests
             DateTimeOffset end0 = refNow.AddHours(7);
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent0 = TestUtility.generateCalendarEvent(tilerUser, duration0, new Repetition(), start0, end0, numberOfSubEvent, false);
-            Schedule.AddToScheduleAndCommit(testEvent0).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent0).Wait();
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
@@ -252,7 +252,7 @@ namespace TilerTests
             DateTimeOffset end1 = refNow.AddHours(7);
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent1 = TestUtility.generateCalendarEvent(tilerUser, duration1, new Repetition(), start1, end1, numberOfSubEvent, false);
-            Schedule.AddToScheduleAndCommit(testEvent1).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent1).Wait();
 
             CalendarEvent retrievedCalendarEvent = TestUtility.getCalendarEventById(testEvent.Id, user);
             Assert.AreEqual(retrievedCalendarEvent.CompletionCount, 0);
@@ -300,7 +300,7 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, numberOfSubEvent, false);
-            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             user.Login().Wait();
@@ -311,7 +311,7 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent0 = TestUtility.generateCalendarEvent(tilerUser, duration0, new Repetition(), start0, end0, numberOfSubEvent, false);
-            Schedule.AddToScheduleAndCommit(testEvent0).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent0).Wait();
 
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
@@ -323,7 +323,7 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent1 = TestUtility.generateCalendarEvent(tilerUser, duration1, new Repetition(), start1, end1, numberOfSubEvent, false);
-            Schedule.AddToScheduleAndCommit(testEvent1).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent1).Wait();
 
             SubCalendarEvent testSubEvent = testEvent.ActiveSubEvents[0];
             SubCalendarEvent testSubEvent0 = testEvent0.ActiveSubEvents[0];
@@ -415,7 +415,7 @@ namespace TilerTests
                 .generateCalendarEvent(tilerUser, duration, repetition, calTimeLine.Start, calTimeLine.End, repeatSplitCount, false);
             int initialCount = repeatEvent.AllSubEvents.Count();
             Schedule = new TestSchedule(user, refNow);
-            Schedule.AddToScheduleAndCommit(repeatEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(repeatEvent).Wait();
             const int dayDelta = 7;
             TimeLine lookupWindow = new TimeLine(refNow.AddDays(-dayDelta), refNow.AddDays(dayDelta * 2));
 

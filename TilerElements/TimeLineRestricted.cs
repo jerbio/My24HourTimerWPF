@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,10 @@ namespace TilerElements
         DateTimeOffset NonViableStart;
         DateTimeOffset NonViableEnd;
         TimeSpan RangeSpanInfo;
-        bool isPlausible = false;
+        /// <summary>
+        /// _isViableis true if the noViableStart - noViableEnd has a timeframe that can include the restrictionDay. So for example nonvialbleStart - nonviableEnd is 9:00a of July 1 2019- 10:00a of July 1 2019 but the Restriction Profile has 12:00p - 10:001  of any day. There is no scenario where the restricted schedule will be viable
+        /// </summary>
+        bool _isViable= false;
         ulong EarliestDayIndex;
         ulong LatestDayIndex;
         ReferenceNow Now;
@@ -31,7 +35,7 @@ namespace TilerElements
 
         void initialize()
         {
-            isPlausible = false;
+            _isViable= false;
             DayOfYearToTimeLine = new Dictionary<ulong, HashSet<TimeLine>>();
             List<TimeLine> AllTImeLines = RestrictionInfo.getAllNonPartialTimeFrames(new TimeLine(NonViableStart, NonViableEnd)).OrderBy(obj => obj.Start).ToList();
 
@@ -77,7 +81,7 @@ namespace TilerElements
                 EndTime = LAstTimeLine.End;
                 EarliestDayIndex = Now.getDayIndexFromStartOfTime(StartTime);
                 LatestDayIndex = Now.getDayIndexFromStartOfTime(LAstTimeLine.End);
-                isPlausible = true;
+                _isViable= true;
             }
 
             
@@ -192,6 +196,19 @@ namespace TilerElements
             }
         }
 
+        public override TimeLine CreateCopy()
+        {
+            TimeLineRestricted CopyTimeLine = new TimeLineRestricted(StartTime, EndTime, RestrictionInfo.createCopy(), Now);
+            List<BusyTimeLine> TempActiveSlotsHolder = new List<BusyTimeLine>();
+            foreach (BusyTimeLine MyBusyTimeLine in ActiveTimeSlots)
+            {
+                TempActiveSlotsHolder.Add(MyBusyTimeLine.CreateCopy());
+            }
+
+            CopyTimeLine.ActiveTimeSlots = new ConcurrentBag<BusyTimeLine>(TempActiveSlotsHolder);//.ToArray();
+            return CopyTimeLine;
+        }
+
         public override List<BusyTimeLine> getBusyTimeLineWithinSlots(TimeLine MyTimeLineRange)
         {
             return base.getBusyTimeLineWithinSlots(MyTimeLineRange);
@@ -256,6 +273,26 @@ namespace TilerElements
         {
             List<TimeLine> retValue= DayOfYearToTimeLine.SelectMany(obj => obj.Value).ToList();
             return retValue;
+        }
+
+        public override TimeLine StartToEnd
+        {
+            get
+            {
+                return new TimeLine(this.NonViableStart, this.NonViableEnd);
+            }
+        }
+
+        public bool IsViable
+        {
+            set
+            {
+                _isViable= value;
+            }
+            get
+            {
+                return _isViable;
+            }
         }
     }
 }

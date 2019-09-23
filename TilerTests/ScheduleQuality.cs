@@ -30,7 +30,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent = TestUtility
                 .generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, splitCount, false);
-            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
 
             int firstDayIncrement = 2;
             int secondDayIncrement = 4;
@@ -119,7 +119,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent0 = TestUtility
                 .generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, splitCount, false);
-            Schedule.AddToScheduleAndCommit(testEvent0).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent0).Wait();
 
             TimeLine repeatTimeLine = new TimeLine(testEvent0.Start, testEvent0.End.AddDays(14));
             TimeLine calTimeLine = repeatTimeLine.CreateCopy();
@@ -139,7 +139,7 @@ namespace TilerTests
             HashSet<DayOfWeek> repeatDays = new HashSet<DayOfWeek>() { firstDayOfWeek, secondDayOfWeek };
 
             Schedule = new TestSchedule(user, refNow);
-            Schedule.AddToScheduleAndCommit(testEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             refNow = firstDayFromStart;
@@ -227,7 +227,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent0 = TestUtility
                 .generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, splitCount, false);
-            Schedule.AddToScheduleAndCommit(testEvent0).Wait();
+            Schedule.AddToScheduleAndCommitAsync(testEvent0).Wait();
 
             TimeLine repeatTimeLine = new TimeLine(testEvent0.Start, testEvent0.End.AddDays(14));
             TimeLine calTimeLine = repeatTimeLine.CreateCopy();
@@ -261,7 +261,7 @@ namespace TilerTests
 
 
             Schedule = new TestSchedule(user, refNow);
-            Schedule.AddToScheduleAndCommit(repeatEvent).Wait();
+            Schedule.AddToScheduleAndCommitAsync(repeatEvent).Wait();
 
             for (int i = 0; i < 2; i++)
             {
@@ -370,7 +370,7 @@ namespace TilerTests
             CalendarEvent testEvent = TestUtility
                 .generateCalendarEvent(tilerUser, duration, null, start, end, splitCount, false);
             TestSchedule schedule = new TestSchedule(user, refNow);
-            schedule.AddToScheduleAndCommit(testEvent).Wait();
+            schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             testEvent = TestUtility.getCalendarEventById(testEvent.Id, user);
@@ -381,9 +381,9 @@ namespace TilerTests
             schedule = new TestSchedule(user, refNow);
             CalendarEvent testEvent1 = TestUtility
                 .generateCalendarEvent(tilerUser, duration, null, start, end, splitCount, false);
-            schedule.AddToScheduleAndCommit(testEvent1).Wait();
+            schedule.AddToScheduleAndCommitAsync(testEvent1).Wait();
             SubCalendarEvent subEventInMemory = schedule.getSubCalendarEvent(subEvent.Id);
-            Assert.IsTrue(subEventInMemory.RangeTimeLine.isEqualStartAndEnd(subEvent.RangeTimeLine));
+            Assert.IsTrue(subEventInMemory.StartToEnd.isEqualStartAndEnd(subEvent.StartToEnd));
 
 
 
@@ -396,7 +396,7 @@ namespace TilerTests
             CalendarEvent rigidEvent1 = TestUtility
                 .generateCalendarEvent(tilerUser, rigidDuration, repetition, rigidStart, rigidEnd, splitCount, true);
             schedule = new TestSchedule(user, refNow);
-            schedule.AddToScheduleAndCommit(rigidEvent1).Wait();
+            schedule.AddToScheduleAndCommitAsync(rigidEvent1).Wait();
 
             DateTimeOffset rigidStart2 = rigidStart.AddMinutes(30);
             DateTimeOffset rigidEnd2 = rigidStart2.Add(rigidDuration);
@@ -408,7 +408,7 @@ namespace TilerTests
 
 
             schedule = new TestSchedule(user, refNow);
-            schedule.AddToScheduleAndCommit(rigidEvent2).Wait();
+            schedule.AddToScheduleAndCommitAsync(rigidEvent2).Wait();
 
             schedule = new TestSchedule(user, refNow);
             schedule.FindMeSomethingToDo(new Location()).Wait();

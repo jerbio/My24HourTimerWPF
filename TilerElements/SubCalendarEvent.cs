@@ -156,11 +156,12 @@ namespace TilerElements
             this._Enabled = false;
         }
 
-        public void complete(CalendarEvent myCalEvent)
+        public virtual void complete(CalendarEvent myCalEvent)
         {
             if (!this._Complete)
             {
                 this._Complete = true;
+                myCalEvent.addCompletionTimes(this.Start);
                 myCalEvent.incrementCompleteCount(this.RangeSpan);
             }
         }
@@ -170,6 +171,7 @@ namespace TilerElements
             if (this._Complete)
             {
                 this._Complete = false;
+                myCalEvent.removeCompletionTimes(this.Start);
                 myCalEvent.decrementCompleteCount(this.RangeSpan);
             }
             
@@ -205,7 +207,7 @@ namespace TilerElements
             myCalEvent.removeDayTimeFromFreeUpdays(preferredDayIndex);
         }
 
-        public void SetCompletionStatus(bool completeValue,CalendarEvent myCalendarEvent)
+        public virtual void SetCompletionStatus(bool completeValue,CalendarEvent myCalendarEvent)
         {
             if (completeValue != _Complete)
             {

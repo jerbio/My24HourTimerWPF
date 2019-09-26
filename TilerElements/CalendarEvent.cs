@@ -31,11 +31,16 @@ namespace TilerElements
         protected Dictionary<ulong, DayTimeLine> FreeDaysLimitation;// Holds days that do not contain subevents within this time line
         protected List<SubCalendarEvent> _RemovedSubEvents = new List<SubCalendarEvent>();
         protected EventPreference _EventDayPreference;
+        protected string _LastCompletionTime;
+        protected CalendarEvent _DefaultCalendarEvent;
+        DateTimeOffset[] completionDates = new DateTimeOffset[0];
+        HashSet<ulong> completeDayIndexes = new HashSet<ulong>();
         #region undoMembers
         public int UndoSplits;
         public TimeSpan UndoAverageTimePerSplit;
         public int UndoCompletedCount;
         public int UndoDeletedCount;
+        public string UndoLastCompletionTime;
         #endregion
 
         public override void undoUpdate(Undo undo)
@@ -55,6 +60,7 @@ namespace TilerElements
                 Utility.Swap(ref UndoAverageTimePerSplit, ref _AverageTimePerSplit);
                 Utility.Swap(ref UndoCompletedCount, ref _CompletedCount);
                 Utility.Swap(ref UndoDeletedCount, ref _DeletedCount);
+                Utility.Swap(ref UndoLastCompletionTime, ref _LastCompletionTime);
             }
             base.undo(undoId);
         }
@@ -67,6 +73,7 @@ namespace TilerElements
                 Utility.Swap(ref UndoAverageTimePerSplit, ref _AverageTimePerSplit);
                 Utility.Swap(ref UndoCompletedCount, ref _CompletedCount);
                 Utility.Swap(ref UndoDeletedCount, ref _DeletedCount);
+                Utility.Swap(ref UndoLastCompletionTime, ref _LastCompletionTime);
             }
             base.redo(undoId);
         }
@@ -646,10 +653,22 @@ namespace TilerElements
 
         }
 
+        internal void addCompletionTimes(DateTimeOffset time)
+        {
+            _LastCompletionTime = (_LastCompletionTime ?? "")+ time.ToUnixTimeMilliseconds().ToString() + ",";
+        }
+
+        internal void removeCompletionTimes(DateTimeOffset time)
+        {
+            _LastCompletionTime = (_LastCompletionTime ?? "");
+            string timeString = time.ToUnixTimeMilliseconds().ToString() +",";
+            int index = _LastCompletionTime.IndexOf(timeString);
+            _LastCompletionTime.Remove(index, timeString.Count());
+        }
+
         virtual public void SetCompletion(bool CompletionStatus, bool goDeep = false)
         {
             _Complete = CompletionStatus;
-
             if (IsRepeat)
             {
                 if (goDeep)
@@ -1012,8 +1031,9 @@ namespace TilerElements
                     double availableSpanRatio = (double)totalInterferringSpan.Ticks / totalAvailableSpan.Ticks;
                     DayOfWeek weekDay = referenceNow.getDayOfTheWeek(timeline);
                     double dayIndexScore = DayPreference[weekDay].EvaluationScore;
-
-                    IList<double> dimensionsPerDay = new List<double>() { distance, tickRatio, occupancy, dayIndexScore };
+                    ulong completeDayIndex = referenceNow.getDayIndexFromStartOfTime(timeline.Start);
+                    double dayIndexCount = completeDayIndexes.Contains(completeDayIndex) ? 1 : 0;// if day has already being marked with event as complete 
+                    IList<double> dimensionsPerDay = new List<double>() { distance, tickRatio, occupancy, dayIndexScore, dayIndexCount };
                     multiDimensionalCalculation.Add(dimensionsPerDay);
                 }
                 else
@@ -1987,7 +2007,6 @@ namespace TilerElements
         {
             get
             {
-                //updateEventSequence();
                 EventSequence = new TimeLine(this.Start, this.End);
                 return EventSequence;
             }
@@ -2017,6 +2036,34 @@ namespace TilerElements
                 currentParent = currentParent.RepeatParent_DB;
             }
             _RepeatParentEvent = currentParent;
+        }
+
+        virtual public void updateCompletionTimeArray(ReferenceNow now)
+        {
+            _LastCompletionTime = (_LastCompletionTime ?? "");
+            if (!string.IsNullOrEmpty(_LastCompletionTime) && !string.IsNullOrWhiteSpace(_LastCompletionTime))
+            {
+                string[] dateTimeInMs = _LastCompletionTime.Split(',')
+                    .Where(str => !string.IsNullOrEmpty(str) && !string.IsNullOrEmpty(str)).ToArray();
+                    ;
+                completionDates = new DateTimeOffset[dateTimeInMs.Length];
+                for (int i = 0; i < dateTimeInMs.Length; i++)
+                {
+                    string timeString = dateTimeInMs[i];
+                    timeString = timeString.Trim();
+                    if (!string.IsNullOrEmpty(timeString) && !string.IsNullOrWhiteSpace(timeString))
+                    {
+                        long timeInMs = long.Parse(timeString);
+                        DateTimeOffset time = DateTimeOffset.FromUnixTimeMilliseconds(timeInMs);
+                        completionDates[i] = time;
+                        ulong dayIndex = now.getDayIndexFromStartOfTime(time);
+                        completeDayIndexes.Add(dayIndex);
+                    }
+
+                }
+                completionDates = completionDates.OrderBy(obj => obj).ToArray();
+            }
+            
         }
 
         protected SubEventDictionary<string, SubCalendarEvent> SubEvents
@@ -2050,13 +2097,44 @@ namespace TilerElements
             }
         }
 
-        
+        virtual public string LastCompletionTime_DB
+        {
+            set
+            {
+                _LastCompletionTime = value;
+            }
+            get
+            {
+                return _LastCompletionTime;
+            }
+        }
+
+        virtual public DateTimeOffset[] LastCompletionTime
+        {
+            get
+            {
+                return completionDates;
+            }
+        }
 
         virtual public MiscData Notes
         {
             get
             {
                 return _DataBlob;
+            }
+        }
+
+        [NotMapped]
+        virtual public CalendarEvent DefaultCalendarEvent
+        {
+            set
+            {
+                _DefaultCalendarEvent = value;
+            }
+            get
+            {
+                return _DefaultCalendarEvent;
             }
         }
 

@@ -2723,6 +2723,7 @@ namespace TilerCore
                 (obj => {
                     obj.resetDesignationAllActiveEventsInCalculables();
                     obj.InitialCalculationLookupDays(AllDayTImeLine, this.Now);
+                    obj.updateCompletionTimeArray(Now);
                 });
             ILookup<ulong, SubCalendarEvent> SetForFirstDay = (new List<SubCalendarEvent>()).ToLookup(obj => (ulong)0, obj => obj);
             preserveFirttwentyFourHours &= !shuffle;
@@ -3450,35 +3451,10 @@ namespace TilerCore
 
                 //DayTimeLineCurrentProperties holds the propeties of all the daytimeline elements. The tuple has the folloiwng Left, Right, Difference, score
                 Dictionary<DayTimeLine, DayTempEvaluation> DayTimeLineCurrentProperties = new Dictionary<DayTimeLine, DayTempEvaluation>();
-
-
-                Func<DayTimeLine, DayTimeLine, DayTempEvaluation> reevaluateLeftAndRightDays = (latestSelectedDayTimeLine, currentTimeLine) => {
-                    DayTempEvaluation tempScore = DayTimeLineCurrentProperties[currentTimeLine];
-                    ulong selectedUniversalIndex = latestSelectedDayTimeLine.UniversalIndex;
-                    ulong currentRight = tempScore.Right + tempScore.DayIndex;
-                    ulong currentLeft = tempScore.DayIndex - tempScore.Left;
-                    bool updateScore = selectedUniversalIndex < currentRight && selectedUniversalIndex > currentLeft;
-                    if (updateScore)
-                    {
-                        if (selectedUniversalIndex > tempScore.DayIndex)
-                        {
-                            tempScore.Right = selectedUniversalIndex - tempScore.DayIndex;
-                        }
-                        else
-                        {
-                            tempScore.Left = tempScore.DayIndex - selectedUniversalIndex;
-                        }
-
-
-                        long diff = (long)tempScore.Left - (long)tempScore.Right;
-                        ulong uDiff = (ulong)Math.Abs(diff);
-                        tempScore.Diff = uDiff;
-                    }
-                    return tempScore;
-                };
+                
 
                 List<mTuple<double, DayTimeLine>> orderedOnEvaluation = dayIndexToTImeLine.Where(tuple => !double.IsNaN(tuple.Item2)).OrderBy(tuple => tuple.Item2).Select(tuple => new mTuple<double, DayTimeLine>(tuple.Item2, tuple.Item3)).ToList();
-                List<ulong> dayIndexes = orderedOnEvaluation.Select(obj => obj.Item2.UniversalIndex).ToList();
+                List<ulong> dayIndexes = orderedOnEvaluation.Select(obj => obj.Item2.UniversalIndex).OrderBy(index => index).ToList();
                 List<DayTimeLine> useUpOrder = new List<DayTimeLine>();
                 mTuple<double, DayTimeLine> lastDaySelected = orderedOnEvaluation.FirstOrDefault();
 
@@ -3491,16 +3467,18 @@ namespace TilerCore
                     useUpOrder.Add(lastDaySelected.Item2);
                     if (orderedOnEvaluation.Count != 0)
                     {
+                        long iniIndex = (long)dayIndexes[0];
+                        long finalIndex = (long)dayIndexes.Last();
                         DayTimeLineCurrentProperties = orderedOnEvaluation.ToDictionary(dayTuple =>
                         {
                             return dayTuple.Item2;
                         },
                             dayTuple =>
                             {
-                                ulong left = dayTuple.Item2.UniversalIndex - dayIndexes[0];
-                                ulong right = dayIndexes[dayIndexes.Count - 1] - dayTuple.Item2.UniversalIndex;
+                                long left = (long)dayTuple.Item2.UniversalIndex - iniIndex;
+                                long right = finalIndex- (long)dayTuple.Item2.UniversalIndex;
                                 long diff = (long)left - (long)right;
-                                ulong uDiff = (ulong)Math.Abs(diff);
+                                long uDiff = (long)Math.Abs(diff);
                                 return new DayTempEvaluation()
                                 {
                                     Diff = uDiff,
@@ -3508,7 +3486,7 @@ namespace TilerCore
                                     Right = right,
                                     Score = dayTuple.Item1,
                                     TimeLineScore = dayTuple.Item1,
-                                    DayIndex = dayTuple.Item2.UniversalIndex
+                                    DayIndex = (long)dayTuple.Item2.UniversalIndex
                                 };
                             }
                         );
@@ -3518,9 +3496,6 @@ namespace TilerCore
                             subEvent = AllSubEvents[i];
                             if (useUpOrder.Count != dayIndexes.Count)
                             {
-                                orderedOnEvaluation.ForEach(evaluationResult => {
-                                    DayTempEvaluation evaluation = reevaluateLeftAndRightDays(lastDaySelected.Item2, evaluationResult.Item2);
-                                });
                                 List<IList<double>> data = orderedOnEvaluation.Select(obj => (IList<double>)DayTimeLineCurrentProperties[obj.Item2].toMultiArrayDict()).ToList();
                                 List<double> values = Utility.multiDimensionCalculationNormalize(data);
                                 int lowestIndex = values.MinIndex();

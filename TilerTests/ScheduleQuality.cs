@@ -447,6 +447,79 @@ namespace TilerTests
             ((TestSchedule)schedule).WriteFullScheduleToOutlook();
         }
 
+        /// <summary>
+        /// Test verifies that when a subevent is marked as complete for a given day, 
+        /// the specific day would be dissentivized to have another subevent for the same day
+        /// </summary>
+        [TestMethod]
+        public void set_subevent_as_complete_reduce_odds_of_calEventSubevent_on_day_of_completion()
+        {
+            var packet = TestUtility.CreatePacket();
+            UserAccount user = packet.Account;
+            TilerUser tilerUser = packet.User;
+
+            DateTimeOffset iniRefNow = new DateTimeOffset( DateTimeOffset.UtcNow.removeSecondsAndMilliseconds().Date.ToUniversalTime());
+            iniRefNow = new DateTimeOffset(iniRefNow.Year, iniRefNow.Month, iniRefNow.Day, 0, 0, 0, new TimeSpan());
+            DateTimeOffset refNow = iniRefNow;
+
+            int splitCount = 5;
+            TimeSpan duration = TimeSpan.FromHours(4);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = start.AddDays(splitCount);
+            
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            CalendarEvent testEvent = TestUtility
+                .generateCalendarEvent(tilerUser, duration, null, start, end, splitCount, false);
+            TestSchedule schedule = new TestSchedule(user, refNow);
+            schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
+
+            SubCalendarEvent subEvent = testEvent.ActiveSubEvents.OrderBy(sub => sub.Start).ToList()[1];
+            ulong dayIndex = schedule.Now.getDayIndexFromStartOfTime(subEvent.Start);
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, refNow);
+            schedule.markSubEventAsCompleteCalendarEventAndReadjust(subEvent.Id);
+            schedule.persistToDB().Wait();
+
+            CalendarEvent testEventRetrieved = TestUtility.getCalendarEventById(testEvent.Id, user);
+            List<SubCalendarEvent> activeSubEvents = testEventRetrieved.ActiveSubEvents.OrderBy(sub => sub.Start).ToList();
+            activeSubEvents.ForEach((retrievedSubEvent) => {
+                ulong retrievedDayIndex = schedule.Now.getDayIndexFromStartOfTime(retrievedSubEvent.Start);
+                if(retrievedDayIndex == dayIndex)
+                {
+                    Assert.Fail("Subevent should not get reassigned to the day of already marked as complete subcalendar event");
+                }
+            });
+
+
+            //////// Adds sub events with twice the split count as there are days. 
+            //////// Meaning there should be two events from this calendar event per day
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            CalendarEvent testEventDoubleSplitCount = TestUtility
+                .generateCalendarEvent(tilerUser, duration, null, start, end, splitCount*2, false);
+            schedule = new TestSchedule(user, refNow);
+            schedule.AddToScheduleAndCommitAsync(testEventDoubleSplitCount).Wait();
+
+            subEvent = testEventDoubleSplitCount.ActiveSubEvents.OrderBy(sub => sub.Start).ToList()[3];
+            dayIndex = schedule.Now.getDayIndexFromStartOfTime(subEvent.Start);
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, refNow);
+            schedule.markSubEventAsCompleteCalendarEventAndReadjust(subEvent.Id);/// If we mark a subevent as complete, then we should expect that the day with the completion will only have one event, while the others should have two for each day
+            schedule.persistToDB().Wait();
+            int dayIndexCounter = 0;
+            CalendarEvent testEventDoubleSplitCountRetrieved = TestUtility.getCalendarEventById(testEventDoubleSplitCount.Id, user);
+            activeSubEvents = testEventDoubleSplitCountRetrieved.ActiveSubEvents.OrderBy(sub => sub.Start).ToList();
+            activeSubEvents.ForEach((retrievedSubEvent) => {
+                ulong retrievedDayIndex = schedule.Now.getDayIndexFromStartOfTime(retrievedSubEvent.Start);
+                if (retrievedDayIndex == dayIndex)
+                {
+                    ++dayIndexCounter;
+                }
+            });
+            Assert.AreEqual(dayIndexCounter, 1);
+        }
+
         public List<DateTimeOffset> getCorrespondingWeekdays(TimeLine timeLine, DayOfWeek dayOfWeek)
         {
             List<DateTimeOffset> retValue = new List<DateTimeOffset>();

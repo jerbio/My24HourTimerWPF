@@ -677,8 +677,7 @@ namespace TilerTests
             List<CalendarEvent> retValue = new List<CalendarEvent>()
             {
                 simpleCalEvent, dailyCalEvent, weeklyCalEvent, weekdayWeeklyCalEvent,monthlyCalEvent, weekDayMonthlyCalEvent, yearlyCalEvent, weekDayMYearlyCalEvent,
-                //restrictedCalEvent, restrictedDailyCalEvent, restrictedWeeklyCalEvent, restrictedWeekdayWeeklyCalEvent, restrictedMonthlyCalEvent, restrictedWeekdayMonthlyCalEvent,
-                restrictedYearlyCalEvent, restrictedWeekdayYearlyCalEvent,
+                restrictedCalEvent, restrictedDailyCalEvent, restrictedWeeklyCalEvent, restrictedWeekdayWeeklyCalEvent, restrictedMonthlyCalEvent, restrictedWeekdayMonthlyCalEvent,restrictedYearlyCalEvent, restrictedWeekdayYearlyCalEvent,
                 rigidCalEvent, rigidDailyCalEvent, rigidWeeklyCalEvent, rigidWeekdayWeeklyCalEvent, rigidMonthlyCalEvent, rigidWeekdayMonthlyCalEvent, rigidYearlyCalEvent, rigidWeekdayYearlyCalEvent
             };
 

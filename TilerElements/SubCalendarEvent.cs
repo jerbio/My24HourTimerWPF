@@ -201,9 +201,14 @@ namespace TilerElements
             this._Enabled = true;
         }
 
+        internal void updateDayIndex(ulong dayIndex)
+        {
+            this.preferredDayIndex = dayIndex;
+        }
+
         public void updateDayIndex(ulong dayIndex, CalendarEvent myCalEvent)
         {
-            preferredDayIndex = dayIndex;
+            updateDayIndex(dayIndex);
             myCalEvent.removeDayTimeFromFreeUpdays(preferredDayIndex);
         }
 
@@ -367,10 +372,6 @@ namespace TilerElements
             return MySubCalendarEventCopy;
         }
 
-        public void updateDayIndex(ulong DayIndex)
-        {
-            this.preferredDayIndex = DayIndex;
-        }
 
         internal void undesignate()
         {

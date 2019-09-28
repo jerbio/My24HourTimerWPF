@@ -1125,10 +1125,10 @@ namespace TilerCore
         public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> SetCalendarEventAsNow(string CalendarID, bool Force = false)
         {
             CalendarEvent calendarEvent = getCalendarEvent(CalendarID);
-            IEnumerable<SubCalendarEvent> orderedSubEvents = calendarEvent.ActiveSubEvents.Where(obj => obj.End > Now.constNow );
-            if(orderedSubEvents.Count() < 1)
+            IEnumerable<SubCalendarEvent> orderedSubEvents = calendarEvent.ActiveSubEvents.Where(obj => obj.End > Now.constNow ).OrderBy(obj => obj.End);
+            if (orderedSubEvents.Count() < 1)
             {
-                orderedSubEvents = calendarEvent.ActiveSubEvents.OrderByDescending(obj => obj.End);
+                orderedSubEvents = calendarEvent.ActiveSubEvents.OrderBy(obj => obj.End).Reverse();//I didn't do OrderByDescending because an interest situation where two events I ordered have the same start then they are aordered by the id. Which means the lesser Id gets picked
             }
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(new CustomErrors("No Active Event Found", 100), null);
             if (orderedSubEvents.Count() > 0)
@@ -1217,6 +1217,10 @@ namespace TilerCore
         public CustomErrors AddToSchedule(CalendarEvent NewEvent, bool optimizeSchedule = true)
         {
             Now.InitializeParameters();
+            foreach (SubCalendarEvent subEvent in NewEvent.ActiveSubEvents)
+            {
+                subEvent.PinToEnd(CompleteSchedule);
+            }
             //HashSet<SubCalendarEvent> NotdoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
             HashSet<SubCalendarEvent> NotdoneYet = new HashSet<SubCalendarEvent>();// getNoneDoneYetBetweenNowAndReerenceStartTIme();
             NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, NotdoneYet, null);
@@ -1886,6 +1890,7 @@ namespace TilerCore
             HashSet<SubCalendarEvent> subEventsInSet = new HashSet<SubCalendarEvent>(AllEventDictionary.Values.Concat(InitializingCalEvents).Where(calEvent => calEvent.isActive)
                 .SelectMany(calEvent => calEvent.ActiveSubEvents).AsParallel().
                 Where(subEvent => subEvent.getCalendarEventRange.End > NowTIme).
+                Where(subEvent => subEvent.End >= NowTIme).
                 Where(subEvent => (subEvent.isRigid && subEvent.ActiveSlot.IsDateTimeWithin(NowTIme)) || subEvent.canExistWithinTimeLine(CalculationTImeLine) || subEvent.getIsProcrastinateCalendarEvent));
             ConcurrentBag<SubCalendarEvent> subEvents = new ConcurrentBag<SubCalendarEvent>();
             subEventsInSet.AsParallel().ForAll((subEvent) =>
@@ -2190,7 +2195,7 @@ namespace TilerCore
             }
 
             NoneCommitedCalendarEventsEvents.Add(MyCalendarEvent);
-            Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluation(MyCalendarEvent, NoneCommitedCalendarEventsEvents, InterferringWithNowFlag, NotDoneYet, new TimeLine(Now.constNow.AddDays(-90), Now.ComputationRange.End));
+            Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluation(MyCalendarEvent, NoneCommitedCalendarEventsEvents, InterferringWithNowFlag, NotDoneYet, new TimeLine(Now.constNow, Now.ComputationRange.End));
             List<SubCalendarEvent> collectionOfInterferringSubCalEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToList();
             List<SubCalendarEvent> ArrayOfInterferringSubEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToList();
             TimeLine RangeForScheduleUpdate = allInterferringSubCalEventsAndTimeLine.Item1;
@@ -2536,7 +2541,7 @@ namespace TilerCore
                 }
                 myDays.Add(SubCalFirstIndex);
                 OrderedyAscendingAllDays[BoundedIndex].AddToSubEventList(eachSubCalendarEvent);
-                eachSubCalendarEvent.updateDayIndex(SubCalFirstIndex);
+                eachSubCalendarEvent.updateDayIndex(SubCalFirstIndex, eachSubCalendarEvent.ParentCalendarEvent);
                 eachSubCalendarEvent.ParentCalendarEvent.removeDayTimesFromFreeUpdays(SubCalFirstIndex);
                 for (ulong i = SubCalFirstIndex + 1, j = 0; j < DayDiff; j++, i++)
                 {
@@ -3190,32 +3195,19 @@ namespace TilerCore
             TimeLine FirstFortyEight = new TimeLine(Now.firstDay.Start, Now.firstDay.Start.AddDays(2));
             List<Tuple<CalendarEvent, TimeLine>> ListOfTuples = AllCalEvents.Select(obj => new Tuple<CalendarEvent, TimeLine>(obj, obj.StartToEnd.InterferringTimeLine(FirstFortyEight))).Where(obj => obj.Item2 != null).ToList();
             ListOfTuples = ListOfTuples.Where(obj => ((obj.Item1.isLocked) || (new TimeLine(obj.Item2.End, obj.Item1.End).TimelineSpan < obj.Item1.AverageTimeSpanPerSubEvent))).ToList();//gets elements that have to exist within timeframe, checks if span per fit is less than the intersecting span greater than first forty eight
-            List<SubCalendarEvent> ForCalculation = ListOfTuples.SelectMany(obj => obj.Item1.ActiveSubEvents).ToList();
-            List<CalendarEvent> possibleCalEvents = AllCalEvents.Where(obj => obj.StartToEnd.InterferringTimeLine(FirstTwentyFour) != null).ToList();
-            possibleCalEvents.AsParallel().ForAll(
-                obj => obj.ActiveSubEvents.AsParallel().ForAll(
-                    obj1 => {
-                        ulong dayIndex = Now.getDayIndexFromStartOfTime(obj.Start);
-                        obj1.updateDayIndex(dayIndex, IDToCalendarEvent[obj1.SubEvent_ID.getRepeatCalendarEventID()]);
-                    }));
-            ulong dayIndexLimit = Now.consttDayIndex + 1;
-            List<SubCalendarEvent> possibleSubCals = possibleCalEvents.SelectMany(obj => obj.ActiveSubEvents.Where(obj1 => obj1.UniversalDayIndex <= dayIndexLimit)).OrderBy(obj => obj.Start).ToList();
-            List<SubCalendarEvent> CurrentConstituents = possibleSubCals.Where(obj => obj.StartToEnd.InterferringTimeLine(FirstTwentyFour) != null).ToList();
+            List<SubCalendarEvent> ForCalculation = ListOfTuples.SelectMany(obj => obj.Item1.ActiveSubEvents.Where(sub => sub.End > FirstTwentyFour.Start)).ToList();
+            List<CalendarEvent> possibleCalEvents = AllCalEvents.Where(obj => obj.StartToEnd.doesTimeLineInterfere(FirstTwentyFour)).ToList();
+            List<SubCalendarEvent> CurrentConstituents = possibleCalEvents.SelectMany (obj => obj.ActiveSubEvents).Where(obj => obj.StartToEnd.InterferringTimeLine(FirstTwentyFour) != null).ToList();
 
             List<SubCalendarEvent> AllRigids = ForCalculation.Where(obj => obj.isLocked).ToList();
 
             ForCalculation = ForCalculation.Except(AllRigids).ToList();
             ForCalculation.ForEach(obj => obj.addReasons(new PreservedOrder(ForCalculation.Select(subEvent => subEvent.SubEvent_ID).ToList())));
 
-            HashSet<SubCalendarEvent> OrderedPreviousTwentyfourNorigids = new HashSet<SubCalendarEvent>(ForCalculation.OrderBy(obj => obj.Start));
+            List<SubCalendarEvent> OrderedPreviousTwentyfourNonrigids = new List<SubCalendarEvent>(ForCalculation);
+            OrderedPreviousTwentyfourNonrigids = OrderedPreviousTwentyfourNonrigids.OrderBy(sub => sub.Start).ToList();
             FirstTwentyFour.AddBusySlots(AllRigids.Select(obj => obj.ActiveSlot));
             List<SubCalendarEvent> PopulatedSubcals = BuildAllPossibleSnugLists(ForCalculation, FirstTwentyFour, 1, new List<SubCalendarEvent>());
-            //loop updates reason for current assignment
-            foreach (SubCalendarEvent subcalendaEvent in PopulatedSubcals.Except(ForCalculation))
-            {
-                BestFitReason bestFit = new BestFitReason(FirstTwentyFour.TotalActiveSpan, FirstTwentyFour.TotalFreeSpotAvailable, subcalendaEvent.getActiveDuration);
-                subcalendaEvent.addReasons(bestFit);
-            }
 
             List<SubCalendarEvent> retValue = new List<SubCalendarEvent>();
             List<SubCalendarEvent> PopulatedSubcalsCpy = PopulatedSubcals.ToList();
@@ -3225,11 +3217,11 @@ namespace TilerCore
             {
                 List<SubCalendarEvent> AllreadyCOnstituents = PopulatedSubcalsCpy.Where(obj => obj.StartToEnd.InterferringTimeLine(eachTimeLine) != null).ToList();
 
-                List<SubCalendarEvent> newlyAssignedAssignments = PreserveFirstTwentyFourHours(AllreadyCOnstituents, OrderedPreviousTwentyfourNorigids.ToList(), eachTimeLine);
+                List<SubCalendarEvent> newlyAssignedAssignments = PreserveFirstTwentyFourHours(AllreadyCOnstituents, OrderedPreviousTwentyfourNonrigids.ToList(), eachTimeLine);
 
                 foreach (SubCalendarEvent eachSubCalendarEvent in newlyAssignedAssignments)
                 {
-                    OrderedPreviousTwentyfourNorigids.Remove(eachSubCalendarEvent);
+                    OrderedPreviousTwentyfourNonrigids.Remove(eachSubCalendarEvent);
                     PopulatedSubcalsCpy.Remove(eachSubCalendarEvent);
                 }
                 retValue.AddRange(newlyAssignedAssignments);

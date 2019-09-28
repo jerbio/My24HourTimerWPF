@@ -290,5 +290,101 @@ namespace TilerTests
             SubCalendarEvent subCalendarEventNow = TestUtility.getSubEventById(subEvent.getId, user);
             Assert.IsTrue(subCalendarEventNow.Start == newRefNow);
         }
+
+
+        [TestMethod]
+        public void CalendarEventAsNowShouldUseFirstSubEventAfterNow()
+        {
+            TestSchedule Schedule;
+            TilerUser tilerUser = TestUtility.createUser();
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+            DateTimeOffset iniRefNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
+            DateTimeOffset refNow = iniRefNow;
+            Schedule = new TestSchedule(user, refNow);
+            TimeSpan duration = TimeSpan.FromHours(1);
+            DateTimeOffset start = refNow;
+            TimeLine repetitionRange = new TimeLine(start, start.AddDays(13).AddHours(-23));
+            DateTimeOffset end = repetitionRange.End.AddDays(14);
+            DayOfWeek startingWeekDay = start.DayOfWeek;
+            Location location = new Location();
+
+            List<CalendarEvent> calEvents = TestUtility.generateAllCalendarEvent(Schedule, duration, start, tilerUser, user, 2);
+            foreach(CalendarEvent calEVent in calEvents)
+            {
+                TestUtility.reloadTilerUser(ref user, ref tilerUser);
+                Schedule = new TestSchedule(user, refNow);
+                Schedule.FindMeSomethingToDo(location).Wait();
+                Schedule.persistToDB().Wait();
+                /// now is refNow
+                refNow = iniRefNow;
+                TestUtility.reloadTilerUser(ref user, ref tilerUser);
+                CalendarEvent calEventRetrieved = TestUtility.getCalendarEventById(calEVent.Id, user);
+                Schedule = new TestSchedule(user, refNow);
+                Schedule.SetCalendarEventAsNow(calEventRetrieved.Id);
+                Schedule.persistToDB().Wait();
+                calEventRetrieved = TestUtility.getCalendarEventById(calEVent.Id, user);
+                SubCalendarEvent subEVent = calEventRetrieved.ActiveSubEvents.Where(o => o.Start >= Schedule.Now.constNow).OrderBy(o => o.End).First();
+                Assert.AreEqual(subEVent.Start, refNow);
+
+                /// now is After first
+                refNow = iniRefNow;
+                TestUtility.reloadTilerUser(ref user, ref tilerUser);
+                calEventRetrieved = TestUtility.getCalendarEventById(calEVent.Id, user);
+                List<SubCalendarEvent> activeSubEVents = calEventRetrieved.ActiveSubEvents.OrderBy(sub=> sub.End).ToList();
+                if (activeSubEVents.Count > 1)
+                {
+                    refNow = activeSubEVents[0].End.AddMinutes(1);
+                    TestUtility.reloadTilerUser(ref user, ref tilerUser);
+                    Schedule = new TestSchedule(user, refNow);
+                    Schedule.SetCalendarEventAsNow(calEventRetrieved.Id);
+                    Schedule.persistToDB().Wait();
+                    subEVent = activeSubEVents[1];
+                    subEVent = TestUtility.getSubEventById(subEVent.Id, user);
+                    Assert.AreEqual(subEVent.Start, refNow);
+                } else
+                {
+                    refNow = activeSubEVents[0].End.AddMinutes(1);
+                    TestUtility.reloadTilerUser(ref user, ref tilerUser);
+                    Schedule = new TestSchedule(user, refNow);
+                    Schedule.SetCalendarEventAsNow(calEventRetrieved.Id);
+                    Schedule.persistToDB().Wait();
+                    subEVent = activeSubEVents[0];
+                    subEVent = TestUtility.getSubEventById(subEVent.Id, user);
+                    Assert.AreEqual(subEVent.Start, refNow);
+                }
+
+                /// now is After End of Last Subevent
+                refNow = iniRefNow;
+                TestUtility.reloadTilerUser(ref user, ref tilerUser);
+                calEventRetrieved = TestUtility.getCalendarEventById(calEVent.Id, user);
+                activeSubEVents = calEventRetrieved.ActiveSubEvents.OrderBy(sub => sub.End).ToList();
+                if (activeSubEVents.Count > 1)
+                {
+                    refNow = activeSubEVents.Last().End.AddMinutes(1);
+                    TestUtility.reloadTilerUser(ref user, ref tilerUser);
+                    Schedule = new TestSchedule(user, refNow);
+                    Schedule.SetCalendarEventAsNow(calEventRetrieved.Id);
+                    Schedule.persistToDB().Wait();
+                    subEVent = activeSubEVents.Last();
+                    subEVent = TestUtility.getSubEventById(subEVent.Id, user);
+                    Assert.AreEqual(subEVent.Start, refNow);
+                }
+                else
+                {
+                    refNow = activeSubEVents.Last().End.AddMinutes(1);
+                    TestUtility.reloadTilerUser(ref user, ref tilerUser);
+                    Schedule = new TestSchedule(user, refNow);
+                    Schedule.SetCalendarEventAsNow(calEventRetrieved.Id);
+                    Schedule.persistToDB().Wait();
+                    subEVent = activeSubEVents[0];
+                    subEVent = TestUtility.getSubEventById(subEVent.Id, user);
+                    Assert.AreEqual(subEVent.Start, refNow);
+                }
+
+
+            }
+        }
     }
 }

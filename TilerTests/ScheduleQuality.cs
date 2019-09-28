@@ -89,7 +89,7 @@ namespace TilerTests
             testEvent = Schedule.getCalendarEvent(testEvent.Id);
             Schedule.persistToDB().Wait();
 
-            List<SubCalendarEvent> subEvents = Schedule.getCalendarEvent(testEvent.Id).ActiveSubEvents.ToList();
+            List<SubCalendarEvent> subEvents = Schedule.getCalendarEvent(testEvent.Id).ActiveSubEvents.Where(sub => sub.End > refNow).ToList();
             List<DayOfWeek> daysOfWeek = subEvents.Select(tilerEvent => tilerEvent.Start.DayOfWeek).ToList();
             int count = 0;
             foreach(DayOfWeek weekDay in daysOfWeek )

@@ -248,7 +248,7 @@ namespace TilerElements
             {
                 foreach(CalendarEventRestricted calRestricted in Repeat.RecurringCalendarEvents())
                 {
-                    calRestricted.setNow(_Now);
+                    calRestricted.setNow(_Now, updateCalendarEventRange);
                 }
             } else
             {

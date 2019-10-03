@@ -1531,7 +1531,13 @@ namespace TilerCore
                 EvaluateTotalTimeLineAndAssignValidTimeSpots(tempCalendarEvent, UnDoneEvents, callLocation, MyEvent.Repeat.RecurringCalendarEvents().ToList(), InterringWithNowEvent, optimizeFirstTwentyFourHours, preserveFirstTwentyFourHours, shuffle);
                 return MyEvent;
             }
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
             CalendarEvent MyCalendarEventUpdated = ReArrangeTimeLineWithinWithinCalendaEventRangeUpdated(MyEvent, NoneCOmmitedCalendarEvent.ToList(), InterringWithNowEvent, UnDoneEvents, callLocation, optimizeFirstTwentyFourHours, preserveFirstTwentyFourHours, shuffle);
+            watch.Stop();
+            TimeSpan scheduleCal = watch.Elapsed;
+            Debug.WriteLine("Schedule calculation took " + scheduleCal.ToString());
+            Debug.WriteLine("-----------------------------------------------------");
             return MyCalendarEventUpdated;
         }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace TilerElements
 {
+    [Serializable]
     public class RestrictionDay: IUndoable
     {
         protected string _Id = Guid.NewGuid().ToString();
@@ -34,6 +36,11 @@ namespace TilerElements
         public override string ToString()
         {
             string retValue = "" + this.DayOfWeekString + "||" + _RestrictionTimeLine.Start + " - " + _RestrictionTimeLine.End;
+            return retValue;
+        }
+        public virtual string ToDbString()
+        {
+            string retValue = JsonConvert.SerializeObject(this);
             return retValue;
         }
         #endregion

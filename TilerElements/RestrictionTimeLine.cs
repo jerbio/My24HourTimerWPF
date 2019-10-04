@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,7 @@ namespace TilerElements
     /// <summary>
     /// represents the Timeline of restriction
     /// </summary>
+    [Serializable]
     public class RestrictionTimeLine: IUndoable
     {
         //ToDo restriction timeline needs to include a day component
@@ -133,6 +135,12 @@ namespace TilerElements
                 Utility.Swap(ref UndoRangeTimeSpan, ref RangeTimeSpan);
                 Utility.Swap(ref UndoEndTimeOfDay, ref EndTimeOfDay);
             }
+        }
+
+        public virtual string ToDbString()
+        {
+            string retValue = JsonConvert.SerializeObject(this);
+            return retValue;
         }
 
         #region Properties

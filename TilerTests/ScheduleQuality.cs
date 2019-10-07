@@ -304,7 +304,10 @@ namespace TilerTests
             repeatEvent = Schedule.getCalendarEvent(repeatEvent.Id);
             Schedule.persistToDB().Wait();
 
-            List<SubCalendarEvent> repeatSubEvents = Schedule.getCalendarEvent(repeatEvent.Id).ActiveSubEvents.ToList();
+            CalendarEvent repeatEventRetrieved = Schedule.getCalendarEvent(repeatEvent.Id);
+            CalendarEvent testEvent0Retrieved = Schedule.getCalendarEvent(testEvent0.Id);
+
+            List<SubCalendarEvent> repeatSubEvents = repeatEventRetrieved.ActiveSubEvents.ToList();
             List<CalendarEvent> allCalendarEvnts = repeatEvent.Repeat.RecurringCalendarEvents().ToList();
             List<DateTimeOffset> allValidDays = new List<DateTimeOffset>();
             TimeLine activeTImeLine = new TimeLine(Schedule.Now.constNow, repeatEvent.End);
@@ -324,32 +327,15 @@ namespace TilerTests
 
 
 
-            List<DayOfWeek> repeatDaysOfWeek = repeatSubEvents.Select(tilerEvent => tilerEvent.Start.DayOfWeek).ToList();
+            List<DayOfWeek> daysOfWeekOfRepeatEvent = repeatSubEvents.Where(subEvent => subEvent.Start > refNow).Select(tilerEvent => tilerEvent.Start.DayOfWeek).ToList();
 
             List<SubCalendarEvent> testSubEvents = Schedule.getCalendarEvent(testEvent0.Id).ActiveSubEvents.ToList();
-            List<DayOfWeek> daysOfWeek = testSubEvents.Select(tilerEvent => tilerEvent.Start.DayOfWeek).ToList();
-
-
-            int repeatCount = 0;
-            foreach (DayOfWeek weekDay in repeatDaysOfWeek)
+            List<DayOfWeek> daysOfWeekTestEvent0 = testSubEvents.Where(subEvent => subEvent.Start > refNow).Select(tilerEvent => tilerEvent.Start.DayOfWeek).ToList();
+            
+            foreach (DayOfWeek weekDay in daysOfWeekOfRepeatEvent)
             {
-                if (repeatDays.Contains(weekDay))
-                {
-                    repeatCount++;
-                }
+                Assert.IsTrue(repeatDays.Contains(weekDay));
             }
-
-            int eventCount = 0;
-            foreach (DayOfWeek weekDay in daysOfWeek)
-            {
-                if (eventDays.Contains(weekDay))
-                {
-                    eventCount++;
-                }
-            }
-
-            int count = allCorrespondingRepeatDays.Count - repeatSplitCount;// this should be 8 because the first week in the repeat sequence is 7/1/2019 - 7/8/2019 which leaves only one day after "refnow" which is 7/7/2019 so it cannot be assigned to one of the preference days
-            Assert.AreEqual(repeatCount, count);
         }
 
         [TestMethod]

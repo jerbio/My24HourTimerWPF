@@ -7,7 +7,6 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using System.Security.Claims;
 using Microsoft.AspNet.Identity;
 using NodaTime;
-using NodaTime;
 
 namespace TilerElements
 {

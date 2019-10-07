@@ -139,7 +139,7 @@ namespace TilerTests
 
             Schedule = new TestSchedule(user, refNow);
             TimeSpan procrastinationSpan = TimeSpan.FromHours(5);
-            var procrassinateResult = Schedule.ProcrastinateJustAnEvent(testEvent.AllSubEvents.OrderBy(subEvent => subEvent.Start).First().getId, procrastinationSpan);
+            var procrassinateResult = Schedule.ProcrastinateJustAnEvent(testEvent.ActiveSubEvents.OrderBy(subEvent => subEvent.Start).First().getId, procrastinationSpan);
             Assert.IsNull(procrassinateResult.Item1);
             Schedule.persistToDB().Wait();
             Schedule = new TestSchedule(user, refNow);

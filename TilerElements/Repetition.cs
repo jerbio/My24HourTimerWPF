@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TilerElements
 {
-    public class Repetition: IUndoable, IHasId
+    public class Repetition : IUndoable, IHasId
     {
         protected string _Id = Guid.NewGuid().ToString();
         protected string _ParentRepetitionId;
@@ -18,11 +18,11 @@ namespace TilerElements
         protected SubEventDictionary<int, Repetition> _DictionaryOfWeekDayToRepetition;
         protected Location _Location;
         protected TimeLine _initializingRange;//stores range for repetition so if assuming event happens on thursday from 9-11pm. The range is from today till november 31. The initializingRange will be 9-11pm
-        protected int RepetitionWeekDay =7;
+        protected int RepetitionWeekDay = 7;
         protected Repetition parentRepetition;
-        protected static DayOfWeek[] Weekdays=new DayOfWeek[7]{DayOfWeek.Sunday,DayOfWeek.Monday,DayOfWeek.Tuesday,DayOfWeek.Wednesday,DayOfWeek.Thursday,DayOfWeek.Friday,DayOfWeek.Saturday};
+        protected static DayOfWeek[] Weekdays = new DayOfWeek[7] { DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday };
         static DateTimeOffset CalculationStop = DateTimeOffset.UtcNow;
-        public enum Frequency {DAILY, WEEKLY, MONTHLY, YEARLY, BIWEEKLY, NONE };
+        public enum Frequency { DAILY, WEEKLY, MONTHLY, YEARLY, BIWEEKLY, NONE };
         protected string _UndoId;
 
         #region UndoMembers
@@ -40,7 +40,7 @@ namespace TilerElements
         #region Constructors
         protected Repetition()
         {
-            
+
         }
 
         public Repetition(bool isInitialaized = true)
@@ -71,7 +71,7 @@ namespace TilerElements
             _DictionaryOfIDAndCalendarEvents = new SubEventDictionary<string, CalendarEvent>();
             _DictionaryOfWeekDayToRepetition = new SubEventDictionary<int, Repetition>();
             _initializingRange = EventActualRange;
-            if(_RepetitionFrequency != Frequency.DAILY)
+            if (_RepetitionFrequency != Frequency.DAILY)
             {
                 foreach (DayOfWeek dayOfWeek in WeekDayData)
                 {
@@ -82,8 +82,8 @@ namespace TilerElements
                 }
             }
         }
-        
-        public Repetition(TimeLine RepetitionRange_Entry, Frequency frequency, TimeLine EventActualRange, int WeekDayData=7 )
+
+        public Repetition(TimeLine RepetitionRange_Entry, Frequency frequency, TimeLine EventActualRange, int WeekDayData = 7)
         {
             _RepetitionRange = RepetitionRange_Entry;
             _RepetitionFrequency = frequency;
@@ -96,7 +96,7 @@ namespace TilerElements
         }
 
         //public Repetition(bool EnableFlag,CalendarEvent BaseCalendarEvent,  TimeLine RepetitionRange_Entry, string Frequency)
-        public Repetition(bool ReadFromFileEnableFlag, TimeLine ReadFromFileRepetitionRange_Entry, string ReadFromFileFrequency, CalendarEvent[] ReadFromFileRecurringListOfCalendarEvents, int DayOfWeek=7)
+        public Repetition(bool ReadFromFileEnableFlag, TimeLine ReadFromFileRepetitionRange_Entry, string ReadFromFileFrequency, CalendarEvent[] ReadFromFileRecurringListOfCalendarEvents, int DayOfWeek = 7)
         {
             _EnableRepeat = false;
             _DictionaryOfIDAndCalendarEvents = new SubEventDictionary<string, CalendarEvent>();
@@ -117,7 +117,7 @@ namespace TilerElements
         }
 
 
-        public Repetition(bool ReadFromFileEnableFlag, TimeLine ReadFromFileRepetitionRange_Entry, string ReadFromFileFrequency, Repetition [] repetition_Weekday, int DayOfWeek=7)
+        public Repetition(bool ReadFromFileEnableFlag, TimeLine ReadFromFileRepetitionRange_Entry, string ReadFromFileFrequency, Repetition[] repetition_Weekday, int DayOfWeek = 7)
         {
             _EnableRepeat = ReadFromFileEnableFlag;
             _DictionaryOfIDAndCalendarEvents = new SubEventDictionary<string, CalendarEvent>();
@@ -126,7 +126,7 @@ namespace TilerElements
             {
                 _DictionaryOfWeekDayToRepetition.Add(eachRepetition.RepetitionWeekDay, eachRepetition);
             }
-            
+
 
             _RepetitionFrequency = Utility.ParseEnum<Frequency>(ReadFromFileFrequency.ToUpper());
             _RepetitionRange = ReadFromFileRepetitionRange_Entry;
@@ -157,7 +157,19 @@ namespace TilerElements
                 }
             }
             return retValue;
-            
+
+        }
+
+        DayOfWeek getBeginningOfRepeatWeekDay(CalendarEvent MyParentEvent)
+        {
+            DayOfWeek[] dayOfWeekOrder = new DayOfWeek[] { DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday };
+            TilerUser tilerUser = MyParentEvent.getCreator ?? MyParentEvent.DefaultCalendarEvent.getCreator;
+            DayOfWeek beginningOfWeek = dayOfWeekOrder.First();
+            if (tilerUser != null)
+            {
+                beginningOfWeek = tilerUser.BeginningOfWeek;
+            }
+            return beginningOfWeek;
         }
         /// <summary>
         /// this function of repetition, is responsible for populating the repetition object in the passed CalendarEvent.
@@ -165,6 +177,8 @@ namespace TilerElements
         /// <param name="MyParentEvent"></param>
         public void PopulateRepetitionParameters(CalendarEvent MyParentEvent)
         {
+
+
             if (!MyParentEvent.IsRepeat)//Checks if Repetition object is enabled or disabled. If Disabled then just return else continue
             {
                 return;
@@ -183,42 +197,98 @@ namespace TilerElements
             }
             this.ParentEvent = MyParentEvent;
 
+
+            DateTimeOffset IniRepeatStart;
+            DateTimeOffset IniRepeatEnd;
             DateTimeOffset EachRepeatCalendarStart;//Start DateTimeOffset Object for each recurring Calendar Event
             DateTimeOffset EachRepeatCalendarEnd;
 
+
+
             EventID MyEventCalendarID = EventID.GenerateRepeatCalendarEvent(MyParentEvent.getId);
             CalendarEvent MyRepeatCalendarEvent;
-
+            int splitCount = MyParentEvent.NumberOfSplit;
 
 
             if (MyParentEvent.isRigid)
             {
-                
+
                 EachRepeatCalendarStart = _initializingRange.Start;
                 EachRepeatCalendarEnd = _initializingRange.End;
-                MyRepeatCalendarEvent = new RigidCalendarEvent(MyParentEvent.getName, _initializingRange.Start, _initializingRange.End, MyParentEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, new Repetition(), MyParentEvent.Location,  MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID);
+                MyRepeatCalendarEvent = new RigidCalendarEvent(MyParentEvent.getName, _initializingRange.Start, _initializingRange.End, MyParentEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, new Repetition(), MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID);
             }
             else
             {
                 ReferenceNow now = new ReferenceNow(_initializingRange.Start, MyParentEvent.getCreator.EndfOfDay, new TimeSpan());
                 TimeLine dayTImeLine = now.getDayTimeLineByTime(_initializingRange.Start);
-                EachRepeatCalendarStart = dayTImeLine.Start;//Start DateTimeOffset Object for each recurring Calendar Event
-                EachRepeatCalendarEnd = IncreaseByFrequency(dayTImeLine.Start, getFrequency, MyParentEvent.getCreator.TimeZone);//  we want the calendar event range to end based on what repeat frequency is selected. E.g if the Calendar event is WEEKLY and the initial range from 10/14/2018 - 10/23/2018(which is over a week), then the we want each calendar event to weekly, so the first calendar event will be 10/14/2018 12:00am - 10/21/2018 11:59PM
+                IniRepeatStart = EachRepeatCalendarStart = dayTImeLine.Start;//Start DateTimeOffset Object for each recurring Calendar Event
+                IniRepeatEnd = EachRepeatCalendarEnd = IncreaseByFrequency(dayTImeLine.Start, getFrequency, MyParentEvent.getCreator.TimeZone);//  we want the calendar event range to end based on what repeat frequency is selected. E.g if the Calendar event is WEEKLY and the initial range from 10/14/2018 - 10/23/2018(which is over a week), then the we want each calendar event to weekly, so the first calendar event will be 10/14/2018 12:00am - 10/21/2018 11:59PM
+                int daySpan = getFrequency == Frequency.WEEKLY ? 7 : getFrequency == Frequency.BIWEEKLY ? 14 : -1;
                 if (weekDay != 7)// if a weekday was selected then intuitive user will expect it to only occur on twentyfour hour bases. I just don't want to deal with weird corner cases
                 {
-                    EachRepeatCalendarEnd = dayTImeLine.End;
+                    IniRepeatEnd = EachRepeatCalendarEnd = dayTImeLine.End;
                 }
-
-                EachRepeatCalendarStart = MyParentEvent.Start;
-                if(EachRepeatCalendarEnd > MyParentEvent.Repeat.Range.End)
+                else
                 {
-                    EachRepeatCalendarEnd = MyParentEvent.Repeat.Range.End;
-                    if((EachRepeatCalendarEnd - EachRepeatCalendarStart) < MyParentEvent.getActiveDuration)// if the duration of a subcalendar event cannot fit in the calendar event timeline then return.
+                    if (getFrequency == Frequency.WEEKLY || getFrequency == Frequency.BIWEEKLY)/// this handles the scenario where the repetition is weekly and the user's beginning of week starts on thursdays but the event was created on a monday. A partial calendar event should be created with auto deleted subevents
+                    {
+                        //DayOfWeek dayOfWeek = now.getDayOfTheWeek(EachRepeatCalendarStart).Item1;
+                        //int dayOfWeekIndex = (int)dayOfWeek;
+                        //DayOfWeek beginningOfWeek_Day = getBeginningOfRepeatWeekDay(MyParentEvent);
+                        //int beginningWeekDayIndex = (int)beginningOfWeek_Day;
+                        //int dayDiff = ((beginningWeekDayIndex - dayOfWeekIndex) + daySpan) % daySpan;
+                        //IniRepeatEnd = EachRepeatCalendarEnd = now.getDayTimeLineByTime(EachRepeatCalendarStart.AddDays(dayDiff)).End;
+                        //TimeSpan timeSpanForPossiblePartialFrequencyFrame = TimeSpan.FromDays(daySpan);
+                        //double ratio = (IniRepeatEnd - IniRepeatStart).TotalSeconds / timeSpanForPossiblePartialFrequencyFrame.TotalSeconds;
+                        //splitCount = (int)Math.Round(ratio * MyParentEvent.NumberOfSplit);
+
+                        DayOfWeek dayOfWeek = now.getDayOfTheWeek(EachRepeatCalendarStart).Item1;
+                        int dayOfWeekIndex = (int)dayOfWeek;
+                        DayOfWeek beginningOfWeek_Day = getBeginningOfRepeatWeekDay(MyParentEvent);
+                        int beginningWeekDayIndex = (int)beginningOfWeek_Day;
+                        int dayDiff = ((beginningWeekDayIndex - dayOfWeekIndex) + daySpan) % daySpan;
+                        dayDiff = dayDiff == 0 ? daySpan : dayDiff;/// handles scenario if the current day is the same day as start of week
+                        ulong endDayIndex = now.getDayIndexFromStartOfTime(EachRepeatCalendarStart) + (ulong)dayDiff;
+                        DayTimeLine endDayTimeLine = now.getDayTimeLineByDayIndex(endDayIndex);
+                        IniRepeatEnd = EachRepeatCalendarEnd = endDayTimeLine.Start.AddMinutes(-1);
+                        TimeSpan timeSpanForPossiblePartialFrequencyFrame = TimeSpan.FromDays(daySpan);
+                        double ratio = (IniRepeatEnd - IniRepeatStart).TotalSeconds / timeSpanForPossiblePartialFrequencyFrame.TotalSeconds;
+                        splitCount = (int)Math.Round(ratio * MyParentEvent.NumberOfSplit);
+
+
+
+                        //DayOfWeek dayOfWeek = now.getDayOfTheWeek(EachRepeatCalendarStart).Item1;
+                        //int dayOfWeekIndex = (int)dayOfWeek;
+                        //DayOfWeek beginningOfWeek_Day = getBeginningOfRepeatWeekDay(MyParentEvent);
+                        //int beginningWeekDayIndex = (int)beginningOfWeek_Day;
+                        //int dayDiff = ((beginningWeekDayIndex - dayOfWeekIndex) + daySpan) % daySpan;
+                        //IniRepeatEnd = EachRepeatCalendarEnd = EachRepeatCalendarStart.AddDays(dayDiff).AddMinutes(-1);
+                        //TimeSpan timeSpanForPossiblePartialFrequencyFrame = TimeSpan.FromDays(daySpan);
+                        //double ratio = (IniRepeatEnd - IniRepeatStart).TotalSeconds / timeSpanForPossiblePartialFrequencyFrame.TotalSeconds;
+                        //splitCount = (int)Math.Round(ratio * MyParentEvent.NumberOfSplit);
+
+                        EachRepeatCalendarStart = IniRepeatEnd.AddMinutes(1).AddDays(-daySpan);
+                        EachRepeatCalendarEnd = IniRepeatEnd;
+                    }
+                }
+                DateTimeOffset repeatEnd = IniRepeatEnd;
+                if (repeatEnd > MyParentEvent.Repeat.Range.End)
+                {
+                    repeatEnd = MyParentEvent.Repeat.Range.End;
+                    if ((repeatEnd - MyParentEvent.Start) < MyParentEvent.getActiveDuration)// if the duration of a subcalendar event cannot fit in the calendar event timeline then return.
                     {
                         return;
                     }
                 }
-                MyRepeatCalendarEvent = new CalendarEvent(MyParentEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyParentEvent.NumberOfSplit, new Repetition(), MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.getProcrastinationInfo, MyParentEvent.getNowInfo, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID);
+                MyRepeatCalendarEvent = new CalendarEvent(MyParentEvent.getName, IniRepeatStart, repeatEnd, MyParentEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyParentEvent.NumberOfSplit, new Repetition(), MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.getProcrastinationInfo, MyParentEvent.getNowInfo, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID);
+                int autoDisableCount = MyParentEvent.NumberOfSplit - splitCount;
+                var subEvents = MyRepeatCalendarEvent.ActiveSubEvents.OrderBy(o => o.Start).Take(autoDisableCount).ToList();
+                foreach (SubCalendarEvent subEvent in subEvents)
+                {
+                    subEvent.autoDisable(subEvent.ParentCalendarEvent, Reason.AutoDeletion.RepetitionSpanTooSmall);
+                }
+
+
             }
             MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
             MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
@@ -234,7 +304,7 @@ namespace TilerElements
 
             List<CalendarEvent> MyArrayOfRepeatingCalendarEvents = new List<CalendarEvent>();
 
-            for (; MyRepeatCalendarEvent.Start < MyParentEvent.Repeat.Range.End; )
+            for (; MyRepeatCalendarEvent.Start < MyParentEvent.Repeat.Range.End;)
             {
                 MyArrayOfRepeatingCalendarEvents.Add(MyRepeatCalendarEvent);
                 _DictionaryOfIDAndCalendarEvents.Add(MyRepeatCalendarEvent.getId, MyRepeatCalendarEvent);
@@ -257,8 +327,9 @@ namespace TilerElements
                 MyEventCalendarID = EventID.GenerateRepeatCalendarEvent(MyParentEvent.getId);
                 if (MyRepeatCalendarEvent.isRigid)
                 {
-                    MyRepeatCalendarEvent = new RigidCalendarEvent(MyRepeatCalendarEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyRepeatCalendarEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyRepeatCalendarEvent.Repeat,MyParentEvent.Location,  MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID);
-                } else
+                    MyRepeatCalendarEvent = new RigidCalendarEvent(MyRepeatCalendarEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyRepeatCalendarEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyRepeatCalendarEvent.Repeat, MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID);
+                }
+                else
                 {
                     MyRepeatCalendarEvent = new CalendarEvent(MyRepeatCalendarEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyRepeatCalendarEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyRepeatCalendarEvent.NumberOfSplit, MyRepeatCalendarEvent.Repeat, MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.getProcrastinationInfo, MyParentEvent.getNowInfo, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID);
                 }
@@ -298,23 +369,87 @@ namespace TilerElements
             TimeLine dayTImeLine = now.getDayTimeLineByTime(_initializingRange.Start);
             DateTimeOffset EachRepeatCalendarStart = dayTImeLine.Start;//Start DateTimeOffset Object for each recurring Calendar Event
             DateTimeOffset EachRepeatCalendarEnd = IncreaseByFrequency(dayTImeLine.Start, getFrequency, MyParentEvent.getCreator.TimeZone);//  we want the calendar event range to end based on what repeat frequency is selected. E.g if the Calendar event is WEEKLY and the initial range from 10/14/2018 - 10/23/2018(which is over a week), then the we want each calendar event to weekly, so the first calendar event will be 10/14/2018 12:00am - 10/21/2018 11:59PM
+            DateTimeOffset IniRepeatStart = EachRepeatCalendarStart;
+            DateTimeOffset IniRepeatEnd = EachRepeatCalendarEnd;
+            int daySpan = getFrequency == Frequency.WEEKLY ? 7 : getFrequency == Frequency.BIWEEKLY ? 14 : -1;
+            int splitCount = MyParentEvent.NumberOfSplit;
             if (weekDay != 7)// if a weekday was selected then intuitive user will expect it to only occur on twentyfour hour bases. I just don't want to deal with weird corner cases
             {
-                EachRepeatCalendarEnd = dayTImeLine.End;
+                IniRepeatEnd = EachRepeatCalendarEnd = dayTImeLine.End;
+            }
+            else
+            {
+                if (getFrequency == Frequency.WEEKLY || getFrequency == Frequency.BIWEEKLY)/// this handles the scenario where the repetition is weekly and the user's beginning of week starts on thursdays but the event was created on a monday. A partial calendar event should be created with auto deleted subevents
+                {
+                    DayOfWeek dayOfWeek = now.getDayOfTheWeek(EachRepeatCalendarStart).Item1;
+                    int dayOfWeekIndex = (int)dayOfWeek;
+                    DayOfWeek beginningOfWeek_Day = getBeginningOfRepeatWeekDay(MyParentEvent);
+                    int beginningWeekDayIndex = (int)beginningOfWeek_Day;
+                    int dayDiff = ((beginningWeekDayIndex - dayOfWeekIndex) + daySpan) % daySpan;
+                    dayDiff = dayDiff == 0 ? 7 : dayDiff;/// handles scenario if the current day is the same day as start of week
+                    ulong endDayIndex = now.getDayIndexFromStartOfTime(EachRepeatCalendarStart) + (ulong)dayDiff;
+                    DayTimeLine endDayTimeLine = now.getDayTimeLineByDayIndex(endDayIndex);
+                    IniRepeatEnd = EachRepeatCalendarEnd = endDayTimeLine.Start.AddMinutes(-1);
+                    TimeSpan timeSpanForPossiblePartialFrequencyFrame = TimeSpan.FromDays(daySpan);
+                    double ratio = (IniRepeatEnd - IniRepeatStart).TotalSeconds / timeSpanForPossiblePartialFrequencyFrame.TotalSeconds;
+                    splitCount = (int)Math.Round(ratio * MyParentEvent.NumberOfSplit);
+
+
+                    EachRepeatCalendarStart = IniRepeatEnd.AddMinutes(1).AddDays(-daySpan);
+                    EachRepeatCalendarEnd = IniRepeatEnd;
+                }
+            }
+            DateTimeOffset repeatEnd = IniRepeatEnd;
+            if (repeatEnd > MyParentEvent.Repeat.Range.End)
+            {
+                repeatEnd = MyParentEvent.Repeat.Range.End;
+                if ((repeatEnd - MyParentEvent.Start) < MyParentEvent.getActiveDuration)// if the duration of a subcalendar event cannot fit in the calendar event timeline then return.
+                {
+                    return;
+                }
             }
 
 
             EventID MyEventCalendarID = EventID.GenerateRepeatCalendarEvent(MyParentEvent.getId);
             TimeLineRestricted restrictionTimeLine = new TimeLineRestricted(EachRepeatCalendarStart, MyParentEvent.Repeat.Range.End, MyParentEvent.RetrictionProfile, now);
-            TimeLine calendarTimeLine = new TimeLine(EachRepeatCalendarStart, EachRepeatCalendarEnd);
+            TimeLine calendarTimeLine = new TimeLine(IniRepeatStart, repeatEnd);
             List<CalendarEvent> MyArrayOfRepeatingCalendarEvents = new List<CalendarEvent>();
+            CalendarEventRestricted MyRepeatCalendarEvent = null;
+            if (restrictionTimeLine.doesTimeLineInterfere(calendarTimeLine))
+            {
+                MyRepeatCalendarEvent = CalendarEventRestricted.InstantiateRepeatedCandidate(MyParentEvent.getName, calendarTimeLine.Start, calendarTimeLine.End, MyParentEvent.Calendar_EventID, MyParentEvent.RetrictionProfile, MyParentEvent.getActiveDuration, MyParentEvent.NumberOfSplit, MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.isLocked, MyParentEvent.getPreparation, MyParentEvent.ThirdPartyID, MyParentEvent.Now, MyParentEvent.getCreator, MyParentEvent.Notes, MyParentEvent.getNowInfo);
+
+                int autoDisableCount = MyParentEvent.NumberOfSplit - splitCount;
+                var subEvents = MyRepeatCalendarEvent.ActiveSubEvents.OrderBy(o => o.Start).Take(autoDisableCount).ToList();
+                foreach (SubCalendarEvent subEvent in subEvents)
+                {
+                    subEvent.autoDisable(subEvent.ParentCalendarEvent, Reason.AutoDeletion.RepetitionSpanTooSmall);
+                }
+                MyArrayOfRepeatingCalendarEvents.Add(MyRepeatCalendarEvent);
+                _DictionaryOfIDAndCalendarEvents.Add(MyRepeatCalendarEvent.getId, MyRepeatCalendarEvent);
+                MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
+                foreach (SubCalendarEvent subEvent in MyRepeatCalendarEvent.AllSubEvents)
+                {
+                    subEvent.RepeatParentEvent = MyParentEvent;
+                }
+                MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
+                MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
+                MyRepeatCalendarEvent.setRepeatParent(MyParentEvent);
+                MyRepeatCalendarEvent.Location = MyParentEvent.Location;
+                EachRepeatCalendarStart = IncreaseByFrequency(EachRepeatCalendarStart, getFrequency);
+                EachRepeatCalendarEnd = IncreaseByFrequency(EachRepeatCalendarEnd, getFrequency);
+                calendarTimeLine = new TimeLine(EachRepeatCalendarStart, EachRepeatCalendarEnd);
+            }
+
+
+
             for (; calendarTimeLine.End < MyParentEvent.Repeat.Range.End;)
             {
                 if (restrictionTimeLine.doesTimeLineInterfere(calendarTimeLine))
                 {
-                    
+
                     MyEventCalendarID = EventID.GenerateRepeatCalendarEvent(MyParentEvent.getId);
-                    CalendarEventRestricted MyRepeatCalendarEvent = CalendarEventRestricted.InstantiateRepeatedCandidate(MyParentEvent.getName, calendarTimeLine.Start, calendarTimeLine.End, MyParentEvent.Calendar_EventID, MyParentEvent.RetrictionProfile, MyParentEvent.getActiveDuration, MyParentEvent.NumberOfSplit, MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.isLocked, MyParentEvent.getPreparation, MyParentEvent.ThirdPartyID, MyParentEvent.Now, MyParentEvent.getCreator, MyParentEvent.Notes); //new CalendarEvent(MyEventCalendarID, MyRepeatCalendarEvent.Name, MyRepeatCalendarEvent.ActiveDuration, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyRepeatCalendarEvent.Preparation, MyRepeatCalendarEvent.PreDeadline, MyRepeatCalendarEvent.Rigid, MyRepeatCalendarEvent.Repeat, MyRepeatCalendarEvent.NumberOfSplit, MyParentEvent.myLocation, MyParentEvent.isEnabled, MyParentEvent.UIParam, MyParentEvent.Notes, MyParentEvent.isComplete);
+                    MyRepeatCalendarEvent = CalendarEventRestricted.InstantiateRepeatedCandidate(MyParentEvent.getName, calendarTimeLine.Start, calendarTimeLine.End, MyParentEvent.Calendar_EventID, MyParentEvent.RetrictionProfile, MyParentEvent.getActiveDuration, MyParentEvent.NumberOfSplit, MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.isLocked, MyParentEvent.getPreparation, MyParentEvent.ThirdPartyID, MyParentEvent.Now, MyParentEvent.getCreator, MyParentEvent.Notes, MyParentEvent.getNowInfo);
                     MyArrayOfRepeatingCalendarEvents.Add(MyRepeatCalendarEvent);
                     _DictionaryOfIDAndCalendarEvents.Add(MyRepeatCalendarEvent.getId, MyRepeatCalendarEvent);
                     MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
@@ -333,7 +468,7 @@ namespace TilerElements
             }
             MyParentEvent.deleteAllSubCalendarEventsFromRepeatParentCalendarEvent();
         }
-        
+
         private DateTimeOffset getStartTimeForAppropriateWeek(DateTimeOffset refTime, DayOfWeek SearchedDayOfweek)
         {
             while (refTime.DayOfWeek != SearchedDayOfweek)
@@ -354,15 +489,15 @@ namespace TilerElements
             DateTimeOffset EachRepeatCalendarEnd = _RepetitionRange.End;
             DateTimeOffset StartTimeLineForActity = getStartTimeForAppropriateWeek(_initializingRange.Start, Weekdays[WeekDay]);
             DateTimeOffset EndTimeLineForActity = StartTimeLineForActity.Add(_initializingRange.TimelineSpan);
-            if((EachRepeatCalendarStart > _RepetitionRange.End) || (EachRepeatCalendarEnd - EachRepeatCalendarStart) < MyParentEvent.AverageTimeSpanPerSubEvent)
+            if ((EachRepeatCalendarStart > _RepetitionRange.End) || (EachRepeatCalendarEnd - EachRepeatCalendarStart) < MyParentEvent.AverageTimeSpanPerSubEvent)
             {
                 return;
             }
 
-            TimeLine repetitionTimeline= new TimeLine(EachRepeatCalendarStart,EachRepeatCalendarEnd);
+            TimeLine repetitionTimeline = new TimeLine(EachRepeatCalendarStart, EachRepeatCalendarEnd);
             TimeLine ActiveTimeline = new TimeLine(StartTimeLineForActity, EndTimeLineForActity);
 
-            Repetition repetitionData = new Repetition(repetitionTimeline, this.getFrequency, ActiveTimeline,7);
+            Repetition repetitionData = new Repetition(repetitionTimeline, this.getFrequency, ActiveTimeline, 7);
             repetitionData.ParentEvent = MyParentEvent;
 
             this.ParentEvent = MyParentEvent;
@@ -372,11 +507,11 @@ namespace TilerElements
             CalendarEvent MyRepeatCalendarEvent;
             if (MyParentEvent.isRigid)
             {
-                MyRepeatCalendarEvent = new RigidCalendarEvent(MyParentEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, repetitionData, MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.isEnabled,  MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID);
+                MyRepeatCalendarEvent = new RigidCalendarEvent(MyParentEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, repetitionData, MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID);
             }
             else
             {
-                MyRepeatCalendarEvent = new CalendarEvent(MyParentEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyParentEvent.NumberOfSplit, repetitionData,  MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.getProcrastinationInfo, MyParentEvent.getNowInfo, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID);
+                MyRepeatCalendarEvent = new CalendarEvent(MyParentEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyParentEvent.NumberOfSplit, repetitionData, MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.getProcrastinationInfo, MyParentEvent.getNowInfo, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID);
             }
             MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
             MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
@@ -409,7 +544,7 @@ namespace TilerElements
             this._initializingRange = ActiveTimeline;
             this._RepetitionRange = repetitionTimeline;
             EventID MyEventCalendarID = EventID.GenerateRepeatDayCalendarEvent(MyParentEvent.getId, WeekDay);
-            CalendarEventRestricted MyRepeatCalendarEvent = new CalendarEventRestricted(MyParentEvent.getCreator , MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyParentEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.RetrictionProfile, MyParentEvent.getActiveDuration, repetitionData, MyParentEvent.getIsComplete, MyParentEvent.isEnabled, MyParentEvent.isLocked ? 1 : MyParentEvent.NumberOfSplit, MyParentEvent.isLocked, MyParentEvent.Location, MyParentEvent.getPreparation,MyParentEvent.getPreDeadline, MyEventCalendarID, MyParentEvent.Now, MyParentEvent.getUIParam, MyParentEvent.Notes);
+            CalendarEventRestricted MyRepeatCalendarEvent = new CalendarEventRestricted(MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyParentEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.RetrictionProfile, MyParentEvent.getActiveDuration, repetitionData, MyParentEvent.getIsComplete, MyParentEvent.isEnabled, MyParentEvent.isLocked ? 1 : MyParentEvent.NumberOfSplit, MyParentEvent.isLocked, MyParentEvent.Location, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyEventCalendarID, MyParentEvent.Now, MyParentEvent.getUIParam, MyParentEvent.Notes);
             MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
             MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
             MyRepeatCalendarEvent.Location = MyParentEvent.Location;
@@ -454,7 +589,7 @@ namespace TilerElements
 
         public bool isExtraLayers()
         {
-            return _DictionaryOfWeekDayToRepetition !=null && _DictionaryOfWeekDayToRepetition.Count > 0;
+            return _DictionaryOfWeekDayToRepetition != null && _DictionaryOfWeekDayToRepetition.Count > 0;
         }
 
         public List<Repetition> getDayRepetitions()
@@ -463,7 +598,7 @@ namespace TilerElements
             return retValue;
         }
 
-#region properties
+        #region properties
 
         public Frequency getFrequency
         {
@@ -582,7 +717,8 @@ namespace TilerElements
                 _UndoEnableRepeat = value;
             }
         }
-        public int UndoRepetitionWeekDay {
+        public int UndoRepetitionWeekDay
+        {
             get
             {
                 return _UndoRepetitionWeekDay;
@@ -595,7 +731,7 @@ namespace TilerElements
         #endregion
 
         #region dbproperties
-        public string  RepetitionFrequency
+        public string RepetitionFrequency
         {
             get
             {
@@ -620,7 +756,7 @@ namespace TilerElements
             set
             {
                 _RepetitionRangeStart = value;
-                if(_RepetitionRange == null && _RepetitionRangeEnd != null && _RepetitionRangeStart != null)
+                if (_RepetitionRange == null && _RepetitionRangeEnd != null && _RepetitionRangeStart != null)
                 {
                     _RepetitionRange = new TimeLine(_RepetitionRangeStart, _RepetitionRangeEnd);
                 }
@@ -734,12 +870,12 @@ namespace TilerElements
             }
             get
             {
-                if(_Location!=null)
+                if (_Location != null)
                 {
                     return _Location.isNull ? null : _Location;
                 }
                 return null;
-                
+
             }
         }
 
@@ -824,17 +960,17 @@ namespace TilerElements
         {
             CalendarEvent[] retValue = null;
 
-            if (_DictionaryOfWeekDayToRepetition !=null && _DictionaryOfWeekDayToRepetition.Count > 0)
+            if (_DictionaryOfWeekDayToRepetition != null && _DictionaryOfWeekDayToRepetition.Count > 0)
             {
                 retValue = _DictionaryOfWeekDayToRepetition.Values.SelectMany(obj => obj.RecurringCalendarEvents()).ToArray();
             }
             else
             {
-                retValue= _DictionaryOfIDAndCalendarEvents.Values.ToArray();
+                retValue = _DictionaryOfIDAndCalendarEvents.Values.ToArray();
             }
             return retValue;
         }
-       
+
         public Repetition getSubRepeitionByWeekDay(DayOfWeek weekDay)
         {
             int dayOfWeek = (int)weekDay;
@@ -877,7 +1013,7 @@ namespace TilerElements
             {
                 calEvent.undoUpdate(undo);
             }
-            
+
             //protected ICollection<CalendarEvent> _UndoRepeatingEvents;
             //protected Dictionary<int, Repetition> _UndoDictionaryOfWeekDayToRepetition = new Dictionary<int, Repetition>();
         }
@@ -934,5 +1070,5 @@ namespace TilerElements
                 return _UndoId;
             }
         }
-    }  
+    }
 }

@@ -18,6 +18,7 @@ namespace TilerElements
         protected TimeSpan _AverageTimePerSplit;
         protected int _CompletedCount;
         protected int _DeletedCount;
+        protected int _AutoDeletedCount;
         protected SubEventDictionary<string, SubCalendarEvent> _SubEvents;
 
         CustomErrors CalendarError = null;
@@ -40,6 +41,7 @@ namespace TilerElements
         public TimeSpan UndoAverageTimePerSplit;
         public int UndoCompletedCount;
         public int UndoDeletedCount;
+        public int UndoAutoDeletedCount;
         public string UndoLastCompletionTime;
         #endregion
 
@@ -49,6 +51,7 @@ namespace TilerElements
             UndoAverageTimePerSplit = _AverageTimePerSplit;
             UndoCompletedCount = _CompletedCount;
             UndoDeletedCount = _DeletedCount;
+            UndoAutoDeletedCount = _AutoDeletedCount;
             base.undoUpdate(undo);
         }
 
@@ -60,6 +63,7 @@ namespace TilerElements
                 Utility.Swap(ref UndoAverageTimePerSplit, ref _AverageTimePerSplit);
                 Utility.Swap(ref UndoCompletedCount, ref _CompletedCount);
                 Utility.Swap(ref UndoDeletedCount, ref _DeletedCount);
+                Utility.Swap(ref UndoAutoDeletedCount, ref _AutoDeletedCount);
                 Utility.Swap(ref UndoLastCompletionTime, ref _LastCompletionTime);
             }
             base.undo(undoId);
@@ -73,6 +77,7 @@ namespace TilerElements
                 Utility.Swap(ref UndoAverageTimePerSplit, ref _AverageTimePerSplit);
                 Utility.Swap(ref UndoCompletedCount, ref _CompletedCount);
                 Utility.Swap(ref UndoDeletedCount, ref _DeletedCount);
+                Utility.Swap(ref UndoAutoDeletedCount, ref _AutoDeletedCount);
                 Utility.Swap(ref UndoLastCompletionTime, ref _LastCompletionTime);
             }
             base.redo(undoId);
@@ -132,7 +137,7 @@ namespace TilerElements
             this._LocationInfo = location;
             this._UiParams = displayData;
             this._Name = name;
-            this._UserDeleted = userDeleted;
+            this._AutoDeleted = userDeleted;
             this._TimeZone = timeZoneOrigin;
             this.TimeCreated = DateTimeOffset.UtcNow;
             this._Semantics = semantics ?? new Classification(this);
@@ -236,7 +241,7 @@ namespace TilerElements
             this.isRestricted = MyUpdated.getIsEventRestricted;
             this._LocationInfo = MyUpdated.Location;//hack you might need to make copy
             this._ProfileOfProcrastination = MyUpdated.getProcrastinationInfo;
-            this._UserDeleted = MyUpdated.getIsUserDeleted;
+            this._AutoDeleted = MyUpdated.getIsUserDeleted;
             this._CompletedCount = MyUpdated.CompletionCount;
             this._DeletedCount = MyUpdated.DeletionCount;
             _EventRepetition = MyUpdated.Repeat;
@@ -504,7 +509,7 @@ namespace TilerElements
             MyCalendarEventCopy.isRestricted = this.isRestricted;
             MyCalendarEventCopy._LocationInfo = _LocationInfo;//hack you might need to make copy
             MyCalendarEventCopy._ProfileOfProcrastination = this._ProfileOfProcrastination?.CreateCopy();
-            MyCalendarEventCopy._UserDeleted = this._UserDeleted;
+            MyCalendarEventCopy._AutoDeleted = this._AutoDeleted;
             MyCalendarEventCopy._CompletedCount = this._CompletedCount;
             MyCalendarEventCopy._DeletedCount = this._DeletedCount;
             MyCalendarEventCopy._ProfileOfNow = this.getNowInfo?.CreateCopy();
@@ -574,6 +579,20 @@ namespace TilerElements
             else
             {
                 throw new Exception("You are Increasing more event Than is available");
+            }
+        }
+
+        internal void incrementAutoDeleteCount(TimeSpan span)
+        {
+            int currentCount = _AutoDeletedCount + 1;
+            if (_AutoDeletedCount <= _Splits)
+            {
+                _AutoDeletedCount = currentCount;
+                _UsedTime += span;
+            }
+            else
+            {
+                throw new Exception("You are Increasing the auto deltion count to a value more than the number of splits");
             }
         }
 
@@ -1200,7 +1219,7 @@ namespace TilerElements
                 this._ThirdPartyFlag = CalendarEventEntry._ThirdPartyFlag;
                 this.ThirdPartyTypeInfo = CalendarEventEntry.ThirdPartyTypeInfo;
                 this.ThirdPartyUserIDInfo = CalendarEventEntry.ThirdPartyUserIDInfo;
-                this._UserDeleted = CalendarEventEntry._UserDeleted;
+                this._AutoDeleted = CalendarEventEntry._AutoDeleted;
                 this._Users = CalendarEventEntry._Users;
                 this._UsedTime = CalendarEventEntry._UsedTime;
                 return;
@@ -1456,7 +1475,7 @@ namespace TilerElements
             RetValue.isRestricted = this.getIsEventRestricted;
             RetValue._LocationInfo = this.Location;//hack you might need to make copy
             RetValue._ProfileOfProcrastination = this.getProcrastinationInfo?.CreateCopy();
-            RetValue._UserDeleted = this.getIsUserDeleted;
+            RetValue._AutoDeleted = this.getIsUserDeleted;
             RetValue._CompletedCount = this.CompletionCount;
             RetValue._DeletedCount = this.DeletionCount;
             RetValue._ProfileOfNow = this._ProfileOfNow?.CreateCopy();
@@ -1902,6 +1921,20 @@ namespace TilerElements
             }
         }
 
+        [DefaultValue(0)]
+        virtual public int AutoDeletionCount_DB
+        {
+            set
+            {
+                _AutoDeletedCount = value;
+            }
+
+            get
+            {
+                return _AutoDeletedCount;
+            }
+        }
+
 
         public string DayPreferenceId
         {
@@ -2094,6 +2127,14 @@ namespace TilerElements
             get
             {
                 return _DeletedCount;
+            }
+        }
+
+        virtual public int AutoDeletionCount
+        {
+            get
+            {
+                return _AutoDeletedCount;
             }
         }
 

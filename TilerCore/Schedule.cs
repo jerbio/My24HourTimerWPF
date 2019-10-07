@@ -489,7 +489,7 @@ namespace TilerCore
                     ((SubCalendarEventRestricted)mySubCalEvent).getRestrictionProfile(), mySubCalEvent.ParentCalendarEvent.StartToEnd,
                     mySubCalEvent.isEnabled, mySubCalEvent.getIsComplete, mySubCalEvent.Conflicts, mySubCalEvent.isRigid,
                     new TimeSpan(), new TimeSpan(),
-                    mySubCalEvent.Location, mySubCalEvent.getUIParam, mySubCalEvent.Notes, Now, mySubCalEvent.Priority_EventDB, mySubCalEvent.ThirdPartyID, subEventID: mySubCalEvent.Id);
+                    mySubCalEvent.Location, mySubCalEvent.getUIParam, mySubCalEvent.Notes, Now, mySubCalEvent.ParentCalendarEvent.getNowInfo, mySubCalEvent.Priority_EventDB, mySubCalEvent.ThirdPartyID, subEventID: mySubCalEvent.Id);
             }
 
 
@@ -1160,9 +1160,15 @@ namespace TilerCore
             }
 
 
-            if (ReferenceSubEvent.End > referenceCalendarEvent.End)
+            if (ReferenceSubEvent.End > referenceCalendarEvent.End || ReferenceSubEvent.Start < referenceCalendarEvent.Start)
             {
-                referenceCalendarEvent.updateTimeLine(new TimeLine(referenceCalendarEvent.Start, ReferenceSubEvent.End));
+                DateTimeOffset newStart = referenceCalendarEvent.Start;
+                DateTimeOffset newEnd = referenceCalendarEvent.End;
+                newStart = ReferenceSubEvent.Start < referenceCalendarEvent.Start ? ReferenceSubEvent.Start : referenceCalendarEvent.Start;
+                newEnd = ReferenceSubEvent.End > referenceCalendarEvent.End ? ReferenceSubEvent.End : referenceCalendarEvent.End;
+                
+                TimeLine newTImeLine = new TimeLine(newStart, newEnd);
+                referenceCalendarEvent.updateTimeLine(newTImeLine);
             }
 
             if (!InitialRigid)
@@ -2129,15 +2135,15 @@ namespace TilerCore
                     TimeLine MaxFreeSpotAvailable = AllAvailableTimeLines.Value.First();
                     if (AllAvailableTimeLines.Key.PinToPossibleLimit(MaxFreeSpotAvailable))// this should never be true because it should not be able to fit within any time lines. CannotFitInAnyFreespot already checks if it fits in anytime line. This is most likely redundant code that should be delted for prod
                     {
-                        try
-                        {
-                            throw new Exception("There is an error in PrepareElementsThatWillNotFit PinToPossibleLimit. Seems like none of the tiles will fit in any of the available freespots event id " + AllAvailableTimeLines.Key.Id);
-                        }
-                        catch (Exception e)
-                        {// Swallowing exception this should only be thrown when sub events cannot but should interrupt scheduling
-                            Console.Error.WriteLine("There is an error in PrepareElementsThatWillNotFit PinToPossibleLimit. Seems like none of the tiles will fit in any of the available freespots event id " + AllAvailableTimeLines.Key.Id);
-                            break;
-                        }
+                        //try
+                        //{
+                        //    throw new Exception("There is an error in PrepareElementsThatWillNotFit PinToPossibleLimit. Seems like none of the tiles will fit in any of the available freespots event id " + AllAvailableTimeLines.Key.Id);
+                        //}
+                        //catch (Exception e)
+                        //{// Swallowing exception this should only be thrown when sub events cannot but should interrupt scheduling
+                        //    Console.Error.WriteLine("There is an error in PrepareElementsThatWillNotFit PinToPossibleLimit. Seems like none of the tiles will fit in any of the available freespots event id " + AllAvailableTimeLines.Key.Id);
+                        //    break;
+                        //}
 
                     }
                 }

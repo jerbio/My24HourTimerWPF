@@ -460,7 +460,7 @@ namespace TilerTests
             return retValue;
         }
 
-        internal static List<CalendarEvent> generateAllCalendarEvent(TestSchedule schedule, TimeSpan duration, DateTimeOffset start, TilerUser testUser, UserAccount userAccount, int split, Location location = null)
+        internal static List<CalendarEvent> generateAllCalendarEvent(TestSchedule schedule, TimeSpan duration, DateTimeOffset start, TilerUser testUser, UserAccount userAccount, int split, Location location = null, bool enableScheduleBigdata = false)
         {
             if(location == null)
             {
@@ -476,13 +476,13 @@ namespace TilerTests
             
             ReferenceNow now = new ReferenceNow(DateTimeOffset.UtcNow.removeSecondsAndMilliseconds(), nowTime, new TimeSpan());
 
-            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser); if (enableScheduleBigdata) { userAccount.ScheduleLogControl.enableUpdateBigData(); } else { userAccount.ScheduleLogControl.disableUpdateBigData(); }
             schedule = new TestSchedule(userAccount, nowTime);
             DateTimeOffset end = start.Add(duration).Add(duration).Add(duration);
             CalendarEvent simpleCalEvent = generateCalendarEvent(testUser, duration, new Repetition(), start, end, split, false, Location.getDefaultLocation());
             schedule.AddToScheduleAndCommitAsync(simpleCalEvent).Wait();
 
-            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser); if (enableScheduleBigdata) { userAccount.ScheduleLogControl.enableUpdateBigData(); } else { userAccount.ScheduleLogControl.disableUpdateBigData(); }
             schedule = new TestSchedule(userAccount, nowTime);
             TimeLine dailyTimeLine = new TimeLine(start, start.AddDays(7));
             TimeLine dailyActiveTimeLine = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
@@ -490,7 +490,7 @@ namespace TilerTests
             CalendarEvent dailyCalEvent = generateCalendarEvent(testUser, duration, dailyRepetion, start, end, split, false, Location.getDefaultLocation());
             schedule.AddToScheduleAndCommitAsync(dailyCalEvent).Wait();
 
-            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser); if (enableScheduleBigdata) { userAccount.ScheduleLogControl.enableUpdateBigData(); } else { userAccount.ScheduleLogControl.disableUpdateBigData(); }
             schedule = new TestSchedule(userAccount, nowTime);
             TimeLine weeklyTimeLine = new TimeLine(start, start.AddDays(28));
             TimeLine weeklyActiveTimeLine = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
@@ -498,7 +498,7 @@ namespace TilerTests
             CalendarEvent weeklyCalEvent = generateCalendarEvent(testUser, duration, weeklyRepetion, start, end, split, false, Location.getDefaultLocation());
             schedule.AddToScheduleAndCommitAsync(weeklyCalEvent).Wait();
 
-            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser); if (enableScheduleBigdata) { userAccount.ScheduleLogControl.enableUpdateBigData(); } else { userAccount.ScheduleLogControl.disableUpdateBigData(); }
             schedule = new TestSchedule(userAccount, nowTime);
             TimeLine weekdayWeeklyTimeLine = new TimeLine(start, start.AddDays(28));
             TimeLine weekdayWeeklyActiveTimeLine = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
@@ -507,7 +507,7 @@ namespace TilerTests
             CalendarEvent weekdayWeeklyCalEvent = generateCalendarEvent(testUser, duration, weekdayWeeklyRepetion, start, end, split, false, Location.getDefaultLocation());
             schedule.AddToScheduleAndCommitAsync(weekdayWeeklyCalEvent).Wait();
 
-            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser); if (enableScheduleBigdata) { userAccount.ScheduleLogControl.enableUpdateBigData(); } else { userAccount.ScheduleLogControl.disableUpdateBigData(); }
             schedule = new TestSchedule(userAccount, nowTime);
             TimeLine monthlyTimeLine = new TimeLine(start, start.AddDays(180));
             TimeLine monthlyActiveTimeLine = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
@@ -515,7 +515,7 @@ namespace TilerTests
             CalendarEvent monthlyCalEvent = generateCalendarEvent(testUser, duration, monthlyRepetion, start, end, split, false, Location.getDefaultLocation());
             schedule.AddToScheduleAndCommitAsync(monthlyCalEvent).Wait();
 
-            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser); if (enableScheduleBigdata) { userAccount.ScheduleLogControl.enableUpdateBigData(); } else { userAccount.ScheduleLogControl.disableUpdateBigData(); }
             schedule = new TestSchedule(userAccount, nowTime);
             TimeLine monthlyWeekdayTimeLine = new TimeLine(start, start.AddDays(180));
             TimeLine monthlyWeekdayActiveTimeLine = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
@@ -524,7 +524,7 @@ namespace TilerTests
             CalendarEvent weekDayMonthlyCalEvent = generateCalendarEvent(testUser, duration, monthlyWeekdayRepetion, start, end, split, false, Location.getDefaultLocation());
             schedule.AddToScheduleAndCommitAsync(weekDayMonthlyCalEvent).Wait();
 
-            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser); if (enableScheduleBigdata) { userAccount.ScheduleLogControl.enableUpdateBigData(); } else { userAccount.ScheduleLogControl.disableUpdateBigData(); }
             schedule = new TestSchedule(userAccount, nowTime);
             TimeLine yearlyTimeLine = new TimeLine(start, start.AddYears(2));
             TimeLine yearlyActiveTimeLine = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
@@ -532,7 +532,7 @@ namespace TilerTests
             CalendarEvent yearlyCalEvent = generateCalendarEvent(testUser, duration, yearlyWeekdayRepetion, start, end, split, false, Location.getDefaultLocation());
             schedule.AddToScheduleAndCommitAsync(yearlyCalEvent).Wait();
 
-            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser); if (enableScheduleBigdata) { userAccount.ScheduleLogControl.enableUpdateBigData(); } else { userAccount.ScheduleLogControl.disableUpdateBigData(); }
             schedule = new TestSchedule(userAccount, nowTime);
             TimeLine weekdayYearlyTimeLine = new TimeLine(start, start.AddYears(2));
             TimeLine weekdayYearlyActiveTimeLine = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
@@ -541,7 +541,7 @@ namespace TilerTests
             CalendarEvent weekDayMYearlyCalEvent = generateCalendarEvent(testUser, duration, weekdayYearlyWeekdayRepetion, start, end, split, false, Location.getDefaultLocation());
             schedule.AddToScheduleAndCommitAsync(weekDayMYearlyCalEvent).Wait();
 
-            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser); if (enableScheduleBigdata) { userAccount.ScheduleLogControl.enableUpdateBigData(); } else { userAccount.ScheduleLogControl.disableUpdateBigData(); }
             schedule = new TestSchedule(userAccount, nowTime);
             DateTimeOffset restrictionStart = start.Add(TimeSpan.FromMinutes(((long)duration.Minutes / 2)));
             TimeSpan restrictedDurationSpan = (duration) + (duration);
@@ -550,7 +550,7 @@ namespace TilerTests
             CalendarEvent restrictedCalEvent = generateCalendarEvent(testUser, duration, new Repetition(), start, end, split, false, Location.getDefaultLocation(), restrictionProfile.createCopy(), now: now);
             schedule.AddToScheduleAndCommitAsync(restrictedCalEvent).Wait();
 
-            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser); if (enableScheduleBigdata) { userAccount.ScheduleLogControl.enableUpdateBigData(); } else { userAccount.ScheduleLogControl.disableUpdateBigData(); }
             schedule = new TestSchedule(userAccount, nowTime);
             TimeLine dailyTimeLineRestriction = new TimeLine(start, start.AddDays(7));
             TimeLine dailyActiveTimeLineRestriction = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
@@ -558,7 +558,7 @@ namespace TilerTests
             CalendarEvent restrictedDailyCalEvent = generateCalendarEvent(testUser, duration, dailyRepetionRestriction, start, end, split, false, Location.getDefaultLocation(), restrictionProfile.createCopy(), now: now);
             schedule.AddToScheduleAndCommitAsync(restrictedDailyCalEvent).Wait();
 
-            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser); if (enableScheduleBigdata) { userAccount.ScheduleLogControl.enableUpdateBigData(); } else { userAccount.ScheduleLogControl.disableUpdateBigData(); }
             schedule = new TestSchedule(userAccount, nowTime);
             TimeLine weeklyTimeLineRestriction = new TimeLine(start, start.AddDays(28));
             TimeLine weeklyActiveTimeLineRestriction = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
@@ -566,7 +566,7 @@ namespace TilerTests
             CalendarEvent restrictedWeeklyCalEvent = generateCalendarEvent(testUser, duration, weeklyRepetionRestriction, start, end, split, false, Location.getDefaultLocation(), restrictionProfile.createCopy(), now: now);
             schedule.AddToScheduleAndCommitAsync(restrictedWeeklyCalEvent).Wait();
 
-            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser); if (enableScheduleBigdata) { userAccount.ScheduleLogControl.enableUpdateBigData(); } else { userAccount.ScheduleLogControl.disableUpdateBigData(); }
             schedule = new TestSchedule(userAccount, nowTime);
             TimeLine weekdayWeeklyTimeLineRestriction = new TimeLine(start, start.AddDays(28));
             TimeLine weekdayWeeklyActiveTimeLineRestriction = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
@@ -575,7 +575,7 @@ namespace TilerTests
             CalendarEvent restrictedWeekdayWeeklyCalEvent = generateCalendarEvent(testUser, duration, weekdayWeeklyRepetionRestriction, start, end, split, false, Location.getDefaultLocation(), restrictionProfile.createCopy(), now: now);
             schedule.AddToScheduleAndCommitAsync(restrictedWeekdayWeeklyCalEvent).Wait();
 
-            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser); if (enableScheduleBigdata) { userAccount.ScheduleLogControl.enableUpdateBigData(); } else { userAccount.ScheduleLogControl.disableUpdateBigData(); }
             schedule = new TestSchedule(userAccount, nowTime);
             TimeLine monthlyTimeLineRestriction = new TimeLine(start, start.AddDays(180));
             TimeLine monthlyActiveTimeLineRestriction = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
@@ -583,7 +583,7 @@ namespace TilerTests
             CalendarEvent restrictedMonthlyCalEvent = generateCalendarEvent(testUser, duration, monthlyRepetionRestriction, start, end, split, false, Location.getDefaultLocation(), restrictionProfile.createCopy(), now: now);
             schedule.AddToScheduleAndCommitAsync(restrictedMonthlyCalEvent).Wait();
 
-            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser); if (enableScheduleBigdata) { userAccount.ScheduleLogControl.enableUpdateBigData(); } else { userAccount.ScheduleLogControl.disableUpdateBigData(); }
             schedule = new TestSchedule(userAccount, nowTime);
             TimeLine monthlyWeekdayTimeLineRestriction = new TimeLine(start, start.AddDays(180));
             TimeLine monthlyWeekdayActiveTimeLineRestriction = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
@@ -592,7 +592,7 @@ namespace TilerTests
             CalendarEvent restrictedWeekdayMonthlyCalEvent = generateCalendarEvent(testUser, duration, monthlyWeekdayRepetionRestriction, start, end, split, false, Location.getDefaultLocation(), restrictionProfile.createCopy(), now: now);
             schedule.AddToScheduleAndCommitAsync(restrictedWeekdayMonthlyCalEvent).Wait();
 
-            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser); if (enableScheduleBigdata) { userAccount.ScheduleLogControl.enableUpdateBigData(); } else { userAccount.ScheduleLogControl.disableUpdateBigData(); }
             schedule = new TestSchedule(userAccount, nowTime);
             TimeLine yearlyTimeLineRestriction = new TimeLine(start, start.AddYears(2));
             TimeLine yearlyActiveTimeLineRestriction = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
@@ -600,7 +600,7 @@ namespace TilerTests
             CalendarEvent restrictedYearlyCalEvent = generateCalendarEvent(testUser, duration, yearlyRepetionRestriction, start, end, split, false, Location.getDefaultLocation(), restrictionProfile.createCopy(), now: now);
             schedule.AddToScheduleAndCommitAsync(restrictedYearlyCalEvent).Wait();
 
-            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser); if (enableScheduleBigdata) { userAccount.ScheduleLogControl.enableUpdateBigData(); } else { userAccount.ScheduleLogControl.disableUpdateBigData(); }
             schedule = new TestSchedule(userAccount, nowTime);
             TimeLine weekdayYearlyTimeLineRestriction = new TimeLine(start, start.AddYears(2));
             TimeLine weekdayYearlyActiveTimeLineRestriction = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
@@ -609,12 +609,12 @@ namespace TilerTests
             CalendarEvent restrictedWeekdayYearlyCalEvent = generateCalendarEvent(testUser, duration, weekdayYearlyWeekdayRepetionRestriction, start, end, split, false, Location.getDefaultLocation(), restrictionProfile.createCopy(), now: now);
             schedule.AddToScheduleAndCommitAsync(restrictedWeekdayYearlyCalEvent).Wait();
 
-            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser); if (enableScheduleBigdata) { userAccount.ScheduleLogControl.enableUpdateBigData(); } else { userAccount.ScheduleLogControl.disableUpdateBigData(); }
             schedule = new TestSchedule(userAccount, nowTime);
             CalendarEvent rigidCalEvent = generateCalendarEvent(testUser, duration, new Repetition(), start, end, 1, true, Location.getDefaultLocation());
             schedule.AddToScheduleAndCommitAsync(rigidCalEvent).Wait();
 
-            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser); if (enableScheduleBigdata) { userAccount.ScheduleLogControl.enableUpdateBigData(); } else { userAccount.ScheduleLogControl.disableUpdateBigData(); }
             schedule = new TestSchedule(userAccount, nowTime);
             TimeLine rigidDailyTimeLine = new TimeLine(start, start.AddDays(7));
             TimeLine rigidDailyActiveTimeLine = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
@@ -622,7 +622,7 @@ namespace TilerTests
             CalendarEvent rigidDailyCalEvent = generateCalendarEvent(testUser, duration, rigidDailyRepetion, start, end, 1, true, Location.getDefaultLocation());
             schedule.AddToScheduleAndCommitAsync(rigidDailyCalEvent).Wait();
 
-            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser); if (enableScheduleBigdata) { userAccount.ScheduleLogControl.enableUpdateBigData(); } else { userAccount.ScheduleLogControl.disableUpdateBigData(); }
             schedule = new TestSchedule(userAccount, nowTime);
             TimeLine rigidWeeklyTimeLine = new TimeLine(start, start.AddDays(28));
             TimeLine rigidWeeklyActiveTimeLine = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
@@ -630,7 +630,7 @@ namespace TilerTests
             CalendarEvent rigidWeeklyCalEvent = generateCalendarEvent(testUser, duration, rigidWeeklyRepetion, start, end, 1, true, Location.getDefaultLocation());
             schedule.AddToScheduleAndCommitAsync(rigidWeeklyCalEvent).Wait();
 
-            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser); if (enableScheduleBigdata) { userAccount.ScheduleLogControl.enableUpdateBigData(); } else { userAccount.ScheduleLogControl.disableUpdateBigData(); }
             schedule = new TestSchedule(userAccount, nowTime);
             TimeLine rigidWeekdayWeeklyTimeLine = new TimeLine(start, start.AddDays(28));
             TimeLine rigidWeekdayWeeklyActiveTimeLine = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
@@ -639,7 +639,7 @@ namespace TilerTests
             CalendarEvent rigidWeekdayWeeklyCalEvent = generateCalendarEvent(testUser, duration, rigidWeekdayWeeklyRepetion, start, end, 1, true, Location.getDefaultLocation());
             schedule.AddToScheduleAndCommitAsync(rigidWeekdayWeeklyCalEvent).Wait();
 
-            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser); if (enableScheduleBigdata) { userAccount.ScheduleLogControl.enableUpdateBigData(); } else { userAccount.ScheduleLogControl.disableUpdateBigData(); }
             schedule = new TestSchedule(userAccount, nowTime);
             TimeLine rigidMonthlyTimeLine = new TimeLine(start, start.AddDays(180));
             TimeLine rigidMonthlyActiveTimeLine = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
@@ -647,7 +647,7 @@ namespace TilerTests
             CalendarEvent rigidMonthlyCalEvent = generateCalendarEvent(testUser, duration, rigidMonthlyRepetion, start, end, 1, true, Location.getDefaultLocation());
             schedule.AddToScheduleAndCommitAsync(rigidMonthlyCalEvent).Wait();
 
-            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser); if (enableScheduleBigdata) { userAccount.ScheduleLogControl.enableUpdateBigData(); } else { userAccount.ScheduleLogControl.disableUpdateBigData(); }
             schedule = new TestSchedule(userAccount, nowTime);
             TimeLine rigidMonthlyWeekdayTimeLine = new TimeLine(start, start.AddDays(180));
             TimeLine rigidMonthlyWeekdayActiveTimeLine = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
@@ -656,7 +656,7 @@ namespace TilerTests
             CalendarEvent rigidWeekdayMonthlyCalEvent = generateCalendarEvent(testUser, duration, rigidMonthlyWeekdayRepetion, start, end, 1, true, Location.getDefaultLocation());
             schedule.AddToScheduleAndCommitAsync(rigidWeekdayMonthlyCalEvent).Wait();
 
-            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser); if (enableScheduleBigdata) { userAccount.ScheduleLogControl.enableUpdateBigData(); } else { userAccount.ScheduleLogControl.disableUpdateBigData(); }
             schedule = new TestSchedule(userAccount, nowTime);
             TimeLine rigidYearlyTimeLine = new TimeLine(start, start.AddYears(2));
             TimeLine rigidYearlyActiveTimeLine = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
@@ -664,7 +664,7 @@ namespace TilerTests
             CalendarEvent rigidYearlyCalEvent = generateCalendarEvent(testUser, duration, rigidYearlyWeekdayRepetion, start, end, 1, true, Location.getDefaultLocation());
             schedule.AddToScheduleAndCommitAsync(rigidYearlyCalEvent).Wait();
 
-            TestUtility.reloadTilerUser(ref userAccount, ref testUser);
+            TestUtility.reloadTilerUser(ref userAccount, ref testUser); if (enableScheduleBigdata) { userAccount.ScheduleLogControl.enableUpdateBigData(); } else { userAccount.ScheduleLogControl.disableUpdateBigData(); }
             schedule = new TestSchedule(userAccount, nowTime);
             TimeLine rigidWeekdayYearlyTimeLine = new TimeLine(start, start.AddYears(2));
             TimeLine rigidWeekdayYearlyActiveTimeLine = new TimeLine(start.Add(duration), start.Add(duration).Add(duration));
@@ -757,9 +757,19 @@ namespace TilerTests
                             && firstTilerEvent.getNowInfo.isTestEquivalent(secondTilerEvent.getNowInfo)
                             && firstTilerEvent.Location.isTestEquivalent(secondTilerEvent.Location))
                         {
-                            if ((firstTilerEvent.getIsComplete == secondTilerEvent.getIsComplete) && (firstTilerEvent.isEnabled == secondTilerEvent.isEnabled))
+                            if(
+                                (firstTilerEvent.AutoDeleted_EventDB == secondTilerEvent.AutoDeleted_EventDB)
+                                && (firstTilerEvent.AutoDeletion_Reason == secondTilerEvent.AutoDeletion_Reason)
+                                )
                             {
-                                retValue = true;
+                                if ((firstTilerEvent.getIsComplete == secondTilerEvent.getIsComplete) && (firstTilerEvent.isEnabled == secondTilerEvent.isEnabled))
+                                {
+                                    retValue = true;
+                                }
+                                else
+                                {
+                                    retValue = false;
+                                }
                             }
                             else
                             {

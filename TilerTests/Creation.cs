@@ -11,6 +11,7 @@ using TilerTests.Models;
 using System.Data.Entity;
 using System.Globalization;
 using Google.Apis.Calendar.v3.Data;
+using static TilerElements.Reason;
 
 namespace TilerTests
 {
@@ -162,22 +163,27 @@ namespace TilerTests
         }
 
 
+        [TestMethod]
         public void createAllPossibleCalendarEventToSchedule()
         {
             DateTimeOffset iniRefNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
+            DateTimeOffset refNow = iniRefNow;
             var packet = TestUtility.CreatePacket();
             TilerUser tilerUser = packet.User;
             UserAccount user = packet.Account;
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            TestSchedule schedule = new TestSchedule(user, iniRefNow);
+            TestSchedule schedule = new TestSchedule(user, refNow);
             TimeSpan duration = TimeSpan.FromHours(1);
-            List<CalendarEvent> calEvents = TestUtility.generateAllCalendarEventVaraints(schedule,duration, iniRefNow, tilerUser, user);
-
+            List<CalendarEvent> calEvents = TestUtility.generateAllCalendarEventVaraints(schedule,duration, refNow, tilerUser, user);
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            TestSchedule schedule2Outlook = new TestSchedule(user, iniRefNow);
-            schedule2Outlook.WriteFullScheduleToOutlook();
+            Schedule = new TestSchedule(user, refNow);
+            Task<ScheduleDump> taskScheduleDump = Schedule.CreateScheduleDump(Schedule.Now);
+            taskScheduleDump.Wait();
+            ScheduleDump scheduleDump = taskScheduleDump.Result;
+            TestSchedule scheduleDumpSchedule = new TestSchedule(scheduleDump, user);
+            TestUtility.isTestEquivalent(Schedule, scheduleDumpSchedule);
 
         }
         /// <summary>
@@ -784,7 +790,8 @@ namespace TilerTests
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             restrictionProfile = new RestrictionProfile(start, duration + duration);
-            repetition = new Repetition(repetitionRange, Repetition.Frequency.WEEKLY, new TimeLine(start, end));
+            TimeLine repetitionActualRange = new TimeLine(start, end);
+            repetition = new Repetition(repetitionRange, Repetition.Frequency.WEEKLY, repetitionActualRange);
             testEventRestriction = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, repetitionRange.Start, repetitionRange.End, 10, false, restrictionProfile: restrictionProfile, now: Schedule.Now);
             Schedule = new TestSchedule(user, refNow);
             Schedule.AddToScheduleAndCommitAsync(testEventRestriction).Wait();
@@ -801,9 +808,12 @@ namespace TilerTests
             taskCal.Wait();
             allCals = taskCal.Result.ToList();
             calSubEVents = allCals.Select(obj => obj.Value).SelectMany(obj => obj.AllSubEvents).ToList();
-            int repetitionWeeklySubEventCount = 10;
+            int repetitionWeeklySubEventCount = 11;
+            int AutoDeletionCount = 9;
+            Assert.AreEqual(AutoDeletionCount, testEventRestriction.Repeat.RecurringCalendarEvents().Sum(cal => cal.AutoDeletionCount));
             Assert.AreEqual(allSubs.Count, repetitionSubEventCount + subEventCount + repetitionWeeklySubEventCount);
-            Assert.AreEqual(allSubs.Count, calSubEVents.Count);
+            
+            Assert.AreEqual(allSubs.Count + 9, calSubEVents.Count);
             
         }
 
@@ -1296,14 +1306,13 @@ namespace TilerTests
             const int dayDelta = 7;
             TimeLine lookupWindow = new TimeLine(refNow.AddDays(-dayDelta), refNow.AddDays(dayDelta*2));
 
-
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow, rangeOfLookup: lookupWindow);
             Location location = TestUtility.getLocations()[0];
             Schedule.FindMeSomethingToDo(location).Wait();
             Schedule.persistToDB().Wait();
             CalendarEvent calEvent = Schedule.getCalendarEvent(repeatEvent.Calendar_EventID);
-            Assert.IsTrue(calEvent.ActiveSubEvents.Count() == 4);
+            Assert.IsTrue(calEvent.ActiveSubEvents.Count() == 5);
 
             UserAccount userAcc = TestUtility.getTestUser(userId: tilerUser.Id);
             Task<CalendarEvent> waitVar = userAcc.ScheduleLogControl.getCalendarEventWithID(repeatEvent.Id);
@@ -1317,6 +1326,134 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All, rangeOfLookup: lookupWindow);
             CalendarEvent repeatFromSchedule = Schedule.getCalendarEvent(repeatEvent.Id);
             Assert.IsTrue(repeatFromSchedule.isTestEquivalent(verificationEventPulled));
+        }
+
+
+        /// <summary>
+        /// Test verifies the creation of weekly events  have the right aportion of sub events for the initial week which is depenednt on the setting for the beginning of the week
+        /// </summary>
+        [TestMethod]
+        public void ValidateRepeatWeekly()
+        {
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/7/2017");// this should be a thursday
+            DayOfWeek userWeekDay = DayOfWeek.Thursday;
+            ReferenceNow now = new ReferenceNow(refNow, refNow, new TimeSpan());
+            const int splitCount = 16;
+            TilerUser tilerUser = TestUtility.createUser();
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            tilerUser.BeginningOfWeek = userWeekDay;
+            Schedule = new TestSchedule(user, refNow);
+            TimeSpan duration = TimeSpan.FromHours(4);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = start.AddDays(21);
+            TimeLine repetitionRange = new TimeLine(start, end);
+            DayOfWeek startingWeekDay = start.DayOfWeek;
+            Repetition repetition = new Repetition(repetitionRange, Repetition.Frequency.WEEKLY, repetitionRange.CreateCopy());
+            CalendarEvent testEvent= TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, splitCount, false);
+            Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            CalendarEvent testEventRetrieved = TestUtility.getCalendarEventById(testEvent.Id, user);
+            List<CalendarEvent> calEvents = testEventRetrieved.Repeat.RecurringCalendarEvents().OrderBy(o => o.Start).ToList();
+            CalendarEvent firstRepeatingCalEvent = calEvents[0];
+            CalendarEvent secondRepeatingCalEvent = calEvents[1];
+            DayOfWeek previousWeekDay = (DayOfWeek)((((int)tilerUser.BeginningOfWeek - 1)+7)%7);
+            Assert.AreEqual(tilerUser.BeginningOfWeek, DayOfWeek.Thursday);
+            Assert.AreEqual(previousWeekDay, firstRepeatingCalEvent.End.DayOfWeek, "The First recurring calendar event should end the day before the beginning of the week for registered user, because the next recurring event should continue on the beginning of the week for the user");
+            Assert.AreEqual(tilerUser.BeginningOfWeek, secondRepeatingCalEvent.Start.DayOfWeek);
+            int sumOfAutoDeletion = calEvents.Sum(cal => cal.AutoDeletionCount);
+            Assert.AreEqual(0, sumOfAutoDeletion);
+
+
+            //////// Does same test but for bi-weekly
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            userWeekDay = DayOfWeek.Friday;
+            tilerUser.BeginningOfWeek = userWeekDay;
+            DateTimeOffset biWeeklyEnd = start.AddDays(48);
+            TimeLine biWeeklyRepetitionRange = new TimeLine(start, biWeeklyEnd);
+            Repetition biWeeklyRepetition = new Repetition(biWeeklyRepetitionRange, Repetition.Frequency.BIWEEKLY, biWeeklyRepetitionRange.CreateCopy());
+            CalendarEvent biWeeklyTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, biWeeklyRepetition, start, biWeeklyEnd, splitCount, false);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.AddToScheduleAndCommitAsync(biWeeklyTestEvent).Wait();
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            CalendarEvent biWeeklyTestEventRetrieved = TestUtility.getCalendarEventById(biWeeklyTestEvent.Id, user);
+            List<CalendarEvent> biWeeklyCalEvents = biWeeklyTestEventRetrieved.Repeat.RecurringCalendarEvents().OrderBy(o => o.Start).ToList();
+            CalendarEvent biWeeklyFirstRepeatingCalEvent = biWeeklyCalEvents[0];
+            CalendarEvent biWeeklySecondRepeatingCalEvent = biWeeklyCalEvents[1];
+            DayOfWeek biWeeklyPreviousWeekDay = (DayOfWeek)((((int)tilerUser.BeginningOfWeek - 1) + 7) % 7);
+            Assert.AreEqual(biWeeklyPreviousWeekDay, biWeeklyFirstRepeatingCalEvent.End.DayOfWeek);
+            Assert.AreEqual(tilerUser.BeginningOfWeek, biWeeklySecondRepeatingCalEvent.Start.DayOfWeek);
+            Assert.AreEqual(tilerUser.BeginningOfWeek, userWeekDay);
+            var biweeklyWithAutoDeletions = biWeeklyCalEvents.Where(cal => cal.AutoDeletionCount > 0);
+            Assert.AreEqual(biweeklyWithAutoDeletions.First().ActiveSubEvents.First().AutoDeletion_Reason, AutoDeletion.RepetitionSpanTooSmall);
+            int sumOfBiweeklyAutoDeletion = biweeklyWithAutoDeletions.Sum(cal => cal.AutoDeletionCount);
+            Assert.AreEqual(15, sumOfBiweeklyAutoDeletion);
+
+
+            //////// Does same test but for RestrictedProfile
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            userWeekDay = DayOfWeek.Thursday;
+            tilerUser.BeginningOfWeek = userWeekDay;
+            DateTimeOffset restrictedEnd = start.AddDays(48);
+            TimeLine restrictedRepetitionRange = new TimeLine(start, restrictedEnd);
+            RestrictionProfile restrictionProfile = new RestrictionProfile(start, duration + duration);
+            Repetition restrictedRepetition = new Repetition(restrictedRepetitionRange, Repetition.Frequency.WEEKLY, restrictedRepetitionRange.CreateCopy());
+            CalendarEvent restrictedTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, restrictedRepetition, start, restrictedEnd, splitCount, false, restrictionProfile: restrictionProfile, now: Schedule.Now);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.AddToScheduleAndCommitAsync(restrictedTestEvent).Wait();
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            CalendarEvent restrictedTestEventRetrieved = TestUtility.getCalendarEventById(restrictedTestEvent.Id, user);
+            List<CalendarEvent> restrictedCalEvents = restrictedTestEventRetrieved.Repeat.RecurringCalendarEvents().OrderBy(o => o.Start).ToList();
+            CalendarEvent restrictedFirstRepeatingCalEvent = restrictedCalEvents[0];
+            CalendarEvent restrictedSecondRepeatingCalEvent = restrictedCalEvents[1];
+            DayOfWeek restrictedPreviousWeekDay = (DayOfWeek)((((int)tilerUser.BeginningOfWeek - 1) + 7) % 7);
+            Assert.AreEqual(restrictedPreviousWeekDay, restrictedFirstRepeatingCalEvent.End.DayOfWeek);
+            Assert.AreEqual(tilerUser.BeginningOfWeek, restrictedSecondRepeatingCalEvent.Start.DayOfWeek);
+            Assert.AreEqual(tilerUser.BeginningOfWeek, userWeekDay);
+
+            var restrictedWithAutoDeletions = restrictedCalEvents.Where(cal => cal.AutoDeletionCount > 0);
+            int sumOfrestrictedAutoDeletion = restrictedWithAutoDeletions.Sum(cal => cal.AutoDeletionCount);
+            Assert.AreEqual(0, sumOfrestrictedAutoDeletion);
+
+
+            //////// Does same test but for restrictedBiweeklyProfile
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            userWeekDay = DayOfWeek.Friday;
+            tilerUser.BeginningOfWeek = userWeekDay;
+            DateTimeOffset restrictedBiweeklyEnd = start.AddDays(48);
+            TimeLine restrictedBiweeklyRepetitionRange = new TimeLine(start, restrictedBiweeklyEnd);
+            RestrictionProfile restrictionBiweeklyProfile = new RestrictionProfile(start, duration + duration);
+            Repetition restrictedBiweeklyRepetition = new Repetition(restrictedBiweeklyRepetitionRange, Repetition.Frequency.BIWEEKLY, restrictedBiweeklyRepetitionRange.CreateCopy());
+            CalendarEvent restrictedBiweeklyTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, restrictedBiweeklyRepetition, start, restrictedBiweeklyEnd, splitCount, false, restrictionProfile: restrictionBiweeklyProfile, now: Schedule.Now);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.AddToScheduleAndCommitAsync(restrictedBiweeklyTestEvent).Wait();
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            CalendarEvent restrictedBiweeklyTestEventRetrieved = TestUtility.getCalendarEventById(restrictedBiweeklyTestEvent.Id, user);
+            List<CalendarEvent> restrictedBiweeklyCalEvents = restrictedBiweeklyTestEventRetrieved.Repeat.RecurringCalendarEvents().OrderBy(o => o.Start).ToList();
+            CalendarEvent restrictedBiweeklyFirstRepeatingCalEvent = restrictedBiweeklyCalEvents[0];
+            CalendarEvent restrictedBiweeklySecondRepeatingCalEvent = restrictedBiweeklyCalEvents[1];
+            DayOfWeek restrictedBiweeklyPreviousWeekDay = (DayOfWeek)((((int)tilerUser.BeginningOfWeek - 1) + 7) % 7);
+            Assert.AreEqual(restrictedBiweeklyPreviousWeekDay, restrictedBiweeklyFirstRepeatingCalEvent.End.DayOfWeek);
+            Assert.AreEqual(tilerUser.BeginningOfWeek, restrictedBiweeklySecondRepeatingCalEvent.Start.DayOfWeek);
+            Assert.AreEqual(tilerUser.BeginningOfWeek, userWeekDay);
+
+            var restrictedBiweeklyWithAutoDeletions = restrictedBiweeklyCalEvents.Where(cal => cal.AutoDeletionCount > 0);
+            Assert.AreEqual(restrictedBiweeklyWithAutoDeletions.First().ActiveSubEvents.First().AutoDeletion_Reason, AutoDeletion.RepetitionSpanTooSmall);
+            int sumOfrestrictedBiweeklyAutoDeletion = restrictedBiweeklyWithAutoDeletions.Sum(cal => cal.AutoDeletionCount);
+            Assert.AreEqual(15, sumOfrestrictedBiweeklyAutoDeletion);
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            Task<ScheduleDump> taskScheduleDump = Schedule.CreateScheduleDump(Schedule.Now);
+            taskScheduleDump.Wait();
+            ScheduleDump scheduleDump = taskScheduleDump.Result;
+            TestSchedule scheduleDumpSchedule = new TestSchedule(scheduleDump, user);
+            TestUtility.isTestEquivalent(Schedule, scheduleDumpSchedule);
+
         }
 
         [TestCleanup]

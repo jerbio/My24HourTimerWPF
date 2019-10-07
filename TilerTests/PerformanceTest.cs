@@ -142,6 +142,7 @@ namespace TilerTests
             List<CalendarEvent> oneSubEvents = TestUtility.generateAllCalendarEvent(schedule, duration, start, testUser, userAccount, 1, location);
             watch.Stop();
             TimeSpan singleEventSpan = watch.Elapsed;
+            GC.Collect();
             Debug.WriteLine("Single Event took " + singleEventSpan.ToString());
             watch.Reset();
             watch.Start();
@@ -149,22 +150,15 @@ namespace TilerTests
             watch.Stop();
             TimeSpan twoEventSpan = watch.Elapsed;
             Debug.WriteLine("two Events took " + twoEventSpan.ToString());
+            GC.Collect();
             watch.Reset();
             watch.Start();
             List<CalendarEvent> tenEvents = TestUtility.generateAllCalendarEvent(schedule, duration, start, testUser, userAccount, 10, location);
-            long memory = GC.GetTotalMemory(true);
             watch.Stop();
+            GC.Collect();
+            long memory = GC.GetTotalMemory(true);
             TimeSpan tenEventSpan = watch.Elapsed;
             Debug.WriteLine("ten Events took " + tenEventSpan.ToString());
-            watch.Reset();
-            watch.Start();
-            List<CalendarEvent> calEvents = TestUtility.generateAllCalendarEventVaraints(schedule, duration, iniRefNow, tilerUser, user);
-            watch.Stop();
-            TimeSpan allEventSpan = watch.Elapsed;
-            Debug.WriteLine("all Events span" + allEventSpan.ToString());
-            watch.Reset();
-
-
         }
 
         [TestMethod]

@@ -563,7 +563,14 @@ namespace TilerElements
             }
             set
             {
-                _AutoDeletionReason = Utility.ParseEnum<Reason.AutoDeletion>(value);
+                if(value!=null)
+                {
+                    _AutoDeletionReason = Utility.ParseEnum<Reason.AutoDeletion>(value);
+                }else
+                {
+                    _AutoDeletionReason = AutoDeletion.None;
+                }
+                
             }
         }
 

@@ -18,7 +18,7 @@ namespace TilerElements
         protected TimeSpan _AverageTimePerSplit;
         protected int _CompletedCount;
         protected int _DeletedCount;
-        protected int _AutoDeletedCount;
+        protected int _AutoDeletedCount = 0;
         protected SubEventDictionary<string, SubCalendarEvent> _SubEvents;
 
         CustomErrors CalendarError = null;
@@ -1921,8 +1921,7 @@ namespace TilerElements
             }
         }
 
-        [DefaultValue(0)]
-        virtual public int AutoDeletionCount_DB
+        override public int AutoDeletionCount_DB
         {
             set
             {

@@ -450,6 +450,14 @@ namespace TilerCore
             DateTimeOffset calEventEnd = TimeLineEnd.isBeginningOfTime() ? myCalendarEvent.End : TimeLineEnd;
             TimeLine calendarEventRange = null;
             bool isFromRigidEvent = false;
+
+            ProcrastinateCalendarEvent procrastinateCalEvent = (mySubCalEvent.ParentCalendarEvent as ProcrastinateCalendarEvent);
+            if (procrastinateCalEvent != null)
+            {
+                SplitCount = procrastinateCalEvent.NumberOfSplit;
+            }
+
+
             if (mySubCalEvent.isLocked && myCalendarEvent.isLocked)
             {
                 calendarEventRange = new TimeLine(SubeventStart, SubeventEnd);

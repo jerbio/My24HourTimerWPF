@@ -8,13 +8,23 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Configuration;
-using GoogleMapsApi.Entities.Geocoding.Request;
 using GoogleMapsApi;
+using GoogleMapsApi.Entities.Geocoding.Request;
 using GoogleMapsApi.Entities.Geocoding.Response;
 using GoogleMapsApi.Entities.Directions.Request;
 using GoogleMapsApi.Entities.Directions.Response;
+using GoogleMapsApi.Entities.Places.Request;
+using GoogleMapsApi.Entities.Places.Response;
+using GoogleMapsApi.Entities.PlacesFind.Request;
+using GoogleMapsApi.Entities.PlacesFind.Response;
+using GoogleApi.Entities.Common;
+using GoogleApi.Entities.Places.Search.Find.Request;
+using GoogleApi.Entities.Places.Search.Find.Request.Enums;
+using GoogleApi.Exceptions;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using GoogleApi;
+using GoogleApi.Entities.Places.Search.Find.Response;
 
 namespace TilerElements
 {
@@ -162,32 +172,75 @@ namespace TilerElements
                 
                 if(!String.IsNullOrEmpty(_TaggedAddress))
                 {
-                    GeocodingRequest request = new GeocodingRequest();
-                    request.Address = _TaggedAddress;
-                    request.Sensor = true;
-                    request.ApiKey = Location.ApiKey;
-
-                    var geocodingEngine = GoogleMaps.Geocode;
-                    GeocodingResponse geocode = geocodingEngine.Query(request);
-
-                    if (geocode.Status == Status.OK)
+                    var placesFindSearchRequest = new PlacesFindSearchRequest
                     {
-                        if (string.IsNullOrEmpty(_TaggedDescription))
-                        {
-                            _TaggedDescription = _TaggedAddress;
-                        }
-                        var result = geocode.Results.First();
-                        _TaggedAddress = result.FormattedAddress.ToLower();
-                        _Latitude = Convert.ToDouble(result.Geometry.Location.Latitude);
-                        _Longitude = Convert.ToDouble(result.Geometry.Location.Longitude);
-                        _NullLocation = false;
-                        retValue = true;
-                    }
-                    else
+                        Key = Location.ApiKey,
+                        Input = _TaggedAddress,
+                        Type = GoogleApi.Entities.Places.Search.Find.Request.Enums.InputType.TextQuery,
+                        Fields = FieldTypes.Basic,
+                        Location = new GoogleApi.Entities.Common.Location(39.926222, -105.145171),
+                        Radius = 2000
+
+                    };
+
+                    var response = GooglePlaces.FindSearch.Query(placesFindSearchRequest);
+                    GoogleApi.Entities.Places.Search.Find.Response.Candidate candidate = null;
+                    if (response.Status == GoogleApi.Entities.Common.Enums.Status.Ok)
                     {
-                        Console.WriteLine(geocode.Status);
-                        initializeWithNull();
+                        candidate = response.Candidates.FirstOrDefault();
                     }
+
+                    //PlacesFindRequest placeRequest = new PlacesFindRequest();
+                    //placeRequest.ApiKey = Location.ApiKey;
+                    //placeRequest.Input = _TaggedAddress;
+                    //placeRequest.LocationBias = "2000,39.926222,-105.145171";
+                    //var PlacesFindEngine = GoogleMapsApi.GoogleMaps.PlacesFind;
+                    //var PlacesFindTask = PlacesFindEngine.QueryAsync(placeRequest);
+                    //PlacesFindTask.Wait();
+                    //var placeFindResponse = PlacesFindTask.Result;
+                    //if( placeFindResponse.Status == GoogleMapsApi.Entities.PlacesFind.Response.Status.OK)
+                    //{
+                    //    if (string.IsNullOrEmpty(_TaggedDescription))
+                    //    {
+                    //        _TaggedDescription = _TaggedAddress;
+                    //    }
+                    //    var result = placeFindResponse.Candidates.First();
+                    //    _TaggedAddress = result.FormattedAddress.ToLower();
+                    //    _Latitude = Convert.ToDouble(result.Geometry.Location.Latitude);
+                    //    _Longitude = Convert.ToDouble(result.Geometry.Location.Longitude);
+                    //    _NullLocation = false;
+                    //    retValue = true;
+                    //}
+
+
+
+
+
+                    //GeocodingRequest request = new GeocodingRequest();
+                    //request.Address = _TaggedAddress;
+                    //request.ApiKey = Location.ApiKey;
+
+                    //var geocodingEngine = GoogleMapsApi.GoogleMaps.Geocode;
+                    //GeocodingResponse geocode = geocodingEngine.Query(request);
+
+                    //if (geocode.Status == GoogleMapsApi.Entities.Geocoding.Response.Status.OK)
+                    //{
+                    //    if (string.IsNullOrEmpty(_TaggedDescription))
+                    //    {
+                    //        _TaggedDescription = _TaggedAddress;
+                    //    }
+                    //    var result = geocode.Results.First();
+                    //    _TaggedAddress = result.FormattedAddress.ToLower();
+                    //    _Latitude = Convert.ToDouble(result.Geometry.Location.Latitude);
+                    //    _Longitude = Convert.ToDouble(result.Geometry.Location.Longitude);
+                    //    _NullLocation = false;
+                    //    retValue = true;
+                    //}
+                    //else
+                    //{
+                    //    Console.WriteLine(geocode.Status);
+                    //    initializeWithNull();
+                    //}
                 }
                 else
                 {
@@ -277,7 +330,9 @@ namespace TilerElements
                 };
                 try
                 {
-                    DirectionsResponse directions = GoogleMaps.Directions.Query(directionsRequest);
+                    var mapsLookup = GoogleMapsApi.GoogleMaps.Directions.QueryAsync(directionsRequest);
+                    mapsLookup.Wait();
+                    DirectionsResponse directions = mapsLookup.Result;
                     if (directions.Status == DirectionsStatusCodes.OK)
                     {
                         var route = directions.Routes.First();

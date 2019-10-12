@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using TilerElements;
+using TilerTests.Models;
 
 namespace TilerTests
 {
     public class UserAccountDump: UserAccountTest
     {
-        public UserAccountDump(TilerUser user):base(user)
+        public UserAccountDump(TilerUser user, string connectionName =""):base(user, string.IsNullOrEmpty(connectionName)? null : new TestDBContext(connectionName))
         {
-            UserLog = new LogControlDump(user, "");
+            UserLog = string.IsNullOrEmpty(connectionName) || string.IsNullOrWhiteSpace(connectionName) ? new LogControlDump(user) : new LogControlDump(user, connectionName);
             ID = SessionUser.Id;
         }
 

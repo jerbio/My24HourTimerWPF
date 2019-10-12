@@ -19,9 +19,9 @@ namespace TilerTests
             UserID = userid;
         }
         */
-        public LogControlDump(TilerUser User, string logLocation=""):base(User, null)
+        public LogControlDump(TilerUser User, string connectionName=""):base(User, connectionName)
         {
-            _Context = new TestDBContext();
+            _Context = string.IsNullOrEmpty(connectionName) || string.IsNullOrWhiteSpace(connectionName) ? new TestDBContext() : new TestDBContext(connectionName);
         }
 
 

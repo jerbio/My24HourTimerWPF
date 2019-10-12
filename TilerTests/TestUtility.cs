@@ -373,13 +373,18 @@ namespace TilerTests
             return userAccount;
         }
 
-        public static Tuple<Schedule, ScheduleDump> getSchedule(string userId, bool copyTestFolder = true)
+        public static Tuple<Schedule, ScheduleDump> getSchedule(string userId, bool copyTestFolder = true, string filePath = "", string connectionName = "")
         {
-            string currDir = Directory.GetCurrentDirectory();
-            string sourceFile = currDir +"\\"+ "WagTapCalLogs\\" + userId + "\\" + userId + ".xml";
+            string currDir = filePath;
+            if (String.IsNullOrEmpty(filePath)|| String.IsNullOrWhiteSpace(filePath)) {
+                currDir = Directory.GetCurrentDirectory() +"\\" + "WagTapCalLogs\\";
+            }
+
+            
+            string sourceFile = currDir + userId + "\\" + userId + ".xml";
             if (userId != testUserId && copyTestFolder)
             {
-                string destinationFile = currDir + "\\" + "WagTapCalLogs\\" + userId + ".xml";
+                string destinationFile = currDir + userId + ".xml";
                 System.IO.File.Copy(sourceFile, destinationFile, true);
             }
 
@@ -393,7 +398,7 @@ namespace TilerTests
 
 
             TilerUser User = new TilerUser() { UserName = userId + "@tiler-test.com", Id = userId };
-            UserAccountDump accDebug = new UserAccountDump(User);
+            UserAccountDump accDebug = new UserAccountDump(User, connectionName);
 
 
             Schedule schedule = new TestSchedule(dump, accDebug);

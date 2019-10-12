@@ -27,6 +27,12 @@ namespace TilerTests
             this._UpdateBigData = false;
         }
 
+        public LogControlTest(TilerUser User, string connectionName) : base(User, null)
+        {
+            _Context  = string.IsNullOrEmpty(connectionName) || string.IsNullOrWhiteSpace(connectionName) ? new TestDBContext() : new TestDBContext(connectionName);
+            this._UpdateBigData = false;
+        }
+
         public override bool Status
         {
             get

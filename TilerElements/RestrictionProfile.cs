@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Runtime.CompilerServices;
+using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TilerElements
 {
@@ -688,6 +690,7 @@ namespace TilerElements
         #endregion
 
         #region properties
+        [NotMapped]
         public ICollection<RestrictionDay> DaySelection {
             get
             {
@@ -698,6 +701,7 @@ namespace TilerElements
                 _DaySelection = value.ToList();
             }
         }
+        [NotMapped]
         public ICollection<RestrictionDay> NoNull_DaySelections
         {
             get {
@@ -706,6 +710,40 @@ namespace TilerElements
             set
             {
                 _NoNull_DaySelections = value.ToList();
+            }
+        }
+
+        public string DaySelection_DbString
+        {
+            get
+            {
+                string retValue = JsonConvert.SerializeObject(this.DaySelection);
+                return retValue;
+            }
+            set
+            {
+                if(value!= null)
+                {
+                    var daySelection = JsonConvert.DeserializeObject<ICollection<RestrictionDay>>(value);
+                    _DaySelection = daySelection.ToList();
+                }
+                
+            }
+        }
+        public string NoNull_DaySelections_DbString
+        {
+            get
+            {
+                string retValue = JsonConvert.SerializeObject(this.NoNull_DaySelections);
+                return retValue;
+            }
+            set
+            {
+                if (value != null)
+                {
+                    var _NoNullDaySelections = JsonConvert.DeserializeObject<ICollection<RestrictionDay>>(value);
+                    _NoNull_DaySelections = _NoNullDaySelections.ToList();
+                }
             }
         }
 

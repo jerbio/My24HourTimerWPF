@@ -216,29 +216,45 @@ namespace TilerCore
                     var subEvent = correctlyAssignedevents[i];
                     correctlyAssignedeventsToIndex.Add(subEvent, i);
                 }
-                Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> subEventToAvailableSpaces = Utility.subEventToMaxSpaceAvailable(timeLine, correctlyAssignedevents);
-                i = 0;
                 List<SubCalendarEvent> fittable = new List<SubCalendarEvent>();
                 HashSet<int> validIndexes = new HashSet<int>();
-
-                //for (i = 0; i < disabledSubEvents.Count; i++)
+                if (correctlyAssignedeventsToIndex.Count >0)
                 {
-                    //disabledSubEvent = disabledSubEvents[i];
-                    foreach (KeyValuePair<SubCalendarEvent, mTuple<TimeLine, TimeLine>> keyValuePair in subEventToAvailableSpaces)
-                    {
-                        if (disabledSubEvent.canExistWithinTimeLine(keyValuePair.Value.Item1))
-                        {
-                            fittable.Add(disabledSubEvent);
-                            validIndexes.Add(correctlyAssignedeventsToIndex[keyValuePair.Key]);
-                        }
+                    Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> subEventToAvailableSpaces = Utility.subEventToMaxSpaceAvailable(timeLine, correctlyAssignedevents);
+                    i = 0;
 
-                        if (disabledSubEvent.canExistWithinTimeLine(keyValuePair.Value.Item2))
+
+                    //for (i = 0; i < disabledSubEvents.Count; i++)
+                    {
+                        //disabledSubEvent = disabledSubEvents[i];
+                        foreach (KeyValuePair<SubCalendarEvent, mTuple<TimeLine, TimeLine>> keyValuePair in subEventToAvailableSpaces)
                         {
-                            fittable.Add(disabledSubEvent);
-                            validIndexes.Add(correctlyAssignedeventsToIndex[keyValuePair.Key] + 1);
+                            if (disabledSubEvent.canExistWithinTimeLine(keyValuePair.Value.Item1))
+                            {
+                                fittable.Add(disabledSubEvent);
+                                validIndexes.Add(correctlyAssignedeventsToIndex[keyValuePair.Key]);
+                            }
+
+                            if (disabledSubEvent.canExistWithinTimeLine(keyValuePair.Value.Item2))
+                            {
+                                fittable.Add(disabledSubEvent);
+                                validIndexes.Add(correctlyAssignedeventsToIndex[keyValuePair.Key] + 1);
+                            }
                         }
                     }
                 }
+                else
+                {
+                    if (disabledSubEvent.canExistWithinTimeLine(timeLine))
+                    {
+                        fittable.Add(disabledSubEvent);
+                        validIndexes.Add(0);
+                        correctlyAssignedevents.Add(disabledSubEvent);
+                    }
+
+                    return correctlyAssignedevents;
+                }
+                
 
                 List<SubCalendarEvent> subEventsReadjusted = correctlyAssignedevents.ToList();
 

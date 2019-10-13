@@ -33,6 +33,7 @@ namespace TilerElements
             EventDisplay UiData,
             MiscData Notes,
             ReferenceNow now,
+            NowProfile nowProfile,
             int Priority = 0,
             string thirdPartyID = "",
             string subEventID = ""
@@ -65,6 +66,7 @@ namespace TilerElements
             this._Creator = creator;
             this._Users = users;
             _calendarEvent = calendarEvent;
+            this._ProfileOfNow = nowProfile;
         }
 
         public SubCalendarEventRestricted()
@@ -117,16 +119,17 @@ namespace TilerElements
 
         public override bool PinToEnd(TimeLine LimitingTimeLineData)
         {
+            if (this.isLocked)
+            {
+                return (LimitingTimeLineData.IsTimeLineWithin(this.StartToEnd));
+            }
+
             TimeLine LimitingTimeLine = LimitingTimeLineData.InterferringTimeLine(getCalendarEventRange);
             if (LimitingTimeLine == null)
             {
                 return false;
             }
 
-            if (this.isLocked)
-            {
-                return (LimitingTimeLineData.IsTimeLineWithin(this.StartToEnd));
-            }
             List<TimeLine> allPossibleTimelines = _ProfileOfRestriction.getAllNonPartialTimeFrames(LimitingTimeLine).Where(obj => obj.TimelineSpan >= getActiveDuration).OrderByDescending(obj => obj.End).ToList();
             if (allPossibleTimelines.Count > 0)
             {
@@ -152,16 +155,18 @@ namespace TilerElements
 
         public override bool PinToStart(TimeLine MyTimeLineEntry)
         {
+            if (this.isLocked)
+            {
+                return (MyTimeLineEntry.IsTimeLineWithin(this.StartToEnd));
+            }
+
             TimeLine MyTimeLine = MyTimeLineEntry.InterferringTimeLine(getCalendarEventRange);
             if (MyTimeLine == null)
             {
                 return false;
             }
 
-            if (this.isLocked)
-            {
-                return (MyTimeLineEntry.IsTimeLineWithin(this.StartToEnd));
-            }
+
 
             List<TimeLine> allPossibleTimelines = _ProfileOfRestriction.getAllNonPartialTimeFrames(MyTimeLine).Where(obj=>obj.TimelineSpan>=getActiveDuration).OrderBy(obj=>obj.Start).ToList();
 
@@ -273,11 +278,12 @@ namespace TilerElements
                 copy.UniqueID = UniqueID;//hack
             }
             copy.UnUsableIndex = this.UnUsableIndex;
-            copy._UserDeleted = this._UserDeleted;
+            copy._AutoDeleted = this._AutoDeleted;
             copy._Users = this._Users;
             copy._Semantics = this._Semantics?.createCopy();
             copy._UsedTime = this._UsedTime;
             copy.OptimizationFlag = this.OptimizationFlag;
+            copy.tempLock = this.tempLock;
             return copy;
         }
 
@@ -393,7 +399,7 @@ namespace TilerElements
                 this.StartDateTime = SubEventEntry.Start;
                 this._UiParams = SubEventEntry.getUIParam;
                 this.UniqueID = SubEventEntry.SubEvent_ID;
-                this._UserDeleted = SubEventEntry.getIsUserDeleted;
+                this._AutoDeleted = SubEventEntry.getIsUserDeleted;
                 this._Users = SubEventEntry.getAllUsers();
                 this.Vestige = SubEventEntry.isVestige;
                 this._otherPartyID = SubEventEntry._otherPartyID;
@@ -434,7 +440,7 @@ namespace TilerElements
             retValue.StartDateTime = this.Start;
             retValue._UiParams = this.getUIParam;
             retValue.UniqueID = this.SubEvent_ID;
-            retValue._UserDeleted = this.getIsUserDeleted;
+            retValue._AutoDeleted = this.getIsUserDeleted;
             retValue._Users = this.getAllUsers();
             retValue.Vestige = this.isVestige;
             retValue._otherPartyID = this._otherPartyID;

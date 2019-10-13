@@ -36,6 +36,7 @@ namespace TilerElements
         public bool isWake { get; set; } = false;
         public bool isSleep { get; set; } = false;
         protected bool tempLock { get; set; } = false;// This should never get persisted
+        protected bool lockedPrecedingHours { get; set; } = false;// This should never get persisted
         /// <summary>
         /// This holds the current session reasons. It will updated based on data and calculation optimizations from HistoricalCurrentPosition
         /// </summary>
@@ -142,13 +143,24 @@ namespace TilerElements
             }
         }
 
-        public void disable(CalendarEvent myCalEvent)
+        public virtual void disable(CalendarEvent myCalEvent)
         {
             if (this._Enabled)
             {
                 this._Enabled = false;
+                this._AutoDeleted = false;
                 myCalEvent.incrementDeleteCount(this.RangeSpan);
             }
+        }
+
+        public virtual void autoDisable(CalendarEvent myCalEvent, TilerElements.Reason.AutoDeletion reason)
+        {
+            if (this._Enabled)
+            {
+                this._Enabled = false;
+                myCalEvent.incrementAutoDeleteCount(this.RangeSpan);
+            }
+            this._AutoDeleted = true;
         }
 
         internal void disableWithoutUpdatingCalEvent()
@@ -247,6 +259,16 @@ namespace TilerElements
         public void resetTempUnlock()
         {
             tempLock = false;
+        }
+
+        public void lockPrecedingHours()
+        {
+            lockedPrecedingHours = true;
+        }
+
+        public void unLockPrecedingHours()
+        {
+            lockedPrecedingHours = false;
         }
 
         virtual public void addReasons(Reason eventReason)
@@ -348,7 +370,7 @@ namespace TilerElements
             }
             SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ParentCalendarEvent, getCreator, _Users, this._TimeZone, Id, this.getName.createCopy(), Start, End, BusyFrame.CreateCopy(), this._RigidSchedule, this.isEnabled, this._UiParams?.createCopy(), this.Notes?.createCopy(), this._Complete, this._LocationInfo, new TimeLine(getCalendarEventRange.Start, getCalendarEventRange.End), _ConflictingEvents?.CreateCopy());
             MySubCalendarEventCopy.ThirdPartyID = this.ThirdPartyID;
-            MySubCalendarEventCopy._UserDeleted = this._UserDeleted;
+            MySubCalendarEventCopy._AutoDeleted = this._AutoDeleted;
             MySubCalendarEventCopy.isRestricted = this.isRestricted;
             MySubCalendarEventCopy.preferredDayIndex = this.preferredDayIndex;
             MySubCalendarEventCopy._Creator = this._Creator;
@@ -522,7 +544,7 @@ namespace TilerElements
                 this.StartDateTime = SubEventEntry.Start;
                 this._UiParams = SubEventEntry.getUIParam;
                 this.UniqueID = SubEventEntry.SubEvent_ID;
-                this._UserDeleted = SubEventEntry.getIsUserDeleted;
+                this._AutoDeleted = SubEventEntry.getIsUserDeleted;
                 this._Users = SubEventEntry.getAllUsers();
                 this.Vestige = SubEventEntry.isVestige;
                 this._otherPartyID = SubEventEntry._otherPartyID;
@@ -586,7 +608,7 @@ namespace TilerElements
             retValue.StartDateTime = this.Start;
             retValue._UiParams = this.getUIParam;
             retValue.UniqueID = this.SubEvent_ID;
-            retValue._UserDeleted = this.getIsUserDeleted;
+            retValue._AutoDeleted = this.getIsUserDeleted;
             retValue._Users = this.getAllUsers();
             retValue.Vestige = this.isVestige;
             retValue._otherPartyID = this._otherPartyID;
@@ -636,17 +658,16 @@ namespace TilerElements
 
         virtual public bool PinToEnd(TimeLine LimitingTimeLine)
         {
-            DateTimeOffset ReferenceTime = this.getCalculationRange.End;
-            if (ReferenceTime > LimitingTimeLine.End)
-            {
-                ReferenceTime = LimitingTimeLine.End;
-            }
-
             if (this.isLocked)
             {
                 return (LimitingTimeLine.IsTimeLineWithin(this.StartToEnd));
             }
 
+            DateTimeOffset ReferenceTime = this.getCalculationRange.End;
+            if (ReferenceTime > LimitingTimeLine.End)
+            {
+                ReferenceTime = LimitingTimeLine.End;
+            }
 
             DateTimeOffset MyStartTime = ReferenceTime - this._EventDuration;
 
@@ -911,7 +932,7 @@ namespace TilerElements
             CalculationMode = true;
         }
 
-        public override bool isLocked => base.isLocked || this.tempLock;
+        public override bool isLocked => base.isLocked || this.tempLock || this.lockedPrecedingHours;
 
         /// <summary>
         /// This changes the duration of the subevent. It requires the change in duration. This just adds/subtracts the delta to the end time

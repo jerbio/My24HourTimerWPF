@@ -27,7 +27,6 @@ namespace TilerTests.Models
         public TestDBContext(string connectionName = "TestDBConnection")
             : base(connectionName)
         {
-            AppDomain.CurrentDomain.SetData("DataDirectory", Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
             System.Data.Entity.Database.SetInitializer<TestDBContext>(null);// this is needed so you don't run into an error being thrown because its trying to create new database, or it fails to find an already created DB.
         }
     }

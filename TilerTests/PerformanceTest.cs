@@ -122,6 +122,46 @@ namespace TilerTests
         }
 
         [TestMethod]
+        public void createAllPossibleCalendarEventSpan()
+        {
+            DateTimeOffset iniRefNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
+            var packet = TestUtility.CreatePacket();
+            TilerUser tilerUser = packet.User;
+            TilerUser testUser = packet.User;
+            UserAccount user = packet.Account;
+            UserAccount userAccount = packet.Account;
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            TestSchedule schedule = new TestSchedule(user, iniRefNow);
+            Location location = Location.getDefaultLocation();
+            TimeSpan duration = TimeSpan.FromHours(1);
+            DateTimeOffset start = iniRefNow;
+
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+            List<CalendarEvent> oneSubEvents = TestUtility.generateAllCalendarEvent(schedule, duration, start, testUser, userAccount, 1, location);
+            watch.Stop();
+            TimeSpan singleEventSpan = watch.Elapsed;
+            GC.Collect();
+            Debug.WriteLine("Single Event took " + singleEventSpan.ToString());
+            watch.Reset();
+            watch.Start();
+            List<CalendarEvent> twoEvents = TestUtility.generateAllCalendarEvent(schedule, duration, start, testUser, userAccount, 2, location);
+            watch.Stop();
+            TimeSpan twoEventSpan = watch.Elapsed;
+            Debug.WriteLine("two Events took " + twoEventSpan.ToString());
+            GC.Collect();
+            watch.Reset();
+            watch.Start();
+            List<CalendarEvent> tenEvents = TestUtility.generateAllCalendarEvent(schedule, duration, start, testUser, userAccount, 10, location);
+            watch.Stop();
+            GC.Collect();
+            long memory = GC.GetTotalMemory(true);
+            TimeSpan tenEventSpan = watch.Elapsed;
+            Debug.WriteLine("ten Events took " + tenEventSpan.ToString());
+        }
+
+        [TestMethod]
         public void CreateDailyRepeatWithDeletion()
         {
         }

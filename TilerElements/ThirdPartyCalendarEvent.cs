@@ -21,7 +21,7 @@ namespace TilerElements
             this._UiParams = new EventDisplay();
             this.UnDesignables = new HashSet<SubCalendarEvent>();
             this.UniqueID = EventID.generateGoogleCalendarEventID((uint)AllCalendarEvent.Count());
-            this._UserDeleted = false;
+            this._AutoDeleted = false;
             this._Users = new TilerUserGroup();
             this.StartDateTime = DateTimeOffset.Now.AddDays(-90);
             this.EndDateTime = this.StartDateTime.AddDays(180);

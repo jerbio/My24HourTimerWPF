@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static TilerElements.Reason;
 
 namespace TilerElements
 {
@@ -17,7 +19,8 @@ namespace TilerElements
         protected DateTimeOffset TempEndDateTime;
         protected bool _Complete = false;
         protected bool _Enabled = true;
-        protected bool _UserDeleted = false;
+        protected bool _AutoDeleted = false;
+        protected Reason.AutoDeletion _AutoDeletionReason;
         protected Location _LocationInfo = Location.getNullLocation();
         protected EventDisplay _UiParams;
         protected MiscData _DataBlob;
@@ -186,7 +189,7 @@ namespace TilerElements
             UndoEndDateTime = EndDateTime;
             UndoComplete = _Complete;
             UndoEnabled = _Enabled;
-            UndoUserDeleted = _UserDeleted;
+            UndoUserDeleted = _AutoDeleted;
             _LocationInfo.undoUpdate(undo);
             _UiParams.undoUpdate(undo);
             _DataBlob.undoUpdate(undo);
@@ -220,7 +223,7 @@ namespace TilerElements
                 Utility.Swap(ref UndoEndDateTime, ref EndDateTime);
                 Utility.Swap(ref UndoComplete, ref _Complete);
                 Utility.Swap(ref UndoEnabled, ref _Enabled);
-                Utility.Swap(ref UndoUserDeleted, ref _UserDeleted);
+                Utility.Swap(ref UndoUserDeleted, ref _AutoDeleted);
                 _LocationInfo.undo(undoId);
                 _UiParams.undo(undoId);
                 _DataBlob.undo(undoId);
@@ -253,7 +256,7 @@ namespace TilerElements
                 Utility.Swap(ref UndoEndDateTime, ref EndDateTime);
                 Utility.Swap(ref UndoComplete, ref _Complete);
                 Utility.Swap(ref UndoEnabled, ref _Enabled);
-                Utility.Swap(ref UndoUserDeleted, ref _UserDeleted);
+                Utility.Swap(ref UndoUserDeleted, ref _AutoDeleted);
                 _LocationInfo.undo(undoId);
                 _UiParams.undo(undoId);
                 _DataBlob.undo(undoId);
@@ -392,6 +395,14 @@ namespace TilerElements
             get
             {
                 return _EventRepetition;
+            }
+        }
+
+        public virtual AutoDeletion AutoDeletion_Reason
+        {
+            get
+            {
+                return this._AutoDeletionReason;
             }
         }
         #region dbProperties
@@ -533,15 +544,40 @@ namespace TilerElements
             }
         }
 
-        public bool UserDeleted_EventDB
+        public virtual bool AutoDeleted_EventDB
         {
             get
             {
-                return this._UserDeleted;
+                return this._AutoDeleted;
             }
             set
             {
-                this._UserDeleted = value;
+                this._AutoDeleted = value;
+            }
+        }
+
+        [DefaultValue(0)]
+        virtual public int AutoDeletionCount_DB
+        {
+            set; get;
+        }
+
+        public virtual string AutoDeletion_ReasonDB
+        {
+            get
+            {
+                return this._AutoDeletionReason.ToString().ToLower();
+            }
+            set
+            {
+                if(value!=null)
+                {
+                    _AutoDeletionReason = Utility.ParseEnum<Reason.AutoDeletion>(value);
+                }else
+                {
+                    _AutoDeletionReason = AutoDeletion.None;
+                }
+                
             }
         }
 
@@ -845,7 +881,7 @@ namespace TilerElements
         {
             get
             {
-                return _UserDeleted;
+                return _AutoDeleted;
             }
 
         }

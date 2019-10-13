@@ -304,7 +304,10 @@ namespace TilerTests
             repeatEvent = Schedule.getCalendarEvent(repeatEvent.Id);
             Schedule.persistToDB().Wait();
 
-            List<SubCalendarEvent> repeatSubEvents = Schedule.getCalendarEvent(repeatEvent.Id).ActiveSubEvents.ToList();
+            CalendarEvent repeatEventRetrieved = Schedule.getCalendarEvent(repeatEvent.Id);
+            CalendarEvent testEvent0Retrieved = Schedule.getCalendarEvent(testEvent0.Id);
+
+            List<SubCalendarEvent> repeatSubEvents = repeatEventRetrieved.ActiveSubEvents.ToList();
             List<CalendarEvent> allCalendarEvnts = repeatEvent.Repeat.RecurringCalendarEvents().ToList();
             List<DateTimeOffset> allValidDays = new List<DateTimeOffset>();
             TimeLine activeTImeLine = new TimeLine(Schedule.Now.constNow, repeatEvent.End);
@@ -324,32 +327,15 @@ namespace TilerTests
 
 
 
-            List<DayOfWeek> repeatDaysOfWeek = repeatSubEvents.Select(tilerEvent => tilerEvent.Start.DayOfWeek).ToList();
+            List<DayOfWeek> daysOfWeekOfRepeatEvent = repeatSubEvents.Where(subEvent => subEvent.Start > refNow).Select(tilerEvent => tilerEvent.Start.DayOfWeek).ToList();
 
             List<SubCalendarEvent> testSubEvents = Schedule.getCalendarEvent(testEvent0.Id).ActiveSubEvents.ToList();
-            List<DayOfWeek> daysOfWeek = testSubEvents.Select(tilerEvent => tilerEvent.Start.DayOfWeek).ToList();
-
-
-            int repeatCount = 0;
-            foreach (DayOfWeek weekDay in repeatDaysOfWeek)
+            List<DayOfWeek> daysOfWeekTestEvent0 = testSubEvents.Where(subEvent => subEvent.Start > refNow).Select(tilerEvent => tilerEvent.Start.DayOfWeek).ToList();
+            
+            foreach (DayOfWeek weekDay in daysOfWeekOfRepeatEvent)
             {
-                if (repeatDays.Contains(weekDay))
-                {
-                    repeatCount++;
-                }
+                Assert.IsTrue(repeatDays.Contains(weekDay));
             }
-
-            int eventCount = 0;
-            foreach (DayOfWeek weekDay in daysOfWeek)
-            {
-                if (eventDays.Contains(weekDay))
-                {
-                    eventCount++;
-                }
-            }
-
-            int count = allCorrespondingRepeatDays.Count - repeatSplitCount;// this should be 8 because the first week in the repeat sequence is 7/1/2019 - 7/8/2019 which leaves only one day after "refnow" which is 7/7/2019 so it cannot be assigned to one of the preference days
-            Assert.AreEqual(repeatCount, count);
         }
 
         [TestMethod]
@@ -518,6 +504,69 @@ namespace TilerTests
                 }
             });
             Assert.AreEqual(dayIndexCounter, 1);
+        }
+
+        /// <summary>
+        /// The test verifies that the previous day and events of the current day between the beginning and the current time are not moved
+        /// </summary>
+        [TestMethod]
+        public void scheduleShouldNotModify_precedingDay_and_currentDay()
+        {
+            var packet = TestUtility.CreatePacket();
+            UserAccount user = packet.Account;
+            TilerUser tilerUser = packet.User;
+
+            DateTimeOffset iniRefNow = new DateTimeOffset(DateTimeOffset.UtcNow.removeSecondsAndMilliseconds().Date.ToUniversalTime());
+            iniRefNow = new DateTimeOffset(iniRefNow.Year, iniRefNow.Month, iniRefNow.Day, 0, 0, 0, new TimeSpan());
+            DateTimeOffset refNow = iniRefNow;
+
+            int splitCount = 15;
+            TimeSpan duration = TimeSpan.FromHours(4);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = start.AddDays(splitCount);
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            CalendarEvent testEvent = TestUtility
+                .generateCalendarEvent(tilerUser, duration, null, start, end, splitCount, false);
+
+            TestSchedule schedule = new TestSchedule(user, refNow);
+            schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, refNow);
+            List<SubCalendarEvent> subEvents = schedule.getAllActiveSubEvents().OrderBy(o => o.Start).ToList();
+            Dictionary<string, TimeLine> subEventToTimeLine = subEvents.ToDictionary(obj => obj.Id, obj => (TimeLine)obj.ActiveSlot.CreateCopy());
+            foreach(SubCalendarEvent eacgSubEvent in subEvents)
+            {
+                Assert.IsTrue(eacgSubEvent.Start >= refNow);
+            }
+            SubCalendarEvent firstSubEvent = subEvents.First();
+            DateTimeOffset secondRefNow = firstSubEvent.End.AddHours(1);
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            CalendarEvent testEvent0 = TestUtility
+                .generateCalendarEvent(tilerUser, duration, null, start, end, splitCount, false);
+            schedule = new TestSchedule(user, secondRefNow);
+            schedule.AddToScheduleAndCommitAsync(testEvent0).Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            SubCalendarEvent firstSubEventDBRetrieved = TestUtility.getSubEventById(firstSubEvent.Id, user);
+            Assert.AreEqual(firstSubEvent.Start, firstSubEventDBRetrieved.Start);
+
+
+            DateTimeOffset third_refNow = refNow.AddDays(2);
+            DayTimeLine second_firstDay = schedule.Now.firstDay;
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            CalendarEvent testEvent1 = TestUtility
+                .generateCalendarEvent(tilerUser, duration, null, start, end, splitCount, false);
+            schedule = new TestSchedule(user, third_refNow);
+            DayTimeLine firstDay = schedule.Now.firstDay;
+            DayTimeLine secondDay = schedule.Now.getDayTimeLineByDayIndex(firstDay.UniversalIndex + 1);
+            TimeLine precedingDayAndCurrentTime = new TimeLine(secondDay.Start.AddDays(-2), secondDay.End.AddDays(-2));
+            precedingDayAndCurrentTime = new TimeLine(precedingDayAndCurrentTime.Start, third_refNow);
+            IEnumerable<SubCalendarEvent> dayBeforeCurrentDayBeforeUpdate = schedule.getAllActiveSubEvents().Where(sub => sub.ActiveSlot.doesTimeLineInterfere(precedingDayAndCurrentTime)).OrderBy(o => o.Start).ToList();
+            schedule.AddToScheduleAndCommit(testEvent1);
+            IEnumerable<SubCalendarEvent> dayBeforeCurrentDayAfterUpdate = schedule.getAllActiveSubEvents().Where(sub => sub.ActiveSlot.doesTimeLineInterfere(precedingDayAndCurrentTime)).OrderBy(o => o.Start).ToList();
+            Assert.AreEqual(dayBeforeCurrentDayBeforeUpdate.Count(), dayBeforeCurrentDayAfterUpdate.Count());
         }
 
         public List<DateTimeOffset> getCorrespondingWeekdays(TimeLine timeLine, DayOfWeek dayOfWeek)

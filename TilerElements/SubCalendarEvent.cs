@@ -36,6 +36,7 @@ namespace TilerElements
         public bool isWake { get; set; } = false;
         public bool isSleep { get; set; } = false;
         protected bool tempLock { get; set; } = false;// This should never get persisted
+        protected bool lockedPrecedingHours { get; set; } = false;// This should never get persisted
         /// <summary>
         /// This holds the current session reasons. It will updated based on data and calculation optimizations from HistoricalCurrentPosition
         /// </summary>
@@ -258,6 +259,16 @@ namespace TilerElements
         public void resetTempUnlock()
         {
             tempLock = false;
+        }
+
+        public void lockPrecedingHours()
+        {
+            lockedPrecedingHours = true;
+        }
+
+        public void unLockPrecedingHours()
+        {
+            lockedPrecedingHours = false;
         }
 
         virtual public void addReasons(Reason eventReason)
@@ -921,7 +932,7 @@ namespace TilerElements
             CalculationMode = true;
         }
 
-        public override bool isLocked => base.isLocked || this.tempLock;
+        public override bool isLocked => base.isLocked || this.tempLock || this.lockedPrecedingHours;
 
         /// <summary>
         /// This changes the duration of the subevent. It requires the change in duration. This just adds/subtracts the delta to the end time

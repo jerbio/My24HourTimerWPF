@@ -283,6 +283,7 @@ namespace TilerElements
             copy._Semantics = this._Semantics?.createCopy();
             copy._UsedTime = this._UsedTime;
             copy.OptimizationFlag = this.OptimizationFlag;
+            copy.tempLock = this.tempLock;
             return copy;
         }
 

@@ -660,6 +660,15 @@ namespace TilerCore
         }
 
         /// <summary>
+        /// Gets current Active subevents in Memory. It does not retrieve data from DB
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<SubCalendarEvent> getAllActiveSubEvents()
+        {
+            return AllEventDictionary.Values.SelectMany(cal => cal.ActiveSubEvents);
+        }
+
+        /// <summary>
         /// Gets current Calendar events in Memory. It does not retrieve data from DB
         /// </summary>
         /// <returns></returns>
@@ -2241,6 +2250,32 @@ namespace TilerCore
             RigidSubCalendarEvents = ArrayOfInterferringSubEvents.Where(obj => obj.isLocked).ToList();
             RigidSubCalendarEventsBusyTimeLine = RigidSubCalendarEvents.Select(obj => obj.ActiveSlot).ToList();
 
+
+            DayTimeLine[] AllDayTImeLine = Now.getAllDaysLookup().Select(obj => obj.Value).ToArray();
+            foreach (DayTimeLine dayTimeLine in AllDayTImeLine)
+            {
+                dayTimeLine.Empty();
+            }
+            DayTimeLine firstDay = Now.firstDay;
+            DayTimeLine secondDay = AllDayTImeLine[1];
+            TimeLine precedingStart = new TimeLine(secondDay.Start.AddDays(-2), firstDay.Start);
+            List<SubCalendarEvent> preceding24HourSubevent = new List<SubCalendarEvent>();// holds subevents that are within the preceding dayTImeline and preceding hours of now
+            List<SubCalendarEvent> notPreceding24HourSubevent = new List<SubCalendarEvent>();// holds sub events that will be used for calculation
+
+            foreach (SubCalendarEvent subEvent in ArrayOfInterferringSubEvents)
+            {
+                if (subEvent.ActiveSlot.doesTimeLineInterfere(precedingStart))
+                {
+                    preceding24HourSubevent.Add(subEvent);
+                    subEvent.lockPrecedingHours();
+                }
+                else
+                {
+                    notPreceding24HourSubevent.Add(subEvent);
+                }
+            }
+
+            ArrayOfInterferringSubEvents = notPreceding24HourSubevent;
             double OccupancyOfTimeLineSPan = (double)SumOfAllEventsTimeSpan.Ticks / (double)RangeForScheduleUpdate.TimelineSpan.Ticks;
             //ArrayOfInterferringSubEvents = Utility.NotInList(ArrayOfInterferringSubEvents.ToList(), RigidSubCalendarEvents).ToList();//remove rigid elements
 
@@ -2257,14 +2292,10 @@ namespace TilerCore
 
             List<CalendarEvent> SortedInterFerringCalendarEvents_Deadline = DictionaryWithBothCalendarEventIDAndListOfInterferringSubEvents.Keys.ToList();
             SortedInterFerringCalendarEvents_Deadline = SortedInterFerringCalendarEvents_Deadline.OrderBy(obj => obj.End).ToList();
-
-
-            DayTimeLine[] AllDayTImeLine = Now.getAllDaysLookup().Select(obj => obj.Value).ToArray();
-            foreach (DayTimeLine dayTimeLine in AllDayTImeLine)
-            {
-                dayTimeLine.Empty();
-            }
             ParallelizeCallsToDay(SortedInterFerringCalendarEvents_Deadline, ArrayOfInterferringSubEvents, AllDayTImeLine, callLocation, OptimizeFirstTwentyFour, preserveFirstTwentyFourHours, shuffle);
+            preceding24HourSubevent.ForEach((subEvent) => {
+                subEvent.unLockPrecedingHours();
+            });
 
             foreach (BlobSubCalendarEvent eachSubCalEvent in preppedDataForNExtStage.Item2)
             {
@@ -2487,6 +2518,29 @@ namespace TilerCore
             RigidSubCalendarEvents = ArrayOfInterferringSubEvents.Where(obj => obj.isLocked).ToList();
             RigidSubCalendarEventsBusyTimeLine = RigidSubCalendarEvents.Select(obj => obj.ActiveSlot).ToList();
 
+            DayTimeLine[] AllDays = Now.getAllDaysCount((uint)NumberOfDays).OrderBy(o => o.Start).ToArray();
+            foreach (DayTimeLine dayTimeLine in AllDays)
+            {
+                dayTimeLine.Empty();
+            }
+            DayTimeLine firstDay = Now.firstDay;
+            DayTimeLine secondDay = AllDays[1];
+            TimeLine precedingStart = new TimeLine(secondDay.Start.AddDays(-2), firstDay.Start);
+            List<SubCalendarEvent> preceding24HourSubevent = new List<SubCalendarEvent>();// holds subevents that are within the preceding dayTImeline and preceding hours of now
+            List<SubCalendarEvent> notPreceding24HourSubevent = new List<SubCalendarEvent>();// holds sub events that will be used for calculation
+            foreach (SubCalendarEvent subEvent in ArrayOfInterferringSubEvents)
+            {
+                if (subEvent.ActiveSlot.doesTimeLineInterfere(precedingStart))
+                {
+                    preceding24HourSubevent.Add(subEvent);
+                    subEvent.lockPrecedingHours();
+                }
+                else
+                {
+                    notPreceding24HourSubevent.Add(subEvent);
+                }
+            }
+            ArrayOfInterferringSubEvents = notPreceding24HourSubevent;
             double OccupancyOfTimeLineSPan = (double)SumOfAllEventsTimeSpan.Ticks / (double)RangeForScheduleUpdate.TimelineSpan.Ticks;
             //ArrayOfInterferringSubEvents = Utility.NotInList(ArrayOfInterferringSubEvents.ToList(), RigidSubCalendarEvents).ToList();//remove rigid elements
 
@@ -2504,8 +2558,10 @@ namespace TilerCore
 
             List<CalendarEvent> SortedInterFerringCalendarEvents_Deadline = DictionaryWithBothCalendarEventIDAndListOfInterferringSubEvents.Keys.ToList();
             SortedInterFerringCalendarEvents_Deadline = SortedInterFerringCalendarEvents_Deadline.OrderBy(obj => obj.End).ToList();
-            DayTimeLine[] AllDays = Now.getAllDaysCount((uint)NumberOfDays).ToArray();
             ParallelizeCallsToDay(SortedInterFerringCalendarEvents_Deadline, ArrayOfInterferringSubEvents.ToList(), AllDays, callLocation, true);
+            preceding24HourSubevent.ForEach((subEvent) => {
+                subEvent.unLockPrecedingHours();
+            });
             List<SubCalendarEvent> ConflictingEvents = new List<SubCalendarEvent>();
             foreach (SubCalendarEvent eachSubCalendarEvent in ArrayOfInterferringSubEvents)
             {

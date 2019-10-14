@@ -188,11 +188,11 @@ namespace TilerTests
             Location churchLocation = new Location(41.569467, -81.539422, "1465 Dille Rd, Cleveland, OH 44117", "Church", false, false);
             if (CheckForInternetConnection())
             {
-                homeLocation.Validate();
-                workLocation.Validate();
-                gymLocation.Validate();
-                shakerLibrary.Validate();
-                churchLocation.Validate();
+                homeLocation.verify();
+                workLocation.verify();
+                gymLocation.verify();
+                shakerLibrary.verify();
+                churchLocation.verify();
             }
             if (homeLocation.isNull)
             {

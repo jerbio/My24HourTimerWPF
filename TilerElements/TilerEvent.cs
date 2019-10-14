@@ -22,6 +22,7 @@ namespace TilerElements
         protected bool _AutoDeleted = false;
         protected Reason.AutoDeletion _AutoDeletionReason;
         protected Location _LocationInfo = Location.getNullLocation();
+        protected string _LocationValidationId { get; set; }
         protected EventDisplay _UiParams;
         protected MiscData _DataBlob;
         protected Repetition _EventRepetition;
@@ -181,6 +182,16 @@ namespace TilerElements
             StartDateTime = TempStartDateTime;
             EndDateTime = TempEndDateTime;
         }
+
+        public void validateLocation(Location location)
+        {
+            Location validatedLocation = this._LocationInfo.validate(location);
+            if(validatedLocation!= null && !validatedLocation.isNull && !validatedLocation.isDefault)
+            {
+                _LocationValidationId = validatedLocation.Id;
+            }
+        }
+        
 
         #region undoFunctions
         public virtual void undoUpdate(Undo undo)
@@ -346,6 +357,37 @@ namespace TilerElements
             }
         }
 
+        virtual public bool IsLocationValidated
+        {
+            get
+            {
+                if(this.Location != null || !this.Location.isDefault)
+                {
+                    if(!this.Location.IsAmbiguous)
+                    {
+                        return !this.Location.IsAmbiguous;
+                    }
+                    else
+                    {
+                        if(!(string.IsNullOrEmpty(this._LocationValidationId) && string.IsNullOrWhiteSpace(this._LocationValidationId)))
+                        {
+                            return !this.Location.isDefault;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+
+
+                    }
+                } else
+                {
+                    return false;
+                }
+                
+            }
+        }
+
         public virtual ThirdPartyControl.CalendarTool ThirdpartyType
         {
             get 
@@ -420,6 +462,16 @@ namespace TilerElements
             }
         }
 
+        public string LocationValidationId_DB
+        {
+            get {
+                return _LocationValidationId;
+            }
+            set {
+                _LocationValidationId = value;
+            }
+        }
+
         public string LocationId { get; set; }
         [NotMapped]
         virtual public Location Location
@@ -430,6 +482,19 @@ namespace TilerElements
             }
             get
             {
+                if(_LocationInfo.IsVerified)
+                {
+                    return _LocationInfo;
+                }
+                if(_LocationInfo.IsAmbiguous)
+                {
+                    Location retValue = _LocationInfo.getLocationThroughValidation(_LocationValidationId);
+                    if(retValue!=null &&!retValue.isDefault)
+                    {
+                        _LocationValidationId = retValue?.Id;
+                    }
+                    return retValue ?? Location.getDefaultLocation() ;
+                }
                 return _LocationInfo;
             }
         }

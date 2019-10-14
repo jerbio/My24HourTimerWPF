@@ -25,6 +25,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using GoogleApi;
 using GoogleApi.Entities.Places.Search.Find.Response;
+using Newtonsoft.Json;
+using GoogleMaps = GoogleMapsApi.GoogleMaps;
 
 namespace TilerElements
 {
@@ -34,6 +36,11 @@ namespace TilerElements
         public static double MaxLongitude = 181;
         public static double MaxLatitude = 91;
         public static string _ApiKey;
+        public enum ThirdPartyMapSource
+        {
+            google,
+            none
+        }
         enum requestType
         {
             authenticate,
@@ -51,8 +58,14 @@ namespace TilerElements
         protected string _TaggedDescription = "";
         protected string _SearchdDescription = "";
         protected string _TaggedAddress = "";
+        protected string _LookupString = "";
+        protected bool _LocationIsVerified = false; // This is an address that has been confirmed from the user, either through the ui or some other confirmation
         protected string _UndoId = "";
+        protected string _ThirdPartyId = "";
+        protected ThirdPartyMapSource _ThirdPartySource;
         protected TilerUser _User;
+        protected LocationValidation _LocationValidation;
+        protected TilerEvent _Event;
 
         /// <summary>
         /// was tiler able to pull location from google maps. If tiler fails to pull location from google maps then this location is null.
@@ -68,9 +81,15 @@ namespace TilerElements
         protected double _UndoLongitude;
         protected string _UndoTaggedDescription = "";
         protected string _UndoTaggedAddress = "";
+        protected bool _UndoLocationIsVerified = false;
         protected bool _UndoNullLocation = true;
         protected bool _UndoDefaultFlag = false;
-#endregion
+        protected string _UndoThirdPartyId = "";
+        protected string _UndoThirdPartySource = "";
+        protected string _UndoSearchedDescription = "";
+        protected string _UndoLookupString = "";
+        protected string _UndoLocationValidation = "";
+        #endregion
         protected string _Id = Guid.NewGuid().ToString();
 #region Constructor
         public Location()
@@ -80,33 +99,15 @@ namespace TilerElements
             _NullLocation = true;
         }
 
-        protected TilerEvent _Event;
-        [NotMapped]
-        public TilerEvent AssociatedEvent
-        {
-            get
-            {
-                return _Event;
-            }
-            set
-            {
-                _Event = value;
-            }
-        }
-
         public Location(double MyxValue, double MyyValue, string Id = "")
         {
             _Latitude = MyxValue;
             _Longitude = MyyValue;
             _NullLocation = false;
+            _ThirdPartySource = ThirdPartyMapSource.none;
             if (!string.IsNullOrEmpty(Id))
             {
-                Guid validId;
-                bool IdParseSuccess = Guid.TryParse(Id, out validId);
-                if (IdParseSuccess)
-                {
-                    _Id = Id;
-                }
+                _Id = Id;
             }
         }
 
@@ -118,6 +119,10 @@ namespace TilerElements
             _TaggedDescription = AddressDescription;
             updateSearchedLocation();
             _NullLocation = isNull;
+            if (string.IsNullOrEmpty(_TaggedDescription) || string.IsNullOrWhiteSpace(_TaggedDescription) && (!(string.IsNullOrEmpty(_TaggedAddress) || string.IsNullOrWhiteSpace(_TaggedAddress))))
+            {
+                _TaggedDescription = _TaggedAddress;
+            }
             if (string.IsNullOrEmpty(ID))
             {
                 _Id = Guid.NewGuid().ToString();
@@ -131,22 +136,34 @@ namespace TilerElements
 
         public Location(string Address, string tag = "", string ID = "")
         {
-            if (string.IsNullOrEmpty(Address))
+            _NullLocation = true;
+            if (string.IsNullOrEmpty(Address) || string.IsNullOrWhiteSpace(Address))
             {
                 Address = "";
             }
+            else
+            {
+                _NullLocation = false;
+            }
 
-            if (string.IsNullOrEmpty(tag))
+            if (string.IsNullOrEmpty(tag) || string.IsNullOrWhiteSpace(tag))
             {
                 tag = "";
+            }
+            else
+            {
+                _NullLocation = false;
             }
 
 
 
             Address = Address.Trim();
-            _NullLocation = true;
             _TaggedAddress = Address;
             _TaggedDescription = tag;
+            if (string.IsNullOrEmpty(tag) || string.IsNullOrWhiteSpace(tag)&&(!(string.IsNullOrEmpty(_TaggedAddress) || string.IsNullOrWhiteSpace(_TaggedAddress))))
+            {
+                _TaggedDescription = _TaggedAddress;
+            }
 
             updateSearchedLocation();
             if (string.IsNullOrEmpty(ID))
@@ -158,89 +175,137 @@ namespace TilerElements
                 _Id = ID;
             }
         }
-#endregion
+        #endregion
+        /// <summary>
+        /// this takes an ambihuous location name like "best buy" and tries to look up best buy relative to anchorLocation. It then returns the location it found
+        /// </summary>
+        /// <param name="anchorLocation"></param>
+        /// <returns></returns>
+        internal Location validate(Location anchorLocation)
+        {
+            Location retValue = null;
+            _TaggedAddress = _TaggedAddress.Trim();
+            try
+            {
+                if (anchorLocation != null && !string.IsNullOrEmpty(_TaggedAddress) && !string.IsNullOrWhiteSpace(_TaggedAddress))
+                {
+                    if(_LocationValidation == null)
+                    {
+                        _LocationValidation = new LocationValidation();
+                    }
+                    _LocationValidation.instantiate();
+                    double distance = Location.calculateDistance(anchorLocation, _LocationValidation.getAverageLocation, -1);
+                    double distaceVariance = Math.Abs(_LocationValidation.AverageDistanceFromAverageLocation - distance);
+                    double varianceLocationValidation = _LocationValidation.AverageVariance;
+                    double doubleVariance = distaceVariance * 2;
+                    double halfVariance = distaceVariance / 2;
+                    if (distaceVariance >= doubleVariance || distaceVariance <= halfVariance|| _LocationValidation.locations.Count == 0)
+                    {
+                        var googleLocation = new GoogleApi.Entities.Common.Location(anchorLocation.Latitude, anchorLocation.Longitude);
+                        var placesFindSearchRequest = new PlacesFindSearchRequest()
+                        {
+                            Type = GoogleApi.Entities.Places.Search.Find.Request.Enums.InputType.TextQuery,
+                            Fields = FieldTypes.Basic,
+                            Key = Location.ApiKey,
+                            Input = _TaggedAddress,
+                            Location = googleLocation,
+                            Radius = 20000
+                        };
+
+                        var response = GooglePlaces.FindSearch.Query(placesFindSearchRequest);
+                        GoogleApi.Entities.Places.Search.Find.Response.Candidate candidate = null;
+                        if (response.Status == GoogleApi.Entities.Common.Enums.Status.Ok)
+                        {
+                            candidate = response.Candidates.FirstOrDefault();
+                            retValue = new LocationJson();
+                            if (candidate != null)
+                            {
+                                var result = candidate;
+                                retValue._TaggedAddress = result.FormattedAddress.ToLower();
+                                retValue._Latitude = Convert.ToDouble(result.Geometry.Location.Latitude);
+                                retValue._Longitude = Convert.ToDouble(result.Geometry.Location.Longitude);
+                                retValue._LookupString = this._LookupString;
+                                retValue._NullLocation = false;
+                                retValue._DefaultFlag = false;
+                                retValue._ThirdPartyId = result.PlaceId;
+                                retValue._Id = result.PlaceId;
+                                retValue._ThirdPartySource = ThirdPartyMapSource.google;
+                                this._NullLocation = false;
+                                this._DefaultFlag = false;
+                                retValue.updateSearchedLocation();
+                                _LocationValidation.addLocation(retValue as LocationJson);
+                            }
+                            else
+                            {
+                                retValue._NullLocation = true;
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine(response.Status);
+                            retValue.initializeWithNull();
+                        }
+                    } else
+                    {
+                        retValue = _LocationValidation.getClosestLocation(anchorLocation);
+                    }
+                }
+                else
+                {
+                    initializeWithNull();
+                }
+            }
+            catch
+            {
+                initializeWithNull();
+            }
+            updateSearchedLocation();
+            return retValue;
+        }
+
         /// <summary>
         /// function tries to verify that the address provide exists in external service
         /// </summary>
-        /// <returns></returns>
-        public bool Validate()
+        public virtual bool verify()
         {
             bool retValue = false;
             _TaggedAddress = _TaggedAddress.Trim();
             try
             {
-                
-                if(!String.IsNullOrEmpty(_TaggedAddress))
+
+                if (!String.IsNullOrEmpty(_TaggedAddress))
                 {
-                    var placesFindSearchRequest = new PlacesFindSearchRequest
-                    {
-                        Key = Location.ApiKey,
-                        Input = _TaggedAddress,
-                        Type = GoogleApi.Entities.Places.Search.Find.Request.Enums.InputType.TextQuery,
-                        Fields = FieldTypes.Basic,
-                        Location = new GoogleApi.Entities.Common.Location(39.926222, -105.145171),
-                        Radius = 2000
+                    GeocodingRequest request = new GeocodingRequest();
+                    request.Address = _TaggedAddress;
+                    request.ApiKey = Location.ApiKey;
 
-                    };
-
-                    var response = GooglePlaces.FindSearch.Query(placesFindSearchRequest);
-                    GoogleApi.Entities.Places.Search.Find.Response.Candidate candidate = null;
-                    if (response.Status == GoogleApi.Entities.Common.Enums.Status.Ok)
+                    var geocodingEngine = GoogleMaps.Geocode;
+                    //Task<GeocodingResponse> geoCodeTask = geocodingEngine.QueryAsync(request);
+                    //geoCodeTask.Wait();
+                    //GeocodingResponse geocode = geoCodeTask.Result;
+                    GeocodingResponse geocode = geocodingEngine.Query(request);
+                    if (geocode.Status == GoogleMapsApi.Entities.Geocoding.Response.Status.OK)
                     {
-                        candidate = response.Candidates.FirstOrDefault();
+                        if (string.IsNullOrEmpty(_TaggedDescription))
+                        {
+                            _TaggedDescription = _TaggedAddress;
+                        }
+                        var result = geocode.Results.First();
+                        _TaggedAddress = result.FormattedAddress.ToLower();
+                        _Latitude = Convert.ToDouble(result.Geometry.Location.Latitude);
+                        _Longitude = Convert.ToDouble(result.Geometry.Location.Longitude);
+                        _ThirdPartyId = result.PlaceId;
+                        _DefaultFlag = false;
+                        _NullLocation = false;
+                        _LocationIsVerified = true;
+                        _ThirdPartySource = ThirdPartyMapSource.google;
+                        retValue = true;
                     }
-
-                    //PlacesFindRequest placeRequest = new PlacesFindRequest();
-                    //placeRequest.ApiKey = Location.ApiKey;
-                    //placeRequest.Input = _TaggedAddress;
-                    //placeRequest.LocationBias = "2000,39.926222,-105.145171";
-                    //var PlacesFindEngine = GoogleMapsApi.GoogleMaps.PlacesFind;
-                    //var PlacesFindTask = PlacesFindEngine.QueryAsync(placeRequest);
-                    //PlacesFindTask.Wait();
-                    //var placeFindResponse = PlacesFindTask.Result;
-                    //if( placeFindResponse.Status == GoogleMapsApi.Entities.PlacesFind.Response.Status.OK)
-                    //{
-                    //    if (string.IsNullOrEmpty(_TaggedDescription))
-                    //    {
-                    //        _TaggedDescription = _TaggedAddress;
-                    //    }
-                    //    var result = placeFindResponse.Candidates.First();
-                    //    _TaggedAddress = result.FormattedAddress.ToLower();
-                    //    _Latitude = Convert.ToDouble(result.Geometry.Location.Latitude);
-                    //    _Longitude = Convert.ToDouble(result.Geometry.Location.Longitude);
-                    //    _NullLocation = false;
-                    //    retValue = true;
-                    //}
-
-
-
-
-
-                    //GeocodingRequest request = new GeocodingRequest();
-                    //request.Address = _TaggedAddress;
-                    //request.ApiKey = Location.ApiKey;
-
-                    //var geocodingEngine = GoogleMapsApi.GoogleMaps.Geocode;
-                    //GeocodingResponse geocode = geocodingEngine.Query(request);
-
-                    //if (geocode.Status == GoogleMapsApi.Entities.Geocoding.Response.Status.OK)
-                    //{
-                    //    if (string.IsNullOrEmpty(_TaggedDescription))
-                    //    {
-                    //        _TaggedDescription = _TaggedAddress;
-                    //    }
-                    //    var result = geocode.Results.First();
-                    //    _TaggedAddress = result.FormattedAddress.ToLower();
-                    //    _Latitude = Convert.ToDouble(result.Geometry.Location.Latitude);
-                    //    _Longitude = Convert.ToDouble(result.Geometry.Location.Longitude);
-                    //    _NullLocation = false;
-                    //    retValue = true;
-                    //}
-                    //else
-                    //{
-                    //    Console.WriteLine(geocode.Status);
-                    //    initializeWithNull();
-                    //}
+                    else
+                    {
+                        Console.WriteLine(geocode.Status);
+                        initializeWithNull();
+                    }
                 }
                 else
                 {
@@ -255,6 +320,15 @@ namespace TilerElements
             updateSearchedLocation();
             return retValue;
         }
+
+        public Location getLocationThroughValidation(string locationId) {
+            if(!string.IsNullOrEmpty(locationId) && !string.IsNullOrWhiteSpace(locationId) && _LocationValidation!=null)
+            {
+                return _LocationValidation.getLocation(locationId);
+            }
+            return null;
+        }
+
 
         protected void updateSearchedLocation()
         {
@@ -330,9 +404,7 @@ namespace TilerElements
                 };
                 try
                 {
-                    var mapsLookup = GoogleMapsApi.GoogleMaps.Directions.QueryAsync(directionsRequest);
-                    mapsLookup.Wait();
-                    DirectionsResponse directions = mapsLookup.Result;
+                    DirectionsResponse directions = GoogleMapsApi.GoogleMaps.Directions.Query(directionsRequest);
                     if (directions.Status == DirectionsStatusCodes.OK)
                     {
                         var route = directions.Routes.First();
@@ -438,7 +510,13 @@ namespace TilerElements
             return JSON;
         }
 
-        public void update(Location location)
+        /// <summary>
+        /// Function updates the current location with the new variable "location"
+        /// </summary>
+        /// <param name="location">New location to be copied from</param>
+        /// <param name="resetLocationValidation">reset the Location validation, this is often used in the scenario where the location address is ambiguous this defaults to true</param>
+        /// <param name="overrideLocationValidation">This copies over the location validation from the variable the passed location. This defaults to false</param>
+        public void update(Location location, bool resetLocationValidation = true, bool overrideLocationValidation = false)
         {
             this._TaggedAddress = location._TaggedAddress;
             this._TaggedDescription = location._TaggedDescription;
@@ -446,6 +524,21 @@ namespace TilerElements
             this._Longitude = location._Longitude;
             this._NullLocation = location._NullLocation;
             this._DefaultFlag = location._DefaultFlag;
+            this._LocationIsVerified = location._LocationIsVerified;
+            if (resetLocationValidation)
+            {
+                this._LocationValidation = new LocationValidation();
+            }
+            if(overrideLocationValidation)
+            {
+                this._LocationValidation = location._LocationValidation;
+            }
+            
+            
+            this._SearchdDescription = location._SearchdDescription;
+            this._LookupString = location._LookupString;
+            this._ThirdPartyId = location.ThirdPartyId;
+            this._ThirdPartySource = location._ThirdPartySource;
         }
 
         public Location CreateCopy(string id=null)
@@ -458,6 +551,12 @@ namespace TilerElements
             this_cpy._NullLocation = this._NullLocation;
             this_cpy._Id = id?? this._Id;
             this_cpy.User = this.User;
+            this_cpy._LocationIsVerified = this._LocationIsVerified;
+            this_cpy._LocationValidation = this._LocationValidation;
+            this_cpy._SearchdDescription = this._SearchdDescription;
+            this_cpy._LookupString = this._LookupString;
+            this_cpy._ThirdPartySource = this._ThirdPartySource;
+            this_cpy._ThirdPartyId = this_cpy.ThirdPartyId;
             return this_cpy;
         }
 
@@ -570,6 +669,12 @@ namespace TilerElements
             _UndoTaggedAddress = _TaggedAddress;
             _UndoNullLocation = _NullLocation;
             _UndoDefaultFlag = _DefaultFlag;
+            _UndoThirdPartyId = _ThirdPartyId;
+            _UndoThirdPartySource = _ThirdPartySource.ToString().ToLower();
+            _UndoSearchedDescription = _SearchdDescription;
+            _UndoLookupString = _LookupString;
+            _UndoLocationValidation = LocationValidation;
+
             FirstInstantiation = false;
             _UndoId = undo.id;
         }
@@ -584,6 +689,17 @@ namespace TilerElements
                 Utility.Swap(ref _UndoTaggedAddress, ref _TaggedAddress);
                 Utility.Swap(ref _UndoNullLocation, ref _NullLocation);
                 Utility.Swap(ref _UndoDefaultFlag, ref _DefaultFlag);
+                Utility.Swap(ref _UndoLocationIsVerified, ref _LocationIsVerified);
+                Utility.Swap(ref _UndoLookupString, ref _LookupString);
+                Utility.Swap(ref _UndoThirdPartyId, ref _ThirdPartyId);
+                Utility.Swap(ref _UndoSearchedDescription, ref _SearchdDescription);
+                Utility.Swap(ref _UndoLookupString, ref _LookupString);
+                string _LocationValidation = LocationValidation;
+                Utility.Swap(ref _UndoLocationValidation, ref _LocationValidation);
+                LocationValidation = _LocationValidation;
+                string _thidParty = _ThirdPartySource.ToString().ToLower();
+                Utility.Swap(ref _UndoThirdPartySource, ref _thidParty);
+                _ThirdPartySource = Utility.ParseEnum<ThirdPartyMapSource>(_thidParty);
             }
         }
 
@@ -597,6 +713,18 @@ namespace TilerElements
                 Utility.Swap(ref _UndoTaggedAddress, ref _TaggedAddress);
                 Utility.Swap(ref _UndoNullLocation, ref _NullLocation);
                 Utility.Swap(ref _UndoDefaultFlag, ref _DefaultFlag);
+                Utility.Swap(ref _UndoLocationIsVerified, ref _LocationIsVerified);
+                Utility.Swap(ref _UndoLookupString, ref _LookupString);
+                Utility.Swap(ref _UndoLookupString, ref _LookupString);
+                Utility.Swap(ref _UndoThirdPartyId, ref _ThirdPartyId);
+                Utility.Swap(ref _UndoSearchedDescription, ref _SearchdDescription);
+                Utility.Swap(ref _UndoLookupString, ref _LookupString);
+                string _LocationValidation = LocationValidation;
+                Utility.Swap(ref _UndoLocationValidation, ref _LocationValidation);
+                LocationValidation = _LocationValidation;
+                string _thidParty = _ThirdPartySource.ToString().ToLower();
+                Utility.Swap(ref _UndoThirdPartySource, ref _thidParty);
+                _ThirdPartySource = Utility.ParseEnum<ThirdPartyMapSource>(_thidParty);
             }
         }
 
@@ -604,6 +732,19 @@ namespace TilerElements
 
 
         #region Properties
+
+        [NotMapped]
+        public TilerEvent AssociatedEvent
+        {
+            get
+            {
+                return _Event;
+            }
+            set
+            {
+                _Event = value;
+            }
+        }
         /// <summary>
         /// NOTE DO NOT FORGET TO SAVE TO SearchdDescription. This is for performace reasons
         /// 
@@ -617,6 +758,39 @@ namespace TilerElements
             get
             {
                 return _TaggedDescription;
+            }
+        }
+
+        public string ThirdPartyId
+        {
+            get
+            {
+                return _ThirdPartyId;
+            }
+        }
+
+        public string LocationValidation
+        {
+            get
+            {
+                var retValue = JsonConvert.SerializeObject(_LocationValidation);
+                return retValue;
+            }
+            set
+            {
+                _LocationValidation = JsonConvert.DeserializeObject<LocationValidation>(value);
+            }
+        }
+
+        public string ThirdPartySource
+        {
+            get
+            {
+                return _ThirdPartySource.ToString().ToLower();
+            }
+            set
+            {
+                _ThirdPartySource = Utility.ParseEnum<ThirdPartyMapSource>(value);
             }
         }
 
@@ -676,6 +850,51 @@ namespace TilerElements
                 return _Longitude;
             }
         }
+
+        public virtual string LookupString
+        {
+            get
+            {
+                return _LookupString;
+            }
+            set
+            {
+                _LookupString = value;
+            }
+        }
+
+        public virtual bool IsVerified
+        {
+            get
+            {
+                return _LocationIsVerified;
+            }
+            set
+            {
+                _LocationIsVerified = value;
+            }
+        }
+
+        public virtual bool IsAmbiguous
+        {
+            get
+            {
+                return !(IsVerified && (!isDefault || !isNull));
+            }
+        }
+
+        public virtual string ThirdPartyId_DB
+        {
+            get
+            {
+                return _ThirdPartyId;
+            }
+            set
+            {
+                _ThirdPartyId = value;
+            }
+        }
+
 
         public bool isNull
         {

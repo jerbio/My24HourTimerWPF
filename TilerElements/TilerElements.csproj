@@ -115,6 +115,8 @@
     <Compile Include="GoogleSubCalendarEvent.cs" />
     <Compile Include="IHasId.cs" />
     <Compile Include="EventPreference.cs" />
+    <Compile Include="LocationJson.cs" />
+    <Compile Include="LocationValidation.cs" />
     <Compile Include="ScheduleDump.cs" />
     <Compile Include="SubCalEvent.cs" />
     <Compile Include="SubEventDictionary.cs" />

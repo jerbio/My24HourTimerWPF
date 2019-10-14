@@ -588,7 +588,7 @@ namespace My24HourTimerWPF
             //C6RXEZ             
             
             Location var0 = new Location(textBox8.Text);
-            var0.Validate();
+            var0.verify();
             EventDisplay UiData = new EventDisplay();
             MiscData NoteData = new MiscData();
             bool CompletedFlag = false;

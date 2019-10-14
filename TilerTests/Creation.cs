@@ -205,7 +205,7 @@ namespace TilerTests
             EventDisplay eventdisplay = new EventDisplay(true, tilerColor);
 
             Location location = TestUtility.getLocations()[0];
-            location.Validate();
+            location.verify();
 
             // Adding event one
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), timeLine.Start, timeLine.End, 1, false, eventDisplay: eventdisplay, location: location);
@@ -295,7 +295,7 @@ namespace TilerTests
             EventDisplay eventdisplay = new EventDisplay(true, tilerColor);
 
             Location location = TestUtility.getLocations()[0];
-            location.Validate();
+            location.verify();
 
             // Adding event one
             DateTimeOffset start = refNow;
@@ -473,7 +473,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             TimeSpan duration = TimeSpan.FromHours(5);
             Location location = TestUtility.getLocations()[0];
-            location.Validate();
+            location.verify();
             TimeLine timeLine = TestUtility.getTimeFrames(refNow, duration).First();
             DateTimeOffset TimeCreation = DateTimeOffset.UtcNow;
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), timeLine.Start, timeLine.End, 1, false, location);
@@ -505,7 +505,7 @@ namespace TilerTests
             UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
             Location location = TestUtility.getLocations()[0];
-            location.Validate();
+            location.verify();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
             Schedule = new TestSchedule(user, refNow);
@@ -611,7 +611,7 @@ namespace TilerTests
             TimeLine repetitionRange = new TimeLine(start, start.AddDays(13).AddHours(-23));
             DayOfWeek startingWeekDay = start.DayOfWeek;
             Location location = TestUtility.getLocations()[0];
-            location.Validate();
+            location.verify();
             Repetition repetition = new Repetition();
             CalendarEventRestricted testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 1, false, location, restrictionProfile: new RestrictionProfile(start, duration + duration), now: Schedule.Now) as CalendarEventRestricted;
             Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
@@ -906,7 +906,7 @@ namespace TilerTests
             //List<DayOfWeek> weekDays = new List<DayOfWeek>() { DayOfWeek.Sunday, DayOfWeek.Monday ,DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday};
             DayOfWeek startingWeekDay = start.DayOfWeek;
             Location location = TestUtility.getLocations()[0];
-            location.Validate();
+            location.verify();
             List<DayOfWeek> weekDays = new List<DayOfWeek>() { start.DayOfWeek, (DayOfWeek)(((int)start.DayOfWeek + 2) % 7), (DayOfWeek)(((int)start.DayOfWeek + 4) % 7) };
             //List<DayOfWeek> weekDays = new List<DayOfWeek>() { DayOfWeek.Sunday, DayOfWeek.Monday ,DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday};
             List<DayOfWeek> weekDaysAsInt = weekDays.ToList();
@@ -958,7 +958,7 @@ namespace TilerTests
             //List<DayOfWeek> weekDays = new List<DayOfWeek>() { DayOfWeek.Sunday, DayOfWeek.Monday ,DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday};
             DayOfWeek startingWeekDay = start.DayOfWeek;
             Location location = TestUtility.getLocations()[0];
-            location.Validate();
+            location.verify();
             //List<DayOfWeek> weekDays = new List<DayOfWeek>() { start.DayOfWeek, (DayOfWeek)(((int)start.DayOfWeek + 2) % 7), (DayOfWeek)(((int)start.DayOfWeek + 4) % 7) };
             ////List<DayOfWeek> weekDays = new List<DayOfWeek>() { DayOfWeek.Sunday, DayOfWeek.Monday ,DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday};
             //List<int> weekDaysAsInt = weekDays.Select(obj => (int)obj).ToList();

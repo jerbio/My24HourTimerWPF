@@ -75,13 +75,13 @@ namespace TilerElements
             List<SubCalendarEvent> relevantSubCalendarEventList = _orderedByStartThenEndSubEvents.Where(obj => !obj.getIsProcrastinateCalendarEvent).ToList();
             if(relevantSubCalendarEventList.Count > 0)
             {
-                relevantSubCalendarEventList.AsParallel().ForAll(subEvent =>
+                relevantSubCalendarEventList.AsParallel().ForAll((Action<SubCalendarEvent>)(subEvent =>
                     {
                         if (subEvent.Location.isNull)
                         {
-                            subEvent.Location.Validate();
+                            subEvent.Location.verify();
                         }
-                    }
+                    })
                 );
                 SubCalendarEvent firstSUbEvent = relevantSubCalendarEventList[0];
                 DateTimeOffset refTIme = CalculationTimeline.IsDateTimeWithin(firstSUbEvent.Start) ? firstSUbEvent.Start : firstSUbEvent.End;

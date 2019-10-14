@@ -2682,6 +2682,17 @@ namespace TilerCore
                     beginLocation = home;
                 }
 
+                HashSet<Location> locations = new HashSet<Location>(EachDay.getSubEventsInTimeLine().Where(sub => sub.Location.IsAmbiguous).Select(sub => sub.Location));
+                Location averageLocation = Location.AverageGPSLocation(locations.ToList());
+
+                foreach(SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => sub.Location.IsAmbiguous))
+                {
+                    if(!subEvent.IsLocationValidated)
+                    {
+                        subEvent.validateLocation(averageLocation);/// This might kill performance because of multiple calls to google for validation
+                    }
+
+                }
                 OptimizedPath dayPath = new OptimizedPath(EachDay, beginLocation, endLocation, home);
 
                 dayToOPtimization.AddOrUpdate(EachDay, dayPath, ((key, oldValue) => { return dayPath; }));

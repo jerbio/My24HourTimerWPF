@@ -221,14 +221,20 @@ namespace TilerElements
                             if (candidate != null)
                             {
                                 var result = candidate;
-                                retValue._TaggedAddress = result.FormattedAddress.ToLower();
+                                retValue._TaggedAddress = result.FormattedAddress.Trim().ToLower();
+                                if (string.IsNullOrEmpty(retValue._TaggedDescription))
+                                {
+                                    retValue._TaggedDescription = _TaggedAddress;
+                                }
                                 retValue._Latitude = Convert.ToDouble(result.Geometry.Location.Latitude);
                                 retValue._Longitude = Convert.ToDouble(result.Geometry.Location.Longitude);
                                 retValue._LookupString = this._LookupString;
+                                retValue.UserId = this.UserId??this.User.Id;
                                 retValue._NullLocation = false;
                                 retValue._DefaultFlag = false;
                                 retValue._ThirdPartyId = result.PlaceId;
                                 retValue._Id = result.PlaceId;
+                                retValue._LocationIsVerified = true;
                                 retValue._ThirdPartySource = ThirdPartyMapSource.google;
                                 this._NullLocation = false;
                                 this._DefaultFlag = false;
@@ -673,7 +679,7 @@ namespace TilerElements
             _UndoThirdPartySource = _ThirdPartySource.ToString().ToLower();
             _UndoSearchedDescription = _SearchdDescription;
             _UndoLookupString = _LookupString;
-            _UndoLocationValidation = LocationValidation;
+            _UndoLocationValidation = LocationValidation_DB;
 
             FirstInstantiation = false;
             _UndoId = undo.id;
@@ -694,9 +700,9 @@ namespace TilerElements
                 Utility.Swap(ref _UndoThirdPartyId, ref _ThirdPartyId);
                 Utility.Swap(ref _UndoSearchedDescription, ref _SearchdDescription);
                 Utility.Swap(ref _UndoLookupString, ref _LookupString);
-                string _LocationValidation = LocationValidation;
+                string _LocationValidation = LocationValidation_DB;
                 Utility.Swap(ref _UndoLocationValidation, ref _LocationValidation);
-                LocationValidation = _LocationValidation;
+                LocationValidation_DB = _LocationValidation;
                 string _thidParty = _ThirdPartySource.ToString().ToLower();
                 Utility.Swap(ref _UndoThirdPartySource, ref _thidParty);
                 _ThirdPartySource = Utility.ParseEnum<ThirdPartyMapSource>(_thidParty);
@@ -719,9 +725,9 @@ namespace TilerElements
                 Utility.Swap(ref _UndoThirdPartyId, ref _ThirdPartyId);
                 Utility.Swap(ref _UndoSearchedDescription, ref _SearchdDescription);
                 Utility.Swap(ref _UndoLookupString, ref _LookupString);
-                string _LocationValidation = LocationValidation;
+                string _LocationValidation = LocationValidation_DB;
                 Utility.Swap(ref _UndoLocationValidation, ref _LocationValidation);
-                LocationValidation = _LocationValidation;
+                LocationValidation_DB = _LocationValidation;
                 string _thidParty = _ThirdPartySource.ToString().ToLower();
                 Utility.Swap(ref _UndoThirdPartySource, ref _thidParty);
                 _ThirdPartySource = Utility.ParseEnum<ThirdPartyMapSource>(_thidParty);
@@ -769,7 +775,15 @@ namespace TilerElements
             }
         }
 
-        public string LocationValidation
+        public LocationValidation LocationValidation
+        {
+            get
+            {
+                return this._LocationValidation;
+            }
+        }
+
+        public string LocationValidation_DB
         {
             get
             {

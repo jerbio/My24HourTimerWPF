@@ -823,7 +823,7 @@ namespace TilerTests
                     retValue = secondCalEvent != null;
                     if(retValue)
                     {
-                        retValue = secondCalEvent.isTestEquivalent(firstCalEvent);
+                        retValue = firstCalEvent.isTestEquivalent(secondCalEvent);
                         Assert.IsTrue(retValue);
                     } else
                     {
@@ -834,7 +834,28 @@ namespace TilerTests
 
 
             var firstLocations = FirstSchedule.getAllLocations().Where(obj => !obj.isNull && !obj.isDefault);
+            firstLocations = firstLocations.Concat(firstLocations.Where(location => location.LocationValidation != null).SelectMany(location => location.LocationValidation.locations));
             var secondLocations = SecondSchedule.getAllLocations().Where(obj => !obj.isNull && !obj.isDefault);
+            secondLocations = secondLocations.Concat(secondLocations.Where(location => location.LocationValidation != null).SelectMany(location => location.LocationValidation.locations));
+
+            Dictionary<string, Location> firstLocationDictionary = new Dictionary<string, Location>();
+            foreach(Location location in firstLocations)
+            {
+                if(!firstLocationDictionary.ContainsKey(location.Id))
+                {
+                    firstLocationDictionary.Add(location.Id, location);
+                }
+            }
+            Dictionary<string, Location> secondLocationDictionary = new Dictionary<string, Location>();
+            foreach (Location location in secondLocations)
+            {
+                if (!secondLocationDictionary.ContainsKey(location.Id))
+                {
+                    secondLocationDictionary.Add(location.Id, location);
+                }
+            }
+            firstLocations = firstLocationDictionary.Values;
+            secondLocations = secondLocationDictionary.Values;
             retValue &= firstLocations.Count() == secondLocations.Count();
             if (retValue)
             {
@@ -1038,7 +1059,7 @@ namespace TilerTests
         public static bool isTestEquivalent(this Location locationA, Location locationB)
         {
             bool retValue = true;
-            if(!locationB.isNull && !locationA.isNull)
+            if((!locationB.isNull && !locationA.isNull) && (!locationB.isDefault && !locationA.isDefault))
             {
                 if (locationB != null && locationA != null)
                 {
@@ -1047,7 +1068,9 @@ namespace TilerTests
                     && (locationA.Id == locationB.Id)
                     && (locationA.Latitude == locationB.Latitude)
                     && (Math.Round(locationA.Longitude, 6) == Math.Round(locationB.Longitude, 6))
-                    && (locationA.UserId == locationB.UserId))
+                    && (locationA.UserId == locationB.UserId)
+                    && (locationA.LocationValidation_DB == locationB.LocationValidation_DB)
+                    && (locationA.LookupString == locationB.LookupString))
                     {
                         retValue = true;
                     }
@@ -1063,6 +1086,7 @@ namespace TilerTests
             } else
             {
                 retValue = locationB.isNull == locationA.isNull;
+                retValue &= locationB.isDefault == locationA.isDefault;
             }
             Assert.IsTrue(retValue);
             return retValue;

@@ -230,7 +230,7 @@ namespace TilerTests
             user.Login().Wait();
             Schedule scheduleFromDump = new TestSchedule(retrievedDump, user);
 
-            Assert.IsTrue(scheduleFromDump.isTestEquivalent(Schedule));
+            Assert.IsTrue(Schedule.isTestEquivalent(scheduleFromDump));
 
             // Adding event two
             user = TestUtility.getTestUser(userId: tilerUser.Id);
@@ -270,7 +270,7 @@ namespace TilerTests
             user.Login().Wait();
             Schedule scheduleFromDump1 = new TestSchedule(retrievedDump1, user);
 
-            Assert.IsTrue(scheduleFromDump1.isTestEquivalent(Schedule1));
+            Assert.IsTrue(Schedule1.isTestEquivalent(scheduleFromDump1));
         }
 
 
@@ -335,7 +335,7 @@ namespace TilerTests
             user.Login().Wait();
             TestSchedule scheduleFromDump = new TestSchedule(retrievedDump, user);
 
-            Assert.IsTrue(scheduleFromDump.isTestEquivalent(ScheduleFromRDBMS));
+            Assert.IsTrue(ScheduleFromRDBMS.isTestEquivalent(scheduleFromDump));
 
             // Adding event two
             Location location2 = TestUtility.getLocations()[2];

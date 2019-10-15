@@ -792,7 +792,14 @@ namespace TilerElements
             }
             set
             {
-                _LocationValidation = JsonConvert.DeserializeObject<LocationValidation>(value);
+                if (string.IsNullOrEmpty(value) || string.IsNullOrWhiteSpace(value))
+                {
+                    _LocationValidation = null;
+                } else
+                {
+                    _LocationValidation = JsonConvert.DeserializeObject<LocationValidation>(value);
+                }
+                
             }
         }
 
@@ -804,7 +811,16 @@ namespace TilerElements
             }
             set
             {
-                _ThirdPartySource = Utility.ParseEnum<ThirdPartyMapSource>(value);
+                if (string.IsNullOrEmpty( value)  || string.IsNullOrWhiteSpace(value))
+                {
+                    _ThirdPartySource = ThirdPartyMapSource.none;
+                }
+                else
+                {
+                    _ThirdPartySource = Utility.ParseEnum<ThirdPartyMapSource>(value);
+                }
+
+                
             }
         }
 

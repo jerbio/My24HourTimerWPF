@@ -498,6 +498,16 @@ namespace TilerElements
                 return _LocationInfo;
             }
         }
+        /// <summary>
+        /// Gets the direct object as it is in the object without any internal lookups and verifications
+        /// </summary>
+        virtual public Location LocationObj
+        {
+            get
+            {
+                return _LocationInfo;
+            }
+        }
 
         [ForeignKey("LocationId")]
         virtual public Location Location_DB

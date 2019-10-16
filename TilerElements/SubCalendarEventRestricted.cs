@@ -258,7 +258,8 @@ namespace TilerElements
             copy.HardCalendarEventRange = this.HardCalendarEventRange?.CreateCopy();
             copy.isRestricted = this.isRestricted;
             copy.Vestige = this.Vestige;
-            copy._LocationInfo = this._LocationInfo.CreateCopy();
+            copy._LocationInfo = this.LocationObj;
+            copy.LocationValidationId_DB = this.LocationValidationId_DB;
             copy.MiscIntData = this.MiscIntData;
             copy._otherPartyID = this._otherPartyID;
             copy.preferredDayIndex = this.preferredDayIndex;

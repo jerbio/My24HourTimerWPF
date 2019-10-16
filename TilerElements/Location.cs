@@ -187,7 +187,7 @@ namespace TilerElements
             _TaggedAddress = _TaggedAddress.Trim();
             try
             {
-                if (anchorLocation != null && !string.IsNullOrEmpty(_TaggedAddress) && !string.IsNullOrWhiteSpace(_TaggedAddress))
+                if (anchorLocation != null && !string.IsNullOrEmpty(_TaggedAddress) && !string.IsNullOrWhiteSpace(_TaggedAddress) && !anchorLocation.isDefault && !anchorLocation.isNull)
                 {
                     if(_LocationValidation == null)
                     {
@@ -199,7 +199,7 @@ namespace TilerElements
                     double varianceLocationValidation = _LocationValidation.AverageVariance;
                     double doubleVariance = distaceVariance * 2;
                     double halfVariance = distaceVariance / 2;
-                    if (distaceVariance >= doubleVariance || distaceVariance <= halfVariance|| _LocationValidation.locations.Count == 0)
+                    if (distaceVariance >= doubleVariance || distaceVariance <= halfVariance|| _LocationValidation.locations.Count <= 2)
                     {
                         var googleLocation = new GoogleApi.Entities.Common.Location(anchorLocation.Latitude, anchorLocation.Longitude);
                         var placesFindSearchRequest = new PlacesFindSearchRequest()
@@ -794,7 +794,7 @@ namespace TilerElements
             {
                 if (string.IsNullOrEmpty(value) || string.IsNullOrWhiteSpace(value))
                 {
-                    _LocationValidation = null;
+                    _LocationValidation = new LocationValidation();
                 } else
                 {
                     _LocationValidation = JsonConvert.DeserializeObject<LocationValidation>(value);

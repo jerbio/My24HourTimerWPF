@@ -163,7 +163,7 @@ namespace TilerTests
         }
 
 
-        [TestMethod]
+        //[TestMethod]
         public void createAllPossibleCalendarEventToSchedule()
         {
             DateTimeOffset iniRefNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();

@@ -124,6 +124,18 @@ namespace TilerElements
             this._TimeZoneDifference = timeZoneDifference;
         }
 
+        /// <summary>
+        /// Longitude of user
+        /// </summary>
+        public double LastKnownLongitude { get; set; }
+        /// <summary>
+        /// Latitude of user
+        /// </summary>
+        public double LastKnownLatitude { get; set; }
+        /// <summary>
+        /// IsLocationVerified
+        /// </summary>
+        public bool LastKnownLocationVerified { get; set; }
 
         public void updateTimeZone()
         {

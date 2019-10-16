@@ -108,7 +108,7 @@ namespace TilerElements
                 {
                     _DictionaryOfIDAndCalendarEvents.Add(MyRepeatCalendarEvent.getId, MyRepeatCalendarEvent);
                 }
-                _Location = ReadFromFileRecurringListOfCalendarEvents[0].Location;
+                _Location = ReadFromFileRecurringListOfCalendarEvents[0].LocationObj;
                 _EnableRepeat = ReadFromFileEnableFlag;
             }
 
@@ -215,7 +215,7 @@ namespace TilerElements
 
                 EachRepeatCalendarStart = _initializingRange.Start;
                 EachRepeatCalendarEnd = _initializingRange.End;
-                MyRepeatCalendarEvent = new RigidCalendarEvent(MyParentEvent.getName, _initializingRange.Start, _initializingRange.End, MyParentEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, new Repetition(), MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID);
+                MyRepeatCalendarEvent = new RigidCalendarEvent(MyParentEvent.getName, _initializingRange.Start, _initializingRange.End, MyParentEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, new Repetition(), MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID);
             }
             else
             {
@@ -280,7 +280,7 @@ namespace TilerElements
                         return;
                     }
                 }
-                MyRepeatCalendarEvent = new CalendarEvent(MyParentEvent.getName, IniRepeatStart, repeatEnd, MyParentEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyParentEvent.NumberOfSplit, new Repetition(), MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.getProcrastinationInfo, MyParentEvent.getNowInfo, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID);
+                MyRepeatCalendarEvent = new CalendarEvent(MyParentEvent.getName, IniRepeatStart, repeatEnd, MyParentEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyParentEvent.NumberOfSplit, new Repetition(), MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.getProcrastinationInfo, MyParentEvent.getNowInfo, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID);
                 int autoDisableCount = MyParentEvent.NumberOfSplit - splitCount;
                 var subEvents = MyRepeatCalendarEvent.ActiveSubEvents.OrderBy(o => o.Start).Take(autoDisableCount).ToList();
                 foreach (SubCalendarEvent subEvent in subEvents)
@@ -327,14 +327,14 @@ namespace TilerElements
                 MyEventCalendarID = EventID.GenerateRepeatCalendarEvent(MyParentEvent.getId);
                 if (MyRepeatCalendarEvent.isRigid)
                 {
-                    MyRepeatCalendarEvent = new RigidCalendarEvent(MyRepeatCalendarEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyRepeatCalendarEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyRepeatCalendarEvent.Repeat, MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID);
+                    MyRepeatCalendarEvent = new RigidCalendarEvent(MyRepeatCalendarEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyRepeatCalendarEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyRepeatCalendarEvent.Repeat, MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID);
                 }
                 else
                 {
-                    MyRepeatCalendarEvent = new CalendarEvent(MyRepeatCalendarEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyRepeatCalendarEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyRepeatCalendarEvent.NumberOfSplit, MyRepeatCalendarEvent.Repeat, MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.getProcrastinationInfo, MyParentEvent.getNowInfo, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID);
+                    MyRepeatCalendarEvent = new CalendarEvent(MyRepeatCalendarEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyRepeatCalendarEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyRepeatCalendarEvent.NumberOfSplit, MyRepeatCalendarEvent.Repeat, MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.getProcrastinationInfo, MyParentEvent.getNowInfo, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID);
                 }
                 MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
-                MyRepeatCalendarEvent.Location = MyParentEvent.Location;
+                MyRepeatCalendarEvent.Location = MyParentEvent.LocationObj;
                 foreach (SubCalendarEvent subEvent in MyRepeatCalendarEvent.AllSubEvents)
                 {
                     subEvent.RepeatParentEvent = MyParentEvent;
@@ -417,7 +417,7 @@ namespace TilerElements
             CalendarEventRestricted MyRepeatCalendarEvent = null;
             if (restrictionTimeLine.doesTimeLineInterfere(calendarTimeLine))
             {
-                MyRepeatCalendarEvent = CalendarEventRestricted.InstantiateRepeatedCandidate(MyParentEvent.getName, calendarTimeLine.Start, calendarTimeLine.End, MyParentEvent.Calendar_EventID, MyParentEvent.RetrictionProfile, MyParentEvent.getActiveDuration, MyParentEvent.NumberOfSplit, MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.isLocked, MyParentEvent.getPreparation, MyParentEvent.ThirdPartyID, MyParentEvent.Now, MyParentEvent.getCreator, MyParentEvent.Notes, MyParentEvent.getNowInfo);
+                MyRepeatCalendarEvent = CalendarEventRestricted.InstantiateRepeatedCandidate(MyParentEvent.getName, calendarTimeLine.Start, calendarTimeLine.End, MyParentEvent.Calendar_EventID, MyParentEvent.RetrictionProfile, MyParentEvent.getActiveDuration, MyParentEvent.NumberOfSplit, MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.isLocked, MyParentEvent.getPreparation, MyParentEvent.ThirdPartyID, MyParentEvent.Now, MyParentEvent.getCreator, MyParentEvent.Notes, MyParentEvent.getNowInfo);
 
                 int autoDisableCount = MyParentEvent.NumberOfSplit - splitCount;
                 var subEvents = MyRepeatCalendarEvent.ActiveSubEvents.OrderBy(o => o.Start).Take(autoDisableCount).ToList();
@@ -435,7 +435,7 @@ namespace TilerElements
                 MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
                 MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
                 MyRepeatCalendarEvent.setRepeatParent(MyParentEvent);
-                MyRepeatCalendarEvent.Location = MyParentEvent.Location;
+                MyRepeatCalendarEvent.Location = MyParentEvent.LocationObj;
                 EachRepeatCalendarStart = IncreaseByFrequency(EachRepeatCalendarStart, getFrequency);
                 EachRepeatCalendarEnd = IncreaseByFrequency(EachRepeatCalendarEnd, getFrequency);
                 calendarTimeLine = new TimeLine(EachRepeatCalendarStart, EachRepeatCalendarEnd);
@@ -449,7 +449,7 @@ namespace TilerElements
                 {
 
                     MyEventCalendarID = EventID.GenerateRepeatCalendarEvent(MyParentEvent.getId);
-                    MyRepeatCalendarEvent = CalendarEventRestricted.InstantiateRepeatedCandidate(MyParentEvent.getName, calendarTimeLine.Start, calendarTimeLine.End, MyParentEvent.Calendar_EventID, MyParentEvent.RetrictionProfile, MyParentEvent.getActiveDuration, MyParentEvent.NumberOfSplit, MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.isLocked, MyParentEvent.getPreparation, MyParentEvent.ThirdPartyID, MyParentEvent.Now, MyParentEvent.getCreator, MyParentEvent.Notes, MyParentEvent.getNowInfo);
+                    MyRepeatCalendarEvent = CalendarEventRestricted.InstantiateRepeatedCandidate(MyParentEvent.getName, calendarTimeLine.Start, calendarTimeLine.End, MyParentEvent.Calendar_EventID, MyParentEvent.RetrictionProfile, MyParentEvent.getActiveDuration, MyParentEvent.NumberOfSplit, MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.isLocked, MyParentEvent.getPreparation, MyParentEvent.ThirdPartyID, MyParentEvent.Now, MyParentEvent.getCreator, MyParentEvent.Notes, MyParentEvent.getNowInfo);
                     MyArrayOfRepeatingCalendarEvents.Add(MyRepeatCalendarEvent);
                     _DictionaryOfIDAndCalendarEvents.Add(MyRepeatCalendarEvent.getId, MyRepeatCalendarEvent);
                     MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
@@ -460,7 +460,7 @@ namespace TilerElements
                     MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
                     MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
                     MyRepeatCalendarEvent.setRepeatParent(MyParentEvent);
-                    MyRepeatCalendarEvent.Location = MyParentEvent.Location;
+                    MyRepeatCalendarEvent.Location = MyParentEvent.LocationObj;
                 }
                 EachRepeatCalendarStart = IncreaseByFrequency(EachRepeatCalendarStart, getFrequency);
                 EachRepeatCalendarEnd = IncreaseByFrequency(EachRepeatCalendarEnd, getFrequency);
@@ -544,10 +544,10 @@ namespace TilerElements
             this._initializingRange = ActiveTimeline;
             this._RepetitionRange = repetitionTimeline;
             EventID MyEventCalendarID = EventID.GenerateRepeatDayCalendarEvent(MyParentEvent.getId, WeekDay);
-            CalendarEventRestricted MyRepeatCalendarEvent = new CalendarEventRestricted(MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyParentEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.RetrictionProfile, MyParentEvent.getActiveDuration, repetitionData, MyParentEvent.getIsComplete, MyParentEvent.isEnabled, MyParentEvent.isLocked ? 1 : MyParentEvent.NumberOfSplit, MyParentEvent.isLocked, MyParentEvent.Location, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyEventCalendarID, MyParentEvent.Now, MyParentEvent.getUIParam, MyParentEvent.Notes);
+            CalendarEventRestricted MyRepeatCalendarEvent = new CalendarEventRestricted(MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyParentEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.RetrictionProfile, MyParentEvent.getActiveDuration, repetitionData, MyParentEvent.getIsComplete, MyParentEvent.isEnabled, MyParentEvent.isLocked ? 1 : MyParentEvent.NumberOfSplit, MyParentEvent.isLocked, MyParentEvent.LocationObj, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyEventCalendarID, MyParentEvent.Now, MyParentEvent.getUIParam, MyParentEvent.Notes);
             MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
             MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
-            MyRepeatCalendarEvent.Location = MyParentEvent.Location;
+            MyRepeatCalendarEvent.Location = MyParentEvent.LocationObj;
             MyRepeatCalendarEvent.setRepeatParent(MyParentEvent);
             foreach (SubCalendarEvent subEvent in MyRepeatCalendarEvent.AllSubEvents)
             {

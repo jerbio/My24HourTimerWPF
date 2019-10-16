@@ -100,7 +100,7 @@ namespace TilerCore
         protected int LatesMainID;
         string CurrentTimeZone = "UTC";
         TimeSpan TimeZoneDifference = new TimeSpan();
-        protected Location CurrentLocation;
+        protected Location _CurrentLocation;
 
         protected double PercentageOccupancy = 0;
         //public static DateTimeOffset Now = new DateTimeOffset(2014,4,6,0,0,0);//DateTimeOffset.UtcNow;
@@ -129,6 +129,31 @@ namespace TilerCore
                 {
                     return Location.getDefaultLocation();
                 }
+            }
+        }
+
+        public Location CurrentLocation
+        {
+            set
+            {
+                Location val = value;
+                if(val == null || val.isDefault || val.isNull)
+                {
+                    _CurrentLocation = Location.getDefaultLocation();
+                } else
+                {
+                    _CurrentLocation = value;
+                    if (this.TilerUser!=null && _CurrentLocation!=null)
+                    {
+                        this.TilerUser.LastKnownLongitude = _CurrentLocation.Longitude;
+                        this.TilerUser.LastKnownLatitude = _CurrentLocation.Latitude;
+                        this.TilerUser.LastKnownLocationVerified = !_CurrentLocation.isDefault && _CurrentLocation.isNull;
+                    }
+                } 
+            }
+            get
+            {
+                return _CurrentLocation;
             }
         }
         int DebugCounter = 0;
@@ -197,15 +222,15 @@ namespace TilerCore
             CalendarEvent calEvent = getCalendarEvent(eventId);
             DayTimeLine timeLine = Now.getDayTimeLineByTime(newDay);
             TempTilerEventChanges tilerChanges = calEvent.prepForWhatIfDifferentDay(timeLine, eventId);
-            if (CurrentLocation == null)
+            if (_CurrentLocation == null)
             {
-                CurrentLocation = Location.getDefaultLocation();
+                _CurrentLocation = Location.getDefaultLocation();
             }
             if (string.IsNullOrEmpty(CurrentTimeZone))
             {
                 CurrentTimeZone = "UTC";
             }
-            await this.FindMeSomethingToDo(CurrentLocation, CurrentTimeZone).ConfigureAwait(false);
+            await this.FindMeSomethingToDo(_CurrentLocation, CurrentTimeZone).ConfigureAwait(false);
             Health scheduleHealth = new Health(getAllCalendarEvents(), Now.ComputationRange.Start, Now.ComputationRange.TimelineSpan, Now, this.getHomeLocation);
             calEvent.ReverseWhatIf(tilerChanges);
             return scheduleHealth;
@@ -229,9 +254,9 @@ namespace TilerCore
 
             var beforeNow = new ReferenceNow(Now.constNow, Now.StartOfDay, Now.TimeZoneDifference);
             Health beforeChange = new Health(getAllCalendarEvents().Where(obj => obj.isActive).Select(obj => obj.createCopy()), beforeNow.constNow, assessmentWindow.TimelineSpan, beforeNow, this.getHomeLocation);
-            if (CurrentLocation == null)
+            if (_CurrentLocation == null)
             {
-                CurrentLocation = Location.getDefaultLocation();
+                _CurrentLocation = Location.getDefaultLocation();
             }
             if (string.IsNullOrEmpty(CurrentTimeZone))
             {
@@ -256,9 +281,9 @@ namespace TilerCore
                 assessmentWindow = new TimeLine(Now.constNow, Now.constNow.AddDays(7));
             }
             DateTimeOffset newStartTime = Now.constNow + pushSpan;
-            if (CurrentLocation == null)
+            if (_CurrentLocation == null)
             {
-                CurrentLocation = Location.getDefaultLocation();
+                _CurrentLocation = Location.getDefaultLocation();
             }
             if (string.IsNullOrEmpty(CurrentTimeZone))
             {
@@ -487,7 +512,7 @@ namespace TilerCore
                     new BusyTimeLine(mySubCalEvent.Id, SubeventStart, SubeventEnd),
                     mySubCalEvent.isRigid,
                     mySubCalEvent.isEnabled,
-                    mySubCalEvent.getUIParam, mySubCalEvent.Notes, mySubCalEvent.getIsComplete, mySubCalEvent.Location, calendarEventRange, mySubCalEvent.Conflicts);
+                    mySubCalEvent.getUIParam, mySubCalEvent.Notes, mySubCalEvent.getIsComplete, mySubCalEvent.LocationObj, calendarEventRange, mySubCalEvent.Conflicts);
             }
             else
             {
@@ -497,8 +522,9 @@ namespace TilerCore
                     ((SubCalendarEventRestricted)mySubCalEvent).getRestrictionProfile(), mySubCalEvent.ParentCalendarEvent.StartToEnd,
                     mySubCalEvent.isEnabled, mySubCalEvent.getIsComplete, mySubCalEvent.Conflicts, mySubCalEvent.isRigid,
                     new TimeSpan(), new TimeSpan(),
-                    mySubCalEvent.Location, mySubCalEvent.getUIParam, mySubCalEvent.Notes, Now, mySubCalEvent.ParentCalendarEvent.getNowInfo, mySubCalEvent.Priority_EventDB, mySubCalEvent.ThirdPartyID, subEventID: mySubCalEvent.Id);
+                    mySubCalEvent.LocationObj, mySubCalEvent.getUIParam, mySubCalEvent.Notes, Now, mySubCalEvent.ParentCalendarEvent.getNowInfo, mySubCalEvent.Priority_EventDB, mySubCalEvent.ThirdPartyID, subEventID: mySubCalEvent.Id);
             }
+            ChangedSubCal.LocationValidationId_DB = mySubCalEvent.LocationValidationId_DB;
 
 
 
@@ -2665,7 +2691,7 @@ namespace TilerCore
             }
             else
             {
-                home = Location.getDefaultLocation();
+                home = CurrentLocation;
             }
             for (int i = 0; i < AllDayTimeLine.Count; i++)
             {
@@ -2682,14 +2708,22 @@ namespace TilerCore
                     beginLocation = home;
                 }
 
-                HashSet<Location> locations = new HashSet<Location>(EachDay.getSubEventsInTimeLine().Where(sub => sub.Location.IsAmbiguous).Select(sub => sub.Location));
+                HashSet<Location> locations = new HashSet<Location>(EachDay.getSubEventsInTimeLine().Where(sub => sub.LocationObj!=null && !sub.LocationObj.IsAmbiguous).Select(sub => sub.Location));
                 Location averageLocation = Location.AverageGPSLocation(locations.ToList());
-
-                foreach(SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => sub.Location.IsAmbiguous))
+                if(averageLocation!=null && (averageLocation.isNull || averageLocation.isDefault))
                 {
-                    if(!subEvent.IsLocationValidated)
+                    averageLocation = !home.isDefault && !home.isNull ? home : CurrentLocation;
+                }
+
+                foreach(SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => sub.LocationObj.IsAmbiguous))
+                {
+                    //if(!subEvent.IsLocationValidated)
                     {
-                        subEvent.validateLocation(averageLocation);/// This might kill performance because of multiple calls to google for validation
+                        if(averageLocation!=null && !averageLocation.isDefault && !averageLocation.isNull)
+                        {
+                            subEvent.validateLocation(averageLocation);/// This might kill performance because of multiple calls to google for validation
+                        }
+
                     }
 
                 }
@@ -8902,7 +8936,7 @@ namespace TilerCore
 
                     for (int i = 0; i < AllValidSubCalEvents.Count; i++)//updates the subcalevents
                     {
-                        SubCalendarEvent updatedSubCal = new SubCalendarEvent(AllValidSubCalEvents[i].ParentCalendarEvent, AllValidSubCalEvents[i].getCreator, AllValidSubCalEvents[i].getAllUsers(), AllValidSubCalEvents[i].getTimeZone, AllValidSubCalEvents[i].Id, UpdatedSubCalevents[i].getName, UpdatedSubCalevents[i].Start, UpdatedSubCalevents[i].End, UpdatedSubCalevents[i].ActiveSlot, UpdatedSubCalevents[i].isRigid, AllValidSubCalEvents[i].isEnabled, AllValidSubCalEvents[i].getUIParam, AllValidSubCalEvents[i].Notes, AllValidSubCalEvents[i].getIsComplete, UpdatedSubCalevents[i].Location, ProcrastinateEvent.StartToEnd);
+                        SubCalendarEvent updatedSubCal = new SubCalendarEvent(AllValidSubCalEvents[i].ParentCalendarEvent, AllValidSubCalEvents[i].getCreator, AllValidSubCalEvents[i].getAllUsers(), AllValidSubCalEvents[i].getTimeZone, AllValidSubCalEvents[i].Id, UpdatedSubCalevents[i].getName, UpdatedSubCalevents[i].Start, UpdatedSubCalevents[i].End, UpdatedSubCalevents[i].ActiveSlot, UpdatedSubCalevents[i].isRigid, AllValidSubCalEvents[i].isEnabled, AllValidSubCalEvents[i].getUIParam, AllValidSubCalEvents[i].Notes, AllValidSubCalEvents[i].getIsComplete, UpdatedSubCalevents[i].Location_DB, ProcrastinateEvent.StartToEnd);
                         AllValidSubCalEvents[i].shiftEvent(updatedSubCal.Start - AllValidSubCalEvents[i].Start, true);///not using update this because of possible issues with subevent not being restricted
                         //AllValidSubCalEvents[i].UpdateThis(updatedSubCal);
                     }

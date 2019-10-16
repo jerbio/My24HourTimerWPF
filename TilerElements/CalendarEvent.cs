@@ -1473,7 +1473,7 @@ namespace TilerElements
             RetValue._DataBlob = this.Notes;
             RetValue._Enabled = this.isEnabled;
             RetValue.isRestricted = this.getIsEventRestricted;
-            RetValue._LocationInfo = this.Location;//hack you might need to make copy
+            RetValue._LocationInfo = this._LocationInfo;//hack you might need to make copy
             RetValue._ProfileOfProcrastination = this.getProcrastinationInfo?.CreateCopy();
             RetValue._AutoDeleted = this.getIsUserDeleted;
             RetValue._CompletedCount = this.CompletionCount;

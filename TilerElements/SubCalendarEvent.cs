@@ -368,7 +368,7 @@ namespace TilerElements
             {
                 Id = this.getId;
             }
-            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ParentCalendarEvent, getCreator, _Users, this._TimeZone, Id, this.getName.createCopy(), Start, End, BusyFrame.CreateCopy(), this._RigidSchedule, this.isEnabled, this._UiParams?.createCopy(), this.Notes?.createCopy(), this._Complete, this._LocationInfo, new TimeLine(getCalendarEventRange.Start, getCalendarEventRange.End), _ConflictingEvents?.CreateCopy());
+            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ParentCalendarEvent, getCreator, _Users, this._TimeZone, Id, this.getName.createCopy(), Start, End, BusyFrame.CreateCopy(), this._RigidSchedule, this.isEnabled, this._UiParams?.createCopy(), this.Notes?.createCopy(), this._Complete, this.LocationObj, new TimeLine(getCalendarEventRange.Start, getCalendarEventRange.End), _ConflictingEvents?.CreateCopy());
             MySubCalendarEventCopy.ThirdPartyID = this.ThirdPartyID;
             MySubCalendarEventCopy._AutoDeleted = this._AutoDeleted;
             MySubCalendarEventCopy.isRestricted = this.isRestricted;
@@ -386,6 +386,7 @@ namespace TilerElements
             MySubCalendarEventCopy.isWake = this.isWake;
             MySubCalendarEventCopy.userLocked = this._userLocked;
             MySubCalendarEventCopy.tempLock = this.tempLock;
+            MySubCalendarEventCopy.LocationValidationId_DB = this.LocationValidationId_DB;
             if (this.CalculationTimeLine != null)
             {
                 MySubCalendarEventCopy.CalculationTimeLine = this.CalculationTimeLine.CreateCopy();
@@ -533,7 +534,7 @@ namespace TilerElements
                 this._EventPreDeadline = SubEventEntry.getPreDeadline;
                 this.EventScore = SubEventEntry.Score;
                 this.isRestricted = SubEventEntry.getIsEventRestricted;
-                this._LocationInfo = SubEventEntry.Location;
+                this._LocationInfo = SubEventEntry._LocationInfo;
                 this.OldPreferredIndex = SubEventEntry.OldUniversalIndex;
                 this._otherPartyID = SubEventEntry.ThirdPartyID;
                 this.preferredDayIndex = SubEventEntry.UniversalDayIndex;
@@ -551,6 +552,7 @@ namespace TilerElements
                 this._Creator = SubEventEntry._Creator;
                 this._Semantics = SubEventEntry._Semantics;
                 this._UsedTime = SubEventEntry._UsedTime;
+                this._LocationValidationId = this._LocationValidationId;
                 return true;
             }
 
@@ -599,7 +601,6 @@ namespace TilerElements
             retValue.isRestricted = this.getIsEventRestricted;
             retValue._LocationInfo = (this._LocationInfo == null) ? Location.getNullLocation() : this._LocationInfo.CreateCopy();
             retValue.OldPreferredIndex = this.OldUniversalIndex;
-            retValue._otherPartyID = this.ThirdPartyID;
             retValue.preferredDayIndex = this.UniversalDayIndex;
             retValue._PrepTime = this.getPreparation;
             retValue._Priority = this.getEventPriority;
@@ -612,6 +613,7 @@ namespace TilerElements
             retValue._Users = this.getAllUsers();
             retValue.Vestige = this.isVestige;
             retValue._otherPartyID = this._otherPartyID;
+            retValue._LocationValidationId = this._LocationValidationId;
             return retValue;
         }
 

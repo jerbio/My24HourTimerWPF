@@ -197,8 +197,8 @@ namespace TilerElements
                     double distance = Location.calculateDistance(anchorLocation, _LocationValidation.getAverageLocation, -1);
                     double distaceVariance = Math.Abs(_LocationValidation.AverageDistanceFromAverageLocation - distance);
                     double varianceLocationValidation = _LocationValidation.AverageVariance;
-                    double doubleVariance = distaceVariance * 2;
-                    double halfVariance = distaceVariance / 2;
+                    double doubleVariance = varianceLocationValidation * 2;
+                    double halfVariance = varianceLocationValidation / 2;
                     if (distaceVariance >= doubleVariance || distaceVariance <= halfVariance|| _LocationValidation.locations.Count <= 2)
                     {
                         var googleLocation = new GoogleApi.Entities.Common.Location(anchorLocation.Latitude, anchorLocation.Longitude);
@@ -209,7 +209,7 @@ namespace TilerElements
                             Key = Location.ApiKey,
                             Input = _TaggedAddress,
                             Location = googleLocation,
-                            Radius = 20000
+                            Radius = 5000
                         };
 
                         var response = GooglePlaces.FindSearch.Query(placesFindSearchRequest);
@@ -224,7 +224,7 @@ namespace TilerElements
                                 retValue._TaggedAddress = result.FormattedAddress.Trim().ToLower();
                                 if (string.IsNullOrEmpty(retValue._TaggedDescription))
                                 {
-                                    retValue._TaggedDescription = _TaggedAddress;
+                                    retValue._TaggedDescription = retValue._TaggedAddress;
                                 }
                                 retValue._Latitude = Convert.ToDouble(result.Geometry.Location.Latitude);
                                 retValue._Longitude = Convert.ToDouble(result.Geometry.Location.Longitude);

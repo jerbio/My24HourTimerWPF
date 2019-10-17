@@ -191,7 +191,9 @@ namespace TilerElements
                 _LocationValidationId = validatedLocation.Id;
             }
         }
-        
+
+        abstract public void updateTimeLine(TimeLine newTImeLine);
+
 
         #region undoFunctions
         public virtual void undoUpdate(Undo undo)
@@ -473,6 +475,11 @@ namespace TilerElements
         }
 
         public string LocationId { get; set; }
+
+        /// <summary>
+        /// This is the location of the tiler event and is inferred from the initialization.
+        /// If there is no location set this returns the default location
+        /// </summary>
         [NotMapped]
         virtual public Location Location
         {
@@ -498,8 +505,22 @@ namespace TilerElements
                 return _LocationInfo;
             }
         }
+        [NotMapped]
+        virtual public bool isLocationAmbiguous
+        {
+            get
+            {
+                if (_LocationInfo == null)
+                    return true;
+                else
+                {
+                    return _LocationInfo.IsAmbiguous;
+                }
+            }
+        }
         /// <summary>
-        /// Gets the direct object as it is in the object without any internal lookups and verifications
+        /// Gets the direct object as it is in the object without any internal lookups and verifications.
+        /// Get the tiler event object. Retunrns null if it isnt set.
         /// </summary>
         virtual public Location LocationObj
         {
@@ -508,7 +529,7 @@ namespace TilerElements
                 return _LocationInfo;
             }
         }
-
+        
         [ForeignKey("LocationId")]
         virtual public Location Location_DB
         {

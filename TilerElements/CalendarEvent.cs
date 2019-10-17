@@ -1687,7 +1687,7 @@ namespace TilerElements
         }
 
 
-        virtual public void updateTimeLine(TimeLine newTImeLine)
+        override public void updateTimeLine(TimeLine newTImeLine)
         {
             TimeLine oldTimeLine = new TimeLine(StartDateTime, EndDateTime);
             AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(newTImeLine));

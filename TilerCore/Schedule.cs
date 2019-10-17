@@ -100,7 +100,7 @@ namespace TilerCore
         protected int LatesMainID;
         string CurrentTimeZone = "UTC";
         TimeSpan TimeZoneDifference = new TimeSpan();
-        protected Location _CurrentLocation;
+        protected Location _CurrentLocation = Location.getDefaultLocation();
 
         protected double PercentageOccupancy = 0;
         //public static DateTimeOffset Now = new DateTimeOffset(2014,4,6,0,0,0);//DateTimeOffset.UtcNow;
@@ -2708,14 +2708,14 @@ namespace TilerCore
                     beginLocation = home;
                 }
 
-                HashSet<Location> locations = new HashSet<Location>(EachDay.getSubEventsInTimeLine().Where(sub => sub.LocationObj!=null && !sub.LocationObj.IsAmbiguous).Select(sub => sub.Location));
+                HashSet<Location> locations = new HashSet<Location>(EachDay.getSubEventsInTimeLine().Where(sub => sub.isLocationAmbiguous).Select(sub => sub.Location));
                 Location averageLocation = Location.AverageGPSLocation(locations.ToList());
                 if(averageLocation!=null && (averageLocation.isNull || averageLocation.isDefault))
                 {
-                    averageLocation = !home.isDefault && !home.isNull ? home : CurrentLocation;
+                    averageLocation = home!=null && !home.isDefault && !home.isNull ? home : CurrentLocation;
                 }
 
-                foreach(SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => sub.LocationObj.IsAmbiguous))
+                foreach(SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => sub.isLocationAmbiguous))
                 {
                     //if(!subEvent.IsLocationValidated)
                     {

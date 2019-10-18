@@ -232,16 +232,6 @@ namespace TilerElements
                 {
                     if (getFrequency == Frequency.WEEKLY || getFrequency == Frequency.BIWEEKLY)/// this handles the scenario where the repetition is weekly and the user's beginning of week starts on thursdays but the event was created on a monday. A partial calendar event should be created with auto deleted subevents
                     {
-                        //DayOfWeek dayOfWeek = now.getDayOfTheWeek(EachRepeatCalendarStart).Item1;
-                        //int dayOfWeekIndex = (int)dayOfWeek;
-                        //DayOfWeek beginningOfWeek_Day = getBeginningOfRepeatWeekDay(MyParentEvent);
-                        //int beginningWeekDayIndex = (int)beginningOfWeek_Day;
-                        //int dayDiff = ((beginningWeekDayIndex - dayOfWeekIndex) + daySpan) % daySpan;
-                        //IniRepeatEnd = EachRepeatCalendarEnd = now.getDayTimeLineByTime(EachRepeatCalendarStart.AddDays(dayDiff)).End;
-                        //TimeSpan timeSpanForPossiblePartialFrequencyFrame = TimeSpan.FromDays(daySpan);
-                        //double ratio = (IniRepeatEnd - IniRepeatStart).TotalSeconds / timeSpanForPossiblePartialFrequencyFrame.TotalSeconds;
-                        //splitCount = (int)Math.Round(ratio * MyParentEvent.NumberOfSplit);
-
                         DayOfWeek dayOfWeek = now.getDayOfTheWeek(EachRepeatCalendarStart).Item1;
                         int dayOfWeekIndex = (int)dayOfWeek;
                         DayOfWeek beginningOfWeek_Day = getBeginningOfRepeatWeekDay(MyParentEvent);
@@ -254,18 +244,6 @@ namespace TilerElements
                         TimeSpan timeSpanForPossiblePartialFrequencyFrame = TimeSpan.FromDays(daySpan);
                         double ratio = (IniRepeatEnd - IniRepeatStart).TotalSeconds / timeSpanForPossiblePartialFrequencyFrame.TotalSeconds;
                         splitCount = (int)Math.Round(ratio * MyParentEvent.NumberOfSplit);
-
-
-
-                        //DayOfWeek dayOfWeek = now.getDayOfTheWeek(EachRepeatCalendarStart).Item1;
-                        //int dayOfWeekIndex = (int)dayOfWeek;
-                        //DayOfWeek beginningOfWeek_Day = getBeginningOfRepeatWeekDay(MyParentEvent);
-                        //int beginningWeekDayIndex = (int)beginningOfWeek_Day;
-                        //int dayDiff = ((beginningWeekDayIndex - dayOfWeekIndex) + daySpan) % daySpan;
-                        //IniRepeatEnd = EachRepeatCalendarEnd = EachRepeatCalendarStart.AddDays(dayDiff).AddMinutes(-1);
-                        //TimeSpan timeSpanForPossiblePartialFrequencyFrame = TimeSpan.FromDays(daySpan);
-                        //double ratio = (IniRepeatEnd - IniRepeatStart).TotalSeconds / timeSpanForPossiblePartialFrequencyFrame.TotalSeconds;
-                        //splitCount = (int)Math.Round(ratio * MyParentEvent.NumberOfSplit);
 
                         EachRepeatCalendarStart = IniRepeatEnd.AddMinutes(1).AddDays(-daySpan);
                         EachRepeatCalendarEnd = IniRepeatEnd;
@@ -417,7 +395,7 @@ namespace TilerElements
             CalendarEventRestricted MyRepeatCalendarEvent = null;
             if (restrictionTimeLine.doesTimeLineInterfere(calendarTimeLine))
             {
-                MyRepeatCalendarEvent = CalendarEventRestricted.InstantiateRepeatedCandidate(MyParentEvent.getName, calendarTimeLine.Start, calendarTimeLine.End, MyParentEvent.Calendar_EventID, MyParentEvent.RetrictionProfile, MyParentEvent.getActiveDuration, MyParentEvent.NumberOfSplit, MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.isLocked, MyParentEvent.getPreparation, MyParentEvent.ThirdPartyID, MyParentEvent.Now, MyParentEvent.getCreator, MyParentEvent.Notes, MyParentEvent.getNowInfo);
+                MyRepeatCalendarEvent = CalendarEventRestricted.InstantiateRepeatedCandidate(MyParentEvent.getName, calendarTimeLine.Start, calendarTimeLine.End, MyParentEvent.Calendar_EventID, MyParentEvent.RetrictionProfile, MyParentEvent.getActiveDuration, MyParentEvent.NumberOfSplit, MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.isLocked, MyParentEvent.getPreparation, MyParentEvent.ThirdPartyID, MyParentEvent.Now, MyParentEvent.getCreator, MyParentEvent.Notes, MyParentEvent.getNowInfo, MyParentEvent.Procrastination_EventDB);
 
                 int autoDisableCount = MyParentEvent.NumberOfSplit - splitCount;
                 var subEvents = MyRepeatCalendarEvent.ActiveSubEvents.OrderBy(o => o.Start).Take(autoDisableCount).ToList();
@@ -449,7 +427,7 @@ namespace TilerElements
                 {
 
                     MyEventCalendarID = EventID.GenerateRepeatCalendarEvent(MyParentEvent.getId);
-                    MyRepeatCalendarEvent = CalendarEventRestricted.InstantiateRepeatedCandidate(MyParentEvent.getName, calendarTimeLine.Start, calendarTimeLine.End, MyParentEvent.Calendar_EventID, MyParentEvent.RetrictionProfile, MyParentEvent.getActiveDuration, MyParentEvent.NumberOfSplit, MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.isLocked, MyParentEvent.getPreparation, MyParentEvent.ThirdPartyID, MyParentEvent.Now, MyParentEvent.getCreator, MyParentEvent.Notes, MyParentEvent.getNowInfo);
+                    MyRepeatCalendarEvent = CalendarEventRestricted.InstantiateRepeatedCandidate(MyParentEvent.getName, calendarTimeLine.Start, calendarTimeLine.End, MyParentEvent.Calendar_EventID, MyParentEvent.RetrictionProfile, MyParentEvent.getActiveDuration, MyParentEvent.NumberOfSplit, MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.isLocked, MyParentEvent.getPreparation, MyParentEvent.ThirdPartyID, MyParentEvent.Now, MyParentEvent.getCreator, MyParentEvent.Notes, MyParentEvent.getNowInfo, MyParentEvent.Procrastination_EventDB);
                     MyArrayOfRepeatingCalendarEvents.Add(MyRepeatCalendarEvent);
                     _DictionaryOfIDAndCalendarEvents.Add(MyRepeatCalendarEvent.getId, MyRepeatCalendarEvent);
                     MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
@@ -544,7 +522,7 @@ namespace TilerElements
             this._initializingRange = ActiveTimeline;
             this._RepetitionRange = repetitionTimeline;
             EventID MyEventCalendarID = EventID.GenerateRepeatDayCalendarEvent(MyParentEvent.getId, WeekDay);
-            CalendarEventRestricted MyRepeatCalendarEvent = new CalendarEventRestricted(MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyParentEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.RetrictionProfile, MyParentEvent.getActiveDuration, repetitionData, MyParentEvent.getIsComplete, MyParentEvent.isEnabled, MyParentEvent.isLocked ? 1 : MyParentEvent.NumberOfSplit, MyParentEvent.isLocked, MyParentEvent.LocationObj, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyEventCalendarID, MyParentEvent.Now, MyParentEvent.getUIParam, MyParentEvent.Notes);
+            CalendarEventRestricted MyRepeatCalendarEvent = new CalendarEventRestricted(MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyParentEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.RetrictionProfile, MyParentEvent.getActiveDuration, repetitionData, MyParentEvent.getIsComplete, MyParentEvent.isEnabled, MyParentEvent.isLocked ? 1 : MyParentEvent.NumberOfSplit, MyParentEvent.isLocked, MyParentEvent.getNowInfo, MyParentEvent.LocationObj, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyEventCalendarID, MyParentEvent.Now, MyParentEvent.Procrastination_EventDB, MyParentEvent.getUIParam, MyParentEvent.Notes);
             MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
             MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
             MyRepeatCalendarEvent.Location = MyParentEvent.LocationObj;

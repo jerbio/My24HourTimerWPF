@@ -124,14 +124,6 @@
     <Compile Include="LogControlDump.cs" />
     <Compile Include="LogControlTest.cs" />
     <Compile Include="LogicTest.cs" />
-    <Compile Include="Migrations\201910142014166_locationAmbiguityFix.cs" />
-    <Compile Include="Migrations\201910142014166_locationAmbiguityFix.Designer.cs">
-      <DependentUpon>201910142014166_locationAmbiguityFix.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201910142201132_locationAmbiguousFix.cs" />
-    <Compile Include="Migrations\201910142201132_locationAmbiguousFix.Designer.cs">
-      <DependentUpon>201910142201132_locationAmbiguousFix.cs</DependentUpon>
-    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
     <Compile Include="Models\TestGoogleEvent.cs" />
@@ -258,14 +250,6 @@
     <Content Include="WagTapCalLogs\0e062820-967c-4afc-aa45-9ffd9a0a3e3d\0e062820-967c-4afc-aa45-9ffd9a0a3e3d.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\201910142014166_locationAmbiguityFix.resx">
-      <DependentUpon>201910142014166_locationAmbiguityFix.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201910142201132_locationAmbiguousFix.resx">
-      <DependentUpon>201910142201132_locationAmbiguousFix.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

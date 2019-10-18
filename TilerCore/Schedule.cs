@@ -3047,7 +3047,10 @@ namespace TilerCore
                     }
 
                     dayToOptimization = optimizeDays(OptimizedDays, callLocation);
-
+                    foreach (SubCalendarEvent subEvent in OptimizedDays.SelectMany(day => day.getSubEventsInTimeLine()))
+                    {
+                        ConflictinSubEvents.Remove(subEvent);
+                    }
                 }
                 catch (Exception E)
                 {
@@ -3133,44 +3136,51 @@ namespace TilerCore
                 while (!breakLoop && retryCount++ < count)
                 {
                     TimeLine timeLine = Utility.CentralizeYourSelfWithinRange(dayTimeLine, middleDuration);
-                    foreach (SubCalendarEvent subEvent in AllRigids)
+                    if(timeLine != null)
                     {
-                        if (!timeLine.IsTimeLineWithin(subEvent.ActiveSlot))
+                        foreach (SubCalendarEvent subEvent in AllRigids)
                         {
-                            DateTimeOffset start = subEvent.ActiveSlot.Start < timeLine.Start ? subEvent.ActiveSlot.Start : timeLine.Start;
-                            DateTimeOffset end = subEvent.ActiveSlot.End > timeLine.End ? subEvent.ActiveSlot.End : timeLine.End;
+                            if (!timeLine.IsTimeLineWithin(subEvent.ActiveSlot))
+                            {
+                                DateTimeOffset start = subEvent.ActiveSlot.Start < timeLine.Start ? subEvent.ActiveSlot.Start : timeLine.Start;
+                                DateTimeOffset end = subEvent.ActiveSlot.End > timeLine.End ? subEvent.ActiveSlot.End : timeLine.End;
 
-                            TimeLine timeLineReadjusted = new TimeLine(start, end);
-                            timeLineReadjusted.MergeTimeLineBusySlots(timeLine);
-                            timeLine = timeLineReadjusted;
+                                TimeLine timeLineReadjusted = new TimeLine(start, end);
+                                timeLineReadjusted.MergeTimeLineBusySlots(timeLine);
+                                timeLine = timeLineReadjusted;
+                            }
+                            if (timeLine.TimelineSpan > dayTimeLine.TimelineSpan)
+                            {
+                                resetSubEvents(subEventToTimeLine, subEvents);
+                                return;
+                            }
+
+                            timeLine.AddBusySlots(subEvent.ActiveSlot);
                         }
-                        if (timeLine.TimelineSpan > dayTimeLine.TimelineSpan)
+
+                        List<SubCalendarEvent> recalibratedSubEvents = BuildAllPossibleSnugLists(NonRigidSubEvents, timeLine, 1, new List<SubCalendarEvent>());
+                        bool allIsReasisgned = recalibratedSubEvents.Count == NonRigidSubEvents.Count;
+                        if (!allIsReasisgned)
                         {
-                            resetSubEvents(subEventToTimeLine, subEvents);
-                            return;
+                            var unAssignedSUbEvents = subEvents.Except(recalibratedSubEvents);
+                            TimeSpan additionalDuration = TimeSpan.FromMinutes(subEvents.Sum(obj => obj.getActiveDuration.TotalMinutes));
+                            middleDuration = middleDuration.Add(additionalDuration);
+                            if (middleDuration > dayTimeLine.TimelineSpan)
+                            {
+                                resetSubEvents(subEventToTimeLine, subEvents);
+                                return;
+                            }
                         }
-
-                        timeLine.AddBusySlots(subEvent.ActiveSlot);
-                    }
-
-                    List<SubCalendarEvent> recalibratedSubEvents = BuildAllPossibleSnugLists(NonRigidSubEvents, timeLine, 1, new List<SubCalendarEvent>());
-                    bool allIsReasisgned = recalibratedSubEvents.Count == NonRigidSubEvents.Count;
-                    if (!allIsReasisgned)
-                    {
-                        var unAssignedSUbEvents = subEvents.Except(recalibratedSubEvents);
-                        TimeSpan additionalDuration = TimeSpan.FromMinutes(subEvents.Sum(obj => obj.getActiveDuration.TotalMinutes));
-                        middleDuration = middleDuration.Add(additionalDuration);
-                        if (middleDuration > dayTimeLine.TimelineSpan)
+                        else
                         {
-                            resetSubEvents(subEventToTimeLine, subEvents);
+                            breakLoop = allIsReasisgned;
+                            CreateBufferForEachEvent(subEvents.OrderBy(obj => obj.Start).ToList(), timeLine, false);
                             return;
                         }
                     }
                     else
                     {
-                        breakLoop = allIsReasisgned;
-                        CreateBufferForEachEvent(subEvents.OrderBy(obj => obj.Start).ToList(), timeLine, false);
-                        return;
+                        break;
                     }
                 }
                 resetSubEvents(subEventToTimeLine, subEvents);

@@ -67,7 +67,12 @@ namespace TilerCore
 
         void initializeSubEvents(DayTimeLine DayData)
         {
-            List<SubCalendarEvent> subEventsForCalculation = DayData.getSubEventsInTimeLine();
+            List<SubCalendarEvent> subEventsForCalculation = new List<SubCalendarEvent>();
+            foreach(var subEvent in DayData.getSubEventsInTimeLine())
+            {
+                subEvent.setAsUnOptimized();
+                subEventsForCalculation.Add(subEvent);
+            }
 
             List<SubCalendarEvent> subEventsThatCannotExist = DayData.getSubEventsInTimeLine().Where(subEvent => !subEvent.canExistWithinTimeLine(DayData)).ToList();
             if (subEventsThatCannotExist.Count > 0)

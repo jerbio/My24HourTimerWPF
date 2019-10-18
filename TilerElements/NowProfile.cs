@@ -109,6 +109,16 @@ namespace TilerElements
             }
         }
 
+        public void update(NowProfile nowProfile)
+        {
+            if(nowProfile!=null)
+            {
+                this._AssociatedEvent = nowProfile._AssociatedEvent;
+                this.Initialized = nowProfile.Initialized;
+                this.PreferredTime = nowProfile.PreferredTime;
+            }
+        }
+
         public bool isInitialized
         {
             get

@@ -529,9 +529,16 @@ namespace TilerElements
             return MyCalendarEventCopy;
         }
 
-        public void UpdateNowProfile(NowProfile ProfileNowData)
+        public virtual void UpdateNowProfile(NowProfile ProfileNowData)
         {
-            _ProfileOfNow = ProfileNowData;
+            if(_ProfileOfNow == null)
+            {
+                _ProfileOfNow = ProfileNowData;
+            }
+            else
+            {
+                _ProfileOfNow.update(ProfileNowData);
+            }
             _ProfileOfNow.AssociatedEvent = this;
             getProcrastinationInfo.reset();
         }

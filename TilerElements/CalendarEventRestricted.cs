@@ -39,7 +39,7 @@ namespace TilerElements
             }
             base.redo(undoId);
         }
-        public CalendarEventRestricted(TilerUser creator, TilerUserGroup userGroup, EventName Name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, Location Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventID eventId, ReferenceNow now, EventDisplay UiSettings = null, MiscData NoteData=null, string timeZone = null)
+        public CalendarEventRestricted(TilerUser creator, TilerUserGroup userGroup, EventName Name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, NowProfile profileOfNow,  Location Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventID eventId, ReferenceNow now, Procrastination procrastination, EventDisplay UiSettings = null, MiscData NoteData=null, string timeZone = null)
         {
            _Name =  Name;
             StartDateTime = Start;
@@ -72,7 +72,7 @@ namespace TilerElements
                 _AverageTimePerSplit = new TimeSpan();
             }
             isRestricted = true;
-            _ProfileOfNow = new NowProfile();
+            _ProfileOfNow = profileOfNow?? new NowProfile();
             this._Creator = creator;
             this._Users = userGroup;
             this._TimeZone = timeZone;
@@ -87,7 +87,7 @@ namespace TilerElements
 
 
 
-        public CalendarEventRestricted(TilerUser creator, TilerUserGroup userGroup, string timeZone, EventName Name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, Location Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventID eventId, ReferenceNow now, EventDisplay UiSettings = null, MiscData NoteData = null)
+        public CalendarEventRestricted(TilerUser creator, TilerUserGroup userGroup, string timeZone, EventName Name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, NowProfile profileOfNow, Location Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventID eventId, ReferenceNow now, Procrastination procrastination, EventDisplay UiSettings = null, MiscData NoteData = null)
         {
             _Name = Name;
             StartDateTime = Start;
@@ -109,7 +109,7 @@ namespace TilerElements
             UniqueID = eventId ?? this.UniqueID; /// already initialized by preceeding code initialization
             _UiParams = UiSettings;
             _DataBlob = NoteData;
-            _ProfileOfNow = new NowProfile();
+            _ProfileOfNow = profileOfNow??new NowProfile();
             isRestricted = true;
             _EventDuration = Duration;
             if (_Splits != 0) {
@@ -132,7 +132,7 @@ namespace TilerElements
             InstantiateSubEvents();
         }
 
-        static public CalendarEventRestricted InstantiateRepeatedCandidate(EventName Name, DateTimeOffset Start, DateTimeOffset End, EventID CalendarEventID, RestrictionProfile restrictionProfile, TimeSpan Duration, int division, Location Location,EventDisplay UiSettings,bool RigidFlag,TimeSpan preparation, string thirdPartyID, ReferenceNow now, TilerUser tilerUser, MiscData miscData, NowProfile nowProfile)
+        static public CalendarEventRestricted InstantiateRepeatedCandidate(EventName Name, DateTimeOffset Start, DateTimeOffset End, EventID CalendarEventID, RestrictionProfile restrictionProfile, TimeSpan Duration, int division, Location Location,EventDisplay UiSettings,bool RigidFlag,TimeSpan preparation, string thirdPartyID, ReferenceNow now, TilerUser tilerUser, MiscData miscData, NowProfile nowProfile, Procrastination procrastination)
         { 
             CalendarEventRestricted retValue = new CalendarEventRestricted();
             retValue .UniqueID = EventID.GenerateRepeatCalendarEvent(CalendarEventID.ToString());
@@ -158,6 +158,7 @@ namespace TilerElements
             retValue._Creator = tilerUser;
             retValue._DataBlob = miscData;
             retValue._ProfileOfNow = nowProfile;
+            retValue._ProfileOfProcrastination = procrastination;
             retValue.InstantiateSubEvents();
             
             return retValue;

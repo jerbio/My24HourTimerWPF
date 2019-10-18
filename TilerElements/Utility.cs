@@ -119,6 +119,12 @@ namespace TilerElements
             return retValue;
         }
 
+        /// <summary>
+        /// Function tires to find a central time slot of the span "Centralized" in the time slot. If Centralized span is larger than range it returns null
+        /// </summary>
+        /// <param name="Range"></param>
+        /// <param name="Centralized"></param>
+        /// <returns></returns>
         public static TimeLine CentralizeYourSelfWithinRange(TimeLine Range, TimeSpan Centralized)
         {
             TimeSpan Difference = Range.TimelineSpan - Centralized;
@@ -129,8 +135,7 @@ namespace TilerElements
                 CentralizedTimeline = new TimeLine(MyStart, MyStart.Add(Centralized));
                 return CentralizedTimeline;
             }
-            throw (new System.Exception("Duration is larger than timeline"));
-            
+            return null;
         }
 
         static public List<double> getOriginFromDimensions(IList<IList<double>> collection)

@@ -1084,7 +1084,7 @@ namespace TilerTests
         /// <summary>
         /// Function runs an update on all possible types of tiler events
         /// </summary>
-        //[TestMethod]
+        [TestMethod]
         public void eventUpdateAllEventTypes()
         {
 

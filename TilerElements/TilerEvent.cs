@@ -351,7 +351,7 @@ namespace TilerElements
             }
         }
 
-        virtual public  DateTimeOffset Start
+        virtual public DateTimeOffset Start
         {
             get
             {

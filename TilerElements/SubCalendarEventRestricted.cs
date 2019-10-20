@@ -285,6 +285,8 @@ namespace TilerElements
             copy._UsedTime = this._UsedTime;
             copy.OptimizationFlag = this.OptimizationFlag;
             copy.tempLock = this.tempLock;
+            copy.lockedPrecedingHours = this.lockedPrecedingHours;
+            copy._enablePre_reschedulingTimelineLockDown = this._enablePre_reschedulingTimelineLockDown;
             return copy;
         }
 

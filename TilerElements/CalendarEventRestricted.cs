@@ -82,6 +82,7 @@ namespace TilerElements
                 _LocationInfo.User = this.getCreator;
             }
             _EventDayPreference = new EventPreference();
+            _ProfileOfProcrastination = procrastination;
             InstantiateSubEvents();
         }
 
@@ -129,6 +130,7 @@ namespace TilerElements
                 _LocationInfo.User = this.getCreator;
             }
             _EventDayPreference = new EventPreference();
+            _ProfileOfProcrastination = procrastination;
             InstantiateSubEvents();
         }
 

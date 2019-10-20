@@ -2195,17 +2195,6 @@ namespace TilerCore
 #endif
 
             List<BlobSubCalendarEvent> AllConflictingEvents = Utility.getConflictingEvents(AllRigidEvents.Concat(willNotFit));
-
-            List<CalendarEvent> allCalEvent = AllConflictingEvents.Select(obj => CalendarEvent.getEmptyCalendarEvent(new EventID(obj.SubEvent_ID.getCalendarEventID()), obj.Start, obj.End)).ToList();
-
-
-            for (int i = 0; i < allCalEvent.Count; i++)
-            {
-                CalendarEvent eachCalEvent = new CalendarEvent(allCalEvent[i], new SubCalendarEvent[] { AllConflictingEvents[i] });
-                AllEventDictionary.Add(eachCalEvent.Calendar_EventID.getIDUpToCalendarEvent(), eachCalEvent);
-            }
-
-
             retValue = retValue.Except(AllConflictingEvents.SelectMany(obj => obj.getSubCalendarEventsInBlob())).ToList();
             retValue = retValue.Concat(AllConflictingEvents).ToList();
 
@@ -2242,8 +2231,6 @@ namespace TilerCore
                 Name{: Jerome Biotidara
              * this function is responsible for making sure there is some dynamic allotment of time to the subeevents. It takes a calendarevent, checks the alloted time frame and tries to move subevents within the time frame to satisfy the final goal.
              */
-            int i = 0;
-
             if (MyCalendarEvent.IsRepeat != false)//Artificially generates random subevents for the calendar event
             {
                 throw new Exception("invalid calendar event detected in ReArrangeTimeLineWithinWithinCalendaEventRange. Repeat not allowed");
@@ -2253,6 +2240,11 @@ namespace TilerCore
             Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluation(MyCalendarEvent, NoneCommitedCalendarEventsEvents, InterferringWithNowFlag, NotDoneYet, new TimeLine(Now.constNow.AddDays(-90), Now.ComputationRange.End));
             List<SubCalendarEvent> collectionOfInterferringSubCalEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToList();
             List<SubCalendarEvent> ArrayOfInterferringSubEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToList();
+            foreach(var subEvent in ArrayOfInterferringSubEvents.Concat(allInterferringSubCalEventsAndTimeLine.Item4))
+            {
+                subEvent.disableCalculationMode();
+            }
+            
             TimeLine RangeForScheduleUpdate = allInterferringSubCalEventsAndTimeLine.Item1;
             IEnumerable<SubCalendarEvent> NowEvents = allInterferringSubCalEventsAndTimeLine.Item4.Where(obj => !obj.isLocked).ToList();
             if (InterferringWithNowFlag == 0)
@@ -2269,6 +2261,14 @@ namespace TilerCore
             TimeSpan SumOfAllEventsTimeSpan = Utility.SumOfActiveDuration(ArrayOfInterferringSubEvents);
             Tuple<List<SubCalendarEvent>, List<BlobSubCalendarEvent>> preppedDataForNExtStage = PrepareElementsThatWillNotFit(ArrayOfInterferringSubEvents, RangeForScheduleUpdate);
             ArrayOfInterferringSubEvents = preppedDataForNExtStage.Item1;
+            var AllConflictingEvents = preppedDataForNExtStage.Item2;
+            List<CalendarEvent> allCalEvent = AllConflictingEvents.Select(obj => CalendarEvent.getEmptyCalendarEvent(new EventID(obj.SubEvent_ID.getCalendarEventID()), obj.Start, obj.End)).ToList();
+            for (int i = 0; i < allCalEvent.Count; i++)
+            {
+                CalendarEvent eachCalEvent = new CalendarEvent(allCalEvent[i], new SubCalendarEvent[] { AllConflictingEvents[i] });
+                AllEventDictionary.Add(eachCalEvent.Calendar_EventID.getIDUpToCalendarEvent(), eachCalEvent);
+            }
+
 
             Dictionary<CalendarEvent, List<SubCalendarEvent>> DictionaryWithBothCalendarEventIDAndListOfInterferringSubEvents = new Dictionary<CalendarEvent, List<SubCalendarEvent>>();
             List<SubCalendarEvent> RigidSubCalendarEvents = new List<SubCalendarEvent>(0);
@@ -2290,7 +2290,7 @@ namespace TilerCore
 
             foreach (SubCalendarEvent subEvent in ArrayOfInterferringSubEvents)
             {
-                if (subEvent.ActiveSlot.doesTimeLineInterfere(precedingStart))
+                if (subEvent.ActiveSlot.End<= precedingStart.End && subEvent.ActiveSlot.doesTimeLineInterfere(precedingStart) && subEvent.isPre_reschedulingEnabled)
                 {
                     preceding24HourSubevent.Add(subEvent);
                     subEvent.lockPrecedingHours();
@@ -2302,6 +2302,24 @@ namespace TilerCore
             }
 
             ArrayOfInterferringSubEvents = notPreceding24HourSubevent;
+            List<SubCalendarEvent> isInterFerringWithNow = ArrayOfInterferringSubEvents.Where(obj => obj.isLocked && obj.IsDateTimeWithin(Now.calculationNow)).ToList();
+            BlobSubCalendarEvent interferringWithNowBolob = null;
+            CalendarEvent interferringWithNowCalEvent = null;
+            if (isInterFerringWithNow.Count > 0)
+            {
+                interferringWithNowBolob = new BlobSubCalendarEvent(isInterFerringWithNow);
+                interferringWithNowBolob.updateTimeLine(new TimeLine(Now.calculationNow, interferringWithNowBolob.End));
+                foreach(var subEVent in isInterFerringWithNow)
+                {
+                    ArrayOfInterferringSubEvents.Remove(subEVent);
+                }
+                ArrayOfInterferringSubEvents.Add(interferringWithNowBolob);
+                interferringWithNowCalEvent = CalendarEvent.getEmptyCalendarEvent(interferringWithNowBolob.getTilerID, interferringWithNowBolob.Start, interferringWithNowBolob.End);
+                interferringWithNowCalEvent = new CalendarEvent(interferringWithNowCalEvent, new SubCalendarEvent[] { interferringWithNowBolob });
+                AllEventDictionary.Add(interferringWithNowCalEvent.Calendar_EventID.getIDUpToCalendarEvent(), interferringWithNowCalEvent);
+            }
+            
+
             double OccupancyOfTimeLineSPan = (double)SumOfAllEventsTimeSpan.Ticks / (double)RangeForScheduleUpdate.TimelineSpan.Ticks;
             //ArrayOfInterferringSubEvents = Utility.NotInList(ArrayOfInterferringSubEvents.ToList(), RigidSubCalendarEvents).ToList();//remove rigid elements
 
@@ -2318,6 +2336,7 @@ namespace TilerCore
 
             List<CalendarEvent> SortedInterFerringCalendarEvents_Deadline = DictionaryWithBothCalendarEventIDAndListOfInterferringSubEvents.Keys.ToList();
             SortedInterFerringCalendarEvents_Deadline = SortedInterFerringCalendarEvents_Deadline.OrderBy(obj => obj.End).ToList();
+            
             ParallelizeCallsToDay(SortedInterFerringCalendarEvents_Deadline, ArrayOfInterferringSubEvents, AllDayTImeLine, callLocation, OptimizeFirstTwentyFour, preserveFirstTwentyFourHours, shuffle);
             preceding24HourSubevent.ForEach((subEvent) => {
                 subEvent.unLockPrecedingHours();
@@ -2326,6 +2345,11 @@ namespace TilerCore
             foreach (BlobSubCalendarEvent eachSubCalEvent in preppedDataForNExtStage.Item2)
             {
                 AllEventDictionary.Remove(eachSubCalEvent.SubEvent_ID.getIDUpToCalendarEvent());
+            }
+
+            if (interferringWithNowCalEvent != null)
+            {
+                AllEventDictionary.Remove(interferringWithNowCalEvent.Calendar_EventID.getIDUpToCalendarEvent());
             }
 
             return MyCalendarEvent;
@@ -2556,7 +2580,7 @@ namespace TilerCore
             List<SubCalendarEvent> notPreceding24HourSubevent = new List<SubCalendarEvent>();// holds sub events that will be used for calculation
             foreach (SubCalendarEvent subEvent in ArrayOfInterferringSubEvents)
             {
-                if (subEvent.ActiveSlot.doesTimeLineInterfere(precedingStart))
+                if (subEvent.ActiveSlot.End <= precedingStart.End && subEvent.ActiveSlot.doesTimeLineInterfere(precedingStart) && subEvent.isPre_reschedulingEnabled)
                 {
                     preceding24HourSubevent.Add(subEvent);
                     subEvent.lockPrecedingHours();
@@ -2567,6 +2591,25 @@ namespace TilerCore
                 }
             }
             ArrayOfInterferringSubEvents = notPreceding24HourSubevent;
+
+            List<SubCalendarEvent> isInterFerringWithNow = ArrayOfInterferringSubEvents.Where(obj => obj.isLocked && obj.IsDateTimeWithin(Now.calculationNow)).ToList();
+            BlobSubCalendarEvent interferringWithNowBolob = null;
+            CalendarEvent interferringWithNowCalEvent = null;
+            if (isInterFerringWithNow.Count > 0)
+            {
+                interferringWithNowBolob = new BlobSubCalendarEvent(isInterFerringWithNow);
+                interferringWithNowBolob.updateTimeLine(new TimeLine(Now.calculationNow, interferringWithNowBolob.End));
+                foreach (var subEVent in isInterFerringWithNow)
+                {
+                    ArrayOfInterferringSubEvents.Remove(subEVent);
+                }
+                ArrayOfInterferringSubEvents.Add(interferringWithNowBolob);
+                interferringWithNowCalEvent = CalendarEvent.getEmptyCalendarEvent(interferringWithNowBolob.getTilerID, interferringWithNowBolob.Start, interferringWithNowBolob.End);
+                interferringWithNowCalEvent = new CalendarEvent(interferringWithNowCalEvent, new SubCalendarEvent[] { interferringWithNowBolob });
+                AllEventDictionary.Add(interferringWithNowCalEvent.Calendar_EventID.getIDUpToCalendarEvent(), interferringWithNowCalEvent);
+            }
+
+
             double OccupancyOfTimeLineSPan = (double)SumOfAllEventsTimeSpan.Ticks / (double)RangeForScheduleUpdate.TimelineSpan.Ticks;
             //ArrayOfInterferringSubEvents = Utility.NotInList(ArrayOfInterferringSubEvents.ToList(), RigidSubCalendarEvents).ToList();//remove rigid elements
 
@@ -2588,6 +2631,17 @@ namespace TilerCore
             preceding24HourSubevent.ForEach((subEvent) => {
                 subEvent.unLockPrecedingHours();
             });
+
+            foreach (BlobSubCalendarEvent eachSubCalEvent in preppedDataForNExtStage.Item2)
+            {
+                AllEventDictionary.Remove(eachSubCalEvent.SubEvent_ID.getIDUpToCalendarEvent());
+            }
+
+            if (interferringWithNowCalEvent != null)
+            {
+                AllEventDictionary.Remove(interferringWithNowCalEvent.Calendar_EventID.getIDUpToCalendarEvent());
+            }
+
             List<SubCalendarEvent> ConflictingEvents = new List<SubCalendarEvent>();
             foreach (SubCalendarEvent eachSubCalendarEvent in ArrayOfInterferringSubEvents)
             {
@@ -8892,18 +8946,9 @@ namespace TilerCore
             return SpecificFreeSpots.ToArray();
         }
 
-
-        /*
-        DateTimeOffset UpdateNow(DateTimeOffset UpdatedNow)
-        {
-            Now = UpdatedNow;
-            return Now;
-        }
-
-        */
+        
         public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ProcrastinateJustAnEvent(string EventID, TimeSpan RangeOfPush)
         {
-
             CalendarEvent ProcrastinateEvent = getCalendarEvent(EventID);
             SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
             if (ReferenceSubEvent != null)
@@ -8932,7 +8977,10 @@ namespace TilerCore
                     Dictionary<string, CalendarEvent> AllEventDictionary_Cpy = AllEventDictionary.ToDictionary(obj => obj.Key, obj => obj.Value.createCopy());
 
                     List<SubCalendarEvent> AllValidSubCalEvents = ProcrastinateEvent.ActiveSubEvents.Where(obj => obj.End > ReferenceSubEvent.Start).ToList();
-
+                    foreach(SubCalendarEvent subevent in AllValidSubCalEvents)
+                    {
+                        subevent.disablePreschedulingLock();
+                    }
 
 
                     TimeSpan TotalActiveDuration = Utility.SumOfActiveDuration(AllValidSubCalEvents);
@@ -8949,6 +8997,11 @@ namespace TilerCore
                         SubCalendarEvent updatedSubCal = new SubCalendarEvent(AllValidSubCalEvents[i].ParentCalendarEvent, AllValidSubCalEvents[i].getCreator, AllValidSubCalEvents[i].getAllUsers(), AllValidSubCalEvents[i].getTimeZone, AllValidSubCalEvents[i].Id, UpdatedSubCalevents[i].getName, UpdatedSubCalevents[i].Start, UpdatedSubCalevents[i].End, UpdatedSubCalevents[i].ActiveSlot, UpdatedSubCalevents[i].isRigid, AllValidSubCalEvents[i].isEnabled, AllValidSubCalEvents[i].getUIParam, AllValidSubCalEvents[i].Notes, AllValidSubCalEvents[i].getIsComplete, UpdatedSubCalevents[i].Location_DB, ProcrastinateEvent.StartToEnd);
                         AllValidSubCalEvents[i].shiftEvent(updatedSubCal.Start - AllValidSubCalEvents[i].Start, true);///not using update this because of possible issues with subevent not being restricted
                         //AllValidSubCalEvents[i].UpdateThis(updatedSubCal);
+                    }
+
+                    foreach (SubCalendarEvent subevent in AllValidSubCalEvents)
+                    {
+                        subevent.enablePreschedulingLock();
                     }
 
                     ProcrastinateEvent.EnableSubEvents(AllValidSubCalEvents);

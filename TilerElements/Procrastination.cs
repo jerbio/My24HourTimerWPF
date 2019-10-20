@@ -193,6 +193,14 @@ namespace TilerElements
             return now.getDayIndexFromStartOfTime(BeginTIme);
         }
 
+        public void Update (Procrastination procrastination)
+        {
+            this._BeginTIme = procrastination._BeginTIme;
+            this._FromTime = procrastination._FromTime;
+            this._isNull = procrastination._isNull;
+            this._SectionOfDay= procrastination._SectionOfDay;
+        }
+
         #region dbProperties
         public string Id
         {

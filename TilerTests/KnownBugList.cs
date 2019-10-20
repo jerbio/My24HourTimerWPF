@@ -32,6 +32,7 @@ namespace TilerTests
             //((TestSchedule)schedule).WriteFullScheduleToOutlook();
         }
 
+
         /// <summary>
         /// Test captures the scenario where a subevent shifts between multiple daytimeline caused by tryconflict resolution
         /// </summary>

@@ -99,7 +99,8 @@
     <Reference Include="TilerElements">
       <HintPath>..\TilerElements\bin\Debug\TilerElements.dll</HintPath>
     </Reference>
-    <Reference Include="TilerFront">
+    <Reference Include="TilerFront, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\WagTapWeb\TilerFront\bin\TilerFront.dll</HintPath>
     </Reference>
   </ItemGroup>

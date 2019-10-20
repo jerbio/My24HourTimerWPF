@@ -37,6 +37,7 @@ namespace TilerElements
         public bool isSleep { get; set; } = false;
         protected bool tempLock { get; set; } = false;// This should never get persisted
         protected bool lockedPrecedingHours { get; set; } = false;// This should never get persisted
+        protected bool _enablePre_reschedulingTimelineLockDown { get; set; } = true;// This prevent locking for preceding twentyFour or for interferring with now
         /// <summary>
         /// This holds the current session reasons. It will updated based on data and calculation optimizations from HistoricalCurrentPosition
         /// </summary>
@@ -124,6 +125,28 @@ namespace TilerElements
         #endregion
 
         #region Class functions
+
+        public void updateprocrastinationtree(Procrastination procrastination)
+        {
+            if (procrastination != null && !procrastination.isNull && string.IsNullOrEmpty(this.ProcrastinationId))
+            {
+                //this.ProcrastinationId = null;
+                this.Procrastination_EventDB = null;
+                //this.ProcrastinationId = procrastination.Id;
+                this.Procrastination_EventDB = procrastination;
+            }
+        }
+
+        public void updatenowprofiletree(NowProfile nowProfile)
+        {
+            if (nowProfile != null && string.IsNullOrEmpty(this.NowProfileId))
+            {
+                this.ProfileOfNow_EventDB = null;
+                //this.NowProfileId = null;
+                this.ProfileOfNow_EventDB = nowProfile;
+                //this.NowProfileId = nowProfile.Id;
+            }
+        }
 
         public override string ToString()
         {
@@ -263,12 +286,28 @@ namespace TilerElements
 
         public void lockPrecedingHours()
         {
-            lockedPrecedingHours = true;
+            if (_enablePre_reschedulingTimelineLockDown)
+            {
+                lockedPrecedingHours = true;
+            }
         }
 
         public void unLockPrecedingHours()
         {
-            lockedPrecedingHours = false;
+            if (_enablePre_reschedulingTimelineLockDown)
+            {
+                lockedPrecedingHours = false;
+            }
+        }
+
+        public void disablePreschedulingLock()
+        {
+            _enablePre_reschedulingTimelineLockDown = false;
+        }
+
+        public void enablePreschedulingLock()
+        {
+            _enablePre_reschedulingTimelineLockDown = true;
         }
 
         virtual public void addReasons(Reason eventReason)
@@ -387,6 +426,8 @@ namespace TilerElements
             MySubCalendarEventCopy.userLocked = this._userLocked;
             MySubCalendarEventCopy.tempLock = this.tempLock;
             MySubCalendarEventCopy.LocationValidationId_DB = this.LocationValidationId_DB;
+            MySubCalendarEventCopy.lockedPrecedingHours = this.lockedPrecedingHours;
+            MySubCalendarEventCopy._enablePre_reschedulingTimelineLockDown = this._enablePre_reschedulingTimelineLockDown;
             if (this.CalculationTimeLine != null)
             {
                 MySubCalendarEventCopy.CalculationTimeLine = this.CalculationTimeLine.CreateCopy();
@@ -939,6 +980,11 @@ namespace TilerElements
             CalculationMode = true;
         }
 
+        public void disableCalculationMode()
+        {
+            CalculationMode = false;
+        }
+
         public override bool isLocked => base.isLocked || this.tempLock || this.lockedPrecedingHours;
 
         /// <summary>
@@ -1372,6 +1418,14 @@ namespace TilerElements
             get
             {
                 return _ProfileOfNow?? ParentCalendarEvent.getNowInfo;
+            }
+        }
+
+        public bool isPre_reschedulingEnabled
+        {
+            get
+            {
+                return _enablePre_reschedulingTimelineLockDown;
             }
         }
         #endregion

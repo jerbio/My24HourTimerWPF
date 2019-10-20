@@ -4117,7 +4117,22 @@ namespace TilerCore
                 TimeSpan bufferSpan = new TimeSpan(-1);
                 if (calculateRemoely)
                 {
-                    bufferSpan = Location.getDrivingTimeFromWeb(myCoEvents.Item1.Location, myCoEvents.Item2.Location);
+                    if(myCoEvents.Item1.Location != myCoEvents.Item2.Location)
+                    {
+                        double distance = Location.calculateDistance(myCoEvents.Item1.Location, myCoEvents.Item2.Location);
+                        if(distance<0.5)
+                        {
+                            bufferSpan = TimeSpan.FromMinutes(2);
+                        } else
+                        {
+                            bufferSpan = Location.getDrivingTimeFromWeb(myCoEvents.Item1.Location, myCoEvents.Item2.Location);
+                        }
+                            
+                    } else
+                    {
+                        bufferSpan = new TimeSpan(0);
+                    }
+                    
                 }
 
                 if (bufferSpan.Ticks < 0)

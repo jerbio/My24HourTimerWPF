@@ -48,6 +48,52 @@ namespace TilerTests
             DateTimeOffset latestTime = refNow.Add(procrastinationSpan);
             Assert.IsTrue(testEventCopy.ActiveSubEvents.OrderBy(subEvent => subEvent.Start).First().Start >= latestTime);
             Assert.IsTrue(testEventCopy.getProcrastinationInfo.PreferredStartTime >= latestTime);
+            ///Quality of procrastinate all////
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            TimeSpan secondDuration = TimeSpan.FromHours(4);
+            CalendarEvent testEvent0 = TestUtility.generateCalendarEvent(tilerUser, secondDuration, new Repetition(), start, end, 2, false);
+            
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.AddToScheduleAndCommitAsync(testEvent0).Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            testEventCopy = TestUtility.getCalendarEventById(testEvent.getId, user);
+            latestTime = refNow.Add(procrastinationSpan);
+            Assert.IsTrue(testEventCopy.ActiveSubEvents.OrderBy(subEvent => subEvent.Start).First().Start >= latestTime);
+            Assert.IsTrue(testEventCopy.getProcrastinationInfo.PreferredStartTime >= latestTime);
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            TimeSpan secondProcrastinationSpan = TimeSpan.FromHours(2);
+            DateTimeOffset secondLatestTime = refNow.Add(secondProcrastinationSpan);
+            var testEvent0Copy = TestUtility.getCalendarEventById(testEvent0.getId, user);
+            procrastinateResult = Schedule.ProcrastinateJustAnEvent(testEvent0Copy.AllSubEvents.OrderBy(subEvent => subEvent.Start).First().getId, secondProcrastinationSpan);
+            Assert.IsNull(procrastinateResult.Item1);
+            Schedule.persistToDB().Wait();
+            Schedule = new TestSchedule(user, refNow);
+            testEvent0Copy = TestUtility.getCalendarEventById(testEvent0.getId, user);
+            Assert.IsTrue(testEvent0Copy.ActiveSubEvents.OrderBy(subEvent => subEvent.Start).First().Start >= secondLatestTime);
+            Assert.IsTrue(testEvent0Copy.getProcrastinationInfo.PreferredStartTime >= secondLatestTime);
+            testEventCopy = TestUtility.getCalendarEventById(testEvent.getId, user);
+            latestTime = refNow.Add(procrastinationSpan);
+            Assert.IsTrue(testEventCopy.ActiveSubEvents.OrderBy(subEvent => subEvent.Start).First().Start >= latestTime);
+            Assert.IsTrue(testEventCopy.getProcrastinationInfo.PreferredStartTime >= latestTime);
+            Assert.IsFalse(testEventCopy.getNowInfo.isInitialized);
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            DateTimeOffset thirdRefNow = refNow.AddHours(1);
+            Schedule = new TestSchedule(user, thirdRefNow);
+            Schedule.SetCalendarEventAsNow(testEventCopy.Id);
+            Schedule.persistToDB().Wait();
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            testEventCopy = TestUtility.getCalendarEventById(testEvent.getId, user);
+            Assert.IsTrue(testEventCopy.ActiveSubEvents.OrderBy(subEvent => subEvent.Start).First().Start == thirdRefNow);
+            Assert.IsTrue(testEventCopy.getProcrastinationInfo.isNull);
+            Assert.IsTrue(testEventCopy.getNowInfo.isInitialized);
+
+            testEvent0Copy = TestUtility.getCalendarEventById(testEvent0.getId, user);
+            Assert.IsTrue(testEvent0Copy.ActiveSubEvents.OrderBy(subEvent => subEvent.Start).First().Start >= secondLatestTime);
+            Assert.IsTrue(testEvent0Copy.getProcrastinationInfo.PreferredStartTime >= secondLatestTime);
         }
 
         [TestMethod]

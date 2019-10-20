@@ -1175,7 +1175,7 @@ namespace TilerCore
             var dayPreference = referenceCalendarEvent.DayPreference[Now.ConstDayOfWeek];
             ++dayPreference.Count;
             NowProfile myNow = new NowProfile(Now.constNow, true);
-
+            referenceCalendarEvent.UpdateNowProfile(myNow);
             EventID SubEventID = new EventID(EventID);
 
 

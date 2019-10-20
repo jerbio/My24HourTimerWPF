@@ -11,7 +11,7 @@ namespace TilerElements
         protected string _Id { get; set; }
         protected TilerEvent _AssociatedEvent;
         DateTimeOffset TimePreferredForEvent;
-        bool Initialized = false;
+        bool _Initialized = false;
 
         protected TilerEvent _UndoAssociatedEvent;
         DateTimeOffset _UndoTimePreferredForEvent;
@@ -21,18 +21,18 @@ namespace TilerElements
         public NowProfile()
         {
             TimePreferredForEvent = new DateTimeOffset();
-            Initialized = false;
+            _Initialized = false;
         }
 
         public NowProfile(DateTimeOffset CurrentTime, bool InitializedData)
         {
             TimePreferredForEvent = CurrentTime;
-            Initialized = InitializedData;
+            _Initialized = InitializedData;
         }
 
         public NowProfile CreateCopy()
         {
-            NowProfile retValue = new NowProfile(TimePreferredForEvent, Initialized);
+            NowProfile retValue = new NowProfile(TimePreferredForEvent, _Initialized);
             retValue.Id = this.Id;
             return retValue;
         }
@@ -77,14 +77,14 @@ namespace TilerElements
         public void reset()
         {
             TimePreferredForEvent = new DateTimeOffset();
-            Initialized = false;
+            _Initialized = false;
         }
 
         public void undoUpdate(Undo undo)
         {
             _UndoAssociatedEvent = _AssociatedEvent;
             _UndoTimePreferredForEvent = TimePreferredForEvent;
-            _UndoInitialized = Initialized;
+            _UndoInitialized = _Initialized;
             FirstInstantiation = false;
             this._UndoId = undo.id;
         }
@@ -95,7 +95,7 @@ namespace TilerElements
             {
                 Utility.Swap(ref _UndoAssociatedEvent, ref _AssociatedEvent);
                 Utility.Swap(ref _UndoTimePreferredForEvent, ref TimePreferredForEvent);
-                Utility.Swap(ref _UndoInitialized, ref Initialized);
+                Utility.Swap(ref _UndoInitialized, ref _Initialized);
             }
         }
 
@@ -105,7 +105,7 @@ namespace TilerElements
             {
                 Utility.Swap(ref _UndoAssociatedEvent, ref _AssociatedEvent);
                 Utility.Swap(ref _UndoTimePreferredForEvent, ref TimePreferredForEvent);
-                Utility.Swap(ref _UndoInitialized, ref Initialized);
+                Utility.Swap(ref _UndoInitialized, ref _Initialized);
             }
         }
 
@@ -114,7 +114,7 @@ namespace TilerElements
             if(nowProfile!=null)
             {
                 this._AssociatedEvent = nowProfile._AssociatedEvent;
-                this.Initialized = nowProfile.Initialized;
+                this._Initialized = nowProfile._Initialized;
                 this.PreferredTime = nowProfile.PreferredTime;
             }
         }
@@ -123,7 +123,11 @@ namespace TilerElements
         {
             get
             {
-                return Initialized;
+                return _Initialized;
+            }
+            set
+            {
+                _Initialized = value;
             }
         }
 

@@ -39,14 +39,14 @@ namespace TilerElements
         }
 
 
-        public void reset()
+        internal void reset()
         {
             if(!this.isNull)
             {
                 _FromTime = Utility.JSStartTime;
                 _BeginTIme = Utility.JSStartTime;
             }
-            
+            this._isNull = true;
         }
 
 
@@ -266,6 +266,10 @@ namespace TilerElements
             get
             {
                 return this._isNull;
+            }
+            set
+            {
+                this._isNull = value;
             }
         }
         #endregion

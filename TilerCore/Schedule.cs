@@ -1172,10 +1172,17 @@ namespace TilerCore
             CalendarEvent referenceCalendarEvent = getCalendarEvent(EventID);
             SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
             referenceCalendarEvent.DayPreference.init();
-            var dayPreference = referenceCalendarEvent.DayPreference[Now.ConstDayOfWeek];
-            ++dayPreference.Count;
-            NowProfile myNow = new NowProfile(Now.constNow, true);
-            referenceCalendarEvent.UpdateNowProfile(myNow);
+
+            NowProfile nowProfile = referenceCalendarEvent.getNowInfo;
+
+            if(Now.getDayIndexFromStartOfTime( nowProfile.PreferredTime) != Now.getDayIndexFromStartOfTime(Now.constNow))
+            {
+                var dayPreference = referenceCalendarEvent.DayPreference[Now.ConstDayOfWeek];
+                ++dayPreference.Count;
+                NowProfile myNow = new NowProfile(Now.constNow, true);
+                referenceCalendarEvent.UpdateNowProfile(myNow);
+            }
+
             EventID SubEventID = new EventID(EventID);
 
 

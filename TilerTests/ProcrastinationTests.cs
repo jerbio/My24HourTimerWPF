@@ -394,6 +394,53 @@ namespace TilerTests
 
         }
 
+        [TestMethod]
+        public void procrastinateAll_ClearsCurrentEVents()
+        {
+            TestSchedule Schedule;
+            TilerUser tilerUser = TestUtility.createUser();
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+            //DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            DateTimeOffset refNow = TestUtility.parseAsUTC("11:15AM 12/27/2018");// try 18:15AM 12/27/2018
+            refNow = refNow.removeSecondsAndMilliseconds();
+            TimeSpan duration = TimeSpan.FromHours(2);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.AddHours(7);
+
+            TimeLine repeatTimeLine = new TimeLine(start, end.AddDays(21));
+            TimeLine calTimeLine = new TimeLine(start, start.Add(duration));
+            Repetition repetition = new Repetition(repeatTimeLine, Repetition.Frequency.WEEKLY, calTimeLine, new DayOfWeek[] { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Friday });
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 2, false);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            DateTimeOffset secondRefNow = refNow.AddHours(4);
+            Schedule = new TestSchedule(user, secondRefNow);
+            Schedule.SetCalendarEventAsNow(testEvent.Id);
+            Schedule.persistToDB().Wait();
+            CalendarEvent testEvent_DB = TestUtility.getCalendarEventById(testEvent.Id, user);
+            SubCalendarEvent subEvent = testEvent_DB.ActiveSubEvents.OrderBy(o => o.Start).First();
+            Assert.AreEqual(subEvent.Start, secondRefNow);
+
+
+            DateTimeOffset thirdRefNow = subEvent.Start.Add(TimeSpan.FromMinutes(Math.Round(subEvent.getActiveDuration.TotalMinutes / 2)));
+            Schedule = new TestSchedule(user, thirdRefNow);
+            TimeSpan procrastinateSpan = TimeSpan.FromHours(3);
+            Schedule.ProcrastinateAll(procrastinateSpan);
+            Schedule.persistToDB().Wait();
+
+            DateTimeOffset newBeginningTime = thirdRefNow.Add(procrastinateSpan);
+            testEvent_DB = TestUtility.getCalendarEventById(testEvent.Id, user);
+            foreach(SubCalendarEvent retrievedSubEvent in testEvent_DB.ActiveSubEvents.OrderBy(o => o.Start))
+            {
+                Assert.IsTrue(retrievedSubEvent.Start > newBeginningTime);
+            }
+        }
+
 
         [TestMethod]
         public void scheduleModificationWithProcrastinateAll()

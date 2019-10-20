@@ -12,7 +12,7 @@ namespace TilerElements
     {
         DateTimeOffset Start
         {
-              get;
+            get;
         }
         DateTimeOffset End
         {

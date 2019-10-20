@@ -292,7 +292,9 @@ namespace TilerTests
         }
 
 
+#if RunSlowTest
         [TestMethod]
+#endif
         public void CalendarEventAsNowShouldUseFirstSubEventAfterNow()
         {
             TestSchedule Schedule;

@@ -889,8 +889,12 @@ namespace TilerElements
             bool retValue = false;
             if (!this.isLocked)
             {
-                SubCalendarEvent thisCopy = this.CreateCopy(this.UniqueID);
-                retValue = (thisCopy.PinToStart(PossibleTimeLine) && thisCopy.PinToEnd(PossibleTimeLine));
+                DateTimeOffset start = this.StartDateTime;
+                DateTimeOffset end = this.EndDateTime;
+                retValue = (this.PinToStart(PossibleTimeLine) && this.PinToEnd(PossibleTimeLine));
+                this.StartDateTime = start;
+                this.EndDateTime = end;
+                BusyFrame = new BusyTimeLine(this.Id, start, end);
             }
             else
             {
@@ -1136,7 +1140,7 @@ namespace TilerElements
         {
             get 
             {
-                return CalculationTimeLine ?? (CalculationTimeLine = getCalendarEventRange); 
+                return CalculationTimeLine ?? (CalculationTimeLine = ParentCalendarEvent.CalculationStartToEnd); 
             }
         }
 
@@ -1305,7 +1309,7 @@ namespace TilerElements
             }
         }
 
-        public override  TimeLine StartToEnd
+        public virtual  TimeLine StartToEnd
         {
             get
             {
@@ -1426,6 +1430,14 @@ namespace TilerElements
             get
             {
                 return _enablePre_reschedulingTimelineLockDown;
+            }
+        }
+
+        public DateTimeOffset Start
+        {
+            get
+            {
+                return StartDateTime;
             }
         }
         #endregion

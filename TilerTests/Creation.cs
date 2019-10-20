@@ -163,7 +163,9 @@ namespace TilerTests
         }
 
 
+#if RunSlowTest
         [TestMethod]
+#endif
         public void createAllPossibleCalendarEventToSchedule()
         {
             DateTimeOffset iniRefNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();

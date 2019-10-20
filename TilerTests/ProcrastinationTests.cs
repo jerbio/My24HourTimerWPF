@@ -24,8 +24,6 @@ namespace TilerTests
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
             refNow = refNow.removeSecondsAndMilliseconds();
-            string timeString = "10/19/2019 11:27:00 PM";
-            refNow = DateTimeOffset.Parse(timeString);
             TimeSpan duration = TimeSpan.FromHours(2);
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.AddHours(7);

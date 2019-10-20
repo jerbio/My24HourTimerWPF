@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TilerFront;
 using My24HourTimerWPF;
@@ -1084,7 +1085,9 @@ namespace TilerTests
         /// <summary>
         /// Function runs an update on all possible types of tiler events
         /// </summary>
+#if RunSlowTest
         [TestMethod]
+#endif
         public void eventUpdateAllEventTypes()
         {
 

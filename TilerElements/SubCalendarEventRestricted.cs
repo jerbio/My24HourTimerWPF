@@ -124,7 +124,7 @@ namespace TilerElements
                 return (LimitingTimeLineData.IsTimeLineWithin(this.StartToEnd));
             }
 
-            TimeLine LimitingTimeLine = LimitingTimeLineData.InterferringTimeLine(getCalendarEventRange);
+            TimeLine LimitingTimeLine = LimitingTimeLineData.InterferringTimeLine(getCalculationRange);
             if (LimitingTimeLine == null)
             {
                 return false;
@@ -160,7 +160,7 @@ namespace TilerElements
                 return (MyTimeLineEntry.IsTimeLineWithin(this.StartToEnd));
             }
 
-            TimeLine MyTimeLine = MyTimeLineEntry.InterferringTimeLine(getCalendarEventRange);
+            TimeLine MyTimeLine = MyTimeLineEntry.InterferringTimeLine(getCalculationRange);
             if (MyTimeLine == null)
             {
                 return false;
@@ -287,6 +287,10 @@ namespace TilerElements
             copy.tempLock = this.tempLock;
             copy.lockedPrecedingHours = this.lockedPrecedingHours;
             copy._enablePre_reschedulingTimelineLockDown = this._enablePre_reschedulingTimelineLockDown;
+            if (this.CalculationTimeLine != null)
+            {
+                copy.CalculationTimeLine = this.CalculationTimeLine.CreateCopy();
+            }
             return copy;
         }
 

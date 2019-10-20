@@ -443,22 +443,6 @@ namespace TilerCore
             return retValue;
         }
 
-
-        public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> UpdateDeadLine(string EventId, DateTimeOffset NewDeadline)
-        {
-            CalendarEvent myCalendarEvent = getCalendarEvent(EventId);
-            return UpdateCalEventTimeLine(myCalendarEvent, new TimeLine(myCalendarEvent.Start, NewDeadline));
-        }
-
-
-        public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> updateSplitCount(string EventId, int SplitCount)
-        {
-            CalendarEvent myCalendarEvent = getCalendarEvent(EventId);
-            myCalendarEvent.updateNumberOfSplits(SplitCount);
-            return UpdateCalEventTimeLine(myCalendarEvent, new TimeLine(myCalendarEvent.Start, myCalendarEvent.End));
-        }
-
-
         public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> BundleChangeUpdate(string SubEventID,
             EventName NewName,
             DateTimeOffset SubeventStart,
@@ -1536,7 +1520,7 @@ namespace TilerCore
             }
             if (MyEvent.IsRepeat)
             {
-                CalendarEvent tempCalendarEvent = CalendarEvent.getEmptyCalendarEvent(MyEvent.Calendar_EventID, MyEvent.Start, MyEvent.isLocked ? MyEvent.Start : MyEvent.End);//creates an "empty" calendar event. If the calEvent is rigid it has time span of zero
+                CalendarEvent tempCalendarEvent = CalendarEvent.getEmptyCalendarEvent(MyEvent.Calendar_EventID, MyEvent.CalculationStart, MyEvent.isLocked ? MyEvent.CalculationStart : MyEvent.End);//creates an "empty" calendar event. If the calEvent is rigid it has time span of zero
 
                 RetValue = peekEvaluateTotalTimeLineAndAssignValidTimeSpots(tempCalendarEvent, UnDoneEvents, MyEvent.Repeat.RecurringCalendarEvents().ToList());
                 return RetValue;
@@ -1575,7 +1559,7 @@ namespace TilerCore
             }
             if (MyEvent.IsRepeat)
             {
-                CalendarEvent tempCalendarEvent = CalendarEvent.getEmptyCalendarEvent(MyEvent.Calendar_EventID, MyEvent.Start, MyEvent.isLocked ? MyEvent.Start : MyEvent.End);//creates an "empty" calendar event. If the calEvent is rigid it has time span of zero
+                CalendarEvent tempCalendarEvent = CalendarEvent.getEmptyCalendarEvent(MyEvent.Calendar_EventID, MyEvent.CalculationStart, MyEvent.isLocked ? MyEvent.CalculationStart : MyEvent.End);//creates an "empty" calendar event. If the calEvent is rigid it has time span of zero
 
                 EvaluateTotalTimeLineAndAssignValidTimeSpots(tempCalendarEvent, UnDoneEvents, callLocation, MyEvent.Repeat.RecurringCalendarEvents().ToList(), InterringWithNowEvent, optimizeFirstTwentyFourHours, preserveFirstTwentyFourHours, shuffle);
                 return MyEvent;
@@ -3598,9 +3582,9 @@ namespace TilerCore
                     SubCalendarEvent subEvent = durationsToSubEvents[durationsToSubEvents.First().Key].First();
                 }
 
-                DateTimeOffset preferredStartTime = procrastinationProfile.PreferredStartTime > calEvent.Start ? procrastinationProfile.PreferredStartTime : calEvent.Start;
+                DateTimeOffset preferredStartTime = procrastinationProfile.PreferredStartTime > calEvent.CalculationStart ? procrastinationProfile.PreferredStartTime : calEvent.CalculationStart;
                 ulong PreferrdDayIndex = Now.getDayIndexFromStartOfTime(preferredStartTime);
-                ulong startDayIndex = Now.getDayIndexFromStartOfTime(calEvent.Start);
+                ulong startDayIndex = Now.getDayIndexFromStartOfTime(calEvent.CalculationStart);
                 if (balancingStartingindex > PreferrdDayIndex)
                 {
                     PreferrdDayIndex = balancingStartingindex;
@@ -8304,146 +8288,9 @@ namespace TilerCore
             return retValue;
         }
 
-
-
-
-
-
-        List<CalendarEvent> getClashingCalendarEvent(List<CalendarEvent> MyListOfCalednarEvents, TimeLine MyTImeLine)
-        {
-            List<CalendarEvent> MyInterferringCaliendarEvents = getPertinentCalendarEvents(MyListOfCalednarEvents.ToArray(), MyTImeLine).ToList();
-            List<CalendarEvent> ListOfCalendarEventsLargerThanTimeLine = new System.Collections.Generic.List<CalendarEvent>();
-
-            foreach (CalendarEvent MyCalendarEvent in MyListOfCalednarEvents)
-            {
-                if (((MyCalendarEvent.End > MyTImeLine.Start) && (MyCalendarEvent.Start <= MyTImeLine.Start)) || ((MyTImeLine.Start > MyCalendarEvent.Start) && (MyTImeLine.Start <= MyCalendarEvent.Start)))
-                {
-                    MyInterferringCaliendarEvents.Add(MyCalendarEvent);
-                }
-            }
-
-            return MyInterferringCaliendarEvents;
-        }
-
-
-        mTuple<bool, SubCalendarEvent> getmTupleSubCalendarEvent(List<mTuple<bool, SubCalendarEvent>> MyListOfInterferringmTupleSubCalendarEvents, SubCalendarEvent Arg1)
-        {
-            foreach (mTuple<bool, SubCalendarEvent> eachmTuple in MyListOfInterferringmTupleSubCalendarEvents)
-            {
-                if (eachmTuple.Item2 == Arg1)
-                {
-                    return eachmTuple;
-                }
-            }
-
-            return null;
-        }
-
-
-        List<mTuple<bool, SubCalendarEvent>> getmTupleSubCalendarEvent(List<mTuple<bool, SubCalendarEvent>> MyListOfInterferringmTupleSubCalendarEvents, List<SubCalendarEvent> Arg1)
-        {
-            List<mTuple<bool, SubCalendarEvent>> retValue = new System.Collections.Generic.List<mTuple<bool, SubCalendarEvent>>();
-            int i = 0;
-            foreach (mTuple<bool, SubCalendarEvent> eachmTuple in MyListOfInterferringmTupleSubCalendarEvents)
-            {
-                int Arg2 = Arg1.IndexOf(eachmTuple.Item2);
-                if (Arg2 > -1)
-                {
-                    retValue.Add(eachmTuple);
-                    if (++i == Arg1.Count)
-                    {
-                        return retValue;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        private Dictionary<TimeLine, List<mTuple<bool, SubCalendarEvent>>> BuildDicitionaryOfTimeLineAndSubcalendarEvents(List<mTuple<bool, SubCalendarEvent>> MyListOfInterferringmTupleSubCalendarEvents, Dictionary<TimeLine, Dictionary<CalendarEvent, List<SubCalendarEvent>>> DicitonaryTimeLineAndPertinentCalendarEventDictionary, CalendarEvent MyEvent)
-        {
-
-
-            List<TimeLine> MyListOfFreeTimelines = DicitonaryTimeLineAndPertinentCalendarEventDictionary.Keys.ToList();
-            Dictionary<TimeLine, List<mTuple<bool, SubCalendarEvent>>> DictionaryofTimeLineAndPertinentSubcalendar = new System.Collections.Generic.Dictionary<TimeLine, System.Collections.Generic.List<mTuple<bool, SubCalendarEvent>>>();
-
-
-            foreach (TimeLine MyTimeLine in MyListOfFreeTimelines)
-            {
-                //Dictionary<TimeLine, Dictionary<CalendarEvent, List<SubCalendarEvent>>> DicitonaryTimeLineAndPertinentCalendarEventDictionary1;
-
-                Dictionary<CalendarEvent, List<SubCalendarEvent>> MyListOfDictionaryOfCalendarEventAndSubCalendarEvent = DicitonaryTimeLineAndPertinentCalendarEventDictionary[MyTimeLine];
-                List<CalendarEvent> MyListOfPertitnentCalendars = MyListOfDictionaryOfCalendarEventAndSubCalendarEvent.Keys.ToList();
-                MyListOfPertitnentCalendars = MyListOfPertitnentCalendars.OrderBy(obj => obj.End).ToList();
-                List<mTuple<bool, SubCalendarEvent>> MyListOfPertinentSubEvent = new System.Collections.Generic.List<mTuple<bool, SubCalendarEvent>>();
-                foreach (CalendarEvent MyCalendarEvent in MyListOfPertitnentCalendars)
-                {
-                    List<SubCalendarEvent> InterFerringSubCalendarEventS = MyListOfDictionaryOfCalendarEventAndSubCalendarEvent[MyCalendarEvent];
-                    if (MyCalendarEvent.IsRepeat)
-                    {
-                        List<CalendarEvent> MyListOfAffectedRepeatingCalendarEvent = getClashingCalendarEvent(MyCalendarEvent.Repeat.RecurringCalendarEvents().ToList(), MyTimeLine);
-
-
-
-                        List<mTuple<bool, SubCalendarEvent>> ListOfAffectedSubcalendarEvents = new System.Collections.Generic.List<mTuple<bool, SubCalendarEvent>>();
-                        foreach (CalendarEvent MyRepeatCalendarEvent in MyListOfAffectedRepeatingCalendarEvent)
-                        {
-                            SubCalendarEvent[] MyListOfSubCalendarEvents = MyRepeatCalendarEvent.ActiveSubEvents;
-                            foreach (SubCalendarEvent PosibleClashingSubCalEvent in MyListOfSubCalendarEvents)
-                            {
-                                foreach (SubCalendarEvent eachInterFerringSubCalendarEvent in InterFerringSubCalendarEventS)
-                                {
-                                    if (PosibleClashingSubCalEvent.getId == eachInterFerringSubCalendarEvent.getId)
-                                    {
-                                        ListOfAffectedSubcalendarEvents.Add(getmTupleSubCalendarEvent(MyListOfInterferringmTupleSubCalendarEvents, eachInterFerringSubCalendarEvent));
-                                    }
-                                }
-                            }
-                        }
-                        MyListOfPertinentSubEvent.AddRange(ListOfAffectedSubcalendarEvents);
-                    }
-                    else
-                    {
-                        MyListOfPertinentSubEvent.AddRange(getmTupleSubCalendarEvent(MyListOfInterferringmTupleSubCalendarEvents, MyListOfDictionaryOfCalendarEventAndSubCalendarEvent[MyCalendarEvent]));
-
-                    }
-                }
-                //var ConcatVar = MyListOfPertinentSubEvent.Concat(TempSubCalendarEventsForMyCalendarEvent.ToList());
-                //MyListOfPertinentSubEvent = ConcatVar.ToList();
-                DictionaryofTimeLineAndPertinentSubcalendar.Add(MyTimeLine, MyListOfPertinentSubEvent);
-            }
-
-            return DictionaryofTimeLineAndPertinentSubcalendar;
-
-            /*foreach(TimeLine MyTimeLine in MyListOfFreeTimelines)
-            {
-                List<SubCalendarEvent> MyTimeLineListToWorkWith = getIntersectionList(MyInterferringSubCalendarEvents, DictionsryofTimeLineAndPertinentSubcalenda[MyTimeLine]);
-                
-            }
-            */
-
-
-        }
-
         int MaxNumberOfInterferringSubcalEvents = 0;
 
         int LargestTimeIndex = -1;
-
-        private CalendarEvent[] getPertinentCalendarEvents(CalendarEvent[] PossibleCalendarEvents, TimeLine VerifiableSpace)
-        {
-            List<CalendarEvent> MyPertinentCalendarList = new List<CalendarEvent>();
-
-            foreach (CalendarEvent MyCalendarEvent in PossibleCalendarEvents)
-            {
-
-                if ((MyCalendarEvent.Start < VerifiableSpace.End) && (MyCalendarEvent.End > VerifiableSpace.Start))
-                {
-                    MyPertinentCalendarList.Add(MyCalendarEvent);
-                }
-            }
-            return MyPertinentCalendarList.ToArray();
-        }
-
 
         List<List<List<SubCalendarEvent>>> BuildListMatchingTimelineAndSubCalendarEvent(List<List<TimeSpan>> ListOfSnugPossibilities, List<SubCalendarEvent> ListOfSubCalendarEvents)
         {
@@ -8595,25 +8442,25 @@ namespace TilerCore
                 EventID MyEventID = new EventID(SortedByStartArrayOfBusyTimeLine[i].TimeLineID);
                 string ParentCalendarEventID = MyEventID.getCalendarEventComponent();
 
-                if ((AllEventDictionary[ParentCalendarEventID].Start < MyRange.Start) && (AllEventDictionary[ParentCalendarEventID].End > MyRange.End))//checks if Calendar Event Starts starts before range and ends after range
+                if ((AllEventDictionary[ParentCalendarEventID].CalculationStart < MyRange.Start) && (AllEventDictionary[ParentCalendarEventID].End > MyRange.End))//checks if Calendar Event Starts starts before range and ends after range
                 {
                     MyArrayOfBeforeAndEndsAfterBusyTimelines.Add(AllEventDictionary[ParentCalendarEventID].getSubEvent(MyEventID));
                     MyArrayCalendarEventOfBeforeAndEndsAfterBusyTimelines.Add(AllEventDictionary[ParentCalendarEventID]);
                 }
 
-                if ((AllEventDictionary[ParentCalendarEventID].Start < MyRange.Start) && (AllEventDictionary[ParentCalendarEventID].End <= MyRange.End))//checks if Calendar Event Starts starts before range and ends within range
+                if ((AllEventDictionary[ParentCalendarEventID].CalculationStart < MyRange.Start) && (AllEventDictionary[ParentCalendarEventID].End <= MyRange.End))//checks if Calendar Event Starts starts before range and ends within range
                 {
                     MyArrayOfBeforeAndEndsBeforeBusyTimelines.Add(AllEventDictionary[ParentCalendarEventID].getSubEvent(MyEventID));
                     MyArrayCalendarEventOfBeforeAndEndsBeforeBusyTimelines.Add(AllEventDictionary[ParentCalendarEventID]);
                 }
 
-                if ((AllEventDictionary[ParentCalendarEventID].Start >= MyRange.Start) && (AllEventDictionary[ParentCalendarEventID].End <= MyRange.End))//checks if Calendar Event Starts within range and ends within range
+                if ((AllEventDictionary[ParentCalendarEventID].CalculationStart >= MyRange.Start) && (AllEventDictionary[ParentCalendarEventID].End <= MyRange.End))//checks if Calendar Event Starts within range and ends within range
                 {
                     MyArrayOfStartsAndEndsBeforeBusyTimelines.Add(AllEventDictionary[ParentCalendarEventID].getSubEvent(MyEventID));
                     MyArrayCalendarEventOfStartsAndEndsBeforeBusyTimelines.Add(AllEventDictionary[ParentCalendarEventID]);
                 }
 
-                if ((AllEventDictionary[ParentCalendarEventID].Start >= MyRange.Start) && (AllEventDictionary[ParentCalendarEventID].End > MyRange.End))//checks if Calendar Event Starts within range and ends after range
+                if ((AllEventDictionary[ParentCalendarEventID].CalculationStart >= MyRange.Start) && (AllEventDictionary[ParentCalendarEventID].End > MyRange.End))//checks if Calendar Event Starts within range and ends after range
                 {
                     MyArrayOfStartsAfterAndEndsAfterBusyTimelines.Add(AllEventDictionary[ParentCalendarEventID].getSubEvent(MyEventID));
                     MyArrayCalendarEventOfStartsAfterAndEndsAfterBusyTimelines.Add((AllEventDictionary[ParentCalendarEventID]));
@@ -8653,25 +8500,25 @@ namespace TilerCore
                 EventID MyEventID = new EventID(SortedByStartArrayOfBusyTimeLine[i].TimeLineID);
                 string ParentCalendarEventID = MyEventID.getCalendarEventComponent();
 
-                if ((AllEventDictionary[ParentCalendarEventID].Start < MyRange.Start) && (AllEventDictionary[ParentCalendarEventID].End > MyRange.End))//checks if Calendar Event Starts starts before range and ends after range
+                if ((AllEventDictionary[ParentCalendarEventID].CalculationStart < MyRange.Start) && (AllEventDictionary[ParentCalendarEventID].End > MyRange.End))//checks if Calendar Event Starts starts before range and ends after range
                 {
                     MyArrayOfBeforeAndEndsAfterBusyTimelines.Add(AllEventDictionary[ParentCalendarEventID].getSubEvent(MyEventID));
                     MyArrayCalendarEventOfBeforeAndEndsAfterBusyTimelines.Add(AllEventDictionary[ParentCalendarEventID]);
                 }
 
-                if ((AllEventDictionary[ParentCalendarEventID].Start < MyRange.Start) && (AllEventDictionary[ParentCalendarEventID].End <= MyRange.End))//checks if Calendar Event Starts starts before range and ends within range
+                if ((AllEventDictionary[ParentCalendarEventID].CalculationStart < MyRange.Start) && (AllEventDictionary[ParentCalendarEventID].End <= MyRange.End))//checks if Calendar Event Starts starts before range and ends within range
                 {
                     MyArrayOfBeforeAndEndsBeforeBusyTimelines.Add(AllEventDictionary[ParentCalendarEventID].getSubEvent(MyEventID));
                     MyArrayCalendarEventOfBeforeAndEndsBeforeBusyTimelines.Add(AllEventDictionary[ParentCalendarEventID]);
                 }
 
-                if ((AllEventDictionary[ParentCalendarEventID].Start >= MyRange.Start) && (AllEventDictionary[ParentCalendarEventID].End <= MyRange.End))//checks if Calendar Event Starts within range and ends within range
+                if ((AllEventDictionary[ParentCalendarEventID].CalculationStart >= MyRange.Start) && (AllEventDictionary[ParentCalendarEventID].End <= MyRange.End))//checks if Calendar Event Starts within range and ends within range
                 {
                     MyArrayOfStartsAndEndsBeforeBusyTimelines.Add(AllEventDictionary[ParentCalendarEventID].getSubEvent(MyEventID));
                     MyArrayCalendarEventOfStartsAndEndsBeforeBusyTimelines.Add(AllEventDictionary[ParentCalendarEventID]);
                 }
 
-                if ((AllEventDictionary[ParentCalendarEventID].Start >= MyRange.Start) && (AllEventDictionary[ParentCalendarEventID].End > MyRange.End))//checks if Calendar Event Starts within range and ends after range
+                if ((AllEventDictionary[ParentCalendarEventID].CalculationStart >= MyRange.Start) && (AllEventDictionary[ParentCalendarEventID].End > MyRange.End))//checks if Calendar Event Starts within range and ends after range
                 {
                     MyArrayOfStartsAfterAndEndsAfterBusyTimelines.Add(AllEventDictionary[ParentCalendarEventID].getSubEvent(MyEventID));
                     MyArrayCalendarEventOfStartsAfterAndEndsAfterBusyTimelines.Add((AllEventDictionary[ParentCalendarEventID]));

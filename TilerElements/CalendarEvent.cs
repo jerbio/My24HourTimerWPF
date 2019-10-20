@@ -2083,11 +2083,20 @@ namespace TilerElements
             }
 
         }
-        override public TimeLine StartToEnd
+        virtual public TimeLine StartToEnd
         {
             get
             {
                 EventSequence = new TimeLine(this.Start, this.End);
+                return EventSequence;
+            }
+        }
+
+        virtual public TimeLine CalculationStartToEnd
+        {
+            get
+            {
+                EventSequence = new TimeLine(this.CalculationStart, this.End);
                 return EventSequence;
             }
         }
@@ -2197,19 +2206,19 @@ namespace TilerElements
             }
         }
 
-        //public DateTimeOffset Start
-        //{
-        //    get
-        //    {
-        //        DateTimeOffset retValue = this.StartDateTime;
-        //        if(getProcrastinationInfo!=null && !getProcrastinationInfo.isNull)
-        //        {
-        //            retValue = retValue >= this.getProcrastinationInfo.PreferredStartTime ? retValue : this.getProcrastinationInfo.PreferredStartTime;
-        //        }
+        public virtual DateTimeOffset CalculationStart
+        {
+            get
+            {
+                DateTimeOffset retValue = this.StartDateTime;
+                if (getProcrastinationInfo != null && !getProcrastinationInfo.isNull)
+                {
+                    retValue = retValue >= this.getProcrastinationInfo.PreferredStartTime ? retValue : this.getProcrastinationInfo.PreferredStartTime;
+                }
 
-        //        return retValue;
-        //    }
-        //}
+                return retValue;
+            }
+        }
 
         virtual public DateTimeOffset[] LastCompletionTime
         {

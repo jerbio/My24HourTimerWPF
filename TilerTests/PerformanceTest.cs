@@ -8,7 +8,9 @@ using TilerFront;
 
 namespace TilerTests
 {
-    [TestClass]
+#if RunSlowTest
+        [TestMethod]
+#endif
     public class PerformanceTest
     {
         //[TestMethod]

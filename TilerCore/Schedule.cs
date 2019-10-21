@@ -1175,7 +1175,7 @@ namespace TilerCore
 
             NowProfile nowProfile = referenceCalendarEvent.getNowInfo;
 
-            if(Now.getDayIndexFromStartOfTime( nowProfile.PreferredTime) != Now.getDayIndexFromStartOfTime(Now.constNow))
+            if(Now.getDayIndexFromStartOfTime( nowProfile.PreferredTime) != Now.getDayIndexFromStartOfTime(Now.constNow) || !nowProfile.isInitialized)
             {
                 var dayPreference = referenceCalendarEvent.DayPreference[Now.ConstDayOfWeek];
                 ++dayPreference.Count;
@@ -4120,10 +4120,13 @@ namespace TilerCore
                     if(myCoEvents.Item1.Location != myCoEvents.Item2.Location)
                     {
                         double distance = Location.calculateDistance(myCoEvents.Item1.Location, myCoEvents.Item2.Location);
-                        if(distance<0.5)
+                        if (distance < 0.5)
                         {
                             bufferSpan = TimeSpan.FromMinutes(2);
-                        } else
+                        } else if (distance == double.MaxValue ) {
+                            bufferSpan = TimeSpan.FromMinutes(0);
+                        }
+                        else
                         {
                             bufferSpan = Location.getDrivingTimeFromWeb(myCoEvents.Item1.Location, myCoEvents.Item2.Location);
                         }

@@ -401,6 +401,57 @@ namespace TilerElements
         }
         #endregion
 
+        public void updateprocrastinationtree(Procrastination procrastination)
+        {
+            if (procrastination != null && !procrastination.isNull && string.IsNullOrEmpty(this.ProcrastinationId))
+            {
+                this.Procrastination_EventDB = null;
+                //this.ProcrastinationId = null;
+                this.Procrastination_EventDB = procrastination;
+                //this.ProcrastinationId = procrastination.Id;
+                foreach (SubCalendarEvent subEVent in this.AllSubEvents)
+                {
+                    subEVent.updateprocrastinationtree(procrastination);
+                }
+                if (this.IsRepeat)
+                {
+                    foreach (CalendarEvent cal in this.Repeat.RecurringCalendarEvents())
+                    {
+                        cal.updateprocrastinationtree(procrastination);
+                    }
+                }
+
+            }
+        }
+
+        public void updatenowprofiletree(NowProfile nowProfile)
+        {
+            if (nowProfile != null && string.IsNullOrEmpty(this.NowProfileId))
+            {
+                //this.NowProfileId = null;
+                this.ProfileOfNow_EventDB = null;
+                //this.NowProfileId = nowProfile.Id;
+                this.ProfileOfNow_EventDB = nowProfile;
+                if (nowProfile.AssociatedEvent==null)
+                {
+                    nowProfile.AssociatedEvent = this;
+                }
+                foreach (SubCalendarEvent subEVent in this.AllSubEvents)
+                {
+                    subEVent.updatenowprofiletree(nowProfile);
+                }
+
+                if (this.IsRepeat)
+                {
+                    foreach (CalendarEvent cal in this.Repeat.RecurringCalendarEvents())
+                    {
+                        cal.updatenowprofiletree(nowProfile);
+                    }
+                }
+
+            }
+        }
+
         protected void initialize()
         {
             _EventDuration = new TimeSpan();
@@ -526,15 +577,7 @@ namespace TilerElements
 
         public virtual void UpdateNowProfile(NowProfile ProfileNowData)
         {
-            if(_ProfileOfNow == null)
-            {
-                _ProfileOfNow = ProfileNowData;
-            }
-            else
-            {
-                _ProfileOfNow.update(ProfileNowData);
-            }
-            _ProfileOfNow.AssociatedEvent = this;
+            _ProfileOfNow.update(ProfileNowData);
             getProcrastinationInfo.reset();
         }
 

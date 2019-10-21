@@ -51,6 +51,28 @@ namespace TilerElements
 
         #endregion
 
+        public void updateprocrastinationtree(Procrastination procrastination)
+        {
+            if (procrastination != null && !procrastination.isNull && string.IsNullOrEmpty(this.ProcrastinationId))
+            {
+                //this.ProcrastinationId = null;
+                this.Procrastination_EventDB = null;
+                //this.ProcrastinationId = procrastination.Id;
+                this.Procrastination_EventDB = procrastination;
+            }
+        }
+
+        public void updatenowprofiletree(NowProfile nowProfile)
+        {
+            if (nowProfile != null && string.IsNullOrEmpty(this.NowProfileId))
+            {
+                this.ProfileOfNow_EventDB = null;
+                //this.NowProfileId = null;
+                this.ProfileOfNow_EventDB = nowProfile;
+                //this.NowProfileId = nowProfile.Id;
+            }
+        }
+
         #region Classs Constructor
         protected SubCalendarEvent()
         { }

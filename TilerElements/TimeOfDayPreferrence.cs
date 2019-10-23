@@ -19,7 +19,7 @@ namespace TilerElements
                 new Tuple<int, DaySection, bool, TimeLine>(4, DaySection.Evening, false, new TimeLine()),
             new Tuple<int, DaySection, bool, TimeLine>(5, DaySection.None, false, new TimeLine())
             });
-
+        IEnumerable<Tuple<int, DaySection, bool, TimeLine>> ActiveHours;
         //TilerEvent ControlEvent;
         public TimeOfDayPreferrence(TimeLine timeLine)
         {
@@ -27,6 +27,7 @@ namespace TilerElements
             fullDayTImeLine = timeLine.CreateCopy();
             generateTimeFrames(timeLine);
             DefaultOrder = PreferenceOrder.ToList();
+            ActiveHours = PreferenceOrder.Where(obj => obj.Item2 != DaySection.None && obj.Item2 != DaySection.Disabled).ToList();
         }
 
         protected void generateTimeFrames(TimeLine timeLine)
@@ -45,17 +46,38 @@ namespace TilerElements
 
         static public Dictionary<DaySection, TimeLine> splitIntoDaySections(TimeLine timeLine)
         {
-            TimeSpan spanPerSection = TimeSpan.FromTicks(timeLine.TimelineSpan.Ticks / 4);
-            List<Tuple<DaySection, TimeLine>>  tempHolder = new List<Tuple<DaySection, TimeLine>>(new[] {
-                new Tuple<DaySection, TimeLine>(DaySection.Sleep , new TimeLine(timeLine.Start, timeLine.Start.Add(spanPerSection).AddTicks(-1))),
-                new Tuple<DaySection, TimeLine>(DaySection.Morning, new TimeLine(timeLine.Start.Add(spanPerSection), timeLine.Start.AddTicks(2*spanPerSection.Ticks).AddTicks(-1))),
-                new Tuple<DaySection, TimeLine>(DaySection.Afternoon, new TimeLine(timeLine.Start.AddTicks(2*spanPerSection.Ticks), timeLine.Start.AddTicks(3*spanPerSection.Ticks).AddTicks(-1))),
-                new Tuple<DaySection, TimeLine>(DaySection.Evening , new TimeLine(timeLine.Start.AddTicks(3*spanPerSection.Ticks), timeLine.Start.AddTicks(4*spanPerSection.Ticks).AddTicks(-1))),
-                new Tuple<DaySection, TimeLine>(DaySection.None, new TimeLine(timeLine.Start, timeLine.Start.AddDays(1).AddTicks(-1))),
-            });
-            Dictionary<DaySection, TimeLine> retValue = tempHolder.ToDictionary(obj => obj.Item1, obj => obj.Item2);
-            return retValue;
+            if(timeLine.TotalActiveSpan<=Utility.OneDayTImeSpan)
+            {
+                TimeLine refreshedTimeLine = timeLine.StartToEnd;
+                Dictionary<DaySection, TimeLine> retValue = new Dictionary<DaySection, TimeLine>();
+                TimeSpan spanPerSection = TimeSpan.FromTicks(Utility.OneDayTImeSpan.Ticks / 4);
+                TimeSpan spanLeft = refreshedTimeLine.TimelineSpan;
+                List<DaySection> daySections = new List<DaySection>() { DaySection.Sleep, DaySection.Morning, DaySection.Afternoon, DaySection.Evening };
+                int i = daySections.Count - 1;
+                for (; i >= 0 && refreshedTimeLine.TimelineSpan > spanPerSection; --i)
+                {
+                    DateTimeOffset start = refreshedTimeLine.End - spanPerSection;
+                    DaySection daySection = daySections[i];
+                    retValue.Add(daySection, new TimeLine(start, refreshedTimeLine.End));
+                    refreshedTimeLine = new TimeLine(refreshedTimeLine.Start, refreshedTimeLine.End.Subtract(spanPerSection));
+                }
+                if(refreshedTimeLine.TimelineSpan.Ticks > 0)
+                {
+                    if(i>=0)
+                    {
+                        DaySection daySection = daySections[i];
+                        retValue.Add(daySection, refreshedTimeLine);
+                    } else
+                    {
+                        throw new Exception("THis is weird this is timeline more than 24 hours or there is something wrong with your for loop logic");
+                    }
+                }
+                return retValue;
+            }
+
+            throw new Exception("Time line cannot be more than twentyfour hours");
         }
+
         internal void InitializeGrouping(TilerEvent ControlEvent)
         {
             if (ControlEvent.isLocked)

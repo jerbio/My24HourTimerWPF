@@ -74,7 +74,8 @@ namespace TilerElements
                 kvp.Key.DefaultLocation = kvp.Value;
             }
             List<OptimizedGrouping> groupReordered = Groupings.OrderBy(obj => (int)obj.DaySector).ToList();
-            groupReordered.Swap(0, groupReordered.Count - 1);
+            groupReordered.Insert(0, groupReordered.Last());
+            groupReordered.RemoveAt(groupReordered.Count - 1);
 
 
             List<KeyValuePair<OptimizedGrouping, Location>> OrderedAvergeLocation = groupReordered.Select(obj => new KeyValuePair<OptimizedGrouping, Location>(obj, AverageLocation[obj])).ToList();
@@ -87,7 +88,9 @@ namespace TilerElements
                         KeyValuePair<OptimizedGrouping, Location> Current = OrderedAvergeLocation[i];
                         KeyValuePair<OptimizedGrouping, Location> Previous = Current;
                         KeyValuePair<OptimizedGrouping, Location> Next = OrderedAvergeLocation[i + 1];
-                        Current.Key.LeftStitch = Location.getClosestLocation(Previous.Key.PathStitchedSubEvents.Select(obj => obj.Location), Current.Value);
+
+                        Location leftLocation = !OrderedAvergeLocation[i].Key.LeftBorder.isDefault && !OrderedAvergeLocation[i].Key.LeftBorder.isNull ? OrderedAvergeLocation[i].Key.LeftBorder : Current.Value;
+                        Current.Key.LeftStitch = Location.getClosestLocation(Previous.Key.PathStitchedSubEvents.Select(obj => obj.Location), leftLocation);
                         Current.Key.RightStitch = Location.getClosestLocation(Next.Key.PathStitchedSubEvents.Select(obj => obj.Location), Current.Value);
 
                         if (Current.Key.LeftStitch == null)
@@ -101,8 +104,6 @@ namespace TilerElements
                     }
                     else
                     {
-
-
                         KeyValuePair<OptimizedGrouping, Location> Previous = OrderedAvergeLocation[i - 1];
                         KeyValuePair<OptimizedGrouping, Location> Current = OrderedAvergeLocation[i];
                         KeyValuePair<OptimizedGrouping, Location> Next = OrderedAvergeLocation[i + 1];
@@ -123,7 +124,6 @@ namespace TilerElements
                 {
                     if (i == 0)//none
                     {
-
                         KeyValuePair<OptimizedGrouping, Location> Current = OrderedAvergeLocation[i];
                         KeyValuePair<OptimizedGrouping, Location> Next = Current;// OrderedAvergeLocation[i + 1];
                         List<SubCalendarEvent> NextPhaseSubevent = Next.Key.PathStitchedSubEvents.ToList();

@@ -20,6 +20,9 @@ namespace TilerElements
         public readonly static Random rng = new Random();
         public readonly static int defaultBeginDay = -15;
         public readonly static int defaultEndDay = 90;
+        public readonly static TimeSpan OneDayTImeSpan = TimeSpan.FromDays(1);
+        public readonly static TimeSpan TwentyFourHoursAlmostTImeSpan = TimeSpan.FromDays(1).Subtract(TimeSpan.FromMinutes(1));
+        public readonly static TimeSpan ZeroTimeSpan = TimeSpan.FromTicks(0);
         static Utility()
         {
             initializeFibonacci();

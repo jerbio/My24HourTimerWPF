@@ -33,8 +33,8 @@ namespace TilerCore
             Dictionary<TimeOfDayPreferrence.DaySection, TimeLine> timeSections = TimeOfDayPreferrence.splitIntoDaySections(dayData);
             List<TimeOfDayPreferrence.SingleTimeOfDayPreference> singleTimeOfDayPreferences = timeSections.Select(kvp => new TimeOfDayPreferrence.SingleTimeOfDayPreference(kvp.Key, new TimelineWithSubcalendarEvents(kvp.Value.Start, kvp.Value.End, null))).OrderBy(obj => obj.Timeline.Start).ToList();
             //TimeOfDayPreferrence.SingleTimeOfDayPreference sleepPreference = singleTimeOfDayPreferences.Single(obj => obj.DaySection == TimeOfDayPreferrence.DaySection.Sleep);
-            TimeOfDayPreferrence.SingleTimeOfDayPreference nonePreference = singleTimeOfDayPreferences.Single(obj => obj.DaySection == TimeOfDayPreferrence.DaySection.None);
-            List<TimeOfDayPreferrence.SingleTimeOfDayPreference> noNone = singleTimeOfDayPreferences.Where(obj => obj != nonePreference).ToList();
+            TimeOfDayPreferrence.SingleTimeOfDayPreference nonePreference = new TimeOfDayPreferrence.SingleTimeOfDayPreference(TimeOfDayPreferrence.DaySection.None, (DayTimeLine)dayData.CreateCopy());
+            List<TimeOfDayPreferrence.SingleTimeOfDayPreference> noNone = singleTimeOfDayPreferences.ToList();
 
             AllGroupings.Add(nonePreference.DaySection, new OptimizedGrouping(nonePreference, TotalDuration, home, home));
 
@@ -44,23 +44,24 @@ namespace TilerCore
                 OptimizedGrouping firstGrouping = new OptimizedGrouping(firstTimeOfDayPreference, TotalDuration, DefaultLocation.CreateCopy(), home);
                 firstGrouping.setLeftStitch(beginLocation);
                 AllGroupings.Add(firstTimeOfDayPreference.DaySection, firstGrouping);
-                noNone.Remove(firstTimeOfDayPreference);
-            }
-
-            if(noNone.Count > 0)
-            {
+            
                 TimeOfDayPreferrence.SingleTimeOfDayPreference lastTimeOfDayPreference = noNone.Last();
                 OptimizedGrouping lastGrouping = new OptimizedGrouping(lastTimeOfDayPreference, TotalDuration, DefaultLocation.CreateCopy(), home);
                 lastGrouping.setRightStitch(endLocation);
-                AllGroupings.Add(lastTimeOfDayPreference.DaySection, lastGrouping);
-                noNone.Remove(lastTimeOfDayPreference);
+                if(!AllGroupings.ContainsKey(lastTimeOfDayPreference.DaySection))
+                {
+                    AllGroupings.Add(lastTimeOfDayPreference.DaySection, lastGrouping);
+                }
             }
 
 
 
             foreach (TimeOfDayPreferrence.SingleTimeOfDayPreference singleTimeOfDayPreference in noNone)
             {
-                AllGroupings.Add(singleTimeOfDayPreference.DaySection, new OptimizedGrouping(singleTimeOfDayPreference, TotalDuration, DefaultLocation.CreateCopy(), home));
+                if (!AllGroupings.ContainsKey(singleTimeOfDayPreference.DaySection))
+                {
+                    AllGroupings.Add(singleTimeOfDayPreference.DaySection, new OptimizedGrouping(singleTimeOfDayPreference, TotalDuration, DefaultLocation.CreateCopy(), home));
+                }                
             }
             assignRigidsToTimeGroupings(DayInfo.getSubEventsInTimeLine(), DayInfo);
         }

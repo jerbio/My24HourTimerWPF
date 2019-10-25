@@ -714,7 +714,7 @@ namespace TilerCore
             BusyTimeLine[] ArrayOfBusySlotsInRepeat = new BusyTimeLine[0];
             DateTimeOffset LastDeadline = Now.calculationNow.AddHours(1);
 
-            if (MyEvent.IsRepeat)
+            if (MyEvent.IsRecurring)
             {
                 ArrayOfBusySlotsInRepeat = GetBusySlotsPerRepeat(MyEvent.Repeat);
             }
@@ -724,7 +724,7 @@ namespace TilerCore
                 {*/
             foreach (SubCalendarEvent MySubCalendarEvent in MyEvent.ActiveSubEvents)//Active Fix
             {
-                if (!MyEvent.IsRepeat)
+                if (!MyEvent.IsRecurring)
                 { MyTotalSubEventBusySlots.Add(MySubCalendarEvent.ActiveSlot); }
             }
 
@@ -827,7 +827,7 @@ namespace TilerCore
         public async Task<CustomErrors> ResumeEvent(EventID EventId)
         {
             CalendarEvent CalEvent = getCalendarEvent(EventId.ToString());
-            if (CalEvent.IsRepeat)
+            if (CalEvent.IsRecurring)
             {
                 CalEvent = CalEvent.getRepeatedCalendarEvent(EventId.getIDUpToRepeatCalendarEvent());
             }
@@ -956,7 +956,7 @@ namespace TilerCore
             bool InitialRigid = ReferenceSubEvent.isLocked;
 
 
-            if (referenceCalendarEventWithSubEvent.IsRepeat)
+            if (referenceCalendarEventWithSubEvent.IsRecurring)
             {
                 referenceCalendarEventWithSubEvent = referenceCalendarEventWithSubEvent.getRepeatedCalendarEvent(SubEventID.getIDUpToRepeatCalendarEvent());
             }
@@ -1044,7 +1044,7 @@ namespace TilerCore
             bool InitialRigid = ReferenceSubEvent.isLocked;
 
 
-            if (referenceCalendarEventWithSubEvent.IsRepeat)
+            if (referenceCalendarEventWithSubEvent.IsRecurring)
             {
                 referenceCalendarEventWithSubEvent = referenceCalendarEventWithSubEvent.getRepeatedCalendarEvent(SubEventID.getIDUpToRepeatCalendarEvent());
             }
@@ -1210,7 +1210,7 @@ namespace TilerCore
                 referenceCalendarEvent.RigidizeSubEvent(ReferenceSubEvent.Id);
             }
 
-            if (referenceCalendarEvent.IsRepeat)
+            if (referenceCalendarEvent.IsRecurring)
             {
                 referenceCalendarEvent = referenceCalendarEvent.getRepeatedCalendarEvent(SubEventID.getIDUpToRepeatCalendarEvent());
             }
@@ -1371,7 +1371,7 @@ namespace TilerCore
             int i = 0;
             List<SubCalendarEvent> MyArrayOfSubEvents = new List<SubCalendarEvent>();
 
-            if (MyCalendarEvent.IsRepeat)
+            if (MyCalendarEvent.IsRecurring)
             {
 
                 SubCalendarEvent MySubEvent = new SubCalendarEvent(MyCalendarEvent, MyCalendarEvent.getCreator, MyCalendarEvent.getAllUsers(), MyCalendarEvent.getTimeZone, MyCalendarEvent.getActiveDuration, MyCalendarEvent.getName, MyCalendarEvent.Repeat.Range.Start, MyCalendarEvent.Repeat.Range.End, MyCalendarEvent.getPreparation, MyCalendarEvent.getId, MyCalendarEvent.isRigid, MyCalendarEvent.isEnabled, MyCalendarEvent.getUIParam, MyCalendarEvent.Notes, MyCalendarEvent.getIsComplete, MyCalendarEvent.Location, MyCalendarEvent.StartToEnd);
@@ -1525,7 +1525,7 @@ namespace TilerCore
             {
                 NoneCOmmitedCalendarEvent = new List<CalendarEvent>();
             }
-            if (MyEvent.IsRepeat)
+            if (MyEvent.IsRecurring)
             {
                 CalendarEvent tempCalendarEvent = CalendarEvent.getEmptyCalendarEvent(MyEvent.Calendar_EventID, MyEvent.CalculationStart, MyEvent.isLocked ? MyEvent.CalculationStart : MyEvent.End);//creates an "empty" calendar event. If the calEvent is rigid it has time span of zero
 
@@ -1564,7 +1564,7 @@ namespace TilerCore
             {
                 NoneCOmmitedCalendarEvent = new List<CalendarEvent>();
             }
-            if (MyEvent.IsRepeat)
+            if (MyEvent.IsRecurring)
             {
                 CalendarEvent tempCalendarEvent = CalendarEvent.getEmptyCalendarEvent(MyEvent.Calendar_EventID, MyEvent.CalculationStart, MyEvent.isLocked ? MyEvent.CalculationStart : MyEvent.End);//creates an "empty" calendar event. If the calEvent is rigid it has time span of zero
 
@@ -1691,7 +1691,7 @@ namespace TilerCore
 
                 else
                 {
-                    if (AllEventDictionary[ParentID].IsRepeat)
+                    if (AllEventDictionary[ParentID].IsRecurring)
                     {
                         CalendarEvent repeatCalEvent = AllEventDictionary[ParentID].getRepeatedCalendarEvent(MyEventID.getIDUpToRepeatCalendarEvent());
 
@@ -2222,7 +2222,7 @@ namespace TilerCore
                 Name{: Jerome Biotidara
              * this function is responsible for making sure there is some dynamic allotment of time to the subeevents. It takes a calendarevent, checks the alloted time frame and tries to move subevents within the time frame to satisfy the final goal.
              */
-            if (MyCalendarEvent.IsRepeat != false)//Artificially generates random subevents for the calendar event
+            if (MyCalendarEvent.IsRecurring != false)//Artificially generates random subevents for the calendar event
             {
                 throw new Exception("invalid calendar event detected in ReArrangeTimeLineWithinWithinCalendaEventRange. Repeat not allowed");
             }
@@ -2525,7 +2525,7 @@ namespace TilerCore
                 AssignedEvents[j] = new List<SubCalendarEvent>();
                 TimeFrame[j] = new List<DayTimeLine>();
             }
-            if (MyCalendarEvent.IsRepeat != false)//Artificially generates random subevents for the calendar event
+            if (MyCalendarEvent.IsRecurring != false)//Artificially generates random subevents for the calendar event
             {
                 throw new Exception("invalid calendar event detected in peekIntoDays. Repeat not allowed");
             }
@@ -8614,7 +8614,7 @@ namespace TilerCore
         /// <returns></returns>
         private SubCalendarEvent[] getInterferringSubEvents(CalendarEvent MyCalendarEvent, List<CalendarEvent> NonCOmmitedCalendarEvemts)
         {
-            if (MyCalendarEvent.IsRepeat)
+            if (MyCalendarEvent.IsRecurring)
             {
                 throw new Exception("Weird error, found repeating event repeaing evemt");
             }
@@ -8649,7 +8649,7 @@ namespace TilerCore
 
             foreach (KeyValuePair<string, CalendarEvent> MyCalendarEventDictionaryEntry in AllEventDictionary.Where(obj => obj.Value.isActive))
             {
-                if (MyCalendarEventDictionaryEntry.Value.IsRepeat)
+                if (MyCalendarEventDictionaryEntry.Value.IsRecurring)
                 {
                     SubCalendarEvent[] ArrayOfSubcalendarEventsFromRepeatingEvents = MyCalendarEventDictionaryEntry.Value.ActiveRepeatSubCalendarEvents.Where(obj => obj != null).ToArray();//hack alert you should be able to remove the LINQ test for null
                     lengthOfCalendarSubEvent = ArrayOfSubcalendarEventsFromRepeatingEvents.Length;
@@ -8669,7 +8669,7 @@ namespace TilerCore
                 {
 
                     int i = 0;
-                    if (eachCalendarEvent.IsRepeat)
+                    if (eachCalendarEvent.IsRecurring)
                     {
                         lengthOfCalendarSubEvent = eachCalendarEvent.ActiveRepeatSubCalendarEvents.Length;
                         SubCalendarEvent[] ArrayOfSubcalendarEventsFromRepeatingEvents = eachCalendarEvent.ActiveRepeatSubCalendarEvents;
@@ -8842,7 +8842,7 @@ namespace TilerCore
                     }
 
 
-                    if (ProcrastinateEvent.IsRepeat)
+                    if (ProcrastinateEvent.IsRecurring)
                     {
                         ProcrastinateEvent = ProcrastinateEvent.getRepeatedCalendarEvent(SubEventID.getIDUpToRepeatCalendarEvent());
                     }
@@ -8901,6 +8901,17 @@ namespace TilerCore
 
         static TimeLine ScheduleTimeline = new TimeLine();
 
+        public virtual void RepeatEvent(EventID eventId)
+        {
+
+        }
+
+
+        public virtual void RepeatEvent(string eventId)
+        {
+            EventID id = new EventID(eventId);
+            RepeatEvent(id);
+        }
 
         //public XmlElement CreateEventScheduleNode(CalendarEvent MyEvent, XmlDocument xmldoc)
 

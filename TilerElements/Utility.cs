@@ -1436,5 +1436,22 @@ namespace TilerElements
             list[indexA] = list[indexB];
             list[indexB] = tmp;
         }
+
+
+        static public DateTimeOffset MiddleTime(IDefinedRange timeLine)
+        {
+            DateTimeOffset retValue;
+            TimeSpan timeSpan = timeLine.End - timeLine.Start;
+            if(timeSpan.Ticks > 0)
+            {
+                retValue = timeLine.Start.Add(TimeSpan.FromSeconds(timeSpan.TotalSeconds / 2));
+                retValue = retValue.removeSecondsAndMilliseconds();
+            } else
+            {
+                retValue = timeLine.Start;
+            }
+
+            return retValue;
+        }
     }
 }

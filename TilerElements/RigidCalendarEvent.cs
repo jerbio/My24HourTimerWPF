@@ -23,7 +23,7 @@ namespace TilerElements
         {
             UniqueID = eventId ?? this.UniqueID; /// already initialized by parent initialization
             _RigidSchedule = true;
-            if (IsRepeat || split == 0)
+            if (IsRecurring || split == 0)
             {
                 _AverageTimePerSplit = new TimeSpan();
             }

@@ -35,6 +35,7 @@ namespace TilerElements
         public TimeSpan TravelTimeAfter { get; set; } = new TimeSpan(1);
         public bool isWake { get; set; } = false;
         public bool isSleep { get; set; } = false;
+        public bool _RepetitionLock { get; set; } = false; // this is the lock for an event when repeat is clicked
         protected bool tempLock { get; set; } = false;// This should never get persisted
         protected bool lockedPrecedingHours { get; set; } = false;// This should never get persisted
         protected bool _enablePre_reschedulingTimelineLockDown { get; set; } = true;// This prevent locking for preceding twentyFour or for interferring with now
@@ -428,6 +429,7 @@ namespace TilerElements
             MySubCalendarEventCopy.LocationValidationId_DB = this.LocationValidationId_DB;
             MySubCalendarEventCopy.lockedPrecedingHours = this.lockedPrecedingHours;
             MySubCalendarEventCopy._enablePre_reschedulingTimelineLockDown = this._enablePre_reschedulingTimelineLockDown;
+            MySubCalendarEventCopy._RepetitionLock= this._RepetitionLock;
             if (this.CalculationTimeLine != null)
             {
                 MySubCalendarEventCopy.CalculationTimeLine = this.CalculationTimeLine.CreateCopy();
@@ -655,6 +657,7 @@ namespace TilerElements
             retValue.Vestige = this.isVestige;
             retValue._otherPartyID = this._otherPartyID;
             retValue._LocationValidationId = this._LocationValidationId;
+            retValue._RepetitionLock = this._RepetitionLock;
             return retValue;
         }
 
@@ -969,15 +972,14 @@ namespace TilerElements
             bool RetValue = shiftEvent(timeDiff);
             return RetValue;
         }
-        
 
-         public ulong UniversalDayIndex
-         {
-             get
-             {
-                 return preferredDayIndex;
-             }
-         }
+        public ulong UniversalDayIndex
+        {
+            get
+            {
+                return preferredDayIndex;
+            }
+        }
 
         public void enableCalculationMode()
         {
@@ -989,7 +991,7 @@ namespace TilerElements
             CalculationMode = false;
         }
 
-        public override bool isLocked => base.isLocked || this.tempLock || this.lockedPrecedingHours;
+        public override bool isLocked => base.isLocked || this.tempLock || this.lockedPrecedingHours || this._RepetitionLock;
 
         /// <summary>
         /// This changes the duration of the subevent. It requires the change in duration. This just adds/subtracts the delta to the end time
@@ -1247,6 +1249,18 @@ namespace TilerElements
             }
         }
 
+        virtual public bool RepetitionLock_DB
+        {
+            set
+            {
+                _RepetitionLock = value;
+            }
+            get
+            {
+                return _RepetitionLock;
+            }
+        }
+
         virtual public DateTimeOffset CalendarEventRangeEnd
         {
             set
@@ -1438,6 +1452,14 @@ namespace TilerElements
             get
             {
                 return StartDateTime;
+            }
+        }
+
+        public bool RepetitionLock
+        {
+            get
+            {
+                return _RepetitionLock;
             }
         }
         #endregion

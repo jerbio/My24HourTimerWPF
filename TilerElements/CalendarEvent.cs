@@ -279,7 +279,7 @@ namespace TilerElements
         {
             CalendarEvent calEvent;
             TempTilerEventChanges retvalue = new TempTilerEventChanges();
-            if (base.IsRepeat)
+            if (base.IsRecurring)
             {
                 calEvent = Repeat.getCalendarEvent(eventId.ToString());
             } else
@@ -332,7 +332,7 @@ namespace TilerElements
         {
             CalendarEvent calEvent;
             TempTilerEventChanges retvalue = new TempTilerEventChanges();
-            if (base.IsRepeat)
+            if (base.IsRecurring)
             {
                 calEvent = Repeat.getCalendarEvent(eventId.ToString());
             }
@@ -413,7 +413,7 @@ namespace TilerElements
                 {
                     subEVent.updateprocrastinationtree(procrastination);
                 }
-                if (this.IsRepeat)
+                if (this.IsRecurring)
                 {
                     foreach (CalendarEvent cal in this.Repeat.RecurringCalendarEvents())
                     {
@@ -441,13 +441,26 @@ namespace TilerElements
                     subEVent.updatenowprofiletree(nowProfile);
                 }
 
-                if (this.IsRepeat)
+                if (this.IsRecurring)
                 {
                     foreach (CalendarEvent cal in this.Repeat.RecurringCalendarEvents())
                     {
                         cal.updatenowprofiletree(nowProfile);
                     }
                 }
+
+            }
+        }
+
+        public void RepeatEvent(string subEventId)
+        {
+            List<SubCalendarEvent>subEvents = OrderByStartActiveSubEvents.ToList();
+            int index = subEvents.FindIndex(obj => obj.Id == subEventId);
+            if(index >= subEvents.Count)
+            {
+                 var newSubEvents = IncreaseSplitCount(1);
+            } else
+            {
 
             }
         }
@@ -733,7 +746,7 @@ namespace TilerElements
         virtual public void SetCompletion(bool CompletionStatus, bool goDeep = false)
         {
             _Complete = CompletionStatus;
-            if (IsRepeat)
+            if (IsRecurring)
             {
                 if (goDeep)
                 {
@@ -909,7 +922,7 @@ namespace TilerElements
                 }
             }
             return null;*/
-            if (IsRepeat)
+            if (IsRecurring)
             {
                 return _EventRepetition.getCalendarEvent(CalendarIDUpToRepeatCalEvent);
             }
@@ -991,7 +1004,7 @@ namespace TilerElements
         {
             int i = 0;
 
-            if (IsRepeat)
+            if (IsRecurring)
             {
                 IEnumerable<CalendarEvent> AllrepeatingCalEvents = _EventRepetition.RecurringCalendarEvents();
                 foreach (CalendarEvent MyCalendarEvent in AllrepeatingCalEvents)
@@ -1017,7 +1030,7 @@ namespace TilerElements
 
         public virtual bool updateSubEvent(EventID SubEventID, SubCalendarEvent UpdatedSubEvent)
         {
-            if (this.IsRepeat)
+            if (this.IsRecurring)
             {
                 IEnumerable<CalendarEvent> AllrepeatingCalEvents = Repeat.RecurringCalendarEvents();
 
@@ -1581,7 +1594,7 @@ namespace TilerElements
                 if (delta > 0)
                 {
 
-                    if (IsRepeat)
+                    if (IsRecurring)
                     {
                         _EventRepetition.RecurringCalendarEvents().AsParallel().ForAll(obj => obj.IncreaseSplitCount(Change));
                         return 2;
@@ -1594,7 +1607,7 @@ namespace TilerElements
                 }
                 else
                 {
-                    if (IsRepeat)
+                    if (IsRecurring)
                     {
                         _EventRepetition.RecurringCalendarEvents().AsParallel().ForAll(obj => obj.ReduceSplitCount(Change));
                         return 1;
@@ -1636,7 +1649,7 @@ namespace TilerElements
             throw new Exception("You are trying to reduce the number of subevents past the min count");
         }
 
-        virtual protected void IncreaseSplitCount(uint delta)
+        virtual protected List<SubCalendarEvent> IncreaseSplitCount(uint delta)
         {
             List<SubCalendarEvent> newSubs = new List<SubCalendarEvent>();
             for (int i = 0; i < delta; i++)
@@ -1646,9 +1659,11 @@ namespace TilerElements
                 _EventDuration = _EventDuration.Add(newSubCalEvent.getActiveDuration);
                 newSubCalEvent.UiParamsId = this.UiParamsId;
                 newSubCalEvent.DataBlobId = this.DataBlobId;
+                newSubs.Add(newSubCalEvent);
             }
             _Splits += (int)delta;
             UpdateTimePerSplit();
+            return newSubs;
         }
 
         virtual protected void IncreaseSplitCount(uint delta, IEnumerable<SubCalendarEvent> subEvents)
@@ -1779,7 +1794,7 @@ namespace TilerElements
             {
                 subEvent.updateEventName(NewName);
             }
-            if (!justThisCalendarEvent && base.IsRepeat)
+            if (!justThisCalendarEvent && base.IsRecurring)
             {
                 foreach (CalendarEvent calEvent in Repeat.RecurringCalendarEvents().Where(obj => obj.getId != this.getId))
                 {
@@ -1882,7 +1897,7 @@ namespace TilerElements
         {//return All Subcalevents that are enabled. returns 
             get
             {
-                if (IsRepeat)
+                if (IsRecurring)
                 {
                     return this.ActiveRepeatSubCalendarEvents;
                 }
@@ -1893,13 +1908,27 @@ namespace TilerElements
             }
         }
 
+        public IEnumerable<SubCalendarEvent> OrderByStartActiveSubEvents//needs to update to get only active events
+        {//return All Subcalevents that are enabled. returns 
+            get
+            {
+                if (IsRecurring)
+                {
+                    return this.ActiveRepeatSubCalendarEvents.OrderBy(o => o.Start);
+                }
+
+                IEnumerable<SubCalendarEvent> retValue = _SubEvents.Values.Where(obj => obj != null).Where(obj => (obj.isActive)).OrderBy(o=>o.Start);
+                return retValue;
+            }
+        }
+
 
 
         public SubCalendarEvent[] EnabledSubEvents//needs to update to get only active events
         {//return All Subcalevents that are enabled.
             get
             {
-                if (IsRepeat)
+                if (IsRecurring)
                 {
                     return this.ActiveRepeatSubCalendarEvents;
                 }
@@ -1915,7 +1944,7 @@ namespace TilerElements
         {//return All Subcalevents that enabled or not.
             get
             {
-                if (IsRepeat)
+                if (IsRecurring)
                 {
                     return this.Repeat.RecurringCalendarEvents().SelectMany(obj => obj.AllSubEvents).ToArray();
                 }
@@ -2054,7 +2083,7 @@ namespace TilerElements
             get
             {
                 List<SubCalendarEvent> MyRepeatingSubCalendarEvents = new List<SubCalendarEvent>();
-                if (IsRepeat)
+                if (IsRecurring)
                 {
                     return this.Repeat.RecurringCalendarEvents().Where(calEvent => calEvent.isActive).SelectMany(obj => obj.ActiveSubEvents).ToArray();
                 }
@@ -2070,7 +2099,7 @@ namespace TilerElements
             get
             {
                 List<SubCalendarEvent> MyRepeatingSubCalendarEvents = new List<SubCalendarEvent>();
-                if (IsRepeat)
+                if (IsRecurring)
                 {
                     return this.Repeat.RecurringCalendarEvents().SelectMany(obj => obj.EnabledSubEvents).ToArray();
                 }
@@ -2250,7 +2279,7 @@ namespace TilerElements
         {
             get
             {
-                if(IsRepeat)
+                if(IsRecurring)
                 {
                     var recurringCalEvents = Repeat.RecurringCalendarEvents();
                     return recurringCalEvents.SelectMany(calEVent => calEVent._RemovedSubEvents);
@@ -2268,7 +2297,7 @@ namespace TilerElements
                 if (string.IsNullOrEmpty(DayPreferenceId) && this._EventDayPreference == null)
                 {
                     _EventDayPreference = new EventPreference();
-                    if (this.IsRepeat)
+                    if (this.IsRecurring)
                     {
                         foreach (CalendarEvent calEvent in this.Repeat.RecurringCalendarEvents())
                         {

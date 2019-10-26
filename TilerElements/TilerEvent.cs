@@ -108,9 +108,9 @@ namespace TilerElements
         {
             Dictionary<TimelineWithSubcalendarEvents, OptimizedGrouping> TimelinesDict = groupings.ToDictionary(grouping => grouping.GroupAverage.TimeLine, grouping => grouping);
             Dictionary<TimeOfDayPreferrence.DaySection, OptimizedGrouping> TimeOfDayToGroup = groupings.ToDictionary(grouping => grouping.DaySector, grouping => grouping);
-            List<TimelineWithSubcalendarEvents> Timelines = orderBasedOnProductivity(TimeOfDayToGroup);
-            List<double> foundIndexes = EvaluateTimeLines(Timelines);//
-            List<Tuple<double, OptimizedGrouping>> indexToGrouping = foundIndexes.Select((score, index) => { return new Tuple<double, OptimizedGrouping>(score, TimelinesDict[Timelines[index]]); }).OrderBy(tuple => tuple.Item1).ToList();
+            List<Tuple<TimelineWithSubcalendarEvents, OptimizedGrouping>> Timelines = orderBasedOnProductivity(TimeOfDayToGroup);
+            List<double> foundIndexes = EvaluateTimeLines(Timelines.Select(obj => obj.Item1).ToList(), Timelines.Select(obj => new Tuple<Location, Location>(obj.Item2.LeftBorder, obj.Item2.RightBorder)).ToList());//
+            List<Tuple<double, OptimizedGrouping>> indexToGrouping = foundIndexes.Select((score, index) => { return new Tuple<double, OptimizedGrouping>(score, TimelinesDict[Timelines[index].Item1]); }).OrderBy(tuple => tuple.Item1).ToList();
             int bestIndex = foundIndexes.MinIndex();
             List<OptimizedGrouping> retValue = indexToGrouping.Select(tuple => tuple.Item2).ToList();
             return retValue;
@@ -144,11 +144,11 @@ namespace TilerElements
         /// </summary>
         /// <param name="timeLines"></param>
         /// <returns></returns>
-        protected List<TimelineWithSubcalendarEvents> orderBasedOnProductivity(Dictionary<TimeOfDayPreferrence.DaySection, OptimizedGrouping> AllGroupings)
+        protected List<Tuple<TimelineWithSubcalendarEvents, OptimizedGrouping>> orderBasedOnProductivity(Dictionary<TimeOfDayPreferrence.DaySection, OptimizedGrouping> AllGroupings)
         {
             //TODO need to use machine learning to order the timelines right now the implemenation simple favors a morning schedule
             List<TimeOfDayPreferrence.DaySection> daySectionsPreferredOrder = (new List<TimeOfDayPreferrence.DaySection>() { TimeOfDayPreferrence.DaySection.Morning, TimeOfDayPreferrence.DaySection.Afternoon, TimeOfDayPreferrence.DaySection.Evening, TimeOfDayPreferrence.DaySection.Sleep }).Where(section => AllGroupings.ContainsKey(section)).ToList();
-            List<TimelineWithSubcalendarEvents> retValue = daySectionsPreferredOrder.Select(timeOfDay => AllGroupings[timeOfDay].GroupAverage.TimeLine).ToList();
+            List<Tuple<TimelineWithSubcalendarEvents, OptimizedGrouping>> retValue = daySectionsPreferredOrder.Select(timeOfDay => new Tuple<TimelineWithSubcalendarEvents, OptimizedGrouping>(AllGroupings[timeOfDay].GroupAverage.TimeLine, AllGroupings[timeOfDay])).ToList();
             return retValue;
         }
 

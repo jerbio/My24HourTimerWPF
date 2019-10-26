@@ -41,12 +41,8 @@ namespace TilerElements
 
         internal void reset()
         {
-            if(!this.isNull)
-            {
-                _FromTime = Utility.JSStartTime;
-                _BeginTIme = Utility.JSStartTime;
-            }
-            this._isNull = true;
+            _FromTime = Utility.JSStartTime;
+            _BeginTIme = Utility.JSStartTime;
         }
 
 

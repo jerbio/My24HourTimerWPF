@@ -149,6 +149,7 @@
     <Compile Include="ConflictResolution.cs" />
     <Compile Include="PerformanceTest.cs" />
     <Compile Include="ScheduleQuality.cs" />
+    <Compile Include="RepeatAnEvent.cs" />
     <Compile Include="UserAccountDump.cs" />
     <Compile Include="UserAccountTest.cs" />
     <Compile Include="WhatIfTest.cs" />

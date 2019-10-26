@@ -621,6 +621,7 @@ namespace TilerTests
             Assert.IsTrue(subEvent.isLocked);
 
             List<TimeLine> timeLines = TestUtility.getTimeFrames(refNow, duration).GetRange(0, 10);
+            List<CalendarEvent> createdCalevents = new List<CalendarEvent>();
             foreach (TimeLine eachTimeLine in timeLines)
             {
                 TestUtility.reloadTilerUser(ref user, ref tilerUser);
@@ -629,6 +630,7 @@ namespace TilerTests
                 testEvent.TimeCreated = TimeCreation;
                 Schedule = new TestSchedule(user, refNow);
                 Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
+                createdCalevents.Add(testEvent);
                 TestUtility.reloadTilerUser(ref user, ref tilerUser);
                 string testEVentId = testEvent.getId;
                 Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEVentId);

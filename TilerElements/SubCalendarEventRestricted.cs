@@ -551,7 +551,7 @@ namespace TilerElements
             }
         }
 
-        public override RestrictionProfile RetrictionProfile
+        public override RestrictionProfile RestrictionProfile
         {
             get
             {

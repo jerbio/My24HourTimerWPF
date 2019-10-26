@@ -1267,7 +1267,7 @@ namespace TilerElements
             TimeLine iterationTImeLine = new TimeLine(start, end);
             TimeLine timeLineBefore = new TimeLine();
             TimeLine timeLineAfter = new TimeLine();
-            if (Utility.PinSubEventsToStart(ordedsubEvents, maxTImeLine))
+            if (Utility.tryPinSubEventsToStart(ordedsubEvents, maxTImeLine))
             {
                 SubCalendarEvent subEvent;
                 int i = ordedsubEvents.Count - 1;

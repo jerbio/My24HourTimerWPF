@@ -112,7 +112,15 @@ namespace TilerCore
             {
                 subEvent.InitializeDayPreference(DayData);
                 TimeOfDayPreferrence daySection = subEvent.getDaySection();
-                OptimizedGrouping grouping = AllGroupings[daySection.getCurrentDayPreference()];
+                OptimizedGrouping grouping = null;/* AllGroupings[TimeOfDayPreferrence.DaySection.None];//defaults to none day section unless the a preference is found in the loop*/
+                foreach (var section in daySection.getPreferenceOrder())
+                {
+                    if (AllGroupings.ContainsKey(section))
+                    {
+                        grouping = AllGroupings[section];
+                        break;
+                    }
+                }
                 grouping.AddToStitchedEvents(subEvent);
                 retrievedGroupings.Add(grouping);
             }

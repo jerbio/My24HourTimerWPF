@@ -9,6 +9,7 @@ namespace TilerElements
     {
         protected RestrictionProfile _ProfileOfRestriction;
         protected ReferenceNow _Now;
+        protected TimeLine _CalculationStartToEnd;
 
         public RestrictionProfile UndoProfileOfRestriction;
         protected CalendarEventRestricted ()
@@ -232,7 +233,7 @@ namespace TilerElements
             }
         }
 
-        public override RestrictionProfile RetrictionProfile
+        public override RestrictionProfile RestrictionProfile
         {
             get
             {
@@ -417,11 +418,11 @@ namespace TilerElements
             
         }
 
-        public override TimeLine StartToEnd
+        public override TimeLine CalculationStartToEnd
         {
             get
             {
-                TimeLine timeLine = new TimeLine(this.Start, this.End);
+                TimeLine timeLine = new TimeLineRestricted(this.CalculationStart, this.End, this.RestrictionProfile, Now);
                 return timeLine;
             }
         }

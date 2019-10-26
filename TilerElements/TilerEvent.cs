@@ -109,14 +109,14 @@ namespace TilerElements
             Dictionary<TimelineWithSubcalendarEvents, OptimizedGrouping> TimelinesDict = groupings.ToDictionary(grouping => grouping.GroupAverage.TimeLine, grouping => grouping);
             Dictionary<TimeOfDayPreferrence.DaySection, OptimizedGrouping> TimeOfDayToGroup = groupings.ToDictionary(grouping => grouping.DaySector, grouping => grouping);
             List<Tuple<TimelineWithSubcalendarEvents, OptimizedGrouping>> Timelines = orderBasedOnProductivity(TimeOfDayToGroup);
-            List<double> foundIndexes = EvaluateTimeLines(Timelines.Select(obj => obj.Item1).ToList(), Timelines.Select(obj => new Tuple<Location, Location>(obj.Item2.LeftBorder, obj.Item2.RightBorder)).ToList());//
+            List<double> foundIndexes = EvaluateTimeLines(Timelines.Select(obj => obj.Item1).ToList(), Timelines.Select(obj => new Tuple<Location, Location>(obj.Item2.LeftBorder, obj.Item2.RightBorder)).ToList(), true);//
             List<Tuple<double, OptimizedGrouping>> indexToGrouping = foundIndexes.Select((score, index) => { return new Tuple<double, OptimizedGrouping>(score, TimelinesDict[Timelines[index].Item1]); }).OrderBy(tuple => tuple.Item1).ToList();
             int bestIndex = foundIndexes.MinIndex();
             List<OptimizedGrouping> retValue = indexToGrouping.Select(tuple => tuple.Item2).ToList();
             return retValue;
         }
 
-        public virtual List<double> EvaluateTimeLines(List<TimelineWithSubcalendarEvents> timeLines, List<Tuple<Location, Location>> borderLocations = null)
+        public virtual List<double> EvaluateTimeLines(List<TimelineWithSubcalendarEvents> timeLines, List<Tuple<Location, Location>> borderLocations = null, bool factorInTimelineOrder = false)
         {
             double worstDistanceInKM = 7;
             List<IList<double>> multiDimensionalClaculation = new List<IList<double>>();
@@ -126,7 +126,15 @@ namespace TilerElements
                 double distance = Location.calculateDistance(timeline.averageLocation, this.Location, worstDistanceInKM);
                 double tickRatio = (double)this.getActiveDuration.Ticks / timeline.TotalFreeSpotAvailable.Ticks;
                 double occupancy = (double)timeline.Occupancy;
-                IList<double> dimensionsPerDay = new List<double>() { distance, tickRatio, occupancy };
+                IList<double> dimensionsPerDay;
+                if (factorInTimelineOrder)
+                {
+                    dimensionsPerDay = new List<double>() { distance, tickRatio, occupancy, i + 1 };
+                }
+                else
+                {
+                    dimensionsPerDay = new List<double>() { distance, tickRatio, occupancy };
+                }
                 if (borderLocations != null && borderLocations.Count == timeLines.Count)
                 {
                     Tuple<Location, Location> borderLocation = borderLocations[i];
@@ -192,6 +200,16 @@ namespace TilerElements
             }
         }
 
+
+        protected virtual void updateStartTime(DateTimeOffset time)
+        {
+            this.StartDateTime = time;
+        }
+
+        protected virtual void updateEndTime(DateTimeOffset time)
+        {
+            this.EndDateTime = time;
+        }
         abstract public void updateTimeLine(TimeLine newTImeLine);
 
 
@@ -903,7 +921,7 @@ namespace TilerElements
             }
         }
 
-        public virtual RestrictionProfile RetrictionProfile { get; set; } = null;
+        public virtual RestrictionProfile RestrictionProfile { get; set; } = null;
         #region undoProperties
         public virtual bool FirstInstantiation { get; set; } = true;
 

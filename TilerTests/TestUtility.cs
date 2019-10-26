@@ -922,7 +922,7 @@ namespace TilerTests
                     false); // if calendar repeat flags aren't the same then the calEvents are not equal
             Assert.IsTrue(retValue);
             retValue &= (firstCalEvent.getIsEventRestricted == secondCalEvent.getIsEventRestricted ?
-                    (firstCalEvent.getIsEventRestricted ? isTestEquivalent((firstCalEvent as CalendarEventRestricted).RetrictionProfile, (secondCalEvent as CalendarEventRestricted).RetrictionProfile) : true) : //if restriction profile is enabled the run equivalecy test else then passing test
+                    (firstCalEvent.getIsEventRestricted ? isTestEquivalent((firstCalEvent as CalendarEventRestricted).RestrictionProfile, (secondCalEvent as CalendarEventRestricted).RestrictionProfile) : true) : //if restriction profile is enabled the run equivalecy test else then passing test
                     false);
             Assert.IsTrue(retValue);
             retValue &= (firstCalEvent.getUIParam.isTestEquivalent(secondCalEvent.getUIParam));

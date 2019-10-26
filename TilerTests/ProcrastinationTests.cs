@@ -36,7 +36,6 @@ namespace TilerTests
             Schedule.persistToDB().Wait();
             testEvent = TestUtility.getCalendarEventById(testEvent.getId, user);
             Assert.IsTrue(testEvent.ActiveSubEvents.OrderBy(subevent => subevent.Start).First().Start == refNow);
-
             Schedule = new TestSchedule(user, refNow);
             TimeSpan procrastinationSpan = TimeSpan.FromHours(5);
             var procrastinateResult = Schedule.ProcrastinateJustAnEvent(testEvent.AllSubEvents.OrderBy(subEvent => subEvent.Start).First().getId, procrastinationSpan);
@@ -88,7 +87,9 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             testEventCopy = TestUtility.getCalendarEventById(testEvent.getId, user);
             Assert.IsTrue(testEventCopy.ActiveSubEvents.OrderBy(subEvent => subEvent.Start).First().Start == thirdRefNow);
-            Assert.IsTrue(testEventCopy.getProcrastinationInfo.isNull);
+            Assert.IsFalse(testEventCopy.getProcrastinationInfo.isNull);
+            Assert.AreEqual(testEventCopy.getProcrastinationInfo.PreferredStartTime, Utility.JSStartTime);
+            Assert.AreEqual(testEventCopy.getProcrastinationInfo.DislikedStartTime, Utility.JSStartTime);
             Assert.IsTrue(testEventCopy.getNowInfo.isInitialized);
 
             testEvent0Copy = TestUtility.getCalendarEventById(testEvent0.getId, user);

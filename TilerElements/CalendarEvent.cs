@@ -1070,7 +1070,7 @@ namespace TilerElements
         /// <param name="timeLines"></param>
         /// <param name="borderLocations"></param>
         /// <returns></returns>
-        public virtual List<double> EvaluateTimeLines(List<TimelineWithSubcalendarEvents> timeLines, ReferenceNow referenceNow, List<Tuple<Location, Location>> borderLocations = null)
+        public virtual List<double> EvaluateTimeLines(List<TimelineWithSubcalendarEvents> timeLines, ReferenceNow referenceNow, List<Tuple<Location, Location>> borderLocations = null, bool factorInTimelineOrder = false)
         {
             List<IList<double>> multiDimensionalCalculation = new List<IList<double>>();
             List<TimelineWithSubcalendarEvents> validTimeLine = timeLines.Select(timeLine => {
@@ -1083,8 +1083,9 @@ namespace TilerElements
             }).ToList();
             TimeSpan totalAvailableSpan = TimeSpan.FromTicks(timeLines.Sum(timeLine => timeLine.TimelineSpan.Ticks));
 
-            foreach (TimelineWithSubcalendarEvents timeline in validTimeLine)
+            for (int i = 0; i< validTimeLine.Count;i++)
             {
+                TimelineWithSubcalendarEvents timeline = validTimeLine[i];
                 if (timeline != null)
                 {
                     List<TimeLine> interferringTImeLines = getInterferringWithTimeLine(timeline);
@@ -1097,7 +1098,15 @@ namespace TilerElements
                     double dayIndexScore = DayPreference[weekDay].EvaluationScore;
                     ulong completeDayIndex = referenceNow.getDayIndexFromStartOfTime(timeline.Start);
                     double dayIndexCount = completeDayIndexes.Contains(completeDayIndex) ? 1 : 0;// if day has already being marked with event as complete 
-                    IList<double> dimensionsPerDay = new List<double>() { distance, tickRatio, occupancy, dayIndexScore, dayIndexCount };
+                    IList<double> dimensionsPerDay;
+                    if (!factorInTimelineOrder)
+                    {
+                        dimensionsPerDay = new List<double>() { distance, tickRatio, occupancy, dayIndexScore, dayIndexCount };
+                    }
+                    else
+                    {
+                        dimensionsPerDay = new List<double>() { distance, tickRatio, occupancy, dayIndexScore, dayIndexCount, i + 1 };
+                    }
                     multiDimensionalCalculation.Add(dimensionsPerDay);
                 }
                 else
@@ -1416,7 +1425,7 @@ namespace TilerElements
                 AllFreeDayTIme.AsParallel().ForAll(obj => { obj.updateOccupancyOfTimeLine(); });
             }
 
-            List<DayTimeLine> retValue = AllFreeDayTIme.Where(obj => obj.UniversalIndex >= now.getDayIndexFromStartOfTime(getProcrastinationInfo.DislikedStartTime)).ToList();
+            List<DayTimeLine> retValue = AllFreeDayTIme.Where(obj => obj.UniversalIndex >= now.getDayIndexFromStartOfTime(getProcrastinationInfo.PreferredStartTime)).ToList();
             return retValue;
         }
 
@@ -1454,7 +1463,6 @@ namespace TilerElements
 
         public List<DayTimeLine> getTimeLineWithEnoughDuration(bool forceUpdateFreeTimeLine = true, List<DayTimeLine> AllFreeDayTIme = null)
         {
-
             AllFreeDayTIme = AllFreeDayTIme ?? CalculationLimitation.Values.ToList();
             if (forceUpdateFreeTimeLine)
             {
@@ -1462,7 +1470,7 @@ namespace TilerElements
             }
 
             List<DayTimeLine> retValue = AllFreeDayTIme.Where(obj => obj.TotalFreeSpotAvailable > _AverageTimePerSplit).Where(dayTimeLine => {
-                TimeLine timeLine = dayTimeLine.InterferringTimeLine(this.StartToEnd);
+                TimeLine timeLine = dayTimeLine.InterferringTimeLine(this.CalculationStartToEnd);
                 if (timeLine != null)
                 {
                     return timeLine.TimelineSpan >= _AverageTimePerSplit;

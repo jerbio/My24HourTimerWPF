@@ -96,7 +96,7 @@ namespace TilerElements
             }
         }
         #region dataModelProperties
-        public string Id
+        virtual public string Id
         {
             get
             {

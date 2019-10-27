@@ -625,12 +625,12 @@ namespace TilerElements
         {
             get
             {
-                return this.Start;
+                return this.StartDateTime;
             }
 
             set
             {
-                updateStartTime( value);
+                this.StartDateTime =  value;
             }
         }
 
@@ -638,11 +638,11 @@ namespace TilerElements
         {
             get
             {
-                return this.End;
+                return this.EndDateTime;
             }
             set
             {
-                updateEndTime( value);
+                this.EndDateTime = value;
             }
         }
 

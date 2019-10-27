@@ -693,7 +693,7 @@ namespace My24HourTimerWPF
                 
         }
 
-        async private void PeekIntoFuture(object sender, RoutedEventArgs e)
+        private void PeekIntoFuture(object sender, RoutedEventArgs e)
         {
 
             EventName eventName = new EventName(null, null, textBox1.Text);
@@ -749,9 +749,8 @@ namespace My24HourTimerWPF
                 //MessageBox.Show("Please Type EndTime in The Format: HH:MM A/PM");
                 //return;
             }
-            TimeSpan TestTimeSpan = new TimeSpan();
+
             bool RigidFlag = false;
-            bool RepetitionFlag = false;
             Repetition MyRepetition = new Repetition();
             if (checkBox5.IsChecked.Value)
             {
@@ -772,7 +771,6 @@ namespace My24HourTimerWPF
 
                 RepeatStart = DateTimeOffset.Parse(eventStartTime);
                 RepeatEnd = (DateTimeOffset)calendar4.SelectedDate.Value;
-                RepetitionFlag = true;
                 MyRepetition = new Repetition(new TimeLine(RepeatStart, RepeatEnd), Utility.ParseEnum<Repetition.Frequency>(RepeatFrequency.ToUpper()), new TimeLine((FullStartTime), (FullEndTime)), selectedDaysOftheweek.ToArray());
                 //eventStartDate = RepeatStart;
                 eventEndDate = RepeatEnd;
@@ -1248,34 +1246,6 @@ namespace My24HourTimerWPF
 
              await MySchedule.persistToDB().ConfigureAwait(false);
              return;
-            //*///
-            /*
-            
-            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ScheduleUpdateMessage = MySchedule.SetEventAsNow(EventID);
-            //*/
-            if (ScheduleUpdateMessage.Item1!=null)
-            {
-                switch (ScheduleUpdateMessage.Item1.Code)
-                {
-                    case 5:
-                        {
-                            MessageBoxResult result = MessageBox.Show(ScheduleUpdateMessage.Item1.Message, "Do you want to continue with this collision? ", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                            if (result == MessageBoxResult.Yes)
-                            {
-                                ScheduleUpdateMessage=MySchedule.SetSubeventAsNow(EventID, true); ;
-                                await MySchedule.persistToDB().ConfigureAwait(false);
-                            }
-                        }
-                        break;
-                    default://hack alert we need to figure out how to fix this error
-                        await MySchedule.persistToDB().ConfigureAwait(false);
-                        break;
-                }
-            }
-            else
-            {
-                await MySchedule.persistToDB().ConfigureAwait(false);
-            }
             
         }
 
@@ -1495,37 +1465,30 @@ namespace My24HourTimerWPF
 
             MySchedule = new WPF_Schedule(allEventDictionary, currentUser.getTilerUser().EndfOfDay, LocationCache, refNow, currentUser);
             
-            if (true)
-            {
-                timer.Stop();
-                tabItem2.IsEnabled = true;
-                datePicker1.SelectedDate = new DateTime(MySchedule.Now.calculationNow.AddDays(0).ToLocalTime().Ticks);// DateTimeOffset.UtcNow.AddDays(0);
-                datePicker2.SelectedDate = new DateTime(MySchedule.Now.calculationNow.AddHours(14).ToLocalTime().Ticks);// DateTimeOffset.UtcNow.AddDays(0);
-                calendar4.SelectedDate = new DateTime(DateTimeOffset.UtcNow.AddDays(14).ToLocalTime().Ticks);
-                Random myNumber = new Random();
-                int RandomHour = myNumber.Next(0, 24);
-                int RandomMinute = myNumber.Next(0, 60);
-                textBox4.Text = RandomHour + ":" + RandomMinute;
+            timer.Stop();
+            tabItem2.IsEnabled = true;
+            datePicker1.SelectedDate = new DateTime(MySchedule.Now.calculationNow.AddDays(0).ToLocalTime().Ticks);// DateTimeOffset.UtcNow.AddDays(0);
+            datePicker2.SelectedDate = new DateTime(MySchedule.Now.calculationNow.AddHours(14).ToLocalTime().Ticks);// DateTimeOffset.UtcNow.AddDays(0);
+            calendar4.SelectedDate = new DateTime(DateTimeOffset.UtcNow.AddDays(14).ToLocalTime().Ticks);
+            Random myNumber = new Random();
+            int RandomHour = myNumber.Next(0, 24);
+            int RandomMinute = myNumber.Next(0, 60);
+            textBox4.Text = RandomHour + ":" + RandomMinute;
 
-                textBox4.Text = 1+ ":" + "45" + ":" + "00";//total time
-                textBox2.Text = 1.ToString();//number of splits
-                int ProcrastinateStartDay = 0;
-                int ProcrastinateEndDay = 365; 
-                int ProcrastinateStartHour = 0;
-                int ProcrastinateEndHour = 24;
-                int ProcrastinateStartMin = 0;
-                int ProcrastinateEndMin = 60;
-                comboBox4 = ProcrastinateComboBox.PopulateComboBox(ProcrastinateStartDay, ProcrastinateEndDay, 1, comboBox4);
-                comboBox5 = ProcrastinateComboBox.PopulateComboBox(ProcrastinateStartHour, ProcrastinateEndHour, 1, comboBox5);
-                comboBox6 = ProcrastinateComboBox.PopulateComboBox(ProcrastinateStartMin, ProcrastinateEndMin, 1, comboBox6);
-                comboBox4.Text = 0.ToString();
-                comboBox5.Text = 0.ToString();
-                comboBox6.Text = 0.ToString();
-            }
-            else
-            {
-                MessageBox.Show("Error loading Schedule please check user password");
-            }
+            textBox4.Text = 1+ ":" + "45" + ":" + "00";//total time
+            textBox2.Text = 1.ToString();//number of splits
+            int ProcrastinateStartDay = 0;
+            int ProcrastinateEndDay = 365; 
+            int ProcrastinateStartHour = 0;
+            int ProcrastinateEndHour = 24;
+            int ProcrastinateStartMin = 0;
+            int ProcrastinateEndMin = 60;
+            comboBox4 = ProcrastinateComboBox.PopulateComboBox(ProcrastinateStartDay, ProcrastinateEndDay, 1, comboBox4);
+            comboBox5 = ProcrastinateComboBox.PopulateComboBox(ProcrastinateStartHour, ProcrastinateEndHour, 1, comboBox5);
+            comboBox6 = ProcrastinateComboBox.PopulateComboBox(ProcrastinateStartMin, ProcrastinateEndMin, 1, comboBox6);
+            comboBox4.Text = 0.ToString();
+            comboBox5.Text = 0.ToString();
+            comboBox6.Text = 0.ToString();
         }
 
         private void LogInButton_Click(object sender, RoutedEventArgs e)

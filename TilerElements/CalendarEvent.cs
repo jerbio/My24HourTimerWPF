@@ -36,6 +36,7 @@ namespace TilerElements
         protected CalendarEvent _DefaultCalendarEvent;
         DateTimeOffset[] completionDates = new DateTimeOffset[0];
         HashSet<ulong> completeDayIndexes = new HashSet<ulong>();
+        protected TimeLine _CalculationStartToEnd;
         #region undoMembers
         public int UndoSplits;
         public TimeSpan UndoAverageTimePerSplit;
@@ -1510,8 +1511,6 @@ namespace TilerElements
             CalendarEvent RetValue = new CalendarEvent(true);
             RetValue._EventDuration = this.getActiveDuration;
             RetValue._Name = this._Name.createCopy();
-            RetValue.updateStartTime(this.Start);
-            RetValue.updateEndTime( this.End);
             RetValue._EventPreDeadline = this.getPreDeadline;
             RetValue._PrepTime = this.getPreparation;
             RetValue._Priority = this.getEventPriority;
@@ -1535,6 +1534,8 @@ namespace TilerElements
             RetValue._otherPartyID = this.ThirdPartyID;// == this.null ? null : otherPartyID.ToString();
             RetValue._Users = this._Users;
             RetValue._EventDayPreference = this._EventDayPreference?.createCopy();
+            RetValue.updateStartTime(this.Start);
+            RetValue.updateEndTime(this.End);
             //RetValue.UpdateLocationMatrix(RetValue.LocationInfo);
             return RetValue;
         }
@@ -1768,6 +1769,7 @@ namespace TilerElements
                 CustomErrors customError = new CustomErrors("Cannot update the timeline for the calendar event with sub event " + failingSubEvent.getId + ". Most likely because the new time line won't fit the sub event", 40000001);
                 throw customError;
             }
+            updateCalculationStartToEnd();
         }
 
         virtual public void updateTimeLine(SubCalendarEvent subEvent, TimeLine newTImeLine)
@@ -1816,6 +1818,76 @@ namespace TilerElements
             _DeletedCount = 0;
         }
 
+        public void InitializeCounts(int Deletion, int Completion)
+        {
+            _DeletedCount = Deletion;
+            _CompletedCount = Completion;
+        }
+
+        public void UpdateError(CustomErrors Error)
+        {
+            CalendarError = Error;
+        }
+
+        public void ClearErrorMessage()
+        {
+            CalendarError = new CustomErrors(string.Empty);
+        }
+
+        public void setRepeatParent(CalendarEvent repeatParent)
+        {
+            CalendarEvent currentParent = repeatParent;
+            while (currentParent.RepeatParent_DB != null)
+            {
+                currentParent = currentParent.RepeatParent_DB;
+            }
+            _RepeatParentEvent = currentParent;
+        }
+
+        virtual public void updateCompletionTimeArray(ReferenceNow now)
+        {
+            _LastCompletionTime = (_LastCompletionTime ?? "");
+            if (!string.IsNullOrEmpty(_LastCompletionTime) && !string.IsNullOrWhiteSpace(_LastCompletionTime))
+            {
+                string[] dateTimeInMs = _LastCompletionTime.Split(',')
+                    .Where(str => !string.IsNullOrEmpty(str) && !string.IsNullOrEmpty(str)).ToArray();
+                ;
+                completionDates = new DateTimeOffset[dateTimeInMs.Length];
+                for (int i = 0; i < dateTimeInMs.Length; i++)
+                {
+                    string timeString = dateTimeInMs[i];
+                    timeString = timeString.Trim();
+                    if (!string.IsNullOrEmpty(timeString) && !string.IsNullOrWhiteSpace(timeString))
+                    {
+                        long timeInMs = long.Parse(timeString);
+                        DateTimeOffset time = DateTimeOffset.FromUnixTimeMilliseconds(timeInMs);
+                        completionDates[i] = time;
+                        ulong dayIndex = now.getDayIndexFromStartOfTime(time);
+                        completeDayIndexes.Add(dayIndex);
+                    }
+
+                }
+                completionDates = completionDates.OrderBy(obj => obj).ToArray();
+            }
+
+        }
+
+        virtual protected void updateCalculationStartToEnd()
+        {
+            _CalculationStartToEnd = new TimeLine(this.CalculationStart, this.End);
+        }
+
+        protected override void updateStartTime(DateTimeOffset time)
+        {
+            base.updateStartTime(time);
+            updateCalculationStartToEnd();
+        }
+
+        protected override void updateEndTime(DateTimeOffset time)
+        {
+            base.updateEndTime(time);
+            updateCalculationStartToEnd();
+        }
 
         #endregion
 
@@ -2101,63 +2173,16 @@ namespace TilerElements
         {
             get
             {
-                EventSequence = new TimeLine(this.CalculationStart, this.End);
-                return EventSequence;
-            }
-        }
-
-        public void InitializeCounts(int Deletion, int Completion)
-        {
-            _DeletedCount = Deletion;
-            _CompletedCount = Completion;
-        }
-
-        public void UpdateError(CustomErrors Error)
-        {
-            CalendarError = Error;
-        }
-
-        public void ClearErrorMessage()
-        {
-            CalendarError = new CustomErrors(string.Empty);
-        }
-
-        public void setRepeatParent(CalendarEvent repeatParent)
-        {
-            CalendarEvent currentParent = repeatParent;
-            while (currentParent.RepeatParent_DB != null)
-            {
-                currentParent = currentParent.RepeatParent_DB;
-            }
-            _RepeatParentEvent = currentParent;
-        }
-
-        virtual public void updateCompletionTimeArray(ReferenceNow now)
-        {
-            _LastCompletionTime = (_LastCompletionTime ?? "");
-            if (!string.IsNullOrEmpty(_LastCompletionTime) && !string.IsNullOrWhiteSpace(_LastCompletionTime))
-            {
-                string[] dateTimeInMs = _LastCompletionTime.Split(',')
-                    .Where(str => !string.IsNullOrEmpty(str) && !string.IsNullOrEmpty(str)).ToArray();
-                    ;
-                completionDates = new DateTimeOffset[dateTimeInMs.Length];
-                for (int i = 0; i < dateTimeInMs.Length; i++)
+                if (_CalculationStartToEnd != null)
                 {
-                    string timeString = dateTimeInMs[i];
-                    timeString = timeString.Trim();
-                    if (!string.IsNullOrEmpty(timeString) && !string.IsNullOrWhiteSpace(timeString))
-                    {
-                        long timeInMs = long.Parse(timeString);
-                        DateTimeOffset time = DateTimeOffset.FromUnixTimeMilliseconds(timeInMs);
-                        completionDates[i] = time;
-                        ulong dayIndex = now.getDayIndexFromStartOfTime(time);
-                        completeDayIndexes.Add(dayIndex);
-                    }
-
+                    return _CalculationStartToEnd;
                 }
-                completionDates = completionDates.OrderBy(obj => obj).ToArray();
+                else
+                {
+                    updateCalculationStartToEnd();
+                    return _CalculationStartToEnd;
+                }
             }
-            
         }
 
         protected SubEventDictionary<string, SubCalendarEvent> SubEvents

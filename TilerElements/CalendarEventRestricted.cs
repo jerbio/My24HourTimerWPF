@@ -43,15 +43,15 @@ namespace TilerElements
         public CalendarEventRestricted(TilerUser creator, TilerUserGroup userGroup, EventName Name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, NowProfile profileOfNow,  Location Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventID eventId, ReferenceNow now, Procrastination procrastination, EventDisplay UiSettings = null, MiscData NoteData=null, string timeZone = null)
         {
            _Name =  Name;
-            StartDateTime = Start;
-            EndDateTime = End;
+            updateStartTime( Start);
+            updateEndTime( End);
             _RigidSchedule = isRigid;
             _ProfileOfRestriction = restrictionProfile;
             _Splits = Divisions;
             if (RepetitionProfile.EnableRepeat)
             {
                 _Splits = Divisions;
-                End = RepetitionProfile.Range.End;
+                updateEndTime(RepetitionProfile.Range.End);
                 _AverageTimePerSplit = new TimeSpan();
                 this._EventRepetition = RepetitionProfile;
             }
@@ -92,15 +92,15 @@ namespace TilerElements
         public CalendarEventRestricted(TilerUser creator, TilerUserGroup userGroup, string timeZone, EventName Name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, NowProfile profileOfNow, Location Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventID eventId, ReferenceNow now, Procrastination procrastination, EventDisplay UiSettings = null, MiscData NoteData = null)
         {
             _Name = Name;
-            StartDateTime = Start;
-            EndDateTime = End;
+            updateStartTime( Start);
+            updateEndTime( End);
             _RigidSchedule = isRigid;
             _ProfileOfRestriction = restrictionProfile;
             _Splits = Divisions;
             if (RepetitionProfile.EnableRepeat)
             {
                 _Splits = Divisions;
-                End = RepetitionProfile.Range.End;
+                updateEndTime( RepetitionProfile.Range.End);
                 _AverageTimePerSplit = new TimeSpan();
                 this._EventRepetition = RepetitionProfile;
             }
@@ -141,8 +141,8 @@ namespace TilerElements
             retValue .UniqueID = EventID.GenerateRepeatCalendarEvent(CalendarEventID.ToString());
             retValue ._Name =  Name;
             retValue._EventDuration = Duration;
-            retValue.StartDateTime = Start;
-            retValue.EndDateTime = End;
+            retValue.updateStartTime( Start);
+            retValue.updateEndTime( End);
             retValue._ProfileOfRestriction = restrictionProfile;
             retValue._Complete = false;
             retValue._Enabled = true;
@@ -172,8 +172,8 @@ namespace TilerElements
             CalendarEventRestricted MyCalendarEventCopy = new CalendarEventRestricted();
             MyCalendarEventCopy._EventDuration = new TimeSpan(_EventDuration.Ticks);
             MyCalendarEventCopy._Name = this._Name.createCopy();
-            MyCalendarEventCopy.StartDateTime = StartDateTime;
-            MyCalendarEventCopy.EndDateTime = EndDateTime;
+            MyCalendarEventCopy.updateStartTime( Start);
+            MyCalendarEventCopy.updateEndTime( End);
             MyCalendarEventCopy._EventPreDeadline = new TimeSpan(_EventPreDeadline.Ticks);
             MyCalendarEventCopy._PrepTime = new TimeSpan(_PrepTime.Ticks);
             MyCalendarEventCopy._Priority = _Priority;
@@ -279,8 +279,8 @@ namespace TilerElements
             CalendarEventRestricted RetValue = new CalendarEventRestricted();
             RetValue._EventDuration = this.getActiveDuration;
             RetValue._Name = this.getName.createCopy();
-            RetValue.StartDateTime = this.Start;
-            RetValue.EndDateTime = this.End;
+            RetValue.updateStartTime( this.Start);
+            RetValue.updateEndTime( this.End);
             RetValue._EventPreDeadline = this.getPreDeadline;
             RetValue._PrepTime = this.getPreparation;
             RetValue._Priority = this.getEventPriority;
@@ -397,11 +397,11 @@ namespace TilerElements
                 if (worksForAllSubevents)
                 {
                     TimeLine startAndEndTimeLine = newTimeLineUpdated.StartToEnd;
-                    StartDateTime = startAndEndTimeLine.Start;
-                    EndDateTime = startAndEndTimeLine.End;
+                    updateStartTime( startAndEndTimeLine.Start);
+                    updateEndTime( startAndEndTimeLine.End);
                     if (this.isLocked)
                     {
-                        _EventDuration = EndDateTime - StartDateTime;
+                        _EventDuration = End - Start;
                     }
                 }
                 else

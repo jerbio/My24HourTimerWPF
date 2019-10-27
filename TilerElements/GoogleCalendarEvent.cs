@@ -19,8 +19,8 @@ namespace TilerElements
             DateTimeOffset End = (new DateTimeOffset()).Add(Utility.StartOfTimeTimeSpan).AddMilliseconds(SubCalData.SubCalEndDate);
             _Creator = new GoogleTilerUser(SubCalData.ThirdPartyUserID);
             this._Name = new EventName( this.Creator_EventDB, null, SubCalData.SubCalCalendarName!=null?SubCalData.SubCalCalendarName:"");
-            StartDateTime = Start;
-            EndDateTime = End;
+            updateStartTime(Start);
+            updateEndTime(End);
             _Splits = 1;
             _RigidSchedule = true;
             UniqueID = new EventID(new EventID(SubCalData.ID).getRepeatCalendarEventID());
@@ -55,8 +55,8 @@ namespace TilerElements
             this.UniqueID = EventID.generateGoogleCalendarEventID((uint)AllCalendarEvent.Count());
             this._AutoDeleted = false;
             this._Users = new TilerUserGroup();
-            this.StartDateTime = DateTimeOffset.Now.AddDays(-90);
-            this.EndDateTime = this.StartDateTime.AddDays(180);
+            this.updateStartTime( DateTimeOffset.Now.AddDays(-90));
+            this.updateEndTime( this.Start.AddDays(180));
             this._Enabled = true;
             this._Complete = false;
             this._DeletedCount = 1;

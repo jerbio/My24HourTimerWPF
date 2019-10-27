@@ -1346,9 +1346,7 @@ namespace My24HourTimerWPF
                     //MessageBox.Show("Please Type EndTime in The Format: HH:MM A/PM");
                     //return;
                 }
-                TimeSpan TestTimeSpan = new TimeSpan();
                 bool RigidFlag = false;
-                bool RepetitionFlag = false;
                 Repetition MyRepetition = new Repetition();
                 if (checkBox5.IsChecked.Value)
                 {
@@ -1371,7 +1369,6 @@ namespace My24HourTimerWPF
                     RepeatStart = DateTimeOffset.Parse(eventStartTime);
                     RepeatEnd = (DateTimeOffset)calendar4.SelectedDate.Value;
                     //RepeatEnd = (DateTimeOffset.UtcNow).AddDays(7);
-                    RepetitionFlag = true;
                                                 //(bool EnableFlag, TimeLine RepetitionRange_Entry, string Frequency, TimeLine EventActualRange, int[] WeekDayData)
                     MyRepetition = new Repetition(new TimeLine(RepeatStart, RepeatEnd), Utility.ParseEnum<Repetition.Frequency>(RepeatFrequency.ToUpper()), new TimeLine((FullStartTime), (FullEndTime)), selectedDaysOftheweek.ToArray());
 

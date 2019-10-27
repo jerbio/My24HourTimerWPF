@@ -13,10 +13,10 @@ namespace TilerElements
     public abstract class TilerEvent: IWhy, IUndoable, IHasId
     {
         public static TimeSpan ZeroTimeSpan = new TimeSpan(0);
-        protected DateTimeOffset StartDateTime;
-        protected DateTimeOffset EndDateTime;
-        protected DateTimeOffset TempStartDateTime;
-        protected DateTimeOffset TempEndDateTime;
+        private DateTimeOffset StartDateTime;
+        private DateTimeOffset EndDateTime;
+        private DateTimeOffset TempStartDateTime;
+        private DateTimeOffset TempEndDateTime;
         protected bool _Complete = false;
         protected bool _Enabled = true;
         protected bool _AutoDeleted = false;
@@ -181,14 +181,14 @@ namespace TilerElements
 
         public virtual void storeTimeLine()
         {
-            TempStartDateTime = StartDateTime;
-            TempEndDateTime = EndDateTime;
+            TempStartDateTime = Start;
+            TempEndDateTime = End;
         }
 
         public virtual void restoreTimeLine()
         {
-            StartDateTime = TempStartDateTime;
-            EndDateTime = TempEndDateTime;
+            updateStartTime( TempStartDateTime);
+            updateEndTime( TempEndDateTime);
         }
 
         public void validateLocation(Location location)
@@ -216,8 +216,8 @@ namespace TilerElements
         #region undoFunctions
         public virtual void undoUpdate(Undo undo)
         {
-            UndoStartDateTime = StartDateTime;
-            UndoEndDateTime = EndDateTime;
+            UndoStartDateTime = Start;
+            UndoEndDateTime = End;
             UndoComplete = _Complete;
             UndoEnabled = _Enabled;
             UndoUserDeleted = _AutoDeleted;
@@ -625,12 +625,12 @@ namespace TilerElements
         {
             get
             {
-                return this.StartDateTime;
+                return this.Start;
             }
 
             set
             {
-                StartDateTime = value;
+                updateStartTime( value);
             }
         }
 
@@ -638,11 +638,11 @@ namespace TilerElements
         {
             get
             {
-                return this.EndDateTime;
+                return this.End;
             }
             set
             {
-                EndDateTime = value;
+                updateEndTime( value);
             }
         }
 

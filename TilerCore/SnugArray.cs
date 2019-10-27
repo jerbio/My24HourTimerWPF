@@ -390,9 +390,7 @@ namespace TilerCore
             //List<string> MyFoundID = MyID.Split('#').ToList();
 
             List<List<TimeSpanWithEventID>> JustAllSubPossibilities;
-            int i = 0;
             List<TimeSpanWithEventID> MyCurrentList = new List<TimeSpanWithEventID>();
-            int j = 0;
             JustAllSubPossibilities = new List<List<TimeSpanWithEventID>>();
             List<List<TimeSpanWithEventID>> MyTotalSubPossibilities = new List<List<TimeSpanWithEventID>>(); ;
             /*for (; i < TopElements.Length; i++)

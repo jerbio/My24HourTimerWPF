@@ -119,8 +119,8 @@ namespace TilerElements
                 throw new Exception("Calendar Event cannot have an end time earlier than the start time");
             }
 
-            this.StartDateTime = start;
-            this.EndDateTime = end;
+            this.updateStartTime(start);
+            this.updateEndTime( end);
             this._Splits = split;
             this._Creator = creator;
             this._DataBlob = miscData;
@@ -187,7 +187,7 @@ namespace TilerElements
             {
                 initializeSubEvents();
             }
-            EventSequence = new TimeLine(StartDateTime, EndDateTime);
+            EventSequence = new TimeLine(Start, End);
             //UpdateLocationMatrix(LocationInfo);
         }
 
@@ -197,7 +197,7 @@ namespace TilerElements
 
             for (int i = 0; i < _Splits; i++)// This is still is still called when dealing with repeat events. Meaning repeat calendar events all have an unnecessary extra subevent
             {
-                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(this, getCreator, _Users, _TimeZone, _AverageTimePerSplit, this.getName, (EndDateTime - _AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), _RigidSchedule, this._Enabled, this._UiParams, this.Notes, this._Complete, this._LocationInfo, this.StartToEnd);
+                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(this, getCreator, _Users, _TimeZone, _AverageTimePerSplit, this.getName, (End - _AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), _RigidSchedule, this._Enabled, this._UiParams, this.Notes, this._Complete, this._LocationInfo, this.StartToEnd);
                 newSubCalEvent.TimeCreated = this.TimeCreated;
                 _SubEvents.Add(newSubCalEvent.Id, newSubCalEvent);
             }
@@ -207,9 +207,9 @@ namespace TilerElements
         {
             _Name = MyUpdated._Name;
             UniqueID = MyUpdated.UniqueID;
-            StartDateTime = MyUpdated.StartDateTime;
-            EndDateTime = MyUpdated.End;
-            EventSequence = new TimeLine(StartDateTime, EndDateTime);
+            updateStartTime(MyUpdated.Start);
+            updateEndTime( MyUpdated.End);
+            EventSequence = new TimeLine(Start, End);
             _EventDuration = MyUpdated.getActiveDuration;
             _Splits = MyUpdated._Splits;
             _PrepTime = MyUpdated._PrepTime;
@@ -246,7 +246,7 @@ namespace TilerElements
             this._DeletedCount = MyUpdated.DeletionCount;
             _EventRepetition = MyUpdated.Repeat;
             _ProfileOfNow = MyUpdated.getNowInfo;
-            EventSequence = new TimeLine(StartDateTime, EndDateTime);
+            EventSequence = new TimeLine(Start, End);
             _Creator = MyUpdated.getCreator;
             _UsedTime = MyUpdated.UsedTime;
             _Users = MyUpdated._Users;
@@ -304,8 +304,8 @@ namespace TilerElements
 
             subEventCopy.UpdateThis(duplicateOfOriginal);
             //calEventCpy.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
-            calEventCpy.StartDateTime = timeLine.Start;
-            calEventCpy.EndDateTime = timeLine.End;
+            calEventCpy.updateStartTime(timeLine.Start);
+            calEventCpy.updateEndTime( timeLine.End);
             subEventCopy.updateCalculationEventRange(timeLine);
             if (subEventCopy.isLocked)/// this is optimized for this use case
             {
@@ -361,8 +361,8 @@ namespace TilerElements
 
                 subEventCopy.UpdateThis(duplicateOfOriginal);
 
-                calEventCpy.StartDateTime = timeLine.Start;
-                calEventCpy.EndDateTime = timeLine.End;
+                calEventCpy.updateStartTime(timeLine.Start);
+                calEventCpy.updateEndTime( timeLine.End);
                 subEventCopy.updateCalculationEventRange(timeLine);
                 if (subEventCopy.isLocked)/// this is optimized for this use case
                 {
@@ -456,8 +456,8 @@ namespace TilerElements
         {
             _EventDuration = new TimeSpan();
 
-            StartDateTime = new DateTimeOffset();
-            EndDateTime = new DateTimeOffset();
+            updateStartTime(new DateTimeOffset());
+            updateEndTime( new DateTimeOffset());
             _EventPreDeadline = new TimeSpan();
             _PrepTime = new TimeSpan();
             _Priority = 0;
@@ -527,8 +527,8 @@ namespace TilerElements
             CalendarEvent MyCalendarEventCopy = new CalendarEvent(true);
             MyCalendarEventCopy._EventDuration = new TimeSpan(_EventDuration.Ticks);
             MyCalendarEventCopy._Name = this._Name.createCopy();
-            MyCalendarEventCopy.StartDateTime = StartDateTime;
-            MyCalendarEventCopy.EndDateTime = EndDateTime;
+            MyCalendarEventCopy.updateStartTime(this.Start);
+            MyCalendarEventCopy.updateEndTime( this.End);
             MyCalendarEventCopy._EventPreDeadline = new TimeSpan(_EventPreDeadline.Ticks);
             MyCalendarEventCopy._PrepTime = new TimeSpan(_PrepTime.Ticks);
             MyCalendarEventCopy._Priority = _Priority;
@@ -585,8 +585,8 @@ namespace TilerElements
         {
             CalendarEvent retValue = new CalendarEvent(true);
             retValue.UniqueID = new EventID(myEventID.getCalendarEventID());
-            retValue.StartDateTime = Start;
-            retValue.EndDateTime = End;
+            retValue.updateStartTime(Start);
+            retValue.updateEndTime( End);
             retValue._EventDuration = new TimeSpan(0);
             SubCalendarEvent emptySubEvent = SubCalendarEvent.getEmptySubCalendarEvent(retValue.UniqueID);
             retValue._SubEvents.Add(emptySubEvent.Id, emptySubEvent);
@@ -888,8 +888,8 @@ namespace TilerElements
 
         virtual public void ReassignTime(DateTimeOffset StartTime, DateTimeOffset EndTime)
         {
-            StartDateTime = StartTime;
-            EndDateTime = EndTime;
+            updateStartTime(StartTime);
+            updateEndTime( EndTime);
             _SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
         }
 
@@ -1238,8 +1238,8 @@ namespace TilerElements
             {
                 _EventDuration = CalendarEventEntry.getActiveDuration;
                 _Name = CalendarEventEntry._Name;
-                StartDateTime = CalendarEventEntry.StartDateTime;
-                EndDateTime = CalendarEventEntry.EndDateTime;
+                updateStartTime(CalendarEventEntry.Start);
+                updateEndTime( CalendarEventEntry.End);
                 _EventPreDeadline = CalendarEventEntry.getPreDeadline;
                 _PrepTime = CalendarEventEntry._PrepTime;
                 _Priority = CalendarEventEntry._Priority;
@@ -1305,8 +1305,8 @@ namespace TilerElements
             }
 
 
-            StartDateTime = StartDateTime + ChangeInTime;
-            EndDateTime = EndDateTime + ChangeInTime;
+            updateStartTime(Start + ChangeInTime);
+            updateEndTime( End + ChangeInTime);
 
             return retValue;
         }
@@ -1510,8 +1510,8 @@ namespace TilerElements
             CalendarEvent RetValue = new CalendarEvent(true);
             RetValue._EventDuration = this.getActiveDuration;
             RetValue._Name = this._Name.createCopy();
-            RetValue.StartDateTime = this.Start;
-            RetValue.EndDateTime = this.End;
+            RetValue.updateStartTime(this.Start);
+            RetValue.updateEndTime( this.End);
             RetValue._EventPreDeadline = this.getPreDeadline;
             RetValue._PrepTime = this.getPreparation;
             RetValue._Priority = this.getEventPriority;
@@ -1543,8 +1543,8 @@ namespace TilerElements
         {
             CalendarEvent retValue = getCalculationCopy();
             retValue._ProfileOfProcrastination = ProcrastinationProfileData;
-            retValue.StartDateTime = ProcrastinationProfileData.PreferredStartTime;
-            retValue.EventSequence = new TimeLine(retValue.StartDateTime, retValue.EndDateTime);
+            retValue.updateStartTime(ProcrastinationProfileData.PreferredStartTime);
+            retValue.EventSequence = new TimeLine(retValue.Start, retValue.End);
             List<SubCalendarEvent> ProcrastinatonCopy = this.ActiveSubEvents
                 .Select(
                 obj => {
@@ -1561,11 +1561,11 @@ namespace TilerElements
         {
             CalendarEvent retValue = getCalculationCopy();
             retValue._ProfileOfNow = NowProfileData;
-            retValue.StartDateTime = NowProfileData.PreferredTime;
-            retValue.EventSequence = new TimeLine(retValue.StartDateTime, retValue.EndDateTime);
+            retValue.updateStartTime(NowProfileData.PreferredTime);
+            retValue.EventSequence = new TimeLine(retValue.Start, retValue.End);
             SubCalendarEvent ProcrastinatonCopy = this.ActiveSubEvents[0].getNowCopy(retValue.UniqueID, NowProfileData);
             ProcrastinatonCopy.ParentCalendarEvent = retValue;
-            retValue.EndDateTime = ProcrastinatonCopy.End;
+            retValue.updateEndTime( ProcrastinatonCopy.End);
             retValue._RigidSchedule = true;
             retValue._SubEvents.Add(ProcrastinatonCopy.Id, ProcrastinatonCopy);
             return retValue;
@@ -1649,7 +1649,7 @@ namespace TilerElements
             List<SubCalendarEvent> newSubs = new List<SubCalendarEvent>();
             for (int i = 0; i < delta; i++)
             {
-                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(this, getCreator, _Users, _TimeZone, _AverageTimePerSplit, this.getName, (EndDateTime - _AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), _RigidSchedule, this.isEnabled, this._UiParams, this.Notes, this._Complete, _LocationInfo, this.StartToEnd);
+                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(this, getCreator, _Users, _TimeZone, _AverageTimePerSplit, this.getName, (End - _AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), _RigidSchedule, this.isEnabled, this._UiParams, this.Notes, this._Complete, _LocationInfo, this.StartToEnd);
                 _SubEvents.Add(newSubCalEvent.Id, newSubCalEvent);
                 _EventDuration = _EventDuration.Add(newSubCalEvent.getActiveDuration);
                 newSubCalEvent.UiParamsId = this.UiParamsId;
@@ -1742,7 +1742,7 @@ namespace TilerElements
 
         override public void updateTimeLine(TimeLine newTImeLine)
         {
-            TimeLine oldTimeLine = new TimeLine(StartDateTime, EndDateTime);
+            TimeLine oldTimeLine = new TimeLine(Start, End);
             AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(newTImeLine));
             bool worksForAllSubevents = true;
             SubCalendarEvent failingSubEvent = SubCalendarEvent.getEmptySubCalendarEvent(this.Calendar_EventID);
@@ -1756,11 +1756,11 @@ namespace TilerElements
             }
             if (worksForAllSubevents)
             {
-                StartDateTime = newTImeLine.Start;
-                EndDateTime = newTImeLine.End;
+                updateStartTime(newTImeLine.Start);
+                updateEndTime( newTImeLine.End);
                 if (this.isLocked)
                 {
-                    _EventDuration = EndDateTime - StartDateTime;
+                    _EventDuration = End - Start;
                 }
             } else
             {
@@ -1849,7 +1849,7 @@ namespace TilerElements
         {
             get
             {
-                return EndDateTime - DateTimeOffset.UtcNow;
+                return End - DateTimeOffset.UtcNow;
             }
         }
 
@@ -2215,7 +2215,7 @@ namespace TilerElements
         {
             get
             {
-                DateTimeOffset retValue = this.StartDateTime;
+                DateTimeOffset retValue = this.Start;
                 if (getProcrastinationInfo != null && !getProcrastinationInfo.isNull)
                 {
                     retValue = retValue >= this.getProcrastinationInfo.PreferredStartTime ? retValue : this.getProcrastinationInfo.PreferredStartTime;

@@ -8667,8 +8667,6 @@ namespace TilerCore
             {
                 foreach (CalendarEvent eachCalendarEvent in NonCommitedCalendarEvemts)
                 {
-
-                    int i = 0;
                     if (eachCalendarEvent.IsRepeat)
                     {
                         lengthOfCalendarSubEvent = eachCalendarEvent.ActiveRepeatSubCalendarEvents.Length;

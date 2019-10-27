@@ -17,8 +17,8 @@ namespace TilerElements
             DateTimeOffset End = (new DateTimeOffset()).Add(Utility.StartOfTimeTimeSpan).AddMilliseconds(SubCalData.SubCalEndDate);
             _Creator = new GoogleTilerUser(SubCalData.ThirdPartyUserID);
             this._Name = new EventName(_Creator, this.ParentCalendarEvent, SubCalData.SubCalCalendarName != null ? SubCalData.SubCalCalendarName : "");
-            StartDateTime = Start;
-            EndDateTime = End;
+            updateStartTime( Start);
+            updateEndTime(End);
             BusyFrame = new BusyTimeLine(SubCalData.ID, Start, End);
             _CalendarEventRange = new TimeLine(Start, End);
             UniqueID = new EventID(SubCalData.ID);

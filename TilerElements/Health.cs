@@ -376,10 +376,6 @@ namespace TilerElements
 
         public class HealthComparison
         {
-            static TimeSpan timeDiff = new TimeSpan();
-            TimeSpan _DistanceTravelTimeSpanDifference = new TimeSpan();
-            double _DistanceTravelDifference;
-            TimeSpan _SleepDifference;
             Health FirstHealth;
             Health SecondHealth;
             HealthEvaluation FirsstEvaluation;

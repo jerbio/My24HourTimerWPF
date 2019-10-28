@@ -244,7 +244,7 @@ namespace TilerElements
         public override SubCalendarEvent CreateCopy(EventID eventId )
         {
             SubCalendarEventRestricted copy = new SubCalendarEventRestricted();
-            copy.BusyFrame = this.BusyFrame.CreateCopy();
+            copy.BusyFrame = this.BusyFrame.CreateCopy() as BusyTimeLine;
             copy._CalendarEventRange = getCalendarEventRange.CreateCopy();
             copy._Complete = _Complete;
             copy._ConflictingEvents = this._ConflictingEvents.CreateCopy();

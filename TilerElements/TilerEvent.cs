@@ -10,8 +10,10 @@ using static TilerElements.Reason;
 
 namespace TilerElements
 {
-    public abstract class TilerEvent: IWhy, IUndoable, IHasId
+    public abstract class TilerEvent : IWhy, IUndoable, IHasId
     {
+        public enum AccessType { owner, writer, reader, none }
+        protected AccessType _Access = AccessType.owner;
         public static TimeSpan ZeroTimeSpan = new TimeSpan(0);
         private DateTimeOffset StartDateTime;
         private DateTimeOffset EndDateTime;
@@ -187,14 +189,14 @@ namespace TilerElements
 
         public virtual void restoreTimeLine()
         {
-            updateStartTime( TempStartDateTime);
-            updateEndTime( TempEndDateTime);
+            updateStartTime(TempStartDateTime);
+            updateEndTime(TempEndDateTime);
         }
 
         public void validateLocation(Location location)
         {
             Location validatedLocation = this._LocationInfo.validate(location);
-            if(validatedLocation!= null && !validatedLocation.isNull && !validatedLocation.isDefault)
+            if (validatedLocation != null && !validatedLocation.isNull && !validatedLocation.isDefault)
             {
                 _LocationValidationId = validatedLocation.Id;
             }
@@ -248,7 +250,7 @@ namespace TilerElements
 
         public virtual void undo(string undoId)
         {
-            if(undoId == UndoId)
+            if (undoId == UndoId)
             {
                 Utility.Swap(ref UndoStartDateTime, ref StartDateTime);
                 Utility.Swap(ref UndoEndDateTime, ref EndDateTime);
@@ -361,7 +363,7 @@ namespace TilerElements
             }
         }
 
-        virtual public  DateTimeOffset End
+        virtual public DateTimeOffset End
         {
             get
             {
@@ -381,15 +383,15 @@ namespace TilerElements
         {
             get
             {
-                if(this.Location != null || !this.Location.isDefault)
+                if (this.Location != null || !this.Location.isDefault)
                 {
-                    if(!this.Location.IsAmbiguous)
+                    if (!this.Location.IsAmbiguous)
                     {
                         return !this.Location.IsAmbiguous;
                     }
                     else
                     {
-                        if(!(string.IsNullOrEmpty(this._LocationValidationId) && string.IsNullOrWhiteSpace(this._LocationValidationId)))
+                        if (!(string.IsNullOrEmpty(this._LocationValidationId) && string.IsNullOrWhiteSpace(this._LocationValidationId)))
                         {
                             return !this.Location.isDefault;
                         }
@@ -404,13 +406,13 @@ namespace TilerElements
                 {
                     return false;
                 }
-                
+
             }
         }
 
         public virtual ThirdPartyControl.CalendarTool ThirdpartyType
         {
-            get 
+            get
             {
                 return ThirdPartyTypeInfo;
             }
@@ -432,7 +434,7 @@ namespace TilerElements
             }
         }
 
-        public  string ThirdPartyID
+        public string ThirdPartyID
         {
             get
             {
@@ -507,18 +509,18 @@ namespace TilerElements
             }
             get
             {
-                if(_LocationInfo.IsVerified)
+                if (_LocationInfo.IsVerified)
                 {
                     return _LocationInfo;
                 }
-                if(_LocationInfo.IsAmbiguous)
+                if (_LocationInfo.IsAmbiguous)
                 {
                     Location retValue = _LocationInfo.getLocationThroughValidation(_LocationValidationId);
-                    if(retValue!=null &&!retValue.isDefault)
+                    if (retValue != null && !retValue.isDefault)
                     {
                         _LocationValidationId = retValue?.Id;
                     }
-                    return retValue ?? Location.getDefaultLocation() ;
+                    return retValue ?? Location.getDefaultLocation();
                 }
                 return _LocationInfo;
             }
@@ -547,7 +549,7 @@ namespace TilerElements
                 return _LocationInfo;
             }
         }
-        
+
         [ForeignKey("LocationId")]
         virtual public Location Location_DB
         {
@@ -563,7 +565,7 @@ namespace TilerElements
                 }
                 else
                 {
-                    return _LocationInfo.isNull || _LocationInfo.isDefault? null : _LocationInfo;
+                    return _LocationInfo.isNull || _LocationInfo.isDefault ? null : _LocationInfo;
                 }
             }
         }
@@ -630,7 +632,7 @@ namespace TilerElements
 
             set
             {
-                this.StartDateTime =  value;
+                this.StartDateTime = value;
             }
         }
 
@@ -684,14 +686,14 @@ namespace TilerElements
             }
             set
             {
-                if(value!=null)
+                if (value != null)
                 {
                     _AutoDeletionReason = Utility.ParseEnum<Reason.AutoDeletion>(value);
-                }else
+                } else
                 {
                     _AutoDeletionReason = AutoDeletion.None;
                 }
-                
+
             }
         }
 
@@ -715,7 +717,7 @@ namespace TilerElements
         {
             get
             {
-                return IsRepeat && _EventRepetition!=null && _EventRepetition.isPersistable ?  _EventRepetition : null;
+                return IsRepeat && _EventRepetition != null && _EventRepetition.isPersistable ? _EventRepetition : null;
             }
             set
             {
@@ -878,6 +880,56 @@ namespace TilerElements
                 ThirdPartyTypeInfo = Utility.ParseEnum<ThirdPartyControl.CalendarTool>(value);
             }
         }
+
+        public AccessType Access
+        {
+            get
+            {
+                return _Access;
+            }
+        }
+
+        public string Access_DB
+        {
+            get
+            {
+                return _Access.ToString().ToLower();
+            }
+            set
+            {
+                if (!string.IsNullOrEmpty(value) && !string.IsNullOrWhiteSpace(value))
+                {
+                    _Access = Utility.ParseEnum<AccessType>(value);
+                }
+                else
+                {
+                    _Access = AccessType.owner;
+                }
+            }
+        }
+
+        public virtual bool isReadOnly {
+            get {
+                return this.Access == AccessType.reader;
+            }
+        }
+
+        public virtual bool isModifiable {
+            get
+            {
+                return this.Access == AccessType.owner || this.Access== AccessType.writer;
+            }
+        }
+
+        public virtual bool isNoAcces
+        {
+            get
+            {
+                return this.Access == AccessType.none;
+            }
+        }
+
+
 
         public string CreatorId { get; set; }
         [ForeignKey("CreatorId")]

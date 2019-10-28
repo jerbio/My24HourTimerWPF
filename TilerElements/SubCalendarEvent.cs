@@ -407,7 +407,7 @@ namespace TilerElements
             {
                 Id = this.getId;
             }
-            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ParentCalendarEvent, getCreator, _Users, this._TimeZone, Id, this.getName.createCopy(), Start, End, BusyFrame.CreateCopy(), this._RigidSchedule, this.isEnabled, this._UiParams?.createCopy(), this.Notes?.createCopy(), this._Complete, this._LocationInfo, new TimeLine(getCalendarEventRange.Start, getCalendarEventRange.End), _ConflictingEvents?.CreateCopy());
+            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ParentCalendarEvent, getCreator, _Users, this._TimeZone, Id, this.getName.createCopy(), Start, End, BusyFrame.CreateCopy() as BusyTimeLine, this._RigidSchedule, this.isEnabled, this._UiParams?.createCopy(), this.Notes?.createCopy(), this._Complete, this._LocationInfo, new TimeLine(getCalendarEventRange.Start, getCalendarEventRange.End), _ConflictingEvents?.CreateCopy());
             MySubCalendarEventCopy.ThirdPartyID = this.ThirdPartyID;
             MySubCalendarEventCopy._AutoDeleted = this._AutoDeleted;
             MySubCalendarEventCopy.isRestricted = this.isRestricted;
@@ -628,7 +628,7 @@ namespace TilerElements
         virtual protected SubCalendarEvent getCalulationCopy()
         {
             SubCalendarEvent retValue = new SubCalendarEvent();
-            retValue.BusyFrame = this.ActiveSlot.CreateCopy();
+            retValue.BusyFrame = this.ActiveSlot.CreateCopy() as BusyTimeLine;
             retValue._CalendarEventRange = this.getCalendarEventRange.CreateCopy();
             retValue._Name = this.getName;
             retValue._EventDuration = this.getActiveDuration;
@@ -1128,7 +1128,7 @@ namespace TilerElements
                 return retValue;
             }
         }
-         public ConflictProfile Conflicts
+         public virtual ConflictProfile Conflicts
          {
              get
              {

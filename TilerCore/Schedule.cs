@@ -598,11 +598,6 @@ namespace TilerCore
             return retValue;
         }
 
-        public void FindNewSlotForSubEvent(EventID MyEventID)
-        {
-            return;
-        }
-
         public BusyTimeLine NextActivity
         {
             get

@@ -35,6 +35,7 @@ namespace TilerElements
             ThirdPartyUserIDInfo = SubCalData.ThirdPartyUserID;
             _DataBlob = new MiscData();
             _ProfileOfNow = new NowProfile();
+            this._Access = SubCalData.isReadOnly ? AccessType.reader : AccessType.owner;
             _Users = new TilerUserGroup()
             {
 

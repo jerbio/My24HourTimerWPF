@@ -41,6 +41,7 @@ namespace TilerElements
             _ProfileOfNow = new NowProfile();
             SubCalendarEvent mySubCal = GoogleSubCalendarEvent.convertFromGoogleToSubCalendarEvent( SubCalData, _LocationInfo);//.convertFromGoogleToSubCalendarEvent();
             mySubCal.ParentCalendarEvent = this;
+            this._Access = SubCalData.isReadOnly ? AccessType.reader : AccessType.owner;
             _SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
             _SubEvents.Collection.Add(mySubCal.Id, mySubCal);
         }

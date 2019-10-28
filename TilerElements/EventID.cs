@@ -9,7 +9,6 @@ namespace TilerElements
     {
         string[] LayerID = new string[4] { "0", "7", "0", "0"};
         string s_FullID="";
-        int FullID;
         static string delimiter = "_";
         static char delimiter_char ='_';
         public EventID(string stringId)
@@ -366,7 +365,6 @@ namespace TilerElements
         {
             static uint idcounter = 0;
 
-            static bool AlreadyInitialized = false;
             public static void Initialize(uint LastID)
             {
                 idcounter = LastID;

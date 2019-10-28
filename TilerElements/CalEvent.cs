@@ -33,29 +33,8 @@ namespace TilerElements
         public string OtherPartyID { get; set; }
         public string ThirdPartyUserID { get; set; }
         public string ThirdPartyType { get; set; }
+        public bool isThirdParty { get; set; }
+        public bool isReadOnly { get; set; }
         public string Notes { get; set; }
-        public static CalendarEvent FromGoogleToRepatCalendarEvent(IEnumerable<SubCalendarEvent> AllSubCalEvents, TimeLine LimitsOfCalculation = null)
-        {
-            CalendarEvent RetValue = null;
-
-            SubCalendarEvent[] AllSubcals = AllSubCalEvents.ToArray();
-            if (AllSubcals.Length > 0)
-            {
-                SubCalendarEvent FirtEvent = AllSubcals.First();
-                EventID ParentCalId = new EventID(FirtEvent.SubEvent_ID.getRepeatCalendarEventID());
-                if (LimitsOfCalculation == null)
-                {
-                    DateTimeOffset CalEventStart = AllSubcals.Min(obj => obj.Start);
-                    DateTimeOffset CalEventEnd = AllSubcals.Max(obj => obj.End);
-                    LimitsOfCalculation = new TimeLine(CalEventStart, CalEventEnd);
-                }
-
-                RetValue = new CalendarEvent(//ParentCalId, 
-                    AllSubCalEvents.First().getName, LimitsOfCalculation.Start, LimitsOfCalculation.End, LimitsOfCalculation.TimelineSpan, new TimeSpan(), new TimeSpan(), AllSubcals.Length, new Repetition(),  new TilerElements.Location(), new EventDisplay(), new MiscData(), null, new NowProfile(), true, false, TilerUser.googleUser, new TilerUserGroup(), "UTC", ParentCalId);
-                RetValue = new RigidCalendarEvent(RetValue, AllSubcals);
-            }
-            return RetValue;
-        }
-        
     }
 }

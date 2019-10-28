@@ -47,14 +47,6 @@ namespace TilerElements
                 return UniqueID.ToString();
             }
         }
-
-        public ConflictProfile Conflicts
-        {
-            get
-            {
-                return _ConflictingEvents;
-            }
-        }
         #endregion
 
     }

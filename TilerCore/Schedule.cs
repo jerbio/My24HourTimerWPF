@@ -3770,11 +3770,10 @@ namespace TilerCore
             return retValue;
         }
 
-        List<TimeLine> reorderFreeSpotBasedOnTimeSpanAndEndtime(IEnumerable<TimeLine> AllTImeLines)
+        List<TimeLine> reorderFreeSpotBasedOnTimeSpanAndEndtime(IEnumerable<TimeLine> AllTimeLines)
         {
             Dictionary<TimeSpan, List<TimeLine>> TImespanTOEvents = new Dictionary<TimeSpan, List<TimeLine>>();
-            IList<KeyValuePair<TimeSpan, List<TimeLine>>> TImespanTOEvents_list;
-            foreach (TimeLine eachTimeLine in AllTImeLines)
+            foreach (TimeLine eachTimeLine in AllTimeLines)
             {
                 if (TImespanTOEvents.ContainsKey(eachTimeLine.TimelineSpan))
                 {

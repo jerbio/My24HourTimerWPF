@@ -31,6 +31,7 @@ namespace TilerTests
         static readonly string _firstName = "First Name TestUserTiler";
         const string testUserId = "065febec-d1fe-4c8b-bd32-548613d4479f";
         static bool isInitialized = false;
+        static bool forceNoInternetConnection = true;
         static Dictionary<string, TilerDbContext> UserToContext = new Dictionary<string, TilerDbContext>();
 
         public static void init()
@@ -149,20 +150,25 @@ namespace TilerTests
 
         public static bool CheckForInternetConnection()
         {
-            return false;
-            try
-            {
-                using (var client = new System.Net.WebClient())
-                {
-                    using (var stream = client.OpenRead("http://www.google.com"))
-                    {
-                        return true;
-                    }
-                }
-            }
-            catch
+            if (forceNoInternetConnection)
             {
                 return false;
+            } else
+            {
+                try
+                {
+                    using (var client = new System.Net.WebClient())
+                    {
+                        using (var stream = client.OpenRead("http://www.google.com"))
+                        {
+                            return true;
+                        }
+                    }
+                }
+                catch
+                {
+                    return false;
+                }
             }
         }
 
@@ -922,7 +928,7 @@ namespace TilerTests
                     false); // if calendar repeat flags aren't the same then the calEvents are not equal
             Assert.IsTrue(retValue);
             retValue &= (firstCalEvent.getIsEventRestricted == secondCalEvent.getIsEventRestricted ?
-                    (firstCalEvent.getIsEventRestricted ? isTestEquivalent((firstCalEvent as CalendarEventRestricted).RetrictionProfile, (secondCalEvent as CalendarEventRestricted).RetrictionProfile) : true) : //if restriction profile is enabled the run equivalecy test else then passing test
+                    (firstCalEvent.getIsEventRestricted ? isTestEquivalent((firstCalEvent as CalendarEventRestricted).RestrictionProfile, (secondCalEvent as CalendarEventRestricted).RestrictionProfile) : true) : //if restriction profile is enabled the run equivalecy test else then passing test
                     false);
             Assert.IsTrue(retValue);
             retValue &= (firstCalEvent.getUIParam.isTestEquivalent(secondCalEvent.getUIParam));

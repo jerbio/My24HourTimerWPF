@@ -44,7 +44,7 @@ namespace TilerElements
         }
 
         #region functions
-        public BusyTimeLine CreateCopy()
+        public override TimeLine CreateCopy()
         {
             BusyTimeLine MyBusyTimlineCopy = new BusyTimeLine(this.TimeLineID, StartTime, EndTime);
             return MyBusyTimlineCopy;

@@ -16,12 +16,12 @@ namespace TilerElements
 
         public BlobSubCalendarEvent(IEnumerable<SubCalendarEvent> InterFerringEvents)
         {
-            StartDateTime= InterFerringEvents.OrderBy(obj => obj.Start).First().Start;
-            EndDateTime = InterFerringEvents.OrderByDescending(obj => obj.End).First().End;
+            updateStartTime( InterFerringEvents.OrderBy(obj => obj.Start).First().Start);
+            updateEndTime( InterFerringEvents.OrderByDescending(obj => obj.End).First().End);
             UniqueID=EventID.GenerateSubCalendarEvent(EventID.GenerateCalendarEvent().ToString());
-            BusyFrame = new BusyTimeLine(UniqueID.ToString(), StartDateTime, EndDateTime);
-            _CalendarEventRange = new TimeLine(StartDateTime,EndDateTime);
-            CalendarEvent nullEvent = CalendarEvent.getEmptyCalendarEvent(UniqueID, StartDateTime, EndDateTime);
+            BusyFrame = new BusyTimeLine(UniqueID.ToString(), Start, End);
+            _CalendarEventRange = new TimeLine(Start,End);
+            CalendarEvent nullEvent = CalendarEvent.getEmptyCalendarEvent(UniqueID, Start, End);
             _RigidSchedule = true;
             double halfDouble=Double.MaxValue/2;
             _LocationInfo = Location.AverageGPSLocation(InterFerringEvents.Where(Obj => Obj.Location.Latitude < halfDouble).Select(obj => obj.Location));
@@ -45,14 +45,6 @@ namespace TilerElements
             get
             {
                 return UniqueID.ToString();
-            }
-        }
-
-        public ConflictProfile Conflicts
-        {
-            get
-            {
-                return _ConflictingEvents;
             }
         }
         #endregion

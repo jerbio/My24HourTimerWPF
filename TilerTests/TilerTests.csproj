@@ -93,9 +93,6 @@
       <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml" />
-    <Reference Include="TilerCore">
-      <HintPath>..\TilerCore\bin\Debug\TilerCore.dll</HintPath>
-    </Reference>
     <Reference Include="TilerElements">
       <HintPath>..\TilerElements\bin\Debug\TilerElements.dll</HintPath>
     </Reference>
@@ -192,6 +189,9 @@
     <Content Include="WagTapCalLogs\59754086-6192-4364-a364-dffb4c71d7b6\59754086-6192-4364-a364-dffb4c71d7b6.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="WagTapCalLogs\61651f57-0cc3-4da1-bbca-c655013d0642\61651f57-0cc3-4da1-bbca-c655013d0642.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="WagTapCalLogs\aad38888-ed1d-435f-a814-0152c0fe8128\aad38888-ed1d-435f-a814-0152c0fe8128.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -252,6 +252,12 @@
     <Content Include="WagTapCalLogs\0e062820-967c-4afc-aa45-9ffd9a0a3e3d\0e062820-967c-4afc-aa45-9ffd9a0a3e3d.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TilerCore\TilerCore.csproj">
+      <Project>{bd4e5701-2e62-464b-8840-d49e056fd49b}</Project>
+      <Name>TilerCore</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

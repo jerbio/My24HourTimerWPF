@@ -151,7 +151,7 @@ namespace TilerElements
             List<BusyTimeLine> TempActiveSlotsHolder = new List<BusyTimeLine>();
             foreach (BusyTimeLine MyBusyTimeLine in ActiveTimeSlots)
             {
-                TempActiveSlotsHolder.Add(MyBusyTimeLine.CreateCopy());
+                TempActiveSlotsHolder.Add(MyBusyTimeLine.CreateCopy() as BusyTimeLine);
             }
 
             CopyTimeLine.ActiveTimeSlots =  new ConcurrentBag<BusyTimeLine>( TempActiveSlotsHolder);//.ToArray();

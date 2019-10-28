@@ -36,7 +36,7 @@ namespace TilerElements
             _SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
             for (int i = 0; i < _Splits; i++)
             {
-                TimeLine procrastinationTimeLine = new TimeLine(StartDateTime, EndDateTime);
+                TimeLine procrastinationTimeLine = new TimeLine(Start, End);
                 SubCalendarEvent newSubCalEvent = new ProcrastinateAllSubCalendarEvent(getCreator, _Users, _TimeZone, procrastinationTimeLine, this.UniqueID, this._LocationInfo, this);
                 newSubCalEvent.TimeCreated = this.TimeCreated;
 
@@ -84,8 +84,8 @@ namespace TilerElements
                 end = end > subEvent.End? end: subEvent.End;
             }
             TimeLine newTImeLine = new TimeLine(start, end);
-            this.StartDateTime = newTImeLine.Start;
-            this.EndDateTime = newTImeLine.End;
+            this.updateStartTime(newTImeLine.Start);
+            this.updateEndTime(newTImeLine.End);
             AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(newTImeLine));
             updateEventSequence();
             this.UpdateTimePerSplit();
@@ -115,8 +115,8 @@ namespace TilerElements
             else
             {
                 procrastinateAll = procrastinateEvent;
-                procrastinateAll.EndDateTime = referenceNow.Add(DelaySpan);
-                TimeLine procrastinationTimeLine = new TimeLine(referenceNow, procrastinateAll.EndDateTime);
+                procrastinateAll.updateEndTime( referenceNow.Add(DelaySpan));
+                TimeLine procrastinationTimeLine = new TimeLine(referenceNow, procrastinateAll.End);
                 ProcrastinateAllSubCalendarEvent subEvent = new ProcrastinateAllSubCalendarEvent(user, new TilerUserGroup(), user.TimeZone, procrastinationTimeLine, new EventID(suEventId.getCalendarEventID()), procrastinateAll._LocationInfo, procrastinateAll);
                 //Combines multiple subcalendarevents that interfere into one single subcalendarEvent
                 List<SubCalendarEvent> interferringSubEvents = procrastinateAll.ActiveSubEvents.Where(possibleInterferringSubEvent => possibleInterferringSubEvent.End >= referenceNow).OrderBy(possibleInterferringSubEvent => possibleInterferringSubEvent.End).ToList();

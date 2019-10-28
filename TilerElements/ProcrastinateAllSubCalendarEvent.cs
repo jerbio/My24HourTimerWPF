@@ -18,8 +18,8 @@ namespace TilerElements
             this.Name = calendarEvent.getName;
             this._LocationInfo = location;
             this._TimeZone = timeZone;
-            this.StartDateTime = timeLine.Start;
-            this.EndDateTime = timeLine.End;
+            this.updateStartTime( timeLine.Start);
+            this.updateEndTime( timeLine.End);
             this._RigidSchedule = true;
             this.UniqueID = EventID.GenerateSubCalendarEvent(calendarEventId);
             this._Creator = user;

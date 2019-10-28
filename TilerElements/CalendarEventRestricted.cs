@@ -42,18 +42,9 @@ namespace TilerElements
         public CalendarEventRestricted(TilerUser creator, TilerUserGroup userGroup, EventName Name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, NowProfile profileOfNow,  Location Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventID eventId, ReferenceNow now, Procrastination procrastination, EventDisplay UiSettings = null, MiscData NoteData=null, string timeZone = null)
         {
            _Name =  Name;
-            StartDateTime = Start;
-            EndDateTime = End;
             _RigidSchedule = isRigid;
             _ProfileOfRestriction = restrictionProfile;
             _Splits = Divisions;
-            if (RepetitionProfile.EnableRepeat)
-            {
-                _Splits = Divisions;
-                End = RepetitionProfile.Range.End;
-                _AverageTimePerSplit = new TimeSpan();
-                this._EventRepetition = RepetitionProfile;
-            }
             _Complete = isCompleted;
             _Enabled = isEnabled;
             UniqueID = EventID.GenerateCalendarEvent();
@@ -83,6 +74,15 @@ namespace TilerElements
             }
             _EventDayPreference = new EventPreference();
             _ProfileOfProcrastination = procrastination;
+            updateStartTime(Start);
+            updateEndTime(End);
+            if (RepetitionProfile.EnableRepeat)
+            {
+                _Splits = Divisions;
+                updateEndTime(RepetitionProfile.Range.End);
+                _AverageTimePerSplit = new TimeSpan();
+                this._EventRepetition = RepetitionProfile;
+            }
             InstantiateSubEvents();
         }
 
@@ -91,18 +91,9 @@ namespace TilerElements
         public CalendarEventRestricted(TilerUser creator, TilerUserGroup userGroup, string timeZone, EventName Name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, NowProfile profileOfNow, Location Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventID eventId, ReferenceNow now, Procrastination procrastination, EventDisplay UiSettings = null, MiscData NoteData = null)
         {
             _Name = Name;
-            StartDateTime = Start;
-            EndDateTime = End;
             _RigidSchedule = isRigid;
             _ProfileOfRestriction = restrictionProfile;
             _Splits = Divisions;
-            if (RepetitionProfile.EnableRepeat)
-            {
-                _Splits = Divisions;
-                End = RepetitionProfile.Range.End;
-                _AverageTimePerSplit = new TimeSpan();
-                this._EventRepetition = RepetitionProfile;
-            }
             _Complete = isCompleted;
             _Enabled = isEnabled;
             _EventPreDeadline = Event_PreDeadline;
@@ -131,6 +122,15 @@ namespace TilerElements
             }
             _EventDayPreference = new EventPreference();
             _ProfileOfProcrastination = procrastination;
+            updateStartTime(Start);
+            updateEndTime(End);
+            if (RepetitionProfile.EnableRepeat)
+            {
+                _Splits = Divisions;
+                updateEndTime(RepetitionProfile.Range.End);
+                _AverageTimePerSplit = new TimeSpan();
+                this._EventRepetition = RepetitionProfile;
+            }
             InstantiateSubEvents();
         }
 
@@ -140,8 +140,6 @@ namespace TilerElements
             retValue .UniqueID = EventID.GenerateRepeatCalendarEvent(CalendarEventID.ToString());
             retValue ._Name =  Name;
             retValue._EventDuration = Duration;
-            retValue.StartDateTime = Start;
-            retValue.EndDateTime = End;
             retValue._ProfileOfRestriction = restrictionProfile;
             retValue._Complete = false;
             retValue._Enabled = true;
@@ -161,6 +159,8 @@ namespace TilerElements
             retValue._DataBlob = miscData;
             retValue._ProfileOfNow = nowProfile;
             retValue._ProfileOfProcrastination = procrastination;
+            retValue.updateStartTime(Start);
+            retValue.updateEndTime(End);
             retValue.InstantiateSubEvents();
             
             return retValue;
@@ -171,8 +171,6 @@ namespace TilerElements
             CalendarEventRestricted MyCalendarEventCopy = new CalendarEventRestricted();
             MyCalendarEventCopy._EventDuration = new TimeSpan(_EventDuration.Ticks);
             MyCalendarEventCopy._Name = this._Name.createCopy();
-            MyCalendarEventCopy.StartDateTime = StartDateTime;
-            MyCalendarEventCopy.EndDateTime = EndDateTime;
             MyCalendarEventCopy._EventPreDeadline = new TimeSpan(_EventPreDeadline.Ticks);
             MyCalendarEventCopy._PrepTime = new TimeSpan(_PrepTime.Ticks);
             MyCalendarEventCopy._Priority = _Priority;
@@ -198,6 +196,8 @@ namespace TilerElements
             MyCalendarEventCopy._Now = this._Now;
             MyCalendarEventCopy._UsedTime = this._UsedTime;
             MyCalendarEventCopy._EventDayPreference = this._EventDayPreference?.createCopy();
+            MyCalendarEventCopy.updateStartTime(Start);
+            MyCalendarEventCopy.updateEndTime(End);
             if (eventId != null)
             {
                 MyCalendarEventCopy.UniqueID = eventId;
@@ -232,7 +232,7 @@ namespace TilerElements
             }
         }
 
-        public override RestrictionProfile RetrictionProfile
+        public override RestrictionProfile RestrictionProfile
         {
             get
             {
@@ -278,8 +278,6 @@ namespace TilerElements
             CalendarEventRestricted RetValue = new CalendarEventRestricted();
             RetValue._EventDuration = this.getActiveDuration;
             RetValue._Name = this.getName.createCopy();
-            RetValue.StartDateTime = this.Start;
-            RetValue.EndDateTime = this.End;
             RetValue._EventPreDeadline = this.getPreDeadline;
             RetValue._PrepTime = this.getPreparation;
             RetValue._Priority = this.getEventPriority;
@@ -308,6 +306,8 @@ namespace TilerElements
             RetValue._ProfileOfRestriction = this._ProfileOfRestriction?.createCopy();
             RetValue._EventDayPreference = this._EventDayPreference?.createCopy();
             RetValue._Now = this._Now;
+            RetValue.updateStartTime(this.Start);
+            RetValue.updateEndTime(this.End);
             return RetValue;
         }
 
@@ -396,11 +396,11 @@ namespace TilerElements
                 if (worksForAllSubevents)
                 {
                     TimeLine startAndEndTimeLine = newTimeLineUpdated.StartToEnd;
-                    StartDateTime = startAndEndTimeLine.Start;
-                    EndDateTime = startAndEndTimeLine.End;
+                    updateStartTime( startAndEndTimeLine.Start);
+                    updateEndTime( startAndEndTimeLine.End);
                     if (this.isLocked)
                     {
-                        _EventDuration = EndDateTime - StartDateTime;
+                        _EventDuration = End - Start;
                     }
                 }
                 else
@@ -409,6 +409,7 @@ namespace TilerElements
                     CustomErrors customError = new CustomErrors("Cannot update the timeline for the calendar event with sub event " + failingSubEvent.getId + ". Most likely because the new time line won't fit the sub event", 40000001);
                     throw customError;
                 }
+                updateCalculationStartToEnd();
             } else
             {
                 CustomErrors customError = new CustomErrors(CustomErrors.Errors.restrictedTimeLineUpdateInValid, "The restricted timeline update cannot contain restriction time frames");
@@ -417,12 +418,35 @@ namespace TilerElements
             
         }
 
-        public override TimeLine StartToEnd
+
+        protected override void updateStartTime(DateTimeOffset time)
+        {
+            base.updateStartTime(time);
+            updateCalculationStartToEnd();
+        }
+
+        protected override void updateEndTime(DateTimeOffset time)
+        {
+            base.updateEndTime(time);
+            updateCalculationStartToEnd();
+        }
+
+        protected override void updateCalculationStartToEnd()
+        {
+            _CalculationStartToEnd = new TimeLineRestricted(this.CalculationStart, this.End, this.RestrictionProfile, Now);
+        }
+        public override TimeLine CalculationStartToEnd
         {
             get
             {
-                TimeLine timeLine = new TimeLine(this.Start, this.End);
-                return timeLine;
+                if (_CalculationStartToEnd!=null)
+                {
+                    return _CalculationStartToEnd;
+                } else
+                {
+                    updateCalculationStartToEnd();
+                    return _CalculationStartToEnd;
+                }
             }
         }
     }

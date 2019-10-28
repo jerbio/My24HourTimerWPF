@@ -16,7 +16,6 @@ namespace My24HourTimerWPF
         ClumpSubCalendarEvent BreakOffClump;
         Dictionary<SubCalendarEvent, ClumpSubCalendarEvent> ClumpedResults;
         TimeLine BoundaryTimeLine;
-        static List<List<SubCalendarEvent>> CompleteResolvedNonOverlapping;
         public static int Completed = 0;
         //List<ClumpSubCalendarEvent> OverLapping_Clump;
         DateTimeOffset BaseReferenceStartTime;
@@ -294,26 +293,6 @@ namespace My24HourTimerWPF
         {
             List<List<SubCalendarEvent>> retValue = new List<List<SubCalendarEvent>>();
 
-            /*if (BaseEvent == null)
-            {
-                return retValue;
-            }*/
-
-
-
-          
-
-
-
-
-
-
-
-
-
-
-
-            int i = 0;
             List<List<SubCalendarEvent>> temp_ListOfClump = new List<List<SubCalendarEvent>>();
             List<List<SubCalendarEvent>> temp_ListOfClump_BreakOfClump = new List<List<SubCalendarEvent>>(); ;
             if (BaseEvent != null)

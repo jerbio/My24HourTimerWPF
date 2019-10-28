@@ -10,13 +10,15 @@ using static TilerElements.Reason;
 
 namespace TilerElements
 {
-    public abstract class TilerEvent: IWhy, IUndoable, IHasId
+    public abstract class TilerEvent : IWhy, IUndoable, IHasId
     {
+        public enum AccessType { owner, writer, reader, none }
+        protected AccessType _Access = AccessType.owner;
         public static TimeSpan ZeroTimeSpan = new TimeSpan(0);
-        protected DateTimeOffset StartDateTime;
-        protected DateTimeOffset EndDateTime;
-        protected DateTimeOffset TempStartDateTime;
-        protected DateTimeOffset TempEndDateTime;
+        private DateTimeOffset StartDateTime;
+        private DateTimeOffset EndDateTime;
+        private DateTimeOffset TempStartDateTime;
+        private DateTimeOffset TempEndDateTime;
         protected bool _Complete = false;
         protected bool _Enabled = true;
         protected bool _AutoDeleted = false;
@@ -108,15 +110,15 @@ namespace TilerElements
         {
             Dictionary<TimelineWithSubcalendarEvents, OptimizedGrouping> TimelinesDict = groupings.ToDictionary(grouping => grouping.GroupAverage.TimeLine, grouping => grouping);
             Dictionary<TimeOfDayPreferrence.DaySection, OptimizedGrouping> TimeOfDayToGroup = groupings.ToDictionary(grouping => grouping.DaySector, grouping => grouping);
-            List<TimelineWithSubcalendarEvents> Timelines = orderBasedOnProductivity(TimeOfDayToGroup);
-            List<double> foundIndexes = EvaluateTimeLines(Timelines);//
-            List<Tuple<double, OptimizedGrouping>> indexToGrouping = foundIndexes.Select((score, index) => { return new Tuple<double, OptimizedGrouping>(score, TimelinesDict[Timelines[index]]); }).OrderBy(tuple => tuple.Item1).ToList();
+            List<Tuple<TimelineWithSubcalendarEvents, OptimizedGrouping>> Timelines = orderBasedOnProductivity(TimeOfDayToGroup);
+            List<double> foundIndexes = EvaluateTimeLines(Timelines.Select(obj => obj.Item1).ToList(), Timelines.Select(obj => new Tuple<Location, Location>(obj.Item2.LeftBorder, obj.Item2.RightBorder)).ToList(), true);//
+            List<Tuple<double, OptimizedGrouping>> indexToGrouping = foundIndexes.Select((score, index) => { return new Tuple<double, OptimizedGrouping>(score, TimelinesDict[Timelines[index].Item1]); }).OrderBy(tuple => tuple.Item1).ToList();
             int bestIndex = foundIndexes.MinIndex();
             List<OptimizedGrouping> retValue = indexToGrouping.Select(tuple => tuple.Item2).ToList();
             return retValue;
         }
 
-        public virtual List<double> EvaluateTimeLines(List<TimelineWithSubcalendarEvents> timeLines, List<Tuple<Location, Location>> borderLocations = null)
+        public virtual List<double> EvaluateTimeLines(List<TimelineWithSubcalendarEvents> timeLines, List<Tuple<Location, Location>> borderLocations = null, bool factorInTimelineOrder = false)
         {
             double worstDistanceInKM = 7;
             List<IList<double>> multiDimensionalClaculation = new List<IList<double>>();
@@ -126,7 +128,15 @@ namespace TilerElements
                 double distance = Location.calculateDistance(timeline.averageLocation, this.Location, worstDistanceInKM);
                 double tickRatio = (double)this.getActiveDuration.Ticks / timeline.TotalFreeSpotAvailable.Ticks;
                 double occupancy = (double)timeline.Occupancy;
-                IList<double> dimensionsPerDay = new List<double>() { distance, tickRatio, occupancy };
+                IList<double> dimensionsPerDay;
+                if (factorInTimelineOrder)
+                {
+                    dimensionsPerDay = new List<double>() { distance, tickRatio, occupancy, i + 1 };
+                }
+                else
+                {
+                    dimensionsPerDay = new List<double>() { distance, tickRatio, occupancy };
+                }
                 if (borderLocations != null && borderLocations.Count == timeLines.Count)
                 {
                     Tuple<Location, Location> borderLocation = borderLocations[i];
@@ -144,11 +154,11 @@ namespace TilerElements
         /// </summary>
         /// <param name="timeLines"></param>
         /// <returns></returns>
-        protected List<TimelineWithSubcalendarEvents> orderBasedOnProductivity(Dictionary<TimeOfDayPreferrence.DaySection, OptimizedGrouping> AllGroupings)
+        protected List<Tuple<TimelineWithSubcalendarEvents, OptimizedGrouping>> orderBasedOnProductivity(Dictionary<TimeOfDayPreferrence.DaySection, OptimizedGrouping> AllGroupings)
         {
             //TODO need to use machine learning to order the timelines right now the implemenation simple favors a morning schedule
             List<TimeOfDayPreferrence.DaySection> daySectionsPreferredOrder = (new List<TimeOfDayPreferrence.DaySection>() { TimeOfDayPreferrence.DaySection.Morning, TimeOfDayPreferrence.DaySection.Afternoon, TimeOfDayPreferrence.DaySection.Evening, TimeOfDayPreferrence.DaySection.Sleep }).Where(section => AllGroupings.ContainsKey(section)).ToList();
-            List<TimelineWithSubcalendarEvents> retValue = daySectionsPreferredOrder.Select(timeOfDay => AllGroupings[timeOfDay].GroupAverage.TimeLine).ToList();
+            List<Tuple<TimelineWithSubcalendarEvents, OptimizedGrouping>> retValue = daySectionsPreferredOrder.Select(timeOfDay => new Tuple<TimelineWithSubcalendarEvents, OptimizedGrouping>(AllGroupings[timeOfDay].GroupAverage.TimeLine, AllGroupings[timeOfDay])).ToList();
             return retValue;
         }
 
@@ -173,33 +183,43 @@ namespace TilerElements
 
         public virtual void storeTimeLine()
         {
-            TempStartDateTime = StartDateTime;
-            TempEndDateTime = EndDateTime;
+            TempStartDateTime = Start;
+            TempEndDateTime = End;
         }
 
         public virtual void restoreTimeLine()
         {
-            StartDateTime = TempStartDateTime;
-            EndDateTime = TempEndDateTime;
+            updateStartTime(TempStartDateTime);
+            updateEndTime(TempEndDateTime);
         }
 
         public void validateLocation(Location location)
         {
             Location validatedLocation = this._LocationInfo.validate(location);
-            if(validatedLocation!= null && !validatedLocation.isNull && !validatedLocation.isDefault)
+            if (validatedLocation != null && !validatedLocation.isNull && !validatedLocation.isDefault)
             {
                 _LocationValidationId = validatedLocation.Id;
             }
         }
 
+
+        protected virtual void updateStartTime(DateTimeOffset time)
+        {
+            this.StartDateTime = time;
+        }
+
+        protected virtual void updateEndTime(DateTimeOffset time)
+        {
+            this.EndDateTime = time;
+        }
         abstract public void updateTimeLine(TimeLine newTImeLine);
 
 
         #region undoFunctions
         public virtual void undoUpdate(Undo undo)
         {
-            UndoStartDateTime = StartDateTime;
-            UndoEndDateTime = EndDateTime;
+            UndoStartDateTime = Start;
+            UndoEndDateTime = End;
             UndoComplete = _Complete;
             UndoEnabled = _Enabled;
             UndoUserDeleted = _AutoDeleted;
@@ -230,7 +250,7 @@ namespace TilerElements
 
         public virtual void undo(string undoId)
         {
-            if(undoId == UndoId)
+            if (undoId == UndoId)
             {
                 Utility.Swap(ref UndoStartDateTime, ref StartDateTime);
                 Utility.Swap(ref UndoEndDateTime, ref EndDateTime);
@@ -343,7 +363,7 @@ namespace TilerElements
             }
         }
 
-        virtual public  DateTimeOffset End
+        virtual public DateTimeOffset End
         {
             get
             {
@@ -363,15 +383,15 @@ namespace TilerElements
         {
             get
             {
-                if(this.Location != null || !this.Location.isDefault)
+                if (this.Location != null || !this.Location.isDefault)
                 {
-                    if(!this.Location.IsAmbiguous)
+                    if (!this.Location.IsAmbiguous)
                     {
                         return !this.Location.IsAmbiguous;
                     }
                     else
                     {
-                        if(!(string.IsNullOrEmpty(this._LocationValidationId) && string.IsNullOrWhiteSpace(this._LocationValidationId)))
+                        if (!(string.IsNullOrEmpty(this._LocationValidationId) && string.IsNullOrWhiteSpace(this._LocationValidationId)))
                         {
                             return !this.Location.isDefault;
                         }
@@ -386,13 +406,13 @@ namespace TilerElements
                 {
                     return false;
                 }
-                
+
             }
         }
 
         public virtual ThirdPartyControl.CalendarTool ThirdpartyType
         {
-            get 
+            get
             {
                 return ThirdPartyTypeInfo;
             }
@@ -414,7 +434,7 @@ namespace TilerElements
             }
         }
 
-        public  string ThirdPartyID
+        public string ThirdPartyID
         {
             get
             {
@@ -489,18 +509,18 @@ namespace TilerElements
             }
             get
             {
-                if(_LocationInfo.IsVerified)
+                if (_LocationInfo.IsVerified)
                 {
                     return _LocationInfo;
                 }
-                if(_LocationInfo.IsAmbiguous)
+                if (_LocationInfo.IsAmbiguous)
                 {
                     Location retValue = _LocationInfo.getLocationThroughValidation(_LocationValidationId);
-                    if(retValue!=null &&!retValue.isDefault)
+                    if (retValue != null && !retValue.isDefault)
                     {
                         _LocationValidationId = retValue?.Id;
                     }
-                    return retValue ?? Location.getDefaultLocation() ;
+                    return retValue ?? Location.getDefaultLocation();
                 }
                 return _LocationInfo;
             }
@@ -529,7 +549,7 @@ namespace TilerElements
                 return _LocationInfo;
             }
         }
-        
+
         [ForeignKey("LocationId")]
         virtual public Location Location_DB
         {
@@ -545,7 +565,7 @@ namespace TilerElements
                 }
                 else
                 {
-                    return _LocationInfo.isNull || _LocationInfo.isDefault? null : _LocationInfo;
+                    return _LocationInfo.isNull || _LocationInfo.isDefault ? null : _LocationInfo;
                 }
             }
         }
@@ -612,7 +632,7 @@ namespace TilerElements
 
             set
             {
-                StartDateTime = value;
+                this.StartDateTime = value;
             }
         }
 
@@ -624,7 +644,7 @@ namespace TilerElements
             }
             set
             {
-                EndDateTime = value;
+                this.EndDateTime = value;
             }
         }
 
@@ -666,14 +686,14 @@ namespace TilerElements
             }
             set
             {
-                if(value!=null)
+                if (value != null)
                 {
                     _AutoDeletionReason = Utility.ParseEnum<Reason.AutoDeletion>(value);
-                }else
+                } else
                 {
                     _AutoDeletionReason = AutoDeletion.None;
                 }
-                
+
             }
         }
 
@@ -861,6 +881,56 @@ namespace TilerElements
             }
         }
 
+        public AccessType Access
+        {
+            get
+            {
+                return _Access;
+            }
+        }
+
+        public string Access_DB
+        {
+            get
+            {
+                return _Access.ToString().ToLower();
+            }
+            set
+            {
+                if (!string.IsNullOrEmpty(value) && !string.IsNullOrWhiteSpace(value))
+                {
+                    _Access = Utility.ParseEnum<AccessType>(value);
+                }
+                else
+                {
+                    _Access = AccessType.owner;
+                }
+            }
+        }
+
+        public virtual bool isReadOnly {
+            get {
+                return this.Access == AccessType.reader;
+            }
+        }
+
+        public virtual bool isModifiable {
+            get
+            {
+                return this.Access == AccessType.owner || this.Access== AccessType.writer;
+            }
+        }
+
+        public virtual bool isNoAcces
+        {
+            get
+            {
+                return this.Access == AccessType.none;
+            }
+        }
+
+
+
         public string CreatorId { get; set; }
         [ForeignKey("CreatorId")]
         public TilerUser Creator_EventDB
@@ -903,7 +973,7 @@ namespace TilerElements
             }
         }
 
-        public virtual RestrictionProfile RetrictionProfile { get; set; } = null;
+        public virtual RestrictionProfile RestrictionProfile { get; set; } = null;
         #region undoProperties
         public virtual bool FirstInstantiation { get; set; } = true;
 

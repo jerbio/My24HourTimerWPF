@@ -23,8 +23,8 @@ namespace TilerElements
             this.UniqueID = EventID.generateGoogleCalendarEventID((uint)AllCalendarEvent.Count());
             this._AutoDeleted = false;
             this._Users = new TilerUserGroup();
-            this.StartDateTime = DateTimeOffset.Now.AddDays(-90);
-            this.EndDateTime = this.StartDateTime.AddDays(180);
+            this.updateStartTime( DateTimeOffset.Now.AddDays(-90));
+            this.updateEndTime( this.Start.AddDays(180));
             this._Enabled = true;
             this._Complete = false;
             this._DeletedCount = 1;

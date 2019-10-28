@@ -36,7 +36,7 @@ namespace TilerElements
                 initializeSubEvents();
             }
 
-            EventSequence = new TimeLine(StartDateTime, EndDateTime);
+            EventSequence = new TimeLine(Start, End);
             //UpdateLocationMatrix(LocationInfo);
         }
 
@@ -55,7 +55,7 @@ namespace TilerElements
             _SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
             for (int i = 0; i < _Splits; i++)
             {
-                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(this, getCreator, _Users, _TimeZone, _AverageTimePerSplit, this.getName, (EndDateTime - _AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), _RigidSchedule, this._Enabled, this._UiParams, this.Notes, this._Complete, this._LocationInfo, this.StartToEnd);
+                SubCalendarEvent newSubCalEvent = new SubCalendarEvent(this, getCreator, _Users, _TimeZone, _AverageTimePerSplit, this.getName, (End - _AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), _RigidSchedule, this._Enabled, this._UiParams, this.Notes, this._Complete, this._LocationInfo, this.StartToEnd);
                 newSubCalEvent.TimeCreated = this.TimeCreated;
                 _SubEvents.Add(newSubCalEvent.Id, newSubCalEvent);
             }

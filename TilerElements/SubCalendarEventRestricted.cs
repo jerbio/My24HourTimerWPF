@@ -40,16 +40,16 @@ namespace TilerElements
             )
         { 
             isRestricted =true;
-            StartDateTime = Start;
-            EndDateTime = End;
-            _EventDuration = EndDateTime - StartDateTime;
+            this.updateStartTime( Start);
+            this.updateEndTime( End);
+            _EventDuration = End - Start;
             _Name = name;
             UniqueID = !string.IsNullOrEmpty(subEventID) && !string.IsNullOrWhiteSpace(subEventID) ? new EventID(subEventID) : EventID.GenerateSubCalendarEvent(CalEventID);
             _ProfileOfRestriction = constrictionProgile;
             HardCalendarEventRange = HardCalEventTimeRange;
             _Now = now;
             initializeCalendarEventRange(_ProfileOfRestriction,HardCalendarEventRange);
-            BusyFrame = new BusyTimeLine(UniqueID.ToString(),StartDateTime, EndDateTime);
+            BusyFrame = new BusyTimeLine(UniqueID.ToString(),Start, End);
             _Users = new TilerUserGroup();
             _RigidSchedule = RigidFlag;
             _Complete = isComplete;
@@ -72,9 +72,9 @@ namespace TilerElements
         public SubCalendarEventRestricted()
         {
             isRestricted = true;
-            StartDateTime = new DateTimeOffset();
-            EndDateTime = new DateTimeOffset();
-            _EventDuration = EndDateTime - StartDateTime;
+            updateStartTime( new DateTimeOffset());
+            updateEndTime( new DateTimeOffset());
+            _EventDuration = End - Start;
             UniqueID = null;
             _ProfileOfRestriction = null;
             HardCalendarEventRange = null;
@@ -244,13 +244,13 @@ namespace TilerElements
         public override SubCalendarEvent CreateCopy(EventID eventId )
         {
             SubCalendarEventRestricted copy = new SubCalendarEventRestricted();
-            copy.BusyFrame = this.BusyFrame.CreateCopy();
+            copy.BusyFrame = this.BusyFrame.CreateCopy() as BusyTimeLine;
             copy._CalendarEventRange = getCalendarEventRange.CreateCopy();
             copy._Complete = _Complete;
             copy._ConflictingEvents = this._ConflictingEvents.CreateCopy();
             copy._DataBlob = this._DataBlob?.createCopy();
             copy._Enabled = this._Enabled;
-            copy.EndDateTime = this.EndDateTime;
+            copy.updateEndTime( this.End);
             copy._EventDuration = this._EventDuration;
             copy._Name = this.getName.createCopy();
             copy._EventPreDeadline = this._EventPreDeadline;
@@ -267,7 +267,7 @@ namespace TilerElements
             copy._Priority = this._Priority;
             copy._ProfileOfRestriction = this._ProfileOfRestriction.createCopy();
             copy._RigidSchedule = this._RigidSchedule;
-            copy.StartDateTime = this.StartDateTime;
+            copy.updateStartTime( this.Start);
             copy._UiParams = this._UiParams?.createCopy();
             if (eventId != null)
             {
@@ -307,8 +307,8 @@ namespace TilerElements
         {
             if (force)
             {
-                StartDateTime += ChangeInTime;
-                EndDateTime += ChangeInTime;
+                updateStartTime(Start + ChangeInTime);
+                updateEndTime(End + ChangeInTime);
                 ActiveSlot.shiftTimeline(ChangeInTime);
                 _LockToId = lockToId;
                 return true;
@@ -318,8 +318,8 @@ namespace TilerElements
             TimeLine myTImeLine =  _ProfileOfRestriction.getLatestActiveTimeFrameBeforeEnd(UpdatedTimeLine).Item1;
             if (myTImeLine.TimelineSpan >= UpdatedTimeLine.TimelineSpan)
             {
-                StartDateTime += ChangeInTime;
-                EndDateTime += ChangeInTime;
+                updateStartTime(Start + ChangeInTime);
+                updateEndTime(End + ChangeInTime);
                 ActiveSlot.shiftTimeline(ChangeInTime);
                 _LockToId = lockToId;
                 return true;
@@ -328,8 +328,8 @@ namespace TilerElements
             myTImeLine = _ProfileOfRestriction.getEarliestActiveFrameAfterBeginning(UpdatedTimeLine).Item1;
             if (myTImeLine.TimelineSpan >= UpdatedTimeLine.TimelineSpan)
             {
-                StartDateTime += ChangeInTime;
-                EndDateTime += ChangeInTime;
+                updateStartTime( Start + ChangeInTime);
+                updateEndTime(End + ChangeInTime);
                 ActiveSlot.shiftTimeline(ChangeInTime);
                 _LockToId = lockToId;
                 return true;
@@ -391,7 +391,7 @@ namespace TilerElements
                 this._ConflictingEvents = SubEventEntry.Conflicts;
                 this._DataBlob = SubEventEntry.Notes;
                 this._Enabled = SubEventEntry.isEnabled;
-                this.EndDateTime = SubEventEntry.End;
+                updateEndTime( SubEventEntry.End);
                 this._EventPreDeadline = SubEventEntry.getPreDeadline;
                 this.EventScore = SubEventEntry.Score;
                 this._LocationInfo = SubEventEntry.Location;
@@ -403,7 +403,7 @@ namespace TilerElements
                 this._ProfileOfNow = SubEventEntry._ProfileOfNow;
                 this._ProfileOfProcrastination = SubEventEntry._ProfileOfProcrastination;
                 //this.RigidSchedule = this.rig
-                this.StartDateTime = SubEventEntry.Start;
+                updateStartTime( SubEventEntry.Start);
                 this._UiParams = SubEventEntry.getUIParam;
                 this.UniqueID = SubEventEntry.SubEvent_ID;
                 this._AutoDeleted = SubEventEntry.getIsUserDeleted;
@@ -431,7 +431,7 @@ namespace TilerElements
             retValue._ConflictingEvents = this.Conflicts;
             retValue._DataBlob = this.Notes;
             retValue._Enabled = this.isEnabled;
-            retValue.EndDateTime = this.End;
+            retValue.updateEndTime( this.End);
             retValue._EventPreDeadline = this.getPreDeadline;
             retValue.EventScore = this.Score;
             retValue.isRestricted = this.getIsEventRestricted;
@@ -444,7 +444,7 @@ namespace TilerElements
             retValue._ProfileOfNow = this._ProfileOfNow?.CreateCopy();
             retValue._ProfileOfProcrastination = this._ProfileOfProcrastination?.CreateCopy();
             retValue._RigidSchedule = this._RigidSchedule;
-            retValue.StartDateTime = this.Start;
+            retValue.updateStartTime( this.Start);
             retValue._UiParams = this.getUIParam;
             retValue.UniqueID = this.SubEvent_ID;
             retValue._AutoDeleted = this.getIsUserDeleted;
@@ -552,7 +552,7 @@ namespace TilerElements
             }
         }
 
-        public override RestrictionProfile RetrictionProfile
+        public override RestrictionProfile RestrictionProfile
         {
             get
             {

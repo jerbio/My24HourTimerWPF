@@ -598,11 +598,6 @@ namespace TilerCore
             return retValue;
         }
 
-        public void FindNewSlotForSubEvent(EventID MyEventID)
-        {
-            return;
-        }
-
         public BusyTimeLine NextActivity
         {
             get
@@ -2781,7 +2776,7 @@ namespace TilerCore
                     EachDay.RemoveSubEvent(subEvent.Id);
                 }
 
-                optimizeDay(EachDay, dayPath.getSubevents());
+                spaceEventsByTravelTime(EachDay, dayPath.getSubevents());
                 if (i > 0 && EachDay.PrecedingDaySleepSubEvent != null)
                 {
                     DayTimeLine previousDay = AllDayTimeLine[i - 1];
@@ -2793,7 +2788,7 @@ namespace TilerCore
             return dayToOPtimization;
         }
 
-        void optimizeDay(DayTimeLine myDay, List<SubCalendarEvent> subEvents)
+        void spaceEventsByTravelTime(DayTimeLine myDay, List<SubCalendarEvent> subEvents)
         {
             subEvents.ForEach(subEvent => subEvent.Conflicts.UpdateConflictFlag(false));
             List<SubCalendarEvent> orderedByStartSubEvents = subEvents.OrderBy(subEvent => subEvent.Start).ToList();
@@ -3775,11 +3770,10 @@ namespace TilerCore
             return retValue;
         }
 
-        List<TimeLine> reorderFreeSpotBasedOnTimeSpanAndEndtime(IEnumerable<TimeLine> AllTImeLines)
+        List<TimeLine> reorderFreeSpotBasedOnTimeSpanAndEndtime(IEnumerable<TimeLine> AllTimeLines)
         {
             Dictionary<TimeSpan, List<TimeLine>> TImespanTOEvents = new Dictionary<TimeSpan, List<TimeLine>>();
-            IList<KeyValuePair<TimeSpan, List<TimeLine>>> TImespanTOEvents_list;
-            foreach (TimeLine eachTimeLine in AllTImeLines)
+            foreach (TimeLine eachTimeLine in AllTimeLines)
             {
                 if (TImespanTOEvents.ContainsKey(eachTimeLine.TimelineSpan))
                 {
@@ -8667,7 +8661,6 @@ namespace TilerCore
             {
                 foreach (CalendarEvent eachCalendarEvent in NonCommitedCalendarEvemts)
                 {
-
                     int i = 0;
                     if (eachCalendarEvent.IsRecurring)
                     {

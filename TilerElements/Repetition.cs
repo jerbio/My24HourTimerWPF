@@ -389,13 +389,13 @@ namespace TilerElements
 
 
             EventID MyEventCalendarID = EventID.GenerateRepeatCalendarEvent(MyParentEvent.getId);
-            TimeLineRestricted restrictionTimeLine = new TimeLineRestricted(EachRepeatCalendarStart, MyParentEvent.Repeat.Range.End, MyParentEvent.RetrictionProfile, now);
+            TimeLineRestricted restrictionTimeLine = new TimeLineRestricted(EachRepeatCalendarStart, MyParentEvent.Repeat.Range.End, MyParentEvent.RestrictionProfile, now);
             TimeLine calendarTimeLine = new TimeLine(IniRepeatStart, repeatEnd);
             List<CalendarEvent> MyArrayOfRepeatingCalendarEvents = new List<CalendarEvent>();
             CalendarEventRestricted MyRepeatCalendarEvent = null;
             if (restrictionTimeLine.doesTimeLineInterfere(calendarTimeLine))
             {
-                MyRepeatCalendarEvent = CalendarEventRestricted.InstantiateRepeatedCandidate(MyParentEvent.getName, calendarTimeLine.Start, calendarTimeLine.End, MyParentEvent.Calendar_EventID, MyParentEvent.RetrictionProfile, MyParentEvent.getActiveDuration, MyParentEvent.NumberOfSplit, MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.isLocked, MyParentEvent.getPreparation, MyParentEvent.ThirdPartyID, MyParentEvent.Now, MyParentEvent.getCreator, MyParentEvent.Notes, MyParentEvent.getNowInfo, MyParentEvent.Procrastination_EventDB);
+                MyRepeatCalendarEvent = CalendarEventRestricted.InstantiateRepeatedCandidate(MyParentEvent.getName, calendarTimeLine.Start, calendarTimeLine.End, MyParentEvent.Calendar_EventID, MyParentEvent.RestrictionProfile, MyParentEvent.getActiveDuration, MyParentEvent.NumberOfSplit, MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.isLocked, MyParentEvent.getPreparation, MyParentEvent.ThirdPartyID, MyParentEvent.Now, MyParentEvent.getCreator, MyParentEvent.Notes, MyParentEvent.getNowInfo, MyParentEvent.Procrastination_EventDB);
 
                 int autoDisableCount = MyParentEvent.NumberOfSplit - splitCount;
                 var subEvents = MyRepeatCalendarEvent.ActiveSubEvents.OrderBy(o => o.Start).Take(autoDisableCount).ToList();
@@ -427,7 +427,7 @@ namespace TilerElements
                 {
 
                     MyEventCalendarID = EventID.GenerateRepeatCalendarEvent(MyParentEvent.getId);
-                    MyRepeatCalendarEvent = CalendarEventRestricted.InstantiateRepeatedCandidate(MyParentEvent.getName, calendarTimeLine.Start, calendarTimeLine.End, MyParentEvent.Calendar_EventID, MyParentEvent.RetrictionProfile, MyParentEvent.getActiveDuration, MyParentEvent.NumberOfSplit, MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.isLocked, MyParentEvent.getPreparation, MyParentEvent.ThirdPartyID, MyParentEvent.Now, MyParentEvent.getCreator, MyParentEvent.Notes, MyParentEvent.getNowInfo, MyParentEvent.Procrastination_EventDB);
+                    MyRepeatCalendarEvent = CalendarEventRestricted.InstantiateRepeatedCandidate(MyParentEvent.getName, calendarTimeLine.Start, calendarTimeLine.End, MyParentEvent.Calendar_EventID, MyParentEvent.RestrictionProfile, MyParentEvent.getActiveDuration, MyParentEvent.NumberOfSplit, MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.isLocked, MyParentEvent.getPreparation, MyParentEvent.ThirdPartyID, MyParentEvent.Now, MyParentEvent.getCreator, MyParentEvent.Notes, MyParentEvent.getNowInfo, MyParentEvent.Procrastination_EventDB);
                     MyArrayOfRepeatingCalendarEvents.Add(MyRepeatCalendarEvent);
                     _DictionaryOfIDAndCalendarEvents.Add(MyRepeatCalendarEvent.getId, MyRepeatCalendarEvent);
                     MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
@@ -522,7 +522,7 @@ namespace TilerElements
             this._initializingRange = ActiveTimeline;
             this._RepetitionRange = repetitionTimeline;
             EventID MyEventCalendarID = EventID.GenerateRepeatDayCalendarEvent(MyParentEvent.getId, WeekDay);
-            CalendarEventRestricted MyRepeatCalendarEvent = new CalendarEventRestricted(MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyParentEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.RetrictionProfile, MyParentEvent.getActiveDuration, repetitionData, MyParentEvent.getIsComplete, MyParentEvent.isEnabled, MyParentEvent.isLocked ? 1 : MyParentEvent.NumberOfSplit, MyParentEvent.isLocked, MyParentEvent.getNowInfo, MyParentEvent.LocationObj, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyEventCalendarID, MyParentEvent.Now, MyParentEvent.Procrastination_EventDB, MyParentEvent.getUIParam, MyParentEvent.Notes);
+            CalendarEventRestricted MyRepeatCalendarEvent = new CalendarEventRestricted(MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyParentEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.RestrictionProfile, MyParentEvent.getActiveDuration, repetitionData, MyParentEvent.getIsComplete, MyParentEvent.isEnabled, MyParentEvent.isLocked ? 1 : MyParentEvent.NumberOfSplit, MyParentEvent.isLocked, MyParentEvent.getNowInfo, MyParentEvent.LocationObj, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyEventCalendarID, MyParentEvent.Now, MyParentEvent.Procrastination_EventDB, MyParentEvent.getUIParam, MyParentEvent.Notes);
             MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
             MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
             MyRepeatCalendarEvent.Location = MyParentEvent.LocationObj;
@@ -984,13 +984,14 @@ namespace TilerElements
             _UndoRepetitionWeekDay = RepetitionWeekDay;
             FirstInstantiation = false;
             this.UndoId = undo.id;
-            throw new NotImplementedException("Something doesn't smell right about the list generated by the linq stmt below. What to the elements with FirstInstantiation set to true");
             List<CalendarEvent> AlreadyCreatedEvents = RepeatingEvents.Where(calEvent => !calEvent.FirstInstantiation).ToList();
             RepeatingEvents = AlreadyCreatedEvents;
             foreach (CalendarEvent calEvent in AlreadyCreatedEvents)
             {
                 calEvent.undoUpdate(undo);
             }
+            throw new NotImplementedException("Something doesn't smell right about the list generated by the linq stmt below. What to the elements with FirstInstantiation set to true");
+            
 
             //protected ICollection<CalendarEvent> _UndoRepeatingEvents;
             //protected Dictionary<int, Repetition> _UndoDictionaryOfWeekDayToRepetition = new Dictionary<int, Repetition>();

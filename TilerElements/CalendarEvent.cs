@@ -1904,6 +1904,22 @@ namespace TilerElements
             updateCalculationStartToEnd();
         }
 
+        public virtual void repeatAnEvent(DateTimeOffset currentTime)
+        {
+            if(!this.IsRecurring)
+            {
+                SubCalendarEvent toBeRepeated = ActiveSubEvents.Where(subEvent => subEvent.Start >= currentTime).OrderBy(subEvent => subEvent.Start).FirstOrDefault();
+                if (toBeRepeated == null)
+                {
+                    List<SubCalendarEvent> repeatIncrease = IncreaseSplitCount(1);
+                    toBeRepeated = repeatIncrease.FirstOrDefault();
+                }
+                toBeRepeated.shiftEvent(currentTime, true);
+                toBeRepeated.enableRepetitionLock();
+            }
+            throw new CustomErrors(CustomErrors.Errors.TilerConfig_Repeat_On_Repeat);
+        }
+
         #endregion
 
         #region Properties

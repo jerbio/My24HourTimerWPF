@@ -806,6 +806,15 @@ namespace TilerTests
             return retValue;
         }
 
+        public static bool isTestEquivalent(this SubCalendarEvent firstSubevent, SubCalendarEvent secondSubevent)
+        {
+            bool retValue = (firstSubevent as TilerEvent).isTestEquivalent(secondSubevent as TilerEvent);
+            Assert.IsTrue(retValue);
+            retValue &= firstSubevent.RepetitionLock == secondSubevent.RepetitionLock;
+            Assert.IsTrue(retValue);
+            return retValue;
+        }
+
         public static bool isTestEquivalent(this ReferenceNow firstReferenceNow, ReferenceNow secondReferenceNow)
         {
             bool retValue = true;

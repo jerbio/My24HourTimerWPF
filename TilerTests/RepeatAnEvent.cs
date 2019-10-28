@@ -45,7 +45,8 @@ namespace TilerTests
             DateTimeOffset middleOfSubevent =  Utility.MiddleTime(secondSubevent);
             DateTimeOffset secondRefNow = middleOfSubevent;
             schedule = new TestSchedule(user, secondRefNow);
-            schedule.RepeatEvent(secondSubevent.Id);
+            Location location = TestUtility.getLocations()[0];
+            schedule.RepeatEvent(secondSubevent.Id, location);
             schedule.persistToDB().Wait();
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
@@ -58,7 +59,7 @@ namespace TilerTests
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             schedule = new TestSchedule(user, secondRefNow);
-            schedule.RepeatEvent(secondSubevent.Id);
+            schedule.RepeatEvent(secondSubevent.Id, location);
             schedule.persistToDB().Wait();
 
 
@@ -75,7 +76,7 @@ namespace TilerTests
         }
 
         [TestMethod]
-        public void RepeatAnEventWithNoExtraSubeventsShouldCreteNewSubevents()
+        public void RepeatAnEventWithNoExtraSubeventsShouldCreateNewSubevents()
         {
             var setupPacket = TestUtility.CreatePacket();
             UserAccount user = setupPacket.Account;
@@ -101,8 +102,9 @@ namespace TilerTests
             Assert.IsTrue(secondSubevent.End != thirdSubCalendarEvent.Start);
             DateTimeOffset middleOfSubevent = Utility.MiddleTime(secondSubevent);
             DateTimeOffset secondRefNow = middleOfSubevent;
+            Location location = TestUtility.getLocations()[0];
             schedule = new TestSchedule(user, secondRefNow);
-            schedule.RepeatEvent(secondSubevent.Id);
+            schedule.RepeatEvent(secondSubevent.Id, location);
             schedule.persistToDB().Wait();
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
@@ -115,7 +117,7 @@ namespace TilerTests
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             schedule = new TestSchedule(user, secondRefNow);
-            schedule.RepeatEvent(secondSubevent.Id);
+            schedule.RepeatEvent(secondSubevent.Id, location);
             schedule.persistToDB().Wait();
 
 

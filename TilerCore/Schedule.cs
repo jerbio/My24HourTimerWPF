@@ -416,6 +416,11 @@ namespace TilerCore
             return retValue;
         }
 
+        public SubCalendarEvent getSubCalendarEvent(EventID EventID)
+        {
+            return getSubCalendarEvent(EventID.ToString());
+        }
+
         public SubCalendarEvent getSubCalendarEvent(string EventID)
         {
             CalendarEvent myCalendarEvent = getCalendarEvent(EventID);
@@ -1121,9 +1126,9 @@ namespace TilerCore
 
                 EventName blockName = new EventName(null, null, NameOfEvent);
                 TilerUser user = this.User;
-                ProcrastinateCalendarEvent procratinateAll = getProcrastinateAllEvent();
+                ProcrastinateCalendarEvent procrastinateAllEvent = getProcrastinateAllEvent();
 
-                CalendarEvent procrastinateAll = ProcrastinateCalendarEvent.generateProcrastinateAll(Now.constNow, user, DelaySpan, timeZone, procratinateAll, NameOfEvent);
+                CalendarEvent procrastinateAll = ProcrastinateCalendarEvent.generateProcrastinateAll(Now.constNow, user, DelaySpan, timeZone, procrastinateAllEvent, NameOfEvent);
                 blockName.Creator_EventDB = procrastinateAll.getCreator;
                 blockName.AssociatedEvent = procrastinateAll;
                 return Procrastinate(procrastinateAll);
@@ -1137,7 +1142,6 @@ namespace TilerCore
             Dictionary<string, CalendarEvent> AllEventDictionary_Cpy = new Dictionary<string, CalendarEvent>();
             AllEventDictionary_Cpy = AllEventDictionary.ToDictionary(obj => obj.Key, obj => obj.Value.createCopy());
             NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, NotdoneYet, null, null, 1);
-            //AllEventDictionary.Remove(NewEvent.Id);
 
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(NewEvent.Error, AllEventDictionary_Cpy);
             return retValue;
@@ -1166,6 +1170,7 @@ namespace TilerCore
         {
             CalendarEvent referenceCalendarEvent = getCalendarEvent(EventID);
             SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
+            ReferenceSubEvent.disableRepetitionLock();
             referenceCalendarEvent.DayPreference.init();
 
             NowProfile nowProfile = referenceCalendarEvent.getNowInfo;
@@ -8825,6 +8830,7 @@ namespace TilerCore
                 if (ReferenceSubEvent.canExistWithinTimeLine(timeLineAfterProcrastination))
                 {
                     //ReferenceStart = Now.UpdateNow(ReferenceStart);
+                    ReferenceSubEvent.disableRepetitionLock();
                     DateTimeOffset StartTimeOfProcrastinate = ReferenceStart + RangeOfPush;
                     DateTimeOffset limitOfProcrastination = ReferenceSubEvent.getCalendarEventRange.End;
                     TimeSpan ActiveSubEventSpan = TimeSpan.FromTicks(ProcrastinateEvent.ActiveSubEvents.Select(subEvent => subEvent.getActiveDuration.Ticks).Sum());
@@ -8894,16 +8900,26 @@ namespace TilerCore
 
         static TimeLine ScheduleTimeline = new TimeLine();
 
-        public virtual void RepeatEvent(EventID eventId)
+        public virtual void RepeatEvent(EventID eventId, Location location)
         {
-
+            SubCalendarEvent subEvent = getSubCalendarEvent(eventId);
+            subEvent.ParentCalendarEvent.repeatAnEvent(subEvent.End);
+            HashSet<SubCalendarEvent> NotDoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
+            CalendarEvent ScheduleUpdated = CalendarEvent.getEmptyCalendarEvent(new EventID());
+            addCalendarEventToGlobalSchedule(ScheduleUpdated);
+            ScheduleUpdated = EvaluateTotalTimeLineAndAssignValidTimeSpots(ScheduleUpdated, NotDoneYet, location );
         }
 
 
-        public virtual void RepeatEvent(string eventId)
+        public virtual void addCalendarEventToGlobalSchedule(CalendarEvent calendarEvent)
+        {
+            AllEventDictionary.Add(calendarEvent.getTilerID.getCalendarEventComponent(), calendarEvent);
+        }
+
+        public virtual void RepeatEvent(string eventId, Location location)
         {
             EventID id = new EventID(eventId);
-            RepeatEvent(id);
+            RepeatEvent(id, location);
         }
 
         //public XmlElement CreateEventScheduleNode(CalendarEvent MyEvent, XmlDocument xmldoc)

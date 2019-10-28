@@ -991,7 +991,17 @@ namespace TilerElements
             CalculationMode = false;
         }
 
-        public override bool isLocked => base.isLocked || this.tempLock || this.lockedPrecedingHours || this._RepetitionLock;
+        public virtual void enableRepetitionLock()
+        {
+            _RepetitionLock = true;
+        }
+
+        public virtual void disableRepetitionLock()
+        {
+            _RepetitionLock = false;
+        }
+
+        public override bool isLocked => base.isLocked || this.tempLock || this.lockedPrecedingHours || this.RepetitionLock;
 
         /// <summary>
         /// This changes the duration of the subevent. It requires the change in duration. This just adds/subtracts the delta to the end time

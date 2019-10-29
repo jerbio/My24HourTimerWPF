@@ -6772,7 +6772,6 @@ namespace TilerCore
                     bool PreserveRestrictedIndex = false;
                     for (; FrontPartialCounter < ListOfFrontPartialsStartTime.Count; FrontPartialCounter++)//for loop tries to prioritize the front partial elements as the boundary of the calculation of fittable elements.
                     {
-                        TimeLineUpdated = null;
                         DateTimeOffset PertinentFreeSpotStart = EarliestReferenceTIme;
                         DateTimeOffset PertinentFreeSpotEnd;
 
@@ -6840,14 +6839,6 @@ namespace TilerCore
                                     LastSubCalElementForEarlierReferenceTime = LastSubCalEvent;
 
                                 }
-                                TimeLineUpdated = null;
-                                /*TimeLineUpdated = ObtainBetterEarlierReferenceTime(LowestCostArrangement, CalendarIDAndNonPartialSubCalEvents, RestrictedStopper - EarliestTimeForBetterEarlierReferenceTime, EarliestReferenceTIme, new TimeLine(FreeSpotUpdated.Start, FreeBoundary.End), LastSubCalElementForEarlierReferenceTime);
-                                if (TimeLineUpdated != null)
-                                {
-                                    LowestCostArrangement = TimeLineUpdated.Item2;
-                                    EarliestReferenceTIme = TimeLineUpdated.Item1;
-                                }
-                                */
 
                                 foreach (SubCalendarEvent eachSubCalendarEvent in LowestCostArrangement)
                                 {
@@ -7232,16 +7223,6 @@ namespace TilerCore
                         LowestCostArrangement = OptimizeArrangeOfSubCalEvent_NonAggressive(PertinentFreeSpot, new Tuple<SubCalendarEvent, SubCalendarEvent>(BorderElementBeginning, BorderElementEnd), CompatibleWithList.Values.ToList(), PossibleEntries_Cpy, restOfrestrictedSnugFitAvailable, Occupancy);
 
                         selectedRestrictedElements = LowestCostArrangement.Intersect(restOfrestrictedSnugFitAvailable.Select(obj => obj.Item2));
-                        if (selectedRestrictedElements.Count() > 0)
-                        {
-                            ;
-                        }
-
-
-
-
-
-
 
                         LowestCostArrangement = OptimizeArrangeOfSubCalEvent_NonAggressive(PertinentFreeSpot, new Tuple<SubCalendarEvent, SubCalendarEvent>(BorderElementBeginning, BorderElementEnd), CompatibleWithList.Values.ToList(), PossibleEntries_Cpy, restrictedSnugFitAvailable, Occupancy);
                         DateTimeOffset LatestTimeForBetterEarlierReferenceTime = PertinentFreeSpot.Start;
@@ -7263,42 +7244,7 @@ namespace TilerCore
                             SubCalendarEvent LastSubCalEvent = LowestCostArrangement[LowestCostArrangement.Count - 1];
                             LatestTimeForBetterEarlierReferenceTime = LastSubCalEvent.End;
                             LastSubCalElementForEarlierReferenceTime = LastSubCalEvent;
-                            /*
-                            Dictionary<string, double> AllValidNodes = CalendarEvent.DistanceToAllNodes(LastSubCalEvent.SubEvent_ID.getCalendarEventComponent());
-                            SubCalendarEvent AppendableEVent;
-                            foreach (string eachstring in AllValidNodes.Keys)
-                            {
-                                if (CalendarIDAndNonPartialSubCalEvents.ContainsKey(eachstring))
-                                {
-                                    AppendableEVent = CalendarIDAndNonPartialSubCalEvents[eachstring].ToList()[0].Value;//Assumes Theres Always an element
-                                    
-
-                                    if ((AppendableEVent.ActiveDuration <= (FreeBoundary.End - LastSubCalEvent.End)) && (!LowestCostArrangement.Contains(AppendableEVent)))
-                                    {
-                                        LowestCostArrangement.Add(AppendableEVent);
-                                        CalendarIDAndNonPartialSubCalEvents[eachstring].Remove(AppendableEVent.ID);
-                                        if (CalendarIDAndNonPartialSubCalEvents[eachstring].Count < 1)//checks if List is empty. Deletes keyValuepair if list is empty
-                                        {
-                                            CalendarIDAndNonPartialSubCalEvents.Remove(eachstring);
-                                        }
-                                        FreeSpotUpdated = new TimeLine(FreeSpotUpdated.Start, FreeBoundary.End);
-                                        Utility.PinSubEventsToStart(LowestCostArrangement, FreeSpotUpdated);
-                                        EarliestReferenceTIme = AppendableEVent.End;
-                                        break;
-                                    }
-                                }
-                            }*/
                         }
-
-
-                        TimeLineUpdated = null;
-                        /*TimeLineUpdated = ObtainBetterEarlierReferenceTime(LowestCostArrangement, CalendarIDAndNonPartialSubCalEvents, FreeBoundary.End - LatestTimeForBetterEarlierReferenceTime, EarliestReferenceTIme, new TimeLine(FreeSpotUpdated.Start, FreeBoundary.End), LastSubCalElementForEarlierReferenceTime);
-                        if (TimeLineUpdated != null)
-                        {
-                            LowestCostArrangement = TimeLineUpdated.Item2;
-                            EarliestReferenceTIme = TimeLineUpdated.Item1;
-                        }
-                        */
                         foreach (SubCalendarEvent eachSubCalendarEvent in LowestCostArrangement)
                         {
                             --CompatibleWithList[eachSubCalendarEvent.getActiveDuration].Item1;
@@ -7324,22 +7270,6 @@ namespace TilerCore
 
                 DateTimeOffset ReferenceEndTime = FreeBoundary.End;
                 PertinentFreeSpot = new TimeLine(EarliestReferenceTIme, ReferenceEndTime);
-                /*LowestCostArrangement = OptimizeArrangeOfSubCalEvent(PertinentFreeSpot, new Tuple<SubCalendarEvent, SubCalendarEvent>(null, null), CompatibleWithList.Values.ToList(), PossibleEntries_Cpy);
-
-                if (LowestCostArrangement.Count > 0)
-                {
-                    if (!(LowestCostArrangement[0].getCalendarEventRange.Start == PertinentFreeSpot.Start))//Pin SubEvents To Start
-                    {//if the first element is not a partial Sub Cal Event element
-                        FreeSpotUpdated = new TimeLine(EarliestReferenceTIme, PertinentFreeSpot.End);
-                        Utility.PinSubEventsToStart(LowestCostArrangement, FreeSpotUpdated);
-                    }
-                    else
-                    {
-                        FreeSpotUpdated = PertinentFreeSpot.CreateCopy();// new TimeLine(LowestCostArrangement[0].getCalendarEventRange.Start, PertinentFreeSpot.End);
-                        Utility.PinSubEventsToStart(LowestCostArrangement, FreeSpotUpdated);
-                    }
-                    EarliestReferenceTIme = FreeSpotUpdated.End;// LowestCostArrangement[LowestCostArrangement.Count - 1].End;
-                }*/
                 BorderElementBeginning = CompleteArranegement.Count > 0 ? CompleteArranegement[CompleteArranegement.Count - 1] : null;//Checks if Complete arrangement has partially being filled. Sets Last elements as boundary Element
                 BorderElementEnd = null;
 
@@ -7357,23 +7287,6 @@ namespace TilerCore
                 LowestCostArrangement = OptimizeArrangeOfSubCalEvent_NonAggressive(PertinentFreeSpot, new Tuple<SubCalendarEvent, SubCalendarEvent>(BorderElementBeginning, BorderElementEnd), CompatibleWithList.Values.ToList(), PossibleEntries_Cpy, restOfrestrictedSnugFitAvailable, Occupancy);
 
                 selectedRestrictedElements = LowestCostArrangement.Intersect(restOfrestrictedSnugFitAvailable.Select(obj => obj.Item2));
-                if (selectedRestrictedElements.Count() > 0)
-                {
-                    ;
-                }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
                 LowestCostArrangement = OptimizeArrangeOfSubCalEvent_NonAggressive(PertinentFreeSpot, new Tuple<SubCalendarEvent, SubCalendarEvent>(BorderElementBeginning, BorderElementEnd), CompatibleWithList.Values.ToList(), PossibleEntries_Cpy, restrictedSnugFitAvailable, Occupancy);
                 LastSubCalElementForEarlierReferenceTime = ((CompleteArranegement.Count < 1) || (CompleteArranegement == null) ? null : CompleteArranegement[CompleteArranegement.Count - 1]);
@@ -7396,46 +7309,7 @@ namespace TilerCore
                     SubCalendarEvent LastSubCalEvent = LowestCostArrangement[LowestCostArrangement.Count - 1];
                     LimitForBetterEarlierReferencTime = LastSubCalEvent.End;
                     LastSubCalElementForEarlierReferenceTime = LastSubCalEvent;
-
-
-
-                    /*
-                    
-                    
-                    Dictionary<string, double> AllValidNodes = CalendarEvent.DistanceToAllNodes(LastSubCalEvent.SubEvent_ID.getCalendarEventComponent());
-                    SubCalendarEvent AppendableEVent;
-                    foreach (string eachstring in AllValidNodes.Keys)
-                    {
-                        if (CalendarIDAndNonPartialSubCalEvents.ContainsKey(eachstring))
-                        {
-                            AppendableEVent = CalendarIDAndNonPartialSubCalEvents[eachstring].ToList()[0].Value;//Assumes Theres Always an element
-
-                            if ((AppendableEVent.ActiveDuration <= (FreeBoundary.End - LastSubCalEvent.End)) && (!LowestCostArrangement.Contains(AppendableEVent)))
-                            {
-                                LowestCostArrangement.Add(AppendableEVent);
-                                CalendarIDAndNonPartialSubCalEvents[eachstring].Remove(AppendableEVent.ID);
-                                if (CalendarIDAndNonPartialSubCalEvents[eachstring].Count < 1)//checks if List is empty. Deletes keyValuepair if list is empty
-                                {
-                                    CalendarIDAndNonPartialSubCalEvents.Remove(eachstring);
-                                }
-                                FreeSpotUpdated = new TimeLine(FreeSpotUpdated.Start, FreeBoundary.End);
-                                Utility.PinSubEventsToStart(LowestCostArrangement, FreeSpotUpdated);
-                                EarliestReferenceTIme = AppendableEVent.End;
-                                break;
-                            }
-                        }
-                    }*/
-
                 }
-                TimeLineUpdated = null;
-                /*TimeLineUpdated = ObtainBetterEarlierReferenceTime(LowestCostArrangement, CalendarIDAndNonPartialSubCalEvents, FreeBoundary.End - LimitForBetterEarlierReferencTime, EarliestReferenceTIme, new TimeLine(FreeSpotUpdated.Start, FreeBoundary.End), LastSubCalElementForEarlierReferenceTime);
-                if (TimeLineUpdated != null)
-                {
-                    LowestCostArrangement = TimeLineUpdated.Item2;
-                    EarliestReferenceTIme = TimeLineUpdated.Item1;
-                }
-                */
-
                 foreach (SubCalendarEvent eachSubCalendarEvent in LowestCostArrangement)
                 {
                     --CompatibleWithList[eachSubCalendarEvent.getActiveDuration].Item1;

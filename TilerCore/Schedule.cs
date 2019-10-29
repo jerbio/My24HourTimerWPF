@@ -1750,7 +1750,6 @@ namespace TilerCore
              */
             ReferenceTime = ReferenceTime > Now.calculationNow ? ReferenceTime : Now.calculationNow;
             IEnumerable<SubCalendarEvent> retrievedData;
-            IEnumerable<SubCalendarEvent> tenPercentdateTimeLine;
             Tuple<IEnumerable<SubCalendarEvent>, DateTimeOffset, int, IEnumerable<SubCalendarEvent>> retValue;
             int retFlagType = FlagType;
             IEnumerable<SubCalendarEvent> interfersWithNow;
@@ -4193,7 +4192,7 @@ namespace TilerCore
 
         }
 
-        List<SubCalendarEvent> stitchUnRestrictedSubCalendarEvent(TimeLine freeTimeLine, IEnumerable<SubCalendarEvent> PinnedToStartRestrictedEvents, IEnumerable<SubCalendarEvent> AllPossibleEvents, Tuple<SubCalendarEvent, SubCalendarEvent> BoundaryElements = null)
+        List<SubCalendarEvent> stitchUnRestrictedSubCalendarEvent(TimeLine freeTimeLine, IEnumerable<SubCalendarEvent> PinnedToStartRestrictedEvents, IEnumerable<SubCalendarEvent> AllSubevents, Tuple<SubCalendarEvent, SubCalendarEvent> BoundaryElements = null)
         {
 
 
@@ -4222,12 +4221,14 @@ namespace TilerCore
             SubCalendarEvent rightBoundary = initBoundaryElementB;
             SubCalendarEvent leftBoundary = initBoundaryElementA;
 
+            List<SubCalendarEvent> WillFitSubEvents = AllSubevents.Where(subEvent => subEvent.canExistWithinTimeLine(freeTimeLine)).ToList();
+
             Dictionary<string, SubCalendarEvent> ID_To_SubEvent_Nonrestricted = new Dictionary<string, SubCalendarEvent>();
             Dictionary<string, SubCalendarEvent> ID_To_SubEvent_Restricted = new Dictionary<string, SubCalendarEvent>();
             HashSet<SubCalendarEvent> DistinctSubEvents = new HashSet<SubCalendarEvent>();
             HashSet<SubCalendarEvent> DistinctSubEvents_Restricted = new HashSet<SubCalendarEvent>();
             HashSet<SubCalendarEvent> DistincEvents_NoRestricted = new HashSet<SubCalendarEvent>();
-            List<SubCalendarEvent> AllSubCalEvents_NorestrictedValues = AllPossibleEvents.ToList();
+            List<SubCalendarEvent> AllSubCalEvents_NorestrictedValues = WillFitSubEvents.ToList();
             AllSubCalEvents_NorestrictedValues.RemoveAll(obj => PinnedToStartRestrictedEvents.Contains(obj));
 
             if (AllSubCalEvents_NorestrictedValues.Where(obj => obj.isLocked).Count() > 0)
@@ -6723,9 +6724,6 @@ namespace TilerCore
             List<mTuple<bool, SubCalendarEvent>> restOfrestrictedSnugFitAvailable = new List<mTuple<bool, SubCalendarEvent>>();
             IEnumerable<SubCalendarEvent> selectedRestrictedElements;
             List<SubCalendarEvent> CompleteArranegement = new System.Collections.Generic.List<SubCalendarEvent>();
-            int StartingReferneceIndex = 0;
-
-
             /*foreach (mTuple<bool, SubCalendarEvent> eachmTuple in restrictedSnugFitAvailable)//removes the restricted from CompatibleWithList
             {
                 --CompatibleWithList[eachmTuple.Item2.ActiveDuration.Ticks.ToString()].Item1;
@@ -6738,7 +6736,6 @@ namespace TilerCore
             int j = 0;
             int FrontPartialCounter = 0;
 
-            Tuple<DateTimeOffset, List<SubCalendarEvent>> TimeLineUpdated = null;
             SubCalendarEvent BorderElementBeginning = null;
             SubCalendarEvent BorderElementEnd = null;
             SubCalendarEvent LastSubCalElementForEarlierReferenceTime = null;
@@ -6750,12 +6747,8 @@ namespace TilerCore
 
             for (; i < restrictedSnugFitAvailable.Count; i++)
             {
-                //bool isFreeSpotBeforeRigid = AllFreeSpots[i].End <= restrictedSnugFitAvailable[i].Item2.Start;
-                TimeLineUpdated = null;
-
                 previ = i;
 
-                //restrictedSnugFitAvailable[i].Item2.PinSubEventsToStart(new TimeLine(EarliestReferenceTIme, restrictedSnugFitAvailable[i].Item2.getCalendarEventRange.End));
                 List<BusyTimeLine> RestrictedBusySlots = new System.Collections.Generic.List<BusyTimeLine>();
                 FreeBoundary = new TimeLine(FreeBoundary.Start, FreeBoundary.End);
                 foreach (mTuple<bool, SubCalendarEvent> eachmTuple in restrictedSnugFitAvailable)

@@ -1458,6 +1458,47 @@ namespace TilerTests
 
         }
 
+        [TestMethod]
+        public void LocationVeification()
+        {
+            var packet = TestUtility.CreatePacket();
+            Location currLocation = new Location("3755 Moorhead Ave, Boulder, CO 80305");
+            currLocation.verify();
+            Location homeLocation = new Location("200 summit blvd Boulder CO", "home");
+            Location otherLocation = new Location("200 summit blvd Boulder CO", "home");
+            Location workLocation = new Location("3333 walnut rd boulder CO", "work");
+            UserAccount user = packet.Account;
+            TilerUser tilerUser = packet.User;
+
+            DateTimeOffset refNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
+            TimeSpan duration = TimeSpan.FromHours(2);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.Add(duration + duration+ duration);
+            TimeLine repetitionRange = new TimeLine(start, start.AddDays(13).AddHours(-23));
+            DayOfWeek startingWeekDay = start.DayOfWeek;
+            Repetition repetition = new Repetition();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.CurrentLocation = currLocation;
+            CalendarEventRestricted testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 4, false, restrictionProfile: new RestrictionProfile(start, duration + duration), now: Schedule.Now, location: workLocation) as CalendarEventRestricted;
+            Schedule.CurrentLocation = currLocation;
+            Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
+            Assert.IsTrue(testEvent.ActiveSubEvents.First().isLocationAmbiguous);
+            Assert.IsTrue(testEvent.ActiveSubEvents.First().Location.IsVerified);
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            CalendarEventRestricted testEvent1 = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 4, false, restrictionProfile: new RestrictionProfile(start, duration + duration), now: Schedule.Now, location: homeLocation) as CalendarEventRestricted;
+            Schedule.CurrentLocation = currLocation;
+            Schedule.AddToScheduleAndCommitAsync(testEvent1).Wait();
+            Assert.IsFalse(testEvent1.ActiveSubEvents.First().isLocationAmbiguous);
+            Assert.IsTrue(testEvent1.ActiveSubEvents.First().Location.IsVerified);
+            
+
+        }
+
+
         [TestCleanup]
         public void cleanUpForEachTest()
         {

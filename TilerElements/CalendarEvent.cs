@@ -2160,7 +2160,7 @@ namespace TilerElements
             }
 
         }
-        virtual public TimeLine StartToEnd
+        public override TimeLine StartToEnd
         {
             get
             {

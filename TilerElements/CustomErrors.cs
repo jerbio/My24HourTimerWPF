@@ -64,7 +64,7 @@ namespace TilerElements
             this.TilerEvent = tilerEvent;
         }
 
-        public string Message
+        public override string Message
         {
             get
             {

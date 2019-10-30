@@ -2747,24 +2747,26 @@ namespace TilerCore
                     beginLocation = home;
                 }
 
-                HashSet<Location> locations = new HashSet<Location>(EachDay.getSubEventsInTimeLine().Where(sub => sub.isLocationAmbiguous).Select(sub => sub.Location));
-                Location averageLocation = Location.AverageGPSLocation(locations.ToList());
-                if(averageLocation!=null && (averageLocation.isNull || averageLocation.isDefault))
+                HashSet<Location> locations = new HashSet<Location>(EachDay.getSubEventsInTimeLine().Where(sub => !sub.Location.isDefault && !sub.Location.isNull).Select(sub => sub.Location));
+                if(beginLocation!=null)
                 {
-                    averageLocation = home!=null && !home.isDefault && !home.isNull ? home : CurrentLocation;
+                    locations.Add(beginLocation);
                 }
+                
 
-                foreach(SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => sub.isLocationAmbiguous))
+                foreach (SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => sub.isLocationAmbiguous))
                 {
-                    //if(!subEvent.IsLocationValidated)
+                    var otherSubEventLocation = locations.Where(otherlocation => otherlocation != subEvent.Location);
+                    Location averageLocation = Location.AverageGPSLocation(otherSubEventLocation);
+                    if (averageLocation != null && (averageLocation.isNull || averageLocation.isDefault))
                     {
-                        if(averageLocation!=null && !averageLocation.isDefault && !averageLocation.isNull)
-                        {
-                            subEvent.validateLocation(averageLocation);/// This might kill performance because of multiple calls to google for validation
-                        }
-
+                        averageLocation = home != null && !home.isDefault && !home.isNull ? home : CurrentLocation;
                     }
 
+                    if(averageLocation!=null && !averageLocation.isDefault && !averageLocation.isNull)
+                    {
+                        subEvent.validateLocation(averageLocation);/// This might kill performance because of multiple calls to google for validation
+                    }
                 }
                 OptimizedPath dayPath = new OptimizedPath(EachDay, beginLocation, endLocation, home);
 

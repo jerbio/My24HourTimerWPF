@@ -236,7 +236,6 @@ namespace TilerElements
                                 retValue._NullLocation = false;
                                 retValue._DefaultFlag = false;
                                 retValue._ThirdPartyId = result.PlaceId;
-                                retValue._Id = result.PlaceId;
                                 retValue._LocationIsVerified = true;
                                 retValue._ThirdPartySource = ThirdPartyMapSource.google;
                                 
@@ -245,6 +244,7 @@ namespace TilerElements
                                 retValue.updateSearchedLocation();
                                 if (!useThis)
                                 {
+                                    retValue._Id = result.PlaceId;
                                     _LocationValidation.addLocation(retValue as LocationJson);
                                 }   
                             }

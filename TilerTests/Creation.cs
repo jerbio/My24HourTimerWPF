@@ -1484,7 +1484,7 @@ namespace TilerTests
             CalendarEventRestricted testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 4, false, restrictionProfile: new RestrictionProfile(start, duration + duration), now: Schedule.Now, location: workLocation) as CalendarEventRestricted;
             Schedule.CurrentLocation = currLocation;
             Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
-            Assert.IsTrue(testEvent.ActiveSubEvents.First().isLocationAmbiguous);// Location string from google is more than 40% differenet, count wise
+            Assert.IsTrue(testEvent.ActiveSubEvents.First().isLocationAmbiguous);// Location string from google is more than 45% differenet, count wise
             Assert.IsTrue(testEvent.ActiveSubEvents.First().Location.IsVerified);
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);

@@ -30,6 +30,7 @@ namespace TilerElements
         protected Dictionary<ulong, DayTimeLine> CalculationLimitationWithUnUsables;
         protected Dictionary<ulong, DayTimeLine> CalculationLimitation;
         protected Dictionary<ulong, DayTimeLine> FreeDaysLimitation;// Holds days that do not contain subevents within this time line
+        protected HashSet<ulong> DaysWithSubEvents = new HashSet<ulong>();
         protected List<SubCalendarEvent> _RemovedSubEvents = new List<SubCalendarEvent>();
         protected EventPreference _EventDayPreference;
         protected string _LastCompletionTime;
@@ -1366,7 +1367,7 @@ namespace TilerElements
                 }
                 else return false;
             }).ToDictionary(obj => obj.UniversalIndex, obj => obj);
-            FreeDaysLimitation = CalculationLimitation.ToDictionary(obj => obj.Key, obj => obj.Value);
+            FreeDaysLimitation = CalculationLimitation.Where( obj => !DaysWithSubEvents.Contains(obj.Key)) .ToDictionary(obj => obj.Key, obj => obj.Value);
             CalculationLimitationWithUnUsables = CalculationLimitation.ToDictionary(obj => obj.Key, obj => obj.Value);
         }
 
@@ -1802,6 +1803,18 @@ namespace TilerElements
         {
             UnDesignables.Add(subEvent);
             subEvent.undesignate();
+        }
+
+        public virtual void designateSubEvent(SubCalendarEvent subEvent, ReferenceNow now)
+        {
+            UnDesignables.Remove(subEvent);
+            subEvent.designate(now);
+            DaysWithSubEvents.Add(subEvent.UniversalDayIndex);
+            if(FreeDaysLimitation!=null)
+            {
+                this.removeDayTimeFromFreeUpdays(subEvent.UniversalDayIndex);
+            }
+            
         }
 
         public virtual void deleteAllSubCalendarEventsFromRepeatParentCalendarEvent()

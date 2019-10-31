@@ -396,7 +396,7 @@ namespace TilerTests
         }
 
         [TestMethod]
-        public void procrastinateAll_ClearsCurrentEVents()
+        public void procrastinateAll_ClearsCurrentEvents()
         {
             TestSchedule Schedule;
             TilerUser tilerUser = TestUtility.createUser();
@@ -429,6 +429,7 @@ namespace TilerTests
 
 
             DateTimeOffset thirdRefNow = subEvent.Start.Add(TimeSpan.FromMinutes(Math.Round(subEvent.getActiveDuration.TotalMinutes / 2)));
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, thirdRefNow);
             TimeSpan procrastinateSpan = TimeSpan.FromHours(3);
             Schedule.ProcrastinateAll(procrastinateSpan);
@@ -438,7 +439,7 @@ namespace TilerTests
             testEvent_DB = TestUtility.getCalendarEventById(testEvent.Id, user);
             foreach(SubCalendarEvent retrievedSubEvent in testEvent_DB.ActiveSubEvents.OrderBy(o => o.Start))
             {
-                Assert.IsTrue(retrievedSubEvent.Start > newBeginningTime);
+                Assert.IsTrue(retrievedSubEvent.Start >= newBeginningTime);
             }
         }
 

@@ -236,15 +236,16 @@ namespace TilerElements
             this._Enabled = true;
         }
 
-        internal void updateDayIndex(ulong dayIndex)
+        protected void updateDayIndex(ulong dayIndex)
         {
-            this.preferredDayIndex = dayIndex;
-        }
-
-        public void updateDayIndex(ulong dayIndex, CalendarEvent myCalEvent)
-        {
-            updateDayIndex(dayIndex);
-            myCalEvent.removeDayTimeFromFreeUpdays(preferredDayIndex);
+            if (dayIndex == ReferenceNow.UndesignatedDayIndex)
+            {
+                undesignate();
+            }
+            else
+            {
+                this.preferredDayIndex = dayIndex;
+            }
         }
 
         public virtual void SetCompletionStatus(bool completeValue,CalendarEvent myCalendarEvent)
@@ -436,18 +437,16 @@ namespace TilerElements
             return MySubCalendarEventCopy;
         }
 
-
-        internal void undesignate()
+        internal void designate(ReferenceNow now)
         {
-            this.preferredDayIndex = ReferenceNow.UndesignatedDayIndex;
+            ulong dayIndex = now.getDayIndexFromStartOfTime(this.Start);
+            updateDayIndex(dayIndex);
         }
 
-        public static void updateDayIndex(ulong DayIndex, IEnumerable<SubCalendarEvent> AllSUbevents)
+
+        internal virtual void undesignate()
         {
-            foreach (SubCalendarEvent eachSubCalendarEvent in AllSUbevents)
-            {
-                eachSubCalendarEvent.preferredDayIndex = DayIndex;
-            }
+            this.preferredDayIndex = ReferenceNow.UndesignatedDayIndex;
         }
 
         public void setScore(double score)

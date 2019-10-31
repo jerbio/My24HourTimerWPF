@@ -561,7 +561,7 @@ namespace TilerTests
             schedule = new TestSchedule(user, third_refNow);
             DayTimeLine firstDay = schedule.Now.firstDay;
             DayTimeLine secondDay = schedule.Now.getDayTimeLineByDayIndex(firstDay.UniversalIndex + 1);
-            TimeLine precedingDayAndCurrentTime = new TimeLine(secondDay.Start.AddDays(-2), secondDay.End.AddDays(-2));
+            TimeLine precedingDayAndCurrentTime = new TimeLine(secondDay.Start.AddDays(-1), secondDay.End.AddDays(-2));
             precedingDayAndCurrentTime = new TimeLine(precedingDayAndCurrentTime.Start, third_refNow);
             IEnumerable<SubCalendarEvent> dayBeforeCurrentDayBeforeUpdate = schedule.getAllActiveSubEvents().Where(sub => sub.ActiveSlot.doesTimeLineInterfere(precedingDayAndCurrentTime)).OrderBy(o => o.Start).ToList();
             schedule.AddToScheduleAndCommit(testEvent1);

@@ -10,6 +10,7 @@ namespace TilerElements
         public enum Errors {
             success = 0,
             cannotAuthenticate = 1,
+            BeginningOfTimeError = 2,
             UnknownError = 500,
             TimelineFittabilityIssue = 40000000,
             cannotFitWithinTimeline = 40000001,
@@ -24,6 +25,7 @@ namespace TilerElements
         {
             {Errors.success, "SUCCESS" },
             {Errors.UnknownError, "Unknown Error" },
+            {Errors.BeginningOfTimeError, "Invalid time provided, did you fail to set the time to a valid data" },
             {Errors.cannotAuthenticate, "Failed to authenticate user account" },
             {Errors.cannotFitWithinTimeline, "Cannot fit the sub event within the timeline" },
             {Errors.procrastinationPastDeadline, "Procrastination of the tile will put it past the deadline of the tile" },

@@ -107,7 +107,9 @@ namespace TilerElements
             {
                 _EndfOfDay = value;
             }
-        } public string EndfOfDayString
+        }
+
+        public string EndfOfDayString
         {
             get
             {

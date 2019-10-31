@@ -171,6 +171,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="PerformanceLog_OptimizeDisabled_before_location_cache - Copy.txt" />
+    <Content Include="PerformanceLog_OptimizeEnabled_before_location_cache.txt" />
     <Content Include="test-db.mdf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

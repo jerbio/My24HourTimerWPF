@@ -114,6 +114,8 @@
     <Compile Include="GoogleSubCalendarEvent.cs" />
     <Compile Include="IHasId.cs" />
     <Compile Include="EventPreference.cs" />
+    <Compile Include="LocationCache.cs" />
+    <Compile Include="LocationCacheEntry.cs" />
     <Compile Include="LocationJson.cs" />
     <Compile Include="LocationValidation.cs" />
     <Compile Include="ScheduleDump.cs" />

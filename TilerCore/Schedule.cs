@@ -2321,8 +2321,12 @@ namespace TilerCore
 
             List<CalendarEvent> SortedInterFerringCalendarEvents_Deadline = DictionaryWithBothCalendarEventIDAndListOfInterferringSubEvents.Keys.ToList();
             SortedInterFerringCalendarEvents_Deadline = SortedInterFerringCalendarEvents_Deadline.OrderBy(obj => obj.End).ToList();
-            
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
             ParallelizeCallsToDay(SortedInterFerringCalendarEvents_Deadline, ArrayOfInterferringSubEvents, AllDayTImeLine, callLocation, OptimizeFirstTwentyFour, preserveFirstTwentyFourHours, shuffle);
+            watch.Stop();
+            TimeSpan scheduleElapsedTime = watch.Elapsed;
+            Debug.WriteLine("ParallelizeCallsToDay took " + scheduleElapsedTime.ToString());
             preceding24HourSubevent.ForEach((subEvent) => {
                 subEvent.unLockPrecedingHours();
             });
@@ -2612,7 +2616,12 @@ namespace TilerCore
 
             List<CalendarEvent> SortedInterFerringCalendarEvents_Deadline = DictionaryWithBothCalendarEventIDAndListOfInterferringSubEvents.Keys.ToList();
             SortedInterFerringCalendarEvents_Deadline = SortedInterFerringCalendarEvents_Deadline.OrderBy(obj => obj.End).ToList();
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
             ParallelizeCallsToDay(SortedInterFerringCalendarEvents_Deadline, ArrayOfInterferringSubEvents.ToList(), AllDays, callLocation, true);
+            watch.Stop();
+            TimeSpan scheduleElapsedTime = watch.Elapsed;
+            Debug.WriteLine("ParallelizeCallsToDay took " + scheduleElapsedTime.ToString());
             preceding24HourSubevent.ForEach((subEvent) => {
                 subEvent.unLockPrecedingHours();
             });

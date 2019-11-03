@@ -572,7 +572,7 @@ namespace TilerElements
             //MyCalendarEventCopy.SchedulStatus = SchedulStatus;
             MyCalendarEventCopy._otherPartyID = _otherPartyID == null ? null : _otherPartyID.ToString();
             MyCalendarEventCopy._Users = this._Users;
-            MyCalendarEventCopy.DaySectionPreference = this.DaySectionPreference;
+            MyCalendarEventCopy._DaySectionPreference = this._DaySectionPreference;
             MyCalendarEventCopy._EventDayPreference = this.DayPreference?.createCopy();
             return MyCalendarEventCopy;
         }
@@ -591,6 +591,7 @@ namespace TilerElements
             retValue.updateEndTime( End);
             retValue._EventDuration = new TimeSpan(0);
             SubCalendarEvent emptySubEvent = SubCalendarEvent.getEmptySubCalendarEvent(retValue.UniqueID);
+            emptySubEvent.ParentCalendarEvent = retValue;
             retValue._SubEvents.Add(emptySubEvent.Id, emptySubEvent);
             retValue._Splits = 1;
             retValue._RigidSchedule = true;
@@ -1902,6 +1903,15 @@ namespace TilerElements
             updateCalculationStartToEnd();
         }
 
+        public override void InitializeDayPreference(TimeLine timeLine)
+        {
+            if(_DaySectionPreference == null)
+            {
+                _DaySectionPreference = _EventDayPreference.toTimeOfDayPreference(timeLine);
+            }
+            base.InitializeDayPreference(timeLine);
+        }
+
         #endregion
 
         #region Properties
@@ -2304,6 +2314,14 @@ namespace TilerElements
                 {
                     return _RemovedSubEvents;
                 }
+            }
+        }
+
+        public virtual TimeOfDayPreferrence DayPreferrence
+        {
+            get
+            {
+                return _DaySectionPreference;
             }
         }
 

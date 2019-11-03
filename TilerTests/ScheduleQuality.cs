@@ -209,6 +209,119 @@ namespace TilerTests
             Assert.AreEqual(repeatCount, validatingCount);
         }
 
+        /// <summary>
+        /// Function tries to ensure that even you set as now in the evening the schedule will schedule the event in the evening as opposed to any other part of the day sector
+        /// </summary>
+        [TestMethod]
+        public void RepetitionDay_Set_As_Now_DaySetionPrefrence()
+        {
+            DB_Schedule Schedule;
+            int splitCount = 8;
+            DateTimeOffset refNow = TestUtility.parseAsUTC("7/7/2019 12:00:00 AM");
+            TilerUser tilerUser = TestUtility.createUser();
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+            refNow = refNow.removeSecondsAndMilliseconds();
+            TimeSpan duration = TimeSpan.FromHours(2);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.AddDays(28);
+            Schedule = new TestSchedule(user, refNow);
+            CalendarEvent testEvent0 = TestUtility
+                .generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, splitCount, false);
+            Schedule.AddToScheduleAndCommitAsync(testEvent0).Wait();
+
+            TimeLine repeatTimeLine = new TimeLine(testEvent0.Start, testEvent0.End.AddDays(14));
+            TimeLine calTimeLine = repeatTimeLine.CreateCopy();
+            Repetition repetition = new Repetition(repeatTimeLine, Repetition.Frequency.WEEKLY, calTimeLine);
+            int repeatSplitCount = 2;
+            CalendarEvent testEvent = TestUtility
+                .generateCalendarEvent(tilerUser, duration, repetition, calTimeLine.Start, calTimeLine.End, repeatSplitCount, false);
+
+            int firstDayIncrement = 2;
+            int secondDayIncrement = 4;
+
+            DateTimeOffset firstDayFromStart = refNow.AddDays(firstDayIncrement);
+            DateTimeOffset secondDayFromStart = refNow.AddDays(secondDayIncrement);
+
+            DayOfWeek firstDayOfWeek = firstDayFromStart.DayOfWeek;
+            DayOfWeek secondDayOfWeek = secondDayFromStart.DayOfWeek;
+            HashSet<DayOfWeek> repeatDays = new HashSet<DayOfWeek>() { firstDayOfWeek, secondDayOfWeek };
+
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            refNow = firstDayFromStart;
+            Schedule = new TestSchedule(user, refNow);
+            testEvent = Schedule.getCalendarEvent(testEvent.Id);
+            SubCalendarEvent subEvent = testEvent.ActiveSubEvents.OrderBy(sub => sub.Start).First();
+            Schedule.SetSubeventAsNow(subEvent.Id);
+            Schedule.persistToDB().Wait();
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            testEvent = Schedule.getCalendarEvent(testEvent.Id);
+            Schedule.markSubEventAsComplete(subEvent.Id).Wait();
+            Schedule.persistToDB().Wait();
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            refNow = secondDayFromStart;
+            Schedule = new TestSchedule(user, refNow);
+            testEvent = Schedule.getCalendarEvent(testEvent.Id);
+            subEvent = testEvent.ActiveSubEvents.OrderBy(sub => sub.Start).First();
+            testEvent = Schedule.getCalendarEvent(testEvent.Id);
+            Schedule.SetSubeventAsNow(subEvent.Id);
+            Schedule.persistToDB().Wait();
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            testEvent = Schedule.getCalendarEvent(testEvent.Id);
+            subEvent = testEvent.ActiveSubEvents.OrderBy(sub => sub.Start).First();
+            Schedule.markSubEventAsComplete(subEvent.Id).Wait();
+            Schedule.persistToDB().Wait();
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.FindMeSomethingToDo(new Location()).Wait();
+            testEvent = Schedule.getCalendarEvent(testEvent.Id);
+            Schedule.persistToDB().Wait();
+
+            List<SubCalendarEvent> subEvents = Schedule.getCalendarEvent(testEvent.Id).ActiveSubEvents.ToList();
+            List<DateTimeOffset> allCorrespondingRepeatDays = new List<DateTimeOffset>();
+            List<DateTimeOffset> repeatDates = new List<DateTimeOffset>() { firstDayFromStart, secondDayFromStart };
+            TimeLine activeTImeLine = new TimeLine(Schedule.Now.constNow, testEvent.End);
+
+            repeatDates.ForEach((weekDay) =>
+            {
+                var correspondinWeekDays = getCorrespondingWeekdays(activeTImeLine, weekDay.DayOfWeek);
+                allCorrespondingRepeatDays.AddRange(correspondinWeekDays);
+            });
+
+            List<DayOfWeek> repeatDaysOfWeek = subEvents.Select(tilerEvent => tilerEvent.Start.DayOfWeek).ToList();
+
+
+            int repeatCount = 0;
+            foreach (DayOfWeek weekDay in repeatDaysOfWeek)
+            {
+                if (repeatDays.Contains(weekDay))
+                {
+                    repeatCount++;
+                }
+            }
+
+            int validatingCount = subEvents.Count < allCorrespondingRepeatDays.Count ? subEvents.Count : allCorrespondingRepeatDays.Count;
+
+            Assert.AreEqual(repeatCount, validatingCount);
+        }
+
+
+
+
         [TestMethod]
         public void RepetitionMultipleEventWithDifferentDayPreferences()
         {
@@ -518,6 +631,7 @@ namespace TilerTests
 
             DateTimeOffset iniRefNow = new DateTimeOffset(DateTimeOffset.UtcNow.removeSecondsAndMilliseconds().Date.ToUniversalTime());
             iniRefNow = new DateTimeOffset(iniRefNow.Year, iniRefNow.Month, iniRefNow.Day, 0, 0, 0, new TimeSpan());
+            iniRefNow = DateTimeOffset.Parse("11/3/2019 12:00:00 AM");
             DateTimeOffset refNow = iniRefNow;
 
             int splitCount = 15;

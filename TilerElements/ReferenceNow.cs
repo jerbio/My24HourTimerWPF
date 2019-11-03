@@ -25,7 +25,7 @@ namespace TilerElements
         public TimeSpan SleepSpan = new TimeSpan(0, 8, 0, 0, 0);
         protected TimeSpan TimeZoneDiff;
         ulong lastDayIndex = 0;
-        uint DayCount;
+        uint _DayCount;
 
         public ReferenceNow(DateTimeOffset Now, DateTimeOffset StartOfDay, TimeSpan timeDifference)
         {
@@ -78,7 +78,7 @@ namespace TilerElements
             }
             AllDays = AllDayTImeLine.ToArray();
             DayLookUp = AllDays.ToDictionary(obj => obj.UniversalIndex, obj => obj);
-            DayCount = (uint)AllDays.Length;
+            _DayCount = (uint)AllDays.Length;
             ComputationBound = new TimeLine(AllDays[0].Start, AllDays[AllDays.Length - 1].End);
         }
 
@@ -126,7 +126,7 @@ namespace TilerElements
             {
                 return DayLookUp[dayIndex];
             }
-            ulong start = lastDayIndex - (DayCount-1);
+            ulong start = lastDayIndex - (_DayCount-1);
             ulong end = lastDayIndex;
             string errorMessage = "You are trying to make a query for a day that isn't within the " + ConstOfCalculation.TotalDays + " For Reference now. Hint: the only valid indexes are" + start + " - " + end;
             throw new Exception(errorMessage);
@@ -177,6 +177,32 @@ namespace TilerElements
         {
             return getDayOfTheWeek(time).Item2;
         }
+
+        public TimeOfDayPreferrence.DaySection getDaySection(DateTimeOffset time)
+        {
+            TimeLine timeLine = AllDays[4];
+
+            TimeSpan span = timeLine.Start - time;
+            int dayCount = (int)Math.Floor(span.TotalDays);
+            DateTimeOffset revisedTime = time.AddDays(dayCount);
+            var daySections = TimeOfDayPreferrence.ActiveDaySections.ToList();
+            DayTimeLine dayTimeLine = getDayTimeLineByTime(revisedTime);
+            TimeSpan timeSpanPerSection = TimeSpan.FromTicks( dayTimeLine.TimelineSpan.Ticks / daySections.Count);
+            TimeLine sectionTimeLine = new TimeLine(dayTimeLine.Start, dayTimeLine.Start.Add(timeSpanPerSection));
+            foreach(var daySection in daySections)
+            {
+                if (sectionTimeLine.IsDateTimeWithin(revisedTime))
+                {
+                    return daySection;
+                }
+                else
+                {
+                    sectionTimeLine = new TimeLine(sectionTimeLine.End, sectionTimeLine.End.Add(timeSpanPerSection));
+                }
+            }
+            throw new Exception("Something is wrong about this loop for day section");
+        }
+
 
         public DayOfWeek getDayOfTheWeek(TimeLine timeLine)
         {
@@ -329,7 +355,7 @@ namespace TilerElements
         {
             get
             {
-                return DayCount;
+                return _DayCount;
             }
         }
 

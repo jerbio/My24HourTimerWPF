@@ -996,9 +996,19 @@ namespace TilerElements
             bool RetValue = shiftEvent(timeDiff);
             return RetValue;
         }
-        
 
-         public ulong UniversalDayIndex
+        public override void InitializeDayPreference(TimeLine timeLine)
+        {
+            if (_DaySectionPreference == null)
+            {
+                _DaySectionPreference = ParentCalendarEvent.DayPreference.toTimeOfDayPreference(timeLine);
+            }
+            base.InitializeDayPreference(timeLine);
+        }
+
+
+
+        public ulong UniversalDayIndex
          {
              get
              {

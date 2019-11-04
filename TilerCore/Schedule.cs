@@ -50,6 +50,14 @@ namespace TilerCore
 {
     public class Schedule : IWhy
     {
+        const int _optimizedDayLimit = 10;
+        public int OptimizedDayLimit
+        {
+            get
+            {
+                return _optimizedDayLimit;
+            }
+        }
         public static int TimeLookUpDayStart {
             get {
                 return Utility.defaultBeginDay;
@@ -3068,10 +3076,10 @@ namespace TilerCore
             List<BlobSubCalendarEvent> beforePathOptimizationConflictingEvetns = Utility.getConflictingEvents(orderedByStart);
 
 
-            int optimizedDayLimit = 10;
+            
             IDictionary<DayTimeLine, OptimizedPath> dayToOptimization = null;
-            List<DayTimeLine> OptimizedDays = AllDayTImeLine.Take(optimizedDayLimit).ToList();
-            List<DayTimeLine> moveToMiddleDays = AllDayTImeLine.Skip(optimizedDayLimit).ToList();
+            List<DayTimeLine> OptimizedDays = AllDayTImeLine.Take(OptimizedDayLimit).ToList();
+            List<DayTimeLine> moveToMiddleDays = AllDayTImeLine.Skip(OptimizedDayLimit).ToList();
             if (Optimize)
             {
                 ulong FirstIndex = AllDayTImeLine[0].UniversalIndex;

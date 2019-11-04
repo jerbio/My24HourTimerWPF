@@ -20,14 +20,14 @@ namespace TilerElements
             new Tuple<int, DaySection, bool, TimeLine>(5, DaySection.None, false, new TimeLine())
             });
         IEnumerable<Tuple<int, DaySection, bool, TimeLine>> ActiveHours;
-        DaySection _UserActivePreference = DaySection.Morning;
+        bool _isDefaultOrdering = false;
         //TilerEvent ControlEvent;
         public TimeOfDayPreferrence(TimeLine timeLine, List<DaySection> preferredOrder = null,  DaySection userActivePreference = DaySection.Morning)
         {
             tImeLineStart = timeLine.Start;
             fullDayTImeLine = timeLine.CreateCopy();
-            _UserActivePreference = DaySection.Morning;
             generateTimeFrames(timeLine, preferredOrder);
+            _isDefaultOrdering = preferredOrder == null;
             _DefaultOrder = _PreferenceOrder.ToList();
             ActiveHours = _PreferenceOrder.Where(obj => obj.Item2 != DaySection.None && obj.Item2 != DaySection.Disabled).ToList();
         }
@@ -39,8 +39,6 @@ namespace TilerElements
             _PreferenceOrder = new List<Tuple<int, DaySection, bool, TimeLine>>();
             var daySectionsToTimeline = splitIntoDaySections(timeLine);
 
-
-            int preferredDaySectionIndex = -1;
             int indexCounter = -1;
             for (int i = 0; i < tempDaySectionOrder.Count - 1; i++)
             {
@@ -51,20 +49,8 @@ namespace TilerElements
                     var subTimeLine = daySectionsToTimeline[daySection];
                     var preference = new Tuple<int, DaySection, bool, TimeLine>(i + 1, daySection, false, subTimeLine);
                     _PreferenceOrder.Add(preference);
-                    if (daySectionsToTimeline.ContainsKey(_UserActivePreference))
-                    {
-                        preferredDaySectionIndex = indexCounter;
-                    }
                 }
             }
-
-            if (preferredDaySectionIndex>=0)
-            {
-                var preferenceAtIndex = _PreferenceOrder[preferredDaySectionIndex];
-                _PreferenceOrder.RemoveAt(preferredDaySectionIndex);
-                _PreferenceOrder.Insert(0, preferenceAtIndex);
-            }
-
 
 
 
@@ -234,23 +220,12 @@ namespace TilerElements
                 }
             }
         }
-        public string UserActivePreference
+
+        public bool isDefaultOrdering
         {
             get
             {
-                return _UserActivePreference.ToString().ToLower();
-            }
-            set
-            {
-                if (!string.IsNullOrEmpty(value) &&!string.IsNullOrWhiteSpace(value))
-                {
-                    _UserActivePreference = Utility.ParseEnum<DaySection>(value);
-                }
-                else
-                {
-                    _UserActivePreference = DaySection.Morning;
-                }
-                
+                return _isDefaultOrdering;
             }
         }
 

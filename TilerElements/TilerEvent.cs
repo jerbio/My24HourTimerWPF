@@ -168,7 +168,17 @@ namespace TilerElements
         protected List<Tuple<TimelineWithSubcalendarEvents, OptimizedGrouping, double>> orderBasedOnProductivity(Dictionary<TimeOfDayPreferrence.DaySection, OptimizedGrouping> AllGroupings)
         {
             //TODO need to use machine learning to order the timelines right now the implemenation simple favors a morning schedule
-            List<TimeOfDayPreferrence.DaySection> daySectionsPreferredOrder = (new List<TimeOfDayPreferrence.DaySection>() { TimeOfDayPreferrence.DaySection.Morning, TimeOfDayPreferrence.DaySection.Afternoon, TimeOfDayPreferrence.DaySection.Evening,  TimeOfDayPreferrence.DaySection.Sleep }).Where(section => AllGroupings.ContainsKey(section)).ToList();
+            List<TimeOfDayPreferrence.DaySection> daySectionsPreferredOrder = null;
+            if(getDaySection().isDefaultOrdering)
+            {
+                daySectionsPreferredOrder = (new List<TimeOfDayPreferrence.DaySection>() { TimeOfDayPreferrence.DaySection.Morning, TimeOfDayPreferrence.DaySection.Afternoon, TimeOfDayPreferrence.DaySection.Evening, TimeOfDayPreferrence.DaySection.Sleep }).Where(section => AllGroupings.ContainsKey(section)).ToList();
+            }
+            else
+            {
+                daySectionsPreferredOrder = getDaySection().getPreferenceOrder().Where(daySector => AllGroupings.ContainsKey(daySector)).ToList();
+            }
+
+            
             List<Tuple<TimelineWithSubcalendarEvents, OptimizedGrouping, double>> retValue = daySectionsPreferredOrder.Select(timeOfDay => new Tuple<TimelineWithSubcalendarEvents, OptimizedGrouping, double>(
                 AllGroupings[timeOfDay].GroupAverage.TimeLine, 
                 AllGroupings[timeOfDay], 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using static TilerElements.TimeOfDayPreferrence;
 
 namespace TilerElements
 {
@@ -180,27 +181,57 @@ namespace TilerElements
 
         public TimeOfDayPreferrence.DaySection getDaySection(DateTimeOffset time)
         {
-            TimeLine timeLine = AllDays[4];
+            var retTuple = getDaySectionAndTimeLine(time);
+            return retTuple.Item1;
+        }
 
-            TimeSpan span = timeLine.Start - time;
-            int dayCount = (int)Math.Floor(span.TotalDays);
-            DateTimeOffset revisedTime = time.AddDays(dayCount);
-            var daySections = TimeOfDayPreferrence.ActiveDaySections.ToList();
-            DayTimeLine dayTimeLine = getDayTimeLineByTime(revisedTime);
-            TimeSpan timeSpanPerSection = TimeSpan.FromTicks( dayTimeLine.TimelineSpan.Ticks / daySections.Count);
-            TimeLine sectionTimeLine = new TimeLine(dayTimeLine.Start, dayTimeLine.Start.Add(timeSpanPerSection));
-            foreach(var daySection in daySections)
+        /// <summary>
+        /// Funcion gets the day sector associated with the provided time. It returns the Day sector and the time line of the full day sector.
+        /// Note the returned timeline is the full sector. So even it is part of a daytimeline thats less than 24 hours it will could return a timeline that is out side the daytimeline
+        /// </summary>
+        /// <param name="time"></param>
+        /// <returns></returns>
+        public Tuple<DaySection, TimeLine> getDaySectionAndTimeLine(DateTimeOffset time)
+        {
+            DayTimeLine referenceDayTimeLine = getDayTimeLineByTime(time);
+
+            if (referenceDayTimeLine != null)
             {
-                if (sectionTimeLine.IsDateTimeWithin(revisedTime))
+                Tuple<DaySection, TimeLine> retValue;
+
+                TimeLine timeLine = AllDays[4];
+
+                TimeSpan span = timeLine.Start - time;
+                int dayCount = (int)Math.Floor(span.TotalDays);
+                DateTimeOffset revisedTime = time.AddDays(dayCount);
+                var daySections = TimeOfDayPreferrence.ActiveDaySections.ToList();
+                DayTimeLine dayTimeLine = getDayTimeLineByTime(revisedTime);
+                TimeSpan timeSpanPerSection = TimeSpan.FromMinutes(Math.Ceiling(dayTimeLine.TimelineSpan.TotalMinutes / daySections.Count));
+                TimeLine sectionTimeLine = new TimeLine(dayTimeLine.Start, dayTimeLine.Start.Add(timeSpanPerSection).removeSecondsAndMilliseconds());
+                foreach (var daySection in daySections)
                 {
-                    return daySection;
+                    if (sectionTimeLine.IsDateTimeWithin(revisedTime))
+                    {
+                        long dayIidex = (long)this.getDayIndexFromStartOfTime(sectionTimeLine.Start);
+                        long dayShift = (long)referenceDayTimeLine.UniversalIndex - dayIidex;
+
+                        DateTimeOffset newStart = sectionTimeLine.Start;
+                        DateTimeOffset newEnd = sectionTimeLine.End;
+
+                        newStart = newStart.AddDays(dayShift);
+                        newEnd = newEnd.AddDays(dayShift);
+                        TimeLine retTimeline = new TimeLine(newStart, newEnd);
+                        retValue = new Tuple<DaySection, TimeLine>(daySection, retTimeline);
+                        return retValue;
+                    }
+                    else
+                    {
+                        sectionTimeLine = new TimeLine(sectionTimeLine.End, sectionTimeLine.End.Add(timeSpanPerSection));
+                    }
                 }
-                else
-                {
-                    sectionTimeLine = new TimeLine(sectionTimeLine.End, sectionTimeLine.End.Add(timeSpanPerSection));
-                }
+                throw new Exception("Something is wrong about this loop for day section");
             }
-            throw new Exception("Something is wrong about this loop for day section");
+            throw new Exception("Time should be within the now window of timelines");
         }
 
 
@@ -296,6 +327,45 @@ namespace TilerElements
         public ulong getDayIndexFromStartOfTime(DateTimeOffset myDay)
         {
             ulong retValue = (ulong)((myDay - StarTime).TotalDays);
+            return retValue;
+        }
+
+        /// <summary>
+        /// Function returns all the day sectors within the timeline in the respective order of the timeline
+        /// </summary>
+        /// <param name="timeLine"></param>
+        /// <returns></returns>
+        public List<Tuple<TimeOfDayPreferrence.DaySection, TimeLine>>getDaySections(TimeLine timeLine)
+        {
+            List<Tuple<TimeOfDayPreferrence.DaySection, TimeLine>> retValue = new List<Tuple<TimeOfDayPreferrence.DaySection, TimeLine>>();
+
+            var daySectorAndTimeline = getDaySectionAndTimeLine(timeLine.Start);
+            TimeLine sectorInterferringTimeline = timeLine.InterferringTimeLine(daySectorAndTimeline.Item2);
+            Tuple<DaySection, TimeLine> tuple = new Tuple<DaySection, TimeLine>(daySectorAndTimeline.Item1, sectorInterferringTimeline);
+            retValue.Add(tuple);
+            TimeLine sectionTimeLine = daySectorAndTimeline.Item2;
+            DateTimeOffset nextStart = sectionTimeLine.End.removeSecondsAndMilliseconds();
+            TimeLine nextSectionTimeLIne = new TimeLine(nextStart, nextStart.Add(sectionTimeLine.TimelineSpan));
+            TimeLine interFerringTimeLine = timeLine.InterferringTimeLine(nextSectionTimeLIne);
+            while (interFerringTimeLine!=null)
+            {
+                daySectorAndTimeline = getDaySectionAndTimeLine(interFerringTimeLine.Start);
+                interFerringTimeLine = timeLine.InterferringTimeLine(daySectorAndTimeline.Item2);
+                sectorInterferringTimeline = interFerringTimeLine;
+                tuple = new Tuple<DaySection, TimeLine>(daySectorAndTimeline.Item1, sectorInterferringTimeline);
+                retValue.Add(tuple);
+                if (interFerringTimeLine.TimelineSpan != daySectorAndTimeline.Item2.TimelineSpan)
+                {
+                    break;
+                } else
+                {
+                    sectionTimeLine = daySectorAndTimeline.Item2;
+                    nextStart = sectionTimeLine.End.removeSecondsAndMilliseconds();
+                    nextSectionTimeLIne = new TimeLine(nextStart, nextStart.Add(sectionTimeLine.TimelineSpan));
+                    interFerringTimeLine = timeLine.InterferringTimeLine(nextSectionTimeLIne);
+                }
+            }
+            
             return retValue;
         }
 

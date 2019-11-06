@@ -466,7 +466,7 @@ namespace TilerCore
                 SplitCount = procrastinateCalEvent.NumberOfSplit;
             }
 
-
+            calendarEventRange = new TimeLine(calEventStart, calEventEnd);
             if (mySubCalEvent.isLocked && myCalendarEvent.isLocked)
             {
                 calendarEventRange = new TimeLine(SubeventStart, SubeventEnd);
@@ -476,9 +476,9 @@ namespace TilerCore
             }
             else
             {
-                calendarEventRange = mySubCalEvent.getCalculationRange;
-                calEventStart = calendarEventRange.Start < calEventStart ? calendarEventRange.Start : calEventStart;
-                calEventEnd = calendarEventRange.End > calEventEnd ? calendarEventRange.End : calEventEnd;
+                TimeLine subEventTimeline = new TimeLine(SubeventStart, SubeventEnd);
+                calEventStart = subEventTimeline.Start < calEventStart ? subEventTimeline.Start : calEventStart;
+                calEventEnd = subEventTimeline.End > calEventEnd ? subEventTimeline.End : calEventEnd;
                 calendarEventRange = new TimeLine(calEventStart, calEventEnd);
             }
 

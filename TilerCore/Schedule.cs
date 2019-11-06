@@ -474,13 +474,6 @@ namespace TilerCore
                 calEventEnd = SubeventEnd;
                 isFromRigidEvent = true;
             }
-            else
-            {
-                TimeLine subEventTimeline = new TimeLine(SubeventStart, SubeventEnd);
-                calEventStart = subEventTimeline.Start < calEventStart ? subEventTimeline.Start : calEventStart;
-                calEventEnd = subEventTimeline.End > calEventEnd ? subEventTimeline.End : calEventEnd;
-                calendarEventRange = new TimeLine(calEventStart, calEventEnd);
-            }
 
             SubCalendarEvent ChangedSubCal;
             if (!mySubCalEvent.getIsEventRestricted)

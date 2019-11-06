@@ -777,6 +777,23 @@ namespace TilerTests
             Assert.IsTrue(nonRigidCalendarEventRetrieved.Start == nonRigidOldStart);
             Assert.IsTrue(nonRigidCalendarEventRetrieved.End == newCalEventEnd);
 
+            /// Make deadline earlier than the latest sub event
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow, startOfDay);
+            nonRigidOldStart = nonRigidCalendarEventRetrieved.Start;
+            testSubEvent = nonRigidCalendarEventRetrieved.ActiveSubEvents.OrderByDescending(subEvent => subEvent.End).First();
+            tileNewStart = testSubEvent.Start;
+            tileNewEnd = testSubEvent.End;
+            newCalEventEnd = testSubEvent.End.AddDays(-1);
+            scheduleUpdated = Schedule.BundleChangeUpdate(testSubEvent.getId, testSubEvent.getName, tileNewStart, tileNewEnd, nonRigidCalendarEvent.Start, newCalEventEnd, nonRigidCalendarEvent.NumberOfSplit, testSubEvent.Notes.UserNote);
+            Schedule.persistToDB().Wait();
+
+            nonRigidCalendarEventRetrieved = TestUtility.getCalendarEventById(testSubEvent.Id, user);
+            testSubEventRetrieved = TestUtility.getSubEventById(testSubEvent.Id, user);
+            Assert.IsTrue(nonRigidCalendarEventRetrieved.Start == nonRigidOldStart);
+            Assert.IsTrue(nonRigidCalendarEventRetrieved.End == newCalEventEnd);
+            Assert.IsTrue(testSubEventRetrieved.End <= newCalEventEnd);
+
 
             /// If subevent is scheduled after the calendar event deadline
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
@@ -785,7 +802,7 @@ namespace TilerTests
             testSubEvent = nonRigidCalendarEventRetrieved.ActiveSubEvents.First();
             tileNewStart = nonRigidCalendarEventRetrieved.End.AddDays(1);
             tileNewEnd = tileNewStart.Add(testSubEvent.getActiveDuration);
-            scheduleUpdated = Schedule.BundleChangeUpdate(testSubEvent.getId, testSubEvent.getName, tileNewStart, tileNewEnd, nonRigidCalendarEvent.Start, nonRigidCalendarEvent.End, nonRigidCalendarEvent.NumberOfSplit, testSubEvent.Notes.UserNote);
+            scheduleUpdated = Schedule.BundleChangeUpdate(testSubEvent.getId, testSubEvent.getName, tileNewStart, tileNewEnd, nonRigidCalendarEventRetrieved.Start, nonRigidCalendarEventRetrieved.End, nonRigidCalendarEvent.NumberOfSplit, testSubEvent.Notes.UserNote);
             Schedule.persistToDB().Wait();
             testSubEventRetrieved = TestUtility.getSubEventById(testSubEvent.Id, user);
             nonRigidCalendarEventRetrieved = TestUtility.getCalendarEventById(testSubEvent.Id, user);

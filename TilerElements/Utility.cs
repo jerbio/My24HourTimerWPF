@@ -378,16 +378,7 @@ namespace TilerElements
                 foreach(IDefinedRange eachRange in timeLineElements.OrderBy(obj => obj.Start))
                 {
                     elements.Add(eachRange);
-                    //if (eachRange.StartToEnd.TimelineSpan.Ticks > 0)
-                    //{
-                    //    elements.Add(eachRange);
-                    //}
-                    //else
-                    //{
-                    //    zeroTimespan.Add(eachRange);
-                    //}
                 }
-
                 List<IDefinedRange> EventsWithTImeline = elements.ToList();
                 List<TimeLine> retValue_ItemA = new List<TimeLine>();
 

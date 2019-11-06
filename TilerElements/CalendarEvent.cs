@@ -1755,6 +1755,7 @@ namespace TilerElements
                 {
                     worksForAllSubevents = false;
                     failingSubEvent = obj;
+                    break;
                 }
             }
             if (worksForAllSubevents)
@@ -1768,7 +1769,7 @@ namespace TilerElements
             } else
             {
                 AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(oldTimeLine));
-                CustomErrors customError = new CustomErrors("Cannot update the timeline for the calendar event with sub event " + failingSubEvent.getId + ". Most likely because the new time line won't fit the sub event", 40000001);
+                CustomErrors customError = new CustomErrors(CustomErrors.Errors.cannotFitWithinTimeline, "Cannot update the timeline for the calendar event with sub event " + failingSubEvent.getId + ". Most likely because the new time line won't fit the sub event");
                 throw customError;
             }
             updateCalculationStartToEnd();

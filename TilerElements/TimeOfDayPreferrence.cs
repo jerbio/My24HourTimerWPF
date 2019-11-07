@@ -26,17 +26,17 @@ namespace TilerElements
         {
             tImeLineStart = timeLine.Start;
             fullDayTImeLine = timeLine.CreateCopy();
-            generateTimeFrames(timeLine, preferredOrder);
+            _PreferenceOrder = generateTimeFrames(timeLine, preferredOrder);
             _isDefaultOrdering = preferredOrder == null;
             _DefaultOrder = _PreferenceOrder.ToList();
             ActiveHours = _PreferenceOrder.Where(obj => obj.Item2 != DaySection.None && obj.Item2 != DaySection.Disabled).ToList();
         }
 
-        protected void generateTimeFrames(TimeLine timeLine, List<DaySection> preferredOrder = null)
+        protected List<Tuple<int, DaySection, bool, TimeLine>> generateTimeFrames(TimeLine timeLine, List<DaySection> preferredOrder = null)
         {
             tImeLineStart = timeLine.Start;
             List<DaySection> tempDaySectionOrder = preferredOrder ?? new List<DaySection>() { DaySection.Sleep, DaySection.Morning, DaySection.Afternoon, DaySection.Evening, DaySection.None };
-            _PreferenceOrder = new List<Tuple<int, DaySection, bool, TimeLine>>();
+            List<Tuple<int, DaySection, bool, TimeLine>> retValue = new List<Tuple<int, DaySection, bool, TimeLine>>();
             var daySectionsToTimeline = splitIntoDaySections(timeLine);
 
             int indexCounter = -1;
@@ -48,19 +48,11 @@ namespace TilerElements
                     ++indexCounter;
                     var subTimeLine = daySectionsToTimeline[daySection];
                     var preference = new Tuple<int, DaySection, bool, TimeLine>(i + 1, daySection, false, subTimeLine);
-                    _PreferenceOrder.Add(preference);
+                    retValue.Add(preference);
                 }
             }
 
-
-
-            //PreferenceOrder = new List<Tuple<int, DaySection, bool, TimeLine>>(new[] {
-            //    new Tuple<int, DaySection, bool, TimeLine>(1, DaySection.Sleep , false, new TimeLine(timeLine.Start, timeLine.Start.Add(spanPerSection).AddTicks(-1))),
-            //    new Tuple<int, DaySection, bool, TimeLine>(2, DaySection.Morning, false, new TimeLine(timeLine.Start.Add(spanPerSection), timeLine.Start.AddTicks(2*spanPerSection.Ticks).AddTicks(-1))),
-            //    new Tuple<int, DaySection, bool, TimeLine>(3, DaySection.Afternoon,  false, new TimeLine(timeLine.Start.AddTicks(2*spanPerSection.Ticks), timeLine.Start.AddTicks(3*spanPerSection.Ticks).AddTicks(-1))),
-            //    new Tuple<int, DaySection, bool, TimeLine>(4, DaySection.Evening,false, new TimeLine(timeLine.Start.AddTicks(3*spanPerSection.Ticks), timeLine.Start.AddTicks(4*spanPerSection.Ticks).AddTicks(-1))),
-            //    new Tuple<int, DaySection, bool, TimeLine>(5, DaySection.None, false, new TimeLine(timeLine.Start, timeLine.Start.AddDays(1).AddTicks(-1))),
-            //});
+            return retValue;
         }
 
         static public Dictionary<DaySection, TimeLine> splitIntoDaySections(TimeLine timeLine)
@@ -164,7 +156,7 @@ namespace TilerElements
             {
                 if (fullDayTImeLine != daytimeLine)
                 {
-                    generateTimeFrames(daytimeLine);
+                    _PreferenceOrder = generateTimeFrames(daytimeLine);
                 }
                 Tuple<int, DaySection, bool, TimeLine> daySection = _PreferenceOrder.Where(obj => obj.Item2 != DaySection.None).Where(obj => obj.Item4.IsDateTimeWithin(time)).First();
                 if (daySection != null)

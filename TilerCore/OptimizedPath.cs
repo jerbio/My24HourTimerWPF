@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TilerElements;
+using static TilerElements.TimeOfDayPreferrence;
 
 namespace TilerCore
 {
@@ -129,6 +130,7 @@ namespace TilerCore
 
         public void OptimizePath()
         {
+            int troubleshootingCOunter = 0;
             foreach (SubCalendarEvent subEvent in DayInfo.getSubEventsInTimeLine())
             {
                 subEvent.InitializeDayPreference(DayInfo);
@@ -137,6 +139,7 @@ namespace TilerCore
 
             while (true)
             {
+                ++troubleshootingCOunter;
                 subEventToReason = DayInfo.getSubEventsInTimeLine().ToDictionary(subEvent => subEvent, subEVent => new Dictionary<Reason.Options, Reason>());
                 List<SubCalendarEvent> AllSubCalendarEvents = DayInfo.getSubEventsInTimeLine();
                 List<SubCalendarEvent> CurrentlyValid = AllSubCalendarEvents
@@ -641,7 +644,7 @@ namespace TilerCore
             {
                 foreach (TimeLine timeLineWork in timeLineWorks)
                 {
-                    pinnedToStart.AddRange(CurrentList.Where(obj => obj.StartToEnd.doesTimeLineInterfere(timeLineWork)).OrderBy(obj => obj.Start));
+                    pinnedToStart.AddRange(CurrentList.Where(obj => obj.getCalculationRange.doesTimeLineInterfere(timeLineWork)).OrderBy(obj => obj.Start));
                 }
             }
 
@@ -649,7 +652,7 @@ namespace TilerCore
             {
                 foreach (TimeLine timeLineWork in timeLineWorks)
                 {
-                    pinnedToEnd.AddRange(CurrentList.Where(obj => obj.StartToEnd.doesTimeLineInterfere(timeLineWork)).OrderBy(obj => obj.End));
+                    pinnedToEnd.AddRange(CurrentList.Where(obj => obj.getCalculationRange.doesTimeLineInterfere(timeLineWork)).OrderBy(obj => obj.End));
                 }
             }
             List<mTuple<SubCalendarEvent, int>> subEventsWithIndexes = new List<mTuple<SubCalendarEvent, int>>();
@@ -665,7 +668,7 @@ namespace TilerCore
             if (fullSublist.Count > 0)
             {
                 startingIndex = allSubEvents.IndexOf(fullSublist[0]);
-                if(unusableIndexes!=null)
+                if(unusableIndexes!=null && unusableIndexes.Count > 0)
                 {
                     foreach (int unusabeIndex in unusableIndexes)
                     {
@@ -754,51 +757,17 @@ namespace TilerCore
                 }
             }
 
-            //*/
             List<SubCalendarEvent> SubEventsWithNoLocationPreference = AllGroupings[TimeOfDayPreferrence.DaySection.None].getPathStitchedSubevents();
             List<SubCalendarEvent> rigidSubeevents = DayInfo.getSubEventsInTimeLine().Where(obj => obj.isLocked).ToList();
             SubEventsInrespectivepaths.ForEach(subEVent => SubEventsWithNoLocationPreference.Remove(subEVent));
 
-            ///*hash set test
-            if ((new HashSet<SubCalendarEvent>(SubEventsInrespectivepaths)).Count != SubEventsInrespectivepaths.Count)
-            {
-
-            }
-            //*/
-
-
-            ///*hash set test
-            if ((new HashSet<SubCalendarEvent>(SubEventsWithNoLocationPreference)).Count != SubEventsWithNoLocationPreference.Count)
-            {
-
-            }
-            //*/
-
-
             List<SubCalendarEvent> splicedResults = spliceInNoneTimeOfDayPreferemce(SubEventsInrespectivepaths, SubEventsWithNoLocationPreference);
 
-            ///*hash set test
-            if ((new HashSet<SubCalendarEvent>(splicedResults)).Count != splicedResults.Count)
-            {
-
-            }
-            ////*/
-            //foreach (var grouping in OrderedOptimizedGroupings)
-            //{
-            //    grouping.ClearPinnedSubEvents();
-            //    grouping.clearPathStitchedEvents();
-            //    //return grouping;
-            //}
+            
 
 
-            List<SubCalendarEvent> pinnedResults = tryPinningInCurrentDayTimeline(myDayTimeLine, splicedResults);
-            foreach (var grouping in OrderedOptimizedGroupings)
-            {
-                if(grouping.getPathStitchedSubevents().Count >0)
-                {
-                    grouping.movePathStitchedToAcknowledged();
-                }
-            }
+            List<SubCalendarEvent> pinnedResults = tryPinningInCurrentDayTimeline(myDayTimeLine, splicedResults, OrderedOptimizedGroupings);
+
             clearSubEventToReasonDictionary();
         }
 
@@ -838,14 +807,70 @@ namespace TilerCore
         }
 
 
-        List<SubCalendarEvent> tryPinningInCurrentDayTimeline(TimeLine AllTimeLine, List<SubCalendarEvent> SubEvents)
+        List<SubCalendarEvent> tryPinningInCurrentDayTimeline(TimeLine AllTimeLine, List<SubCalendarEvent> subEvents, List<OptimizedGrouping> OrderedOptimizedGroupings)
         {
-            List<SubCalendarEvent> retValue = new List<SubCalendarEvent>();
+            var retTuple = recursivelyPinnOrderedSubEventsInDayTimeline(AllTimeLine, subEvents);
+            foreach(var kvp in retTuple.Item2)
+            {
+                OptimizedGrouping grouping = AllGroupings[kvp.Key];
+                var groupSubevents = new HashSet<SubCalendarEvent>(grouping.getPathStitchedSubevents().Concat(grouping.getPinnedEvents()));
+                List<SubCalendarEvent> orderedSubevents = groupSubevents.OrderBy(o => o.Start).ToList();
+                grouping.clearPathStitchedEvents();
+                grouping.ClearPinnedSubEvents();
+                grouping.setPathStitchedEvents(orderedSubevents);
+            }
+
+            foreach (var grouping in OrderedOptimizedGroupings)
+            {
+                if (grouping.getPathStitchedSubevents().Count > 0)
+                {
+                    grouping.movePathStitchedToAcknowledged();
+                }
+            }
+            return retTuple.Item1;
+        }
+
+        Tuple<List<SubCalendarEvent>,Dictionary<DaySection, int[]>, Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>>>  recursivelyPinnOrderedSubEventsInDayTimeline(TimeLine AllTimeLine, List<SubCalendarEvent> SubEvents)
+        {
+            Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> subEventToAvailableSpaces = new Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>>();
+            List<SubCalendarEvent> subEventList = new List<SubCalendarEvent>();
+            Dictionary<DaySection, int []> daySectionToIndexes = new Dictionary<DaySection, int[]>();
             NoReason Noreason = NoReason.getNoReasonInstanceFactory();
+            Action<int, DaySection> updateEventList = (index, daySection) => {
+                if (daySection != DaySection.None && daySection != DaySection.Disabled)
+                {
+                    int[] minAndMaxIndex;
+                    if (daySectionToIndexes.ContainsKey(daySection))
+                    {
+                        minAndMaxIndex = daySectionToIndexes[daySection];
+                        int minIndex = minAndMaxIndex[0];
+                        int maxIndex = minAndMaxIndex[1];
+
+                        if (index <= minIndex)
+                        {
+                            minAndMaxIndex[0] = index;
+                        }
+
+                        if (index >= maxIndex)
+                        {
+                            minAndMaxIndex[1] = index;
+                        }
+                    }
+                    else
+                    {
+                        minAndMaxIndex = new int[2];
+                        minAndMaxIndex[0] = index;
+                        minAndMaxIndex[1] = index;
+                        daySectionToIndexes.Add(daySection, minAndMaxIndex);
+                    }
+                }
+            };
+
             if (Utility.PinSubEventsToStart(SubEvents, AllTimeLine))
             {
-                foreach (SubCalendarEvent eachSubCalendarEvent in SubEvents)
+                for (int i=0; i< SubEvents.Count;i++)
                 {
+                    SubCalendarEvent eachSubCalendarEvent = SubEvents[i];
                     TimeOfDayPreferrence.DaySection DaySection = eachSubCalendarEvent.getDaySection().getCurrentDayPreference();
                     if (DaySection == TimeOfDayPreferrence.DaySection.None)
                     {
@@ -864,8 +889,10 @@ namespace TilerCore
                             positionReasons.Remove(positionReason.Option);
                         }
                     }
+                    subEventList.Add(eachSubCalendarEvent);
+                    updateEventList(i, DaySection);
                 }
-                retValue = SubEvents.OrderBy(obj => obj.Start).ToList();
+                subEventToAvailableSpaces = Utility.subEventToMaxSpaceAvailable(AllTimeLine, subEventList);
             }
             else
             {
@@ -878,8 +905,87 @@ namespace TilerCore
                 AllGroupings[DaySection].removeFromAcknowledged(UnwantedEvent);
                 AllGroupings[DaySection].removeFromStitched(UnwantedEvent);
                 UnwantedEvent.setAsUnOptimized();
-                retValue = tryPinningInCurrentDayTimeline(AllTimeLine, recursionSubEvents);
+                var recursionResult = recursivelyPinnOrderedSubEventsInDayTimeline(AllTimeLine, recursionSubEvents);
+                subEventList = recursionResult.Item1;
+                daySectionToIndexes = recursionResult.Item2;
+                subEventToAvailableSpaces = recursionResult.Item3;
+                HashSet<int> avoidIndexes = new HashSet<int>();
+                int lowerBound = 0;
+                int upperBound = subEventList.Count;
+                if (daySectionToIndexes.ContainsKey(DaySection))
+                {
+                    avoidIndexes = new HashSet<int>();
+                    int[] indexes = daySectionToIndexes[DaySection];
+                    int minIdex = indexes[0];
+                    int maxIdex = indexes[1];
+                    lowerBound = minIdex;
+                    upperBound = maxIdex;
+                    if (minIdex >= 1)
+                    {
+                        lowerBound -= 1;
+                    }
+
+                    if(maxIdex < subEventList.Count)
+                    {
+                        upperBound += 2;
+                    }
+
+                    int lowerUndesiredIndexes = lowerBound;
+                    int upperUndesiredIndexes = upperBound;
+                    avoidIndexes.Add(lowerUndesiredIndexes);
+                    avoidIndexes.Add(upperUndesiredIndexes);
+                    while (lowerUndesiredIndexes >= 0)
+                    {
+                        lowerUndesiredIndexes -= 1;
+                        avoidIndexes.Add(lowerUndesiredIndexes);
+                    }
+
+                    while (upperUndesiredIndexes < subEventList.Count)
+                    {
+                        upperUndesiredIndexes += 1;
+                        avoidIndexes.Add(upperUndesiredIndexes);
+                    }
+                }
+
+
+                for(int i= lowerBound; i< subEventList.Count && i< upperBound; i++)
+                {
+                    //if(!avoidIndexes.Contains(i))
+                    {
+                        SubCalendarEvent subEvent = subEventList[i];
+                        var timeLineBounds = subEventToAvailableSpaces[subEvent];
+                        if (!UnwantedEvent.canExistWithinTimeLine(timeLineBounds.Item1))
+                        {
+                            avoidIndexes.Add(i);
+                        }
+
+                        if (!UnwantedEvent.canExistWithinTimeLine(timeLineBounds.Item2))
+                        {
+                            int afterSubEventIndex = i + 1;
+                            avoidIndexes.Add(afterSubEventIndex);
+                            //++i;
+                        }
+                    }
+                    
+                }
+                int bestPositionIndex = getBestPosition(AllTimeLine, UnwantedEvent, subEventList, avoidIndexes);
+                if(bestPositionIndex!=-1)
+                {
+                    AllGroupings[DaySection].AddToStitchedEvents(UnwantedEvent);
+                    subEventList.Insert(bestPositionIndex, UnwantedEvent);
+                    if(!Utility.tryPinSubEventsToEnd(subEventList, AllTimeLine))
+                    {
+                        throw new Exception("Something is wrong with best position");
+                    } else
+                    {
+                        updateEventList(bestPositionIndex, DaySection);
+                    }
+                    subEventToAvailableSpaces = Utility.subEventToMaxSpaceAvailable(AllTimeLine, subEventList);
+                }
+                
+                
             }
+            var retValue = new Tuple<List<SubCalendarEvent>, Dictionary<DaySection, int[]>, Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>>>(subEventList, daySectionToIndexes, subEventToAvailableSpaces);
             return retValue;
         }
 

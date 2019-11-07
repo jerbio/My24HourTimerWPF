@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TilerElements;
+using static TilerElements.TimeOfDayPreferrence;
 
 namespace TilerElements
 {
@@ -66,16 +67,26 @@ namespace TilerElements
             Dictionary<OptimizedGrouping, Location> RetValue = OrderedGrouping.ToDictionary(obj => obj, obj => Location.AverageGPSLocation(obj.PathStitchedSubEvents.Select(obj1 => obj1.Location)));
             return RetValue;
         }
-        public static Dictionary<OptimizedGrouping, Location> buildStitchers(IEnumerable<OptimizedGrouping> Groupings)
+        public static Dictionary<OptimizedGrouping, Location> buildStitchers(Dictionary<TimeOfDayPreferrence.DaySection, OptimizedGrouping> groupingsDictionary)
         {
+            IEnumerable<OptimizedGrouping> Groupings = groupingsDictionary.Values;
             Dictionary<OptimizedGrouping, Location> AverageLocation = getAverageLocation(Groupings);
             foreach (KeyValuePair<OptimizedGrouping, Location> kvp in AverageLocation)
             {
                 kvp.Key.DefaultLocation = kvp.Value;
             }
-            List<OptimizedGrouping> groupReordered = Groupings.OrderBy(obj => (int)obj.DaySector).ToList();
-            groupReordered.Insert(0, groupReordered.Last());
-            groupReordered.RemoveAt(groupReordered.Count - 1);
+            List<OptimizedGrouping> groupReordered = TimeOfDayPreferrence.ActiveDaySections
+                .Where(daySection => groupingsDictionary.ContainsKey(daySection))
+                .Select(daySection => groupingsDictionary[daySection]).ToList();
+            OptimizedGrouping noneGrouping;
+            if (groupingsDictionary.ContainsKey(DaySection.None))
+            {
+                noneGrouping = groupingsDictionary[DaySection.None];
+            } else
+            {
+                noneGrouping = new OptimizedGrouping(new SingleTimeOfDayPreference(DaySection.None, new TimelineWithSubcalendarEvents()), new TimeSpan(), new Location(), new Location());
+            }
+            groupReordered.Insert(0, noneGrouping);
 
 
             List<KeyValuePair<OptimizedGrouping, Location>> OrderedAvergeLocation = groupReordered.Select(obj => new KeyValuePair<OptimizedGrouping, Location>(obj, AverageLocation[obj])).ToList();

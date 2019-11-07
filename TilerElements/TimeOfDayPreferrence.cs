@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,7 +12,9 @@ namespace TilerElements
         public enum DaySection { Sleep, Morning, Afternoon, Evening, None, Disabled }
         protected DateTimeOffset tImeLineStart;
         protected TimeLine fullDayTImeLine;
-        List<Tuple<int, DaySection, bool, TimeLine>> _PreferenceOrder;
+        public static ImmutableList<DaySection> ActiveDaySections = new List<DaySection>() { DaySection.Sleep, DaySection.Morning, DaySection.Afternoon, DaySection.Evening }.ToImmutableList();
+        public static ImmutableDictionary<DaySection, int> DaysectionToIndexDictionary = ActiveDaySections.Select((ret, i) => new Tuple<DaySection, int>(ret, i)).ToImmutableDictionary(obj => obj.Item1, obj => obj.Item2);
+        List <Tuple<int, DaySection, bool, TimeLine>> _PreferenceOrder;
         List<Tuple<int, DaySection, bool, TimeLine>> _DefaultOrder = new List<Tuple<int, DaySection, bool, TimeLine>>(new[] {
                 new Tuple<int, DaySection, bool, TimeLine>(1, DaySection.Sleep , false, new TimeLine()),
                 new Tuple<int, DaySection, bool, TimeLine>(2, DaySection.Morning, false, new TimeLine()),
@@ -221,14 +224,14 @@ namespace TilerElements
             }
         }
 
-        public static IEnumerable<DaySection> ActiveDaySections
-        {
-            get
-            {
-                var values = Enum.GetValues(typeof(DaySection)).Cast<DaySection>();
-                return values.Where(daysection => daysection != DaySection.None && daysection != DaySection.Disabled);
-            }
+        //public static List<DaySection> ActiveDaySections
+        //{
+        //    get
+        //    {
+        //        var values = Enum.GetValues(typeof(DaySection)).Cast<DaySection>();
+        //        return values.Where(daysection => daysection != DaySection.None && daysection != DaySection.Disabled).ToList();
+        //    }
             
-        }
+        //}
     }
 }

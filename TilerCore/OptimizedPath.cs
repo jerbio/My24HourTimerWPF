@@ -932,15 +932,7 @@ namespace TilerCore
                     int maxIdex = indexes[1];
                     lowerBound = minIdex;
                     upperBound = maxIdex;
-                    if (minIdex >= 1)
-                    {
-                        lowerBound -= 1;
-                    }
-
-                    if (maxIdex < subEventList.Count)
-                    {
-                        upperBound += 2;
-                    }
+                    upperBound += 1;
                 }
                 else
                 {
@@ -961,11 +953,11 @@ namespace TilerCore
                     }
                 }
 
-                int lowerUndesiredIndexes = lowerBound;
-                int upperUndesiredIndexes = upperBound;
+                int lowerUndesiredIndexes = lowerBound-1;
+                int upperUndesiredIndexes = upperBound+1;
                 avoidIndexes.Add(lowerUndesiredIndexes);
                 avoidIndexes.Add(upperUndesiredIndexes);
-                while (lowerUndesiredIndexes >= 0)
+                while (lowerUndesiredIndexes > 0)
                 {
                     lowerUndesiredIndexes -= 1;
                     avoidIndexes.Add(lowerUndesiredIndexes);
@@ -978,26 +970,38 @@ namespace TilerCore
                 }
 
 
-                for (int i= lowerBound; i< subEventList.Count && i< upperBound; i++)
+                int subEventIndex = lowerBound;
+                int afterSubEventIndex = subEventIndex + 1;
+                if(subEventIndex < subEventList.Count)// checks if lowerbound is not an index of an element in the list. This should only occur if lowerbound = subEventList.Count. This situat can arise if the current daysection is after all the other day section. eg DaySection is eveinnng and the other daysection with subevents are Morning and Evening
                 {
-                    //if(!avoidIndexes.Contains(i))
+                    do
                     {
-                        SubCalendarEvent subEvent = subEventList[i];
+                        SubCalendarEvent subEvent = subEventList[subEventIndex];
                         var timeLineBounds = subEventToAvailableSpaces[subEvent];
                         if (!UnwantedEvent.canExistWithinTimeLine(timeLineBounds.Item1))
                         {
-                            avoidIndexes.Add(i);
+                            avoidIndexes.Add(subEventIndex);
                         }
-
-                        if (!UnwantedEvent.canExistWithinTimeLine(timeLineBounds.Item2))
+                        if (afterSubEventIndex <= upperBound)
                         {
-                            int afterSubEventIndex = i + 1;
-                            avoidIndexes.Add(afterSubEventIndex);
-                            //++i;
+                            if (!UnwantedEvent.canExistWithinTimeLine(timeLineBounds.Item2))
+                            {
+                                avoidIndexes.Add(afterSubEventIndex);
+                            }
                         }
+                        ++subEventIndex;
+                        afterSubEventIndex = subEventIndex + 1;
+                    } while (afterSubEventIndex <= upperBound);
+                } else
+                {
+                    SubCalendarEvent subEvent = subEventList[subEventIndex-1];
+                    var timeLineBounds = subEventToAvailableSpaces[subEvent];
+                    if (!UnwantedEvent.canExistWithinTimeLine(timeLineBounds.Item2))
+                    {
+                        avoidIndexes.Add(subEventIndex);
                     }
-                    
                 }
+
                 int bestPositionIndex = getBestPosition(AllTimeLine, UnwantedEvent, subEventList, avoidIndexes);
                 if(bestPositionIndex!=-1)
                 {
@@ -1009,7 +1013,16 @@ namespace TilerCore
                     }
                     else
                     {
-                        updateEventList(bestPositionIndex, DaySection);
+                        if(daySectionToIndexes.ContainsKey(DaySection))
+                        {
+                            ++daySectionToIndexes[DaySection][1];//we need to increase the upper bound because we just inserted a subcalendar event into the sections list of sub event. The lower index will always staty the same, just the upper bound increases
+                        } else
+                        {
+                            updateEventList(bestPositionIndex, DaySection);
+                        }
+                        
+                        
+                        
                         int index = DaysectionToIndexDictionary[DaySection];
                         while(++index < ActiveDaySections.Count)
                         {
@@ -1049,6 +1062,7 @@ namespace TilerCore
                 if (DaySectionDictionary.ContainsKey(daySection))
                 {
                     earlierDaySection = daySection;
+                    break;
                 }
             }
 
@@ -1067,6 +1081,7 @@ namespace TilerCore
                 if (DaySectionDictionary.ContainsKey(daySection))
                 {
                     laterDaySection = daySection;
+                    break;
                 }
             }
 

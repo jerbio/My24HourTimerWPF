@@ -2757,16 +2757,39 @@ namespace TilerCore
                     beginLocation = home;
                 }
 
-                HashSet<Location> locations = new HashSet<Location>(EachDay.getSubEventsInTimeLine().Where(sub => !sub.Location.isDefault && !sub.Location.isNull).Select(sub => sub.Location));
-                if(beginLocation!=null)
+                Dictionary<Location, int> durationToTimeSpan = new Dictionary<Location, int>();
+
+                foreach(SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => !sub.Location.isDefault && !sub.Location.isNull))
                 {
-                    locations.Add(beginLocation);
+                    int durationQutient = ((int)Math.Round(subEvent.getActiveDuration.TotalMinutes / Utility.QuarterHourTimeSpan.TotalMinutes));
+                    if (durationToTimeSpan.ContainsKey(subEvent.Location))
+                    {
+                        durationToTimeSpan[subEvent.Location] = durationQutient;
+                    }
+                    else {
+                        durationToTimeSpan.Add(subEvent.Location, durationQutient);
+                    }
                 }
                 
 
                 foreach (SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => sub.isLocationAmbiguous))
                 {
-                    var otherSubEventLocation = locations.Where(otherlocation => otherlocation != subEvent.Location);
+                    List<Location> otherSubEventLocation = new List<Location>();
+                    foreach (var kvp in durationToTimeSpan)
+                    {
+                        if(kvp.Key != subEvent.Location)
+                        {
+                            for(int locationCount =0; locationCount < durationToTimeSpan[kvp.Key]; locationCount++)
+                            {
+                                otherSubEventLocation.Add(kvp.Key);
+                            }
+                        }
+                    }
+                    if (beginLocation != null)
+                    {
+                        otherSubEventLocation.Add(beginLocation);//To ensure the begin location can infkuence the average
+                    }
+                        
                     Location averageLocation = Location.AverageGPSLocation(otherSubEventLocation);
                     if (averageLocation != null && (averageLocation.isNull || averageLocation.isDefault))
                     {

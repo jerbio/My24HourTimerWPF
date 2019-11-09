@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TilerElements;
+using static TilerElements.TimeOfDayPreferrence;
 
 namespace TilerElements
 {
     public class OptimizedGrouping
     {
-        TimeOfDayPreferrence.SingleTimeOfDayPreference Section;
+        TimeOfDayPreferrence.SingleTimeOfDayPreference _Section;
         /// <summary>
         /// these events that have being verified to be able to fit within the daytimeline, after evaluating their path optimized. THis have been fully stiuck to the end.Note this is not an ordered  set;
         /// </summary>
@@ -31,7 +32,7 @@ namespace TilerElements
 
         public OptimizedGrouping(TimeOfDayPreferrence.SingleTimeOfDayPreference SectionData, TimeSpan SubeventDurationSum, Location DefaultLocation, Location HomeLocation)
         {
-            Section = SectionData;
+            _Section = SectionData;
             AcknowlegdedEvents = new HashSet<SubCalendarEvent>();
             PathStitchedSubEvents = new HashSet<SubCalendarEvent>();
             PathStitchedSubEventsList = new List<SubCalendarEvent>();
@@ -51,7 +52,7 @@ namespace TilerElements
                 SubCalendarEvent.setAsOptimized();
             }
 
-            AverageOfStitched = new OptimizedAverage(AcknowlegdedEvents, Section.Timeline);
+            AverageOfStitched = new OptimizedAverage(AcknowlegdedEvents, _Section.Timeline);
         }
 
         public void movePathStitchedToAcknowledged()
@@ -62,20 +63,30 @@ namespace TilerElements
 
         public static Dictionary<OptimizedGrouping, Location> getAverageLocation(IEnumerable<OptimizedGrouping> OrderedGroupings)
         {
-            List<OptimizedGrouping> OrderedGrouping = OrderedGroupings.OrderBy(obj => (int)obj.Section.DaySection).ToList();
+            List<OptimizedGrouping> OrderedGrouping = OrderedGroupings.OrderBy(obj => (int)obj._Section.DaySection).ToList();
             Dictionary<OptimizedGrouping, Location> RetValue = OrderedGrouping.ToDictionary(obj => obj, obj => Location.AverageGPSLocation(obj.PathStitchedSubEvents.Select(obj1 => obj1.Location)));
             return RetValue;
         }
-        public static Dictionary<OptimizedGrouping, Location> buildStitchers(IEnumerable<OptimizedGrouping> Groupings)
+        public static Dictionary<OptimizedGrouping, Location> buildStitchers(Dictionary<TimeOfDayPreferrence.DaySection, OptimizedGrouping> groupingsDictionary)
         {
+            IEnumerable<OptimizedGrouping> Groupings = groupingsDictionary.Values;
             Dictionary<OptimizedGrouping, Location> AverageLocation = getAverageLocation(Groupings);
             foreach (KeyValuePair<OptimizedGrouping, Location> kvp in AverageLocation)
             {
                 kvp.Key.DefaultLocation = kvp.Value;
             }
-            List<OptimizedGrouping> groupReordered = Groupings.OrderBy(obj => (int)obj.DaySector).ToList();
-            groupReordered.Insert(0, groupReordered.Last());
-            groupReordered.RemoveAt(groupReordered.Count - 1);
+            List<OptimizedGrouping> groupReordered = TimeOfDayPreferrence.ActiveDaySections
+                .Where(daySection => groupingsDictionary.ContainsKey(daySection))
+                .Select(daySection => groupingsDictionary[daySection]).ToList();
+            OptimizedGrouping noneGrouping;
+            if (groupingsDictionary.ContainsKey(DaySection.None))
+            {
+                noneGrouping = groupingsDictionary[DaySection.None];
+            } else
+            {
+                noneGrouping = new OptimizedGrouping(new SingleTimeOfDayPreference(DaySection.None, new TimelineWithSubcalendarEvents()), new TimeSpan(), new Location(), new Location());
+            }
+            groupReordered.Insert(0, noneGrouping);
 
 
             List<KeyValuePair<OptimizedGrouping, Location>> OrderedAvergeLocation = groupReordered.Select(obj => new KeyValuePair<OptimizedGrouping, Location>(obj, AverageLocation[obj])).ToList();
@@ -90,13 +101,8 @@ namespace TilerElements
                         KeyValuePair<OptimizedGrouping, Location> Next = OrderedAvergeLocation[i + 1];
 
                         Location leftLocation = !OrderedAvergeLocation[i].Key.LeftBorder.isDefault && !OrderedAvergeLocation[i].Key.LeftBorder.isNull ? OrderedAvergeLocation[i].Key.LeftBorder : Current.Value;
-                        Current.Key.LeftStitch = Location.getClosestLocation(Previous.Key.PathStitchedSubEvents.Select(obj => obj.Location), leftLocation);
                         Current.Key.RightStitch = Location.getClosestLocation(Next.Key.PathStitchedSubEvents.Select(obj => obj.Location), Current.Value);
-
-                        if (Current.Key.LeftStitch == null)
-                        {
-                            Current.Key.LeftStitch = Previous.Key.DefaultLocation;
-                        }
+                        //Not updating the Left stitch because it is the beginning of the actual path
                         if (Current.Key.RightStitch == null)
                         {
                             Current.Key.RightStitch = Next.Key.DefaultLocation;
@@ -142,25 +148,16 @@ namespace TilerElements
                     }
                     else
                     {
-                        if (i == AverageLocation.Count - 1)//sleep
+                        if (i == AverageLocation.Count - 1)//Evening
                         {
                             KeyValuePair<OptimizedGrouping, Location> Previous = OrderedAvergeLocation[i - 1];
                             KeyValuePair<OptimizedGrouping, Location> Current = OrderedAvergeLocation[i];
                             List<SubCalendarEvent> PrevPhaseSubevent = Previous.Key.PathStitchedSubEvents.ToList();
                             Current.Key.LeftStitch = PrevPhaseSubevent.Count > 0 ? Location.getClosestLocation(PrevPhaseSubevent.Select(obj => obj.Location), Current.Value) : Current.Value;
-                            Current.Key.RightStitch = Current.Value;
-
                             if (Current.Key.LeftStitch == null)
                             {
                                 Current.Key.LeftStitch = Previous.Key.DefaultLocation;
                             }
-
-                            if (Current.Key.RightStitch == null)
-                            {
-                                Current.Key.RightStitch = Current.Key.DefaultLocation;
-                            }
-
-
                         }
                     }
                 }
@@ -228,10 +225,10 @@ namespace TilerElements
             PathStitchedSubEventsList.Remove(SubEvent);
         }
 
-        public void removeFromAcknwledged(SubCalendarEvent SubEvent)
+        public void removeFromAcknowledged(SubCalendarEvent SubEvent)
         {
             AcknowlegdedEvents.Remove(SubEvent);
-            AverageOfStitched = new OptimizedAverage(AcknowlegdedEvents, Section.Timeline);
+            AverageOfStitched = new OptimizedAverage(AcknowlegdedEvents, _Section.Timeline);
             PathStitchedSubEventsList.Remove(SubEvent);
         }
 
@@ -303,7 +300,7 @@ namespace TilerElements
         {
             get
             {
-                return Section.DaySection;
+                return _Section.DaySection;
             }
         }
 
@@ -313,6 +310,19 @@ namespace TilerElements
             {
                 return AverageOfStitched;
             }
+        }
+
+        public TimeLine TimeLine
+        {
+            get
+            {
+                return _Section.Timeline;
+            }
+        }
+
+        public override string ToString()
+        {
+            return this.DaySector.ToString() + "||" + this._Section.Timeline.ToString();
         }
 
         public class OptimizedAverage

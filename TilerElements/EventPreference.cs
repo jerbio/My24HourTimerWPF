@@ -266,6 +266,32 @@ namespace TilerElements
             get { return _SaturdayPreference; }
         }
 
+        public TimeOfDayPreferrence toTimeOfDayPreference(TimeLine timeLine)
+        {
+            List<TimeOfDayPreferrence.DaySection> daySections = TimeOfDayPreferrence.ActiveDaySections.ToList();
+            Dictionary<TimeOfDayPreferrence.DaySection, double> daySectionToCount = daySections.ToDictionary(daySection => daySection, daySection => 0.0);
+            bool preferredTimeOfDayFound = false;
+            foreach ( var dayConfig in DayConfigs)
+            {
+                foreach(var daySection in daySections)
+                {
+                    double newValue = daySectionToCount[daySection] + dayConfig.getDaySectionScore(daySection);
+                    daySectionToCount[daySection] = newValue;
+                    if (!preferredTimeOfDayFound && newValue != 0)
+                    {
+                        preferredTimeOfDayFound = true;
+                    }
+                }   
+            }
+            IEnumerable<TimeOfDayPreferrence.DaySection> sortedByPreference = null;
+            if(preferredTimeOfDayFound)
+            {
+                sortedByPreference = daySectionToCount.OrderByDescending(kvp => kvp.Value).ThenBy(kvp => kvp.Key).Select(kvp => kvp.Key);
+            }
+            TimeOfDayPreferrence retValue = new TimeOfDayPreferrence(timeLine, sortedByPreference?.ToList());
+            return retValue;
+        }
+
         public static EventPreference NullPreference ()
         {
             EventPreference retValue = new EventPreference();

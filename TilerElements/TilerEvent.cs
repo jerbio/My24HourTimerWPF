@@ -46,7 +46,7 @@ namespace TilerElements
         protected TilerUser _Creator;
         protected TimeSpan _UsedTime = new TimeSpan();
         protected Classification _Semantics;
-        protected TimeOfDayPreferrence DaySectionPreference;
+        protected TimeOfDayPreferrence _DaySectionPreference;
         protected TilerUserGroup _Users;
         protected string _TimeZone = "UTC";
         protected bool _isProcrastinateEvent = false;
@@ -110,32 +110,43 @@ namespace TilerElements
         {
             Dictionary<TimelineWithSubcalendarEvents, OptimizedGrouping> TimelinesDict = groupings.ToDictionary(grouping => grouping.GroupAverage.TimeLine, grouping => grouping);
             Dictionary<TimeOfDayPreferrence.DaySection, OptimizedGrouping> TimeOfDayToGroup = groupings.ToDictionary(grouping => grouping.DaySector, grouping => grouping);
-            List<Tuple<TimelineWithSubcalendarEvents, OptimizedGrouping>> Timelines = orderBasedOnProductivity(TimeOfDayToGroup);
-            List<double> foundIndexes = EvaluateTimeLines(Timelines.Select(obj => obj.Item1).ToList(), Timelines.Select(obj => new Tuple<Location, Location>(obj.Item2.LeftBorder, obj.Item2.RightBorder)).ToList(), true);//
+            List<Tuple<TimelineWithSubcalendarEvents, OptimizedGrouping, double>> Timelines = orderBasedOnProductivity(TimeOfDayToGroup);
+            List<double> foundIndexes = EvaluateTimeLines(
+                Timelines.Select(obj => obj.Item1).ToList(),
+                Timelines.Select(obj => new Tuple<Location, Location>(obj.Item2.LeftBorder, obj.Item2.RightBorder)).ToList(),
+                true,
+                Timelines.Select(obj => obj.Item3).ToList()
+                );//
             List<Tuple<double, OptimizedGrouping>> indexToGrouping = foundIndexes.Select((score, index) => { return new Tuple<double, OptimizedGrouping>(score, TimelinesDict[Timelines[index].Item1]); }).OrderBy(tuple => tuple.Item1).ToList();
             int bestIndex = foundIndexes.MinIndex();
             List<OptimizedGrouping> retValue = indexToGrouping.Select(tuple => tuple.Item2).ToList();
             return retValue;
         }
 
-        public virtual List<double> EvaluateTimeLines(List<TimelineWithSubcalendarEvents> timeLines, List<Tuple<Location, Location>> borderLocations = null, bool factorInTimelineOrder = false)
+        public virtual List<double> EvaluateTimeLines(List<TimelineWithSubcalendarEvents> timeLines, List<Tuple<Location, Location>> borderLocations = null, bool factorInTimelineOrder = false, List<double> weights = null)
         {
             double worstDistanceInKM = 7;
             List<IList<double>> multiDimensionalClaculation = new List<IList<double>>();
+            double weight = 1;
+            
             for (int i = 0; i < timeLines.Count; i++)
             {
                 TimelineWithSubcalendarEvents timeline = timeLines[i];
                 double distance = Location.calculateDistance(timeline.averageLocation, this.Location, worstDistanceInKM);
                 double tickRatio = (double)this.getActiveDuration.Ticks / timeline.TotalFreeSpotAvailable.Ticks;
                 double occupancy = (double)timeline.Occupancy;
+                if(weights!=null)
+                {
+                    weight *= weights[i];
+                }
                 IList<double> dimensionsPerDay;
                 if (factorInTimelineOrder)
                 {
-                    dimensionsPerDay = new List<double>() { distance, tickRatio, occupancy, i + 1 };
+                    dimensionsPerDay = new List<double>() { distance* weight, tickRatio * weight, occupancy * weight, (i + 1)* weight };
                 }
                 else
                 {
-                    dimensionsPerDay = new List<double>() { distance, tickRatio, occupancy };
+                    dimensionsPerDay = new List<double>() { distance * weight, tickRatio * weight, occupancy * weight };
                 }
                 if (borderLocations != null && borderLocations.Count == timeLines.Count)
                 {
@@ -154,18 +165,31 @@ namespace TilerElements
         /// </summary>
         /// <param name="timeLines"></param>
         /// <returns></returns>
-        protected List<Tuple<TimelineWithSubcalendarEvents, OptimizedGrouping>> orderBasedOnProductivity(Dictionary<TimeOfDayPreferrence.DaySection, OptimizedGrouping> AllGroupings)
+        protected List<Tuple<TimelineWithSubcalendarEvents, OptimizedGrouping, double>> orderBasedOnProductivity(Dictionary<TimeOfDayPreferrence.DaySection, OptimizedGrouping> AllGroupings)
         {
             //TODO need to use machine learning to order the timelines right now the implemenation simple favors a morning schedule
-            List<TimeOfDayPreferrence.DaySection> daySectionsPreferredOrder = (new List<TimeOfDayPreferrence.DaySection>() { TimeOfDayPreferrence.DaySection.Morning, TimeOfDayPreferrence.DaySection.Afternoon, TimeOfDayPreferrence.DaySection.Evening, TimeOfDayPreferrence.DaySection.Sleep }).Where(section => AllGroupings.ContainsKey(section)).ToList();
-            List<Tuple<TimelineWithSubcalendarEvents, OptimizedGrouping>> retValue = daySectionsPreferredOrder.Select(timeOfDay => new Tuple<TimelineWithSubcalendarEvents, OptimizedGrouping>(AllGroupings[timeOfDay].GroupAverage.TimeLine, AllGroupings[timeOfDay])).ToList();
+            List<TimeOfDayPreferrence.DaySection> daySectionsPreferredOrder = null;
+            if(getDaySection().isDefaultOrdering)
+            {
+                daySectionsPreferredOrder = (new List<TimeOfDayPreferrence.DaySection>() { TimeOfDayPreferrence.DaySection.Morning, TimeOfDayPreferrence.DaySection.Afternoon, TimeOfDayPreferrence.DaySection.Evening, TimeOfDayPreferrence.DaySection.Sleep }).Where(section => AllGroupings.ContainsKey(section)).ToList();
+            }
+            else
+            {
+                daySectionsPreferredOrder = getDaySection().getPreferenceOrder().Where(daySector => AllGroupings.ContainsKey(daySector)).ToList();
+            }
+
+            
+            List<Tuple<TimelineWithSubcalendarEvents, OptimizedGrouping, double>> retValue = daySectionsPreferredOrder.Select(timeOfDay => new Tuple<TimelineWithSubcalendarEvents, OptimizedGrouping, double>(
+                AllGroupings[timeOfDay].GroupAverage.TimeLine, 
+                AllGroupings[timeOfDay], 
+                TimeOfDayPreferrence.DaySection.Sleep != timeOfDay ? 1 : 8)).ToList();
             return retValue;
         }
 
-        public void updateDayPreference(List<OptimizedGrouping> groupings)
+        public virtual void updateDayPreference(List<OptimizedGrouping> groupings)
         {
             Dictionary<TimeOfDayPreferrence.DaySection, OptimizedGrouping> sectionTOGrouping = groupings.ToDictionary(group => group.DaySector, group => group);
-            List<TimeOfDayPreferrence.DaySection> daySections = DaySectionPreference.getPreferenceOrder();
+            List<TimeOfDayPreferrence.DaySection> daySections = _DaySectionPreference.getPreferenceOrder();
             List<OptimizedGrouping> validGroupings = new List<OptimizedGrouping>();
             foreach (TimeOfDayPreferrence.DaySection section in daySections)
             {
@@ -177,7 +201,7 @@ namespace TilerElements
             if (validGroupings.Count > 0)
             {
                 List<OptimizedGrouping> updatedGroupingOrder = evaluateDayPreference(validGroupings);
-                DaySectionPreference.setPreferenceOrder(updatedGroupingOrder.Select(group => group.DaySector).ToList());
+                _DaySectionPreference.setPreferenceOrder(updatedGroupingOrder.Select(group => group.DaySector).ToList());
             }
         }
 
@@ -1076,18 +1100,18 @@ namespace TilerElements
             }
         }
 
-        public void InitializeDayPreference(TimeLine timeLine)
+        public virtual void InitializeDayPreference(TimeLine timeLine)
         {
-            if (DaySectionPreference == null)
+            if (_DaySectionPreference == null)
             {
-                DaySectionPreference = new TimeOfDayPreferrence(timeLine);
+                _DaySectionPreference = new TimeOfDayPreferrence(timeLine);
             }
-            DaySectionPreference.InitializeGrouping(this);// InitializeGrouping
+            _DaySectionPreference.InitializeGrouping(this);// InitializeGrouping
         }
 
         public TimeOfDayPreferrence getDaySection()
         {
-            return DaySectionPreference;
+            return _DaySectionPreference;
         }
 
         public virtual List<TimeLine> getInterferringWithTimeLine(TimeLine timeLine)
@@ -1156,9 +1180,10 @@ namespace TilerElements
                 return UniqueID;
             }
         }
+
         public override string ToString()
         {
-            return this.Start.ToString() + " - " + this.End.ToString() + "::" + this.getId + "\t\t::" + this.getActiveDuration.ToString();
+            return this.Start.toTimeZoneString().ToString() + " - " + this.End.toTimeZoneString().ToString()  + "\t\t::" + this.getActiveDuration.ToString() + "::" + this.getId;
         }
 
         virtual public bool isLocked

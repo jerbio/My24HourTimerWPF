@@ -33,8 +33,21 @@ namespace TilerTests
         }
 
 
+        
+        [TestMethod]
+        public void file_0a0e2ca8()
+        {
+            string scheduleId = "0a0e2ca8-62b7-4336-93ee-49a0d1039073";
+            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+            Schedule schedule = scheduleAndDump.Item1;
+            schedule.FindMeSomethingToDo(currentLocation).Wait();
+            ((TestSchedule)schedule).WriteFullScheduleToOutlook();
+        }
+
         /// <summary>
-        /// In this test the current location is 39.710835, -104.812500 which is in Aurora, CO. The event named "Get a hair cut" with the Id 0ada4cb8-844e-41cb-a3c3-e2b7863e365a_7_0_92db8eb5-9c7a-498b-af94-7385bf67b042 is in Auroa Colorado so it should be the next event
+        /// In this test the current location is 39.710835, -104.812500 which is in Aurora, CO.
+        /// The event named "Get a hair cut" with the Id 0ada4cb8-844e-41cb-a3c3-e2b7863e365a_7_0_92db8eb5-9c7a-498b-af94-7385bf67b042 is in Auroa Colorado so it should be the next event
         /// </summary>
         [TestMethod]
         public void file_currentLocation_should_schew_next_event_when_shuffling_61651f57()
@@ -50,7 +63,6 @@ namespace TilerTests
             string subEventId = "0ada4cb8-844e-41cb-a3c3-e2b7863e365a_7_0_92db8eb5-9c7a-498b-af94-7385bf67b042";
             Assert.IsFalse(firstSubEvent.Id == subEventId);
             schedule.FindMeSomethingToDo(currentLocation).Wait();
-
 
             List<SubCalendarEvent> subEventAfterShuffle = schedule.getAllActiveSubEvents().OrderBy(o => o.Start).ToList();
             subEventsInTimeLine = subEventAfterShuffle.Where(sub => sub.StartToEnd.doesTimeLineInterfere(currentTimeline));
@@ -151,8 +163,9 @@ namespace TilerTests
             schedule.FindMeSomethingToDo(currentLocation).Wait();
             SubCalendarEvent conflictingSubEvent = schedule.getSubCalendarEvent(subEventId);
             List<SubCalendarEvent> subEvents = schedule.getAllCalendarEvents().SelectMany(cal => cal.ActiveSubEvents).Where(subEvent => subEvent.StartToEnd.doesTimeLineInterfere(conflictingSubEvent.StartToEnd)).ToList();
-            Assert.AreEqual(subEvents.Count, 1);// the look up should only conflict with itself
             ((TestSchedule)schedule).WriteFullScheduleToOutlook();
+            Assert.AreEqual(subEvents.Count, 1);// the look up should only conflict with itself
+
         }
 
         public void add9_5WorkSchedule (Schedule schedule)

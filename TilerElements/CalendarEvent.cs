@@ -30,6 +30,7 @@ namespace TilerElements
         protected Dictionary<ulong, DayTimeLine> CalculationLimitationWithUnUsables;
         protected Dictionary<ulong, DayTimeLine> CalculationLimitation;
         protected Dictionary<ulong, DayTimeLine> FreeDaysLimitation;// Holds days that do not contain subevents within this time line
+        protected HashSet<ulong> DaysWithSubEvents = new HashSet<ulong>();
         protected List<SubCalendarEvent> _RemovedSubEvents = new List<SubCalendarEvent>();
         protected EventPreference _EventDayPreference;
         protected string _LastCompletionTime;
@@ -571,7 +572,7 @@ namespace TilerElements
             //MyCalendarEventCopy.SchedulStatus = SchedulStatus;
             MyCalendarEventCopy._otherPartyID = _otherPartyID == null ? null : _otherPartyID.ToString();
             MyCalendarEventCopy._Users = this._Users;
-            MyCalendarEventCopy.DaySectionPreference = this.DaySectionPreference;
+            MyCalendarEventCopy._DaySectionPreference = this._DaySectionPreference;
             MyCalendarEventCopy._EventDayPreference = this.DayPreference?.createCopy();
             return MyCalendarEventCopy;
         }
@@ -590,6 +591,7 @@ namespace TilerElements
             retValue.updateEndTime( End);
             retValue._EventDuration = new TimeSpan(0);
             SubCalendarEvent emptySubEvent = SubCalendarEvent.getEmptySubCalendarEvent(retValue.UniqueID);
+            emptySubEvent.ParentCalendarEvent = retValue;
             retValue._SubEvents.Add(emptySubEvent.Id, emptySubEvent);
             retValue._Splits = 1;
             retValue._RigidSchedule = true;
@@ -1366,7 +1368,7 @@ namespace TilerElements
                 }
                 else return false;
             }).ToDictionary(obj => obj.UniversalIndex, obj => obj);
-            FreeDaysLimitation = CalculationLimitation.ToDictionary(obj => obj.Key, obj => obj.Value);
+            FreeDaysLimitation = CalculationLimitation.Where( obj => !DaysWithSubEvents.Contains(obj.Key)) .ToDictionary(obj => obj.Key, obj => obj.Value);
             CalculationLimitationWithUnUsables = CalculationLimitation.ToDictionary(obj => obj.Key, obj => obj.Value);
         }
 
@@ -1753,6 +1755,7 @@ namespace TilerElements
                 {
                     worksForAllSubevents = false;
                     failingSubEvent = obj;
+                    break;
                 }
             }
             if (worksForAllSubevents)
@@ -1766,7 +1769,7 @@ namespace TilerElements
             } else
             {
                 AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(oldTimeLine));
-                CustomErrors customError = new CustomErrors("Cannot update the timeline for the calendar event with sub event " + failingSubEvent.getId + ". Most likely because the new time line won't fit the sub event", 40000001);
+                CustomErrors customError = new CustomErrors(CustomErrors.Errors.cannotFitWithinTimeline, "Cannot update the timeline for the calendar event with sub event " + failingSubEvent.getId + ". Most likely because the new time line won't fit the sub event");
                 throw customError;
             }
             updateCalculationStartToEnd();
@@ -1802,6 +1805,18 @@ namespace TilerElements
         {
             UnDesignables.Add(subEvent);
             subEvent.undesignate();
+        }
+
+        public virtual void designateSubEvent(SubCalendarEvent subEvent, ReferenceNow now)
+        {
+            UnDesignables.Remove(subEvent);
+            subEvent.designate(now);
+            DaysWithSubEvents.Add(subEvent.UniversalDayIndex);
+            if(FreeDaysLimitation!=null)
+            {
+                this.removeDayTimeFromFreeUpdays(subEvent.UniversalDayIndex);
+            }
+            
         }
 
         public virtual void deleteAllSubCalendarEventsFromRepeatParentCalendarEvent()
@@ -1887,6 +1902,15 @@ namespace TilerElements
         {
             base.updateEndTime(time);
             updateCalculationStartToEnd();
+        }
+
+        public override void InitializeDayPreference(TimeLine timeLine)
+        {
+            if(_DaySectionPreference == null)
+            {
+                _DaySectionPreference = _EventDayPreference.toTimeOfDayPreference(timeLine);
+            }
+            base.InitializeDayPreference(timeLine);
         }
 
         #endregion
@@ -2291,6 +2315,14 @@ namespace TilerElements
                 {
                     return _RemovedSubEvents;
                 }
+            }
+        }
+
+        public virtual TimeOfDayPreferrence DayPreferrence
+        {
+            get
+            {
+                return _DaySectionPreference;
             }
         }
 

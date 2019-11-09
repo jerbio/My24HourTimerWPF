@@ -209,6 +209,88 @@ namespace TilerTests
             Assert.AreEqual(repeatCount, validatingCount);
         }
 
+        /// <summary>
+        /// Function tries to ensure that even you set as now in the evening the schedule will schedule the event in the evening as opposed to any other part of the day sector
+        /// </summary>
+        [TestMethod]
+        public void RepetitionDay_Set_As_Now_DaySetionPrefrence()
+        {
+            DB_Schedule Schedule;
+            int splitCount = 2;
+            DateTimeOffset refNow = TestUtility.parseAsUTC("7/7/2019 12:00:00 AM");
+            TilerUser tilerUser = TestUtility.createUser();
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+            refNow = refNow.removeSecondsAndMilliseconds();
+            TimeSpan duration = TimeSpan.FromHours(2);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.AddDays(28);
+
+
+            TimeLine repeatTimeLine = new TimeLine(start, end.AddDays(14));
+            TimeLine calTimeLine = repeatTimeLine.CreateCopy();
+            Repetition repetition = new Repetition(repeatTimeLine, Repetition.Frequency.WEEKLY, calTimeLine);
+
+            Schedule = new TestSchedule(user, refNow);
+            CalendarEvent testEvent0 = TestUtility
+                .generateCalendarEvent(tilerUser, duration, repetition, start, end, splitCount, false);
+            Schedule.AddToScheduleAndCommitAsync(testEvent0).Wait();
+
+
+
+            var daySections = Schedule.Now.getDaySections(testEvent0.StartToEnd);
+            var daySectionTuple = daySections[7];
+            DateTimeOffset secondRefNow = daySectionTuple.Item2.Start.Add(TimeSpan.FromSeconds(daySectionTuple.Item2.TimelineSpan.TotalSeconds / 2)).removeSecondsAndMilliseconds();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, secondRefNow);
+            Schedule.SetCalendarEventAsNow(testEvent0.Id);
+            Schedule.persistToDB().Wait();
+            var sectionTuple = daySections[6];
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            DateTimeOffset start1 = sectionTuple.Item2.End.Add(-duration);
+            DateTimeOffset end1 = start1.Add(duration);
+            Repetition rigidRepetition = new Repetition(repeatTimeLine, Repetition.Frequency.DAILY, new TimeLine(start1, end1));
+            CalendarEvent testEvent1 = TestUtility.generateCalendarEvent(tilerUser, duration, rigidRepetition, start1, end1, splitCount, true);
+            Schedule = new TestSchedule(user, secondRefNow);
+            Schedule.AddToScheduleAndCommitAsync(testEvent1).Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, secondRefNow);
+            Schedule.FindMeSomethingToDo(new Location()).Wait();
+            Schedule.persistToDB().Wait();
+
+            CalendarEvent testEvent0Retrieved = TestUtility.getCalendarEventById(testEvent0.Id, user);
+            TimeLine optimizedWindow = new TimeLine(Schedule.Now.constNow, Schedule.Now.constNow.AddDays(Schedule.OptimizedDayLimit));
+
+            List<SubCalendarEvent> subEventsAfterNow = testEvent0Retrieved.ActiveSubEvents.Where(sub => sub.ActiveSlot.doesTimeLineInterfere(optimizedWindow)).OrderBy(o => o.Start).ToList();
+
+            for(int i=0; i< subEventsAfterNow.Count;i++)
+            {
+                SubCalendarEvent subEvent = subEventsAfterNow[i];
+                bool isMatchingSector = false;
+                var sectorTuples = Schedule.Now.getDaySections(subEvent.StartToEnd);
+                foreach(var sectorTuple in sectorTuples)
+                {
+                    if(daySectionTuple.Item1 == sectorTuple.Item1)
+                    {
+                        isMatchingSector = true;
+                        break;
+                    }
+                }
+
+                Assert.IsTrue(isMatchingSector);
+
+            }
+            
+        }
+
+
+
+
         [TestMethod]
         public void RepetitionMultipleEventWithDifferentDayPreferences()
         {
@@ -518,6 +600,7 @@ namespace TilerTests
 
             DateTimeOffset iniRefNow = new DateTimeOffset(DateTimeOffset.UtcNow.removeSecondsAndMilliseconds().Date.ToUniversalTime());
             iniRefNow = new DateTimeOffset(iniRefNow.Year, iniRefNow.Month, iniRefNow.Day, 0, 0, 0, new TimeSpan());
+            iniRefNow = DateTimeOffset.Parse("11/3/2019 12:00:00 AM");
             DateTimeOffset refNow = iniRefNow;
 
             int splitCount = 15;
@@ -561,7 +644,7 @@ namespace TilerTests
             schedule = new TestSchedule(user, third_refNow);
             DayTimeLine firstDay = schedule.Now.firstDay;
             DayTimeLine secondDay = schedule.Now.getDayTimeLineByDayIndex(firstDay.UniversalIndex + 1);
-            TimeLine precedingDayAndCurrentTime = new TimeLine(secondDay.Start.AddDays(-2), secondDay.End.AddDays(-2));
+            TimeLine precedingDayAndCurrentTime = new TimeLine(secondDay.Start.AddDays(-1), secondDay.End.AddDays(-2));
             precedingDayAndCurrentTime = new TimeLine(precedingDayAndCurrentTime.Start, third_refNow);
             IEnumerable<SubCalendarEvent> dayBeforeCurrentDayBeforeUpdate = schedule.getAllActiveSubEvents().Where(sub => sub.ActiveSlot.doesTimeLineInterfere(precedingDayAndCurrentTime)).OrderBy(o => o.Start).ToList();
             schedule.AddToScheduleAndCommit(testEvent1);

@@ -132,7 +132,6 @@ namespace TilerElements
             EventID eventId = new EventID(subEventId);
             SubCalendarEvent subEvent = SubCalendarEvent.getEmptySubCalendarEvent(eventId);
             bool removeSuccess = false;
-            bool retry = false;
             while(!removeSuccess)
             {
                 if(AllocatedSubEvents.ContainsKey(subEventId))

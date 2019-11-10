@@ -51,6 +51,7 @@ namespace TilerCore
     public class Schedule : IWhy
     {
         const int _optimizedDayLimit = 10;
+        TimeSpan _cacheInvalidationTimeSpan = Utility.OneHourTimeSpan;
         public int OptimizedDayLimit
         {
             get
@@ -75,6 +76,14 @@ namespace TilerCore
             get
             {
                 return _isScheduleModified;
+            }
+        }
+
+        public TimeSpan CacheInvalidationTimeSpan
+        {
+            get
+            {
+                return _cacheInvalidationTimeSpan;
             }
         }
 
@@ -109,6 +118,8 @@ namespace TilerCore
         string CurrentTimeZone = "UTC";
         TimeSpan TimeZoneDifference = new TimeSpan();
         protected Location _CurrentLocation = Location.getDefaultLocation();
+        protected bool _isTravelCacheUpdated = false;
+        protected TravelCache _TravelCache = new TravelCache();
 
         protected double PercentageOccupancy = 0;
         //public static DateTimeOffset Now = new DateTimeOffset(2014,4,6,0,0,0);//DateTimeOffset.UtcNow;
@@ -162,6 +173,14 @@ namespace TilerCore
             get
             {
                 return _CurrentLocation;
+            }
+        }
+
+        public TravelCache TravelCache
+        {
+            get
+            {
+                return _TravelCache;
             }
         }
         int DebugCounter = 0;
@@ -316,6 +335,12 @@ namespace TilerCore
             return retValue;
         }
         #endregion
+
+        public virtual void updateTravelCache(TravelCache travelCache)
+        {
+            _isTravelCacheUpdated = true;
+            this._TravelCache = travelCache;
+        }
 
         public void updateDataSetWithThirdPartyData(Tuple<ThirdPartyControl.CalendarTool, IEnumerable<CalendarEvent>> ThirdPartyData)
         {
@@ -4123,6 +4148,7 @@ namespace TilerCore
                 throw new Exception("this is a weird bug to have in CreateBufferForEachEvent");
             }
 
+            
 
             for (int i = 0; i < AllEvents.Count - 1; i++)
             {
@@ -4134,18 +4160,32 @@ namespace TilerCore
                     if(myCoEvents.Item1.Location != myCoEvents.Item2.Location)
                     {
                         double distance = Location.calculateDistance(myCoEvents.Item1.Location, myCoEvents.Item2.Location);
-                        if (distance < 0.5)
+                        LocationCacheEntry entry = getTravelEntry(myCoEvents.Item1.Location, myCoEvents.Item2.Location);
+                        bool isCacheEntryInvalid = entry == null || (Now.constNow - entry.LastUpdate >= CacheInvalidationTimeSpan);
+                        if (isCacheEntryInvalid)
                         {
-                            bufferSpan = TimeSpan.FromMinutes(2);
-                        } else if (distance == double.MaxValue ) {
-                            bufferSpan = TimeSpan.FromMinutes(0);
-                        }
-                        else
+                            if (distance < 0.5)
+                            {
+                                bufferSpan = TimeSpan.FromMinutes(2);
+                            }
+                            else if (distance == double.MaxValue)
+                            {
+                                bufferSpan = TimeSpan.FromMinutes(0);
+                            }
+                            else
+                            {
+                                bufferSpan = Location.getDrivingTimeFromWeb(myCoEvents.Item1.Location, myCoEvents.Item2.Location);
+                                if (bufferSpan.Ticks >= 0)
+                                {
+                                    TravelCache.AddOrupdateLocationCache(myCoEvents.Item1.Location, myCoEvents.Item2.Location, bufferSpan, Now.constNow, LocationCacheEntry.TravelMedium.driving, distance);
+                                }
+                            }
+                        } else
                         {
-                            bufferSpan = Location.getDrivingTimeFromWeb(myCoEvents.Item1.Location, myCoEvents.Item2.Location);
-                        }
-                            
-                    } else
+                            bufferSpan = entry.TimeSapn;
+                        }     
+                    }
+                    else
                     {
                         bufferSpan = new TimeSpan(0);
                     }
@@ -4172,6 +4212,16 @@ namespace TilerCore
             }
         }
 
+
+        LocationCacheEntry getTravelEntry(Location locationA, Location locationB)
+        {
+            LocationCacheEntry entry = null;
+            if (_isTravelCacheUpdated)
+            {
+                entry = TravelCache.getLocation(locationA, locationB, Now.constNow);
+            }
+            return entry;
+        }
 
         double getHighestOccupancyOfMonth(List<SubCalendarEvent> alleventsWithinMonth, TimeLine monthTimeline)
         {

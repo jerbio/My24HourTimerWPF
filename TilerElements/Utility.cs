@@ -23,6 +23,7 @@ namespace TilerElements
         public readonly static int defaultEndDay = 90;
         public readonly static TimeSpan OneDayTImeSpan = TimeSpan.FromDays(1);
         public readonly static TimeSpan QuarterHourTimeSpan = TimeSpan.FromMinutes(15);
+        public readonly static TimeSpan OneHourTimeSpan = TimeSpan.FromHours(1);
         public readonly static TimeSpan TwentyFourHoursAlmostTImeSpan = TimeSpan.FromDays(1).Subtract(TimeSpan.FromMinutes(1));
         public readonly static TimeSpan ZeroTimeSpan = TimeSpan.FromTicks(0);
         public readonly static string timeZoneString = "America/Denver";

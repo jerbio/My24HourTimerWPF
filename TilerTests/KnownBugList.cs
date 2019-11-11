@@ -35,16 +35,46 @@ namespace TilerTests
 
         
         [TestMethod]
-        public void file_0a0e2ca8()
+        public void file_unnecessary_morning_scheduling_0a0e2ca8()
         {
             string scheduleId = "0a0e2ca8-62b7-4336-93ee-49a0d1039073";
             Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
             var scheduleAndDump = TestUtility.getSchedule(scheduleId);
             Schedule schedule = scheduleAndDump.Item1;
             schedule.FindMeSomethingToDo(currentLocation).Wait();
+            DateTimeOffset oct25 = new DateTimeOffset(2019, 10, 25, 14, 0, 0, new TimeSpan());
+            DateTimeOffset oct26 = new DateTimeOffset(2019, 10, 26, 14, 0, 0, new TimeSpan());
+
+            DayTimeLine oct25DayTimeLine = schedule.Now.getDayTimeLineByTime(oct25);
+            DayTimeLine oct26DayTimeLine = schedule.Now.getDayTimeLineByTime(oct26);
+
+            List<SubCalendarEvent> oct25subEvents = oct25DayTimeLine.getSubEventsInTimeLine().OrderBy(o => o.Start).ToList();
+            List<SubCalendarEvent> oct26subEvents = oct26DayTimeLine.getSubEventsInTimeLine().OrderBy(o => o.Start).ToList();
+
+            foreach(SubCalendarEvent subEvent in oct25subEvents)
+            {
+                Assert.IsTrue(subEvent.Start >= oct25);
+            }
+
+            foreach (SubCalendarEvent subEvent in oct26subEvents)
+            {
+                Assert.IsTrue(subEvent.Start >= oct26);// this is KnownBugList to fail
+            }
+
             ((TestSchedule)schedule).WriteFullScheduleToOutlook();
         }
 
+        [TestMethod]
+        public void file_9820d846()
+        {
+            string scheduleId = "9820d846-5f9c-46e6-8d99-58ff1292754a";
+            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+            Schedule schedule = scheduleAndDump.Item1;
+            schedule.FindMeSomethingToDo(currentLocation).Wait();
+            ((TestSchedule)schedule).WriteFullScheduleToOutlook();
+        }
+        
         /// <summary>
         /// In this test the current location is 39.710835, -104.812500 which is in Aurora, CO.
         /// The event named "Get a hair cut" with the Id 0ada4cb8-844e-41cb-a3c3-e2b7863e365a_7_0_92db8eb5-9c7a-498b-af94-7385bf67b042 is in Auroa Colorado so it should be the next event

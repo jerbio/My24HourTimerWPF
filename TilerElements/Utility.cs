@@ -1460,7 +1460,7 @@ namespace TilerElements
             return retValue;
         }
 
-        public static DateTimeOffset toTimeZoneString(this DateTimeOffset localDate)
+        public static DateTimeOffset toTimeZoneTime(this DateTimeOffset localDate)
         {
             DateTimeZone userTimeZone = DateTimeZoneProviders.Tzdb[Utility.timeZoneString];
             //DateTimeOffset localDate = DateTimeOffset.Parse(this._EndfOfDayString).removeSecondsAndMilliseconds();

@@ -1183,7 +1183,7 @@ namespace TilerElements
 
         public override string ToString()
         {
-            return this.Start.toTimeZoneString().ToString() + " - " + this.End.toTimeZoneString().ToString()  + "\t\t::" + this.getActiveDuration.ToString() + "::" + this.getId;
+            return this.Start.toTimeZoneTime().ToString() + " - " + this.End.toTimeZoneTime().ToString()  + "\t\t::" + this.getActiveDuration.ToString() + "::" + this.getId;
         }
 
         virtual public bool isLocked

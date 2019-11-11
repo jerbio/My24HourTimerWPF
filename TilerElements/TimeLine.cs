@@ -42,7 +42,7 @@ namespace TilerElements
         public override string ToString()
         {
             //return this.Start.LocalDateTime.ToString() + " - " + this.End.LocalDateTime.ToString() +"::"+this.TimelineSpan.ToString();
-            return this.Start.toTimeZoneString().ToString() + " - " + this.End.toTimeZoneString().ToString() + "::" + this.TimelineSpan.ToString();
+            return this.Start.toTimeZoneTime().ToString() + " - " + this.End.toTimeZoneTime().ToString() + "::" + this.TimelineSpan.ToString();
         }
 
         virtual public BusyTimeLine toBusyTimeLine(string ID)

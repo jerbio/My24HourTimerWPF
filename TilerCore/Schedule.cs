@@ -119,7 +119,7 @@ namespace TilerCore
         TimeSpan TimeZoneDifference = new TimeSpan();
         protected Location _CurrentLocation = Location.getDefaultLocation();
         protected bool _isTravelCacheUpdated = false;
-        protected TravelCache _TravelCache = new TravelCache();
+        protected TravelCache _TravelCache;
 
         protected double PercentageOccupancy = 0;
         //public static DateTimeOffset Now = new DateTimeOffset(2014,4,6,0,0,0);//DateTimeOffset.UtcNow;

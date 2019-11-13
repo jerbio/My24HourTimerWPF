@@ -422,7 +422,7 @@ namespace TilerElements
         static public TimeSpan getDrivingTimeFromWeb(Location first, Location second, TravelMode travelMode = TravelMode.Driving)
         {
             TimeSpan retValue = new TimeSpan(-1);
-            if(!first.isNull && !second.isNull)
+            if(!first.isNull && !second.isNull && !first.isDefault && !second.isDefault)
             {
                 string apiKey = ConfigurationManager.AppSettings["googleMapsApiKey"];
                 DirectionsRequest directionsRequest = new DirectionsRequest()

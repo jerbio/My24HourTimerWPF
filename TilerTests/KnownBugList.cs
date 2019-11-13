@@ -86,14 +86,18 @@ namespace TilerTests
             ((TestSchedule)schedule).WriteFullScheduleToOutlook();
         }
 
+        /// <summary>
+        /// When you run set as now d8572865-d8f6-482d-9fd3-b4db5d32b4a7_7_0_3573dde8-7274-4864-b65c-c152d821f902 there are unnecessary subevents in the morning. There should be some clearing for sleep.
+        /// </summary>
         [TestMethod]
         public void file_9820d846()
-        {
-            string scheduleId = "9820d846-5f9c-46e6-8d99-58ff1292754a";
+        {// Screen shot stating problem https://drive.google.com/open?id=1titBjv-uOm2__nSiAsJ59m1tN5lZH7xj. Even though the bug is 9820d846 the issue is actually 95b9d6de-fd19-445a-a122-e36b110a4c3b. We need to validate why events are scheduled in to the morning of Nov 13 and Friday has excessive subevents
+            string scheduleId = "95b9d6de-fd19-445a-a122-e36b110a4c3b";
             Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
             var scheduleAndDump = TestUtility.getSchedule(scheduleId);
             Schedule schedule = scheduleAndDump.Item1;
-            schedule.FindMeSomethingToDo(currentLocation).Wait();
+            schedule.SetSubeventAsNow("d8572865-d8f6-482d-9fd3-b4db5d32b4a7_7_0_3573dde8-7274-4864-b65c-c152d821f902");
+            //schedule.FindMeSomethingToDo(currentLocation).Wait();
             ((TestSchedule)schedule).WriteFullScheduleToOutlook();
         }
         

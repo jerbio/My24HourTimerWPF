@@ -4095,7 +4095,7 @@ namespace TilerCore
 
 
         /// <summary>
-        /// This creates the time span for sleeping. NOTE: None of the events must conflict for this to run correctly
+        /// Thie gets the buffer timespan between each subevent. Note this tries to ensure it can be constrained within the provided timeline
         /// </summary>
         /// <param name="AllEvents"></param>
         /// <param name="restrictingTimeline"></param>
@@ -4110,13 +4110,19 @@ namespace TilerCore
             {
                 return;
             }
+
+            List<SubCalendarEvent> AllEventsDeduped = new List<SubCalendarEvent>();
             HashSet<SubCalendarEvent> allEventshash = new HashSet<SubCalendarEvent>();
             foreach (SubCalendarEvent eachSubcalendarEvent in AllEvents)
             {
-                allEventshash.Add(eachSubcalendarEvent);
+                if(!allEventshash.Contains(eachSubcalendarEvent))
+                {
+                    allEventshash.Add(eachSubcalendarEvent);
+                    AllEventsDeduped.Add(eachSubcalendarEvent);
+                }
             }
 
-            AllEvents = allEventshash.ToList();
+            AllEvents = AllEventsDeduped.ToList();
             List<SubCalendarEvent> justThemRigids = AllEvents.Where(obj => obj.isLocked).ToList();
 
             TimeLine myTimeLines = new TimeLine(restrictingTimeline.Start, restrictingTimeline.End);
@@ -4136,11 +4142,6 @@ namespace TilerCore
 
 
             TimeSpan bufferPerMile = new TimeSpan(0, 4, 0);
-
-            Dictionary<Tuple<SubCalendarEvent, SubCalendarEvent>, double> beforeAfterDistance = new Dictionary<Tuple<SubCalendarEvent, SubCalendarEvent>, double>();
-            Dictionary<SubCalendarEvent, mTuple<DateTimeOffset, DateTimeOffset>> beforeFailing = new Dictionary<SubCalendarEvent, mTuple<DateTimeOffset, DateTimeOffset>>();
-
-            //AllEvents.Reverse();
             int j = 0;
             TimeLine referencePinningTImeline = new TimeLine(restrictingTimeline.Start, restrictingTimeline.End);
             SubCalendarEvent firstEvent = AllEvents[0];
@@ -4156,13 +4157,14 @@ namespace TilerCore
                 j = i + 1;
                 Tuple<SubCalendarEvent, SubCalendarEvent> myCoEvents = new Tuple<SubCalendarEvent, SubCalendarEvent>(AllEvents[i], AllEvents[j]);
                 TimeSpan bufferSpan = new TimeSpan(-1);
+                LocationCacheEntry cacheEntry = getTravelEntry(myCoEvents.Item1.Location, myCoEvents.Item2.Location);
+
                 if (calculateRemoely)
                 {
                     if(myCoEvents.Item1.Location != myCoEvents.Item2.Location)
                     {
                         double distance = Location.calculateDistance(myCoEvents.Item1.Location, myCoEvents.Item2.Location);
-                        LocationCacheEntry entry = getTravelEntry(myCoEvents.Item1.Location, myCoEvents.Item2.Location);
-                        bool isCacheEntryInvalid = entry == null || (Now.constNow - entry.LastUpdate >= CacheInvalidationTimeSpan);
+                        bool isCacheEntryInvalid = cacheEntry == null || (Now.constNow - cacheEntry.LastUpdate >= CacheInvalidationTimeSpan);
                         if (isCacheEntryInvalid)
                         {
                             if (distance < 0.5)
@@ -4183,14 +4185,22 @@ namespace TilerCore
                             }
                         } else
                         {
-                            bufferSpan = entry.TimeSapn;
+                            bufferSpan = cacheEntry.TimeSapn;
                         }     
                     }
                     else
                     {
                         bufferSpan = new TimeSpan(0);
                     }
-                    
+                }
+                else
+                {
+                    double distance = Location.calculateDistance(myCoEvents.Item1.Location, myCoEvents.Item2.Location);
+                    cacheEntry = getTravelEntry(myCoEvents.Item1.Location, myCoEvents.Item2.Location);
+                    if (cacheEntry != null)
+                    {
+                        bufferSpan = cacheEntry.TimeSapn;
+                    }
                 }
 
                 if (bufferSpan.Ticks < 0)

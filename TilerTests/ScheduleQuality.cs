@@ -541,6 +541,13 @@ namespace TilerTests
             TestSchedule schedule = new TestSchedule(user, refNow);
             schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
 
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, refNow);
+            schedule.FindMeSomethingToDo(new Location()).Wait();
+            schedule.persistToDB().Wait();
+
+
+            testEvent = TestUtility.getCalendarEventById(testEvent.Id, user);
             SubCalendarEvent subEvent = testEvent.ActiveSubEvents.OrderBy(sub => sub.Start).ToList()[1];
             ulong dayIndex = schedule.Now.getDayIndexFromStartOfTime(subEvent.Start);
 

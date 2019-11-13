@@ -15,8 +15,8 @@ namespace TilerElements
         SubEventDictionary<int, LocationCacheEntry> _LocationCombo;
         const int cacheEntryLimit = 50;
         [Key]
-        public string TilerUserId { get; set; }
-        [ForeignKey("TilerUserId")]
+        public string Id { get; set; }
+        [ForeignKey("Id")]
         TilerUser _TilerUser;
         public virtual TilerUser TilerUser_DB
         {
@@ -44,7 +44,8 @@ namespace TilerElements
                 Medium = medium,
                 Distance = calculatedDistance,
                 LastLookup = lastUpdate,
-                LastUpdate = lastUpdate
+                LastUpdate = lastUpdate,
+                TravelCache = this
             };
             if (_LocationCombo == null)
             {
@@ -62,7 +63,7 @@ namespace TilerElements
                 _LocationCombo = new SubEventDictionary<int, LocationCacheEntry>();
             }
 
-            string key = LocationCacheEntry.getHashCode(firstLocation, secondLocation, medium.ToString()).ToString();
+            string key = LocationCacheEntry.getHashCode(firstLocation, secondLocation, medium.ToString(), this.Id).ToString();
             if (_LocationCombo.ContainsKey(key))
             {
                 entry = _LocationCombo[key];
@@ -83,7 +84,8 @@ namespace TilerElements
                 {
                     Taiye = second,
                     Kehinde = first,
-                    Medium = medium
+                    Medium = medium,
+                    TravelCache = this
                 };
                 string hashCode = entry.GetHashCode().ToString();
                 if (_LocationCombo != null && _LocationCombo.ContainsKey(hashCode))

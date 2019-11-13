@@ -1697,10 +1697,14 @@ namespace TilerElements
 
         public void removeDayTimeLinesWithInsufficientSpace()
         {
-            List<DayTimeLine> DaysWithInSufficientSpace = CalculationLimitation.Values.Where(obj => obj.TotalFreeSpotAvailable < _AverageTimePerSplit).ToList();
-            DaysWithInSufficientSpace.ForEach(obj => CalculationLimitation.Remove(obj.UniversalIndex));
-            DaysWithInSufficientSpace.ForEach(obj => FreeDaysLimitation.Remove(obj.UniversalIndex));
-
+            foreach (DayTimeLine dayTimeLine in CalculationLimitation.Values.ToList())
+            {
+                if(dayTimeLine.TotalFreeSpotAvailable < _AverageTimePerSplit)
+                {
+                    CalculationLimitation.Remove(dayTimeLine.UniversalIndex);
+                    FreeDaysLimitation.Remove(dayTimeLine.UniversalIndex);
+                }
+            }
         }
         public void updateUnusableDays()
         {
@@ -1751,12 +1755,18 @@ namespace TilerElements
             SubCalendarEvent failingSubEvent = SubCalendarEvent.getEmptySubCalendarEvent(this.Calendar_EventID);
             foreach (var obj in AllSubEvents)
             {
-                if (!obj.canExistWithinTimeLine(newTImeLine))
+                
+                if(!(!this.isLocked && obj.isLocked)) // if the subevent is unlocked but the parent is locked then don't bother checking
                 {
-                    worksForAllSubevents = false;
-                    failingSubEvent = obj;
-                    break;
+                    bool canExistWithinNewTimeLine = obj.canExistWithinTimeLine(newTImeLine);
+                    if (!canExistWithinNewTimeLine)
+                    {
+                        worksForAllSubevents = false;
+                        failingSubEvent = obj;
+                        break;
+                    }
                 }
+                
             }
             if (worksForAllSubevents)
             {

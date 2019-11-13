@@ -32,8 +32,30 @@ namespace TilerTests
             //((TestSchedule)schedule).WriteFullScheduleToOutlook();
         }
 
+        [TestMethod]
+        public void file_unnecessary_shifiting_back_and_forth_of_workout_7f453aa2()
+        {
+            string scheduleId = "7f453aa2-c1d4-4a5e-9121-b33b4176e98c";
+            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+            Schedule schedule = scheduleAndDump.Item1;
+            TimeLine firstDay = schedule.Now.firstDay;
+            List<SubCalendarEvent> subEvents = schedule.getAllActiveSubEvents().Where(obj => obj.StartToEnd.doesTimeLineInterfere(firstDay)).OrderBy(o => o.Start).ToList();
+            schedule.ProcrastinateAll(TimeSpan.FromMinutes(2));
+            List<SubCalendarEvent> subEventsAfterProcrastinate = schedule.getAllActiveSubEvents().Where(obj => obj.StartToEnd.doesTimeLineInterfere(firstDay)).OrderBy(o => o.Start).ToList();
 
-        
+            Assert.AreEqual(subEventsAfterProcrastinate.Count, subEvents.Count);
+
+            for(int i = 0; i< subEvents.Count; i++ )
+            {
+                Assert.AreEqual(subEvents[i].Id, subEventsAfterProcrastinate[i].Id);
+            }
+
+            ((TestSchedule)schedule).WriteFullScheduleToOutlook();
+        }
+
+
+
         [TestMethod]
         public void file_unnecessary_morning_scheduling_0a0e2ca8()
         {

@@ -755,18 +755,23 @@ namespace TilerTests
             ////////////////////////////////////////////////////////////////////AfterDeadline////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            nonRigidCalendarEventRetrieved = TestUtility.getCalendarEventById(testSubEvent.Id, user);
             Schedule = new TestSchedule(user, refNow, startOfDay);
-            testSubEvent = nonRigidCalendarEventRetrieved.ActiveSubEvents.First();
+            testSubEvent = nonRigidCalendarEventRetrieved.ActiveSubEvents.OrderBy(o => o.Start).First();
             tileNewStart = nonRigidCalendarEventRetrieved.End.AddDays(1);
             tileNewEnd = tileNewStart.Add(testSubEvent.getActiveDuration);
             scheduleUpdated = Schedule.BundleChangeUpdate(testSubEvent.getId, testSubEvent.getName, tileNewStart, tileNewEnd, nonRigidCalendarEvent.Start, nonRigidCalendarEvent.End, nonRigidCalendarEvent.NumberOfSplit, testSubEvent.Notes.UserNote);
             Schedule.persistToDB().Wait();
+            testSubEventRetrieved = TestUtility.getSubEventById(testSubEvent.Id, user);
+            Assert.IsTrue(testSubEventRetrieved.isRigid);
+            Assert.AreEqual(testSubEventRetrieved.End, tileNewEnd);
 
             /// Make deadline earlier than current deadline
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow, startOfDay);
             DateTimeOffset nonRigidOldStart = nonRigidCalendarEventRetrieved.Start;
-            testSubEvent = nonRigidCalendarEventRetrieved.ActiveSubEvents.First();
+            List<SubCalendarEvent> orderedByStartSubEvent = nonRigidCalendarEventRetrieved.ActiveSubEvents.OrderBy(o => o.Start).ToList();
+            testSubEvent = orderedByStartSubEvent[0];
             tileNewStart = testSubEvent.Start;
             tileNewEnd = testSubEvent.End;
             DateTimeOffset newCalEventEnd = nonRigidCalendarEventRetrieved.End.AddDays(-1);
@@ -779,9 +784,15 @@ namespace TilerTests
 
             /// Make deadline earlier than the latest sub event
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            nonRigidCalendarEventRetrieved = TestUtility.getCalendarEventById(testSubEvent.Id, user);
             Schedule = new TestSchedule(user, refNow, startOfDay);
             nonRigidOldStart = nonRigidCalendarEventRetrieved.Start;
-            testSubEvent = nonRigidCalendarEventRetrieved.ActiveSubEvents.OrderByDescending(subEvent => subEvent.End).First();
+            orderedByStartSubEvent = nonRigidCalendarEventRetrieved.ActiveSubEvents.OrderBy(o => o.End).ToList();
+            SubCalendarEvent lastSubEvent = orderedByStartSubEvent.Last();
+            DateTimeOffset lastSubEventStart = lastSubEvent.Start;
+            DateTimeOffset lastSubEventEnd = lastSubEvent.End;
+
+            testSubEvent = orderedByStartSubEvent[orderedByStartSubEvent.Count - 2];// Using the second to the last sub event because the last sub event should be rigid and should not move
             tileNewStart = testSubEvent.Start;
             tileNewEnd = testSubEvent.End;
             newCalEventEnd = testSubEvent.End.AddDays(-1);
@@ -790,9 +801,12 @@ namespace TilerTests
 
             nonRigidCalendarEventRetrieved = TestUtility.getCalendarEventById(testSubEvent.Id, user);
             testSubEventRetrieved = TestUtility.getSubEventById(testSubEvent.Id, user);
+            SubCalendarEvent LastSubEventRetrieved = TestUtility.getSubEventById(lastSubEvent.Id, user);
             Assert.IsTrue(nonRigidCalendarEventRetrieved.Start == nonRigidOldStart);
             Assert.IsTrue(nonRigidCalendarEventRetrieved.End == newCalEventEnd);
             Assert.IsTrue(testSubEventRetrieved.End <= newCalEventEnd);
+            Assert.AreEqual(lastSubEventStart, LastSubEventRetrieved.Start);
+            Assert.AreEqual(lastSubEventEnd, LastSubEventRetrieved.End);
 
 
             /// If subevent is scheduled after the calendar event deadline
@@ -851,9 +865,10 @@ namespace TilerTests
 
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            restrictedCalendarEventRetrieved = TestUtility.getCalendarEventById(restrictedCalendarEventRetrieved.Id, user);
             Schedule = new TestSchedule(user, refNow, startOfDay);
             DateTimeOffset restrictedOldStart = restrictedCalendarEventRetrieved.Start;
-            testSubEvent = restrictedCalendarEventRetrieved.ActiveSubEvents.First();
+            testSubEvent = restrictedCalendarEventRetrieved.ActiveSubEvents.OrderBy(o=>o.Start).First();
             tileNewStart = restrictedCalendarEventRetrieved.End.AddDays(1);
             tileNewEnd = tileNewStart.Add(testSubEvent.getActiveDuration);
             scheduleUpdated = Schedule.BundleChangeUpdate(testSubEvent.getId, testSubEvent.getName, tileNewStart, tileNewEnd,

@@ -74,6 +74,12 @@ namespace TilerTests
             TilerUser = AccountEntry.getTilerUser();
             _Now = new ReferenceNow(scheduleDump.ReferenceNow, scheduleDump.StartOfDay, myAccount.getTilerUser().TimeZoneDifference);
             this.myAccount.ScheduleLogControl.Now = _Now;
+
+            TravelCache travelCache = new TravelCache()
+            {
+                Id = TilerUser.Id
+            };
+            updateTravelCache(travelCache);
             var scheduleData = AccountEntry.ScheduleLogControl.getAllCalendarFromXml(scheduleDump, _Now);
             AllEventDictionary = scheduleData.Item1;
             ThirdPartyCalendars = scheduleData.Item2;

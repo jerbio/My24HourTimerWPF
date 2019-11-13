@@ -2969,6 +2969,7 @@ namespace TilerCore
             if (runPreseveFirstTwentyFour)
             {
                 var SetForFirstDay = PrepFirstTwentyFourHours(TotalActiveEvents, AllDayTImeLine[0].StartToEnd);
+                SetForFirstDay.ForEach(subEvent => subEvent.ParentCalendarEvent.designateSubEvent(subEvent, Now));
                 AllDayTImeLine[0].AddToSubEventList(SetForFirstDay);
             }
 

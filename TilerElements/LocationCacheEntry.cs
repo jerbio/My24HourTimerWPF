@@ -24,6 +24,7 @@ namespace TilerElements
         public virtual DateTimeOffset LastUpdate { get; set; }
         public virtual double TimeSpanInMs { get; set; }
         public virtual double Distance { get; set; }
+
         public virtual TravelMedium Medium
         {
             get
@@ -97,6 +98,8 @@ namespace TilerElements
             }
         }
 
+        public TravelCache TravelCache { get;set; }
+
         public string TaiyeId
         {
             get
@@ -133,14 +136,15 @@ namespace TilerElements
         {
             unchecked
             {
-                return LocationCacheEntry.getHashCode(TaiyeId, KehindeId, Medium_DB);
+                return LocationCacheEntry.getHashCode(TaiyeId, KehindeId, Medium_DB, this.TravelCache.Id);
             }
         }
 
-        private static int getHashCode (string TaiyeId, string KehindeId, string medium)
+        private static int getHashCode (string TaiyeId, string KehindeId, string medium, string travelCahceId)
         {
             unchecked
             {
+                int cacheId = travelCahceId.GetHashCode();
                 int taiyeCode = TaiyeId.GetHashCode();
                 int kehindeCode = KehindeId.GetHashCode();
 
@@ -161,15 +165,16 @@ namespace TilerElements
                 hash = hash * 23 + smallerCode.GetHashCode();
                 hash = hash * 23 + largerCode.GetHashCode();
                 hash = hash * 23 + medium.GetHashCode();
+                hash = hash * 23 + cacheId.GetHashCode();
                 return hash;
             }
         }
 
-        public static int getHashCode(Location firstLocation, Location secondLocation, string medium) {
+        public static int getHashCode(Location firstLocation, Location secondLocation, string medium, string travelCahceId) {
             string firstId = firstLocation.ThirdPartyId ?? firstLocation.Id;
             string secondId = secondLocation.ThirdPartyId ?? secondLocation.Id;
 
-            return LocationCacheEntry.getHashCode(firstId, secondId, medium);
+            return LocationCacheEntry.getHashCode(firstId, secondId, medium, travelCahceId);
         }
 
     }

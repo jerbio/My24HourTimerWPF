@@ -87,21 +87,6 @@ namespace TilerTests
         }
 
         /// <summary>
-        /// When you run set as now d8572865-d8f6-482d-9fd3-b4db5d32b4a7_7_0_3573dde8-7274-4864-b65c-c152d821f902 there are unnecessary subevents in the morning. There should be some clearing for sleep.
-        /// </summary>
-        [TestMethod]
-        public void file_9820d846()
-        {// Screen shot stating problem https://drive.google.com/open?id=1titBjv-uOm2__nSiAsJ59m1tN5lZH7xj. Even though the bug is 9820d846 the issue is actually 95b9d6de-fd19-445a-a122-e36b110a4c3b. We need to validate why events are scheduled in to the morning of Nov 13 and Friday has excessive subevents
-            string scheduleId = "95b9d6de-fd19-445a-a122-e36b110a4c3b";
-            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
-            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
-            Schedule schedule = scheduleAndDump.Item1;
-            schedule.SetSubeventAsNow("d8572865-d8f6-482d-9fd3-b4db5d32b4a7_7_0_3573dde8-7274-4864-b65c-c152d821f902");
-            //schedule.FindMeSomethingToDo(currentLocation).Wait();
-            ((TestSchedule)schedule).WriteFullScheduleToOutlook();
-        }
-        
-        /// <summary>
         /// In this test the current location is 39.710835, -104.812500 which is in Aurora, CO.
         /// The event named "Get a hair cut" with the Id 0ada4cb8-844e-41cb-a3c3-e2b7863e365a_7_0_92db8eb5-9c7a-498b-af94-7385bf67b042 is in Auroa Colorado so it should be the next event
         /// </summary>

@@ -54,7 +54,20 @@ namespace TilerTests
             ((TestSchedule)schedule).WriteFullScheduleToOutlook();
         }
 
+        /// <summary>
+        /// There is no sleep time in the morning for November 17 
+        /// </summary>
+        [TestMethod]
+        public void file_missing_sleep_time_chunk_f02c36aa()
+        {
+            string scheduleId = "f02c36aa-cdcf-446d-97e0-f4b8ce3b548c";
+            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+            Schedule schedule = scheduleAndDump.Item1;
+            schedule.FindMeSomethingToDo(currentLocation).Wait();
 
+            ((TestSchedule)schedule).WriteFullScheduleToOutlook();
+        }
 
         [TestMethod]
         public void file_unnecessary_morning_scheduling_0a0e2ca8()

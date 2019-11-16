@@ -3784,16 +3784,11 @@ namespace TilerCore
         /// </summary>
         /// <param name="AllEvents"></param>
         /// <param name="restrictingTimeline"></param>
-        void CreateBufferForEachEvent(List<SubCalendarEvent> AllEvents, TimeLine restrictingTimeline, bool calculateRemoely = true)
+        Dictionary<SubCalendarEvent, mTuple<TimeSpan, TimeSpan>> CreateBufferForEachEvent(List<SubCalendarEvent> AllEvents, TimeLine restrictingTimeline, bool calculateRemoely = true)
         {
             if (AllEvents.Count < 1)
             {
-                return;
-            }
-
-            if (AllEvents.Count < 1)
-            {
-                return;
+                return null;
             }
 
             List<SubCalendarEvent> AllEventsDeduped = new List<SubCalendarEvent>();
@@ -3835,7 +3830,7 @@ namespace TilerCore
                 throw new Exception("this is a weird bug to have in CreateBufferForEachEvent");
             }
 
-            
+            Dictionary<SubCalendarEvent, mTuple<TimeSpan, TimeSpan>> retValue = new Dictionary<SubCalendarEvent, mTuple<TimeSpan, TimeSpan>>();
 
             for (int i = 0; i < AllEvents.Count - 1; i++)
             {
@@ -3900,12 +3895,31 @@ namespace TilerCore
 
                 myCoEvents.Item1.TravelTimeAfter = bufferSpan;
                 myCoEvents.Item2.TravelTimeBefore = bufferSpan;
-                referencePinningTImeline = new TimeLine(myCoEvents.Item1.End.Add(bufferSpan), myCoEvents.Item2.End);
-                if (!myCoEvents.Item2.PinToStart(referencePinningTImeline))
+
+                mTuple<TimeSpan, TimeSpan> beforeAfter;
+                if (retValue.ContainsKey(myCoEvents.Item1)) // index i event
                 {
-                    //break;
+                    beforeAfter = retValue[myCoEvents.Item1];
+                    beforeAfter.Item2 = bufferSpan;
+                } else
+                {
+                    beforeAfter = new mTuple<TimeSpan, TimeSpan>(Utility.NegativeTimeSpan, bufferSpan);
+                    retValue.Add(myCoEvents.Item1, beforeAfter);
+                }
+
+                if (retValue.ContainsKey(myCoEvents.Item2))// index j event
+                {
+                    beforeAfter = retValue[myCoEvents.Item2];
+                    beforeAfter.Item1 = bufferSpan;
+                }
+                else
+                {
+                    beforeAfter = new mTuple<TimeSpan, TimeSpan>(bufferSpan, Utility.NegativeTimeSpan);
+                    retValue.Add(myCoEvents.Item2, beforeAfter);
                 }
             }
+
+            return retValue;
         }
 
 

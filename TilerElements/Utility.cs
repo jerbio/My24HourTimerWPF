@@ -26,6 +26,7 @@ namespace TilerElements
         public readonly static TimeSpan OneHourTimeSpan = TimeSpan.FromHours(1);
         public readonly static TimeSpan TwentyFourHoursAlmostTImeSpan = TimeSpan.FromDays(1).Subtract(TimeSpan.FromMinutes(1));
         public readonly static TimeSpan ZeroTimeSpan = TimeSpan.FromTicks(0);
+        public readonly static TimeSpan NegativeTimeSpan = TimeSpan.FromTicks(-1);
         public readonly static string timeZoneString = "America/Denver";
         static Utility()
         {

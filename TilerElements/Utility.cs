@@ -27,6 +27,7 @@ namespace TilerElements
         public readonly static TimeSpan TwentyFourHoursAlmostTImeSpan = TimeSpan.FromDays(1).Subtract(TimeSpan.FromMinutes(1));
         public readonly static TimeSpan ZeroTimeSpan = TimeSpan.FromTicks(0);
         public readonly static TimeSpan NegativeTimeSpan = TimeSpan.FromTicks(-1);
+        public readonly static TimeSpan SixHourTimeSpan = TimeSpan.FromHours(6);
         public readonly static string timeZoneString = "America/Denver";
         static Utility()
         {
@@ -1463,13 +1464,21 @@ namespace TilerElements
 
         public static DateTimeOffset toTimeZoneTime(this DateTimeOffset localDate)
         {
-            DateTimeZone userTimeZone = DateTimeZoneProviders.Tzdb[Utility.timeZoneString];
-            //DateTimeOffset localDate = DateTimeOffset.Parse(this._EndfOfDayString).removeSecondsAndMilliseconds();
-            LocalDateTime time = new LocalDateTime(localDate.Year, localDate.Month, localDate.Day, localDate.Hour, localDate.Minute);
-            DateTimeOffset retValue =  Instant.FromDateTimeOffset(localDate)
-                  .InZone(userTimeZone)
-                  .ToDateTimeUnspecified();
-            return retValue;
+            if (!string.IsNullOrEmpty(Utility.timeZoneString) && !string.IsNullOrWhiteSpace(Utility.timeZoneString))
+            {
+                DateTimeZone userTimeZone = DateTimeZoneProviders.Tzdb[Utility.timeZoneString];
+                //DateTimeOffset localDate = DateTimeOffset.Parse(this._EndfOfDayString).removeSecondsAndMilliseconds();
+                LocalDateTime time = new LocalDateTime(localDate.Year, localDate.Month, localDate.Day, localDate.Hour, localDate.Minute);
+                DateTimeOffset retValue = Instant.FromDateTimeOffset(localDate)
+                      .InZone(userTimeZone)
+                      .ToDateTimeUnspecified();
+                return retValue;
+            }
+            else
+            {
+                return localDate;
+            }
+            
         }
     }
 }

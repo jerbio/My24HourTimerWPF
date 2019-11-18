@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static TilerElements.Reason;
+using static TilerElements.TimeOfDayPreferrence;
 
 namespace TilerElements
 {
@@ -169,13 +170,13 @@ namespace TilerElements
         {
             //TODO need to use machine learning to order the timelines right now the implemenation simple favors a morning schedule
             List<TimeOfDayPreferrence.DaySection> daySectionsPreferredOrder = null;
-            if(getDaySection().isDefaultOrdering)
+            if(getDayPreference().isDefaultOrdering)
             {
                 daySectionsPreferredOrder = (new List<TimeOfDayPreferrence.DaySection>() { TimeOfDayPreferrence.DaySection.Morning, TimeOfDayPreferrence.DaySection.Afternoon, TimeOfDayPreferrence.DaySection.Evening, TimeOfDayPreferrence.DaySection.Sleep }).Where(section => AllGroupings.ContainsKey(section)).ToList();
             }
             else
             {
-                daySectionsPreferredOrder = getDaySection().getPreferenceOrder().Where(daySector => AllGroupings.ContainsKey(daySector)).ToList();
+                daySectionsPreferredOrder = getDayPreference().getPreferenceOrder().Where(daySector => AllGroupings.ContainsKey(daySector)).ToList();
             }
 
             
@@ -215,6 +216,15 @@ namespace TilerElements
         {
             updateStartTime(TempStartDateTime);
             updateEndTime(TempEndDateTime);
+        }
+
+        /// <summary>
+        /// Function updates the locationvalidation Id  gotten from third party location services
+        /// </summary>
+        /// <param name="locationValidationId"></param>
+        public virtual void updateLocationValidationId(string locationValidationId)
+        {
+            this._LocationValidationId = locationValidationId;
         }
 
         public void validateLocation(Location location)
@@ -493,6 +503,14 @@ namespace TilerElements
                 return this._AutoDeletionReason;
             }
         }
+        public string LocationValidationId
+        {
+            get
+            {
+                return this._LocationValidationId;
+            }
+        }
+
         #region dbProperties
         virtual public DateTimeOffset TimeCreated { get; set; } = DateTimeOffset.Parse(DateTimeOffset.UtcNow.ToLocalTime().ToString("MM/dd/yyyy hh:mm tt"));
 
@@ -542,7 +560,7 @@ namespace TilerElements
                     Location retValue = _LocationInfo.getLocationThroughValidation(_LocationValidationId);
                     if (retValue != null && !retValue.isDefault)
                     {
-                        _LocationValidationId = retValue?.Id;
+                        updateLocationValidationId(retValue?.Id);
                     }
                     return retValue ?? Location.getDefaultLocation();
                 }
@@ -1109,9 +1127,14 @@ namespace TilerElements
             _DaySectionPreference.InitializeGrouping(this);// InitializeGrouping
         }
 
-        public TimeOfDayPreferrence getDaySection()
+        public TimeOfDayPreferrence getDayPreference()
         {
             return _DaySectionPreference;
+        }
+
+        public virtual DaySection getCurrentDaySection()
+        {
+            return getDayPreference().getCurrentDayPreference();
         }
 
         public virtual List<TimeLine> getInterferringWithTimeLine(TimeLine timeLine)

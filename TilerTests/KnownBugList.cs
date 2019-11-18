@@ -55,7 +55,7 @@ namespace TilerTests
         }
 
         /// <summary>
-        /// There is no sleep time in the morning for November 17 
+        /// There is no sleep time in the morning for November 17.
         /// </summary>
         [TestMethod]
         public void file_missing_sleep_time_chunk_f02c36aa()
@@ -65,7 +65,30 @@ namespace TilerTests
             var scheduleAndDump = TestUtility.getSchedule(scheduleId);
             Schedule schedule = scheduleAndDump.Item1;
             schedule.FindMeSomethingToDo(currentLocation).Wait();
+            DateTimeOffset dayWithoutSleep = new DateTimeOffset(2019, 11, 17, 12, 0, 0, new TimeSpan());
 
+            DayTimeLine dayTimeLine = schedule.Now.getDayTimeLineByTime(dayWithoutSleep);
+            List<SubCalendarEvent> subEvents = dayTimeLine.getSubEventsInTimeLine().OrderBy(sub => sub.Start).ToList();
+            TimeLine firstTenHours = new TimeLine(dayTimeLine.Start, dayTimeLine.Start.AddHours(10));
+            List<SubCalendarEvent> firstTenHourSubEvents = subEvents.Where(obj => obj.ActiveSlot.doesTimeLineInterfere(firstTenHours)).ToList();
+            TimeSpan FiveHourTimeSpan = TimeSpan.FromHours(5);
+            DateTimeOffset previousTime = dayTimeLine.Start;
+
+            bool isSleepTime = false;
+            foreach(SubCalendarEvent subEVent in firstTenHourSubEvents)
+            {
+                if (!isSleepTime)
+                {
+                    TimeSpan timeSpan = subEVent.Start - previousTime;
+                    if (timeSpan >= FiveHourTimeSpan)
+                    {
+                        isSleepTime = true;
+                        break;
+                    }
+                    previousTime = subEVent.End;
+                }
+            }
+            Assert.IsTrue(isSleepTime);
             ((TestSchedule)schedule).WriteFullScheduleToOutlook();
         }
 
@@ -195,7 +218,7 @@ namespace TilerTests
             TimeLine middleOfDay = new TimeLine(dayTimeLine.Start.AddHours(8), dayTimeLine.End.AddHours(-8));
             List<SubCalendarEvent>allSubEvents = dayTimeLine.getSubEventsInTimeLine();
             List<SubCalendarEvent> allSubEventsWithinTimeline = allSubEvents.Where(subEvent => middleOfDay.IsTimeLineWithin(subEvent.ActiveSlot)).ToList();
-            Assert.AreEqual(allSubEvents.Count, allSubEventsWithinTimeline.Count);
+            Assert.AreEqual(allSubEvents.Count, allSubEventsWithinTimeline.Count);// this is known to fail
 
             ((TestSchedule)schedule).WriteFullScheduleToOutlook();
         }

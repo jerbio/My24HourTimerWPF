@@ -583,6 +583,13 @@ namespace TilerElements
             getProcrastinationInfo.reset();
         }
 
+        /// <summary>
+        /// Function generates a adhoc rigid calendar event on the spot with a sub event with the start and end time
+        /// </summary>
+        /// <param name="myEventID"></param>
+        /// <param name="Start"></param>
+        /// <param name="End"></param>
+        /// <returns></returns>
         public static CalendarEvent getEmptyCalendarEvent(EventID myEventID, DateTimeOffset Start = new DateTimeOffset(), DateTimeOffset End = new DateTimeOffset())
         {
             CalendarEvent retValue = new CalendarEvent(true);
@@ -591,9 +598,11 @@ namespace TilerElements
             retValue.updateEndTime( End);
             retValue._EventDuration = new TimeSpan(0);
             SubCalendarEvent emptySubEvent = SubCalendarEvent.getEmptySubCalendarEvent(retValue.UniqueID);
+            emptySubEvent.updateTimeLine(retValue.StartToEnd);
             emptySubEvent.ParentCalendarEvent = retValue;
             retValue._SubEvents.Add(emptySubEvent.Id, emptySubEvent);
             retValue._Splits = 1;
+            retValue._DeletedCount = 1;
             retValue._RigidSchedule = true;
             retValue._Complete = true;
 

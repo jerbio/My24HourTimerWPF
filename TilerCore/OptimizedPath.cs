@@ -113,7 +113,7 @@ namespace TilerCore
             foreach(SubCalendarEvent subEvent in rigidSubEvents)
             {
                 subEvent.InitializeDayPreference(DayData);
-                TimeOfDayPreferrence daySection = subEvent.getDaySection();
+                TimeOfDayPreferrence daySection = subEvent.getDayPreference();
                 //OptimizedGrouping grouping = null;/* AllGroupings[TimeOfDayPreferrence.DaySection.None];//defaults to none day section unless the a preference is found in the loop*/
                 foreach(OptimizedGrouping grouping in ActiveDaySectionGrouping)
                 {
@@ -146,7 +146,7 @@ namespace TilerCore
                 List<SubCalendarEvent> CurrentlyValid = AllSubCalendarEvents
                     .Where(obj => (!obj.isOptimized)).Where(obj =>
                     {
-                        var TimeOfDay = obj.getDaySection().getCurrentDayPreference();
+                        var TimeOfDay = obj.getDayPreference().getCurrentDayPreference();
                         return ((TimeOfDay != TimeOfDayPreferrence.DaySection.Disabled));
                     }).ToList();
                 if (CurrentlyValid.Count > 0)
@@ -171,7 +171,7 @@ namespace TilerCore
                     List<Location> BestOrderLocations = BestOrder.Select(obj => obj.Location).ToList();
                     List<SubCalendarEvent> NoPosition = AllSubCalendarEvents.Where(obj => (!obj.isLocked)).Where(obj => (!obj.isOptimized)).Where(obj =>
                     {
-                        var TimeOfDay = obj.getDaySection().getCurrentDayPreference();
+                        var TimeOfDay = obj.getDayPreference().getCurrentDayPreference();
                         //return ((TimeOfDay != TimeOfDayPreferrence.DaySection.Disabled)&&(TimeOfDay!=TimeOfDayPreferrence.DaySection.None));
                         return ((TimeOfDay != TimeOfDayPreferrence.DaySection.Disabled));
                     }).ToList();
@@ -186,7 +186,7 @@ namespace TilerCore
         /// </summary>
         void optimizeDisabledEvents()
         {
-            List<SubCalendarEvent> disabledSubEvents = DayInfo.getSubEventsInTimeLine().Where(subEvent => subEvent.getDaySection().getCurrentDayPreference() == TimeOfDayPreferrence.DaySection.Disabled).ToList();
+            List<SubCalendarEvent> disabledSubEvents = DayInfo.getSubEventsInTimeLine().Where(subEvent => subEvent.getDayPreference().getCurrentDayPreference() == TimeOfDayPreferrence.DaySection.Disabled).ToList();
             if (disabledSubEvents.Count > 0)
             {
                 List<SubCalendarEvent> correctlyAssignedevents = DayInfo.getSubEventsInTimeLine().Except(disabledSubEvents).OrderBy(obj=>obj.Start).ToList();
@@ -524,7 +524,7 @@ namespace TilerCore
                         }
                         if (NoTimeLineAvailable)//If no viable timeline is found then this this daysector is removed
                         {
-                            subEvent.getDaySection().rejectCurrentPreference(Grouping.DaySector);
+                            subEvent.getDayPreference().rejectCurrentPreference(Grouping.DaySector);
                         }
                     }
                 }
@@ -533,7 +533,7 @@ namespace TilerCore
                     for (i = 0; i < AllEvents.Count; i++)
                     {
                         SubCalendarEvent subEvent = AllEvents[i];//unacknowledged subevent for this grouping
-                        subEvent.getDaySection().rejectCurrentPreference(Grouping.DaySector);
+                        subEvent.getDayPreference().rejectCurrentPreference(Grouping.DaySector);
                     }
                 }
             }
@@ -593,13 +593,13 @@ namespace TilerCore
                             }
                             else
                             {
-                                subEvent.getDaySection().rejectCurrentPreference();
+                                subEvent.getDayPreference().rejectCurrentPreference();
                             }
                             subEvent_Dict_To_DaySecion[subEvent][Grouping.DaySector].Add(hash);
                         }
                         else
                         {
-                            subEvent.getDaySection().rejectCurrentPreference();
+                            subEvent.getDayPreference().rejectCurrentPreference();
                         }
                     }
                     else
@@ -613,7 +613,7 @@ namespace TilerCore
                         }
                         else
                         {
-                            subEvent.getDaySection().rejectCurrentPreference();
+                            subEvent.getDayPreference().rejectCurrentPreference();
                         }
                     }
                 }
@@ -883,16 +883,16 @@ namespace TilerCore
                     for (int i = 0; i < SubEvents.Count; i++)
                     {
                         SubCalendarEvent eachSubCalendarEvent = SubEvents[i];
-                        TimeOfDayPreferrence.DaySection DaySection = eachSubCalendarEvent.getDaySection().getCurrentDayPreference();
+                        TimeOfDayPreferrence.DaySection DaySection = eachSubCalendarEvent.getDayPreference().getCurrentDayPreference();
                         if (DaySection == TimeOfDayPreferrence.DaySection.None)
                         {
-                            eachSubCalendarEvent.getDaySection().assignSectorBasedOnTIme(eachSubCalendarEvent.Start, AllTimeLine);
-                            DaySection = eachSubCalendarEvent.getDaySection().getCurrentDayPreference();
+                            eachSubCalendarEvent.getDayPreference().assignSectorBasedOnTIme(eachSubCalendarEvent.Start, AllTimeLine);
+                            DaySection = eachSubCalendarEvent.getDayPreference().getCurrentDayPreference();
                         }
                         if (DaySection != TimeOfDayPreferrence.DaySection.Disabled)
                         {
                             AllGroupings[DaySection].AddToStitchedEvents(eachSubCalendarEvent);
-                            eachSubCalendarEvent.getDaySection().setCurrentdayPreference(DaySection);
+                            eachSubCalendarEvent.getDayPreference().setCurrentdayPreference(DaySection);
                             Dictionary<Reason.Options, Reason> positionReasons = subEventToReason[eachSubCalendarEvent];
                             List<Reason> reasons = positionReasons.Where(keyValuePair => keyValuePair.Value.Option != Reason.Options.None).Select(keyValuePair => keyValuePair.Value).ToList();
                             foreach (Reason positionReason in reasons)
@@ -913,7 +913,7 @@ namespace TilerCore
                 List<SubCalendarEvent> NonRigidis = recursionSubEvents.Where(obj => (!obj.isLocked) && (!obj.isOptimized)).OrderByDescending(obj => obj.Score).ToList();
                 SubCalendarEvent UnwantedEvent = NonRigidis[0];
                 recursionSubEvents.Remove(UnwantedEvent);
-                TimeOfDayPreferrence.DaySection DaySection = UnwantedEvent.getDaySection().getCurrentDayPreference();
+                TimeOfDayPreferrence.DaySection DaySection = UnwantedEvent.getDayPreference().getCurrentDayPreference();
                 AllGroupings[DaySection].removeFromAcknowledged(UnwantedEvent);
                 AllGroupings[DaySection].removeFromStitched(UnwantedEvent);
                 UnwantedEvent.setAsUnOptimized();
@@ -1108,7 +1108,7 @@ namespace TilerCore
                 subevent.updateDayPreference(AllGroupings.Select(group => group.Value).ToList());
             }
 
-            ILookup<TimeOfDayPreferrence.DaySection, SubCalendarEvent> RetValue = SubEvents.ToLookup(obj => obj.getDaySection().getCurrentDayPreference(), obj => obj);
+            ILookup<TimeOfDayPreferrence.DaySection, SubCalendarEvent> RetValue = SubEvents.ToLookup(obj => obj.getDayPreference().getCurrentDayPreference(), obj => obj);
             return RetValue;
         }
 

@@ -22,7 +22,7 @@ namespace TilerTests
             UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
             user.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            DateTimeOffset refNow = DateTimeOffset.Parse("11/18/2019 1:59:00 PM +00:00");
             refNow = refNow.removeSecondsAndMilliseconds();
             TimeSpan duration = TimeSpan.FromHours(2);
             DateTimeOffset start = refNow;
@@ -180,6 +180,7 @@ namespace TilerTests
             var setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
             Schedule.persistToDB().Wait();
 
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
             TimeSpan procrastinationSpan = TimeSpan.FromHours(5);
             var procrassinateResult = Schedule.ProcrastinateJustAnEvent(testEvent.ActiveSubEvents.OrderBy(subEvent => subEvent.Start).First().getId, procrastinationSpan);

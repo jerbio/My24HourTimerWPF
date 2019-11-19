@@ -6,6 +6,7 @@ using TilerElements;
 using System.Collections.Generic;
 using System.Linq;
 using TilerCore;
+using static TilerElements.TimeOfDayPreferrence;
 
 namespace TilerTests
 {
@@ -205,7 +206,7 @@ namespace TilerTests
         /// THis test verifies the events are within the middle of the day
         /// </summary>
         [TestMethod]
-        public void file_59754086()
+        public void file_middle_of_day_subevents_59754086()
         {
             string scheduleId = "59754086-6192-4364-a364-dffb4c71d7b6";
             Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
@@ -215,11 +216,12 @@ namespace TilerTests
             DateTimeOffset referenceDay = TestUtility.parseAsUTC("08/18/2019");
 
             DayTimeLine dayTimeLine = schedule.Now.getDayTimeLineByTime(referenceDay);
-            TimeLine middleOfDay = new TimeLine(dayTimeLine.Start.AddHours(8), dayTimeLine.End.AddHours(-8));
+            var daySplit = TimeOfDayPreferrence.splitIntoDaySections(dayTimeLine);
+            
+            TimeLine middleOfDay = new TimeLine(daySplit[DaySection.Sleep].End, daySplit[DaySection.Evening].Start);
             List<SubCalendarEvent>allSubEvents = dayTimeLine.getSubEventsInTimeLine();
             List<SubCalendarEvent> allSubEventsWithinTimeline = allSubEvents.Where(subEvent => middleOfDay.IsTimeLineWithin(subEvent.ActiveSlot)).ToList();
-            Assert.AreEqual(allSubEvents.Count, allSubEventsWithinTimeline.Count);// this is known to fail
-
+            Assert.AreEqual(allSubEvents.Count, allSubEventsWithinTimeline.Count);
             ((TestSchedule)schedule).WriteFullScheduleToOutlook();
         }
 

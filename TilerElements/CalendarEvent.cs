@@ -799,13 +799,6 @@ namespace TilerElements
             return SubEvent.Continue(CurrentTime);
         }
 
-
-        public override string ToString()
-        {
-            return this.getId + "::" + this.Start.ToString() + " - " + this.End.ToString();
-        }
-
-
         public bool IsDateTimeWithin(DateTimeOffset DateTimeEntry)
         {
             return StartToEnd.IsDateTimeWithin(DateTimeEntry);

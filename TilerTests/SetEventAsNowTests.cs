@@ -80,6 +80,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
             SubCalendarEvent subEvent = testEvent.ActiveSubEvents[1];
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
             var setAsNowResult = Schedule.SetSubeventAsNow(subEvent.Id);
             Schedule.persistToDB().Wait();

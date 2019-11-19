@@ -3964,7 +3964,7 @@ namespace TilerCore
         /// </summary>
         /// <param name="AllEvents"></param>
         /// <param name="restrictingTimeline"></param>
-        Dictionary<SubCalendarEvent, mTuple<TimeSpan, TimeSpan>> CreateBufferForEachEvent(List<SubCalendarEvent> AllEvents, TimeLine restrictingTimeline, bool calculateRemoely = true)
+        Dictionary<SubCalendarEvent, mTuple<TimeSpan, TimeSpan>> CreateBufferForEachEvent(List<SubCalendarEvent> AllEvents, TimeLine restrictingTimeline, bool calculateRemoely = true, bool assumeIsDefault = true)
         {
             if (AllEvents.Count < 1)
             {
@@ -4002,28 +4002,44 @@ namespace TilerCore
 
 
             TimeSpan bufferPerMile = new TimeSpan(0, 4, 0);
-            int j = 0;
+            int nextSubEventIndex = 0;
             TimeLine referencePinningTImeline = new TimeLine(restrictingTimeline.Start, restrictingTimeline.End);
             SubCalendarEvent firstEvent = AllEvents[0];
             if (!firstEvent.PinToStart(referencePinningTImeline) && !firstEvent.isLocked)
             {
                 throw new Exception("this is a weird bug to have in CreateBufferForEachEvent");
             }
-
+            Location lastKnownNonDefaultLocation = null;
             Dictionary<SubCalendarEvent, mTuple<TimeSpan, TimeSpan>> retValue = new Dictionary<SubCalendarEvent, mTuple<TimeSpan, TimeSpan>>();
-
-            for (int i = 0; i < AllEvents.Count - 1; i++)
+            for (int currentSubEventIndex = 0; currentSubEventIndex < AllEvents.Count - 1; currentSubEventIndex++)
             {
-                j = i + 1;
-                Tuple<SubCalendarEvent, SubCalendarEvent> myCoEvents = new Tuple<SubCalendarEvent, SubCalendarEvent>(AllEvents[i], AllEvents[j]);
+                nextSubEventIndex = currentSubEventIndex + 1;
+                Tuple<SubCalendarEvent, SubCalendarEvent> myCoEvents = new Tuple<SubCalendarEvent, SubCalendarEvent>(AllEvents[currentSubEventIndex], AllEvents[nextSubEventIndex]);
                 TimeSpan bufferSpan = Utility.NegativeTimeSpan;
-                LocationCacheEntry cacheEntry = getTravelEntry(myCoEvents.Item1.Location, myCoEvents.Item2.Location);
+                Location currentLocation = myCoEvents.Item1.Location;
+                Location nextLocation = myCoEvents.Item2.Location;
+                bool currentLocationIsLastKnownGood = false;
+                bool nextLocationIsLastKnownGood = false;
+                if (lastKnownNonDefaultLocation!=null && assumeIsDefault)
+                {
+                    if(currentLocation.isDefault || currentLocation.isNull)
+                    {
+                        currentLocation = lastKnownNonDefaultLocation;
+                        currentLocationIsLastKnownGood = true;
+                    } else if (nextLocation.isDefault || nextLocation.isNull)
+                    {
+                        nextLocation = lastKnownNonDefaultLocation;
+                        nextLocationIsLastKnownGood = true;
+                    }
+                }
+
+                LocationCacheEntry cacheEntry = getTravelEntry(currentLocation, nextLocation);
 
                 if (calculateRemoely)
                 {
-                    if(myCoEvents.Item1.Location != myCoEvents.Item2.Location)
+                    if(currentLocation != nextLocation)
                     {
-                        double distance = Location.calculateDistance(myCoEvents.Item1.Location, myCoEvents.Item2.Location);
+                        double distance = Location.calculateDistance(currentLocation, nextLocation);
                         bool isCacheEntryInvalid = cacheEntry == null || (Now.constNow - cacheEntry.LastUpdate >= CacheInvalidationTimeSpan);
                         if (isCacheEntryInvalid)
                         {
@@ -4037,10 +4053,10 @@ namespace TilerCore
                             }
                             else
                             {
-                                bufferSpan = Location.getDrivingTimeFromWeb(myCoEvents.Item1.Location, myCoEvents.Item2.Location);
+                                bufferSpan = Location.getDrivingTimeFromWeb(currentLocation, nextLocation);
                                 if (bufferSpan.Ticks >= 0)
                                 {
-                                    TravelCache.AddOrupdateLocationCache(myCoEvents.Item1.Location, myCoEvents.Item2.Location, bufferSpan, Now.constNow, LocationCacheEntry.TravelMedium.driving, distance);
+                                    TravelCache.AddOrupdateLocationCache(currentLocation, nextLocation, bufferSpan, Now.constNow, LocationCacheEntry.TravelMedium.driving, distance);
                                 }
                             }
                         } else
@@ -4055,8 +4071,8 @@ namespace TilerCore
                 }
                 else
                 {
-                    double distance = Location.calculateDistance(myCoEvents.Item1.Location, myCoEvents.Item2.Location);
-                    cacheEntry = getTravelEntry(myCoEvents.Item1.Location, myCoEvents.Item2.Location);
+                    double distance = Location.calculateDistance(currentLocation, nextLocation);
+                    cacheEntry = getTravelEntry(currentLocation, nextLocation);
                     if (cacheEntry != null)
                     {
                         bufferSpan = cacheEntry.TimeSapn;
@@ -4094,6 +4110,17 @@ namespace TilerCore
                     beforeAfter = new mTuple<TimeSpan, TimeSpan>(bufferSpan, Utility.NegativeTimeSpan);
                     retValue.Add(myCoEvents.Item2, beforeAfter);
                 }
+
+
+                
+                if ((!(nextLocation.isNull || nextLocation.isDefault)) && !nextLocationIsLastKnownGood)
+                {
+                    lastKnownNonDefaultLocation = nextLocation;
+                } else if ((!(currentLocation.isNull || currentLocation.isDefault)) && !currentLocationIsLastKnownGood)
+                {
+                    lastKnownNonDefaultLocation = currentLocation;
+                }
+
             }
 
             return retValue;
@@ -5741,13 +5768,12 @@ namespace TilerCore
                 if (ReferenceSubEvent.canExistWithinTimeLine(timeLineAfterProcrastination))
                 {
                     //ReferenceStart = Now.UpdateNow(ReferenceStart);
-                    DateTimeOffset StartTimeOfProcrastinate = ReferenceStart + RangeOfPush;
                     DateTimeOffset limitOfProcrastination = ReferenceSubEvent.getCalendarEventRange.End;
-                    TimeSpan ActiveSubEventSpan = TimeSpan.FromTicks(ProcrastinateEvent.ActiveSubEvents.Select(subEvent => subEvent.getActiveDuration.Ticks).Sum());
-                    limitOfProcrastination = limitOfProcrastination.Add(-ActiveSubEventSpan);
-                    if (StartTimeOfProcrastinate > limitOfProcrastination)
+
+                    List<SubCalendarEvent> orderedByStartSubEvents = ProcrastinateEvent.ActiveSubEvents.OrderBy(o => o.Start).ToList();                    
+                    if (!Utility.tryPinSubEventsToEnd(orderedByStartSubEvents, timeLineAfterProcrastination))
                     {
-                        return new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(new CustomErrors("Procrastinated deadline event is before end of selected timeline space"), null);
+                        return new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(new CustomErrors(CustomErrors.Errors.procrastinationAllSubeventsCannotFitDeadline), null);
                     }
 
 

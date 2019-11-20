@@ -179,6 +179,24 @@ namespace TilerTests
             userAccount.Login().Wait();
         }
 
+        public static Location getLocation(ref UserAccount userAccount, ref TilerUser tilerUser, string locationId)
+        {
+            userAccount = getTestUser(userId: tilerUser.Id);
+            tilerUser = userAccount.getTilerUser();
+            userAccount.Login().Wait();
+            TilerDbContext context = null;
+            if (UserToContext.ContainsKey(tilerUser.Id))
+            {
+                context = UserToContext[tilerUser.Id];
+            }
+            if(context== null)
+            {
+                throw new Exception("Invalid location look up have you created a context, try using testutile.packet to create function");
+            }
+
+            return context.Locations.Find(locationId);
+        }
+
         public static void initializeLocation ()
         {
             string apiKey = "AIzaSyDXrtMxPbt6Dqlllpm77AQ47vcCFxZ4oUU";
@@ -379,14 +397,16 @@ namespace TilerTests
             return userAccount;
         }
 
-        public static Tuple<Schedule, ScheduleDump> getSchedule(string userId, bool copyTestFolder = true, string filePath = "", string connectionName = "")
+
+        public static Tuple<Schedule, ScheduleDump> getSchedule(string userId, DateTimeOffset refNow, bool copyTestFolder = true, string filePath = "", string connectionName = "")
         {
             string currDir = filePath;
-            if (String.IsNullOrEmpty(filePath)|| String.IsNullOrWhiteSpace(filePath)) {
-                currDir = Directory.GetCurrentDirectory() +"\\" + "WagTapCalLogs\\";
+            if (String.IsNullOrEmpty(filePath) || String.IsNullOrWhiteSpace(filePath))
+            {
+                currDir = Directory.GetCurrentDirectory() + "\\" + "WagTapCalLogs\\";
             }
 
-            
+
             string sourceFile = currDir + userId + "\\" + userId + ".xml";
             if (userId != testUserId && copyTestFolder)
             {
@@ -399,17 +419,30 @@ namespace TilerTests
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(sourceFile);
             dump.XmlDoc = xmlDoc;
-            string notes = dump.XmlDoc.DocumentElement.SelectSingleNode("/ScheduleLog/scheduleNotes").InnerText;
+            string notes = dump.XmlDoc.DocumentElement.SelectSingleNode("/ScheduleLog/scheduleNotes")?.InnerText;
             dump.Notes = notes;
 
 
             TilerUser User = new TilerUser() { UserName = userId + "@tiler-test.com", Id = userId };
             UserAccountDump accDebug = new UserAccountDump(User, connectionName);
+            Schedule schedule;
+            if (refNow.isBeginningOfTime())
+            {
+                schedule = new TestSchedule(dump, accDebug);
+            }
+            else
+            {
+                schedule = new TestSchedule(dump, accDebug, referenceNow: refNow);
+            }
 
-
-            Schedule schedule = new TestSchedule(dump, accDebug);
+            
             Tuple<Schedule, ScheduleDump> retValue = new Tuple<Schedule, ScheduleDump>(schedule, dump);
             return retValue;
+        }
+
+        public static Tuple<Schedule, ScheduleDump> getSchedule(string userId, bool copyTestFolder = true, string filePath = "", string connectionName = "")
+        {
+            return getSchedule(userId, Utility.BeginningOfTime, copyTestFolder, filePath, connectionName);
         }
 
         public static void RefreshAll(TilerDbContext context)

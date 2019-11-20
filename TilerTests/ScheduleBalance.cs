@@ -25,61 +25,68 @@ namespace TilerTests
         //    currentUser.DeleteAllCalendarEvents();
         //}
 
-        ///// <summary>
-        ///// Test creates a combination of rigid and non rigid evvents that the sum of their duration adds up to eight hours. 
-        ///// Test creates a rigid event and then tries to add the other non-rigid events. The none rigids have a timeline that starts at the smetime as the rigid, but ends eight hours after
-        ///// The non rigids hould be aable to fit, without a conflict. 
-        ///// You need to ensure the end of day is appropriately initialized to avoid weird computation error
-        ///// </summary>
-        //[TestMethod]
-        //public void TightScheduleNoUnnecessaryConflict()
-        //{
-        //    Location homeLocation = new Location("2895 Van aken Blvd cleveland OH 44120");
-        //    Location workLocation = new Location(41.5002762, -81.6839155, "1228 euclid Ave cleveland OH","Work",false,false);
-        //    Location gymLocation = new Location(41.4987461 , -81.6884993, "619 Prospect Avenue Cleveland, OH 44115", "Gym", false, false);
-        //    Location churchLocation = new Location(41.569467, -81.539422, "1465 Dille Rd, Cleveland, OH 44117", "Church", false, false);
-        //    Location shakerLibrary = new Location(41.4658937, -81.5664832, "16500 Van Aken Blvd, Shaker Heights, OH 44120", "Shake Library", false, false);
+        /// <summary>
+        /// Test creates a combination of rigid and non rigid evvents that the sum of their duration adds up to eight hours. 
+        /// Test creates a rigid event and then tries to add the other non-rigid events. The none rigids have a timeline that starts at the smetime as the rigid, but ends eight hours after
+        /// The non rigids hould be aable to fit, without a conflict. 
+        /// You need to ensure the end of day is appropriately initialized to avoid weird computation error
+        /// </summary>
+        [TestMethod]
+        public void TightScheduleNoUnnecessaryConflict()
+        {
+            var packet = TestUtility.CreatePacket();
+            UserAccount user = packet.Account;
+            TilerUser tilerUser = packet.User;
 
-        //    List<Location> locations = new List<Location>() { homeLocation, workLocation, gymLocation, churchLocation };
-        //    UserAccount currentUser = TestUtility.getTestUser();
-        //    currentUser.Login().Wait();
-        //    DateTimeOffset refNow = DateTimeOffset.UtcNow;
-        //    refNow = new DateTimeOffset(refNow.Year, refNow.Month, refNow.Day, 8, 0, 0, new TimeSpan());
-        //    TestSchedule schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
-        //    TimeLine encompassingTimeline = new TimeLine(refNow, refNow.AddHours(8));
+            Location homeLocation = new Location("2895 Van aken Blvd cleveland OH 44120");
+            Location workLocation = new Location(41.5002762, -81.6839155, "1228 euclid Ave cleveland OH","Work",false,false);
+            Location gymLocation = new Location(41.4987461 , -81.6884993, "619 Prospect Avenue Cleveland, OH 44115", "Gym", false, false);
+            Location churchLocation = new Location(41.569467, -81.539422, "1465 Dille Rd, Cleveland, OH 44117", "Church", false, false);
+            Location shakerLibrary = new Location(41.4658937, -81.5664832, "16500 Van Aken Blvd, Shaker Heights, OH 44120", "Shake Library", false, false);
+
+            List<Location> locations = new List<Location>() { homeLocation, workLocation, gymLocation, churchLocation };
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            refNow = new DateTimeOffset(refNow.Year, refNow.Month, refNow.Day, 8, 0, 0, new TimeSpan());
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            TestSchedule schedule = new TestSchedule(user, refNow, refNow.AddDays(5));
+            TimeLine encompassingTimeline = new TimeLine(refNow, refNow.AddHours(8));
 
 
-        //    int rigidHoursSpan = 4;
-        //    CalendarEvent testHomeRigidCalEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(rigidHoursSpan), new TilerElements.Repetition(), encompassingTimeline.Start, encompassingTimeline.Start.AddHours(rigidHoursSpan), 1, true, homeLocation);
-        //    int nonRigidHoursSpan = 1;
-        //    CalendarEvent testHomeNonRigidCalEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(nonRigidHoursSpan), new TilerElements.Repetition(), encompassingTimeline.Start, encompassingTimeline.End, 1, false, homeLocation);
-        //    CalendarEvent testWorkNonRigidCalEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(nonRigidHoursSpan), new TilerElements.Repetition(), encompassingTimeline.Start, encompassingTimeline.End, 1, false, workLocation);
-        //    int nonRigidTwoHoursSpan = 2;
-        //    CalendarEvent testGymNonRigidCalEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(nonRigidTwoHoursSpan), new TilerElements.Repetition(), encompassingTimeline.Start, encompassingTimeline.End, 1, false, gymLocation);
+            int rigidHoursSpan = 4;
+            CalendarEvent testHomeRigidCalEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(rigidHoursSpan), new TilerElements.Repetition(), encompassingTimeline.Start, encompassingTimeline.Start.AddHours(rigidHoursSpan), 1, true, homeLocation);
+            schedule.AddToScheduleAndCommit(testHomeRigidCalEvent);
+            schedule.WriteFullScheduleToOutlook();
+            IEnumerable<SubCalendarEvent> allSubEvents = schedule.getAllActiveSubEvents();
+            List<BlobSubCalendarEvent> conflicts = Utility.getConflictingEvents(allSubEvents);
+            Assert.AreEqual(0, conflicts.Count);
 
-        //    schedule.AddToScheduleAndCommit(testHomeRigidCalEvent).Wait();
-        //    IEnumerable<SubCalendarEvent> allSubEvents = schedule.getAllCalendarEvents().SelectMany(calEvent => calEvent.AllSubEvents);
-        //    List<BlobSubCalendarEvent> conflicts = Utility.getConflictingEvents(allSubEvents);
-        //    Assert.AreEqual(0, conflicts.Count);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            homeLocation = TestUtility.getLocation(ref user, ref tilerUser, homeLocation.Id);
+            schedule = new TestSchedule(user, refNow, refNow.AddDays(5));
+            int nonRigidHoursSpan = 1;
+            CalendarEvent testHomeNonRigidCalEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(nonRigidHoursSpan), new TilerElements.Repetition(), encompassingTimeline.Start, encompassingTimeline.End, 1, false, homeLocation);
+            schedule.AddToScheduleAndCommit(testHomeNonRigidCalEvent);
+            allSubEvents = schedule.getAllActiveSubEvents();
+            conflicts = Utility.getConflictingEvents(allSubEvents);
+            Assert.AreEqual(0, conflicts.Count);
 
-        //    schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
-        //    schedule.AddToScheduleAndCommit(testHomeNonRigidCalEvent).Wait();
-        //    allSubEvents = schedule.getAllCalendarEvents().SelectMany(calEvent => calEvent.AllSubEvents);
-        //    conflicts = Utility.getConflictingEvents(allSubEvents);
-        //    Assert.AreEqual(0, conflicts.Count);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, refNow, refNow.AddDays(5));
+            CalendarEvent testWorkNonRigidCalEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(nonRigidHoursSpan), new TilerElements.Repetition(), encompassingTimeline.Start, encompassingTimeline.End, 1, false, workLocation);
+            schedule.AddToScheduleAndCommit(testWorkNonRigidCalEvent);
+            allSubEvents = schedule.getAllActiveSubEvents();
+            conflicts = Utility.getConflictingEvents(allSubEvents);
+            Assert.AreEqual(0, conflicts.Count);
 
-        //    schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
-        //    schedule.AddToScheduleAndCommit(testWorkNonRigidCalEvent).Wait();
-        //    allSubEvents = schedule.getAllCalendarEvents().SelectMany(calEvent => calEvent.AllSubEvents);
-        //    conflicts = Utility.getConflictingEvents(allSubEvents);
-        //    Assert.AreEqual(0, conflicts.Count);
-
-        //    schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
-        //    schedule.AddToSchedule(testGymNonRigidCalEvent);
-        //    allSubEvents = schedule.getAllCalendarEvents().SelectMany(calEvent => calEvent.AllSubEvents);
-        //    conflicts = Utility.getConflictingEvents(allSubEvents);
-        //    Assert.AreEqual(0, conflicts.Count);
-        //}
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, refNow, refNow.AddDays(5));
+            int nonRigidTwoHoursSpan = 2;
+            CalendarEvent testGymNonRigidCalEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(nonRigidTwoHoursSpan), new TilerElements.Repetition(), encompassingTimeline.Start, encompassingTimeline.End, 1, false, gymLocation);
+            schedule.AddToSchedule(testGymNonRigidCalEvent);
+            allSubEvents = schedule.getAllActiveSubEvents();
+            conflicts = Utility.getConflictingEvents(allSubEvents);
+            Assert.AreEqual(0, conflicts.Count);
+        }
 
 
         ///// Current UTC time is 12:15 AM, Friday, June 2, 2017

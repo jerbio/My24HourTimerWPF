@@ -68,11 +68,11 @@ namespace TilerTests
             }
         }
 
-        public TestSchedule(ScheduleDump scheduleDump, UserAccount AccountEntry, uint LatestId = 0) : base()
+        public TestSchedule(ScheduleDump scheduleDump, UserAccount AccountEntry, DateTimeOffset referenceNow, uint LatestId = 0) : base()
         {
             myAccount = AccountEntry;
             TilerUser = AccountEntry.getTilerUser();
-            _Now = new ReferenceNow(scheduleDump.ReferenceNow, scheduleDump.StartOfDay, myAccount.getTilerUser().TimeZoneDifference);
+            _Now = new ReferenceNow(referenceNow, scheduleDump.StartOfDay, myAccount.getTilerUser().TimeZoneDifference);
             this.myAccount.ScheduleLogControl.Now = _Now;
 
             TravelCache travelCache = new TravelCache()
@@ -90,6 +90,10 @@ namespace TilerTests
             {
                 EventID.Initialize(LatestId);
             }
+        }
+
+        public TestSchedule(ScheduleDump scheduleDump, UserAccount AccountEntry, uint LatestId = 0) : this(scheduleDump, AccountEntry, scheduleDump.ReferenceNow)
+        {
         }
 
         public override Task<CustomErrors> AddToScheduleAndCommitAsync(CalendarEvent NewEvent, bool optimizeSchedule = false)

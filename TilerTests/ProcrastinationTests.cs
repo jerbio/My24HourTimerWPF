@@ -281,7 +281,7 @@ namespace TilerTests
             CalendarEvent procrastinationEvent = TestUtility.getCalendarEventById(procrastinateId.getCalendarEventID(), user);
             DateTimeOffset endOfProcrastinateAll = refNow.Add(procrastinationSpan);
             Assert.AreEqual(procrastinationEvent.End, endOfProcrastinateAll);
-            SubCalendarEvent lastFreeSpaceBlock = procrastinationEvent.AllSubEvents.OrderByDescending(obj => obj.End).First();
+            SubCalendarEvent lastFreeSpaceBlock = procrastinationEvent.ActiveSubEvents.OrderByDescending(obj => obj.End).First();
             Assert.AreEqual(lastFreeSpaceBlock.End, endOfProcrastinateAll);
             Assert.IsNotNull(procrastinationEvent);
             CalendarEvent testEventCopy = TestUtility.getCalendarEventById(testEvent.getId, user);
@@ -304,7 +304,7 @@ namespace TilerTests
             procrastinationEvent = TestUtility.getCalendarEventById(procrastinateId.getCalendarEventID(), user);
             endOfProcrastinateAll = refNow0.Add(additionalProcrastinationSpan);
             Assert.AreEqual(procrastinationEvent.End, endOfProcrastinateAll);
-            lastFreeSpaceBlock = procrastinationEvent.AllSubEvents.OrderByDescending(obj => obj.End).First();
+            lastFreeSpaceBlock = procrastinationEvent.ActiveSubEvents.OrderByDescending(obj => obj.End).First();
             Assert.AreEqual(lastFreeSpaceBlock.End, endOfProcrastinateAll);
             Assert.IsNotNull(procrastinationEvent);
             testEventCopy = TestUtility.getCalendarEventById(testEvent.getId, user);
@@ -332,7 +332,7 @@ namespace TilerTests
             procrastinationEvent = TestUtility.getCalendarEventById(procrastinateId.getCalendarEventID(), user);
             endOfProcrastinateAll = newEndOfProcrastinateAll;
             Assert.AreEqual(procrastinationEvent.End, endOfProcrastinateAll);
-            lastFreeSpaceBlock = procrastinationEvent.AllSubEvents.OrderByDescending(obj => obj.End).First();
+            lastFreeSpaceBlock = procrastinationEvent.ActiveSubEvents.OrderByDescending(obj => obj.End).First();
             Assert.AreEqual(lastFreeSpaceBlock.End, endOfProcrastinateAll);
             Assert.IsNotNull(procrastinationEvent);
             testEventCopy = TestUtility.getCalendarEventById(testEvent.getId, user);
@@ -359,7 +359,7 @@ namespace TilerTests
             procrastinationEvent = TestUtility.getCalendarEventById(procrastinateId.getCalendarEventID(), user);
             endOfProcrastinateAll = refNow1.Add(additionalProcrastinationSpan0);
             Assert.AreEqual(procrastinationEvent.End, endOfProcrastinateAll);
-            lastFreeSpaceBlock = procrastinationEvent.AllSubEvents.OrderByDescending(obj => obj.End).First();
+            lastFreeSpaceBlock = procrastinationEvent.ActiveSubEvents.OrderByDescending(obj => obj.End).First();
             Assert.AreEqual(lastFreeSpaceBlock.End, endOfProcrastinateAll);
             Assert.IsNotNull(procrastinationEvent);
             Assert.AreEqual(procrastinationEvent.ActiveSubEvents.Length, numberOfBlockedOfTimeSlots + 1);
@@ -386,7 +386,7 @@ namespace TilerTests
             procrastinationEvent = TestUtility.getCalendarEventById(procrastinateId.getCalendarEventID(), user);
             endOfProcrastinateAll = newEndOfProcrastinateAll;
             Assert.AreEqual(procrastinationEvent.End, desiredEndTIme);
-            lastFreeSpaceBlock = procrastinationEvent.AllSubEvents.OrderByDescending(obj => obj.End).First();
+            lastFreeSpaceBlock = procrastinationEvent.ActiveSubEvents.OrderByDescending(obj => obj.End).First();
             Assert.AreEqual(lastFreeSpaceBlock.End, desiredEndTIme);
             Assert.IsNotNull(procrastinationEvent);
             testEventCopy = TestUtility.getCalendarEventById(testEvent.getId, user);

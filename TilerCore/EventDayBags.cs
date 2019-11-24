@@ -90,17 +90,17 @@ namespace TilerCore
             SubEventsToDuration = new Dictionary<SubCalendarEvent, TimeSpan>();
         }
 
-        public void addSubEvent (SubCalendarEvent tilerEvent, TimeSpan duration)
+        public void addSubEvent (SubCalendarEvent subEvent, TimeSpan duration)
         {
-            if(SubEventsToDuration.ContainsKey(tilerEvent))
+            if(SubEventsToDuration.ContainsKey(subEvent))
             {
-                TimeSpan currentDuration = SubEventsToDuration[tilerEvent];
+                TimeSpan currentDuration = SubEventsToDuration[subEvent];
                 TotalSpan -= currentDuration;
-                SubEventsToDuration[tilerEvent] = duration;
+                SubEventsToDuration[subEvent] = duration;
             }
             else
             {
-                SubEventsToDuration.Add(tilerEvent,duration);
+                SubEventsToDuration.Add(subEvent,duration);
             }
             
             TotalSpan+=duration;

@@ -18,6 +18,7 @@ namespace TilerElements
         public static DateTimeOffset JSStartTime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, new TimeSpan());
         public static TimeSpan StartOfTimeTimeSpan = JSStartTime - new DateTimeOffset(0, new TimeSpan());
         public readonly static DateTimeOffset BeginningOfTime = new DateTimeOffset();
+        public readonly static DateTimeOffset ProcrastinateStartTime = BeginningOfTime.AddDays(1);
         public readonly static Random rng = new Random();
         public readonly static int defaultBeginDay = -15;
         public readonly static int defaultEndDay = 90;
@@ -28,7 +29,7 @@ namespace TilerElements
         public readonly static TimeSpan ZeroTimeSpan = TimeSpan.FromTicks(0);
         public readonly static TimeSpan NegativeTimeSpan = TimeSpan.FromTicks(-1);
         public readonly static TimeSpan SixHourTimeSpan = TimeSpan.FromHours(6);
-        public readonly static string timeZoneString = "America/Denver";
+        public readonly static string timeZoneString = "";// "America/Denver";
         static Utility()
         {
             initializeFibonacci();

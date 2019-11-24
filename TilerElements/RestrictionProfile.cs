@@ -268,8 +268,7 @@ namespace TilerElements
             TimeLine retValue;
             DateTimeOffset refSTart = new DateTimeOffset(1, 1, 1, StartData.Hour, StartData.Minute, StartData.Second, new TimeSpan());
 
-            List<Tuple<int, int>> AllInterFerringIndexes = _DayOfWeekToOverlappingIndexes[DayOfWeekInt];
-            int RightIndex = -1;
+            List<Tuple<int, int>> AllInterFerringIndexes = _DayOfWeekToOverlappingIndexes[DayOfWeekInt];;
             TimeLine DayFramTImeLine;
             for (int i = 0; i < AllInterFerringIndexes.Count; i++)
             {
@@ -524,7 +523,6 @@ namespace TilerElements
             DateTimeOffset refSTart = new DateTimeOffset(1, 1, 1, RefTime.Hour, RefTime.Minute, RefTime.Second, new TimeSpan());
 
             List<Tuple<int,int>> AllInterFerringIndexes = _DayOfWeekToOverlappingIndexes[DayOfWeekInt];
-            int RightIndex = -1;
             List<TimeLine> allPossibleTimeLines = new List<TimeLine>();
             TimeLine latestTimeLine;
             DateTimeOffset pivotTime = time;
@@ -586,7 +584,6 @@ namespace TilerElements
             DateTimeOffset refSTart = new DateTimeOffset(1, 1, 1, StartData.Hour, StartData.Minute, StartData.Second, new TimeSpan());
 
             List<Tuple<int,int>> AllInterFerringIndexes = _DayOfWeekToOverlappingIndexes[DayOfWeekInt];
-            int RightIndex = -1;
             TimeLine DayFramTImeLine, earliestTimeLine;
             for (int i = 0; i < AllInterFerringIndexes.Count; i++)
             {

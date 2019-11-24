@@ -352,20 +352,6 @@ namespace TilerElements
         {
             return StartToEnd.IsDateTimeWithin(DateTimeEntry);
         }
-        /// <summary>
-        /// Function Subcalendarevent evaluates itself against the given parameters
-        /// </summary>
-        /// <param name="refLocation"></param>
-        /// <param name="DayReference"></param>
-        /// <returns></returns>
-        virtual public Tuple<TimeLine,Double> evaluateAgainstOptimizationParameters(Location refLocation, TimeLine DayTimeLine)
-        {
-            
-            double distance = Location.calculateDistance(refLocation,this.Location);
-            TimeLine refTimeLine = new TimeLine(DayTimeLine.Start, getCalendarEventRange.End);
-            Tuple<TimeLine, double> retValue = new Tuple<TimeLine, double>(refTimeLine,distance);
-            return retValue;
-        }
 
         public static SubCalendarEvent getEmptySubCalendarEvent(EventID CalendarEventId)
         {
@@ -522,30 +508,6 @@ namespace TilerElements
                 return true;
         }
 
-        virtual public bool PinToPossibleLimit(TimeLine referenceTimeLine)
-        { 
-            TimeLine interferringTImeLine=getCalendarEventRange.InterferringTimeLine( referenceTimeLine );
-            if (interferringTImeLine == null)
-            {
-                return false;
-            }
-            DateTimeOffset EarliestEndTime = getCalendarEventRange.Start + getActiveDuration;
-            DateTimeOffset LatestEndTime = getCalendarEventRange.End;
-
-            DateTimeOffset DesiredEndtime = interferringTImeLine.End + (TimeSpan.FromTicks(((long)(getActiveDuration - interferringTImeLine.TimelineSpan).Ticks) / 2));
-
-            if (DesiredEndtime < EarliestEndTime)
-            {
-                DesiredEndtime = EarliestEndTime;
-            }
-
-            if (DesiredEndtime > LatestEndTime)
-            {
-                DesiredEndtime = LatestEndTime;
-            }
-            TimeSpan shiftInEvent = DesiredEndtime-End;
-            return shiftEvent(shiftInEvent);
-        }
 
         public override void updateDayPreference(List<OptimizedGrouping> groupings)
         {
@@ -930,9 +892,9 @@ namespace TilerElements
             return retValue;
         }
 
-         virtual public bool canExistTowardsEndWithoutSpace(TimeLine PossibleTimeLine)
+        virtual public bool canExistTowardsEndWithoutSpace(TimeLine PossibleTimeLine)
          {
-             TimeLine ParentCalRange = getCalendarEventRange;
+             TimeLine ParentCalRange = getCalculationRange;
              bool retValue = (ParentCalRange.Start <= (PossibleTimeLine.End - getActiveDuration)) && (ParentCalRange.End>=PossibleTimeLine.End)&&(canExistWithinTimeLine(PossibleTimeLine));
              return retValue;
          }
@@ -945,7 +907,7 @@ namespace TilerElements
 
          virtual public bool canExistTowardsStartWithoutSpace(TimeLine PossibleTimeLine)
          {
-             TimeLine ParentCalRange = getCalendarEventRange;
+             TimeLine ParentCalRange = getCalculationRange;
              bool retValue = ((PossibleTimeLine.Start + getActiveDuration) <= ParentCalRange.End) && (ParentCalRange.Start <= PossibleTimeLine.Start) && (canExistWithinTimeLine(PossibleTimeLine));
              return retValue;
          }
@@ -956,7 +918,7 @@ namespace TilerElements
          /// <returns></returns>
          virtual public List<TimeLine> getTimeLineInterferringWithCalEvent(TimeLine TimeLineData, bool orderByStart = true)
          {
-             TimeLine retValuTimeLine= getCalendarEventRange.InterferringTimeLine(TimeLineData);;
+             TimeLine retValuTimeLine= getCalculationRange.InterferringTimeLine(TimeLineData);;
              List<TimeLine> retValue = null;
              if (retValuTimeLine!=null)
              {
@@ -1210,7 +1172,7 @@ namespace TilerElements
         {
             get
             {
-                double retValue = ((double)getCalendarEventRange.TimelineSpan.Ticks )/ ((double)RangeSpan.Ticks);
+                double retValue = ((double)getCalculationRange.TimelineSpan.Ticks )/ ((double)RangeSpan.Ticks);
                 return retValue;
             }
         }

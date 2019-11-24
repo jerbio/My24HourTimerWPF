@@ -294,10 +294,6 @@ namespace TilerElements
             return copy;
         }
 
-        public override Tuple<TimeLine, double> evaluateAgainstOptimizationParameters(Location refLocation, TimeLine DayTimeLine)
-        {
-            return base.evaluateAgainstOptimizationParameters(refLocation, DayTimeLine);
-        }
         public override bool IsDateTimeWithin(DateTimeOffset DateTimeEntry)
         {
             return base.IsDateTimeWithin(DateTimeEntry);
@@ -338,15 +334,6 @@ namespace TilerElements
         }
 
 
-        public override bool PinToPossibleLimit(TimeLine referenceTimeLine)
-        {
-            List<TimeLine> AllPossibleTimeLines = _ProfileOfRestriction.getAllNonPartialTimeFrames(referenceTimeLine).   Where(obj => obj.TimelineSpan >= this.getActiveDuration).OrderByDescending (obj=>obj.End). ToList();
-            if (AllPossibleTimeLines.Count > 0)
-            {
-                return base.PinToEnd(AllPossibleTimeLines[0]);
-            }
-            return false;
-        }
         /*
         public override void updateEventSequence()
         {

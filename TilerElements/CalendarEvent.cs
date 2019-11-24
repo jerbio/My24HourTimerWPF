@@ -1778,6 +1778,11 @@ namespace TilerElements
                 {
                     _EventDuration = End - Start;
                 }
+                AllSubEvents.AsParallel().ForAll(obj =>
+                {
+                    obj.changeCalendarEventRange(this.StartToEnd);
+                    obj.updateCalculationEventRange(this.CalculationStartToEnd);
+                });
             } else
             {
                 AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(oldTimeLine));
@@ -1949,15 +1954,6 @@ namespace TilerElements
             get
             {
                 return _isCalculableInitialized;
-            }
-        }
-
-
-        public TimeSpan TimeLeftBeforeDeadline
-        {
-            get
-            {
-                return End - DateTimeOffset.UtcNow;
             }
         }
 

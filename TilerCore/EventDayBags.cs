@@ -115,7 +115,7 @@ namespace TilerCore
         public void updateScore()
         {
             int eventCount = SubEventsToDuration.Count + DesignatedSubEventsToDuration.Count;
-            double sumOfSquares = Math.Pow(TotalSpan.Hours, 2) + Math.Pow(eventCount, 2);
+            double sumOfSquares = Math.Pow(TotalSpan.TotalHours, 2) + Math.Pow(eventCount, 2);
             _Score = Math.Sqrt(sumOfSquares);
         }
 

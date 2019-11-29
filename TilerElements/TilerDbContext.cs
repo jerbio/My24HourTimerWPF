@@ -50,6 +50,7 @@ namespace TilerElements
         virtual public System.Data.Entity.DbSet<TilerUserGroup> TilerUserGroups { get; set; }
         virtual public System.Data.Entity.DbSet<ScheduleDump> ScheduleDumps{ get; set; }
         virtual public System.Data.Entity.DbSet<EventPreference> EventPreferences { get; set; }
+        virtual public System.Data.Entity.DbSet<TravelCache> TravelCaches { get; set; }
 
         public static TilerDbContext Create()
         {

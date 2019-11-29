@@ -34,7 +34,8 @@ namespace TilerElements
         public string OtherName { get; set; } = "";
         protected DateTimeOffset _EndfOfDay { get; set; }
         protected string _EndfOfDayString { get; set; } = "10:00pm";
-        
+        protected TravelCache _TravelCache { get; set; }
+
         public DateTimeOffset LastScheduleModification { get; set; }
         public string ClearAllId { get; set; }
         public string LatestId { get; set; }
@@ -107,7 +108,9 @@ namespace TilerElements
             {
                 _EndfOfDay = value;
             }
-        } public string EndfOfDayString
+        }
+
+        public string EndfOfDayString
         {
             get
             {
@@ -116,6 +119,18 @@ namespace TilerElements
             set
             {
                 _EndfOfDayString = value;
+            }
+        }
+
+        public TravelCache TravelCache
+        {
+            set
+            {
+                _TravelCache = new TravelCache();
+            }
+            get
+            {
+                return _TravelCache;
             }
         }
 

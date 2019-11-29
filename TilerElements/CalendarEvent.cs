@@ -30,6 +30,7 @@ namespace TilerElements
         protected Dictionary<ulong, DayTimeLine> CalculationLimitationWithUnUsables;
         protected Dictionary<ulong, DayTimeLine> CalculationLimitation;
         protected Dictionary<ulong, DayTimeLine> FreeDaysLimitation;// Holds days that do not contain subevents within this time line
+        protected HashSet<ulong> DaysWithSubEvents = new HashSet<ulong>();
         protected List<SubCalendarEvent> _RemovedSubEvents = new List<SubCalendarEvent>();
         protected EventPreference _EventDayPreference;
         protected string _LastCompletionTime;
@@ -584,7 +585,7 @@ namespace TilerElements
             //MyCalendarEventCopy.SchedulStatus = SchedulStatus;
             MyCalendarEventCopy._otherPartyID = _otherPartyID == null ? null : _otherPartyID.ToString();
             MyCalendarEventCopy._Users = this._Users;
-            MyCalendarEventCopy.DaySectionPreference = this.DaySectionPreference;
+            MyCalendarEventCopy._DaySectionPreference = this._DaySectionPreference;
             MyCalendarEventCopy._EventDayPreference = this.DayPreference?.createCopy();
             return MyCalendarEventCopy;
         }
@@ -595,6 +596,13 @@ namespace TilerElements
             getProcrastinationInfo.reset();
         }
 
+        /// <summary>
+        /// Function generates a adhoc rigid calendar event on the spot with a sub event with the start and end time
+        /// </summary>
+        /// <param name="myEventID"></param>
+        /// <param name="Start"></param>
+        /// <param name="End"></param>
+        /// <returns></returns>
         public static CalendarEvent getEmptyCalendarEvent(EventID myEventID, DateTimeOffset Start = new DateTimeOffset(), DateTimeOffset End = new DateTimeOffset())
         {
             CalendarEvent retValue = new CalendarEvent(true);
@@ -603,8 +611,11 @@ namespace TilerElements
             retValue.updateEndTime( End);
             retValue._EventDuration = new TimeSpan(0);
             SubCalendarEvent emptySubEvent = SubCalendarEvent.getEmptySubCalendarEvent(retValue.UniqueID);
+            emptySubEvent.updateTimeLine(retValue.StartToEnd);
+            emptySubEvent.ParentCalendarEvent = retValue;
             retValue._SubEvents.Add(emptySubEvent.Id, emptySubEvent);
             retValue._Splits = 1;
+            retValue._DeletedCount = 1;
             retValue._RigidSchedule = true;
             retValue._Complete = true;
 
@@ -800,13 +811,6 @@ namespace TilerElements
             SubCalendarEvent SubEvent = getSubEvent(SubEventId);
             return SubEvent.Continue(CurrentTime);
         }
-
-
-        public override string ToString()
-        {
-            return this.getId + "::" + this.Start.ToString() + " - " + this.End.ToString();
-        }
-
 
         public bool IsDateTimeWithin(DateTimeOffset DateTimeEntry)
         {
@@ -1379,7 +1383,7 @@ namespace TilerElements
                 }
                 else return false;
             }).ToDictionary(obj => obj.UniversalIndex, obj => obj);
-            FreeDaysLimitation = CalculationLimitation.ToDictionary(obj => obj.Key, obj => obj.Value);
+            FreeDaysLimitation = CalculationLimitation.Where( obj => !DaysWithSubEvents.Contains(obj.Key)) .ToDictionary(obj => obj.Key, obj => obj.Value);
             CalculationLimitationWithUnUsables = CalculationLimitation.ToDictionary(obj => obj.Key, obj => obj.Value);
         }
 
@@ -1710,10 +1714,14 @@ namespace TilerElements
 
         public void removeDayTimeLinesWithInsufficientSpace()
         {
-            List<DayTimeLine> DaysWithInSufficientSpace = CalculationLimitation.Values.Where(obj => obj.TotalFreeSpotAvailable < _AverageTimePerSplit).ToList();
-            DaysWithInSufficientSpace.ForEach(obj => CalculationLimitation.Remove(obj.UniversalIndex));
-            DaysWithInSufficientSpace.ForEach(obj => FreeDaysLimitation.Remove(obj.UniversalIndex));
-
+            foreach (DayTimeLine dayTimeLine in CalculationLimitation.Values.ToList())
+            {
+                if(dayTimeLine.TotalFreeSpotAvailable < _AverageTimePerSplit)
+                {
+                    CalculationLimitation.Remove(dayTimeLine.UniversalIndex);
+                    FreeDaysLimitation.Remove(dayTimeLine.UniversalIndex);
+                }
+            }
         }
         public void updateUnusableDays()
         {
@@ -1764,11 +1772,18 @@ namespace TilerElements
             SubCalendarEvent failingSubEvent = SubCalendarEvent.getEmptySubCalendarEvent(this.Calendar_EventID);
             foreach (var obj in AllSubEvents)
             {
-                if (!obj.canExistWithinTimeLine(newTImeLine))
+                
+                if(!(!this.isLocked && obj.isLocked)) // if the subevent is unlocked but the parent is locked then don't bother checking
                 {
-                    worksForAllSubevents = false;
-                    failingSubEvent = obj;
+                    bool canExistWithinNewTimeLine = obj.canExistWithinTimeLine(newTImeLine);
+                    if (!canExistWithinNewTimeLine)
+                    {
+                        worksForAllSubevents = false;
+                        failingSubEvent = obj;
+                        break;
+                    }
                 }
+                
             }
             if (worksForAllSubevents)
             {
@@ -1778,10 +1793,15 @@ namespace TilerElements
                 {
                     _EventDuration = End - Start;
                 }
+                AllSubEvents.AsParallel().ForAll(obj =>
+                {
+                    obj.changeCalendarEventRange(this.StartToEnd);
+                    obj.updateCalculationEventRange(this.CalculationStartToEnd);
+                });
             } else
             {
                 AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(oldTimeLine));
-                CustomErrors customError = new CustomErrors("Cannot update the timeline for the calendar event with sub event " + failingSubEvent.getId + ". Most likely because the new time line won't fit the sub event", 40000001);
+                CustomErrors customError = new CustomErrors(CustomErrors.Errors.cannotFitWithinTimeline, "Cannot update the timeline for the calendar event with sub event " + failingSubEvent.getId + ". Most likely because the new time line won't fit the sub event");
                 throw customError;
             }
             updateCalculationStartToEnd();
@@ -1817,6 +1837,18 @@ namespace TilerElements
         {
             UnDesignables.Add(subEvent);
             subEvent.undesignate();
+        }
+
+        public virtual void designateSubEvent(SubCalendarEvent subEvent, ReferenceNow now)
+        {
+            UnDesignables.Remove(subEvent);
+            subEvent.designate(now);
+            DaysWithSubEvents.Add(subEvent.UniversalDayIndex);
+            if(FreeDaysLimitation!=null)
+            {
+                this.removeDayTimeFromFreeUpdays(subEvent.UniversalDayIndex);
+            }
+            
         }
 
         public virtual void deleteAllSubCalendarEventsFromRepeatParentCalendarEvent()
@@ -1906,7 +1938,7 @@ namespace TilerElements
 
         public virtual void repeatAnEvent(DateTimeOffset currentTime)
         {
-            if(!this.IsRecurring)
+            if (!this.IsRecurring)
             {
                 SubCalendarEvent toBeRepeated = ActiveSubEvents.Where(subEvent => subEvent.Start >= currentTime).OrderBy(subEvent => subEvent.Start).FirstOrDefault();
                 if (toBeRepeated == null)
@@ -1918,6 +1950,15 @@ namespace TilerElements
                 toBeRepeated.enableRepetitionLock();
             }
             throw new CustomErrors(CustomErrors.Errors.TilerConfig_Repeat_On_Repeat);
+        }
+
+        public override void InitializeDayPreference(TimeLine timeLine)
+        {
+            if(_DaySectionPreference == null)
+            {
+                _DaySectionPreference = _EventDayPreference.toTimeOfDayPreference(timeLine);
+            }
+            base.InitializeDayPreference(timeLine);
         }
 
         #endregion
@@ -1944,15 +1985,6 @@ namespace TilerElements
             get
             {
                 return _isCalculableInitialized;
-            }
-        }
-
-
-        public TimeSpan TimeLeftBeforeDeadline
-        {
-            get
-            {
-                return End - DateTimeOffset.UtcNow;
             }
         }
 
@@ -2205,7 +2237,7 @@ namespace TilerElements
             }
 
         }
-        virtual public TimeLine StartToEnd
+        public override TimeLine StartToEnd
         {
             get
             {
@@ -2336,6 +2368,14 @@ namespace TilerElements
                 {
                     return _RemovedSubEvents;
                 }
+            }
+        }
+
+        public virtual TimeOfDayPreferrence DayPreferrence
+        {
+            get
+            {
+                return _DaySectionPreference;
             }
         }
 

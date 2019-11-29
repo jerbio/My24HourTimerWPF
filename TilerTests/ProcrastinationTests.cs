@@ -22,7 +22,7 @@ namespace TilerTests
             UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
             user.Login().Wait();
-            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            DateTimeOffset refNow = DateTimeOffset.Parse("11/18/2019 1:59:00 PM +00:00");
             refNow = refNow.removeSecondsAndMilliseconds();
             TimeSpan duration = TimeSpan.FromHours(2);
             DateTimeOffset start = refNow;
@@ -180,6 +180,7 @@ namespace TilerTests
             var setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
             Schedule.persistToDB().Wait();
 
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
             TimeSpan procrastinationSpan = TimeSpan.FromHours(5);
             var procrassinateResult = Schedule.ProcrastinateJustAnEvent(testEvent.ActiveSubEvents.OrderBy(subEvent => subEvent.Start).First().getId, procrastinationSpan);
@@ -396,7 +397,7 @@ namespace TilerTests
         }
 
         [TestMethod]
-        public void procrastinateAll_ClearsCurrentEVents()
+        public void procrastinateAll_ClearsCurrentEvents()
         {
             TestSchedule Schedule;
             TilerUser tilerUser = TestUtility.createUser();
@@ -429,6 +430,7 @@ namespace TilerTests
 
 
             DateTimeOffset thirdRefNow = subEvent.Start.Add(TimeSpan.FromMinutes(Math.Round(subEvent.getActiveDuration.TotalMinutes / 2)));
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, thirdRefNow);
             TimeSpan procrastinateSpan = TimeSpan.FromHours(3);
             Schedule.ProcrastinateAll(procrastinateSpan);
@@ -438,7 +440,7 @@ namespace TilerTests
             testEvent_DB = TestUtility.getCalendarEventById(testEvent.Id, user);
             foreach(SubCalendarEvent retrievedSubEvent in testEvent_DB.ActiveSubEvents.OrderBy(o => o.Start))
             {
-                Assert.IsTrue(retrievedSubEvent.Start > newBeginningTime);
+                Assert.IsTrue(retrievedSubEvent.Start >= newBeginningTime);
             }
         }
 
@@ -489,6 +491,67 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow.AddHours(5));
             Schedule.FindMeSomethingToDo(new Location()).Wait();
             Schedule.WriteFullScheduleToLog().Wait();
+        }
+
+        /// <summary>
+        /// Test handles scenario where there are different ref now time points and how it affects the reasfing of the procrastinate all event.
+        /// </summary>
+        [TestMethod]
+        public void procrastinateAllPersistTest()
+        {
+            TestSchedule Schedule;
+            TilerUser tilerUser = TestUtility.createUser();
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+            //DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            DateTimeOffset refNow = TestUtility.parseAsUTC("11:15AM 12/27/2018");// try 18:15AM 12/27/2018
+            refNow = refNow.removeSecondsAndMilliseconds();
+            TimeSpan duration = TimeSpan.FromHours(2);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.AddHours(7);
+
+            TimeLine repeatTimeLine = new TimeLine(start, end.AddDays(21));
+            TimeLine calTimeLine = new TimeLine(start, start.Add(duration));
+            Repetition repetition = new Repetition(repeatTimeLine, Repetition.Frequency.WEEKLY, calTimeLine, new DayOfWeek[] { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Friday });
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 2, false);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
+
+
+            ///Test procrastination of subEvents
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            TimeSpan procrastinationSpan = TimeSpan.FromHours(3);
+            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> procrastinateResult = Schedule.ProcrastinateAll(procrastinationSpan);
+            Schedule.persistToDB().Wait();
+            var ProcrastinateAllCalendarEvent = Schedule.getProcrastinateAllEvent();
+
+            var ProcrastinateAllCalendarEventRetrieved = TestUtility.getCalendarEventById(ProcrastinateAllCalendarEvent.getTilerID, user);
+            Assert.AreEqual(ProcrastinateAllCalendarEventRetrieved.AllSubEvents.Count(), 2);// There are only two at this point, the 1 => subevent at the day after the beginning of time (1/2/0001) 2 => The recently procrastination
+
+
+            // refnow is now a year from now
+            var oneYearLaterRefNow = refNow.AddYears(1);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, oneYearLaterRefNow);
+            TimeSpan oneYearInFutureProcrastinateSpan = TimeSpan.FromHours(3);
+            var oneYearLaterProcrastinateAllCalendarEvent = Schedule.getProcrastinateAllEvent();
+            Assert.AreEqual(oneYearLaterProcrastinateAllCalendarEvent.AllSubEvents.Count(), 0);// None at all because we are a year into the future
+            var OneYearFutureProcrastinateResult = Schedule.ProcrastinateAll(oneYearInFutureProcrastinateSpan);
+            Assert.IsNull(OneYearFutureProcrastinateResult.Item1);
+            Schedule.persistToDB().Wait();
+            var oneYearInFutureProcrastinateCaleventRetrieved = TestUtility.getCalendarEventById(oneYearLaterProcrastinateAllCalendarEvent.getTilerID, user);
+            Assert.AreEqual(oneYearInFutureProcrastinateCaleventRetrieved.AllSubEvents.Count(), 3);// Reading directly from DB we should get every subcalendar event
+
+            // refNow going into the past should still work
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            var backInTImeProcrastinateEVent = Schedule.getProcrastinateAllEvent();
+            Assert.AreEqual(backInTImeProcrastinateEVent.AllSubEvents.Count(), 1);/// there should only be one subcal because schedule only reads about 105 days 15 days before refNow and 90 days after refNow
+
         }
     }
 }

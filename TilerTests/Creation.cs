@@ -346,9 +346,12 @@ namespace TilerTests
 
             CalendarEvent testEvent2 = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(5), new Repetition(), timeLine.Start, timeLine.End, 4, false, eventDisplay: eventdisplay2, location: location2);
             CalendarEvent testEvent2Cpy = testEvent2.createCopy();
-
+            //CalendarEvent testEvent2Cpy = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(5), new Repetition(), timeLine.Start, timeLine.End, 4, false, eventDisplay: eventdisplay2, location: location2);
             ScheduleFromRDBMS = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
-            ScheduleFromRDBMS.AddToScheduleAndCommitAsync(testEvent2).Wait();
+
+
+
+            ScheduleFromRDBMS.AddToSchedule(testEvent2);
             scheduleFromDump.AddToSchedule(testEvent2Cpy);
             List<SubCalendarEvent> dumpSubEvents = scheduleFromDump.getAllCalendarEvents().Where(calEvent => calEvent.isActive).SelectMany(calEvent => calEvent.AllSubEvents).OrderBy(subEvent=> subEvent.Start).ToList();
             List<SubCalendarEvent> rdbmsSubEvents = ScheduleFromRDBMS.getAllCalendarEvents().Where(calEvent => calEvent.isActive).SelectMany(calEvent => calEvent.AllSubEvents).OrderBy(subEvent => subEvent.Start).ToList();
@@ -1455,6 +1458,27 @@ namespace TilerTests
             ScheduleDump scheduleDump = taskScheduleDump.Result;
             TestSchedule scheduleDumpSchedule = new TestSchedule(scheduleDump, user);
             TestUtility.isTestEquivalent(Schedule, scheduleDumpSchedule);
+
+        }
+
+
+
+        [TestMethod]
+        public void VerifyDayPreferenceOrder()
+        {
+            Assert.AreEqual(TimeOfDayPreferrence.ActiveDaySections.Count, 4);
+            Assert.AreEqual(TimeOfDayPreferrence.ActiveDaySections[0], TimeOfDayPreferrence.DaySection.Sleep);
+            Assert.AreEqual(TimeOfDayPreferrence.ActiveDaySections[1], TimeOfDayPreferrence.DaySection.Morning);
+            Assert.AreEqual(TimeOfDayPreferrence.ActiveDaySections[2], TimeOfDayPreferrence.DaySection.Afternoon);
+            Assert.AreEqual(TimeOfDayPreferrence.ActiveDaySections[3], TimeOfDayPreferrence.DaySection.Evening);
+
+            Assert.AreEqual(0, TimeOfDayPreferrence.DaysectionToIndexDictionary[TimeOfDayPreferrence.DaySection.Sleep]);
+            Assert.AreEqual(1, TimeOfDayPreferrence.DaysectionToIndexDictionary[TimeOfDayPreferrence.DaySection.Morning]);
+            Assert.AreEqual(2, TimeOfDayPreferrence.DaysectionToIndexDictionary[TimeOfDayPreferrence.DaySection.Afternoon]);
+            Assert.AreEqual(3, TimeOfDayPreferrence.DaysectionToIndexDictionary[TimeOfDayPreferrence.DaySection.Evening]);
+
+            var values = Enum.GetValues(typeof(TimeOfDayPreferrence.DaySection)).Cast<TimeOfDayPreferrence.DaySection>().ToList();
+            Assert.AreEqual(values.Count - 2, TimeOfDayPreferrence.ActiveDaySections.Count);
 
         }
 

@@ -13,8 +13,6 @@ namespace TilerCore
         readonly uint DayCount;
 
         DayBag [] BagPerDay;
-        ConcurrentBag<int>[] EventCountPerDay;
-        ConcurrentBag<TimeSpan>[] SpanPerDay;
 
         public EventDayBags(uint dayCount)
         {
@@ -24,8 +22,14 @@ namespace TilerCore
             {
                 BagPerDay[i] = new DayBag();
             }
-            EventCountPerDay = new ConcurrentBag<int>[DayCount];
-            SpanPerDay = new ConcurrentBag<TimeSpan>[DayCount];
+        }
+
+        public void removeAllUndesignated()
+        {
+            for (int i = 0; i < DayCount; i++)
+            {
+                BagPerDay[i].removeAllUndesignated();
+            }
         }
 
         public void reset()
@@ -35,8 +39,6 @@ namespace TilerCore
             {
                 BagPerDay[i] = new DayBag();
             }
-            EventCountPerDay = new ConcurrentBag<int>[DayCount];
-            SpanPerDay = new ConcurrentBag<TimeSpan>[DayCount];
         }
 
         public DayBag this[int i]
@@ -55,35 +57,65 @@ namespace TilerCore
 
     public class DayBag
     {
-        ConcurrentBag<TilerEvent> SubEvents;
+        Dictionary<SubCalendarEvent, TimeSpan> DesignatedSubEventsToDuration;// Holds subevents that have being designated so will affect the scoring. If SubEventsToDuration is emptied we lose the designated events which will always be present since already designated
+        Dictionary<SubCalendarEvent, TimeSpan> SubEventsToDuration;//Holds sub events that have not been permanently designated
         TimeSpan TotalSpan = new TimeSpan();
-        int CountOfSubEvents = 0;
 
         double _Score = 0;
 
         public DayBag ()
         {
-            SubEvents = new ConcurrentBag<TilerEvent>();
+            SubEventsToDuration = new Dictionary<SubCalendarEvent, TimeSpan>();
+            DesignatedSubEventsToDuration = new Dictionary<SubCalendarEvent, TimeSpan>();
             TotalSpan = new TimeSpan();
-            CountOfSubEvents = 0;
         }
 
-        public void addSubEvent (TilerEvent tilerEvent)
+        public void removeAllUndesignated()
         {
-            SubEvents.Add(tilerEvent);
-            ++CountOfSubEvents;
-            TotalSpan.Add(tilerEvent.getActiveDuration);
+            foreach(var kvp in SubEventsToDuration)
+            {
+                SubCalendarEvent subEvent = kvp.Key;
+                if (subEvent.isDesignated)
+                {
+                    DesignatedSubEventsToDuration.Add(subEvent, kvp.Value);
+                }
+            }
+            SubEventsToDuration = new Dictionary<SubCalendarEvent, TimeSpan>();
+            TotalSpan = new TimeSpan();
+            foreach(TimeSpan timeSpan in DesignatedSubEventsToDuration.Values)
+            {
+                TotalSpan += timeSpan;
+            }
+
+            SubEventsToDuration = new Dictionary<SubCalendarEvent, TimeSpan>();
+        }
+
+        public void addSubEvent (SubCalendarEvent subEvent, TimeSpan duration)
+        {
+            if(SubEventsToDuration.ContainsKey(subEvent))
+            {
+                TimeSpan currentDuration = SubEventsToDuration[subEvent];
+                TotalSpan -= currentDuration;
+                SubEventsToDuration[subEvent] = duration;
+            }
+            else
+            {
+                SubEventsToDuration.Add(subEvent,duration);
+            }
+            
+            TotalSpan+=duration;
             updateScore();
         }
 
-        public IEnumerable<TilerEvent> getTilerEvents ()
+        public IEnumerable<SubCalendarEvent> getNewlyAddedSubEvents()
         {
-            return SubEvents;
+            return SubEventsToDuration.Keys;
         }
 
         public void updateScore()
         {
-            double sumOfSquares = Math.Pow(TotalSpan.Hours, 2) + Math.Pow(SubEvents.Count, 2);
+            int eventCount = SubEventsToDuration.Count + DesignatedSubEventsToDuration.Count;
+            double sumOfSquares = Math.Pow(TotalSpan.TotalHours, 2) + Math.Pow(eventCount, 2);
             _Score = Math.Sqrt(sumOfSquares);
         }
 

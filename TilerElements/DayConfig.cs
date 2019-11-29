@@ -11,7 +11,7 @@ namespace TilerElements
     public abstract class DayConfig
     {
         string _Id { get; set; }
-        public abstract DateTimeOffset LastTimeUpdated { get; set; } 
+        public abstract DateTimeOffset LastTimeUpdated { get; set; }
         public abstract double Count { get; set; }
         public abstract double DawnCount { get; set; }
         public abstract double MorningCount { get; set; }
@@ -39,6 +39,55 @@ namespace TilerElements
             {
                 _Id = value;
             }
+        }
+
+        public virtual double this[TimeOfDayPreferrence.DaySection daySection]
+        {
+            get {
+                return getDaySectionScore(daySection);
+            }
+            set {
+                switch (daySection)
+                {
+                    case TimeOfDayPreferrence.DaySection.Morning:
+                        MorningCount = value;
+                        break;
+                    case TimeOfDayPreferrence.DaySection.Afternoon:
+                        AfterNoonCount = value;
+                        break;
+                    case TimeOfDayPreferrence.DaySection.Evening:
+                        EveningCount = value;
+                        break;
+                    case TimeOfDayPreferrence.DaySection.Sleep:
+                        DawnCount = value;
+                        break;
+                    default:
+                        throw new NotSupportedException("Other versions Daysection not supported");
+                }
+            }
+        }
+
+        public virtual double getDaySectionScore(TimeOfDayPreferrence.DaySection daySection)
+        {
+            double retValue = 0;
+            switch (daySection)
+            {
+                case TimeOfDayPreferrence.DaySection.Morning:
+                    retValue = MorningCount;
+                    break;
+                case TimeOfDayPreferrence.DaySection.Afternoon:
+                    retValue = AfterNoonCount;
+                    break;
+                case TimeOfDayPreferrence.DaySection.Evening:
+                    retValue = EveningCount;
+                    break;
+                case TimeOfDayPreferrence.DaySection.Sleep:
+                    retValue = DawnCount;
+                    break;
+                default:
+                    throw new NotSupportedException("Other versions Daysection not supported");
+            }
+            return retValue;
         }
     }
 

@@ -1,0 +1,90 @@
+﻿sub event span 00:00:01.0516316
+no parentSpan 00:00:00.4931672
+parentSpan 00:00:05.6490398
+dictionaryReorgSpan 00:00:02.2436442
+ParallelizeCallsToDay took 00:00:02.0921862
+Schedule calculation took 00:00:02.1984851
+-----------------------------------------------------
+********************************Check directive of #liveDebugging if test is failing********************************
+all subEvents00:00:00.4641784
+sub event span 00:00:00.9782742
+no parentSpan 00:00:01.3241302
+parentSpan 00:00:04.0454617
+dictionaryReorgSpan 00:00:02.2179858
+ParallelizeCallsToDay took 00:00:01.9411069
+Schedule calculation took 00:00:02.0932122
+-----------------------------------------------------
+********************************Check directive of #liveDebugging if test is failing********************************
+all subEvents00:00:00.4338420
+sub event span 00:00:01.1196070
+no parentSpan 00:00:01.0404262
+parentSpan 00:00:03.9433865
+dictionaryReorgSpan 00:00:02.2562233
+ParallelizeCallsToDay took 00:00:01.9355933
+Schedule calculation took 00:00:02.0180629
+-----------------------------------------------------
+********************************Check directive of #liveDebugging if test is failing********************************
+all subEvents00:00:00.4084260
+sub event span 00:00:00.7835068
+no parentSpan 00:00:00.8792891
+parentSpan 00:00:02.9345408
+dictionaryReorgSpan 00:00:02.3265058
+ParallelizeCallsToDay took 00:00:01.9720630
+Schedule calculation took 00:00:02.0542862
+-----------------------------------------------------
+********************************Check directive of #liveDebugging if test is failing********************************
+all subEvents00:00:00.3146371
+sub event span 00:00:01.2156188
+no parentSpan 00:00:01.0970329
+parentSpan 00:00:04.2599618
+dictionaryReorgSpan 00:00:02.2047457
+ParallelizeCallsToDay took 00:00:01.8144220
+Schedule calculation took 00:00:01.8927885
+-----------------------------------------------------
+********************************Check directive of #liveDebugging if test is failing********************************
+all subEvents00:00:00.4422517
+sub event span 00:00:00.7718836
+no parentSpan 00:00:01.1752880
+parentSpan 00:00:02.9602932
+dictionaryReorgSpan 00:00:02.2249799
+ParallelizeCallsToDay took 00:00:01.8533268
+Schedule calculation took 00:00:01.9350480
+-----------------------------------------------------
+********************************Check directive of #liveDebugging if test is failing********************************
+all subEvents00:00:00.4411907
+sub event span 00:00:00.7186816
+no parentSpan 00:00:00.4871322
+parentSpan 00:00:04.4691644
+dictionaryReorgSpan 00:00:02.1976828
+ParallelizeCallsToDay took 00:00:01.9131138
+Schedule calculation took 00:00:01.9950646
+-----------------------------------------------------
+********************************Check directive of #liveDebugging if test is failing********************************
+all subEvents00:00:00.6383120
+sub event span 00:00:00.9362413
+no parentSpan 00:00:01.5301786
+parentSpan 00:00:03.6301899
+dictionaryReorgSpan 00:00:02.1980252
+ParallelizeCallsToDay took 00:00:01.7825493
+Schedule calculation took 00:00:01.8758696
+-----------------------------------------------------
+********************************Check directive of #liveDebugging if test is failing********************************
+all subEvents00:00:00.4320553
+sub event span 00:00:01.8340829
+no parentSpan 00:00:01.2290662
+parentSpan 00:00:02.6544152
+dictionaryReorgSpan 00:00:02.2265525
+ParallelizeCallsToDay took 00:00:01.8349883
+Schedule calculation took 00:00:01.9091999
+-----------------------------------------------------
+********************************Check directive of #liveDebugging if test is failing********************************
+all subEvents00:00:00.3064152
+sub event span 00:00:00.8598235
+no parentSpan 00:00:00.6711314
+parentSpan 00:00:04.3222363
+dictionaryReorgSpan 00:00:02.2010104
+ParallelizeCallsToDay took 00:00:01.7579538
+Schedule calculation took 00:00:01.8325624
+-----------------------------------------------------
+********************************Check directive of #liveDebugging if test is failing********************************
+all subEvents00:00:00.5278674

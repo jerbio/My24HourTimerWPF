@@ -221,7 +221,10 @@ namespace TilerElements
                             if (candidate != null)
                             {
                                 var result = candidate;
-                                retValue._TaggedAddress = result.FormattedAddress.Trim().ToLower();
+                                string address = result.FormattedAddress.Trim().ToLower();
+                                bool useThis = IsLoookUpVerified(_TaggedAddress, address);
+                                retValue = useThis ? this : retValue;
+                                retValue._TaggedAddress = address;
                                 if (string.IsNullOrEmpty(retValue._TaggedDescription))
                                 {
                                     retValue._TaggedDescription = retValue._TaggedAddress;
@@ -229,17 +232,21 @@ namespace TilerElements
                                 retValue._Latitude = Convert.ToDouble(result.Geometry.Location.Latitude);
                                 retValue._Longitude = Convert.ToDouble(result.Geometry.Location.Longitude);
                                 retValue._LookupString = this._LookupString;
-                                retValue.UserId = this.UserId??this.User.Id;
+                                retValue.UserId = this.UserId??this.User?.Id;
                                 retValue._NullLocation = false;
                                 retValue._DefaultFlag = false;
                                 retValue._ThirdPartyId = result.PlaceId;
-                                retValue._Id = result.PlaceId;
                                 retValue._LocationIsVerified = true;
                                 retValue._ThirdPartySource = ThirdPartyMapSource.google;
+                                
                                 this._NullLocation = false;
                                 this._DefaultFlag = false;
                                 retValue.updateSearchedLocation();
-                                _LocationValidation.addLocation(retValue as LocationJson);
+                                if (!useThis)
+                                {
+                                    retValue._Id = result.PlaceId;
+                                    _LocationValidation.addLocation(retValue as LocationJson);
+                                }   
                             }
                             else
                             {
@@ -266,6 +273,23 @@ namespace TilerElements
                 initializeWithNull();
             }
             updateSearchedLocation();
+            return retValue;
+        }
+
+        public bool IsLoookUpVerified(string inputAddress, string lookUpAddress)
+        {
+            string inputAddressNoPunctuation = new string(inputAddress.Where(c => !char.IsPunctuation(c) && !char.IsWhiteSpace(c)).ToArray());
+            string lookUpAddressNoPunctuation = new string(lookUpAddress.Where(c => !char.IsPunctuation(c) && !char.IsWhiteSpace(c)).ToArray());
+
+            string largerString = lookUpAddressNoPunctuation.Length > inputAddressNoPunctuation.Length ? lookUpAddressNoPunctuation : inputAddressNoPunctuation;
+            int diffCount = Math.Abs(inputAddressNoPunctuation.Length - largerString.Length);
+            if (diffCount == 0)
+            {
+                diffCount = Math.Abs(lookUpAddressNoPunctuation.Length - largerString.Length);
+            }
+
+            double percentageDiff = ((double)diffCount / (double)largerString.Length) *100;
+            bool retValue = percentageDiff < 45;
             return retValue;
         }
 
@@ -398,7 +422,7 @@ namespace TilerElements
         static public TimeSpan getDrivingTimeFromWeb(Location first, Location second, TravelMode travelMode = TravelMode.Driving)
         {
             TimeSpan retValue = new TimeSpan(-1);
-            if(!first.isNull && !second.isNull)
+            if(!first.isNull && !second.isNull && !first.isDefault && !second.isDefault)
             {
                 string apiKey = ConfigurationManager.AppSettings["googleMapsApiKey"];
                 DirectionsRequest directionsRequest = new DirectionsRequest()

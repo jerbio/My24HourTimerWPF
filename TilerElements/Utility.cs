@@ -5,6 +5,7 @@ using System.Text;
 using TilerElements;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using NodaTime;
 
 namespace TilerElements
 {
@@ -17,12 +18,18 @@ namespace TilerElements
         public static DateTimeOffset JSStartTime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, new TimeSpan());
         public static TimeSpan StartOfTimeTimeSpan = JSStartTime - new DateTimeOffset(0, new TimeSpan());
         public readonly static DateTimeOffset BeginningOfTime = new DateTimeOffset();
+        public readonly static DateTimeOffset ProcrastinateStartTime = BeginningOfTime.AddDays(1);
         public readonly static Random rng = new Random();
         public readonly static int defaultBeginDay = -15;
         public readonly static int defaultEndDay = 90;
         public readonly static TimeSpan OneDayTImeSpan = TimeSpan.FromDays(1);
+        public readonly static TimeSpan QuarterHourTimeSpan = TimeSpan.FromMinutes(15);
+        public readonly static TimeSpan OneHourTimeSpan = TimeSpan.FromHours(1);
         public readonly static TimeSpan TwentyFourHoursAlmostTImeSpan = TimeSpan.FromDays(1).Subtract(TimeSpan.FromMinutes(1));
         public readonly static TimeSpan ZeroTimeSpan = TimeSpan.FromTicks(0);
+        public readonly static TimeSpan NegativeTimeSpan = TimeSpan.FromTicks(-1);
+        public readonly static TimeSpan SixHourTimeSpan = TimeSpan.FromHours(6);
+        public readonly static string timeZoneString = "America/Denver";
         static Utility()
         {
             initializeFibonacci();
@@ -369,9 +376,14 @@ namespace TilerElements
             /// </summary>
             /// <param name="elements"></param>
             /// <returns></returns>
-            Tuple<IEnumerable<IDefinedRange>, IEnumerable<IDefinedRange>> getConflictingRangeElements(IEnumerable<IDefinedRange> elements)
+            Tuple<IEnumerable<IDefinedRange>, IEnumerable<IDefinedRange>> getConflictingRangeElements(IEnumerable<IDefinedRange> timeLineElements)
             {
-                elements = elements.Where(element => element.StartToEnd.TimelineSpan.Ticks > 0).OrderBy(obj => obj.Start);
+                List<IDefinedRange> zeroTimespan = new List<IDefinedRange>();
+                List<IDefinedRange> elements = new List<IDefinedRange>();
+                foreach(IDefinedRange eachRange in timeLineElements.OrderBy(obj => obj.Start))
+                {
+                    elements.Add(eachRange);
+                }
                 List<IDefinedRange> EventsWithTImeline = elements.ToList();
                 List<TimeLine> retValue_ItemA = new List<TimeLine>();
 
@@ -492,7 +504,6 @@ namespace TilerElements
 
         public static SubCalendarEvent[] getBestPermutation(
             List<SubCalendarEvent> AllEvents,
-            //double worstDistance,
             Tuple<Location, Location> BorderElements = null,
             double worstDistance = double.MinValue
             )
@@ -1455,6 +1466,36 @@ namespace TilerElements
             }
 
             return retValue;
+        }
+        public static DateTimeOffset ParseTime(string timeString)
+        {
+            string preParsingString = timeString;
+            if (!timeString.Contains("M +"))
+            {
+                preParsingString = preParsingString + " +00:00";
+            }
+
+            DateTimeOffset retValue = DateTimeOffset.Parse(preParsingString).ToLocalTime();
+            return retValue;
+        }
+
+        public static DateTimeOffset toTimeZoneTime(this DateTimeOffset localDate)
+        {
+            if (!string.IsNullOrEmpty(Utility.timeZoneString) && !string.IsNullOrWhiteSpace(Utility.timeZoneString))
+            {
+                DateTimeZone userTimeZone = DateTimeZoneProviders.Tzdb[Utility.timeZoneString];
+                //DateTimeOffset localDate = DateTimeOffset.Parse(this._EndfOfDayString).removeSecondsAndMilliseconds();
+                LocalDateTime time = new LocalDateTime(localDate.Year, localDate.Month, localDate.Day, localDate.Hour, localDate.Minute);
+                DateTimeOffset retValue = Instant.FromDateTimeOffset(localDate)
+                      .InZone(userTimeZone)
+                      .ToDateTimeUnspecified();
+                return retValue;
+            }
+            else
+            {
+                return localDate;
+            }
+            
         }
     }
 }

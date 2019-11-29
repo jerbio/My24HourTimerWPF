@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Collections.Concurrent;
 using Newtonsoft.Json.Linq;
+using NodaTime;
 
 namespace TilerElements
 {
@@ -40,7 +41,8 @@ namespace TilerElements
 
         public override string ToString()
         {
-            return this.Start.ToString() + " - " + this.End.ToString() +"::"+this.TimelineSpan.ToString();
+            //return this.Start.LocalDateTime.ToString() + " - " + this.End.LocalDateTime.ToString() +"::"+this.TimelineSpan.ToString();
+            return this.Start.toTimeZoneTime().ToString() + " - " + this.End.toTimeZoneTime().ToString() + "::" + this.TimelineSpan.ToString();
         }
 
         virtual public BusyTimeLine toBusyTimeLine(string ID)

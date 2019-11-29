@@ -83,22 +83,6 @@ namespace TilerElements
             }
         }
 
-
-        public DateTimeOffset Start
-        {
-            get
-            {
-                return StartTime;
-            }
-        }
-        public DateTimeOffset End
-        {
-            get
-            {
-                return EndTime;
-            }
-        }
-
         public TimeSpan BusyTimeSpan_DB
         {
             get

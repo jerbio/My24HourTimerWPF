@@ -38,6 +38,8 @@ namespace TilerTests
             _Now = new ReferenceNow(referenceNow, StartOfDay, myAccount.getTilerUser().TimeZoneDifference);
 
             Tuple<Dictionary<string, CalendarEvent>, DateTimeOffset, Dictionary<string, Location>> profileData = await myAccount.ScheduleData.getProfileInfo(RangeOfLookup, _Now, retrievalOption).ConfigureAwait(false);
+            TravelCache travelCache = await myAccount.ScheduleData.getTravelCache(myAccount.UserID).ConfigureAwait(false);
+            updateTravelCache(travelCache);
             myAccount.Now = _Now;
             if (profileData != null)
             {
@@ -72,6 +74,12 @@ namespace TilerTests
             TilerUser = AccountEntry.getTilerUser();
             _Now = new ReferenceNow(scheduleDump.ReferenceNow, scheduleDump.StartOfDay, myAccount.getTilerUser().TimeZoneDifference);
             this.myAccount.ScheduleLogControl.Now = _Now;
+
+            TravelCache travelCache = new TravelCache()
+            {
+                Id = TilerUser.Id
+            };
+            updateTravelCache(travelCache);
             var scheduleData = AccountEntry.ScheduleLogControl.getAllCalendarFromXml(scheduleDump, _Now);
             AllEventDictionary = scheduleData.Item1;
             ThirdPartyCalendars = scheduleData.Item2;

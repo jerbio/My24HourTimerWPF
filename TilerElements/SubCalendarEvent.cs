@@ -149,11 +149,6 @@ namespace TilerElements
 
         #region Class functions
 
-        public override string ToString()
-        {
-            return this.Start.ToString() + " - " + this.End.ToString() + "::" + this.getId + "\t\t::" + this.getActiveDuration.ToString();
-        }
-
         public virtual void updateCalculationEventRange(TimeLine timeLine)
         {
             TimeLine interferringTimeLine = this.getCalendarEventRange.InterferringTimeLine(timeLine);
@@ -237,15 +232,16 @@ namespace TilerElements
             this._Enabled = true;
         }
 
-        internal void updateDayIndex(ulong dayIndex)
+        protected void updateDayIndex(ulong dayIndex)
         {
-            this.preferredDayIndex = dayIndex;
-        }
-
-        public void updateDayIndex(ulong dayIndex, CalendarEvent myCalEvent)
-        {
-            updateDayIndex(dayIndex);
-            myCalEvent.removeDayTimeFromFreeUpdays(preferredDayIndex);
+            if (dayIndex == ReferenceNow.UndesignatedDayIndex)
+            {
+                undesignate();
+            }
+            else
+            {
+                this.preferredDayIndex = dayIndex;
+            }
         }
 
         public virtual void SetCompletionStatus(bool completeValue,CalendarEvent myCalendarEvent)
@@ -357,20 +353,6 @@ namespace TilerElements
         {
             return StartToEnd.IsDateTimeWithin(DateTimeEntry);
         }
-        /// <summary>
-        /// Function Subcalendarevent evaluates itself against the given parameters
-        /// </summary>
-        /// <param name="refLocation"></param>
-        /// <param name="DayReference"></param>
-        /// <returns></returns>
-        virtual public Tuple<TimeLine,Double> evaluateAgainstOptimizationParameters(Location refLocation, TimeLine DayTimeLine)
-        {
-            
-            double distance = Location.calculateDistance(refLocation,this.Location);
-            TimeLine refTimeLine = new TimeLine(DayTimeLine.Start, getCalendarEventRange.End);
-            Tuple<TimeLine, double> retValue = new Tuple<TimeLine, double>(refTimeLine,distance);
-            return retValue;
-        }
 
         public static SubCalendarEvent getEmptySubCalendarEvent(EventID CalendarEventId)
         {
@@ -408,7 +390,7 @@ namespace TilerElements
             {
                 Id = this.getId;
             }
-            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ParentCalendarEvent, getCreator, _Users, this._TimeZone, Id, this.getName.createCopy(), Start, End, BusyFrame.CreateCopy() as BusyTimeLine, this._RigidSchedule, this.isEnabled, this._UiParams?.createCopy(), this.Notes?.createCopy(), this._Complete, this._LocationInfo, new TimeLine(getCalendarEventRange.Start, getCalendarEventRange.End), _ConflictingEvents?.CreateCopy());
+            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ParentCalendarEvent, getCreator, _Users, this._TimeZone, Id, this.getName?.createCopy(), Start, End, BusyFrame?.CreateCopy() as BusyTimeLine, this._RigidSchedule, this.isEnabled, this._UiParams?.createCopy(), this.Notes?.createCopy(), this._Complete, this._LocationInfo, new TimeLine(getCalendarEventRange.Start, getCalendarEventRange.End), _ConflictingEvents?.CreateCopy());
             MySubCalendarEventCopy.ThirdPartyID = this.ThirdPartyID;
             MySubCalendarEventCopy._AutoDeleted = this._AutoDeleted;
             MySubCalendarEventCopy.isRestricted = this.isRestricted;
@@ -418,7 +400,7 @@ namespace TilerElements
             MySubCalendarEventCopy._UsedTime = this._UsedTime;
             MySubCalendarEventCopy.OptimizationFlag = this.OptimizationFlag;
             MySubCalendarEventCopy._LastReasonStartTimeChanged = this._LastReasonStartTimeChanged;
-            MySubCalendarEventCopy.DaySectionPreference = this.DaySectionPreference;
+            MySubCalendarEventCopy._DaySectionPreference = this._DaySectionPreference;
             MySubCalendarEventCopy._calendarEvent = this._calendarEvent;
             MySubCalendarEventCopy.TravelTimeAfter = this.TravelTimeAfter;
             MySubCalendarEventCopy.TravelTimeBefore= this.TravelTimeBefore;
@@ -438,18 +420,16 @@ namespace TilerElements
             return MySubCalendarEventCopy;
         }
 
-
-        internal void undesignate()
+        internal void designate(ReferenceNow now)
         {
-            this.preferredDayIndex = ReferenceNow.UndesignatedDayIndex;
+            ulong dayIndex = now.getDayIndexFromStartOfTime(this.Start);
+            updateDayIndex(dayIndex);
         }
 
-        public static void updateDayIndex(ulong DayIndex, IEnumerable<SubCalendarEvent> AllSUbevents)
+
+        internal virtual void undesignate()
         {
-            foreach (SubCalendarEvent eachSubCalendarEvent in AllSUbevents)
-            {
-                eachSubCalendarEvent.preferredDayIndex = DayIndex;
-            }
+            this.preferredDayIndex = ReferenceNow.UndesignatedDayIndex;
         }
 
         public void setScore(double score)
@@ -530,31 +510,40 @@ namespace TilerElements
                 return true;
         }
 
-        virtual public bool PinToPossibleLimit(TimeLine referenceTimeLine)
-        { 
-            TimeLine interferringTImeLine=getCalendarEventRange.InterferringTimeLine( referenceTimeLine );
-            if (interferringTImeLine == null)
-            {
-                return false;
-            }
-            DateTimeOffset EarliestEndTime = getCalendarEventRange.Start + getActiveDuration;
-            DateTimeOffset LatestEndTime = getCalendarEventRange.End;
 
-            DateTimeOffset DesiredEndtime = interferringTImeLine.End + (TimeSpan.FromTicks(((long)(getActiveDuration - interferringTImeLine.TimelineSpan).Ticks) / 2));
-
-            if (DesiredEndtime < EarliestEndTime)
+        public override void updateDayPreference(List<OptimizedGrouping> groupings)
+        {
+            Dictionary<TimeOfDayPreferrence.DaySection, OptimizedGrouping> sectionTOGrouping = groupings.ToDictionary(group => group.DaySector, group => group);
+            List<TimeOfDayPreferrence.DaySection> daySections = _DaySectionPreference.getPreferenceOrder();
+            List<OptimizedGrouping> validGroupings = new List<OptimizedGrouping>();
+            foreach (TimeOfDayPreferrence.DaySection section in daySections)
             {
-                DesiredEndtime = EarliestEndTime;
+                if (sectionTOGrouping.ContainsKey(section))
+                {
+                    OptimizedGrouping group = sectionTOGrouping[section];
+                    var interferringTimeLine = this.getCalculationRange.InterferringTimeLine(group.TimeLine);
+                    if (interferringTimeLine!=null)
+                    {
+                        if (this.canExistWithinTimeLine(group.TimeLine))
+                        {
+                            validGroupings.Add(sectionTOGrouping[section]);
+                        } else
+                        {
+                            if(interferringTimeLine.TimelineSpan <= this.getActiveDuration)
+                            {
+                                validGroupings.Add(sectionTOGrouping[section]);
+                            }
+                        }
+                    }
+                    
+                }
             }
-
-            if (DesiredEndtime > LatestEndTime)
+            if (validGroupings.Count > 0)
             {
-                DesiredEndtime = LatestEndTime;
+                List<OptimizedGrouping> updatedGroupingOrder = evaluateDayPreference(validGroupings);
+                _DaySectionPreference.setPreferenceOrder(updatedGroupingOrder.Select(group => group.DaySector).ToList());
             }
-            TimeSpan shiftInEvent = DesiredEndtime-End;
-            return shiftEvent(shiftInEvent);
         }
-
 
         /// <summary>
         /// function updates the parameters of the current sub calevent using SubEventEntry. However it doesnt change some datamemebres such as rigid, and isrestricted. You 
@@ -906,9 +895,9 @@ namespace TilerElements
             return retValue;
         }
 
-         virtual public bool canExistTowardsEndWithoutSpace(TimeLine PossibleTimeLine)
+        virtual public bool canExistTowardsEndWithoutSpace(TimeLine PossibleTimeLine)
          {
-             TimeLine ParentCalRange = getCalendarEventRange;
+             TimeLine ParentCalRange = getCalculationRange;
              bool retValue = (ParentCalRange.Start <= (PossibleTimeLine.End - getActiveDuration)) && (ParentCalRange.End>=PossibleTimeLine.End)&&(canExistWithinTimeLine(PossibleTimeLine));
              return retValue;
          }
@@ -921,7 +910,7 @@ namespace TilerElements
 
          virtual public bool canExistTowardsStartWithoutSpace(TimeLine PossibleTimeLine)
          {
-             TimeLine ParentCalRange = getCalendarEventRange;
+             TimeLine ParentCalRange = getCalculationRange;
              bool retValue = ((PossibleTimeLine.Start + getActiveDuration) <= ParentCalRange.End) && (ParentCalRange.Start <= PossibleTimeLine.Start) && (canExistWithinTimeLine(PossibleTimeLine));
              return retValue;
          }
@@ -932,7 +921,7 @@ namespace TilerElements
          /// <returns></returns>
          virtual public List<TimeLine> getTimeLineInterferringWithCalEvent(TimeLine TimeLineData, bool orderByStart = true)
          {
-             TimeLine retValuTimeLine= getCalendarEventRange.InterferringTimeLine(TimeLineData);;
+             TimeLine retValuTimeLine= getCalculationRange.InterferringTimeLine(TimeLineData);;
              List<TimeLine> retValue = null;
              if (retValuTimeLine!=null)
              {
@@ -979,6 +968,15 @@ namespace TilerElements
             {
                 return preferredDayIndex;
             }
+        }
+
+        public override void InitializeDayPreference(TimeLine timeLine)
+        {
+            if (_DaySectionPreference == null)
+            {
+                _DaySectionPreference = ParentCalendarEvent.DayPreference.toTimeOfDayPreference(timeLine);
+            }
+            base.InitializeDayPreference(timeLine);
         }
 
         public void enableCalculationMode()
@@ -1185,7 +1183,7 @@ namespace TilerElements
         {
             get
             {
-                double retValue = ((double)getCalendarEventRange.TimelineSpan.Ticks )/ ((double)RangeSpan.Ticks);
+                double retValue = ((double)getCalculationRange.TimelineSpan.Ticks )/ ((double)RangeSpan.Ticks);
                 return retValue;
             }
         }

@@ -6,6 +6,7 @@ using TilerElements;
 using System.Collections.Generic;
 using System.Linq;
 using TilerCore;
+using static TilerElements.TimeOfDayPreferrence;
 
 namespace TilerTests
 {
@@ -32,9 +33,99 @@ namespace TilerTests
             //((TestSchedule)schedule).WriteFullScheduleToOutlook();
         }
 
+        [TestMethod]
+        public void file_unnecessary_shifiting_back_and_forth_of_workout_7f453aa2()
+        {
+            string scheduleId = "7f453aa2-c1d4-4a5e-9121-b33b4176e98c";
+            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+            Schedule schedule = scheduleAndDump.Item1;
+            TimeLine firstDay = schedule.Now.firstDay;
+            List<SubCalendarEvent> subEvents = schedule.getAllActiveSubEvents().Where(obj => obj.StartToEnd.doesTimeLineInterfere(firstDay)).OrderBy(o => o.Start).ToList();
+            schedule.ProcrastinateAll(TimeSpan.FromMinutes(2));
+            List<SubCalendarEvent> subEventsAfterProcrastinate = schedule.getAllActiveSubEvents().Where(obj => obj.StartToEnd.doesTimeLineInterfere(firstDay)).OrderBy(o => o.Start).ToList();
+
+            Assert.AreEqual(subEventsAfterProcrastinate.Count, subEvents.Count);
+
+            for(int i = 0; i< subEvents.Count; i++ )
+            {
+                Assert.AreEqual(subEvents[i].Id, subEventsAfterProcrastinate[i].Id);
+            }
+
+            ((TestSchedule)schedule).WriteFullScheduleToOutlook();
+        }
 
         /// <summary>
-        /// In this test the current location is 39.710835, -104.812500 which is in Aurora, CO. The event named "Get a hair cut" with the Id 0ada4cb8-844e-41cb-a3c3-e2b7863e365a_7_0_92db8eb5-9c7a-498b-af94-7385bf67b042 is in Auroa Colorado so it should be the next event
+        /// There is no sleep time in the morning for November 17.
+        /// </summary>
+        [TestMethod]
+        public void file_missing_sleep_time_chunk_f02c36aa()
+        {
+            string scheduleId = "f02c36aa-cdcf-446d-97e0-f4b8ce3b548c";
+            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+            Schedule schedule = scheduleAndDump.Item1;
+            schedule.FindMeSomethingToDo(currentLocation).Wait();
+            DateTimeOffset dayWithoutSleep = new DateTimeOffset(2019, 11, 17, 12, 0, 0, new TimeSpan());
+
+            DayTimeLine dayTimeLine = schedule.Now.getDayTimeLineByTime(dayWithoutSleep);
+            List<SubCalendarEvent> subEvents = dayTimeLine.getSubEventsInTimeLine().OrderBy(sub => sub.Start).ToList();
+            TimeLine firstTenHours = new TimeLine(dayTimeLine.Start, dayTimeLine.Start.AddHours(10));
+            List<SubCalendarEvent> firstTenHourSubEvents = subEvents.Where(obj => obj.ActiveSlot.doesTimeLineInterfere(firstTenHours)).ToList();
+            TimeSpan FiveHourTimeSpan = TimeSpan.FromHours(5);
+            DateTimeOffset previousTime = dayTimeLine.Start;
+
+            bool isSleepTime = false;
+            foreach(SubCalendarEvent subEVent in firstTenHourSubEvents)
+            {
+                if (!isSleepTime)
+                {
+                    TimeSpan timeSpan = subEVent.Start - previousTime;
+                    if (timeSpan >= FiveHourTimeSpan)
+                    {
+                        isSleepTime = true;
+                        break;
+                    }
+                    previousTime = subEVent.End;
+                }
+            }
+            Assert.IsTrue(isSleepTime);
+            ((TestSchedule)schedule).WriteFullScheduleToOutlook();
+        }
+
+        [TestMethod]
+        public void file_unnecessary_morning_scheduling_0a0e2ca8()
+        {
+            string scheduleId = "0a0e2ca8-62b7-4336-93ee-49a0d1039073";
+            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+            Schedule schedule = scheduleAndDump.Item1;
+            schedule.FindMeSomethingToDo(currentLocation).Wait();
+            DateTimeOffset oct25 = new DateTimeOffset(2019, 10, 25, 14, 0, 0, new TimeSpan());
+            DateTimeOffset oct26 = new DateTimeOffset(2019, 10, 26, 14, 0, 0, new TimeSpan());
+
+            DayTimeLine oct25DayTimeLine = schedule.Now.getDayTimeLineByTime(oct25);
+            DayTimeLine oct26DayTimeLine = schedule.Now.getDayTimeLineByTime(oct26);
+
+            List<SubCalendarEvent> oct25subEvents = oct25DayTimeLine.getSubEventsInTimeLine().OrderBy(o => o.Start).ToList();
+            List<SubCalendarEvent> oct26subEvents = oct26DayTimeLine.getSubEventsInTimeLine().OrderBy(o => o.Start).ToList();
+
+            foreach(SubCalendarEvent subEvent in oct25subEvents)
+            {
+                Assert.IsTrue(subEvent.Start >= oct25);
+            }
+
+            foreach (SubCalendarEvent subEvent in oct26subEvents)
+            {
+                Assert.IsTrue(subEvent.Start >= oct26);// this is KnownBugList to fail
+            }
+
+            ((TestSchedule)schedule).WriteFullScheduleToOutlook();
+        }
+
+        /// <summary>
+        /// In this test the current location is 39.710835, -104.812500 which is in Aurora, CO.
+        /// The event named "Get a hair cut" with the Id 0ada4cb8-844e-41cb-a3c3-e2b7863e365a_7_0_92db8eb5-9c7a-498b-af94-7385bf67b042 is in Auroa Colorado so it should be the next event
         /// </summary>
         [TestMethod]
         public void file_currentLocation_should_schew_next_event_when_shuffling_61651f57()
@@ -50,7 +141,6 @@ namespace TilerTests
             string subEventId = "0ada4cb8-844e-41cb-a3c3-e2b7863e365a_7_0_92db8eb5-9c7a-498b-af94-7385bf67b042";
             Assert.IsFalse(firstSubEvent.Id == subEventId);
             schedule.FindMeSomethingToDo(currentLocation).Wait();
-
 
             List<SubCalendarEvent> subEventAfterShuffle = schedule.getAllActiveSubEvents().OrderBy(o => o.Start).ToList();
             subEventsInTimeLine = subEventAfterShuffle.Where(sub => sub.StartToEnd.doesTimeLineInterfere(currentTimeline));
@@ -116,7 +206,7 @@ namespace TilerTests
         /// THis test verifies the events are within the middle of the day
         /// </summary>
         [TestMethod]
-        public void file_59754086()
+        public void file_middle_of_day_subevents_59754086()
         {
             string scheduleId = "59754086-6192-4364-a364-dffb4c71d7b6";
             Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
@@ -126,11 +216,12 @@ namespace TilerTests
             DateTimeOffset referenceDay = TestUtility.parseAsUTC("08/18/2019");
 
             DayTimeLine dayTimeLine = schedule.Now.getDayTimeLineByTime(referenceDay);
-            TimeLine middleOfDay = new TimeLine(dayTimeLine.Start.AddHours(8), dayTimeLine.End.AddHours(-8));
+            var daySplit = TimeOfDayPreferrence.splitIntoDaySections(dayTimeLine);
+            
+            TimeLine middleOfDay = new TimeLine(daySplit[DaySection.Sleep].End, daySplit[DaySection.Evening].Start);
             List<SubCalendarEvent>allSubEvents = dayTimeLine.getSubEventsInTimeLine();
             List<SubCalendarEvent> allSubEventsWithinTimeline = allSubEvents.Where(subEvent => middleOfDay.IsTimeLineWithin(subEvent.ActiveSlot)).ToList();
             Assert.AreEqual(allSubEvents.Count, allSubEventsWithinTimeline.Count);
-
             ((TestSchedule)schedule).WriteFullScheduleToOutlook();
         }
 
@@ -151,8 +242,9 @@ namespace TilerTests
             schedule.FindMeSomethingToDo(currentLocation).Wait();
             SubCalendarEvent conflictingSubEvent = schedule.getSubCalendarEvent(subEventId);
             List<SubCalendarEvent> subEvents = schedule.getAllCalendarEvents().SelectMany(cal => cal.ActiveSubEvents).Where(subEvent => subEvent.StartToEnd.doesTimeLineInterfere(conflictingSubEvent.StartToEnd)).ToList();
-            Assert.AreEqual(subEvents.Count, 1);// the look up should only conflict with itself
             ((TestSchedule)schedule).WriteFullScheduleToOutlook();
+            Assert.AreEqual(subEvents.Count, 1);// the look up should only conflict with itself
+
         }
 
         public void add9_5WorkSchedule (Schedule schedule)

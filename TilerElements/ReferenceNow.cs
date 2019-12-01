@@ -11,8 +11,8 @@ namespace TilerElements
         protected static DateTimeOffset _StartOfTime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, new TimeSpan());
         public static readonly ulong UndesignatedDayIndex = 0;
         public DateTimeOffset StarTime;
-        DateTimeOffset CalculationNow;
-        DateTimeOffset ImmutableNow;
+        private DateTimeOffset CalculationNow;
+        private DateTimeOffset ImmutableNow;
         const int numberOfDfDays = 90;
         UInt64 ImmutableDayIndex;//'Cause tiler will exist 18,446,744,073,709,551,615 from 1970 
         protected TimeSpan ConstOfCalculation = new TimeSpan(numberOfDfDays, 0, 0, 0, 0);

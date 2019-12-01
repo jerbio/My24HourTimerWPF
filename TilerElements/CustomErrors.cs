@@ -21,7 +21,7 @@ namespace TilerElements
             restrictedTimeLineUpdateInValid = 40000006,
             TilerConfigEventError = 50000000,
             TilerConfig_Zero_SplitCount= 50000001,
-            TilerConfig_Repeat_On_Repeat = 50000002
+            TilerConfig_Repeat_Rigid = 50000003
         };
         static Dictionary<Errors, String> errorMessage = new Dictionary<Errors, string>()
         {
@@ -36,7 +36,8 @@ namespace TilerElements
             {Errors.eventUpdateBeforeNow, "The select time slot for the schedule change does is before the current time, try loading a schedule which includes the current time"},
             {Errors.TilerConfig_Zero_SplitCount, "Cannot create or modify with a final state with zero events"},
             {Errors.restrictedTimeLineUpdateInValid, "The restricted time line update is invalid"},
-            {Errors.TilerConfig_Repeat_On_Repeat, "Repeating event can only be performed on none recurring events" }
+            {Errors.TilerConfig_Repeat_Rigid, "Cannot repeat a rigid event" }
+
         };
         string ErrorMessage;
         TilerEvent TilerEvent;

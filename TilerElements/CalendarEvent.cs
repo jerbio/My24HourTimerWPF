@@ -1936,20 +1936,64 @@ namespace TilerElements
             updateCalculationStartToEnd();
         }
 
-        public virtual void repeatAnEvent(DateTimeOffset currentTime)
+        public virtual void repeatLockSubEvent(string subEventId)
         {
-            if (!this.IsRecurring)
+            repeatLockSubEvent(new EventID(subEventId));
+        }
+
+        public virtual void repeatLockSubEvent(EventID subEventId)
+        {
+            SubCalendarEvent subEvent = getSubEvent(subEventId);
+            subEvent.enableRepetitionLock();
+        }
+
+        public virtual void disableRepetitionLocks(DateTimeOffset time)
+        {
+            List<SubCalendarEvent> subEvents = OrderByStartActiveSubEvents.ToList();
+            for (int i = 0; i < subEvents.Count; i++)
             {
-                SubCalendarEvent toBeRepeated = ActiveSubEvents.Where(subEvent => subEvent.Start >= currentTime).OrderBy(subEvent => subEvent.Start).FirstOrDefault();
-                if (toBeRepeated == null)
+                SubCalendarEvent subEvent = subEvents[i];
+                if (!subEvent.isRepetitionLocked && subEvent.End >= time)
                 {
-                    List<SubCalendarEvent> repeatIncrease = IncreaseSplitCount(1);
-                    toBeRepeated = repeatIncrease.FirstOrDefault();
+                    subEvent.disableRepetitionLock();
                 }
-                toBeRepeated.shiftEvent(currentTime, true);
-                toBeRepeated.enableRepetitionLock();
             }
-            throw new CustomErrors(CustomErrors.Errors.TilerConfig_Repeat_On_Repeat);
+        }
+
+        public virtual void repeatEventAfterTime(DateTimeOffset currentTime)
+        {
+            SubCalendarEvent toBeRepeated = null;
+
+            List<SubCalendarEvent> subEvents = OrderByStartActiveSubEvents.ToList();
+            for (int i =0; i< subEvents.Count; i++)
+            {
+                SubCalendarEvent subEvent = subEvents[i];
+                if(!subEvent.isRepetitionLocked)
+                {
+                    if (subEvent.Start >= currentTime)
+                    {
+                        toBeRepeated = subEvent;
+                        break;
+                    }
+                }
+                else
+                {
+                    if (subEvent.End > currentTime)
+                    {
+                        currentTime = subEvent.End;// ensures we are applying repeting lock to an event after the last repetition locked subevent
+                    }
+                }
+                
+            }
+
+            
+            if (toBeRepeated == null)
+            {
+                List<SubCalendarEvent> repeatIncrease = IncreaseSplitCount(1);
+                toBeRepeated = repeatIncrease.FirstOrDefault();
+            }
+            toBeRepeated.shiftEvent(currentTime, true);
+            toBeRepeated.enableRepetitionLock();
         }
 
         public override void InitializeDayPreference(TimeLine timeLine)

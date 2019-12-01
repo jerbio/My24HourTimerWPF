@@ -5536,13 +5536,15 @@ namespace TilerCore
                 DateTimeOffset ReferenceStart = Now.calculationNow > ReferenceSubEvent.Start ? Now.calculationNow : ReferenceSubEvent.Start;
                 Procrastination procrastinateData = new Procrastination(ReferenceStart, RangeOfPush);
                 TimeLine timeLineAfterProcrastination = new TimeLine(procrastinateData.PreferredStartTime, ReferenceSubEvent.getCalendarEventRange.End);
+                ReferenceSubEvent.disableRepetitionLock();
                 if (ReferenceSubEvent.canExistWithinTimeLine(timeLineAfterProcrastination))
                 {
-                    ReferenceSubEvent.disableRepetitionLock();
                     DateTimeOffset StartTimeOfProcrastinate = ReferenceStart + RangeOfPush;
                     DateTimeOffset limitOfProcrastination = ReferenceSubEvent.getCalendarEventRange.End;
+                    List<SubCalendarEvent> orderedByStartSubEvents = ProcrastinateEvent.ActiveSubEvents.OrderBy(o => o.Start).ToList();
+                    orderedByStartSubEvents.ForEach(subEvent => subEvent.disableRepetitionLock());
 
-                    List<SubCalendarEvent> orderedByStartSubEvents = ProcrastinateEvent.ActiveSubEvents.OrderBy(o => o.Start).ToList();                    
+                    ProcrastinateEvent.disableRepetitionLocks(timeLineAfterProcrastination.Start);
                     if (!Utility.tryPinSubEventsToEnd(orderedByStartSubEvents, timeLineAfterProcrastination))
                     {
                         return new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(new CustomErrors(CustomErrors.Errors.procrastinationAllSubeventsCannotFitDeadline), null);
@@ -5560,8 +5562,6 @@ namespace TilerCore
                     {
                         subevent.disablePreschedulingLock();
                     }
-
-
                     TimeSpan TotalActiveDuration = Utility.SumOfActiveDuration(AllValidSubCalEvents);
                     //CalendarEvent(string NameEntry, string StartTime, DateTimeOffset StartDateEntry, string EndTime, DateTimeOffset EventEndDateEntry, string eventSplit, string PreDeadlineTime, string EventDuration, Repetition EventRepetitionEntry, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag,Location EventLocation)
                     CalendarEvent ScheduleUpdated = ProcrastinateEvent.getProcrastinationCopy(procrastinateData); // new CalendarEvent(ProcrastinateEvent.Name, StartTimeOfProcrastinate.ToString("hh:mm tt"), StartTimeOfProcrastinate, ProcrastinateEvent.End.ToString("hh:mm tt"), ProcrastinateEvent.End, AllValidSubCalEvents.Count.ToString(), ProcrastinateEvent.PreDeadline.ToString(), TotalActiveDuration.ToString(), new Repetition(), true, ProcrastinateEvent.Rigid, ProcrastinateEvent.Preparation.ToString(), true, ProcrastinateEvent.myLocation, true, new EventDisplay(), new MiscData(), false);
@@ -5610,12 +5610,21 @@ namespace TilerCore
 
         public virtual void RepeatEvent(EventID eventId, Location location)
         {
-            SubCalendarEvent subEvent = getSubCalendarEvent(eventId);
-            subEvent.ParentCalendarEvent.repeatAnEvent(subEvent.End);
-            HashSet<SubCalendarEvent> NotDoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
-            CalendarEvent ScheduleUpdated = CalendarEvent.getEmptyCalendarEvent(new EventID());
-            addCalendarEventToGlobalSchedule(ScheduleUpdated);
-            ScheduleUpdated = EvaluateTotalTimeLineAndAssignValidTimeSpots(ScheduleUpdated, NotDoneYet, location );
+            CalendarEvent calEvent = getCalendarEvent(eventId);
+            if(!calEvent.isRigid)
+            {
+                SubCalendarEvent subEvent = getSubCalendarEvent(eventId);
+                subEvent.ParentCalendarEvent.repeatLockSubEvent(subEvent.Id);
+                subEvent.ParentCalendarEvent.repeatEventAfterTime(subEvent.End);
+                HashSet<SubCalendarEvent> NotDoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
+                CalendarEvent ScheduleUpdated = CalendarEvent.getEmptyCalendarEvent(new EventID());
+                addCalendarEventToGlobalSchedule(ScheduleUpdated);
+                ScheduleUpdated = EvaluateTotalTimeLineAndAssignValidTimeSpots(ScheduleUpdated, NotDoneYet, location);
+            }
+            else
+            {
+                throw new CustomErrors(CustomErrors.Errors.TilerConfig_Repeat_Rigid);
+            }
         }
 
 

@@ -35,7 +35,8 @@ namespace TilerElements
         public TimeSpan TravelTimeAfter { get; set; } = new TimeSpan(1);
         public bool isWake { get; set; } = false;
         public bool isSleep { get; set; } = false;
-        public bool _RepetitionLock { get; set; } = false; // this is the lock for an event when repeat is clicked
+        [NotMapped]
+        protected bool _RepetitionLock { get; set; } = false; // this is the lock for an event when repeat is clicked
         protected bool tempLock { get; set; } = false;// This should never get persisted
         protected bool lockedPrecedingHours { get; set; } = false;// This should never get persisted
         protected bool _enablePre_reschedulingTimelineLockDown { get; set; } = true;// This prevent locking for preceding twentyFour or for interferring with now
@@ -999,7 +1000,7 @@ namespace TilerElements
             _RepetitionLock = false;
         }
 
-        public override bool isLocked => base.isLocked || this.tempLock || this.lockedPrecedingHours || this.RepetitionLock;
+        public override bool isLocked => base.isLocked || this.tempLock || this.lockedPrecedingHours || this.isRepetitionLocked;
 
         /// <summary>
         /// This changes the duration of the subevent. It requires the change in duration. This just adds/subtracts the delta to the end time
@@ -1257,6 +1258,7 @@ namespace TilerElements
             }
         }
 
+        
         virtual public bool RepetitionLock_DB
         {
             set
@@ -1455,7 +1457,7 @@ namespace TilerElements
             }
         }
 
-        public bool RepetitionLock
+        public bool isRepetitionLocked
         {
             get
             {

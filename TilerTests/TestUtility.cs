@@ -810,7 +810,7 @@ namespace TilerTests
         {
             bool retValue = (firstSubevent as TilerEvent).isTestEquivalent(secondSubevent as TilerEvent);
             Assert.IsTrue(retValue);
-            retValue &= firstSubevent.RepetitionLock == secondSubevent.RepetitionLock;
+            retValue &= firstSubevent.isRepetitionLocked == secondSubevent.isRepetitionLocked;
             Assert.IsTrue(retValue);
             return retValue;
         }

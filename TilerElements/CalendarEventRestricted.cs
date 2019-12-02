@@ -248,7 +248,7 @@ namespace TilerElements
         public void setNow (ReferenceNow now, bool updateCalendarEventRange = false)
         {
             _Now = now;
-            if (this.IsRepeat)
+            if (this.IsRecurring)
             {
                 foreach(CalendarEventRestricted calRestricted in Repeat.RecurringCalendarEvents())
                 {
@@ -311,7 +311,7 @@ namespace TilerElements
             return RetValue;
         }
 
-        override protected void IncreaseSplitCount(uint delta)
+        override protected List<SubCalendarEvent> IncreaseSplitCount(uint delta)
         {
             List<SubCalendarEvent> newSubs = new List<SubCalendarEvent>();
             TimeLine eachStart = _ProfileOfRestriction.getEarliestStartTimeWithinAFrameAfterRefTime(this.Start).Item1;
@@ -323,10 +323,12 @@ namespace TilerElements
                 _SubEvents.Add(newEvent.Id, newEvent);
                 newEvent.UiParamsId = this.UiParamsId;
                 newEvent.DataBlobId = this.DataBlobId;
+                newSubs.Add(newEvent);
 
             }
             _Splits += (int)delta;
             _EventDuration = TimeSpan.FromTicks(_SubEvents.Values.Sum(subEvent => subEvent.getActiveDuration.Ticks));
+            return newSubs;
         }
 
         public override void UpdateThis(CalendarEvent CalendarEventEntry)

@@ -269,7 +269,6 @@ namespace TilerElements
             copy._RigidSchedule = this._RigidSchedule;
             copy.updateStartTime( this.Start);
             copy._UiParams = this._UiParams?.createCopy();
-
             if (eventId != null)
             {
                 copy.UniqueID = eventId;
@@ -287,6 +286,7 @@ namespace TilerElements
             copy.tempLock = this.tempLock;
             copy.lockedPrecedingHours = this.lockedPrecedingHours;
             copy._enablePre_reschedulingTimelineLockDown = this._enablePre_reschedulingTimelineLockDown;
+            copy._RepetitionLock = this._RepetitionLock;
             if (this.CalculationTimeLine != null)
             {
                 copy.CalculationTimeLine = this.CalculationTimeLine.CreateCopy();
@@ -440,6 +440,7 @@ namespace TilerElements
             retValue._otherPartyID = this._otherPartyID;
             retValue._ProfileOfRestriction = this._ProfileOfRestriction;
             retValue._Now = this._Now;
+            retValue._RepetitionLock = this._RepetitionLock;
             return retValue;
         }
 

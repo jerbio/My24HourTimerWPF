@@ -19,8 +19,14 @@ namespace TilerElements
             procrastinationAllSubeventsCannotFitDeadline = 40000004,
             eventUpdateBeforeNow = 40000005,
             restrictedTimeLineUpdateInValid = 40000006,
-            TilerConfigEventError = 50000000,
-            TilerConfig_Zero_SplitCount= 50000001
+            TilerConfigEventError = 40000007,
+            TilerConfig_Zero_SplitCount= 40000008,
+            TilerConfig_Repeat_Rigid = 40000009,
+            Invalid_Event_OR_Tiler_ID = 40000010,
+            Tile_Or_Event_ID_Cannot_Be_Found = 40000011,
+            Repeated_Tile_Is_Not_Current_Tile = 40000012,
+            TilerConfig_Repeat_Third_Party = 400000013,
+            TilerConfig_Repeat_Procrastinate_All = 400000014
         };
         static Dictionary<Errors, String> errorMessage = new Dictionary<Errors, string>()
         {
@@ -34,7 +40,14 @@ namespace TilerElements
             {Errors.procrastinationBeforeNow, "Cannot go back in time, if you're from the future, please tell us how tiler is doing" },
             {Errors.eventUpdateBeforeNow, "The select time slot for the schedule change does is before the current time, try loading a schedule which includes the current time"},
             {Errors.TilerConfig_Zero_SplitCount, "Cannot create or modify with a final state with zero events"},
-            {Errors.restrictedTimeLineUpdateInValid, "The restricted time line update is invalid"}
+            {Errors.restrictedTimeLineUpdateInValid, "The restricted time line update is invalid"},
+            {Errors.TilerConfig_Repeat_Rigid, "Cannot repeat a rigid event" },
+            {Errors.Invalid_Event_OR_Tiler_ID, "Invalid tiler or event id provided, check if the ID is in the right format" },
+            {Errors.Tile_Or_Event_ID_Cannot_Be_Found, "Tile or Event with the provided ID cannot be found" },
+            {Errors.Repeated_Tile_Is_Not_Current_Tile, "Cannot repeat Tile that is not current active tile" },
+            {Errors.TilerConfig_Repeat_Third_Party, "Cannot repeat Third party event" },
+            {Errors.TilerConfig_Repeat_Procrastinate_All, "Cannot repeat Procrastinate All Tile" }
+
         };
         string ErrorMessage;
         TilerEvent TilerEvent;

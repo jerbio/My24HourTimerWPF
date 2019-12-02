@@ -136,10 +136,6 @@
     <Compile Include="LogControlDump.cs" />
     <Compile Include="LogControlTest.cs" />
     <Compile Include="LogicTest.cs" />
-    <Compile Include="Migrations\201911100856291_TravelCache.cs" />
-    <Compile Include="Migrations\201911100856291_TravelCache.Designer.cs">
-      <DependentUpon>201911100856291_TravelCache.cs</DependentUpon>
-    </Compile>
     <Compile Include="Migrations\201911101038245_TravelCacheRemovedLocationFromClocationCache.cs" />
     <Compile Include="Migrations\201911101038245_TravelCacheRemovedLocationFromClocationCache.Designer.cs">
       <DependentUpon>201911101038245_TravelCacheRemovedLocationFromClocationCache.cs</DependentUpon>
@@ -168,6 +164,7 @@
     <Compile Include="ConflictResolution.cs" />
     <Compile Include="PerformanceTest.cs" />
     <Compile Include="ScheduleQuality.cs" />
+    <Compile Include="RepeatAnEvent.cs" />
     <Compile Include="UserAccountDump.cs" />
     <Compile Include="UserAccountTest.cs" />
     <Compile Include="WhatIfTest.cs" />
@@ -270,9 +267,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201911100856291_TravelCache.resx">
-      <DependentUpon>201911100856291_TravelCache.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201911101038245_TravelCacheRemovedLocationFromClocationCache.resx">
       <DependentUpon>201911101038245_TravelCacheRemovedLocationFromClocationCache.cs</DependentUpon>
     </EmbeddedResource>

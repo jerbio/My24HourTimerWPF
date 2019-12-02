@@ -839,6 +839,15 @@ namespace TilerTests
             return retValue;
         }
 
+        public static bool isTestEquivalent(this SubCalendarEvent firstSubevent, SubCalendarEvent secondSubevent)
+        {
+            bool retValue = (firstSubevent as TilerEvent).isTestEquivalent(secondSubevent as TilerEvent);
+            Assert.IsTrue(retValue);
+            retValue &= firstSubevent.isRepetitionLocked == secondSubevent.isRepetitionLocked;
+            Assert.IsTrue(retValue);
+            return retValue;
+        }
+
         public static bool isTestEquivalent(this ReferenceNow firstReferenceNow, ReferenceNow secondReferenceNow)
         {
             bool retValue = true;
@@ -956,8 +965,8 @@ namespace TilerTests
 
             retValue &= isTestEquivalent(firstCalEvent as TilerEvent, secondCalEvent as TilerEvent);
             Assert.IsTrue(retValue);
-            retValue &= (firstCalEvent.IsRepeat == secondCalEvent.IsRepeat ?
-                    (firstCalEvent.IsRepeat ? isTestEquivalent(firstCalEvent.Repeat, secondCalEvent.Repeat) : true) : //if repeat is enabled the run equivalecy test else then passing test
+            retValue &= (firstCalEvent.IsRecurring == secondCalEvent.IsRecurring ?
+                    (firstCalEvent.IsRecurring ? isTestEquivalent(firstCalEvent.Repeat, secondCalEvent.Repeat) : true) : //if repeat is enabled the run equivalecy test else then passing test
                     false); // if calendar repeat flags aren't the same then the calEvents are not equal
             Assert.IsTrue(retValue);
             retValue &= (firstCalEvent.getIsEventRestricted == secondCalEvent.getIsEventRestricted ?

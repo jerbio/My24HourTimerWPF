@@ -29,7 +29,7 @@ namespace TilerElements
         public readonly static TimeSpan ZeroTimeSpan = TimeSpan.FromTicks(0);
         public readonly static TimeSpan NegativeTimeSpan = TimeSpan.FromTicks(-1);
         public readonly static TimeSpan SixHourTimeSpan = TimeSpan.FromHours(6);
-        public readonly static string timeZoneString = "America/Denver";
+        public readonly static string timeZoneString = "";// "America/Denver";
         static Utility()
         {
             initializeFibonacci();
@@ -1451,6 +1451,22 @@ namespace TilerElements
             list[indexB] = tmp;
         }
 
+
+        static public DateTimeOffset MiddleTime(IDefinedRange timeLine)
+        {
+            DateTimeOffset retValue;
+            TimeSpan timeSpan = timeLine.End - timeLine.Start;
+            if(timeSpan.Ticks > 0)
+            {
+                retValue = timeLine.Start.Add(TimeSpan.FromSeconds(timeSpan.TotalSeconds / 2));
+                retValue = retValue.removeSecondsAndMilliseconds();
+            } else
+            {
+                retValue = timeLine.Start;
+            }
+
+            return retValue;
+        }
         public static DateTimeOffset ParseTime(string timeString)
         {
             string preParsingString = timeString;

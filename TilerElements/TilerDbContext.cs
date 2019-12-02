@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using Microsoft.AspNet.Identity.EntityFramework;
 using TilerElements;
+using System.Data.Entity.Core.Objects;
+using System.Data.Entity.Infrastructure;
 
 namespace TilerElements
 {
@@ -55,6 +57,11 @@ namespace TilerElements
         public static TilerDbContext Create()
         {
             return new TilerDbContext();
+        }
+
+        public void Detach(object entity)
+        {
+            ((IObjectContextAdapter)this).ObjectContext.Detach(entity);
         }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)

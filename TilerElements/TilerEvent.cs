@@ -759,7 +759,7 @@ namespace TilerElements
         {
             get
             {
-                return IsRepeat && _EventRepetition != null && _EventRepetition.isPersistable ? _EventRepetition : null;
+                return IsRecurring && _EventRepetition!=null && _EventRepetition.isPersistable ?  _EventRepetition : null;
             }
             set
             {
@@ -1034,7 +1034,7 @@ namespace TilerElements
         #endregion
 
 
-        public virtual bool IsRepeat
+        public virtual bool IsRecurring
         {
             get
             {

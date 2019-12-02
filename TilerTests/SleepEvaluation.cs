@@ -21,33 +21,35 @@ namespace TilerTests
         //    currentUser.DeleteAllCalendarEvents();
         //}
 
-        ///// <summary>
-        ///// Simple test. Test inserts a new event in a given fresh full day, and then test to ensure that the schedule has the schedule event in given day. 
-        ///// Also that fresh day has to be a full day i.e full twenty four hours, and not partially sliced because of the time of the calculation execution.
-        ///// The neww event has just enough sleep before the beginning of the event.
-        ///// </summary>
-        //[TestMethod]
-        //public void sleepTestMethod1()
-        //{
-        //    UserAccount currentUser = TestUtility.getTestUser();
-        //    currentUser.Login().Wait();
-        //    DateTimeOffset refNow = DateTimeOffset.UtcNow;
-        //    TestSchedule Schedule = new TestSchedule(currentUser, refNow);
-        //    ReferenceNow now = Schedule.Now;
-            
-        //    Location location = TestUtility.getLocations()[0];
-        //    List<DayTimeLine> allValidDays = now.getAllDaysForCalc().ToList();
-        //    DayTimeLine dayForCalculaition = allValidDays[1];
-        //    CalendarEvent newCalEvent = TestUtility.generateCalendarEvent(TimeSpan.FromHours(1), new Repetition(), dayForCalculaition.Start, dayForCalculaition.End, 1, false, location: location);
-        //    Schedule.AddToScheduleAndCommit(newCalEvent).Wait();
-        //    dayForCalculaition = now.getAllDaysForCalc().ToList()[1];
-        //    TimeSpan atLeastSleepSpan = TimeSpan.FromHours(8);
-        //    SubCalendarEvent subEvent = dayForCalculaition.getSubEventsInTimeLine().First();
-        //    TimeSpan sleepSpan = subEvent.Start - dayForCalculaition.Start;
+        /// <summary>
+        /// Simple test. Test inserts a new event in a given fresh full day, and then test to ensure that the schedule has the schedule event in given day. 
+        /// Also that fresh day has to be a full day i.e full twenty four hours, and not partially sliced because of the time of the calculation execution.
+        /// The neww event has just enough sleep before the beginning of the event.
+        /// </summary>
+        [TestMethod]
+        public void sleepTestMethod1()
+        {
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            var packet = TestUtility.CreatePacket();
+            UserAccount user = packet.Account;
+            TilerUser tilerUser = packet.User;
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
+            ReferenceNow now = Schedule.Now;
 
-        //    bool assertValue = atLeastSleepSpan <= sleepSpan;
-        //    Assert.IsTrue(assertValue);
-        //}
+            Location location = TestUtility.getLocations()[0];
+            List<DayTimeLine> allValidDays = now.getAllDaysForCalc().ToList();
+            DayTimeLine dayForCalculaition = allValidDays[1];
+            CalendarEvent newCalEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), dayForCalculaition.Start, dayForCalculaition.End, 1, false, location: location);
+            Schedule.AddToScheduleAndCommit(newCalEvent);
+            dayForCalculaition = now.getAllDaysForCalc().ToList()[1];
+            TimeSpan atLeastSleepSpan = TimeSpan.FromHours(8);
+            SubCalendarEvent subEvent = dayForCalculaition.getSubEventsInTimeLine().OrderBy(sub => sub.End).First();
+            TimeSpan sleepSpan = subEvent.Start - dayForCalculaition.Start;
+
+            bool assertValue = atLeastSleepSpan <= sleepSpan;
+            Assert.IsTrue(assertValue);
+        }
 
 
         //[TestMethod]

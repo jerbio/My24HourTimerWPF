@@ -41,9 +41,7 @@ namespace TilerTests
             DayOfWeek firstDayOfWeek = firstDayFromStart.DayOfWeek;
             DayOfWeek secondDayOfWeek = secondDayFromStart.DayOfWeek;
 
-            user = TestUtility.getTestUser(userId: tilerUser.Id);
-            tilerUser = user.getTilerUser();
-            user.Login().Wait();
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             refNow = firstDayFromStart;
             Schedule = new TestSchedule(user, refNow);
             SubCalendarEvent subEvent = testEvent.ActiveSubEvents.First();
@@ -51,17 +49,13 @@ namespace TilerTests
             Schedule.persistToDB().Wait();
 
 
-            user = TestUtility.getTestUser(userId: tilerUser.Id);
-            tilerUser = user.getTilerUser();
-            user.Login().Wait();
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
             Schedule.markSubEventAsComplete(subEvent.Id).Wait();
             Schedule.persistToDB().Wait();
 
 
-            user = TestUtility.getTestUser(userId: tilerUser.Id);
-            tilerUser = user.getTilerUser();
-            user.Login().Wait();
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             refNow = secondDayFromStart;
             Schedule = new TestSchedule(user, refNow);
             testEvent = TestUtility.getCalendarEventById(testEvent.Id, user);
@@ -71,9 +65,7 @@ namespace TilerTests
             Schedule.persistToDB().Wait();
 
 
-            user = TestUtility.getTestUser(userId: tilerUser.Id);
-            tilerUser = user.getTilerUser();
-            user.Login().Wait();
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
             testEvent = Schedule.getCalendarEvent(testEvent.Id);
             subEvent = testEvent.ActiveSubEvents.First();
@@ -81,9 +73,7 @@ namespace TilerTests
             Schedule.persistToDB().Wait();
 
 
-            user = TestUtility.getTestUser(userId: tilerUser.Id);
-            tilerUser = user.getTilerUser();
-            user.Login().Wait();
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
             Schedule.FindMeSomethingToDo(new Location()).Wait();
             testEvent = Schedule.getCalendarEvent(testEvent.Id);

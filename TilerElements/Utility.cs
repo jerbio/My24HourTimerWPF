@@ -18,6 +18,7 @@ namespace TilerElements
         public static DateTimeOffset JSStartTime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, new TimeSpan());
         public static TimeSpan StartOfTimeTimeSpan = JSStartTime - new DateTimeOffset(0, new TimeSpan());
         public readonly static DateTimeOffset BeginningOfTime = new DateTimeOffset();
+        public readonly static DateTimeOffset ProcrastinateStartTime = BeginningOfTime.AddDays(1);
         public readonly static Random rng = new Random();
         public readonly static int defaultBeginDay = -15;
         public readonly static int defaultEndDay = 90;

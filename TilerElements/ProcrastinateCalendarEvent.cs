@@ -96,7 +96,7 @@ namespace TilerElements
             return this.updateSplitCount(SplitCOunt);
         }
 
-        public static CalendarEvent generateProcrastinateAll(DateTimeOffset referenceNow, TilerUser user, TimeSpan DelaySpan, string timeZone, ProcrastinateCalendarEvent procrastinateEvent = null, string NameOfEvent = "BLOCKED OUT")
+        public static ProcrastinateCalendarEvent generateProcrastinateAll(DateTimeOffset referenceNow, TilerUser user, TimeSpan DelaySpan, string timeZone, ProcrastinateCalendarEvent procrastinateEvent = null, string NameOfEvent = "BLOCKED OUT")
         {
             EventName blockName = new EventName(user, null, NameOfEvent);
             EventID clearAllEventsId = new EventID(user.getClearAllEventsId());
@@ -111,7 +111,7 @@ namespace TilerElements
                 blockName, eventStartTime, eventEndTime, DelaySpan, new TimeSpan(0), new TimeSpan(0), new Repetition(), new Location(), new EventDisplay(), new MiscData(), true, false, user, new TilerUserGroup(), timeZone, 1);
                 blockName.Creator_EventDB = procrastinateAll.getCreator;
                 blockName.AssociatedEvent = procrastinateAll;
-                procrastinateAll.disableSubEvent(procrastinateAll.ActiveSubEvents.First());
+                procrastinateAll.ActiveSubEvents.First().disable(procrastinateAll);
             }
             else
             {

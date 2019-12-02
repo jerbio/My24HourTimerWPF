@@ -151,7 +151,7 @@ namespace TilerCore
                     }).ToList();
                 if (CurrentlyValid.Count > 0)
                 {
-                    ILookup<TimeOfDayPreferrence.DaySection, SubCalendarEvent> SubEventRegrouping = groupEvents(CurrentlyValid, DayInfo);
+                    ILookup<TimeOfDayPreferrence.DaySection, SubCalendarEvent> SubEventRegrouping = groupEvents(CurrentlyValid.OrderBy(o=>o.Start), DayInfo);// this is ordered by start because you need to make sure the subevents are in some known order. So the code can be more deterministic, the last thing you need is the Id of the subcalendarevent controlling the order of the Ilookup "value"
 
                     List<OptimizedGrouping> DaySectorGrouping = new List<OptimizedGrouping>();
                     foreach (IGrouping<TimeOfDayPreferrence.DaySection, SubCalendarEvent> eachIGrouping in SubEventRegrouping)

@@ -90,17 +90,17 @@ namespace TilerCore
             SubEventsToDuration = new Dictionary<SubCalendarEvent, TimeSpan>();
         }
 
-        public void addSubEvent (SubCalendarEvent tilerEvent, TimeSpan duration)
+        public void addSubEvent (SubCalendarEvent subEvent, TimeSpan duration)
         {
-            if(SubEventsToDuration.ContainsKey(tilerEvent))
+            if(SubEventsToDuration.ContainsKey(subEvent))
             {
-                TimeSpan currentDuration = SubEventsToDuration[tilerEvent];
+                TimeSpan currentDuration = SubEventsToDuration[subEvent];
                 TotalSpan -= currentDuration;
-                SubEventsToDuration[tilerEvent] = duration;
+                SubEventsToDuration[subEvent] = duration;
             }
             else
             {
-                SubEventsToDuration.Add(tilerEvent,duration);
+                SubEventsToDuration.Add(subEvent,duration);
             }
             
             TotalSpan+=duration;
@@ -115,7 +115,7 @@ namespace TilerCore
         public void updateScore()
         {
             int eventCount = SubEventsToDuration.Count + DesignatedSubEventsToDuration.Count;
-            double sumOfSquares = Math.Pow(TotalSpan.Hours, 2) + Math.Pow(eventCount, 2);
+            double sumOfSquares = Math.Pow(TotalSpan.TotalHours, 2) + Math.Pow(eventCount, 2);
             _Score = Math.Sqrt(sumOfSquares);
         }
 

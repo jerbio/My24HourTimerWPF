@@ -10,9 +10,6 @@ namespace TilerTests
     [TestClass]
     public class RepeatAnEvent
     {
-        // TODO
-        // procrastinateAll, or procrastinate should reset should release the subevent, repeat for all event types
-        // What if you have no extra sub events
 
 
 
@@ -160,7 +157,7 @@ namespace TilerTests
         }
 
         /// <summary>
-        /// Procrastinateall should push sub events and still maintain repetition lock
+        /// Procrastinateall should reset repetition locks after "Now"
         /// </summary>
         [TestMethod]
         public void procrastinateAllResetsAllrepetitionLock()
@@ -170,6 +167,7 @@ namespace TilerTests
             UserAccount user = setupPacket.Account;
             TilerUser tilerUser = setupPacket.User;
             DateTimeOffset refNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
+            refNow = new DateTimeOffset(refNow.Year, refNow.Month, 1, 0, 0, 0, new TimeSpan());
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             int hourCount = 8;
             DateTimeOffset start = refNow;
@@ -228,15 +226,19 @@ namespace TilerTests
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             repetitionInstance_DB = TestUtility.getCalendarEventById(firstSubEvent.Id, user);
-            List<SubCalendarEvent> subEventsAfterRepetitionSecond = repetitionInstance_DB.ActiveSubEvents.Where(subEvent => subEvent.End >= secondRefNow).OrderBy(o => o.Start).ToList();
-            thirdSubCalendarEvent = subEventsAfterRepetition[2];
-            SubCalendarEvent fourtSubCalendarEvent = subEventsAfterRepetition[3];
+            List<SubCalendarEvent> subEventsAfterRepetitionSecond = repetitionInstance_DB.OrderByStartActiveSubEvents.Where(subEvent => subEvent.End >= secondRefNow).ToList();
+            firstSubEvent = subEventsAfterRepetitionSecond[0];
+            secondSubevent = subEventsAfterRepetitionSecond[1];
+            thirdSubCalendarEvent = subEventsAfterRepetitionSecond[2];
+            SubCalendarEvent fourtSubCalendarEvent = subEventsAfterRepetitionSecond[3];
+            Assert.IsTrue(firstSubEvent.isRepetitionLocked);
+            Assert.IsTrue(secondSubevent.isRepetitionLocked);
             Assert.IsTrue(thirdSubCalendarEvent.isRepetitionLocked);
             Assert.IsFalse(fourtSubCalendarEvent.isRepetitionLocked);
             
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            CalendarEvent beforeRepetitionInstance_DB = TestUtility.getCalendarEventById(firstSubEvent.Id, user);
+            
             schedule = new TestSchedule(user, secondRefNow);
             TimeSpan threeHourSpan = TimeSpan.FromHours(3);
             var procrartinateResult = schedule.ProcrastinateAll(threeHourSpan);
@@ -244,16 +246,14 @@ namespace TilerTests
             Assert.IsNull(procrartinateResult.Item1);
             schedule.persistToDB().Wait();
 
+            CalendarEvent afterProcrastinataionInstance_DB = TestUtility.getCalendarEventById(firstSubEvent.Id, user);
+            List<SubCalendarEvent> subEventsAfterProcrastinateAll = afterProcrastinataionInstance_DB.OrderByStartActiveSubEvents.Where(subEvent => subEvent.End >= procrastinationStart).ToList();
 
-            List<SubCalendarEvent> subEventsAfterProcrastinateAll = beforeRepetitionInstance_DB.OrderByStartActiveSubEvents.Where(subEvent => subEvent.End >= procrastinationStart).ToList();
-
-            SubCalendarEvent firstSubEventAfterProcrastinate = subEventsAfterProcrastinateAll[0];
-            SubCalendarEvent secondSubEventAfterProcrastinate = subEventsAfterProcrastinateAll[1];
-            SubCalendarEvent thirdSubEventAfterProcrastinate = subEventsAfterProcrastinateAll[2];
-            Assert.IsTrue(firstSubEventAfterProcrastinate.isRepetitionLocked);// activating repeat subevent should still be locked
-            Assert.IsTrue(secondSubEventAfterProcrastinate.isRepetitionLocked); // subsequent repeat event should still be locked
-            Assert.IsTrue(thirdSubEventAfterProcrastinate.isRepetitionLocked); // Third subevent is repetition locked because of double repeat press
-            Assert.IsTrue(firstSubEventAfterProcrastinate.Start == procrastinationStart);
+            Assert.IsTrue(subEventsAfterProcrastinateAll.Count == 4);// there should be only four events rescheduled since the first event happened earlier
+            foreach (SubCalendarEvent eachSubEvent in subEventsAfterProcrastinateAll)
+            {
+                Assert.IsFalse(eachSubEvent.isRepetitionLocked);
+            }
 
         }
 
@@ -425,5 +425,241 @@ namespace TilerTests
             }
 
         }
+
+
+        /// <summary>
+        /// Repeat of restricted event out side the restricted time frame should still work, so if an 2 hour restricted tile is has restriction of 2-5 (3 hour restricted window) if repeat is called then the next repeat event should be attached and should stil work. Even though repeating means breaking the 3 hour window
+        /// </summary>
+        [TestMethod]
+        public void canRepeatRestrictionOutsideRestrictionFrame()
+        {
+            #region init
+            var setupPacket = TestUtility.CreatePacket();
+            UserAccount user = setupPacket.Account;
+            TilerUser tilerUser = setupPacket.User;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
+            refNow = new DateTimeOffset(refNow.Year, refNow.Month, 1, 0, 0, 0, new TimeSpan());
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            int hourCount = 2;
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = start.AddDays(21);
+            TimeLine repetitionRange = new TimeLine(start, end.AddDays(-5).AddHours(-23));
+            TimeSpan duration = TimeSpan.FromHours(hourCount);
+            TimeSpan restrictionSpan = TimeSpan.FromHours(3);
+            int splitCount = 1;
+            #endregion
+            #region addFirstEvent
+            TestSchedule schedule = new TestSchedule(user, refNow);
+            DateTimeOffset RestrictionStartTime = start.AddHours(10);
+            RestrictionProfile restrictionProfile = new RestrictionProfile(RestrictionStartTime, restrictionSpan);
+            Repetition repetition0 = new Repetition(repetitionRange, Repetition.Frequency.DAILY, repetitionRange.CreateCopy());
+            CalendarEvent testEvent0 = TestUtility.generateCalendarEvent(tilerUser, duration, repetition0, start, end, splitCount, false, restrictionProfile: restrictionProfile, now: schedule.Now);
+            schedule.AddToScheduleAndCommitAsync(testEvent0).Wait();
+            #endregion
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, refNow);
+            List<SubCalendarEvent> subEvents = schedule.getAllActiveSubEvents().OrderBy(o => o.Start).ToList();
+            bool pinSuccess = Utility.PinSubEventsToStart(subEvents, testEvent0.StartToEnd);
+            SubCalendarEvent firstSubEvent = subEvents[0];
+            SubCalendarEvent secondSubEvent = subEvents[1];
+            if (!pinSuccess)
+            {
+                string errorMessage = "Test failed to successfully pin sub events currently scheduled, seems like a broken setup. Refnow is" + refNow.ToString();
+                throw new Exception(errorMessage);
+            }
+            Assert.AreNotEqual(firstSubEvent.End, secondSubEvent.Start);
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, firstSubEvent.Start);
+            schedule.SetSubeventAsNow(firstSubEvent.Id);
+            schedule.persistToDB().Wait();
+
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, firstSubEvent.Start);
+            SubCalendarEvent firstSubEventAsNow = schedule.getSubCalendarEvent(firstSubEvent.Id);
+            DateTimeOffset middleOfFirst = Utility.MiddleTime(firstSubEventAsNow);
+            schedule = new TestSchedule(user, middleOfFirst);
+            schedule.RepeatEvent(firstSubEventAsNow.Id, new Location());
+            schedule.persistToDB().Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            List<SubCalendarEvent> subEventsAfterRepeat = TestUtility.getCalendarEventById(firstSubEventAsNow.Id, user).OrderByStartActiveSubEvents.ToList();
+            SubCalendarEvent firstSubeventAfterRepeat = subEventsAfterRepeat[0];
+            SubCalendarEvent secondSubeventAfterRepeat = subEventsAfterRepeat[1];
+            Assert.IsTrue(firstSubeventAfterRepeat.isRepetitionLocked);
+            Assert.IsTrue(secondSubeventAfterRepeat.isRepetitionLocked);
+            Assert.AreEqual(firstSubeventAfterRepeat.End, secondSubeventAfterRepeat.Start);
+        }
+
+
+        /// <summary>
+        /// When a non rigid subevent is reajusted by adjusting the start and end time then repeat. the other sub event should be able to snap into place even though the subevent is now rigid.
+        /// </summary>
+        [TestMethod]
+        public void canRepeatAfterNonRigidSubEventIsSetTORigideRestrictionFrame()
+        {
+            #region init
+            var setupPacket = TestUtility.CreatePacket();
+            UserAccount user = setupPacket.Account;
+            TilerUser tilerUser = setupPacket.User;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
+            refNow = new DateTimeOffset(refNow.Year, refNow.Month, 1, 0, 0, 0, new TimeSpan());
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            int hourCount = 2;
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = start.AddDays(21);
+            TimeLine repetitionRange = new TimeLine(start, end.AddDays(-5).AddHours(-23));
+            TimeSpan duration = TimeSpan.FromHours(hourCount);
+            TimeSpan restrictionSpan = TimeSpan.FromHours(3);
+            int splitCount = 1;
+            #endregion
+            #region addFirstEvent
+            TestSchedule schedule = new TestSchedule(user, refNow);
+            DateTimeOffset RestrictionStartTime = start.AddHours(10);
+            RestrictionProfile restrictionProfile = new RestrictionProfile(RestrictionStartTime, restrictionSpan);
+            Repetition repetition0 = new Repetition(repetitionRange, Repetition.Frequency.DAILY, repetitionRange.CreateCopy());
+            CalendarEvent testEvent0 = TestUtility.generateCalendarEvent(tilerUser, duration, repetition0, start, end, splitCount, false, restrictionProfile: restrictionProfile, now: schedule.Now);
+            schedule.AddToScheduleAndCommitAsync(testEvent0).Wait();
+            #endregion
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, refNow);
+            List<SubCalendarEvent> subEvents = schedule.getAllActiveSubEvents().OrderBy(o => o.Start).ToList();
+            bool pinSuccess = Utility.PinSubEventsToStart(subEvents, testEvent0.StartToEnd);
+            SubCalendarEvent firstSubEvent = subEvents[0];
+            SubCalendarEvent secondSubEvent = subEvents[1];
+            if (!pinSuccess)
+            {
+                string errorMessage = "Test failed to successfully pin sub events currently scheduled, seems like a broken setup. Refnow is" + refNow.ToString();
+                throw new Exception(errorMessage);
+            }
+            Assert.AreNotEqual(firstSubEvent.End, secondSubEvent.Start);
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, refNow);
+            Assert.IsFalse(firstSubEvent.isRigid);
+            schedule.BundleChangeUpdate(firstSubEvent.Id, firstSubEvent.Name, refNow, refNow.Add(restrictionSpan), new DateTimeOffset(), firstSubEvent.CalendarEventRangeEnd, firstSubEvent.ParentCalendarEvent.NumberOfSplit, firstSubEvent.Notes.UserNote);
+            schedule.persistToDB().Wait();
+
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, firstSubEvent.Start);
+            SubCalendarEvent firstSubEventReadjusted = schedule.getSubCalendarEvent(firstSubEvent.Id);
+            Assert.IsFalse(firstSubEventReadjusted.isRepetitionLocked);
+            Assert.IsTrue(firstSubEventReadjusted.isRigid);
+
+
+            DateTimeOffset middleOfFirst = Utility.MiddleTime(firstSubEventReadjusted);
+            schedule = new TestSchedule(user, middleOfFirst);
+            schedule.RepeatEvent(firstSubEventReadjusted.Id, new Location());
+            schedule.persistToDB().Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            List<SubCalendarEvent> subEventsAfterRepeat = TestUtility.getCalendarEventById(firstSubEventReadjusted.Id, user).OrderByStartActiveSubEvents.ToList();
+            SubCalendarEvent firstSubeventAfterRepeat = subEventsAfterRepeat[0];
+            SubCalendarEvent secondSubeventAfterRepeat = subEventsAfterRepeat[1];
+            Assert.IsTrue(firstSubeventAfterRepeat.isRepetitionLocked);
+            Assert.IsTrue(secondSubeventAfterRepeat.isRepetitionLocked);
+            Assert.AreEqual(firstSubeventAfterRepeat.End, secondSubeventAfterRepeat.Start);
+        }
+
+
+
+        /// <summary>
+        /// Repetition can only run on current event
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(CustomErrors), "Cannot repeat Tile that is not current active tile")]
+        public void currentEventCanOnlyBeSetAsRepeated()
+        {
+            #region init
+            var setupPacket = TestUtility.CreatePacket();
+            UserAccount user = setupPacket.Account;
+            TilerUser tilerUser = setupPacket.User;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
+            refNow = new DateTimeOffset(refNow.Year, refNow.Month, 1, 0, 0, 0, new TimeSpan());
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            int hourCount = 8;
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = start.AddDays(21);
+            TimeLine repetitionRange = new TimeLine(start, end.AddDays(-5).AddHours(-23));
+            TimeSpan duration = TimeSpan.FromHours(hourCount);
+            int splitCount = 5;
+            #endregion
+            #region addFirstEvent
+            Repetition repetition0 = new Repetition(repetitionRange, Repetition.Frequency.WEEKLY, repetitionRange.CreateCopy());
+            CalendarEvent testEvent0 = TestUtility.generateCalendarEvent(tilerUser, duration, repetition0, start, end, splitCount, false);
+            TestSchedule schedule = new TestSchedule(user, refNow);
+            schedule.AddToScheduleAndCommitAsync(testEvent0).Wait();
+            #endregion
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, refNow);
+            List<SubCalendarEvent> subEvents = schedule.getAllActiveSubEvents().OrderBy(o => o.Start).ToList();
+            bool pinSuccess = Utility.PinSubEventsToEnd(subEvents, testEvent0.StartToEnd);
+            SubCalendarEvent firstSubEvent = subEvents.First();
+            if (!pinSuccess || schedule.Now.constNow == firstSubEvent.Start)
+            {
+                string errorMessage = "Test failed to successfully pin sub events currently scheduled, seems like a broken setup. Refnow is" + refNow.ToString();
+                throw new Exception(errorMessage);
+            }
+
+            schedule.RepeatEvent(firstSubEvent.Id, new Location());
+        }
+
+
+        /// <summary>
+        /// Repetition can only run on non rigid events but should work on locked events
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(CustomErrors), "Cannot repeat a rigid event")]
+        public void repeatCannotRunOnRigid()
+        {
+            #region init
+            var setupPacket = TestUtility.CreatePacket();
+            UserAccount user = setupPacket.Account;
+            TilerUser tilerUser = setupPacket.User;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
+            refNow = new DateTimeOffset(refNow.Year, refNow.Month, 1, 0, 0, 0, new TimeSpan());
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            int hourCount = 8;
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = start.AddDays(21);
+            TimeLine repetitionRange = new TimeLine(start, end.AddDays(-5).AddHours(-23));
+            TimeSpan duration = TimeSpan.FromHours(hourCount);
+            int splitCount = 5;
+            #endregion
+            #region addFirstEvent
+            Repetition repetition0 = new Repetition(repetitionRange, Repetition.Frequency.WEEKLY, repetitionRange.CreateCopy());
+            CalendarEvent testEvent0 = TestUtility.generateCalendarEvent(tilerUser, duration, repetition0, start, end, splitCount, false);
+            TestSchedule schedule = new TestSchedule(user, refNow);
+            schedule.AddToScheduleAndCommitAsync(testEvent0).Wait();
+            #endregion
+
+            #region addRigidEvent
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            DateTimeOffset rigidStart = refNow.AddDays(1.5);
+            DateTimeOffset rigidEnd = rigidStart.AddHours(2);
+            Repetition rigidRepetition = new Repetition(repetitionRange, Repetition.Frequency.WEEKLY, new TimeLine(rigidStart, rigidEnd));
+            TimeSpan rigidDuration = rigidEnd - rigidStart;
+            CalendarEvent rigidEvent = TestUtility.generateCalendarEvent(tilerUser, rigidDuration, rigidRepetition, rigidStart, rigidEnd, 1, true);
+            schedule = new TestSchedule(user, refNow);
+            schedule.AddToScheduleAndCommitAsync(rigidEvent).Wait();
+            #endregion
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, refNow);
+            List<SubCalendarEvent> subEvents = schedule.getCalendarEvent(rigidEvent.Id).ActiveSubEvents.OrderBy(o => o.Start).ToList();
+            SubCalendarEvent firstRigidSubevent = subEvents.First();
+            DateTimeOffset middleOfRigid = Utility.MiddleTime(firstRigidSubevent);
+            schedule = new TestSchedule(user, middleOfRigid);
+            schedule.RepeatEvent(firstRigidSubevent.Id, new Location());
+        }
+
+
     }
 }

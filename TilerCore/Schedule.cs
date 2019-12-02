@@ -704,7 +704,7 @@ namespace TilerCore
         /// <returns></returns>
         public IEnumerable<SubCalendarEvent> getAllActiveSubEvents()
         {
-            return AllEventDictionary.Values.SelectMany(cal => cal.ActiveSubEvents);
+            return getAllCalendarEvents().SelectMany(cal => cal.ActiveSubEvents);
         }
 
         /// <summary>
@@ -713,7 +713,7 @@ namespace TilerCore
         /// <returns></returns>
         public IEnumerable<CalendarEvent> getOnlyTilerCalendarEvents()
         {
-            return AllEventDictionary.Values.Where(calEvent => calEvent.ThirdpartyType == ThirdPartyControl.CalendarTool.tiler);
+            return getAllCalendarEvents().Where(calEvent => calEvent.ThirdpartyType == ThirdPartyControl.CalendarTool.tiler);
         }
 
         /// <summary>
@@ -1167,6 +1167,7 @@ namespace TilerCore
             HashSet<SubCalendarEvent> NotdoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
             Dictionary<string, CalendarEvent> AllEventDictionary_Cpy = new Dictionary<string, CalendarEvent>();
             AllEventDictionary_Cpy = AllEventDictionary.ToDictionary(obj => obj.Key, obj => obj.Value.createCopy());
+            clearAllRepetitionLock();
             NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, NotdoneYet, null, null, 1);
 
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(NewEvent.Error, AllEventDictionary_Cpy);
@@ -1337,6 +1338,7 @@ namespace TilerCore
                 name, Now.constNow, Now.constNow.Add(duration), duration, new TimeSpan(), new TimeSpan(), new Repetition(), currentLocation, null, null, false, false, TilerUser, new TilerUserGroup(), timeZone, null);
             name.Creator_EventDB = NewEvent.getCreator;
             name.AssociatedEvent = NewEvent;
+            clearAllRepetitionLock();
             NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, new HashSet<SubCalendarEvent>(), currentLocation, null, 1, true, false);
 
             CustomErrors RetValue = NewEvent.Error;
@@ -5525,7 +5527,19 @@ namespace TilerCore
             return SpecificFreeSpots.ToArray();
         }
 
-        
+        void clearAllRepetitionLock()
+        {
+            IEnumerable<SubCalendarEvent> subEvents = getAllActiveSubEvents();
+            subEvents.AsParallel().ForAll((eachSubEvent) =>
+            {
+                if (eachSubEvent.End > Now.constNow && eachSubEvent.isRepetitionLocked)
+                {
+                    eachSubEvent.disableRepetitionLock();
+                }
+            });
+        }
+
+
         public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ProcrastinateJustAnEvent(string EventID, TimeSpan RangeOfPush)
         {
             CalendarEvent ProcrastinateEvent = getCalendarEvent(EventID);
@@ -5611,19 +5625,36 @@ namespace TilerCore
         public virtual void RepeatEvent(EventID eventId, Location location)
         {
             CalendarEvent calEvent = getCalendarEvent(eventId);
-            if(!calEvent.isRigid)
+            if(!calEvent.isRigid && !calEvent.isProcrastinateEvent && !calEvent.isThirdParty)
             {
                 SubCalendarEvent subEvent = getSubCalendarEvent(eventId);
-                subEvent.ParentCalendarEvent.repeatLockSubEvent(subEvent.Id);
-                subEvent.ParentCalendarEvent.repeatEventAfterTime(subEvent.End);
-                HashSet<SubCalendarEvent> NotDoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
-                CalendarEvent ScheduleUpdated = CalendarEvent.getEmptyCalendarEvent(new EventID());
-                addCalendarEventToGlobalSchedule(ScheduleUpdated);
-                ScheduleUpdated = EvaluateTotalTimeLineAndAssignValidTimeSpots(ScheduleUpdated, NotDoneYet, location);
+                if(subEvent.IsDateTimeWithin(Now.constNow)) {
+                    subEvent.ParentCalendarEvent.repeatLockSubEvent(subEvent.Id);
+                    subEvent.ParentCalendarEvent.repeatEventAfterTime(subEvent.End);
+                    HashSet<SubCalendarEvent> NotDoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
+                    CalendarEvent ScheduleUpdated = CalendarEvent.getEmptyCalendarEvent(new EventID());
+                    addCalendarEventToGlobalSchedule(ScheduleUpdated);
+                    ScheduleUpdated = EvaluateTotalTimeLineAndAssignValidTimeSpots(ScheduleUpdated, NotDoneYet, location);
+                } else
+                {
+                    throw new CustomErrors(CustomErrors.Errors.Repeated_Tile_Is_Not_Current_Tile);
+                }
             }
             else
             {
-                throw new CustomErrors(CustomErrors.Errors.TilerConfig_Repeat_Rigid);
+                if (calEvent.isThirdParty)
+                {
+                    throw new CustomErrors(CustomErrors.Errors.TilerConfig_Repeat_Third_Party);
+                }
+                else if(calEvent.isProcrastinateEvent)
+                {
+                    throw new CustomErrors(CustomErrors.Errors.TilerConfig_Repeat_Procrastinate_All);
+                }
+                else
+                {
+                    throw new CustomErrors(CustomErrors.Errors.TilerConfig_Repeat_Rigid);
+                }
+                
             }
         }
 

@@ -2753,7 +2753,23 @@ namespace TilerCore
                     EachDay.RemoveSubEvent(subEvent.Id);
                 }
 
-                spaceEventsByTravelTime(EachDay, dayPath.getSubevents());
+                Tuple<SubCalendarEvent, SubCalendarEvent, SubCalendarEvent> wakeAndSleepEvents = spaceEventsByTravelTime(EachDay, dayPath.getSubevents());
+                if(wakeAndSleepEvents.Item1!=null)
+                {
+                    EachDay.WakeSubEvent = wakeAndSleepEvents.Item1;
+                }
+
+                if (wakeAndSleepEvents.Item2 != null)
+                {
+                    EachDay.SleepSubEvent = wakeAndSleepEvents.Item2;
+                }
+
+                if (wakeAndSleepEvents.Item3 != null)
+                {
+                    EachDay.PrecedingDaySleepSubEvent = wakeAndSleepEvents.Item3;
+                }
+
+
                 if (i > 0 && EachDay.PrecedingDaySleepSubEvent != null)
                 {
                     DayTimeLine previousDay = AllDayTimeLine[i - 1];
@@ -2800,8 +2816,9 @@ namespace TilerCore
             return retValue;
         }
 
-        void spaceEventsByTravelTime(DayTimeLine myDay, List<SubCalendarEvent> subEvents, bool useRemoteCalls = true)
+        Tuple<SubCalendarEvent, SubCalendarEvent, SubCalendarEvent> spaceEventsByTravelTime(DayTimeLine myDay, List<SubCalendarEvent> subEvents, bool useRemoteCalls = true)
         {
+            SubCalendarEvent wakeSubEvent = null, SleepSubEvent = null, SleepOfPreviousDay = null;
             subEvents.ForEach(subEvent => subEvent.Conflicts.UpdateConflictFlag(false));
             List<SubCalendarEvent> orderedByStartSubEvents = subEvents.OrderBy(subEvent => subEvent.Start).ThenBy(o => o.getActiveDuration).ToList();// the duration is needed for instances where there are two events with the same start. Think Zero time span events, where start time and end times are the same. In this case the next event after a zero time span events can have a same start time thats the same as the zero timespan event. An example zero time sapn event is the initializing procrastinate all event
             TimeLine myTimeLine = myDay.getJustTimeLine();
@@ -2864,6 +2881,7 @@ namespace TilerCore
                 TimeLine sleepTimeLine = null;
                 if (splitIntoDaySection.ContainsKey(DaySection.Sleep))
                 {
+                    int previousDaySleepSubeventIndex = -1;// Holds the last subevent index before the postsubEvent starts
                     int sleepSubEventindex = subEventToIndex[sleepKvp.Key];
                     TimeLine sleepSectionTimeLine = splitIntoDaySection[DaySection.Sleep];
                     TimeLine beforeTimeLine = sleepSectionTimeLine.InterferringTimeLine(sleepKvp.Value.Item1);
@@ -2878,6 +2896,7 @@ namespace TilerCore
                                 throw new Exception("this pinning should not fail when it is the max Available spot");
                             }
                             postSleepSubEvents.AddRange(orderedByStartSubEvents.Skip(sleepSubEventindex));
+                            previousDaySleepSubeventIndex = sleepSubEventindex - 1;
                             postSleepTimeline = new TimeLine(beforeTimeLine.End, myDay.End);
                             sleepTimeLine = new TimeLine(beforeTimeLine.Start, beforeTimeLine.End);
                         }
@@ -2888,6 +2907,7 @@ namespace TilerCore
                                 throw new Exception("this pinning should not fail when it is the max Available spot");
                             }
                             postSleepSubEvents.AddRange(orderedByStartSubEvents.Skip(sleepSubEventindex+1));
+                            previousDaySleepSubeventIndex = sleepSubEventindex;
                             postSleepTimeline = new TimeLine(afterTimeLine.End, myDay.End);
                             sleepTimeLine = new TimeLine(afterTimeLine.Start, afterTimeLine.End);
                         }
@@ -2898,6 +2918,7 @@ namespace TilerCore
                             throw new Exception("this pinning should not fail when it is the max Available spot");
                         }
                         postSleepSubEvents.AddRange(orderedByStartSubEvents.Skip(sleepSubEventindex));
+                        previousDaySleepSubeventIndex = sleepSubEventindex - 1;
                         postSleepTimeline = new TimeLine(beforeTimeLine.End, myDay.End);
                         sleepTimeLine = new TimeLine(beforeTimeLine.Start, beforeTimeLine.End);
                     }
@@ -2908,11 +2929,17 @@ namespace TilerCore
                             throw new Exception("this pinning should not fail when it is the max Available spot");
                         }
                         postSleepSubEvents.AddRange(orderedByStartSubEvents.Skip(sleepSubEventindex+1));
+                        previousDaySleepSubeventIndex = sleepSubEventindex;
                         postSleepTimeline = new TimeLine(afterTimeLine.End, myDay.End);
                         sleepTimeLine = new TimeLine(afterTimeLine.Start, afterTimeLine.End);
                     } else
                     {
                         postSleepSubEvents = orderedByStartSubEvents.ToList();
+                    }
+
+                    if(previousDaySleepSubeventIndex >= 0)
+                    {
+                        SleepOfPreviousDay = orderedByStartSubEvents[previousDaySleepSubeventIndex];
                     }
                 }
                 else
@@ -2956,6 +2983,13 @@ namespace TilerCore
                 {
                     throw new Exception("Post sleep should be pinnable");
                 }
+
+                if (postSleepSubEvents.Count > 0)
+                {
+                    wakeSubEvent = postSleepSubEvents.First();
+                    SleepSubEvent = postSleepSubEvents.Last();
+                }
+                
 
                 HashSet<SubCalendarEvent> allReadyBeforeBumped = new HashSet<SubCalendarEvent>();
                 HashSet<SubCalendarEvent> allReadyAfterBumped = new HashSet<SubCalendarEvent>();
@@ -3046,10 +3080,7 @@ namespace TilerCore
 
                     return allIsPinned;
                 };
-
-
                 List<SubCalendarEvent>orderedByScorePostSleepSubEVents = postSleepSubEvents.OrderBy(o => o.Score).ToList();
-
                 foreach (SubCalendarEvent subEvent in orderedByScorePostSleepSubEVents)
                 {
                     DaySection daySection = DaySection.None;
@@ -3081,13 +3112,10 @@ namespace TilerCore
                     }
 
                     pinToEnd(subSequentSubEvents, subEvent, BoundTimeLine);
-                    //throw new Exception("if index is 0, between, and after");
                 }
-
-
-
             }
-
+            Tuple<SubCalendarEvent, SubCalendarEvent, SubCalendarEvent> retValue = new Tuple<SubCalendarEvent, SubCalendarEvent, SubCalendarEvent>(wakeSubEvent, SleepSubEvent, SleepOfPreviousDay);
+            return retValue;
         }
 
 

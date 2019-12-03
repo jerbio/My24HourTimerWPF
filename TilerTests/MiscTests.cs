@@ -113,7 +113,7 @@ namespace TilerTests
             DateTimeOffset start = TestUtility.parseAsUTC("1/1/1970 12:00:00 AM +00:00");
             DateTimeOffset end = TestUtility.parseAsUTC("4/30/2019 11:59:00 PM +00:00");
             TimeSpan timeSPanPerSubEvent = duration;
-            Location location = TestUtility.getLocations()[1];
+            Location location = TestUtility.getAdHocLocations()[1];
             List<DayOfWeek> daysOfWeek = new List<DayOfWeek>() { DayOfWeek.Friday };
             List<RestrictionTimeLine> restrictedTimeLines = new List<RestrictionTimeLine>() { new RestrictionTimeLine(TestUtility.parseAsUTC("1/1/0001 8:00:00 AM +00:00"), TestUtility.parseAsUTC("1/1/0001 6:00:00 PM +00:00")) };
             RestrictionProfile restrictionProfile = new RestrictionProfile(daysOfWeek, restrictedTimeLines);

@@ -29,7 +29,7 @@ namespace TilerTests
         [TestMethod]
         public void sleepTestMethod1()
         {
-            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
             var packet = TestUtility.CreatePacket();
             UserAccount user = packet.Account;
             TilerUser tilerUser = packet.User;
@@ -37,13 +37,13 @@ namespace TilerTests
             TestSchedule Schedule = new TestSchedule(user, refNow);
             ReferenceNow now = Schedule.Now;
 
-            Location location = TestUtility.getLocations()[0];
+            Location location = TestUtility.getAdHocLocations()[0];
             List<DayTimeLine> allValidDays = now.getAllDaysForCalc().ToList();
             DayTimeLine dayForCalculaition = allValidDays[1];
             CalendarEvent newCalEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), dayForCalculaition.Start, dayForCalculaition.End, 1, false, location: location);
             Schedule.AddToScheduleAndCommit(newCalEvent);
             dayForCalculaition = now.getAllDaysForCalc().ToList()[1];
-            TimeSpan atLeastSleepSpan = TimeSpan.FromHours(8);
+            TimeSpan atLeastSleepSpan = TimeSpan.FromHours(6);
             SubCalendarEvent subEvent = dayForCalculaition.getSubEventsInTimeLine().OrderBy(sub => sub.End).First();
             TimeSpan sleepSpan = subEvent.Start - dayForCalculaition.Start;
 
@@ -51,47 +51,79 @@ namespace TilerTests
             Assert.IsTrue(assertValue);
         }
 
+        /// <summary>
+        /// Test creates multiple calendar events and verifies if the sleep span is still pr
+        /// </summary>
+        [TestMethod]
+        public void sleepTestMethod2()
+        {
+            DateTimeOffset refNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
+            var packet = TestUtility.CreatePacket();
+            UserAccount user = packet.Account;
+            TilerUser tilerUser = packet.User;
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("10:00 pm");
+            TestSchedule schedule = new TestSchedule(user, refNow, startOfDay);
+            ReferenceNow now = schedule.Now;
 
-        //[TestMethod]
-        //public void sleepTestMethod2()
-        //{
-        //    UserAccount currentuser = TestUtility.getTestUser();
-        //    currentuser.Login().Wait();
-        //    DateTimeOffset refNow = DateTimeOffset.UtcNow;
-        //    DateTimeOffset startOfDay = TestUtility.parseAsUTC("10:00 pm");
-        //    TestSchedule schedule = new TestSchedule(currentuser, refNow, startOfDay);
-        //    ReferenceNow now = schedule.Now;
+            Location location = TestUtility.getAdHocLocations()[0];
+            List<DayTimeLine> allValidDays = now.getAllDaysForCalc().ToList();
+            DayTimeLine dayForCalculation0 = allValidDays[1];
+            DayTimeLine dayForCalculation1 = allValidDays[2];
+            DayTimeLine dayForCalculation2 = allValidDays[3];
+            TimeSpan eachEventTimeSpan = TimeSpan.FromHours(1.5);
+            CalendarEvent calEvent0 = TestUtility.generateCalendarEvent(tilerUser, eachEventTimeSpan, new Repetition(), dayForCalculation0.Start, dayForCalculation0.End, 1, false, location: location);
+            DateTimeOffset day2EventsStartEvents = dayForCalculation1.End;
+            DateTimeOffset day2EventsEndEvents = dayForCalculation1.End.Date.AddDays(1);
+            schedule.AddToScheduleAndCommit(calEvent0);
 
-        //    Location location = TestUtility.getLocations()[0];
-        //    List<DayTimeLine> allValidDays = now.getAllDaysForCalc().ToList();
-        //    DayTimeLine dayForCalculation0 = allValidDays[1];
-        //    DayTimeLine dayForCalculation1 = allValidDays[2];
-        //    DayTimeLine dayForCalculation2 = allValidDays[3];
-        //    TimeSpan eachEventTimeSpan = TimeSpan.FromHours(1.5);
-        //    CalendarEvent calEvent0 = TestUtility.generateCalendarEvent(eachEventTimeSpan, new Repetition(), dayForCalculation0.Start, dayForCalculation0.End, 1, false, location: location);
-        //    DateTimeOffset day2EventsStartEvents = dayForCalculation1.End;
-        //    DateTimeOffset day2EventsEndEvents = dayForCalculation1.End.Date.AddDays(1);
-        //    CalendarEvent calEvent1 = TestUtility.generateCalendarEvent(eachEventTimeSpan, new Repetition(), day2EventsStartEvents, day2EventsEndEvents, 1, false, location: location);
-        //    CalendarEvent calEvent2 = TestUtility.generateCalendarEvent(eachEventTimeSpan, new Repetition(), dayForCalculation2.Start, dayForCalculation2.End, 1, false, location: location);
-        //    schedule.AddToScheduleAndCommit(calEvent0).Wait();
-        //    schedule = new TestSchedule(currentuser, refNow, startOfDay);
-        //    schedule.AddToScheduleAndCommit(calEvent1).Wait();
-        //    schedule = new TestSchedule(currentuser, refNow, startOfDay);
-        //    schedule.AddToScheduleAndCommit(calEvent2).Wait();
-        //    now = schedule.Now;
-        //    allValidDays = now.getAllDaysForCalc().ToList();
-        //    dayForCalculation0 = allValidDays[1];
-        //    dayForCalculation1 = allValidDays[2];
-        //    dayForCalculation2 = allValidDays[3];
-        //    SubCalendarEvent subEvent0 = dayForCalculation0.getSubEventsInTimeLine().First();
-        //    SubCalendarEvent subEvent1 = dayForCalculation2.getSubEventsInTimeLine().OrderBy(subEvent => subEvent.Start).ToList()[0];
-        //    SubCalendarEvent subEvent2 = dayForCalculation2.getSubEventsInTimeLine().OrderBy(subEvent => subEvent.Start).ToList()[1];
-        //    TimeSpan sleepSpan = subEvent2.Start - dayForCalculation2.Start;
-        //    TimeSpan atLeastSleepSpan = TimeSpan.FromHours(8);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, refNow, startOfDay);
+            CalendarEvent calEvent1 = TestUtility.generateCalendarEvent(tilerUser, eachEventTimeSpan, new Repetition(), day2EventsStartEvents, day2EventsEndEvents, 1, false);
+            calEvent1.LocationId = location.Id;
+            calEvent1.AllSubEvents.AsParallel().ForAll((eachSubEvent) => eachSubEvent.LocationId = location.Id);
+            schedule.AddToScheduleAndCommit(calEvent1);
 
-        //    bool assertValue = atLeastSleepSpan <= sleepSpan;
-        //    Assert.IsTrue(assertValue);
-        //}
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            location = TestUtility.getLocation(user, tilerUser, location.Id);
+            CalendarEvent calEvent2 = TestUtility.generateCalendarEvent(tilerUser, eachEventTimeSpan, new Repetition(), dayForCalculation2.Start, dayForCalculation2.End, 1, false);
+            calEvent2.LocationId = location.Id;
+            calEvent2.AllSubEvents.AsParallel().ForAll((eachSubEvent) => eachSubEvent.LocationId = location.Id);
+            schedule = new TestSchedule(user, refNow, startOfDay);
+            schedule.AddToScheduleAndCommit(calEvent2);
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, refNow, startOfDay);
+            schedule.FindMeSomethingToDo(new Location()).Wait();
+            now = schedule.Now;
+            allValidDays = now.getAllDaysForCalc().ToList();
+            dayForCalculation0 = allValidDays[1];
+            dayForCalculation1 = allValidDays[2];
+            dayForCalculation2 = allValidDays[3];
+
+            List<DayTimeLine> dayTimeLines = new List<DayTimeLine>() { dayForCalculation0, dayForCalculation1, dayForCalculation2 };
+
+
+            TimeSpan atLeastSleepSpan = TimeSpan.FromHours(6);
+            foreach (DayTimeLine dayTimeline in dayTimeLines)
+            {
+                if(dayTimeline.getSubEventsInTimeLine().Count > 0)
+                {
+                    SubCalendarEvent subEvent = dayTimeline.WakeSubEvent;
+
+                    DateTimeOffset sleepStart = dayTimeline.Start;
+                    if(dayTimeline.PrecedingDaySleepSubEvent !=null)
+                    {
+                        sleepStart = dayTimeline.PrecedingDaySleepSubEvent.End;
+                    }
+
+                    TimeSpan sleepSpan = subEvent.Start - sleepStart;
+                    bool assertValue = atLeastSleepSpan <= sleepSpan;
+                    Assert.IsTrue(assertValue);
+                }
+                
+            }
+        }
 
         ///// <summary>
         ///// Test creates eight one hour event and schedules them for the same day. There is enough time for an eigh hour sleep time. test will validate that it occurs

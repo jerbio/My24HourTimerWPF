@@ -12,8 +12,9 @@ namespace TilerElements
     {
         ulong UniversalDayIndex;
         int BoundDayIndex;
-        SubCalendarEvent _sleepSubEVent;
+        SubCalendarEvent _sleepSubEvent;
         SubCalendarEvent _wakeSubEVent;
+        SubCalendarEvent _previousDaySleepSubEvent;
         #region Constructor
         public DayTimeLine(DateTimeOffset Start, DateTimeOffset End, ulong UniversalIndex, int BoundedIndex=-1):base(Start, End, null)
         {
@@ -53,25 +54,31 @@ namespace TilerElements
                 return UniversalDayIndex;
             }
         }
-        
-        public SubCalendarEvent SleepSubEvent
+
+
+        /// <summary>
+        /// This is the subevent for the current day after which sleep is expected. Note this is always towards the end of the day
+        /// </summary>
+        public virtual SubCalendarEvent SleepSubEvent
         {
             get
             {
-                return _sleepSubEVent ?? AllocatedSubEvents.Values.FirstOrDefault(subEvent => subEvent.isSleep);
+                return _sleepSubEvent;
             }
             set
             {
-                if(_sleepSubEVent != null)
+                if(_sleepSubEvent != null)
                 {
-                    _sleepSubEVent.isSleep = false;
+                    _sleepSubEvent.isSleep = false;
                 }
-                _sleepSubEVent = value;
-                _sleepSubEVent.isSleep = true;
+                _sleepSubEvent = value;
+                _sleepSubEvent.isSleep = true;
             }
         }
-
-        public SubCalendarEvent WakeSubEvent
+        /// <summary>
+        /// This is the subevent for the current day before which sleep is expected. So there sholuld be a sleep span before this sub event
+        /// </summary>
+        public virtual SubCalendarEvent WakeSubEvent
         {
             get
             {
@@ -88,6 +95,10 @@ namespace TilerElements
             }
         }
 
+
+        /// <summary>
+        /// This is the subevent for the current day after which sleep is expected. This sleep time chunk is before "WakeSubevent". This often occurs if an event has a deadline that is within the sleep time frame. So for example a 1 hour subevent with a 2:00am deadline when the sleep time frame of 12:00AM- 6:00AM 
+        /// </summary>
         public SubCalendarEvent PrecedingDaySleepSubEvent { get; set; }
         #endregion
 

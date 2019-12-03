@@ -179,9 +179,21 @@ namespace TilerTests
             userAccount.Login().Wait();
         }
 
-        public static Location getLocation(ref UserAccount userAccount, ref TilerUser tilerUser, string locationId)
+        public static void updateLocation(CalendarEvent calEvent, Location location)
         {
-            userAccount = getTestUser(userId: tilerUser.Id);
+            calEvent.AllSubEvents.AsParallel().ForAll((eachSubEvent) => eachSubEvent.LocationId = location.Id);
+        }
+
+        /// <summary>
+        /// This retrieves location from the current associated context, note this does not dispose the context
+        /// </summary>
+        /// <param name="userAccount"></param>
+        /// <param name="tilerUser"></param>
+        /// <param name="locationId">locationId</param>
+        /// <returns></returns>
+        public static Location getLocation(UserAccount userAccount, TilerUser tilerUser, string locationId)
+        {
+            userAccount = getTestUser(false, userId: tilerUser.Id);
             tilerUser = userAccount.getTilerUser();
             userAccount.Login().Wait();
             TilerDbContext context = null;
@@ -193,8 +205,64 @@ namespace TilerTests
             {
                 throw new Exception("Invalid location look up have you created a context, try using testutile.packet to create function");
             }
-
             return context.Locations.Find(locationId);
+        }
+
+        /// <summary>
+        /// Saves location to the context of the provided tilerUser
+        /// </summary>
+        /// <param name="userAccount"></param>
+        /// <param name="tilerUser"></param>
+        /// <param name="location"></param>
+        /// <returns></returns>
+        public static Location addLocation(UserAccount userAccount, TilerUser tilerUser, Location location)
+        {
+            userAccount = getTestUser(false, userId: tilerUser.Id);
+            tilerUser = userAccount.getTilerUser();
+            userAccount.Login().Wait();
+            TilerDbContext context = null;
+            if (UserToContext.ContainsKey(tilerUser.Id))
+            {
+                context = UserToContext[tilerUser.Id];
+            }
+            if (context == null)
+            {
+                throw new Exception("Invalid location look up have you created a context, try using testutile.packet to create function");
+            }
+
+            context.Locations.Add(location);
+            context.SaveChanges();
+            Location retValue = context.Locations.Find(location.Id);
+            return retValue;
+        }
+
+        /// <summary>
+        /// Saves a collection of locations to the context of the provided tilerUser
+        /// </summary>
+        /// <param name="userAccount"></param>
+        /// <param name="tilerUser"></param>
+        /// <param name="location"></param>
+        /// <returns></returns>
+        public static IEnumerable<Location> addLocations(UserAccount userAccount, TilerUser tilerUser, IEnumerable<Location> locations)
+        {
+            userAccount = getTestUser(false, userId: tilerUser.Id);
+            tilerUser = userAccount.getTilerUser();
+            userAccount.Login().Wait();
+            TilerDbContext context = null;
+            if (UserToContext.ContainsKey(tilerUser.Id))
+            {
+                context = UserToContext[tilerUser.Id];
+            }
+            if (context == null)
+            {
+                throw new Exception("Invalid location look up have you created a context, try using testutile.packet to create function");
+            }
+
+            context.Locations.AddRange(locations);
+            HashSet<string> ids = new HashSet<string>( locations.Select(location => location.Id));
+            context.SaveChanges();
+            IEnumerable<Location> retValue = context.Locations.Where(location => ids.Contains(location.Id)).ToArray();
+            return retValue;
         }
 
         public static void initializeLocation ()
@@ -203,7 +271,7 @@ namespace TilerTests
             Location.updateApiKey(apiKey);
         }
 
-        public static List<Location> getLocations()
+        public static List<Location> getAdHocLocations(string userId = null)
         {
             Location homeLocation = new Location(41.480352, -81.585446 , "2895 Van aken Blvd cleveland OH 44120", "Home", false, false);
             Location workLocation = new Location(41.5002762, -81.6839155, "1228 euclid Ave cleveland OH", "Work", false, false);
@@ -245,6 +313,7 @@ namespace TilerTests
 
             List<Location> retValue = new List<Location>() {
                 homeLocation, workLocation, gymLocation, shakerLibrary, churchLocation };
+            retValue.ForEach(location => location.UserId = userId);
             return retValue;
         }
 
@@ -508,7 +577,7 @@ namespace TilerTests
         {
             if(location == null)
             {
-                List<Location> locaitions = TestUtility.getLocations();
+                List<Location> locaitions = TestUtility.getAdHocLocations();
                 location = Location.getDefaultLocation();
             }
             DateTimeOffset nowTime = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();

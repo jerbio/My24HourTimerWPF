@@ -154,7 +154,7 @@ namespace TilerTests
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(TimeSpan.FromTicks(duration.Ticks * 5));
             TimeSpan timeSPanPerSubEvent = duration;
-            Location location = TestUtility.getLocations()[1];
+            Location location = TestUtility.getAdHocLocations()[1];
             CalendarEvent increaseSplitCountTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 1, false, location);
             schedule.AddToScheduleAndCommitAsync(increaseSplitCountTestEvent).Wait();
             user = TestUtility.getTestUser(userId: tilerUser.Id);
@@ -178,7 +178,7 @@ namespace TilerTests
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
             schedule = new TestSchedule(user, refNow, startOfDay);
-            location = TestUtility.getLocations()[2];
+            location = TestUtility.getAdHocLocations()[2];
             CalendarEvent decreaseSplitCountTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 3, false, location);
             schedule.AddToScheduleAndCommitAsync(decreaseSplitCountTestEvent).Wait();
             user = TestUtility.getTestUser(userId: tilerUser.Id);
@@ -595,7 +595,7 @@ namespace TilerTests
             
 
             TimeSpan timeSPanPerSubEvent = duration;
-            Location location = TestUtility.getLocations()[1];
+            Location location = TestUtility.getAdHocLocations()[1];
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             CalendarEvent nonRigidCalendarEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 5, false, location);
             DB_Schedule Schedule = new TestSchedule(user, refNow, startOfDay);
@@ -667,7 +667,7 @@ namespace TilerTests
 
 
             TimeSpan timeSPanPerSubEvent = duration;
-            Location location = TestUtility.getLocations()[1];
+            Location location = TestUtility.getAdHocLocations()[1];
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             CalendarEvent nonRigidCalendarEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 5, false);
             DB_Schedule Schedule = new TestSchedule(user, refNow, startOfDay);
@@ -902,7 +902,7 @@ namespace TilerTests
 
 
             TimeSpan timeSPanPerSubEvent = duration;
-            Location location = TestUtility.getLocations()[1];
+            Location location = TestUtility.getAdHocLocations()[1];
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             TimeLine repeatTimeLine = new TimeLine(start, start.AddDays(21));
             TimeLine actualRangeTimeLine = new TimeLine(start, end);
@@ -1098,7 +1098,7 @@ namespace TilerTests
 
 
             TimeSpan timeSPanPerSubEvent = duration;
-            Location location = TestUtility.getLocations()[1];
+            Location location = TestUtility.getAdHocLocations()[1];
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             DB_Schedule Schedule = new TestSchedule(user, refNow, startOfDay);
             RestrictionProfile restrictionProfile = new RestrictionProfile(start.Add(duration), TimeSpan.FromSeconds(duration.TotalSeconds * 4));

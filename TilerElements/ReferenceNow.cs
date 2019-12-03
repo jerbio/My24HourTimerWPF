@@ -23,7 +23,7 @@ namespace TilerElements
         DayOfWeek _ConstDayOfTheWeek;// this should be day of the week that constNow falls into. This belongs to the day of the week the of the timezone the request is coming from and not the time zone of the machine
         protected DayTimeLine[] AllDays;
         Dictionary<ulong, DayTimeLine> DayLookUp;
-        public TimeSpan SleepSpan = new TimeSpan(0, 8, 0, 0, 0);
+        public TimeSpan SleepSpan = TimeSpan.FromHours(6);
         protected TimeSpan TimeZoneDiff;
         ulong lastDayIndex = 0;
         uint _DayCount;

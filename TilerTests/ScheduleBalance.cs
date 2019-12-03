@@ -61,7 +61,7 @@ namespace TilerTests
             Assert.AreEqual(0, conflicts.Count);
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            homeLocation = TestUtility.getLocation(ref user, ref tilerUser, homeLocation.Id);
+            homeLocation = TestUtility.getLocation(user, tilerUser, homeLocation.Id);
             schedule = new TestSchedule(user, refNow, refNow.AddDays(5));
             int nonRigidHoursSpan = 1;
             CalendarEvent testHomeNonRigidCalEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(nonRigidHoursSpan), new TilerElements.Repetition(), encompassingTimeline.Start, encompassingTimeline.End, 1, false, homeLocation);

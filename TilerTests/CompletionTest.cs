@@ -434,7 +434,7 @@ namespace TilerTests
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow, rangeOfLookup: lookupWindow);
-            Location location = TestUtility.getLocations()[0];
+            Location location = TestUtility.getAdHocLocations()[0];
             Schedule.FindMeSomethingToDo(location).Wait();
             Schedule.persistToDB().Wait();
 

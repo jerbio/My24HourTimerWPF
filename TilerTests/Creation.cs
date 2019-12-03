@@ -206,7 +206,7 @@ namespace TilerTests
             TilerColor tilerColor = new TilerColor(255, 255, 0, 1, 5);
             EventDisplay eventdisplay = new EventDisplay(true, tilerColor);
 
-            Location location = TestUtility.getLocations()[0];
+            Location location = TestUtility.getAdHocLocations()[0];
             location.verify();
 
             // Adding event one
@@ -239,7 +239,7 @@ namespace TilerTests
             tilerUser = user.getTilerUser();
             user.Login().Wait();
 
-            Location location1 = TestUtility.getLocations()[1];
+            Location location1 = TestUtility.getAdHocLocations()[1];
             TilerColor tilerColor1 = new TilerColor(255, 255, 0, 1, 5);
             EventDisplay eventdisplay1 = new EventDisplay(true, tilerColor1);
             CalendarEvent testEvent1 = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), timeLine.Start, timeLine.End, 1, false, eventDisplay: eventdisplay1, location: location1);
@@ -296,7 +296,7 @@ namespace TilerTests
             TilerColor tilerColor = new TilerColor(255, 255, 0, 1, 5);
             EventDisplay eventdisplay = new EventDisplay(true, tilerColor);
 
-            Location location = TestUtility.getLocations()[0];
+            Location location = TestUtility.getAdHocLocations()[0];
             location.verify();
 
             // Adding event one
@@ -312,7 +312,7 @@ namespace TilerTests
             user.Login().Wait();
 
             Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
-            Location location1 = TestUtility.getLocations()[1];
+            Location location1 = TestUtility.getAdHocLocations()[1];
             TilerColor tilerColor1 = new TilerColor(255, 255, 0, 1, 5);
             EventDisplay eventdisplay1 = new EventDisplay(true, tilerColor1);
             CalendarEvent testEvent1 = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), timeLine.Start, timeLine.End, 1, false, eventDisplay: eventdisplay1, location: location1);
@@ -340,7 +340,7 @@ namespace TilerTests
             Assert.IsTrue(ScheduleFromRDBMS.isTestEquivalent(scheduleFromDump));
 
             // Adding event two
-            Location location2 = TestUtility.getLocations()[2];
+            Location location2 = TestUtility.getAdHocLocations()[2];
             TilerColor tilerColor2 = new TilerColor(255, 255, 0, 1, 5);
             EventDisplay eventdisplay2 = new EventDisplay(true, tilerColor2);
 
@@ -477,7 +477,7 @@ namespace TilerTests
             DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
             Schedule = new TestSchedule(user, refNow);
             TimeSpan duration = TimeSpan.FromHours(5);
-            Location location = TestUtility.getLocations()[0];
+            Location location = TestUtility.getAdHocLocations()[0];
             location.verify();
             TimeLine timeLine = TestUtility.getTimeFrames(refNow, duration).First();
             DateTimeOffset TimeCreation = DateTimeOffset.UtcNow;
@@ -509,7 +509,7 @@ namespace TilerTests
             TilerUser tilerUser = TestUtility.createUser();
             UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
-            Location location = TestUtility.getLocations()[0];
+            Location location = TestUtility.getAdHocLocations()[0];
             location.verify();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
@@ -615,7 +615,7 @@ namespace TilerTests
             DateTimeOffset end = refNow.Add(duration);
             TimeLine repetitionRange = new TimeLine(start, start.AddDays(13).AddHours(-23));
             DayOfWeek startingWeekDay = start.DayOfWeek;
-            Location location = TestUtility.getLocations()[0];
+            Location location = TestUtility.getAdHocLocations()[0];
             location.verify();
             Repetition repetition = new Repetition();
             CalendarEventRestricted testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 1, false, location, restrictionProfile: new RestrictionProfile(start, duration + duration), now: Schedule.Now) as CalendarEventRestricted;
@@ -910,7 +910,7 @@ namespace TilerTests
             TimeLine repetitionRange = new TimeLine(start, start.AddDays(13).AddHours(-23));
             //List<DayOfWeek> weekDays = new List<DayOfWeek>() { DayOfWeek.Sunday, DayOfWeek.Monday ,DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday};
             DayOfWeek startingWeekDay = start.DayOfWeek;
-            Location location = TestUtility.getLocations()[0];
+            Location location = TestUtility.getAdHocLocations()[0];
             location.verify();
             List<DayOfWeek> weekDays = new List<DayOfWeek>() { start.DayOfWeek, (DayOfWeek)(((int)start.DayOfWeek + 2) % 7), (DayOfWeek)(((int)start.DayOfWeek + 4) % 7) };
             //List<DayOfWeek> weekDays = new List<DayOfWeek>() { DayOfWeek.Sunday, DayOfWeek.Monday ,DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday};
@@ -962,7 +962,7 @@ namespace TilerTests
             TimeLine repetitionRange = new TimeLine(start, start.AddDays(14));
             //List<DayOfWeek> weekDays = new List<DayOfWeek>() { DayOfWeek.Sunday, DayOfWeek.Monday ,DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday};
             DayOfWeek startingWeekDay = start.DayOfWeek;
-            Location location = TestUtility.getLocations()[0];
+            Location location = TestUtility.getAdHocLocations()[0];
             location.verify();
             //List<DayOfWeek> weekDays = new List<DayOfWeek>() { start.DayOfWeek, (DayOfWeek)(((int)start.DayOfWeek + 2) % 7), (DayOfWeek)(((int)start.DayOfWeek + 4) % 7) };
             ////List<DayOfWeek> weekDays = new List<DayOfWeek>() { DayOfWeek.Sunday, DayOfWeek.Monday ,DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday};
@@ -1313,7 +1313,7 @@ namespace TilerTests
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow, rangeOfLookup: lookupWindow);
-            Location location = TestUtility.getLocations()[0];
+            Location location = TestUtility.getAdHocLocations()[0];
             Schedule.FindMeSomethingToDo(location).Wait();
             Schedule.persistToDB().Wait();
             CalendarEvent calEvent = Schedule.getCalendarEvent(repeatEvent.Calendar_EventID);

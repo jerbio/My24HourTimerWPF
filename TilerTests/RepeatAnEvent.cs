@@ -56,7 +56,7 @@ namespace TilerTests
             DateTimeOffset middleOfSubevent =  Utility.MiddleTime(secondSubevent);
             DateTimeOffset secondRefNow = middleOfSubevent;
             schedule = new TestSchedule(user, secondRefNow);
-            Location location = TestUtility.getLocations()[0];
+            Location location = TestUtility.getAdHocLocations()[0];
             schedule.RepeatEvent(secondSubevent.Id, location);
             schedule.persistToDB().Wait();
 
@@ -120,7 +120,7 @@ namespace TilerTests
             SubCalendarEvent secondSubevent = subEvents[0];
             DateTimeOffset middleOfSubevent = Utility.MiddleTime(secondSubevent);
             DateTimeOffset secondRefNow = middleOfSubevent;
-            Location location = TestUtility.getLocations()[0];
+            Location location = TestUtility.getAdHocLocations()[0];
             schedule = new TestSchedule(user, secondRefNow);
             schedule.RepeatEvent(secondSubevent.Id, location);
             schedule.persistToDB().Wait();
@@ -205,7 +205,7 @@ namespace TilerTests
             Assert.IsTrue(secondSubevent.End != thirdSubCalendarEvent.Start);
             DateTimeOffset middleOfSubevent = Utility.MiddleTime(secondSubevent);
             DateTimeOffset secondRefNow = middleOfSubevent;
-            Location location = TestUtility.getLocations()[0];
+            Location location = TestUtility.getAdHocLocations()[0];
             schedule = new TestSchedule(user, secondRefNow);
             schedule.RepeatEvent(secondSubevent.Id, location);
             schedule.persistToDB().Wait();
@@ -306,7 +306,7 @@ namespace TilerTests
             Assert.IsTrue(secondSubevent.End != thirdSubCalendarEvent.Start);
             DateTimeOffset middleOfSubevent = Utility.MiddleTime(secondSubevent);
             DateTimeOffset secondRefNow = middleOfSubevent;
-            Location location = TestUtility.getLocations()[0];
+            Location location = TestUtility.getAdHocLocations()[0];
             schedule = new TestSchedule(user, secondRefNow);
             schedule.RepeatEvent(secondSubevent.Id, location);
             schedule.persistToDB().Wait();
@@ -392,7 +392,7 @@ namespace TilerTests
             Assert.IsTrue(secondSubevent.End != thirdSubCalendarEvent.Start);
             DateTimeOffset middleOfSubevent = Utility.MiddleTime(secondSubevent);
             DateTimeOffset secondRefNow = middleOfSubevent;
-            Location location = TestUtility.getLocations()[0];
+            Location location = TestUtility.getAdHocLocations()[0];
             schedule = new TestSchedule(user, secondRefNow);
             schedule.RepeatEvent(secondSubevent.Id, location);
             schedule.persistToDB().Wait();

@@ -19,7 +19,7 @@ namespace TilerTests
         [TestMethod]
         public void file_499a0ab4()
         {
-            Location homeLocation = TestUtility.getLocations()[0];
+            Location homeLocation = TestUtility.getAdHocLocations()[0];
             DateTimeOffset startOfDay = TestUtility.parseAsUTC("2:00am");
             string scheduleId = "499a0ab4-81d7-42df-a476-44fc4348e94b";
             DateTimeOffset refNow = TestUtility.parseAsUTC("04/18/2017 10:41pm ");

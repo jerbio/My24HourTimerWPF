@@ -319,23 +319,70 @@ namespace TilerCore
                 CurrentTimeZone = "UTC";
             }
             var beforeNow = new ReferenceNow(Now.constNow, Now.StartOfDay, Now.TimeZoneDifference);
-            var beforeCalevents = getAllCalendarEvents().Where(obj => obj.isActive).Select(obj => obj.createCopy());
-            List<SubCalendarEvent> subEVents = beforeCalevents.SelectMany(calEvent => calEvent.ActiveSubEvents).Where(subEvent => !subEvent.isDesignated).ToList();
-            var orderedDayTimeLines = beforeNow.getAllDaysLookup().OrderBy(obj => obj.Key).Select(obj => obj.Value);
-            DesignateSubEventsToDayTimeLine(orderedDayTimeLines.ToArray(), subEVents);
+            var beforeCalevents = getAllCalendarEvents().Where(obj => obj.isActive).Select(obj => obj.createCopy()).ToList();
+
+            List<SubCalendarEvent> beforeSubEvents = beforeCalevents.SelectMany(calEvent => calEvent.ActiveSubEvents).Where(subEvent => !subEvent.isDesignated).ToList();
+            var orderedDayTimeLines = beforeNow.getAllDaysLookup().OrderBy(obj => obj.Key).Select(obj => obj.Value).ToList();
+
+
+            //beforeCalevents.AsParallel().ForAll((calEvent) => calEvent.InitialCalculationLookupDays(orderedDayTimeLines, beforeNow));
+            WhatIfSubEventDayDesignation(orderedDayTimeLines.ToArray(), beforeSubEvents);
             Health beforeChange = new Health(getAllCalendarEvents().Where(obj => obj.isActive).Select(obj => obj.createCopy()), beforeNow.constNow, assessmentWindow.TimelineSpan, beforeNow, this.getHomeLocation);
             var procradstinateResult = this.ProcrastinateAll(pushSpan);
 
             var afterSubEVents = procradstinateResult.Item2.Values.Where(obj => obj.isActive).SelectMany(calEvent => calEvent.ActiveSubEvents).Where(subEvent => { subEvent.resetAndgetUnUsableIndex(); return true; });//.Where(subEvent => !subEvent.isDesignated).ToList();
             var afterNow = new ReferenceNow(Now.constNow, Now.StartOfDay, Now.TimeZoneDifference);
-            var afterCalevents = procradstinateResult.Item2.Values.Where(obj => obj.isActive);
+            var afterCalevents = procradstinateResult.Item2.Values.Where(obj => obj.isActive).ToList();
             var afterorderedDayTimeLines = afterNow.getAllDaysLookup().OrderBy(obj => obj.Key).Select(obj => obj.Value);
-            DesignateSubEventsToDayTimeLine(afterorderedDayTimeLines.ToArray(), afterSubEVents);
+            //afterCalevents.AsParallel().ForAll((calEvent) => calEvent.InitialCalculationLookupDays(afterorderedDayTimeLines, afterNow));
+            WhatIfSubEventDayDesignation(afterorderedDayTimeLines.ToArray(), afterSubEVents);
 
             Health afterChange = new Health(procradstinateResult.Item2.Values.Where(obj => obj.isActive), afterNow.constNow, assessmentWindow.TimelineSpan, afterNow, this.getHomeLocation);
             var retValue = new Tuple<Health, Health>(beforeChange, afterChange);
             return retValue;
         }
+
+
+        Dictionary<SubCalendarEvent, List<ulong>> WhatIfSubEventDayDesignation(DayTimeLine[] OrderedyAscendingAllDays, IEnumerable<SubCalendarEvent> AllRigidSubEvents)
+        {
+            ulong First = OrderedyAscendingAllDays.First().UniversalIndex;
+            Dictionary<SubCalendarEvent, List<ulong>> RetValue = new Dictionary<SubCalendarEvent, List<ulong>>();
+
+            //Parallel.ForEach(AllRigidSubEvents, eachSubCalendarEvent =>
+
+            foreach (SubCalendarEvent eachSubCalendarEvent in AllRigidSubEvents)
+            {
+                List<ulong> myDays = new List<ulong>();
+                ulong SubCalFirstIndex = Now.getDayIndexFromStartOfTime(eachSubCalendarEvent.Start);
+                ulong SubCalLastIndex = Now.getDayIndexFromStartOfTime(eachSubCalendarEvent.End);
+                ulong DayDiff = SubCalLastIndex - SubCalFirstIndex;
+
+                int BoundedIndex = (int)(SubCalFirstIndex - First);
+                if ((BoundedIndex < 0) || (BoundedIndex >= OrderedyAscendingAllDays.Length))
+                {
+                    continue;
+                }
+                myDays.Add(SubCalFirstIndex);
+                OrderedyAscendingAllDays[BoundedIndex].AddToSubEventList(eachSubCalendarEvent);
+                eachSubCalendarEvent.ParentCalendarEvent.designateSubEvent(eachSubCalendarEvent, Now);
+                for (ulong i = SubCalFirstIndex + 1, j = 0; j < DayDiff; j++, i++)
+                {
+                    BoundedIndex = (int)(i - First);
+                    if (BoundedIndex < OrderedyAscendingAllDays.Length)// in case the rigid sub event day index is higher than OrderedyAscendingAllDays max index
+                    {
+                        OrderedyAscendingAllDays[BoundedIndex].AddToSubEventList(eachSubCalendarEvent);
+                        OrderedyAscendingAllDays[BoundedIndex].AddToSubEventList(eachSubCalendarEvent);
+                        myDays.Add(i);
+                    }
+
+                }
+                RetValue.Add(eachSubCalendarEvent, myDays);
+            }
+            //);
+            return RetValue;
+        }
+
+
         #endregion
 
         public virtual void updateTravelCache(TravelCache travelCache)

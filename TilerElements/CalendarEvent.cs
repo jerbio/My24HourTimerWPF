@@ -302,7 +302,7 @@ namespace TilerElements
             calEvent._EventRepetition.PopulateRepetitionParameters(calEvent);
             CalendarEvent calEventCpy = calEvent.Repeat.RecurringCalendarEvents().Single();// using ssingle because this must always return a single calendarevent. Because we generated a repeat event which should only have one calendar event;
             SubCalendarEvent subEventCopy = calEventCpy.AllSubEvents.First();
-            SubCalendarEvent duplicateOfOriginal = subEvent.CreateCopy(subEventCopy.SubEvent_ID);
+            SubCalendarEvent duplicateOfOriginal = subEvent.CreateCopy(subEventCopy.SubEvent_ID, calEventCpy);
 
             subEventCopy.UpdateThis(duplicateOfOriginal);
             //calEventCpy.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
@@ -359,7 +359,7 @@ namespace TilerElements
                 calEvent._EventRepetition.PopulateRepetitionParameters(calEvent);
                 CalendarEvent calEventCpy = calEvent.Repeat.RecurringCalendarEvents().Single();// using ssingle because this must always return a single calendarevent. Because we generated a repeat event which should only have one calendar event;
                 SubCalendarEvent subEventCopy = calEventCpy.AllSubEvents.First();
-                SubCalendarEvent duplicateOfOriginal = subEvent.CreateCopy(subEventCopy.SubEvent_ID);
+                SubCalendarEvent duplicateOfOriginal = subEvent.CreateCopy(subEventCopy.SubEvent_ID, calEventCpy);
 
                 subEventCopy.UpdateThis(duplicateOfOriginal);
 
@@ -579,7 +579,8 @@ namespace TilerElements
 
             foreach (SubCalendarEvent eachSubCalendarEvent in this.SubEvents.Values)
             {
-                MyCalendarEventCopy._SubEvents.Add(eachSubCalendarEvent.Id, eachSubCalendarEvent.CreateCopy(EventID.GenerateSubCalendarEvent(MyCalendarEventCopy.UniqueID)));
+                SubCalendarEvent subEventCopy = eachSubCalendarEvent.CreateCopy(EventID.GenerateSubCalendarEvent(MyCalendarEventCopy.UniqueID), MyCalendarEventCopy);
+                MyCalendarEventCopy._SubEvents.Add(eachSubCalendarEvent.Id, subEventCopy);
             }
 
             //MyCalendarEventCopy.SchedulStatus = SchedulStatus;

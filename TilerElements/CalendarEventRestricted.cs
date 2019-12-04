@@ -209,7 +209,9 @@ namespace TilerElements
 
             foreach (SubCalendarEventRestricted eachSubCalendarEvent in this.SubEvents.Values)
             {
-                MyCalendarEventCopy._SubEvents.Add(eachSubCalendarEvent.Id, eachSubCalendarEvent.CreateCopy(EventID.GenerateSubCalendarEvent(MyCalendarEventCopy.UniqueID) ));
+                SubCalendarEvent subEventCopy = eachSubCalendarEvent.CreateCopy(EventID.GenerateSubCalendarEvent(MyCalendarEventCopy.UniqueID), MyCalendarEventCopy);
+                subEventCopy.ParentCalendarEvent = MyCalendarEventCopy;
+                MyCalendarEventCopy._SubEvents.Add(eachSubCalendarEvent.Id, subEventCopy);
             }
 
             MyCalendarEventCopy._otherPartyID = _otherPartyID == null ? null : _otherPartyID.ToString();

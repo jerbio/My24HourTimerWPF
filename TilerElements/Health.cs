@@ -16,7 +16,6 @@ namespace TilerElements
     {
         public Guid id = Guid.NewGuid();
         public TimeSpan EvaluationSpan = new TimeSpan(7, 0, 0, 0, 0);
-        public TimeSpan SleepSpan = new TimeSpan(0, 7, 0, 0, 0);
         public TimeLine CalculationTimeline;
         ReferenceNow Now;
         List<SubCalendarEvent> _orderedByStartThenEndSubEvents = new List<SubCalendarEvent>();
@@ -136,11 +135,11 @@ namespace TilerElements
             return retValueTuple;
         }
 
-        public Tuple<double, List<Tuple<TimeLine, int>>> evaluateSleepTimeFrameScore()
+        public Tuple<double, List<Tuple<TimeLine, ulong>>> evaluateSleepTimeFrameScore()
         {
-            List<Tuple<TimeLine, int>> sleepTimeLines = SleepTimeLines;
+            List<Tuple<TimeLine, ulong>> sleepTimeLines = SleepTimeLines;
             double score = (double)TimeSpan.FromHours(24).Ticks / SleepPerDay.Ticks;
-            var retValue = new Tuple<double, List<Tuple<TimeLine, int>>>(score, sleepTimeLines);
+            var retValue = new Tuple<double, List<Tuple<TimeLine, ulong>>>(score, sleepTimeLines);
             return retValue;
         }
 
@@ -330,11 +329,11 @@ namespace TilerElements
             return retValue;
         }
 
-        public List<Tuple<TimeLine, int>> SleepTimeLines
+        public List<Tuple<TimeLine, ulong>> SleepTimeLines
         {
             get
             {
-                List<Tuple<TimeLine, int>> sleepTimeLines = new List<Tuple<TimeLine, int>>();
+                List<Tuple<TimeLine, ulong>> sleepTimeLines = new List<Tuple<TimeLine, ulong>>();
                 Tuple<int, int> dayIndexBoundaries = Now.indexRange(CalculationTimeline);
                 ulong iniUniverslaIndex = Now.firstDay.UniversalIndex;
                 for (int i = dayIndexBoundaries.Item1; i <= dayIndexBoundaries.Item2; i++)
@@ -345,10 +344,10 @@ namespace TilerElements
                     {
                         ulong previousDayUniversalIndex = universalIndex - 1;
                         DayTimeLine previousDayTimeLine = Now.getDayTimeLineByDayIndex(previousDayUniversalIndex);
-                        DateTimeOffset sleepStart = previousDayTimeLine.SleepSubEvent?.End ?? previousDayTimeLine.End;
+                        DateTimeOffset sleepStart = dayTimeLine.PrecedingDaySleepSubEvent?.End ?? previousDayTimeLine.SleepSubEvent?.End ?? previousDayTimeLine.End;//
                         DateTimeOffset sleepEnd = dayTimeLine.WakeSubEvent?.Start ?? sleepStart.Add(Now.SleepSpan);
                         TimeLine sleepTImeLine = new TimeLine(sleepStart, sleepEnd);
-                        sleepTimeLines.Add(new Tuple<TimeLine, int>(sleepTImeLine, (int)dayTimeLine.UniversalIndex));
+                        sleepTimeLines.Add(new Tuple<TimeLine, ulong>(sleepTImeLine, dayTimeLine.UniversalIndex));
                     }
                         
                 }

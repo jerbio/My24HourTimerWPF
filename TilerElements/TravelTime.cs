@@ -15,6 +15,7 @@ namespace TilerElements
         Dictionary<EventID, SubCalendarEvent> EventIdToSubEvent;
         TimeLine EventSequence;
         TravelMode TravelMode;
+        TravelCache _TravelCache;
         bool alreadyEvaluated = false;
 
         /// <summary>
@@ -46,7 +47,6 @@ namespace TilerElements
                         TransitingIdsToFreespot.Add(string.Join(",", ids), freeSpotWithEdge);
                     }
                 }
-
             }
             else
             {

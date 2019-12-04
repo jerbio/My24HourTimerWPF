@@ -380,7 +380,7 @@ namespace TilerElements
         }
 
 
-        virtual public SubCalendarEvent CreateCopy(EventID eventId)
+        virtual public SubCalendarEvent CreateCopy(EventID eventId, CalendarEvent parentCalendarEvent)
         {
             string Id;
             if (eventId != null)
@@ -391,7 +391,7 @@ namespace TilerElements
             {
                 Id = this.getId;
             }
-            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(this.ParentCalendarEvent, getCreator, _Users, this._TimeZone, Id, this.getName?.createCopy(), Start, End, BusyFrame?.CreateCopy() as BusyTimeLine, this._RigidSchedule, this.isEnabled, this._UiParams?.createCopy(), this.Notes?.createCopy(), this._Complete, this._LocationInfo, new TimeLine(getCalendarEventRange.Start, getCalendarEventRange.End), _ConflictingEvents?.CreateCopy());
+            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(parentCalendarEvent, getCreator, _Users, this._TimeZone, Id, this.getName?.createCopy(), Start, End, BusyFrame?.CreateCopy() as BusyTimeLine, this._RigidSchedule, this.isEnabled, this._UiParams?.createCopy(), this.Notes?.createCopy(), this._Complete, this._LocationInfo, new TimeLine(getCalendarEventRange.Start, getCalendarEventRange.End), _ConflictingEvents?.CreateCopy());
             MySubCalendarEventCopy.ThirdPartyID = this.ThirdPartyID;
             MySubCalendarEventCopy._AutoDeleted = this._AutoDeleted;
             MySubCalendarEventCopy.isRestricted = this.isRestricted;
@@ -413,6 +413,7 @@ namespace TilerElements
             MySubCalendarEventCopy.lockedPrecedingHours = this.lockedPrecedingHours;
             MySubCalendarEventCopy._enablePre_reschedulingTimelineLockDown = this._enablePre_reschedulingTimelineLockDown;
             MySubCalendarEventCopy._RepetitionLock= this._RepetitionLock;
+            MySubCalendarEventCopy.ParentCalendarEvent = parentCalendarEvent;
             if (this.CalculationTimeLine != null)
             {
                 MySubCalendarEventCopy.CalculationTimeLine = this.CalculationTimeLine.CreateCopy();

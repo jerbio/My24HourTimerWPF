@@ -298,10 +298,10 @@ namespace My24HourTimerWPF
             if (BaseEvent != null)
             {
                 TimeLine BoundarForClump = this.BoundaryTimeLine.CreateCopy();
-                List<SubCalendarEvent> ListMe = new List<SubCalendarEvent>() { BaseEvent.CreateCopy(new EventID(BaseEvent.getId)) };
+                List<SubCalendarEvent> ListMe = new List<SubCalendarEvent>() { BaseEvent.CreateCopy(new EventID(BaseEvent.getId), BaseEvent.ParentCalendarEvent) };
                 foreach (KeyValuePair<SubCalendarEvent, ClumpSubCalendarEvent> eachKeyValuePair in ClumpedResults)
                 {
-                    ListMe = new List<SubCalendarEvent>() { BaseEvent.CreateCopy(new EventID(BaseEvent.getId)), eachKeyValuePair.Key.CreateCopy(new EventID(BaseEvent.getId)) };
+                    ListMe = new List<SubCalendarEvent>() { BaseEvent.CreateCopy(new EventID(BaseEvent.getId), BaseEvent.ParentCalendarEvent), eachKeyValuePair.Key.CreateCopy(new EventID(BaseEvent.getId), BaseEvent.ParentCalendarEvent) };
                     Utility.PinSubEventsToEnd(ListMe, BoundarForClump);
                     temp_ListOfClump = eachKeyValuePair.Value.GenerateList(TypeOfList);
                     if (temp_ListOfClump.Count > 0)
@@ -322,7 +322,7 @@ namespace My24HourTimerWPF
                 }
                 if (BreakOffClump != null)
                 {
-                    ListMe = new List<SubCalendarEvent>() { BaseEvent.CreateCopy(new EventID( BaseEvent.getId)) };
+                    ListMe = new List<SubCalendarEvent>() { BaseEvent.CreateCopy(new EventID( BaseEvent.getId), BaseEvent.ParentCalendarEvent) };
                     Utility.PinSubEventsToEnd(ListMe, BoundarForClump);
                     List<List<SubCalendarEvent>> breakOffClumpGeneratedList = BreakOffClump.GenerateList(TypeOfList);
                     if (breakOffClumpGeneratedList.Count > 0)
@@ -356,7 +356,7 @@ namespace My24HourTimerWPF
                 TimeLine BoundarForClump = this.BoundaryTimeLine.CreateCopy();
                 foreach (KeyValuePair<SubCalendarEvent, ClumpSubCalendarEvent> eachKeyValuePair in ClumpedResults)
                 {
-                    List<SubCalendarEvent> ListMe = new List<SubCalendarEvent>() { eachKeyValuePair.Key.CreateCopy(new EventID(eachKeyValuePair.Key.getId)) };
+                    List<SubCalendarEvent> ListMe = new List<SubCalendarEvent>() { eachKeyValuePair.Key.CreateCopy(new EventID(eachKeyValuePair.Key.getId), eachKeyValuePair.Key.ParentCalendarEvent) };
                     Utility.PinSubEventsToEnd(ListMe, BoundarForClump);
                     temp_ListOfClump = eachKeyValuePair.Value.GenerateList(TypeOfList);
                     if (temp_ListOfClump.Count > 0)

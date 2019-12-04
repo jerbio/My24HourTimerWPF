@@ -14,45 +14,6 @@ namespace TilerTests
     public class WhatIfTest
     {
         //Random random = new Random((int)DateTimeOffset.UtcNow.Ticks);
-        //[ClassInitialize]
-        //public static void classInitialize(TestContext testContext)
-        //{
-        //    UserAccount currentUser = TestUtility.getTestUser();
-        //    currentUser.Login().Wait();
-        //    DateTimeOffset refNow = DateTimeOffset.UtcNow;
-        //    DB_Schedule schedule = new DB_Schedule(currentUser, refNow);
-        //    currentUser.DeleteAllCalendarEvents();
-        //}
-
-        //[TestInitialize]
-        //public void cleanUpLog()
-        //{
-        //    UserAccount currentUser = TestUtility.getTestUser();
-        //    currentUser.Login().Wait();
-        //    DateTimeOffset refNow = DateTimeOffset.UtcNow;
-        //    DB_Schedule Schedule = new DB_Schedule(currentUser, refNow);
-        //    currentUser.DeleteAllCalendarEvents();
-        //}
-
-        //[ClassCleanup]
-        //public static void cleanUpTest()
-        //{
-        //    UserAccount currentUser = TestUtility.getTestUser();
-        //    currentUser.Login().Wait();
-        //    DateTimeOffset refNow = DateTimeOffset.UtcNow;
-        //    DB_Schedule Schedule = new DB_Schedule(currentUser, refNow);
-        //    currentUser.DeleteAllCalendarEvents();
-        //}
-
-        //[TestCleanup]
-        //public void eachTestCleanUp()
-        //{
-        //    UserAccount currentUser = TestUtility.getTestUser();
-        //    currentUser.Login().Wait();
-        //    DateTimeOffset refNow = DateTimeOffset.UtcNow;
-        //    Schedule Schedule = new TestSchedule(currentUser, refNow);
-        //    currentUser.DeleteAllCalendarEvents();
-        //}
 
 
         /// <summary>
@@ -245,6 +206,30 @@ namespace TilerTests
         //    Assert.IsTrue(beforAfteranalysis.Item1.evaluatePositioning() < beforAfteranalysis.Item2.evaluatePositioning());
         //    Assert.IsTrue(beforAfteranalysis.Item1.getScore() < beforAfteranalysis.Item2.getScore());
         //}
+
+
+
+        /// <summary>
+        /// Test loads a schedule dump and the dump has an example screenshot ,in the description, of what is expected. Essentially, if I clear schedule for six hours what are the consequences.
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod]
+        public async Task WhatIfIPushedAllFromDumpEvents()
+        {
+            string scheduleId = "0897a52c-708a-46cb-85f9-bbf26d6f7688";
+            DateTimeOffset currentTime = new DateTimeOffset(2019, 12, 4, 11, 0, 0, new TimeSpan());
+            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+
+            var pushScheduleDump = TestUtility.getSchedule(scheduleId, currentTime);
+            DB_Schedule pushSchedule = (TestSchedule)pushScheduleDump.Item1;
+            var Procrastinationpan = TimeSpan.FromHours(6);
+            var beforAfteranalysis = await pushSchedule.WhatIfPushedAll(Procrastinationpan, null);
+            var sleepEvaluation = beforAfteranalysis.Item2.evaluateSleepTimeFrameScore();
+
+            Assert.IsTrue(beforAfteranalysis.Item1.evaluatePositioning() < beforAfteranalysis.Item2.evaluatePositioning());
+            Assert.IsTrue(beforAfteranalysis.Item1.getScore() < beforAfteranalysis.Item2.getScore());
+        }
+
 
         ///// <summary>
         ///// This test runs a what if scenario on the schedule, by checking if moving the event to a different time will cause it to have an unfavorable schedule. 

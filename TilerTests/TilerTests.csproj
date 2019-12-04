@@ -194,6 +194,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="WagTapCalLogs\065febec-d1fe-4c8b-bd32-548613d4479f.xml" />
+    <Content Include="WagTapCalLogs\0897a52c-708a-46cb-85f9-bbf26d6f7688\0897a52c-708a-46cb-85f9-bbf26d6f7688.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="WagTapCalLogs\0a0e2ca8-62b7-4336-93ee-49a0d1039073\0a0e2ca8-62b7-4336-93ee-49a0d1039073.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

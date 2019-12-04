@@ -241,7 +241,7 @@ namespace TilerElements
             return base.canExistWithinTimeLine(PossibleTimeLine);
         }
 
-        public override SubCalendarEvent CreateCopy(EventID eventId )
+        public override SubCalendarEvent CreateCopy(EventID eventId, CalendarEvent parentCalendarEvent)
         {
             SubCalendarEventRestricted copy = new SubCalendarEventRestricted();
             copy.BusyFrame = this.BusyFrame.CreateCopy() as BusyTimeLine;
@@ -277,6 +277,7 @@ namespace TilerElements
             {
                 copy.UniqueID = UniqueID;//hack
             }
+            copy.ParentCalendarEvent = parentCalendarEvent;
             copy.UnUsableIndex = this.UnUsableIndex;
             copy._AutoDeleted = this._AutoDeleted;
             copy._Users = this._Users;

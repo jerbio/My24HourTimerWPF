@@ -219,7 +219,7 @@ namespace TilerTests
             string scheduleId = "0897a52c-708a-46cb-85f9-bbf26d6f7688";
             DateTimeOffset currentTime = new DateTimeOffset(2019, 12, 4, 11, 0, 0, new TimeSpan());
             Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
-
+            
             var pushScheduleDump = TestUtility.getSchedule(scheduleId, currentTime);
             DB_Schedule pushSchedule = (TestSchedule)pushScheduleDump.Item1;
             var Procrastinationpan = TimeSpan.FromHours(6);

@@ -914,6 +914,10 @@ namespace TilerTests
             Assert.IsTrue(retValue);
             retValue &= firstSubevent.isRepetitionLocked == secondSubevent.isRepetitionLocked;
             Assert.IsTrue(retValue);
+            retValue &= firstSubevent.isWake == secondSubevent.isWake;
+            Assert.IsTrue(retValue);
+            retValue &= firstSubevent.isSleep == secondSubevent.isSleep;
+            Assert.IsTrue(retValue);
             return retValue;
         }
 

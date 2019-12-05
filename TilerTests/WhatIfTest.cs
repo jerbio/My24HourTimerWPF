@@ -217,17 +217,19 @@ namespace TilerTests
         public async Task WhatIfIPushedAllFromDumpEvents()
         {
             string scheduleId = "0897a52c-708a-46cb-85f9-bbf26d6f7688";
-            DateTimeOffset currentTime = new DateTimeOffset(2019, 12, 4, 11, 0, 0, new TimeSpan());
+            DateTimeOffset currentTime = new DateTimeOffset(2019, 12, 4, 23, 0, 0, new TimeSpan());
             Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
             
             var pushScheduleDump = TestUtility.getSchedule(scheduleId, currentTime);
             DB_Schedule pushSchedule = (TestSchedule)pushScheduleDump.Item1;
             var Procrastinationpan = TimeSpan.FromHours(6);
             var beforAfteranalysis = await pushSchedule.WhatIfPushedAll(Procrastinationpan, null);
-            var sleepEvaluation = beforAfteranalysis.Item2.evaluateSleepTimeFrameScore();
 
-            Assert.IsTrue(beforAfteranalysis.Item1.evaluatePositioning() < beforAfteranalysis.Item2.evaluatePositioning());
-            Assert.IsTrue(beforAfteranalysis.Item1.getScore() < beforAfteranalysis.Item2.getScore());
+            var sleepEvaluationABefore = beforAfteranalysis.Item1.evaluateSleepTimeFrameScore();
+            var sleepEvaluationAfter = beforAfteranalysis.Item2.evaluateSleepTimeFrameScore();
+            
+            // need to detect sleep disparity
+
         }
 
 

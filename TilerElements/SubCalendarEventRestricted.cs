@@ -288,6 +288,8 @@ namespace TilerElements
             copy.lockedPrecedingHours = this.lockedPrecedingHours;
             copy._enablePre_reschedulingTimelineLockDown = this._enablePre_reschedulingTimelineLockDown;
             copy._RepetitionLock = this._RepetitionLock;
+            copy.isSleep = this.isSleep;
+            copy.isWake = this.isWake;
             if (this.CalculationTimeLine != null)
             {
                 copy.CalculationTimeLine = this.CalculationTimeLine.CreateCopy();

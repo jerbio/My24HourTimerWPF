@@ -319,66 +319,135 @@ namespace TilerCore
                 CurrentTimeZone = "UTC";
             }
             var beforeNow = new ReferenceNow(Now.constNow, Now.StartOfDay, Now.TimeZoneDifference);
-            var beforeCalevents = getAllCalendarEvents().Where(obj => obj.isActive).Select(obj => obj.createCopy()).ToList();
+            var procradstinateResult = this.ProcrastinateAll(pushSpan);
 
+            var beforeCalevents = procradstinateResult.Item2.Values.Where(obj => obj.isActive).Select(obj => obj.createCopy()).ToList();
             List<SubCalendarEvent> beforeSubEvents = beforeCalevents.SelectMany(calEvent => calEvent.ActiveSubEvents).Where(subEvent => !subEvent.isDesignated).ToList();
             var orderedDayTimeLines = beforeNow.getAllDaysLookup().OrderBy(obj => obj.Key).Select(obj => obj.Value).ToList();
 
 
-            //beforeCalevents.AsParallel().ForAll((calEvent) => calEvent.InitialCalculationLookupDays(orderedDayTimeLines, beforeNow));
             WhatIfSubEventDayDesignation(orderedDayTimeLines.ToArray(), beforeSubEvents);
-            Health beforeChange = new Health(getAllCalendarEvents().Where(obj => obj.isActive).Select(obj => obj.createCopy()), beforeNow.constNow, assessmentWindow.TimelineSpan, beforeNow, this.getHomeLocation);
-            var procradstinateResult = this.ProcrastinateAll(pushSpan);
+            Health beforeChange = new Health(procradstinateResult.Item2.Values.Where(obj => obj.isActive).Select(obj => obj.createCopy()), beforeNow.constNow, assessmentWindow.TimelineSpan, beforeNow, this.getHomeLocation);
 
-            var afterSubEVents = procradstinateResult.Item2.Values.Where(obj => obj.isActive).SelectMany(calEvent => calEvent.ActiveSubEvents).Where(subEvent => { subEvent.resetAndgetUnUsableIndex(); return true; });//.Where(subEvent => !subEvent.isDesignated).ToList();
+            var afterSubEVents = this.getAllCalendarEvents().Where(obj => obj.isActive).SelectMany(calEvent => calEvent.ActiveSubEvents).Where(subEvent => { subEvent.resetAndgetUnUsableIndex(); return true; });//.Where(subEvent => !subEvent.isDesignated).ToList();
             var afterNow = new ReferenceNow(Now.constNow, Now.StartOfDay, Now.TimeZoneDifference);
-            var afterCalevents = procradstinateResult.Item2.Values.Where(obj => obj.isActive).ToList();
+            var afterCalevents = this.getAllCalendarEvents().Where(obj => obj.isActive).ToList();
             var afterorderedDayTimeLines = afterNow.getAllDaysLookup().OrderBy(obj => obj.Key).Select(obj => obj.Value);
             //afterCalevents.AsParallel().ForAll((calEvent) => calEvent.InitialCalculationLookupDays(afterorderedDayTimeLines, afterNow));
             WhatIfSubEventDayDesignation(afterorderedDayTimeLines.ToArray(), afterSubEVents);
 
-            Health afterChange = new Health(procradstinateResult.Item2.Values.Where(obj => obj.isActive), afterNow.constNow, assessmentWindow.TimelineSpan, afterNow, this.getHomeLocation);
+            Health afterChange = new Health(this.getAllCalendarEvents().Where(obj => obj.isActive), afterNow.constNow, assessmentWindow.TimelineSpan, afterNow, this.getHomeLocation);
             var retValue = new Tuple<Health, Health>(beforeChange, afterChange);
             return retValue;
         }
 
 
-        Dictionary<SubCalendarEvent, List<ulong>> WhatIfSubEventDayDesignation(DayTimeLine[] OrderedyAscendingAllDays, IEnumerable<SubCalendarEvent> AllRigidSubEvents)
+        Dictionary<SubCalendarEvent, List<ulong>> WhatIfSubEventDayDesignation(DayTimeLine[] OrderedyAscendingAllDays, IEnumerable<SubCalendarEvent> subEvents)
         {
             ulong First = OrderedyAscendingAllDays.First().UniversalIndex;
             Dictionary<SubCalendarEvent, List<ulong>> RetValue = new Dictionary<SubCalendarEvent, List<ulong>>();
 
-            //Parallel.ForEach(AllRigidSubEvents, eachSubCalendarEvent =>
+            List<SubCalendarEvent> orderedSubevents = subEvents.OrderBy(o=>o.Start).ToList();
 
-            foreach (SubCalendarEvent eachSubCalendarEvent in AllRigidSubEvents)
+            // handles scenario where fore some reason issleep and iswake events are not instantiated
+            List<SubCalendarEvent> sleepEvents = new List<SubCalendarEvent>();
+            List<SubCalendarEvent> wakeEvents = new List<SubCalendarEvent>();
+            foreach(SubCalendarEvent subEvent in subEvents)
             {
-                List<ulong> myDays = new List<ulong>();
-                ulong SubCalFirstIndex = Now.getDayIndexFromStartOfTime(eachSubCalendarEvent.Start);
-                ulong SubCalLastIndex = Now.getDayIndexFromStartOfTime(eachSubCalendarEvent.End);
-                ulong DayDiff = SubCalLastIndex - SubCalFirstIndex;
-
-                int BoundedIndex = (int)(SubCalFirstIndex - First);
-                if ((BoundedIndex < 0) || (BoundedIndex >= OrderedyAscendingAllDays.Length))
+                if(subEvent.isWake)
                 {
-                    continue;
+                    wakeEvents.Add(subEvent);
                 }
-                myDays.Add(SubCalFirstIndex);
-                OrderedyAscendingAllDays[BoundedIndex].AddToSubEventList(eachSubCalendarEvent);
-                eachSubCalendarEvent.ParentCalendarEvent.designateSubEvent(eachSubCalendarEvent, Now);
-                for (ulong i = SubCalFirstIndex + 1, j = 0; j < DayDiff; j++, i++)
+                if (subEvent.isSleep)
                 {
-                    BoundedIndex = (int)(i - First);
-                    if (BoundedIndex < OrderedyAscendingAllDays.Length)// in case the rigid sub event day index is higher than OrderedyAscendingAllDays max index
-                    {
-                        OrderedyAscendingAllDays[BoundedIndex].AddToSubEventList(eachSubCalendarEvent);
-                        OrderedyAscendingAllDays[BoundedIndex].AddToSubEventList(eachSubCalendarEvent);
-                        myDays.Add(i);
-                    }
-
+                    sleepEvents.Add(subEvent);
                 }
-                RetValue.Add(eachSubCalendarEvent, myDays);
             }
-            //);
+            
+            if(orderedSubevents.Count > 0)
+            {
+                SubCalendarEvent previousSubevent = orderedSubevents[0];
+                int BoundedIndex = -1;
+                int previousBoundedIndex = -1;
+                for (int subEventDayindex = 0; subEventDayindex < orderedSubevents.Count; subEventDayindex++)
+                {
+                    SubCalendarEvent eachSubCalendarEvent = orderedSubevents[subEventDayindex];
+                    List<ulong> myDays = new List<ulong>();
+                    ulong SubCalFirstIndex = Now.getDayIndexFromStartOfTime(eachSubCalendarEvent.Start);
+                    ulong SubCalLastIndex = Now.getDayIndexFromStartOfTime(eachSubCalendarEvent.End);
+                    ulong DayDiff = SubCalLastIndex - SubCalFirstIndex;
+
+                    BoundedIndex = (int)(SubCalFirstIndex - First);
+                    if ((BoundedIndex < 0) || (BoundedIndex >= OrderedyAscendingAllDays.Length))
+                    {
+                        continue;
+                    }
+                    myDays.Add(SubCalFirstIndex);
+                    OrderedyAscendingAllDays[BoundedIndex].AddToSubEventList(eachSubCalendarEvent);
+                    eachSubCalendarEvent.ParentCalendarEvent.designateSubEvent(eachSubCalendarEvent, Now);
+                    Action updateIsWakeAndSleep = () =>
+                    {
+                        if (sleepEvents.Count > 0 && wakeEvents.Count > 0)
+                        {
+                            if (eachSubCalendarEvent.isWake)
+                            {
+                                OrderedyAscendingAllDays[BoundedIndex].WakeSubEvent = eachSubCalendarEvent;
+                            }
+
+                            if (eachSubCalendarEvent.isSleep)
+                            {
+                                OrderedyAscendingAllDays[BoundedIndex].SleepSubEvent = eachSubCalendarEvent;
+                            }
+                        }
+                        else// handles just in case issleep and isWake is false on all subevents. it defaults to last and first events of day hence the ordering of subevents
+                        {
+                            if (OrderedyAscendingAllDays[BoundedIndex].WakeSubEvent == null)
+                            {
+                                OrderedyAscendingAllDays[BoundedIndex].WakeSubEvent = eachSubCalendarEvent;
+                            }
+
+                            if (previousBoundedIndex != BoundedIndex && previousBoundedIndex != -1)
+                            {
+                                if (OrderedyAscendingAllDays[previousBoundedIndex].SleepSubEvent == null)
+                                {
+                                    OrderedyAscendingAllDays[previousBoundedIndex].SleepSubEvent = previousSubevent;
+                                    previousBoundedIndex = BoundedIndex;
+                                }
+                            }
+                        }
+                    };
+                    if(DayDiff > 0)
+                    {
+                        for (ulong i = SubCalFirstIndex + 1, j = 0; j < DayDiff; j++, i++)
+                        {
+                            BoundedIndex = (int)(i - First);
+                            if (BoundedIndex < OrderedyAscendingAllDays.Length)// in case the rigid sub event day index is higher than OrderedyAscendingAllDays max index
+                            {
+                                OrderedyAscendingAllDays[BoundedIndex].AddToSubEventList(eachSubCalendarEvent);
+                                updateIsWakeAndSleep();
+                                myDays.Add(i);
+                            }
+
+                        }
+                    } else
+                    {
+                        updateIsWakeAndSleep();
+                    }
+                    
+                    RetValue.Add(eachSubCalendarEvent, myDays);
+                    previousSubevent = eachSubCalendarEvent;
+                    previousBoundedIndex = BoundedIndex;
+                }
+
+                if (sleepEvents.Count == 0 || wakeEvents.Count == 0)// handles just in case issleep and isWake is false on all subevents. it defaults to last and first events of day hence the ordering of subevents
+                {
+                    if (OrderedyAscendingAllDays[BoundedIndex].SleepSubEvent == null)
+                    {
+                        OrderedyAscendingAllDays[BoundedIndex].SleepSubEvent = previousSubevent;
+                        previousBoundedIndex = BoundedIndex;
+                    }
+                }
+            }
             return RetValue;
         }
 
@@ -2690,7 +2759,6 @@ namespace TilerCore
                     if (BoundedIndex < OrderedyAscendingAllDays.Length)// in case the rigid sub event day index is higher than OrderedyAscendingAllDays max index
                     {
                         OrderedyAscendingAllDays[BoundedIndex].AddToSubEventList(eachSubCalendarEvent);
-                        OrderedyAscendingAllDays[BoundedIndex].AddToSubEventList(eachSubCalendarEvent);
                         myDays.Add(i);
                     }
 
@@ -2804,16 +2872,19 @@ namespace TilerCore
                 if(wakeAndSleepEvents.Item1!=null)
                 {
                     EachDay.WakeSubEvent = wakeAndSleepEvents.Item1;
+                    //wakeAndSleepEvents.Item1.isWake = true;
                 }
 
                 if (wakeAndSleepEvents.Item2 != null)
                 {
                     EachDay.SleepSubEvent = wakeAndSleepEvents.Item2;
+                    //wakeAndSleepEvents.Item2.isSleep = true;
                 }
 
                 if (wakeAndSleepEvents.Item3 != null)
                 {
                     EachDay.PrecedingDaySleepSubEvent = wakeAndSleepEvents.Item3;
+                    //wakeAndSleepEvents.Item3.isSleep = true;
                 }
 
 

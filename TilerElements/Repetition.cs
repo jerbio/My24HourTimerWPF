@@ -959,12 +959,15 @@ namespace TilerElements
         public Repetition CreateCopy()
         {
             Repetition repetition_cpy = new Repetition();
-            if (this._DictionaryOfWeekDayToRepetition != null && this._DictionaryOfWeekDayToRepetition.Count < 1)
+            if ((this._DictionaryOfIDAndCalendarEvents == null && this._DictionaryOfWeekDayToRepetition == null) || 
+                ((this._DictionaryOfWeekDayToRepetition != null && this._DictionaryOfWeekDayToRepetition.Count < 1) &&
+                (this._DictionaryOfIDAndCalendarEvents != null && this._DictionaryOfIDAndCalendarEvents.Count < 1))
+               )
             {
                 return repetition_cpy;
             }
             repetition_cpy._RepetitionFrequency = this._RepetitionFrequency;
-            repetition_cpy._RepetitionRange = this._RepetitionRange.CreateCopy();
+            repetition_cpy._RepetitionRange = this._RepetitionRange?.CreateCopy();
             repetition_cpy._Location = _Location?.CreateCopy();
             repetition_cpy._EnableRepeat = _EnableRepeat;
             repetition_cpy.RepetitionWeekDay = RepetitionWeekDay;

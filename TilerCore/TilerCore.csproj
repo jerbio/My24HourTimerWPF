@@ -70,6 +70,7 @@
     <Compile Include="Schedule.cs" />
     <Compile Include="SnugArray.cs" />
     <Compile Include="DayTempEvaluation.cs" />
+    <Compile Include="TimeStone.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TilerElements\TilerElements.csproj">

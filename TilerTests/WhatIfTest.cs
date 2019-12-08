@@ -77,11 +77,11 @@ namespace TilerTests
 
             SubCalendarEvent whatIfSubEvent = retrievedWednesdayEvent.ActiveSubEvents.First();
             schedule = new DB_Schedule(user, refNow);
-            Health tuesdayHealth = await schedule.WhatIfDifferentDay(tuesdayStart, whatIfSubEvent.SubEvent_ID).ConfigureAwait(false);
+            Health tuesdayHealth = await schedule.TimeStone.SubeventDifferentDay(tuesdayStart, whatIfSubEvent.SubEvent_ID).ConfigureAwait(false);
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             schedule = new DB_Schedule(user, refNow);
-            Health mondayHealth = await schedule.WhatIfDifferentDay(wednesdayStart.AddDays(-2), whatIfSubEvent.SubEvent_ID).ConfigureAwait(false);
+            Health mondayHealth = await schedule.TimeStone.SubeventDifferentDay(wednesdayStart.AddDays(-2), whatIfSubEvent.SubEvent_ID).ConfigureAwait(false);
             HealthEvaluation mondayEvaluation = new HealthEvaluation(mondayHealth);
             HealthEvaluation tuesdayEvaluation = new HealthEvaluation(tuesdayHealth);
 
@@ -158,7 +158,7 @@ namespace TilerTests
             DateTimeOffset limitOfProcrastination = procrastinateSubevent.getCalculationRange.End.AddHours(-2);
             DateTimeOffset start = findSomethingTodSchedule.Now.constNow > procrastinateSubevent.Start ? findSomethingTodSchedule.Now.constNow : procrastinateSubevent.Start;
             var Procrastinationpan = limitOfProcrastination - start;
-            var beforAfteranalysis = await pushSchedule.WhatIfPushed(Procrastinationpan, subEventId, null);
+            var beforAfteranalysis = await pushSchedule.TimeStone.PushSingleEvent(Procrastinationpan, subEventId, null);
             Assert.IsTrue(beforAfteranalysis.Item1.getScore() < beforAfteranalysis.Item2.getScore());
         }
 
@@ -223,11 +223,10 @@ namespace TilerTests
             var pushScheduleDump = TestUtility.getSchedule(scheduleId, currentTime);
             DB_Schedule pushSchedule = (TestSchedule)pushScheduleDump.Item1;
             var Procrastinationpan = TimeSpan.FromHours(6);
-            var beforAfteranalysis = await pushSchedule.WhatIfPushedAll(Procrastinationpan, null);
+            var beforAfteranalysis = await pushSchedule.TimeStone.PushedAll(Procrastinationpan, null);
 
             var sleepEvaluationABefore = beforAfteranalysis.Item1.evaluateSleepTimeFrameScore();
             var sleepEvaluationAfter = beforAfteranalysis.Item2.evaluateSleepTimeFrameScore();
-            
             // need to detect sleep disparity
 
         }

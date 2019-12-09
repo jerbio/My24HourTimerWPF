@@ -3442,7 +3442,7 @@ namespace TilerCore
         List<SubCalendarEvent> PrepFirstTwentyFourHours(List<SubCalendarEvent> possibleSubevents, TimeLine FirstTwentyFour)
         {
             TimeLine FirstFortyEight = new TimeLine(Now.firstDay.Start, Now.firstDay.Start.AddDays(2));
-            List<SubCalendarEvent> ForCalculation = possibleSubevents.Where(obj => obj.StartToEnd.InterferringTimeLine(FirstTwentyFour) != null).ToList();
+            List<SubCalendarEvent> ForCalculation = possibleSubevents.OrderBy(o=> o.Start).Where(obj => obj.StartToEnd.InterferringTimeLine(FirstTwentyFour) != null).ToList();
 
             List<SubCalendarEvent> AllRigids = ForCalculation.Where(obj => obj.isLocked).ToList();
 
@@ -4810,21 +4810,21 @@ namespace TilerCore
 
         public List<mTuple<bool, SubCalendarEvent>> stitchRestrictedSubCalendarEvent(List<mTuple<bool, SubCalendarEvent>> Arg1, TimeLine RestrictingTimeLine, SubCalendarEvent PrecedingPivot = null)
         {
-            List<SubCalendarEvent> retValue = stitchRestrictedSubCalendarEvent(Arg1.Select(obj => new mTuple<double, mTuple<TimeLine, SubCalendarEvent>>(0, new mTuple<TimeLine, SubCalendarEvent>(new TimeLine(), obj.Item2))).ToList(), RestrictingTimeLine, PrecedingPivot);
+            List<SubCalendarEvent> retValue = stitchRestrictedSubCalendarEvent(Arg1.Select(obj => new mTuple<TimeLine, SubCalendarEvent>(new TimeLine(), obj.Item2)).ToList(), RestrictingTimeLine, PrecedingPivot);
             return retValue.Select(obj => new mTuple<bool, SubCalendarEvent>(true, obj)).ToList();
         }
 
-        public List<SubCalendarEvent> stitchRestrictedSubCalendarEvent(List<mTuple<double, mTuple<TimeLine, SubCalendarEvent>>> Arg1, TimeLine RestrictingTimeLine, SubCalendarEvent PrecedingPivot = null)
+        public List<SubCalendarEvent> stitchRestrictedSubCalendarEvent(List<mTuple<TimeLine, SubCalendarEvent>> Arg1, TimeLine RestrictingTimeLine, SubCalendarEvent PrecedingPivot = null)
         {
-            List<SubCalendarEvent> retValue = Arg1.Select(obj => obj.Item2.Item2).ToList();
+            List<SubCalendarEvent> retValue = Arg1.Select(obj => obj.Item2).ToList();
 
-            TimeSpan SumOfAllSubCalEvent = Utility.SumOfActiveDuration(Arg1.Select(obj => obj.Item2.Item2));
-            List<SubCalendarEvent> CopyOfAllList = Arg1.Select(obj => obj.Item2.Item2).ToList();
+            TimeSpan SumOfAllSubCalEvent = Utility.SumOfActiveDuration(Arg1.Select(obj => obj.Item2));
+            List<SubCalendarEvent> CopyOfAllList = Arg1.Select(obj => obj.Item2).ToList();
             if (retValue.Count < 1)//if arg1 is empty return the list
             {
                 return retValue;
             }
-            List<SubCalendarEvent> AllSubCalEvents = Arg1.Select(obj => obj.Item2.Item2).ToList();
+            List<SubCalendarEvent> AllSubCalEvents = Arg1.Select(obj => obj.Item2).ToList();
             List<mTuple<TimeLine, SubCalendarEvent>> AvaialableTimeSpan = new List<mTuple<TimeLine, SubCalendarEvent>>();
 
             TimeLine InterferringTimeLine = RestrictingTimeLine.CreateCopy();
@@ -4834,41 +4834,40 @@ namespace TilerCore
 
             Arg1 = Arg1.Select(obj => //using Linq to update timeline
             {
-                List<TimeLine> AllTimeLines = obj.Item2.Item2.getTimeLineInterferringWithCalEvent(RestrictingTimeLine);
+                List<TimeLine> AllTimeLines = obj.Item2.getTimeLineInterferringWithCalEvent(RestrictingTimeLine);
                 TimeLine relevantTimeLine = AllTimeLines != null ? AllTimeLines[0] : null;
-                obj.Item2.Item1 = relevantTimeLine;//gets interferring TImeLine
-                obj.Item1 += (obj.Item1 * 10) + (obj.Item2.Item1 != null ? obj.Item2.Item1.TimelineSpan.TotalSeconds / obj.Item2.Item2.getActiveDuration.TotalSeconds : 0);
+                obj.Item1 = relevantTimeLine;//gets interferring TImeLine
                 return obj;
             }).ToList();
-            Arg1 = Arg1.OrderBy(obj => obj.Item1).ToList();
-            List<mTuple<double, mTuple<TimeLine, SubCalendarEvent>>> WorkableList = Arg1.Where(obj => obj.Item2.Item1 != null).ToList();
-            WorkableList = WorkableList.Where(obj => obj.Item2.Item1.TimelineSpan >= obj.Item2.Item2.getActiveDuration).ToList();
+            Arg1 = Arg1.OrderBy(obj => obj.Item2.Score).ToList();
+            List<mTuple<TimeLine, SubCalendarEvent>> WorkableList = Arg1.Where(obj => obj.Item1 != null).ToList();
+            WorkableList = WorkableList.Where(obj => obj.Item1.TimelineSpan >= obj.Item2.getActiveDuration).ToList();
 
 #if reversed
             //Build Strict Towards right of the tree
             if (WorkableList.Count > 0)
             {
                 //CountCall++;
-                mTuple<double, mTuple<TimeLine, SubCalendarEvent>> PivotNodeData = WorkableList[0];
-                bool PinningSuccess = PivotNodeData.Item2.Item2.PinToEnd(RestrictingTimeLine);
+                mTuple<TimeLine, SubCalendarEvent> PivotNodeData = WorkableList[0];
+                bool PinningSuccess = PivotNodeData.Item2.PinToEnd(RestrictingTimeLine);
                 DateTimeOffset StartTimeOfLeftTree = RestrictingTimeLine.Start;
                 DateTimeOffset EndTimeOfLeftTree = RestrictingTimeLine.End;
                 SubCalendarEvent includeSubCalendarEvent = null;
                 TimeLine leftOver = new TimeLine();
                 if (PinningSuccess)//hack alert Subevent fittable a double less than 1 e,g 0.5
                 {
-                    EndTimeOfLeftTree = PivotNodeData.Item2.Item2.Start;
-                    includeSubCalendarEvent = PivotNodeData.Item2.Item2;
-                    leftOver = new TimeLine(PivotNodeData.Item2.Item2.End, RestrictingTimeLine.End);//gets the left of timeline to ensure that 
+                    EndTimeOfLeftTree = PivotNodeData.Item2.Start;
+                    includeSubCalendarEvent = PivotNodeData.Item2;
+                    leftOver = new TimeLine(PivotNodeData.Item2.End, RestrictingTimeLine.End);//gets the left of timeline to ensure that 
                 }
 
                 WorkableList.RemoveAt(0);
 
                 TimeLine LefTimeLine = new TimeLine(StartTimeOfLeftTree, EndTimeOfLeftTree);
 
-                List<mTuple<double, mTuple<TimeLine, SubCalendarEvent>>> WorkableList_Cpy = WorkableList.ToList();
+                List<mTuple<TimeLine, SubCalendarEvent>> WorkableList_Cpy = WorkableList.ToList();
 
-                List<SubCalendarEvent> willFitInleftOver = WorkableList.Where(obj => obj.Item2.Item2.canExistWithinTimeLine(leftOver)).Select(obj => obj.Item2.Item2).ToList();
+                List<SubCalendarEvent> willFitInleftOver = WorkableList.Where(obj => obj.Item2.canExistWithinTimeLine(leftOver)).Select(obj => obj.Item2).ToList();
 
                 SubCalendarEvent.incrementMiscdata(willFitInleftOver);
 
@@ -4893,7 +4892,7 @@ namespace TilerCore
 
                 TimeLine RightTimeLine = new TimeLine(StartTimeOfRightTree, EndTimeOfRightTree);
 
-                WorkableList_Cpy.RemoveAll(obj => leftTreeResult.Contains(obj.Item2.Item2));
+                WorkableList_Cpy.RemoveAll(obj => leftTreeResult.Contains(obj.Item2));
 
 
 

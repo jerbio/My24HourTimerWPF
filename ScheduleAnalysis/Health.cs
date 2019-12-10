@@ -25,7 +25,7 @@ namespace ScheduleAnalysis
         bool alreadyEvaluated = false;
         HealthEvaluation evaluation;
         Location _HomeLocation;
-
+        SleepEvaluation _sleepEvaluation;
         /// <summary>
         /// This ge
         /// </summary>
@@ -56,9 +56,8 @@ namespace ScheduleAnalysis
             Tuple<double, Dictionary<ulong, List<double>>> distanceEvaluation = evaluateTotalDistance();
             double positioningScore = evaluatePositioning();
             double conflictScore = evaluateConflicts().Sum(blob => blob.getSubCalendarEventsInBlob().Count());
-            var sleepEvaluation = evaluateSleepTimeFrameScore();
             double eventPerDayScore = eventsPerDay();
-            double retValue = Utility.CalcuateResultant(distanceEvaluation.Item1, positioningScore, conflictScore, sleepEvaluation.Item1, eventPerDayScore);
+            double retValue = Utility.CalcuateResultant(distanceEvaluation.Item1, positioningScore, conflictScore, SleepEvaluation.ScoreTimeLine(), eventPerDayScore);
             return retValue;
         }
 
@@ -138,9 +137,7 @@ namespace ScheduleAnalysis
 
         public Tuple<double, List<Tuple<TimeLine, ulong>>> evaluateSleepTimeFrameScore()
         {
-            List<Tuple<TimeLine, ulong>> sleepTimeLines = SleepTimeLines;
-            double score = (double)TimeSpan.FromHours(24).Ticks / SleepPerDay.Ticks;
-            var retValue = new Tuple<double, List<Tuple<TimeLine, ulong>>>(score, sleepTimeLines);
+            var retValue = SleepEvaluation.scoreAndTimeLine();
             return retValue;
         }
 
@@ -330,31 +327,39 @@ namespace ScheduleAnalysis
             return retValue;
         }
 
-        public List<Tuple<TimeLine, ulong>> SleepTimeLines
+        public SleepEvaluation SleepEvaluation
         {
             get
             {
-                List<Tuple<TimeLine, ulong>> sleepTimeLines = new List<Tuple<TimeLine, ulong>>();
-                Tuple<ulong, ulong> dayIndexBoundaries = Now.indexRange(CalculationTimeline);
-                ulong iniUniverslaIndex = Now.firstDay.UniversalIndex;
-                for (ulong i = dayIndexBoundaries.Item1; i <= dayIndexBoundaries.Item2; i++)
-                {
-                    ulong universalIndex = iniUniverslaIndex + (ulong)i;
-                    DayTimeLine dayTimeLine = Now.getDayTimeLineByDayIndex(universalIndex);
-                    if ( universalIndex > iniUniverslaIndex)
-                    {
-                        ulong previousDayUniversalIndex = universalIndex - 1;
-                        DayTimeLine previousDayTimeLine = Now.getDayTimeLineByDayIndex(previousDayUniversalIndex);
-                        DateTimeOffset sleepStart = dayTimeLine.PrecedingDaySleepSubEvent?.End ?? previousDayTimeLine.SleepSubEvent?.End ?? previousDayTimeLine.End;//
-                        DateTimeOffset sleepEnd = dayTimeLine.WakeSubEvent?.Start ?? sleepStart.Add(Now.SleepSpan);
-                        TimeLine sleepTImeLine = new TimeLine(sleepStart, sleepEnd);
-                        sleepTimeLines.Add(new Tuple<TimeLine, ulong>(sleepTImeLine, dayTimeLine.UniversalIndex));
-                    }
-                        
-                }
-                return sleepTimeLines;
+                return _sleepEvaluation ?? (_sleepEvaluation = new SleepEvaluation(Now, CalculationTimeline));
             }
         }
+
+        //public List<Tuple<TimeLine, ulong>> SleepTimeLines
+        //{
+        //    get
+        //    {
+        //        List<Tuple<TimeLine, ulong>> sleepTimeLines = new List<Tuple<TimeLine, ulong>>();
+        //        Tuple<ulong, ulong> dayIndexBoundaries = Now.indexRange(CalculationTimeline);
+        //        ulong iniUniverslaIndex = Now.firstDay.UniversalIndex;
+        //        for (ulong i = dayIndexBoundaries.Item1; i <= dayIndexBoundaries.Item2; i++)
+        //        {
+        //            ulong universalIndex = iniUniverslaIndex + (ulong)i;
+        //            DayTimeLine dayTimeLine = Now.getDayTimeLineByDayIndex(universalIndex);
+        //            if ( universalIndex > iniUniverslaIndex)
+        //            {
+        //                ulong previousDayUniversalIndex = universalIndex - 1;
+        //                DayTimeLine previousDayTimeLine = Now.getDayTimeLineByDayIndex(previousDayUniversalIndex);
+        //                DateTimeOffset sleepStart = dayTimeLine.PrecedingDaySleepSubEvent?.End ?? previousDayTimeLine.SleepSubEvent?.End ?? previousDayTimeLine.End;//
+        //                DateTimeOffset sleepEnd = dayTimeLine.WakeSubEvent?.Start ?? sleepStart.Add(Now.SleepSpan);
+        //                TimeLine sleepTImeLine = new TimeLine(sleepStart, sleepEnd);
+        //                sleepTimeLines.Add(new Tuple<TimeLine, ulong>(sleepTImeLine, dayTimeLine.UniversalIndex));
+        //            }
+
+        //        }
+        //        return sleepTimeLines;
+        //    }
+        //}
 
         public List<SubCalendarEvent> orderedByStartThenEndSubEvents
         {

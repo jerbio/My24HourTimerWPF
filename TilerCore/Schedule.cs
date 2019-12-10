@@ -5606,8 +5606,7 @@ namespace TilerCore
             EventID id = new EventID(eventId);
             RepeatEvent(id, location);
         }
-
-        //public XmlElement CreateEventScheduleNode(CalendarEvent MyEvent, XmlDocument xmldoc)
+        
 
         public void LogStatus(CalendarEvent triggerEvent, string Trigger)//writes to an XML Log file. Takes calendar event as an argument
         {

@@ -228,8 +228,6 @@ namespace TilerTests
 
             var sleepEvaluationABefore = beforAfteranalysis.Item1.evaluateSleepTimeFrameScore();
             var sleepEvaluationAfter = beforAfteranalysis.Item2.evaluateSleepTimeFrameScore();
-            // need to detect sleep disparity
-
         }
 
 

@@ -23,7 +23,7 @@ namespace TilerElements
         DayOfWeek _ConstDayOfTheWeek;// this should be day of the week that constNow falls into. This belongs to the day of the week the of the timezone the request is coming from and not the time zone of the machine
         protected DayTimeLine[] AllDays;
         Dictionary<ulong, DayTimeLine> DayLookUp;
-        public TimeSpan SleepSpan = TimeSpan.FromHours(6);
+        public TimeSpan SleepSpan = Utility.SleepSpan;
         protected TimeSpan TimeZoneDiff;
         ulong lastDayIndex = 0;
         uint _DayCount;
@@ -313,9 +313,9 @@ namespace TilerElements
             return retValue;
         }
 
-        virtual public Tuple<int, int> indexRange(TimeLine Range)
+        virtual public Tuple<ulong, ulong> indexRange(TimeLine Range)
         {
-            Tuple<int, int> retValue = new Tuple<int, int>((int)(Range.Start - ComputationBound.Start).TotalDays, (int)(Range.End - ComputationBound.Start).TotalDays);
+            Tuple<ulong, ulong> retValue = new Tuple<ulong, ulong>((ulong)(Range.Start - ComputationBound.Start).TotalDays, (ulong)(Range.End - ComputationBound.Start).TotalDays);
             return retValue;
         }
 

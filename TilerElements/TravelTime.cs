@@ -6,8 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using GoogleMapsApi.Entities.Directions.Request;
 using Newtonsoft.Json.Linq;
+using TilerElements;
 
-namespace TilerElements
+namespace ScheduleAnalysis
 {
     public class TravelTime:IJson
     {

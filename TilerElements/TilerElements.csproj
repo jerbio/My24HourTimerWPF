@@ -139,7 +139,6 @@
     <Compile Include="ThirdPartyCalendarEvent.cs" />
     <Compile Include="TilerDbContext.cs" />
     <Compile Include="Fluent\TilerEventMapping.cs" />
-    <Compile Include="HealthEvaluation.cs" />
     <Compile Include="IJson.cs" />
     <Compile Include="IUndoable.cs" />
     <Compile Include="OptimizedGrouping.cs" />
@@ -151,7 +150,6 @@
     <Compile Include="DayTimeLine.cs" />
     <Compile Include="EventName.cs" />
     <Compile Include="Classification.cs" />
-    <Compile Include="Health.cs" />
     <Compile Include="IWhy.cs" />
     <Compile Include="MultidimensionalCalculation.cs" />
     <Compile Include="NowProfile.cs" />

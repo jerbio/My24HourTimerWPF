@@ -73,6 +73,10 @@
     <Compile Include="TimeStone.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ScheduleAnalysis\ScheduleAnalysis.csproj">
+      <Project>{bcb7ff8a-4b37-4ce2-9a41-4ccb7d616afd}</Project>
+      <Name>ScheduleAnalysis</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TilerElements\TilerElements.csproj">
       <Project>{307ed69e-4df8-41c4-934c-38495fc8900c}</Project>
       <Name>TilerElements</Name>

@@ -264,6 +264,10 @@
     <Content Include="WagTapCalLogs\magnet-967c-4afc-aa45-9ffd9a0a3e3d.xml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ScheduleAnalysis\ScheduleAnalysis.csproj">
+      <Project>{bcb7ff8a-4b37-4ce2-9a41-4ccb7d616afd}</Project>
+      <Name>ScheduleAnalysis</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TilerCore\TilerCore.csproj">
       <Project>{bd4e5701-2e62-464b-8840-d49e056fd49b}</Project>
       <Name>TilerCore</Name>

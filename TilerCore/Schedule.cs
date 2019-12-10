@@ -4974,15 +4974,6 @@ namespace TilerCore
              *      -DictionaryOfTimelineAndSubcalendarEvents-> A dictionary of TimeLine and interferring subcalendarevents
              */
 
-            //if (ListOfAllSnugPossibilitiesInRespectiveTImeLines_hack.Count >= maxHackConstant)
-            {
-                //return ListOfAllSnugPossibilitiesInRespectiveTImeLines_hack;
-            }
-
-
-
-
-
             if (AvailableSubCalendarEvents.Count > MaxNumberOfInterferringSubcalEvents)
             {
                 MaxNumberOfInterferringSubcalEvents = AvailableSubCalendarEvents.Count;

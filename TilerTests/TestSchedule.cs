@@ -102,17 +102,17 @@ namespace TilerTests
         }
 
 
-        public Health getScheduleQuality(TimeLine timeLine)
-        {
-            Health retValue = this.getScheduleQuality(timeLine, this.Now);
-            return retValue;
-        }
+        //public Health getScheduleQuality(TimeLine timeLine)
+        //{
+        //    Health retValue = this.getScheduleQuality(timeLine, this.Now);
+        //    return retValue;
+        //}
 
-        public Health getScheduleQuality(TimeLine timeLine, ReferenceNow refNow)
-        {
-            Health retValue = new Health(this.getAllCalendarEvents(), timeLine.Start, timeLine.TimelineSpan, refNow, this.getHomeLocation);
-            return retValue;
-        }
+        //public Health getScheduleQuality(TimeLine timeLine, ReferenceNow refNow)
+        //{
+        //    Health retValue = new Health(this.getAllCalendarEvents(), timeLine.Start, timeLine.TimelineSpan, refNow, this.getHomeLocation);
+        //    return retValue;
+        //}
 
         public void populateDayTimeLinesWithSubcalendarEvents()
         {

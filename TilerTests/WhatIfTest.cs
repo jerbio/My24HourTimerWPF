@@ -7,6 +7,7 @@ using TilerCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ScheduleAnalysis;
 
 namespace TilerTests
 {

@@ -37,6 +37,8 @@ Icon
 .Spotlight-V100
 .Trashes
 
+ScheduleAnalysis/obj/*
+ScheduleAnalysis/bin/*
 TilerCore/bin/*
 TilerCore/obj/*
 packages/

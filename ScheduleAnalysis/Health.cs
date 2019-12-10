@@ -6,8 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using GoogleMapsApi.Entities.Directions.Request;
 using Newtonsoft.Json.Linq;
+using TilerElements;
 
-namespace TilerElements
+namespace ScheduleAnalysis
 {
     /// <summary>
     /// Class analyses the health of a schedule
@@ -205,7 +206,7 @@ namespace TilerElements
             return conflictingEvents;
         }
 
-        HealthEvaluation getEvaluation(bool forceReevaluation = false)
+        internal HealthEvaluation getEvaluation(bool forceReevaluation = false)
         {
             if(forceReevaluation || !alreadyEvaluated)
             {
@@ -239,7 +240,7 @@ namespace TilerElements
                 JObject dayResult = new JObject();
                 dayResult.Add("timeLine", eval.Item1.ToJson());
                 TimeLine timeLine = Now.getDayTimeLineByDayIndex((ulong)eval.Item2);
-                dayResult.Add("day", timeLine.Start.toJSMilliseconds());
+                dayResult.Add("day", timeLine.Start.ToUnixTimeMilliseconds());
                 return dayResult;
             } )));
 
@@ -282,9 +283,9 @@ namespace TilerElements
                 List<TimeLine> sleepTimeLine = new List<TimeLine>();
                 TimeSpan totalSleepSpan = new TimeSpan();
                 TimeSpan totalDayspans = new TimeSpan();
-                Tuple<int, int> dayIndexBoundaries = Now.indexRange(CalculationTimeline);
+                Tuple<ulong, ulong> dayIndexBoundaries = Now.indexRange(CalculationTimeline);
                 ulong iniUniverslaIndex = Now.firstDay.UniversalIndex;
-                for (int i = dayIndexBoundaries.Item1; i <= dayIndexBoundaries.Item2; i++)
+                for (ulong i = dayIndexBoundaries.Item1; i <= dayIndexBoundaries.Item2; i++)
                 {
                     ulong universalIndex = iniUniverslaIndex + (ulong)i;
                     DayTimeLine dayTimeLine = Now.getDayTimeLineByDayIndex(universalIndex);
@@ -311,9 +312,9 @@ namespace TilerElements
             double retValue = 0;
             double sum = 0;
             List<SubCalendarEvent> allSubEvents = new List<SubCalendarEvent>();
-            Tuple<int, int> dayIndexBoundaries = Now.indexRange(CalculationTimeline);
+            Tuple<ulong, ulong> dayIndexBoundaries = Now.indexRange(CalculationTimeline);
             ulong universlaIndex = Now.firstDay.UniversalIndex;
-            int i = dayIndexBoundaries.Item1;
+            ulong i = dayIndexBoundaries.Item1;
             for (; i <= dayIndexBoundaries.Item2; i++)
             {
                 ulong universalIndex = universlaIndex + (ulong)i;
@@ -334,9 +335,9 @@ namespace TilerElements
             get
             {
                 List<Tuple<TimeLine, ulong>> sleepTimeLines = new List<Tuple<TimeLine, ulong>>();
-                Tuple<int, int> dayIndexBoundaries = Now.indexRange(CalculationTimeline);
+                Tuple<ulong, ulong> dayIndexBoundaries = Now.indexRange(CalculationTimeline);
                 ulong iniUniverslaIndex = Now.firstDay.UniversalIndex;
-                for (int i = dayIndexBoundaries.Item1; i <= dayIndexBoundaries.Item2; i++)
+                for (ulong i = dayIndexBoundaries.Item1; i <= dayIndexBoundaries.Item2; i++)
                 {
                     ulong universalIndex = iniUniverslaIndex + (ulong)i;
                     DayTimeLine dayTimeLine = Now.getDayTimeLineByDayIndex(universalIndex);
@@ -370,98 +371,6 @@ namespace TilerElements
                 return this._TravelMode;
             }
         }
-#endregion
-
-
-        public class HealthComparison
-        {
-            Health FirstHealth;
-            Health SecondHealth;
-            HealthEvaluation FirsstEvaluation;
-            HealthEvaluation SecondEvaluation;
-
-            public HealthComparison(Health firstHealth, Health secondHealth)
-            {
-                FirstHealth = firstHealth;
-                SecondHealth = secondHealth;
-                FirsstEvaluation = FirstHealth.getEvaluation();
-                FirsstEvaluation.TravelTimeAnalysis.evaluate().Wait();
-                SecondEvaluation = SecondHealth.getEvaluation();
-                SecondEvaluation.TravelTimeAnalysis.evaluate().Wait();
-                
-            }
-            
-
-            /// <summary>
-            /// This function is to be used with a comparator function
-            /// </summary>
-            public int Compare
-            {
-                get
-                {
-                    double retValue = 0;
-                    double DistanceTravelTimeSpanDifferenceCriteria = 0;
-                    double DistanceTravelDifferenceCriteria = 0;
-                    double SleepDifferenceCriteria = 0;
-
-                    TravelTime firstTravelTime = FirsstEvaluation.TravelTimeAnalysis;
-                    firstTravelTime.evaluate().Wait();
-                    TimeSpan firstTravelTImeSpanDiff = TimeSpan.FromTicks(firstTravelTime.result().Sum(kvp => kvp.Value.Ticks));
-
-                    TravelTime secondTravelTime = SecondEvaluation.TravelTimeAnalysis;
-                    secondTravelTime.evaluate().Wait();
-                    TimeSpan secondTravelTimeSpanDiff = TimeSpan.FromTicks(secondTravelTime.result().Sum(kvp => kvp.Value.Ticks));
-
-                    if (firstTravelTImeSpanDiff > secondTravelTimeSpanDiff)
-                    {
-                        DistanceTravelTimeSpanDifferenceCriteria = -1;
-                    } else if (firstTravelTImeSpanDiff < secondTravelTimeSpanDiff)
-                    {
-                        DistanceTravelTimeSpanDifferenceCriteria = 1;
-                    }
-
-                    if (FirsstEvaluation.TotalDistance > SecondEvaluation.TotalDistance)
-                    {
-                        DistanceTravelDifferenceCriteria = 1;
-                    }
-                    else if (FirsstEvaluation.TotalDistance > SecondEvaluation.TotalDistance)
-                    {
-                        DistanceTravelDifferenceCriteria = -1;
-                    }
-
-
-                    TimeSpan firstSleep = TimeSpan.FromTicks(FirsstEvaluation.SleepSchedule.Sum(sleepSpans => sleepSpans.Ticks));
-                    TimeSpan secondSleep = TimeSpan.FromTicks(SecondEvaluation.SleepSchedule.Sum(sleepSpans => sleepSpans.Ticks));
-
-                    if (firstSleep > secondSleep)
-                    {
-                        SleepDifferenceCriteria = -1;
-                    }
-                    else if (firstSleep < secondSleep)
-                    {
-                        SleepDifferenceCriteria = 1;
-                    }
-
-
-
-
-                    retValue = DistanceTravelTimeSpanDifferenceCriteria + DistanceTravelDifferenceCriteria + SleepDifferenceCriteria;
-
-                    if (retValue > 0)
-                    {
-                        retValue = 1;
-                    }
-                    else if (retValue < 0)
-                    {
-                        retValue = -1;
-                    }
-
-                    return (int)retValue;
-                }
-            }
-        }
-
-
-        
+#endregion        
     }
 }

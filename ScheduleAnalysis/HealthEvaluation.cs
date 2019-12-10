@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TilerElements;
 using Newtonsoft.Json.Linq;
 
-namespace TilerElements
+namespace ScheduleAnalysis
 {
     /// <summary>
     /// Class is simply to provide a way to hold the result of an evaluated schedule. It is not meant to be used outside this Class. 

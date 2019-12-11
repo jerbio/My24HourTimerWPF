@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using NodaTime;
 using static TilerElements.TimeOfDayPreferrence;
 
 namespace TilerElements
@@ -14,7 +15,7 @@ namespace TilerElements
         private DateTimeOffset CalculationNow;
         private DateTimeOffset ImmutableNow;
         const int numberOfDfDays = 90;
-        UInt64 ImmutableDayIndex;//'Cause tiler will exist 18,446,744,073,709,551,615 from 1970 
+        UInt64 ImmutableDayIndex;//'Cause tiler will exist 18,446,744,073,709,551,615 days from 1970 ¯\_(ツ)_/¯
         protected TimeSpan ConstOfCalculation = new TimeSpan(numberOfDfDays, 0, 0, 0, 0);
         DateTimeOffset tempNow = new DateTimeOffset(DateTimeOffset.UtcNow.Year, DateTimeOffset.UtcNow.Month, DateTimeOffset.UtcNow.Day, 0, 0, 0, new TimeSpan());
         TimeLine ComputationBound;// = new TimeLine(new DateTimeOffset(DateTimeOffset.UtcNow.Year, DateTimeOffset.UtcNow.Month, DateTimeOffset.UtcNow.Day, 0, 0, 0, new TimeSpan()), new DateTimeOffset(DateTimeOffset.UtcNow.Year, DateTimeOffset.UtcNow.Month, DateTimeOffset.UtcNow.Day, 0, 0, 0, new TimeSpan()).AddDays(90));
@@ -28,20 +29,20 @@ namespace TilerElements
         ulong lastDayIndex = 0;
         uint _DayCount;
 
-        public ReferenceNow(DateTimeOffset Now, DateTimeOffset StartOfDay, TimeSpan timeDifference)
+        public ReferenceNow(DateTimeOffset now, DateTimeOffset StartOfDay, TimeSpan timeDifference)
         {
-            StarTime = new DateTimeOffset(1970, 1, 1, StartOfDay.Hour, StartOfDay.Minute, 0, new TimeSpan());
-            Now = new DateTimeOffset(Now.Year, Now.Month, Now.Day, Now.Hour, Now.Minute, 0, new TimeSpan());
-            CalculationNow = Now.removeSecondsAndMilliseconds();
+            TimeZoneDiff = timeDifference;
+            StarTime = new DateTimeOffset(1970, 1, 1, StartOfDay.Hour, StartOfDay.Minute, 0, TimeZoneDiff);
+            //Now = new DateTimeOffset(Now.Year, Now.Month, Now.Day, Now.Hour, Now.Minute, 0, new TimeSpan());
+            CalculationNow = now.removeSecondsAndMilliseconds();
             ImmutableNow = CalculationNow;
             this.startOfDay = StartOfDay;
             DateTimeOffset currentTime = new DateTimeOffset(ImmutableNow.Year, ImmutableNow.Month, ImmutableNow.Day, 0,0,0, new TimeSpan());
             DayOfWeek currentDayOfWeek = currentTime.DayOfWeek;
             DateTimeOffset startTimeForDayOfweek = currentTime.Add(timeDifference).removeSecondsAndMilliseconds();
-            TimeZoneDiff = timeDifference;
             _ConstDayOfTheWeek = getDayOfTheWeek(ImmutableNow).Item1;
+            ImmutableDayIndex = (ulong)(ImmutableNow - StarTime).TotalDays;
             InitializeParameters();
-            
         }
 
         public virtual void InitializeParameters()
@@ -51,8 +52,6 @@ namespace TilerElements
             DateTimeOffset refDayEnd = CalculationNow < IndifferentStartOfDay ?refDayStart :refDayStart .AddDays(1);
             refDayEnd = new DateTimeOffset(refDayEnd.Year, refDayEnd.Month, refDayEnd.Day, startOfDay.Hour, startOfDay.Minute, 0, new TimeSpan());
             refFirstDay = new DayTimeLine(refDayStart, refDayEnd, (ulong)(refDayStart - StarTime).TotalDays,0);
-
-            ImmutableDayIndex = (ulong)(refDayStart - StarTime).TotalDays;
             ComputationBound = new TimeLine(CalculationNow, CalculationNow.Add(ConstOfCalculation));
             InitializeAllDays();
         }
@@ -366,6 +365,19 @@ namespace TilerElements
                 }
             }
             
+            return retValue;
+        }
+
+        /// <summary>
+        /// Function gets you the beginning of the day based on the time zone difference. Note this is not based on end or start of day. 
+        /// So if End of day is 10:00pm and the user is in denver time which is -6 from UTC. if you tried to get the value for <paramref name="dayIndex"/> being 0
+        /// This will return January 1, 1, 1970, 6:00AM because this return UTC time
+        /// </summary>
+        /// <param name="dayIndex"></param>
+        /// <returns></returns>
+        public DateTimeOffset getClientBeginningOfDay(ulong dayIndex)
+        {
+            DateTimeOffset retValue = StarTime.AddDays(dayIndex);
             return retValue;
         }
 

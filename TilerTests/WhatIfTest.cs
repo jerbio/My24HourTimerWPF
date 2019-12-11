@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ScheduleAnalysis;
+using Newtonsoft.Json.Linq;
 
 namespace TilerTests
 {
@@ -226,8 +227,12 @@ namespace TilerTests
             var Procrastinationpan = TimeSpan.FromHours(6);
             var beforAfteranalysis = await pushSchedule.TimeStone.PushedAll(Procrastinationpan, null);
 
-            var sleepEvaluationABefore = beforAfteranalysis.Item1.evaluateSleepTimeFrameScore();
-            var sleepEvaluationAfter = beforAfteranalysis.Item2.evaluateSleepTimeFrameScore();
+            var sleepEvaluationABefore = beforAfteranalysis.Item1.SleepEvaluation.ScoreTimeLine();
+            var sleepEvaluationAfter = beforAfteranalysis.Item2.SleepEvaluation.ScoreTimeLine();
+            Assert.IsTrue(sleepEvaluationABefore < sleepEvaluationAfter);
+
+            JObject beforeJsonResult = beforAfteranalysis.Item1.SleepEvaluation.ToJson();
+            JObject afterJsonResult = beforAfteranalysis.Item2.SleepEvaluation.ToJson();
         }
 
 

@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Text;
 using TilerElements;
 using System.Collections.Immutable;
+using Newtonsoft.Json.Linq;
 
 namespace ScheduleAnalysis
 {
-    public class SleepEvaluation
+    public class SleepEvaluation:IJson
     {
         ImmutableList<DayTimeLine> _DayTimeLines;
         ReferenceNow Now;
@@ -51,10 +52,10 @@ namespace ScheduleAnalysis
                     DateTimeOffset sleepEnd = dayTimeLine.WakeSubEvent?.Start ?? sleepStart.Add(Now.SleepSpan);
                     TimeLine sleepTImeLine = new TimeLine(sleepStart, sleepEnd);
                     sleepTimeLines.Add(new Tuple<TimeLine, ulong>(sleepTImeLine, dayTimeLine.UniversalIndex));
-                    double deviationFromEndOfDay = Math.Abs((previousDayTimeLine.End - sleepStart).TotalHours);
+                    double deviationFromEndOfDayFeature = previousDayTimeLine.End > sleepStart ? 0 : Math.Abs((previousDayTimeLine.End - sleepStart).TotalHours); // if end of day is after the sleep then simply set to zero since its optimized
                     double sleepSpan = Math.Abs(sleepTImeLine.TimelineSpan.TotalHours);
-                    double sleepSpanFeature = sleepSpan < 0.00001 ? 24 : (1 / sleepSpan);
-                    List<double> sleepCollection = new List<double>() { deviationFromEndOfDay, sleepSpanFeature };
+                    double sleepSpanFeature = sleepSpan < 0.00001 ? 24 : (1 / (2*sleepSpan));// double(half) sleepSpanFeature to weight the span of the sleep span
+                    List<double> sleepCollection = new List<double>() { deviationFromEndOfDayFeature, sleepSpanFeature };
                     sleepScore.Add(sleepCollection);
                 }
             }
@@ -64,18 +65,18 @@ namespace ScheduleAnalysis
         }
 
         /// <summary>
-        /// function gets a score for each sleep timespan in the daytimeline
+        /// function gets the undesirable sleep timelines from evaluation
         /// </summary>
         /// <param name="forceEvaluate"></param>
         /// <returns></returns>
-        public List<Tuple<TimeLine, ulong>> assessConsequence ()
+        public List<Tuple<TimeLine, ulong>> undesirableSleepTimelines ()
         {
             if (!_isEvaluated)
             {
                 this.evaluate();
             }
             TimeSpan sleepSpan = Utility.SleepSpan;
-            List<Tuple<TimeLine, ulong>> undesirableSleepFrames = SleepTimeLines.Where(obj => obj.Item1.TimelineSpan <= sleepSpan).ToList();
+            List<Tuple<TimeLine, ulong>> undesirableSleepFrames = MaxSleepTimeLines.Where(obj => obj.Item1.TimelineSpan < sleepSpan).ToList();
             return undesirableSleepFrames;
         }
 
@@ -85,7 +86,7 @@ namespace ScheduleAnalysis
             {
                 this.evaluate();
             }
-            var scoreAvg = Utility.multiDimensionCalculationNormalize(_Score);
+            var scoreAvg = Utility.multiDimensionCalculation(_Score);
             double retValue = scoreAvg.Average();
             return retValue;
         }
@@ -99,7 +100,40 @@ namespace ScheduleAnalysis
             return retValue;
         }
 
-        public List<Tuple<TimeLine, ulong>> SleepTimeLines
+        public JObject ToJson()
+        {
+            JObject retValue = new JObject();
+            JObject sleepTimeLines = new JObject();
+            var sleepTImeLines = SleepTimeLines.ToList();
+            double score = this.ScoreTimeLine();
+            for (int i = 0; i < sleepTImeLines.Count; i++)
+            {
+                Tuple<TimeLine, ulong> sleepTimeLine = sleepTImeLines[i];
+                DateTimeOffset currentDay = Now.getClientBeginningOfDay(sleepTimeLine.Item2);
+                sleepTimeLines.Add(currentDay.ToUnixTimeMilliseconds().ToString(), sleepTimeLine.Item1.ToJson());
+            }
+
+            JObject undesirableSleepTimeLines = new JObject();
+            List<Tuple<TimeLine, ulong>> undesirableSleepTimelines = this.undesirableSleepTimelines();
+            for (int i = 0; i < undesirableSleepTimelines.Count; i++)
+            {
+                Tuple<TimeLine, ulong> sleepTimeLine = undesirableSleepTimelines[i];
+                DateTimeOffset currentDay = Now.getClientBeginningOfDay(sleepTimeLine.Item2);
+                TimeSpan lostTimeSpan = ExpectedSleepSpan - sleepTimeLine.Item1.TimelineSpan;
+                JObject undesiredDetails = new JObject();
+                undesiredDetails.Add("LostSleep", lostTimeSpan.TotalMilliseconds);
+                undesiredDetails.Add("SleepTimeline", sleepTimeLine.Item1.ToJson());
+                undesirableSleepTimeLines.Add(currentDay.ToUnixTimeMilliseconds().ToString(), undesiredDetails);
+            }
+
+
+            retValue.Add("Score", score);
+            retValue.Add("SleepTimeLines", sleepTimeLines);
+            retValue.Add("UndesiredTimeLines", undesirableSleepTimeLines);
+            return retValue;
+        }
+
+        public List<Tuple<TimeLine, ulong>> MaxSleepTimeLines
         {
             get
             {
@@ -108,6 +142,36 @@ namespace ScheduleAnalysis
                     this.evaluate();
                 }
                 return _SleepTimeLines;
+            }
+        }
+
+        public List<Tuple<TimeLine, ulong>> SleepTimeLines
+        {
+            get
+            {
+                var retValue = new List<Tuple<TimeLine, ulong>>();
+                TimeSpan expectedSleepSpan = ExpectedSleepSpan;
+                if (!_isEvaluated)
+                {
+                    this.evaluate();
+                }
+
+                for(int i=0; i<_SleepTimeLines.Count; i++)
+                {
+                    var sleepTImeLine = _SleepTimeLines[i];
+                    Tuple<TimeLine, ulong> tupleInput;
+                    if (sleepTImeLine.Item1.TimelineSpan > expectedSleepSpan)
+                    {
+                        tupleInput = new Tuple<TimeLine, ulong>(new TimeLine(sleepTImeLine.Item1.Start, sleepTImeLine.Item1.Start.Add(expectedSleepSpan)), sleepTImeLine.Item2);
+                    }
+                    else
+                    {
+                        tupleInput = sleepTImeLine;
+                    }
+                    retValue.Add(tupleInput);
+                }
+
+                return retValue;
             }
         }
 
@@ -122,5 +186,7 @@ namespace ScheduleAnalysis
                 return Utility.SleepSpan;
             }
         }
+
+        
     }
 }

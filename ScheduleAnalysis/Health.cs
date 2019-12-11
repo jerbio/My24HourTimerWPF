@@ -135,12 +135,6 @@ namespace ScheduleAnalysis
             return retValueTuple;
         }
 
-        public Tuple<double, List<Tuple<TimeLine, ulong>>> evaluateSleepTimeFrameScore()
-        {
-            var retValue = SleepEvaluation.scoreAndTimeLine();
-            return retValue;
-        }
-
         /// <summary>
         /// This assess if the position of the subevents is suitable for its completion.
         /// It considers if the spacing is wide enough to allow the travel time.
@@ -226,21 +220,12 @@ namespace ScheduleAnalysis
             var distanceEvaluation = evaluateTotalDistance();
             double positioningScore = evaluatePositioning();
             double conflictScore = evaluateConflicts().Sum(blob => blob.getSubCalendarEventsInBlob().Count());
-            var sleepEvaluation = evaluateSleepTimeFrameScore();
+            Tuple<double, List<Tuple<TimeLine, ulong>>> sleepEvaluation = SleepEvaluation.scoreAndTimeLine();
+
             double score = Utility.CalcuateResultant(distanceEvaluation.Item1, positioningScore, conflictScore, sleepEvaluation.Item1);
             double eventPerDayScore = eventsPerDay();
             JObject retValue = new JObject();
-            JObject sleep = new JObject();
-            sleep.Add("score", sleepEvaluation.Item1);
-            sleep.Add("evaluation", new JArray(sleepEvaluation.Item2.Select(eval =>
-            {
-                JObject dayResult = new JObject();
-                dayResult.Add("timeLine", eval.Item1.ToJson());
-                TimeLine timeLine = Now.getDayTimeLineByDayIndex((ulong)eval.Item2);
-                dayResult.Add("day", timeLine.Start.ToUnixTimeMilliseconds());
-                return dayResult;
-            } )));
-
+            JObject sleep = SleepEvaluation.ToJson();
             JObject distance = new JObject();
             distance.Add("score", distanceEvaluation.Item1);
             distance.Add("evaluation", new JArray(distanceEvaluation.Item2.Select(eval =>
@@ -334,32 +319,6 @@ namespace ScheduleAnalysis
                 return _sleepEvaluation ?? (_sleepEvaluation = new SleepEvaluation(Now, CalculationTimeline));
             }
         }
-
-        //public List<Tuple<TimeLine, ulong>> SleepTimeLines
-        //{
-        //    get
-        //    {
-        //        List<Tuple<TimeLine, ulong>> sleepTimeLines = new List<Tuple<TimeLine, ulong>>();
-        //        Tuple<ulong, ulong> dayIndexBoundaries = Now.indexRange(CalculationTimeline);
-        //        ulong iniUniverslaIndex = Now.firstDay.UniversalIndex;
-        //        for (ulong i = dayIndexBoundaries.Item1; i <= dayIndexBoundaries.Item2; i++)
-        //        {
-        //            ulong universalIndex = iniUniverslaIndex + (ulong)i;
-        //            DayTimeLine dayTimeLine = Now.getDayTimeLineByDayIndex(universalIndex);
-        //            if ( universalIndex > iniUniverslaIndex)
-        //            {
-        //                ulong previousDayUniversalIndex = universalIndex - 1;
-        //                DayTimeLine previousDayTimeLine = Now.getDayTimeLineByDayIndex(previousDayUniversalIndex);
-        //                DateTimeOffset sleepStart = dayTimeLine.PrecedingDaySleepSubEvent?.End ?? previousDayTimeLine.SleepSubEvent?.End ?? previousDayTimeLine.End;//
-        //                DateTimeOffset sleepEnd = dayTimeLine.WakeSubEvent?.Start ?? sleepStart.Add(Now.SleepSpan);
-        //                TimeLine sleepTImeLine = new TimeLine(sleepStart, sleepEnd);
-        //                sleepTimeLines.Add(new Tuple<TimeLine, ulong>(sleepTImeLine, dayTimeLine.UniversalIndex));
-        //            }
-
-        //        }
-        //        return sleepTimeLines;
-        //    }
-        //}
 
         public List<SubCalendarEvent> orderedByStartThenEndSubEvents
         {

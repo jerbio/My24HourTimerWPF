@@ -123,7 +123,7 @@ namespace TilerElements
             }
         }
 
-        public virtual TimeSpan TimeSapn
+        public virtual TimeSpan TimeSpan
         {
             get
             {

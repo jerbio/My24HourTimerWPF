@@ -256,6 +256,7 @@ namespace TilerElements
                         else
                         {
                             Console.WriteLine(response.Status);
+                            retValue = new Location();
                             retValue.initializeWithNull();
                         }
                     } else

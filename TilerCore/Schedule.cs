@@ -2988,10 +2988,13 @@ namespace TilerCore
                     DateTimeOffset startTime;
                     if (precedingSubEvent != null)
                     {
-                        if (precedingSubEvent.End > initialTimeLine.Start) {
+                        TimeSpan currentBufferSpan = precedingSubEvent.End - initialTimeLine.Start;
+                        bool isNotSufficientBuffering = currentBufferSpan.Ticks < buffer.Item1.Ticks;
+                        if (isNotSufficientBuffering)
+                        {
                             TimeSpan beforeTimeSpan = buffer.Item1;
                             beforeTimeSpan = beforeTimeSpan == Utility.NegativeTimeSpan ? Utility.ZeroTimeSpan : beforeTimeSpan;
-                            startTime = precedingSubEvent.End + buffer.Item1;
+                            startTime = precedingSubEvent.End + beforeTimeSpan;
                         }
                         else
                         {
@@ -3063,8 +3066,13 @@ namespace TilerCore
                     TimeLine BoundTimeLine = new TimeLine(start, beforeAndAfter.Item2.End);
                     if (daySection != DaySection.None && daySection != DaySection.Disabled)
                     {
-                        TimeLine timeLine = splitIntoDaySection[daySection].InterferringTimeLine(BoundTimeLine);
-                        if (timeLine != null) {
+                        TimeLine DaySectionTimeLine = splitIntoDaySection[daySection];
+                        DateTimeOffset timeLineStart = DaySectionTimeLine.Start - (subEvent.getActiveDuration - Utility.OneMinuteTimeSpan);// we want the lowest start that still encompasses the time Day section. So think if day section starts from 12:00pm -4:00pm and the subevent has duration of we want a time 2 hours we want the start time for the subevent to be possibly 10:01Am - 12:01pm  since it still part of the afternoon timeframe
+                        DateTimeOffset timeLineEnd = DaySectionTimeLine.End + (subEvent.getActiveDuration - Utility.OneMinuteTimeSpan); // See comment for "timeLineStart" this only applies to the end
+
+                        TimeLine timeLine = new TimeLine(timeLineStart, timeLineEnd) .InterferringTimeLine(BoundTimeLine);
+                        if (timeLine != null)
+                        {
                             if (subEvent.canExistWithinTimeLine(timeLine))
                             {
                                 BoundTimeLine = timeLine;
@@ -3998,7 +4006,7 @@ namespace TilerCore
                             }
                             else
                             {
-                                bufferSpan = Location.getDrivingTimeFromWeb(currentLocation, nextLocation);
+                                bufferSpan = Location.getDrivingTimeFromWeb(currentLocation, nextLocation).removeSecondsAndMilliseconds();
                                 if (bufferSpan.Ticks >= 0)
                                 {
                                     TravelCache.AddOrupdateLocationCache(currentLocation, nextLocation, bufferSpan, Now.constNow, LocationCacheEntry.TravelMedium.driving, distance);
@@ -4006,7 +4014,7 @@ namespace TilerCore
                             }
                         } else
                         {
-                            bufferSpan = cacheEntry.TimeSapn;
+                            bufferSpan = cacheEntry.TimeSpan.removeSecondsAndMilliseconds();
                         }     
                     }
                     else
@@ -4020,7 +4028,7 @@ namespace TilerCore
                     cacheEntry = getTravelEntry(currentLocation, nextLocation);
                     if (cacheEntry != null)
                     {
-                        bufferSpan = cacheEntry.TimeSapn;
+                        bufferSpan = cacheEntry.TimeSpan.removeSecondsAndMilliseconds();
                     }
                 }
 
@@ -4031,7 +4039,7 @@ namespace TilerCore
                     {
                         distance = 1;
                     }
-                    bufferSpan = new TimeSpan((long)(bufferPerMile.Ticks * distance));
+                    bufferSpan = new TimeSpan((long)(bufferPerMile.Ticks * distance)).removeSecondsAndMilliseconds();
                 }
 
                 mTuple<TimeSpan, TimeSpan> beforeAfter;

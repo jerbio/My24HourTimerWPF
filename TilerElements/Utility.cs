@@ -27,9 +27,11 @@ namespace TilerElements
         public readonly static TimeSpan OneHourTimeSpan = TimeSpan.FromHours(1);
         public readonly static TimeSpan TwentyFourHoursAlmostTImeSpan = TimeSpan.FromDays(1).Subtract(TimeSpan.FromMinutes(1));
         public readonly static TimeSpan ZeroTimeSpan = TimeSpan.FromTicks(0);
+        public readonly static TimeSpan OneMinuteTimeSpan = TimeSpan.FromMinutes(1);
         public readonly static TimeSpan NegativeTimeSpan = TimeSpan.FromTicks(-1);
         public readonly static TimeSpan SixHourTimeSpan = TimeSpan.FromHours(6);
-        public readonly static string timeZoneString = "";// "America/Denver";
+        public readonly static TimeSpan SleepSpan = Utility.SixHourTimeSpan;
+        public readonly static string timeZoneString = "America/Denver";
         static Utility()
         {
             initializeFibonacci();
@@ -1322,11 +1324,13 @@ namespace TilerElements
         /// <returns></returns>
         public static DateTimeOffset removeSecondsAndMilliseconds(this DateTimeOffset time)
         {
-            DateTimeOffset retValue = time;
-            retValue = retValue.AddSeconds(-time.Second);
-            retValue = retValue.AddMilliseconds(-time.Millisecond);
+            DateTimeOffset retValue = new DateTimeOffset(time.Year, time.Month, time.Day, time.Hour, time.Minute, 0, time.Offset);
+            return retValue;
+        }
 
-            retValue = new DateTimeOffset(retValue.Year, retValue.Month, retValue.Day, retValue.Hour, retValue.Minute,0, new TimeSpan());
+        public static TimeSpan removeSecondsAndMilliseconds(this TimeSpan timeSpan)
+        {
+            TimeSpan retValue = new TimeSpan(timeSpan.Hours, timeSpan.Minutes, 0);
             return retValue;
         }
 

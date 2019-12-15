@@ -2988,8 +2988,8 @@ namespace TilerCore
                     DateTimeOffset startTime;
                     if (precedingSubEvent != null)
                     {
-                        TimeSpan currentBufferSpan = precedingSubEvent.End - initialTimeLine.Start;
-                        bool isNotSufficientBuffering = currentBufferSpan.Ticks < buffer.Item1.Ticks;
+                        TimeSpan currentBufferSpan = initialTimeLine.Start - precedingSubEvent.End ;
+                        bool isNotSufficientBuffering = currentBufferSpan.Ticks <= buffer.Item1.Ticks;
                         if (isNotSufficientBuffering)
                         {
                             TimeSpan beforeTimeSpan = buffer.Item1;
@@ -3070,7 +3070,9 @@ namespace TilerCore
                         DateTimeOffset timeLineStart = DaySectionTimeLine.Start - (subEvent.getActiveDuration - Utility.OneMinuteTimeSpan);// we want the lowest start that still encompasses the time Day section. So think if day section starts from 12:00pm -4:00pm and the subevent has duration of we want a time 2 hours we want the start time for the subevent to be possibly 10:01Am - 12:01pm  since it still part of the afternoon timeframe
                         DateTimeOffset timeLineEnd = DaySectionTimeLine.End + (subEvent.getActiveDuration - Utility.OneMinuteTimeSpan); // See comment for "timeLineStart" this only applies to the end
 
-                        TimeLine timeLine = new TimeLine(timeLineStart, timeLineEnd) .InterferringTimeLine(BoundTimeLine);
+                        TimeLine timeLine = new TimeLine(timeLineStart, timeLineEnd)
+                            .InterferringTimeLine(BoundTimeLine)?
+                            .InterferringTimeLine(postSleepTimeline);
                         if (timeLine != null)
                         {
                             if (subEvent.canExistWithinTimeLine(timeLine))

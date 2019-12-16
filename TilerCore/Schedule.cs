@@ -3280,6 +3280,8 @@ namespace TilerCore
             IDictionary<DayTimeLine, OptimizedPath> dayToOptimization = null;
             List<DayTimeLine> OptimizedDays = AllDayTImeLine.Take(OptimizedDayLimit).ToList();
             List<DayTimeLine> moveToMiddleDays = AllDayTImeLine.Skip(OptimizedDayLimit).ToList();
+            var OptimizationWatch = new Stopwatch();
+            OptimizationWatch.Start();
             if (Optimize)
             {
                 ulong FirstIndex = AllDayTImeLine[0].UniversalIndex;
@@ -3308,7 +3310,7 @@ namespace TilerCore
                     throw E;
                 }
             }
-
+            Debug.WriteLine("Optimization took" + OptimizationWatch.Elapsed.ToString());
             foreach (DayTimeLine dayTimeLine in moveToMiddleDays)
             {
                 tryToCentralizeSubEvents(dayTimeLine);

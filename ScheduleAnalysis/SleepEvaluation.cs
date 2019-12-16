@@ -91,26 +91,30 @@ namespace ScheduleAnalysis
             return retValue;
         }
 
-        public Tuple<double, List<Tuple<TimeLine, ulong>>> scoreAndTimeLine()
+        public Tuple<double, List<Tuple<TimeLine, TimeLine, ulong>>> scoreAndTimeLine()
         {
             this.evaluate();
             double timeLineScore = this.ScoreTimeLine();
-            List<Tuple<TimeLine, ulong>> timeLines = this.SleepTimeLines;
-            var retValue = new Tuple<double, List<Tuple<TimeLine, ulong>>>(timeLineScore, timeLines);
+            List<Tuple<TimeLine, TimeLine, ulong>> timeLines = this.SleepTimeLines;
+            var retValue = new Tuple<double, List<Tuple<TimeLine, TimeLine, ulong>>>(timeLineScore, timeLines);
             return retValue;
         }
 
         public JObject ToJson()
         {
             JObject retValue = new JObject();
-            JObject sleepTimeLines = new JObject();
-            var sleepTImeLines = SleepTimeLines.ToList();
+            JObject sleepTimeLinesJson = new JObject();
+            var sleepTimeLines = SleepTimeLines.ToList();
             double score = this.ScoreTimeLine();
-            for (int i = 0; i < sleepTImeLines.Count; i++)
+            for (int i = 0; i < sleepTimeLines.Count; i++)
             {
-                Tuple<TimeLine, ulong> sleepTimeLine = sleepTImeLines[i];
-                DateTimeOffset currentDay = Now.getClientBeginningOfDay(sleepTimeLine.Item2);
-                sleepTimeLines.Add(currentDay.ToUnixTimeMilliseconds().ToString(), sleepTimeLine.Item1.ToJson());
+                var sleepTimeLine = sleepTimeLines[i];
+                DateTimeOffset currentDay = Now.getClientBeginningOfDay(sleepTimeLine.Item3);
+                JObject sleepJson = new JObject();
+                sleepJson.Add("SleepTimeline", sleepTimeLine.Item1.ToJson());
+                sleepJson.Add("MaximumSleepTimeLine", sleepTimeLine.Item2.ToJson());
+
+                sleepTimeLinesJson.Add(currentDay.ToUnixTimeMilliseconds().ToString(), sleepJson);
             }
 
             JObject undesirableSleepTimeLines = new JObject();
@@ -128,7 +132,7 @@ namespace ScheduleAnalysis
 
 
             retValue.Add("Score", score);
-            retValue.Add("SleepTimeLines", sleepTimeLines);
+            retValue.Add("SleepTimeLines", sleepTimeLinesJson);
             retValue.Add("UndesiredTimeLines", undesirableSleepTimeLines);
             return retValue;
         }
@@ -145,11 +149,17 @@ namespace ScheduleAnalysis
             }
         }
 
-        public List<Tuple<TimeLine, ulong>> SleepTimeLines
+        /// <summary>
+        /// Returns the sleep timeline,
+        /// Item1 is the timeframew within the expected timeline
+        /// Item2 is the maximum sleep available
+        /// Item3 is the day index
+        /// </summary>
+        public List<Tuple<TimeLine, TimeLine, ulong>> SleepTimeLines
         {
             get
             {
-                var retValue = new List<Tuple<TimeLine, ulong>>();
+                var retValue = new List<Tuple<TimeLine, TimeLine, ulong>>();
                 TimeSpan expectedSleepSpan = ExpectedSleepSpan;
                 if (!_isEvaluated)
                 {
@@ -159,14 +169,14 @@ namespace ScheduleAnalysis
                 for(int i=0; i<_SleepTimeLines.Count; i++)
                 {
                     var sleepTImeLine = _SleepTimeLines[i];
-                    Tuple<TimeLine, ulong> tupleInput;
+                    Tuple<TimeLine, TimeLine, ulong> tupleInput;
                     if (sleepTImeLine.Item1.TimelineSpan > expectedSleepSpan)
                     {
-                        tupleInput = new Tuple<TimeLine, ulong>(new TimeLine(sleepTImeLine.Item1.Start, sleepTImeLine.Item1.Start.Add(expectedSleepSpan)), sleepTImeLine.Item2);
+                        tupleInput = new Tuple<TimeLine, TimeLine, ulong>(new TimeLine(sleepTImeLine.Item1.Start, sleepTImeLine.Item1.Start.Add(expectedSleepSpan)), sleepTImeLine.Item1.StartToEnd, sleepTImeLine.Item2);
                     }
                     else
                     {
-                        tupleInput = sleepTImeLine;
+                        tupleInput = new Tuple<TimeLine, TimeLine, ulong>(sleepTImeLine.Item1.StartToEnd, sleepTImeLine.Item1.StartToEnd, sleepTImeLine.Item2); ;
                     }
                     retValue.Add(tupleInput);
                 }

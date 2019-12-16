@@ -220,7 +220,7 @@ namespace ScheduleAnalysis
             var distanceEvaluation = evaluateTotalDistance();
             double positioningScore = evaluatePositioning();
             double conflictScore = evaluateConflicts().Sum(blob => blob.getSubCalendarEventsInBlob().Count());
-            Tuple<double, List<Tuple<TimeLine, ulong>>> sleepEvaluation = SleepEvaluation.scoreAndTimeLine();
+            Tuple<double, List<Tuple<TimeLine, TimeLine, ulong>>> sleepEvaluation = SleepEvaluation.scoreAndTimeLine();
 
             double score = Utility.CalcuateResultant(distanceEvaluation.Item1, positioningScore, conflictScore, sleepEvaluation.Item1);
             double eventPerDayScore = eventsPerDay();

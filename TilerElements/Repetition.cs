@@ -238,7 +238,7 @@ namespace TilerElements
                         int beginningWeekDayIndex = (int)beginningOfWeek_Day;
                         int dayDiff = ((beginningWeekDayIndex - dayOfWeekIndex) + daySpan) % daySpan;
                         dayDiff = dayDiff == 0 ? daySpan : dayDiff;/// handles scenario if the current day is the same day as start of week
-                        ulong endDayIndex = now.getDayIndexFromStartOfTime(EachRepeatCalendarStart) + (ulong)dayDiff;
+                        long endDayIndex = now.getDayIndexFromStartOfTime(EachRepeatCalendarStart) + dayDiff;
                         DayTimeLine endDayTimeLine = now.getDayTimeLineByDayIndex(endDayIndex);
                         IniRepeatEnd = EachRepeatCalendarEnd = endDayTimeLine.Start.AddMinutes(-1);
                         TimeSpan timeSpanForPossiblePartialFrequencyFrame = TimeSpan.FromDays(daySpan);
@@ -365,7 +365,7 @@ namespace TilerElements
                     int beginningWeekDayIndex = (int)beginningOfWeek_Day;
                     int dayDiff = ((beginningWeekDayIndex - dayOfWeekIndex) + daySpan) % daySpan;
                     dayDiff = dayDiff == 0 ? 7 : dayDiff;/// handles scenario if the current day is the same day as start of week
-                    ulong endDayIndex = now.getDayIndexFromStartOfTime(EachRepeatCalendarStart) + (ulong)dayDiff;
+                    long endDayIndex = now.getDayIndexFromStartOfTime(EachRepeatCalendarStart) + dayDiff;
                     DayTimeLine endDayTimeLine = now.getDayTimeLineByDayIndex(endDayIndex);
                     IniRepeatEnd = EachRepeatCalendarEnd = endDayTimeLine.Start.AddMinutes(-1);
                     TimeSpan timeSpanForPossiblePartialFrequencyFrame = TimeSpan.FromDays(daySpan);

@@ -539,7 +539,7 @@ namespace TilerTests
 
             testEvent = TestUtility.getCalendarEventById(testEvent.Id, user);
             SubCalendarEvent subEvent = testEvent.ActiveSubEvents.OrderBy(sub => sub.Start).ToList()[1];
-            ulong dayIndex = schedule.Now.getDayIndexFromStartOfTime(subEvent.Start);
+            long dayIndex = schedule.Now.getDayIndexFromStartOfTime(subEvent.Start);
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             schedule = new TestSchedule(user, refNow);
@@ -549,7 +549,7 @@ namespace TilerTests
             CalendarEvent testEventRetrieved = TestUtility.getCalendarEventById(testEvent.Id, user);
             List<SubCalendarEvent> activeSubEvents = testEventRetrieved.ActiveSubEvents.OrderBy(sub => sub.Start).ToList();
             activeSubEvents.ForEach((retrievedSubEvent) => {
-                ulong retrievedDayIndex = schedule.Now.getDayIndexFromStartOfTime(retrievedSubEvent.Start);
+                long retrievedDayIndex = schedule.Now.getDayIndexFromStartOfTime(retrievedSubEvent.Start);
                 if(retrievedDayIndex == dayIndex)
                 {
                     Assert.Fail("Subevent should not get reassigned to the day of already marked as complete subcalendar event");
@@ -576,7 +576,7 @@ namespace TilerTests
             CalendarEvent testEventDoubleSplitCountRetrieved = TestUtility.getCalendarEventById(testEventDoubleSplitCount.Id, user);
             activeSubEvents = testEventDoubleSplitCountRetrieved.ActiveSubEvents.OrderBy(sub => sub.Start).ToList();
             activeSubEvents.ForEach((retrievedSubEvent) => {
-                ulong retrievedDayIndex = schedule.Now.getDayIndexFromStartOfTime(retrievedSubEvent.Start);
+                long retrievedDayIndex = schedule.Now.getDayIndexFromStartOfTime(retrievedSubEvent.Start);
                 if (retrievedDayIndex == dayIndex)
                 {
                     ++dayIndexCounter;

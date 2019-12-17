@@ -15,11 +15,11 @@ namespace TilerElements
         protected DateTimeOffset _CalendarEventRangeEnd;
         protected double EventScore;
         protected ConflictProfile _ConflictingEvents = new ConflictProfile();
-        protected ulong preferredDayIndex=0;
+        protected long preferredDayIndex=0;
         protected int MiscIntData;
         protected bool Vestige = false;
-        protected ulong UnUsableIndex;
-        protected ulong OldPreferredIndex;
+        protected long UnUsableIndex;
+        protected long OldPreferredIndex;
         protected bool CalculationMode = false;
         protected DateTimeOffset _PauseTime = InitialPauseTime;
         protected bool BlobEvent = false;
@@ -233,7 +233,7 @@ namespace TilerElements
             this._Enabled = true;
         }
 
-        protected void updateDayIndex(ulong dayIndex)
+        protected void updateDayIndex(long dayIndex)
         {
             if (dayIndex == ReferenceNow.UndesignatedDayIndex)
             {
@@ -424,7 +424,7 @@ namespace TilerElements
 
         internal void designate(ReferenceNow now)
         {
-            ulong dayIndex = now.getDayIndexFromStartOfTime(this.Start);
+            long dayIndex = now.getDayIndexFromStartOfTime(this.Start);
             updateDayIndex(dayIndex);
         }
 
@@ -964,7 +964,7 @@ namespace TilerElements
             return RetValue;
         }
 
-        public ulong UniversalDayIndex
+        public long UniversalDayIndex
         {
             get
             {
@@ -1030,25 +1030,25 @@ namespace TilerElements
             }
         }
 
-         public void updateUnusables(ulong unwantedIndex)
+         public void updateUnusables(long unwantedIndex)
          {
              UnUsableIndex = unwantedIndex;
          }
 
-         public ulong getUnUsableIndex()
+         public long getUnUsableIndex()
          {
              return UnUsableIndex;
          }
 
-         public ulong resetAndgetUnUsableIndex()
+         public long resetAndgetUnUsableIndex()
          {
-             ulong retValue = UnUsableIndex;
+             long retValue = UnUsableIndex;
              UnUsableIndex = 0;
              return retValue;
          }
         
 
-        public static void updateUnUsable(IEnumerable<SubCalendarEvent>SubEVents,ulong UnwantedIndex)
+        public static void updateUnUsable(IEnumerable<SubCalendarEvent>SubEVents,long UnwantedIndex)
         {
             SubEVents.AsParallel().ForAll(obj=>{obj.UnUsableIndex=UnwantedIndex;});
         }
@@ -1123,7 +1123,7 @@ namespace TilerElements
             }
         }
 
-        public ulong OldUniversalIndex
+        public long OldUniversalIndex
         {
             get
             {

@@ -10,13 +10,13 @@ namespace TilerElements
 {
     public class DayTimeLine: TimelineWithSubcalendarEvents
     {
-        ulong UniversalDayIndex;
+        long UniversalDayIndex;
         int BoundDayIndex;
         SubCalendarEvent _sleepSubEvent;
         SubCalendarEvent _wakeSubEVent;
         SubCalendarEvent _previousDaySleepSubEvent;
         #region Constructor
-        public DayTimeLine(DateTimeOffset Start, DateTimeOffset End, ulong UniversalIndex, int BoundedIndex=-1):base(Start, End, null)
+        public DayTimeLine(DateTimeOffset Start, DateTimeOffset End, long UniversalIndex, int BoundedIndex=-1):base(Start, End, null)
         {
             AllocatedSubEvents = new ConcurrentDictionary<string, SubCalendarEvent>();
             freeSpace = EndTime - StartTime;
@@ -47,7 +47,7 @@ namespace TilerElements
             }
         }
 
-        public ulong UniversalIndex
+        public long UniversalIndex
         {
             get 
             {

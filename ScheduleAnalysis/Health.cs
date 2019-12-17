@@ -53,7 +53,7 @@ namespace ScheduleAnalysis
 
         public double getScore()
         {
-            Tuple<double, Dictionary<ulong, List<double>>> distanceEvaluation = evaluateTotalDistance();
+            Tuple<double, Dictionary<long, List<double>>> distanceEvaluation = evaluateTotalDistance();
             double positioningScore = evaluatePositioning();
             double conflictScore = evaluateConflicts().Sum(blob => blob.getSubCalendarEventsInBlob().Count());
             double eventPerDayScore = eventsPerDay();
@@ -66,9 +66,9 @@ namespace ScheduleAnalysis
         /// </summary>
         /// <param name="includeReturnHome"></param>
         /// <returns></returns>
-        public Tuple<double, Dictionary<ulong, List<double>>> evaluateTotalDistance(bool includeReturnHome = true)
+        public Tuple<double, Dictionary<long, List<double>>> evaluateTotalDistance(bool includeReturnHome = true)
         {
-            Dictionary<ulong, List<double>> combinedResult = new Dictionary<ulong, List<double>>();
+            Dictionary<long, List<double>> combinedResult = new Dictionary<long, List<double>>();
             double retValue = 0;
             
             List<SubCalendarEvent> relevantSubCalendarEventList = _orderedByStartThenEndSubEvents.Where(obj => !obj.getIsProcrastinateCalendarEvent).ToList();
@@ -84,17 +84,17 @@ namespace ScheduleAnalysis
                 );
                 SubCalendarEvent firstSUbEvent = relevantSubCalendarEventList[0];
                 DateTimeOffset refTIme = CalculationTimeline.IsDateTimeWithin(firstSUbEvent.Start) ? firstSUbEvent.Start : firstSUbEvent.End;
-                ulong dayIndex = Now.getDayIndexFromStartOfTime(refTIme);
+                long dayIndex = Now.getDayIndexFromStartOfTime(refTIme);
                 SubCalendarEvent previousSubCalendarEvent = relevantSubCalendarEventList[0];
                 List<double> distances = new List<double>();
-                ulong currentDayIndex = dayIndex;
+                long currentDayIndex = dayIndex;
                 combinedResult.Add(currentDayIndex, distances);
                 for (int index = 1; index < relevantSubCalendarEventList.Count; index++)
                 {
 
                     SubCalendarEvent currentSubEvent = relevantSubCalendarEventList[index];
                     refTIme = CalculationTimeline.IsDateTimeWithin(currentSubEvent.Start) ? currentSubEvent.Start : currentSubEvent.End;
-                    ulong subEventDayIndex = Now.getDayIndexFromStartOfTime(refTIme);
+                    long subEventDayIndex = Now.getDayIndexFromStartOfTime(refTIme);
                     if (subEventDayIndex != dayIndex)
                     {
                         if(includeReturnHome)
@@ -131,7 +131,7 @@ namespace ScheduleAnalysis
             }
 
 
-            Tuple<double, Dictionary<ulong, List<double>>> retValueTuple = new Tuple<double, Dictionary<ulong, List<double>>>(retValue, combinedResult);
+            Tuple<double, Dictionary<long, List<double>>> retValueTuple = new Tuple<double, Dictionary<long, List<double>>>(retValue, combinedResult);
             return retValueTuple;
         }
 
@@ -220,7 +220,7 @@ namespace ScheduleAnalysis
             var distanceEvaluation = evaluateTotalDistance();
             double positioningScore = evaluatePositioning();
             double conflictScore = evaluateConflicts().Sum(blob => blob.getSubCalendarEventsInBlob().Count());
-            Tuple<double, List<Tuple<TimeLine, TimeLine, ulong>>> sleepEvaluation = SleepEvaluation.scoreAndTimeLine();
+            Tuple<double, List<Tuple<TimeLine, TimeLine, long>>> sleepEvaluation = SleepEvaluation.scoreAndTimeLine();
 
             double score = Utility.CalcuateResultant(distanceEvaluation.Item1, positioningScore, conflictScore, sleepEvaluation.Item1);
             double eventPerDayScore = eventsPerDay();
@@ -232,7 +232,7 @@ namespace ScheduleAnalysis
             {
                 JObject dayResult = new JObject();
                 JArray distances = new JArray(eval.Value);
-                TimeLine timeLine = Now.getDayTimeLineByDayIndex((ulong)eval.Key);
+                TimeLine timeLine = Now.getDayTimeLineByDayIndex((long)eval.Key);
                 
                 dayResult.Add("startOfDay", timeLine.Start.toJSMilliseconds());
                 dayResult.Add("distances", distances);
@@ -265,11 +265,11 @@ namespace ScheduleAnalysis
                 List<TimeLine> sleepTimeLine = new List<TimeLine>();
                 TimeSpan totalSleepSpan = new TimeSpan();
                 TimeSpan totalDayspans = new TimeSpan();
-                Tuple<ulong, ulong> dayIndexBoundaries = Now.indexRange(CalculationTimeline);
-                ulong iniUniverslaIndex = Now.firstDay.UniversalIndex;
-                for (ulong i = dayIndexBoundaries.Item1; i <= dayIndexBoundaries.Item2; i++)
+                Tuple<long, long> dayIndexBoundaries = Now.indexRange(CalculationTimeline);
+                long iniUniverslaIndex = Now.firstDay.UniversalIndex;
+                for (long i = dayIndexBoundaries.Item1; i <= dayIndexBoundaries.Item2; i++)
                 {
-                    ulong universalIndex = iniUniverslaIndex + (ulong)i;
+                    long universalIndex = iniUniverslaIndex + i;
                     DayTimeLine dayTimeLine = Now.getDayTimeLineByDayIndex(universalIndex);
 
                     if (dayTimeLine.TimelineSpan.TotalHours > 20 && universalIndex > iniUniverslaIndex)
@@ -294,12 +294,12 @@ namespace ScheduleAnalysis
             double retValue = 0;
             double sum = 0;
             List<SubCalendarEvent> allSubEvents = new List<SubCalendarEvent>();
-            Tuple<ulong, ulong> dayIndexBoundaries = Now.indexRange(CalculationTimeline);
-            ulong universlaIndex = Now.firstDay.UniversalIndex;
-            ulong i = dayIndexBoundaries.Item1;
+            Tuple<long, long> dayIndexBoundaries = Now.indexRange(CalculationTimeline);
+            long universlaIndex = Now.firstDay.UniversalIndex;
+            long i = dayIndexBoundaries.Item1;
             for (; i <= dayIndexBoundaries.Item2; i++)
             {
-                ulong universalIndex = universlaIndex + (ulong)i;
+                long universalIndex = universlaIndex + i;
                 DayTimeLine dayTimeLine = Now.getDayTimeLineByDayIndex(universalIndex);
                 allSubEvents.AddRange(dayTimeLine.getSubEventsInTimeLine());
                 sum += dayTimeLine.getSubEventsInTimeLine().Count;

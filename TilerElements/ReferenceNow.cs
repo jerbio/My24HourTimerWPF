@@ -10,48 +10,47 @@ namespace TilerElements
     public class ReferenceNow
     {
         protected static DateTimeOffset _StartOfTime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, new TimeSpan());
-        public static readonly ulong UndesignatedDayIndex = 0;
-        public DateTimeOffset StarTime;
+        public static readonly long UndesignatedDayIndex = 0;
+        public DateTimeOffset StartOfDayStartOfTime;// holds the start of day from 1970 January 1st. So if 10:00PM MST(-6:00) is provided this will be January 2 4:00AM because January 1, 1970 10:00PM MST is January 2 4:00A UTC
         private DateTimeOffset CalculationNow;
         private DateTimeOffset ImmutableNow;
         const int numberOfDfDays = 90;
-        UInt64 ImmutableDayIndex;//'Cause tiler will exist 18,446,744,073,709,551,615 days from 1970 ¯\_(ツ)_/¯
+        Int64 ImmutableDayIndex;//'Cause tiler will exist 18,446,744,073,709,551,615 days from 1970 ¯\_(ツ)_/¯
         protected TimeSpan ConstOfCalculation = new TimeSpan(numberOfDfDays, 0, 0, 0, 0);
         DateTimeOffset tempNow = new DateTimeOffset(DateTimeOffset.UtcNow.Year, DateTimeOffset.UtcNow.Month, DateTimeOffset.UtcNow.Day, 0, 0, 0, new TimeSpan());
         TimeLine ComputationBound;// = new TimeLine(new DateTimeOffset(DateTimeOffset.UtcNow.Year, DateTimeOffset.UtcNow.Month, DateTimeOffset.UtcNow.Day, 0, 0, 0, new TimeSpan()), new DateTimeOffset(DateTimeOffset.UtcNow.Year, DateTimeOffset.UtcNow.Month, DateTimeOffset.UtcNow.Day, 0, 0, 0, new TimeSpan()).AddDays(90));
-        DateTimeOffset startOfDay;
         DayTimeLine refFirstDay;
         DayOfWeek _ConstDayOfTheWeek;// this should be day of the week that constNow falls into. This belongs to the day of the week the of the timezone the request is coming from and not the time zone of the machine
         protected DayTimeLine[] AllDays;
-        Dictionary<ulong, DayTimeLine> DayLookUp;
+        Dictionary<long, DayTimeLine> DayLookUp;
         public TimeSpan SleepSpan = Utility.SleepSpan;
         protected TimeSpan TimeZoneDiff;
-        ulong lastDayIndex = 0;
+        long lastDayIndex = 0;
         uint _DayCount;
 
-        public ReferenceNow(DateTimeOffset now, DateTimeOffset StartOfDay, TimeSpan timeDifference)
+        public ReferenceNow(DateTimeOffset now, DateTimeOffset startOfDay, TimeSpan timeDifference)
         {
             TimeZoneDiff = timeDifference;
-            StarTime = new DateTimeOffset(1970, 1, 1, StartOfDay.Hour, StartOfDay.Minute, 0, TimeZoneDiff);
-            //Now = new DateTimeOffset(Now.Year, Now.Month, Now.Day, Now.Hour, Now.Minute, 0, new TimeSpan());
-            CalculationNow = now.removeSecondsAndMilliseconds();
+
+            StartOfDayStartOfTime = new DateTimeOffset(1970, 1, 1, startOfDay.Hour, startOfDay.Minute, 0, timeDifference).ToUniversalTime();
+            CalculationNow = now.removeSecondsAndMilliseconds().ToUniversalTime();
             ImmutableNow = CalculationNow;
-            this.startOfDay = StartOfDay;
+            
             DateTimeOffset currentTime = new DateTimeOffset(ImmutableNow.Year, ImmutableNow.Month, ImmutableNow.Day, 0,0,0, new TimeSpan());
             DayOfWeek currentDayOfWeek = currentTime.DayOfWeek;
             DateTimeOffset startTimeForDayOfweek = currentTime.Add(timeDifference).removeSecondsAndMilliseconds();
             _ConstDayOfTheWeek = getDayOfTheWeek(ImmutableNow).Item1;
-            ImmutableDayIndex = (ulong)(ImmutableNow - StarTime).TotalDays;
+            ImmutableDayIndex = (long)(ImmutableNow - StartOfDayStartOfTime).TotalDays;
             InitializeParameters();
         }
 
         public virtual void InitializeParameters()
         {
-            DateTimeOffset IndifferentStartOfDay = new DateTimeOffset(CalculationNow.Year, CalculationNow.Month, CalculationNow.Day, startOfDay.Hour, startOfDay.Minute, 0, new TimeSpan());
+            DateTimeOffset IndifferentStartOfDay = new DateTimeOffset(CalculationNow.Year, CalculationNow.Month, CalculationNow.Day, StartOfDayStartOfTime.Hour, StartOfDayStartOfTime.Minute, 0, new TimeSpan());
             DateTimeOffset refDayStart = CalculationNow;// < IndifferentStartOfDay ? CalculationNow : IndifferentStartOfDay;
             DateTimeOffset refDayEnd = CalculationNow < IndifferentStartOfDay ?refDayStart :refDayStart .AddDays(1);
-            refDayEnd = new DateTimeOffset(refDayEnd.Year, refDayEnd.Month, refDayEnd.Day, startOfDay.Hour, startOfDay.Minute, 0, new TimeSpan());
-            refFirstDay = new DayTimeLine(refDayStart, refDayEnd, (ulong)(refDayStart - StarTime).TotalDays,0);
+            refDayEnd = new DateTimeOffset(refDayEnd.Year, refDayEnd.Month, refDayEnd.Day, StartOfDayStartOfTime.Hour, StartOfDayStartOfTime.Minute, 0, new TimeSpan());
+            refFirstDay = new DayTimeLine(refDayStart, refDayEnd, (long)(refDayStart - StartOfDayStartOfTime).TotalDays,0);
             ComputationBound = new TimeLine(CalculationNow, CalculationNow.Add(ConstOfCalculation));
             InitializeAllDays();
         }
@@ -67,7 +66,7 @@ namespace TilerElements
             TimeSpan oneMinute = TimeSpan.FromMinutes(1);
             for (int i = 0; ComputationStart < ComputationBound.End; i++)
             {
-                ulong myIndeUniversalIndex = getDayIndexFromStartOfTime(ComputationStart);
+                long myIndeUniversalIndex = getDayIndexFromStartOfTime(ComputationStart);
                 AllDayTImeLine.Add( new DayTimeLine(ComputationStart, ComputationEnd.Subtract(oneMinute), myIndeUniversalIndex, i));
                 ComputationStart = ComputationEnd;
                 ComputationEnd = ComputationEnd.AddDays(1);
@@ -88,7 +87,7 @@ namespace TilerElements
         /// returns the day references using their universal indexes as the key. Note this is returning a reference for performance reasons.  If you nodify dictionary you'll be modifying the orginal dict.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<KeyValuePair<ulong, DayTimeLine>> getAllDaysLookup()
+        public IEnumerable<KeyValuePair<long, DayTimeLine>> getAllDaysLookup()
         {
             return DayLookUp;
         }
@@ -108,7 +107,7 @@ namespace TilerElements
         public DayTimeLine getDayTimeLineByTime(DateTimeOffset time)
         {
             
-            ulong dayIndex = getDayIndexFromStartOfTime(time);
+            long dayIndex = getDayIndexFromStartOfTime(time);
             DayTimeLine retValue = getDayTimeLineByDayIndex(dayIndex);
             return retValue;
         }
@@ -120,14 +119,14 @@ namespace TilerElements
         /// </summary>
         /// <param name="dayIndex">the desired dxay index</param>
         /// <returns></returns>
-        public DayTimeLine getDayTimeLineByDayIndex(ulong dayIndex)
+        public DayTimeLine getDayTimeLineByDayIndex(long dayIndex)
         {
             if (DayLookUp.ContainsKey(dayIndex))
             {
                 return DayLookUp[dayIndex];
             }
-            ulong start = lastDayIndex - (_DayCount-1);
-            ulong end = lastDayIndex;
+            long start = lastDayIndex - (_DayCount-1);
+            long end = lastDayIndex;
             string errorMessage = "You are trying to make a query for a day that isn't within the " + ConstOfCalculation.TotalDays + " For Reference now. Hint: the only valid indexes are" + start + " - " + end;
             throw new Exception(errorMessage);
         }
@@ -312,9 +311,9 @@ namespace TilerElements
             return retValue;
         }
 
-        virtual public Tuple<ulong, ulong> indexRange(TimeLine Range)
+        virtual public Tuple<long, long> indexRange(TimeLine Range)
         {
-            Tuple<ulong, ulong> retValue = new Tuple<ulong, ulong>((ulong)(Range.Start - ComputationBound.Start).TotalDays, (ulong)(Range.End - ComputationBound.Start).TotalDays);
+            Tuple<long, long> retValue = new Tuple<long, long>((long)(Range.Start - ComputationBound.Start).TotalDays, (long)(Range.End - ComputationBound.Start).TotalDays);
             return retValue;
         }
 
@@ -323,9 +322,11 @@ namespace TilerElements
         /// </summary>
         /// <param name="myDay">the time to be used as the reference day. This will be the beginning of the utc day</param>
         /// <returns></returns
-        public ulong getDayIndexFromStartOfTime(DateTimeOffset myDay)
+        public long getDayIndexFromStartOfTime(DateTimeOffset myDay)
         {
-            ulong retValue = (ulong)((myDay - StarTime).TotalDays);
+
+            double totalDays = (myDay - StartOfDayStartOfTime).TotalDays;
+            long retValue = totalDays >= 0 ? (long)totalDays : ((long)totalDays - 1);
             return retValue;
         }
 
@@ -370,14 +371,15 @@ namespace TilerElements
 
         /// <summary>
         /// Function gets you the beginning of the day based on the time zone difference. Note this is not based on end or start of day. 
-        /// So if End of day is 10:00pm and the user is in denver time which is -6 from UTC. if you tried to get the value for <paramref name="dayIndex"/> being 0
-        /// This will return January 1, 1, 1970, 6:00AM because this return UTC time
+        /// So if End of day is 10:00pm(MST) and the user is in denver time which is -6 from UTC. if you tried to get the value for <paramref name="dayIndex"/> being 0
+        /// This will return December 31, 1969, 6:00AM because this return UTC time. Notice it is Dec 31 1969 because 
         /// </summary>
         /// <param name="dayIndex"></param>
         /// <returns></returns>
-        public DateTimeOffset getClientBeginningOfDay(ulong dayIndex)
+        public DateTimeOffset getClientBeginningOfDay(long dayIndex)
         {
-            DateTimeOffset retValue = StarTime.AddDays(dayIndex);
+            DateTimeOffset retValue = StartOfDayStartOfTime.AddDays(dayIndex).ToOffset(TimeZoneDiff);
+            retValue = new DateTimeOffset(retValue.Year, retValue.Month, retValue.Day, 0, 0, 0, TimeZoneDiff).ToUniversalTime();
             return retValue;
         }
 
@@ -425,7 +427,7 @@ namespace TilerElements
 
 
 
-        public ulong consttDayIndex
+        public long consttDayIndex
         {
             get
             {
@@ -445,7 +447,7 @@ namespace TilerElements
         {
             get
             {
-                return this.startOfDay;
+                return this.StartOfDayStartOfTime;
             }
         }
 

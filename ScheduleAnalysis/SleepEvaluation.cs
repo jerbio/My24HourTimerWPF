@@ -12,7 +12,7 @@ namespace ScheduleAnalysis
     {
         ImmutableList<DayTimeLine> _DayTimeLines;
         ReferenceNow Now;
-        List<Tuple<TimeLine, ulong>> _SleepTimeLines;
+        List<Tuple<TimeLine, long>> _SleepTimeLines;
         IList<IList<double>> _Score;
         bool _isEvaluated = false;
         public SleepEvaluation(IEnumerable<DayTimeLine> dayTimeLines)
@@ -23,12 +23,12 @@ namespace ScheduleAnalysis
         public SleepEvaluation(ReferenceNow now, TimeLine calculationTimeline)
         {
             Now = now;
-            Tuple<ulong, ulong> dayIndexes = Now.indexRange(calculationTimeline);
+            Tuple<long, long> dayIndexes = Now.indexRange(calculationTimeline);
             List<DayTimeLine> dayTimeLines = new List<DayTimeLine>();
-            ulong iniUniverslaIndex = Now.firstDay.UniversalIndex;
-            for (ulong i = dayIndexes.Item1; i <= dayIndexes.Item2; i++ )
+            long iniUniverslaIndex = Now.firstDay.UniversalIndex;
+            for (long i = dayIndexes.Item1; i <= dayIndexes.Item2; i++ )
             {
-                ulong universalIndex = iniUniverslaIndex + (ulong)i;
+                long universalIndex = iniUniverslaIndex + i;
                 DayTimeLine dayTimeLine = Now.getDayTimeLineByDayIndex(universalIndex);
                 dayTimeLines.Add(dayTimeLine);
             }
@@ -37,21 +37,21 @@ namespace ScheduleAnalysis
 
         public void evaluate()
         {
-            List<Tuple<TimeLine, ulong>> sleepTimeLines = new List<Tuple<TimeLine, ulong>>();
+            List<Tuple<TimeLine, long>> sleepTimeLines = new List<Tuple<TimeLine, long>>();
             List<List<double>> sleepScore = new List<List<double>>();
-            ulong iniUniverslaIndex = Now.firstDay.UniversalIndex;
+            long iniUniverslaIndex = Now.firstDay.UniversalIndex;
             for (int i = 0; i < _DayTimeLines.Count; i++)
             {
-                ulong universalIndex = iniUniverslaIndex + (ulong)i;
+                long universalIndex = iniUniverslaIndex + (long)i;
                 DayTimeLine dayTimeLine = _DayTimeLines[i];
                 if (universalIndex > iniUniverslaIndex)
                 {
-                    ulong previousDayUniversalIndex = universalIndex - 1;
+                    long previousDayUniversalIndex = universalIndex - 1;
                     DayTimeLine previousDayTimeLine = Now.getDayTimeLineByDayIndex(previousDayUniversalIndex);
                     DateTimeOffset sleepStart = dayTimeLine.PrecedingDaySleepSubEvent?.End ?? previousDayTimeLine.SleepSubEvent?.End ?? previousDayTimeLine.End;//
                     DateTimeOffset sleepEnd = dayTimeLine.WakeSubEvent?.Start ?? sleepStart.Add(Now.SleepSpan);
                     TimeLine sleepTImeLine = new TimeLine(sleepStart, sleepEnd);
-                    sleepTimeLines.Add(new Tuple<TimeLine, ulong>(sleepTImeLine, dayTimeLine.UniversalIndex));
+                    sleepTimeLines.Add(new Tuple<TimeLine, long>(sleepTImeLine, dayTimeLine.UniversalIndex));
                     double deviationFromEndOfDayFeature = previousDayTimeLine.End > sleepStart ? 0 : Math.Abs((previousDayTimeLine.End - sleepStart).TotalHours); // if end of day is after the sleep then simply set to zero since its optimized
                     double sleepSpan = Math.Abs(sleepTImeLine.TimelineSpan.TotalHours);
                     double sleepSpanFeature = sleepSpan < 0.00001 ? 24 : (1 / (2*sleepSpan));// double(half) sleepSpanFeature to weight the span of the sleep span
@@ -69,14 +69,14 @@ namespace ScheduleAnalysis
         /// </summary>
         /// <param name="forceEvaluate"></param>
         /// <returns></returns>
-        public List<Tuple<TimeLine, ulong>> undesirableSleepTimelines ()
+        public List<Tuple<TimeLine, long>> undesirableSleepTimelines ()
         {
             if (!_isEvaluated)
             {
                 this.evaluate();
             }
             TimeSpan sleepSpan = Utility.SleepSpan;
-            List<Tuple<TimeLine, ulong>> undesirableSleepFrames = MaxSleepTimeLines.Where(obj => obj.Item1.TimelineSpan < sleepSpan).ToList();
+            List<Tuple<TimeLine, long>> undesirableSleepFrames = MaxSleepTimeLines.Where(obj => obj.Item1.TimelineSpan < sleepSpan).ToList();
             return undesirableSleepFrames;
         }
 
@@ -91,12 +91,12 @@ namespace ScheduleAnalysis
             return retValue;
         }
 
-        public Tuple<double, List<Tuple<TimeLine, TimeLine, ulong>>> scoreAndTimeLine()
+        public Tuple<double, List<Tuple<TimeLine, TimeLine, long>>> scoreAndTimeLine()
         {
             this.evaluate();
             double timeLineScore = this.ScoreTimeLine();
-            List<Tuple<TimeLine, TimeLine, ulong>> timeLines = this.SleepTimeLines;
-            var retValue = new Tuple<double, List<Tuple<TimeLine, TimeLine, ulong>>>(timeLineScore, timeLines);
+            List<Tuple<TimeLine, TimeLine, long>> timeLines = this.SleepTimeLines;
+            var retValue = new Tuple<double, List<Tuple<TimeLine, TimeLine, long>>>(timeLineScore, timeLines);
             return retValue;
         }
 
@@ -118,10 +118,10 @@ namespace ScheduleAnalysis
             }
 
             JObject undesirableSleepTimeLines = new JObject();
-            List<Tuple<TimeLine, ulong>> undesirableSleepTimelines = this.undesirableSleepTimelines();
+            List<Tuple<TimeLine, long>> undesirableSleepTimelines = this.undesirableSleepTimelines();
             for (int i = 0; i < undesirableSleepTimelines.Count; i++)
             {
-                Tuple<TimeLine, ulong> sleepTimeLine = undesirableSleepTimelines[i];
+                Tuple<TimeLine, long> sleepTimeLine = undesirableSleepTimelines[i];
                 DateTimeOffset currentDay = Now.getClientBeginningOfDay(sleepTimeLine.Item2);
                 TimeSpan lostTimeSpan = ExpectedSleepSpan - sleepTimeLine.Item1.TimelineSpan;
                 JObject undesiredDetails = new JObject();
@@ -137,7 +137,7 @@ namespace ScheduleAnalysis
             return retValue;
         }
 
-        public List<Tuple<TimeLine, ulong>> MaxSleepTimeLines
+        public List<Tuple<TimeLine, long>> MaxSleepTimeLines
         {
             get
             {
@@ -155,11 +155,11 @@ namespace ScheduleAnalysis
         /// Item2 is the maximum sleep available
         /// Item3 is the day index
         /// </summary>
-        public List<Tuple<TimeLine, TimeLine, ulong>> SleepTimeLines
+        public List<Tuple<TimeLine, TimeLine, long>> SleepTimeLines
         {
             get
             {
-                var retValue = new List<Tuple<TimeLine, TimeLine, ulong>>();
+                var retValue = new List<Tuple<TimeLine, TimeLine, long>>();
                 TimeSpan expectedSleepSpan = ExpectedSleepSpan;
                 if (!_isEvaluated)
                 {
@@ -169,14 +169,14 @@ namespace ScheduleAnalysis
                 for(int i=0; i<_SleepTimeLines.Count; i++)
                 {
                     var sleepTImeLine = _SleepTimeLines[i];
-                    Tuple<TimeLine, TimeLine, ulong> tupleInput;
+                    Tuple<TimeLine, TimeLine, long> tupleInput;
                     if (sleepTImeLine.Item1.TimelineSpan > expectedSleepSpan)
                     {
-                        tupleInput = new Tuple<TimeLine, TimeLine, ulong>(new TimeLine(sleepTImeLine.Item1.Start, sleepTImeLine.Item1.Start.Add(expectedSleepSpan)), sleepTImeLine.Item1.StartToEnd, sleepTImeLine.Item2);
+                        tupleInput = new Tuple<TimeLine, TimeLine, long>(new TimeLine(sleepTImeLine.Item1.Start, sleepTImeLine.Item1.Start.Add(expectedSleepSpan)), sleepTImeLine.Item1.StartToEnd, sleepTImeLine.Item2);
                     }
                     else
                     {
-                        tupleInput = new Tuple<TimeLine, TimeLine, ulong>(sleepTImeLine.Item1.StartToEnd, sleepTImeLine.Item1.StartToEnd, sleepTImeLine.Item2); ;
+                        tupleInput = new Tuple<TimeLine, TimeLine, long>(sleepTImeLine.Item1.StartToEnd, sleepTImeLine.Item1.StartToEnd, sleepTImeLine.Item2); ;
                     }
                     retValue.Add(tupleInput);
                 }

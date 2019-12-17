@@ -179,12 +179,12 @@ namespace TilerElements
             }
         }
 
-        public ulong DislikedDayIndex(ReferenceNow now)
+        public long DislikedDayIndex(ReferenceNow now)
         {
             return now.getDayIndexFromStartOfTime(FromTime);
         }
 
-        public ulong PreferredDayIndex(ReferenceNow now)
+        public long PreferredDayIndex(ReferenceNow now)
         {
             return now.getDayIndexFromStartOfTime(BeginTIme);
         }

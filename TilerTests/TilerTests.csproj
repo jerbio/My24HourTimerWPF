@@ -208,7 +208,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="WagTapCalLogs\499a0ab4-81d7-42df-a476-44fc4348e94b.xml" />
-    <Content Include="WagTapCalLogs\499a0ab4-81d7-42df-a476-44fc4348e94b\499a0ab4-81d7-42df-a476-44fc4348e94b.xml" />
+    <Content Include="WagTapCalLogs\499a0ab4-81d7-42df-a476-44fc4348e94b\499a0ab4-81d7-42df-a476-44fc4348e94b.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="WagTapCalLogs\499a0ab4-81d7-42df-a476-44fc4348e94b\Copy_d350ba4d-fe0b-445c-bed6-b6411c2156b3.xml" />
     <Content Include="WagTapCalLogs\499a0ab4-81d7-42df-a476-44fc4348e94b\d350ba4d-fe0b-445c-bed6-b6411c2156b3.xml" />
     <Content Include="WagTapCalLogs\49c3eb92-2748-4425-a6a9-934299cad123.xml" />

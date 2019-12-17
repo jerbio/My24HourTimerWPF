@@ -2532,19 +2532,19 @@ namespace TilerCore
         /// <param name="AllDays"></param>
         /// <param name="AllRigidSubEvents"></param>
         /// returns the dictionary of the designated subcalendar events and their days. Note if subevent was exceeds the bounds then it wont be in return value
-        Dictionary<SubCalendarEvent, List<ulong>> DesignateSubEventsToDayTimeLine(DayTimeLine[] OrderedyAscendingAllDays, IEnumerable<SubCalendarEvent> AllRigidSubEvents)
+        Dictionary<SubCalendarEvent, List<long>> DesignateSubEventsToDayTimeLine(DayTimeLine[] OrderedyAscendingAllDays, IEnumerable<SubCalendarEvent> AllRigidSubEvents)
         {
-            ulong First = OrderedyAscendingAllDays.First().UniversalIndex;
-            Dictionary<SubCalendarEvent, List<ulong>> RetValue = new Dictionary<SubCalendarEvent, List<ulong>>();
+            long First = OrderedyAscendingAllDays.First().UniversalIndex;
+            Dictionary<SubCalendarEvent, List<long>> RetValue = new Dictionary<SubCalendarEvent, List<long>>();
 
             //Parallel.ForEach(AllRigidSubEvents, eachSubCalendarEvent =>
 
             foreach (SubCalendarEvent eachSubCalendarEvent in AllRigidSubEvents)
             {
-                List<ulong> myDays = new List<ulong>();
-                ulong SubCalFirstIndex = Now.getDayIndexFromStartOfTime(eachSubCalendarEvent.Start);
-                ulong SubCalLastIndex = Now.getDayIndexFromStartOfTime(eachSubCalendarEvent.End);
-                ulong DayDiff = SubCalLastIndex - SubCalFirstIndex;
+                List<long> myDays = new List<long>();
+                long SubCalFirstIndex = Now.getDayIndexFromStartOfTime(eachSubCalendarEvent.Start);
+                long SubCalLastIndex = Now.getDayIndexFromStartOfTime(eachSubCalendarEvent.End);
+                long DayDiff = SubCalLastIndex - SubCalFirstIndex;
 
                 int BoundedIndex = (int)(SubCalFirstIndex - First);
                 if ((BoundedIndex < 0) || (BoundedIndex >= OrderedyAscendingAllDays.Length))
@@ -2556,7 +2556,7 @@ namespace TilerCore
                 eachSubCalendarEvent.ParentCalendarEvent.designateSubEvent(eachSubCalendarEvent, Now);
                 //eachSubCalendarEvent.updateDayIndex(SubCalFirstIndex, eachSubCalendarEvent.ParentCalendarEvent);
                 eachSubCalendarEvent.ParentCalendarEvent.removeDayTimesFromFreeUpdays(SubCalFirstIndex);
-                for (ulong i = SubCalFirstIndex + 1, j = 0; j < DayDiff; j++, i++)
+                for (long i = SubCalFirstIndex + 1, j = 0; j < DayDiff; j++, i++)
                 {
                     BoundedIndex = (int)(i - First);
                     if (BoundedIndex < OrderedyAscendingAllDays.Length)// in case the rigid sub event day index is higher than OrderedyAscendingAllDays max index
@@ -3073,7 +3073,7 @@ namespace TilerCore
         {
             _isScheduleModified = true;
             uint TotalDays = (uint)AllDayTImeLine.Length;
-            ulong DayIndex = Now.consttDayIndex;
+            long DayIndex = Now.consttDayIndex;
             double occupancyThreshold = 0.67;// this placies a soft threshold for the occupancy that different cal events would use to determine if they should continue
             EventDayBags bagsPerDay = new EventDayBags(TotalDays);
             TotalActiveEvents.AsParallel().ForAll(subEvent => { subEvent.isWake = false; subEvent.isSleep = false; });
@@ -3225,8 +3225,8 @@ namespace TilerCore
 
                         if (DaysToUse.Count > 0)
                         {
-                            ulong preferredIndex = DayIndex;
-                            List<Tuple<ulong, SubCalendarEvent>> AllEvents = EvaluateEachDayIndexForEvent(UndesignatedEvents, DaysToUse, eachCal, bagsPerDay, preferredIndex);
+                            long preferredIndex = DayIndex;
+                            List<Tuple<long, SubCalendarEvent>> AllEvents = EvaluateEachDayIndexForEvent(UndesignatedEvents, DaysToUse, eachCal, bagsPerDay, preferredIndex);
                             if (AllEvents.Count != 0)
                             {
                                 for(int i =0; i< AllEvents.Count; i++)
@@ -3284,11 +3284,11 @@ namespace TilerCore
             OptimizationWatch.Start();
             if (Optimize)
             {
-                ulong FirstIndex = AllDayTImeLine[0].UniversalIndex;
+                long FirstIndex = AllDayTImeLine[0].UniversalIndex;
                 try
                 {
-                    ILookup<ulong, SubCalendarEvent> DayToSubEvent = AllRigids.ToLookup(obj => obj.UniversalDayIndex, obj => obj);
-                    foreach (IGrouping<ulong, SubCalendarEvent> eachGrouping in DayToSubEvent)
+                    ILookup<long, SubCalendarEvent> DayToSubEvent = AllRigids.ToLookup(obj => obj.UniversalDayIndex, obj => obj);
+                    foreach (IGrouping<long, SubCalendarEvent> eachGrouping in DayToSubEvent)
                     {
                         IEnumerable<SubCalendarEvent> subEvents = DayToSubEvent[eachGrouping.Key];
                         foreach (SubCalendarEvent subEvent in subEvents)
@@ -3578,15 +3578,15 @@ namespace TilerCore
         ///     item2 is the subevent
         /// 
         /// </returns>
-        List<Tuple<ulong, SubCalendarEvent>> EvaluateEachDayIndexForEvent(
+        List<Tuple<long, SubCalendarEvent>> EvaluateEachDayIndexForEvent(
             List<SubCalendarEvent> AllSubEvents,
             List<DayTimeLine> AllDays,
             CalendarEvent calEvent,
             EventDayBags bagsPerDay,
-            ulong balancingStartingindex)
+            long balancingStartingindex)
         {
 
-            List<Tuple<ulong, SubCalendarEvent>> retValue = new List<Tuple<ulong, SubCalendarEvent>>();
+            List<Tuple<long, SubCalendarEvent>> retValue = new List<Tuple<long, SubCalendarEvent>>();
             List<TimeLine> daysSelected = new List<TimeLine>();
             if (AllSubEvents.Count > 0)
             {
@@ -3598,8 +3598,8 @@ namespace TilerCore
                 }
 
                 DateTimeOffset preferredStartTime = procrastinationProfile.PreferredStartTime > calEvent.CalculationStart ? procrastinationProfile.PreferredStartTime : calEvent.CalculationStart;
-                ulong PreferrdDayIndex = Now.getDayIndexFromStartOfTime(preferredStartTime);
-                ulong startDayIndex = Now.getDayIndexFromStartOfTime(calEvent.CalculationStart);
+                long PreferrdDayIndex = Now.getDayIndexFromStartOfTime(preferredStartTime);
+                long startDayIndex = Now.getDayIndexFromStartOfTime(calEvent.CalculationStart);
                 if (balancingStartingindex > PreferrdDayIndex)
                 {
                     PreferrdDayIndex = balancingStartingindex;
@@ -3630,16 +3630,16 @@ namespace TilerCore
                 
 
                 List<mTuple<double, DayTimeLine>> orderedOnEvaluation = dayIndexToTImeLine.Where(tuple => !double.IsNaN(tuple.Item2)).OrderBy(tuple => tuple.Item2).Select(tuple => new mTuple<double, DayTimeLine>(tuple.Item2, tuple.Item3)).ToList();
-                List<ulong> dayIndexes = orderedOnEvaluation.Select(obj => obj.Item2.UniversalIndex).OrderBy(index => index).ToList();
+                List<long> dayIndexes = orderedOnEvaluation.Select(obj => obj.Item2.UniversalIndex).OrderBy(index => index).ToList();
                 List<DayTimeLine> useUpOrder = new List<DayTimeLine>();
                 mTuple<double, DayTimeLine> lastDaySelected = orderedOnEvaluation.FirstOrDefault();
 
                 if (lastDaySelected != null)
                 {
-                    ulong selectedDayIndex = lastDaySelected.Item2.UniversalIndex;
+                    long selectedDayIndex = lastDaySelected.Item2.UniversalIndex;
                     SubCalendarEvent subEvent = AllSubEvents.First();
                     daysSelected.Add(lastDaySelected.Item2);
-                    retValue.Add(new Tuple<ulong, SubCalendarEvent>(selectedDayIndex, subEvent));
+                    retValue.Add(new Tuple<long, SubCalendarEvent>(selectedDayIndex, subEvent));
                     useUpOrder.Add(lastDaySelected.Item2);
                     if (orderedOnEvaluation.Count != 0)
                     {
@@ -3678,7 +3678,7 @@ namespace TilerCore
                                 lastDaySelected = orderedOnEvaluation[lowestIndex];
                                 DayTimeLine minDayTimeLine = lastDaySelected.Item2;
                                 daysSelected.Add(lastDaySelected.Item2);
-                                retValue.Add(new Tuple<ulong, SubCalendarEvent>(minDayTimeLine.UniversalIndex, subEvent));
+                                retValue.Add(new Tuple<long, SubCalendarEvent>(minDayTimeLine.UniversalIndex, subEvent));
                                 orderedOnEvaluation.RemoveAt(lowestIndex);
                                 selectedDayIndex = lastDaySelected.Item2.UniversalIndex;
                                 useUpOrder.Add(minDayTimeLine);
@@ -3692,7 +3692,7 @@ namespace TilerCore
                                     SubCalendarEvent excessSubEvent = AllSubEvents[i];
                                     int dayIndex = j % usedUPLength;
                                     DayTimeLine dayTimeLine = useUpOrder[dayIndex];
-                                    retValue.Add(new Tuple<ulong, SubCalendarEvent>(dayTimeLine.UniversalIndex, excessSubEvent));
+                                    retValue.Add(new Tuple<long, SubCalendarEvent>(dayTimeLine.UniversalIndex, excessSubEvent));
                                 }
                             }
                         }

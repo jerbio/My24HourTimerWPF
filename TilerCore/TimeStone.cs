@@ -96,10 +96,10 @@ namespace TilerCore
         }
 
 
-        Dictionary<SubCalendarEvent, List<ulong>> WhatIfSubEventDayDesignation(DayTimeLine[] OrderedyAscendingAllDays, IEnumerable<SubCalendarEvent> subEvents)
+        Dictionary<SubCalendarEvent, List<long>> WhatIfSubEventDayDesignation(DayTimeLine[] OrderedyAscendingAllDays, IEnumerable<SubCalendarEvent> subEvents)
         {
-            ulong First = OrderedyAscendingAllDays.First().UniversalIndex;
-            Dictionary<SubCalendarEvent, List<ulong>> RetValue = new Dictionary<SubCalendarEvent, List<ulong>>();
+            long First = OrderedyAscendingAllDays.First().UniversalIndex;
+            Dictionary<SubCalendarEvent, List<long>> RetValue = new Dictionary<SubCalendarEvent, List<long>>();
 
             List<SubCalendarEvent> orderedSubevents = subEvents.OrderBy(o => o.Start).ToList();
 
@@ -126,10 +126,10 @@ namespace TilerCore
                 for (int subEventDayindex = 0; subEventDayindex < orderedSubevents.Count; subEventDayindex++)
                 {
                     SubCalendarEvent eachSubCalendarEvent = orderedSubevents[subEventDayindex];
-                    List<ulong> myDays = new List<ulong>();
-                    ulong SubCalFirstIndex = schedule.Now.getDayIndexFromStartOfTime(eachSubCalendarEvent.Start);
-                    ulong SubCalLastIndex = schedule.Now.getDayIndexFromStartOfTime(eachSubCalendarEvent.End);
-                    ulong DayDiff = SubCalLastIndex - SubCalFirstIndex;
+                    List<long> myDays = new List<long>();
+                    long SubCalFirstIndex = schedule.Now.getDayIndexFromStartOfTime(eachSubCalendarEvent.Start);
+                    long SubCalLastIndex = schedule.Now.getDayIndexFromStartOfTime(eachSubCalendarEvent.End);
+                    long DayDiff = SubCalLastIndex - SubCalFirstIndex;
 
                     BoundedIndex = (int)(SubCalFirstIndex - First);
                     if ((BoundedIndex < 0) || (BoundedIndex >= OrderedyAscendingAllDays.Length))
@@ -172,7 +172,7 @@ namespace TilerCore
                     };
                     if (DayDiff > 0)
                     {
-                        for (ulong i = SubCalFirstIndex + 1, j = 0; j < DayDiff; j++, i++)
+                        for (long i = SubCalFirstIndex + 1, j = 0; j < DayDiff; j++, i++)
                         {
                             BoundedIndex = (int)(i - First);
                             if (BoundedIndex < OrderedyAscendingAllDays.Length)// in case the rigid sub event day index is higher than OrderedyAscendingAllDays max index

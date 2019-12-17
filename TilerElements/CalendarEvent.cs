@@ -27,16 +27,16 @@ namespace TilerElements
         protected HashSet<SubCalendarEvent> UnDesignables = new HashSet<SubCalendarEvent>();
         protected bool _isCalculableInitialized = false;
         protected bool isUnDesignableInitialized = false;
-        protected Dictionary<ulong, DayTimeLine> CalculationLimitationWithUnUsables;
-        protected Dictionary<ulong, DayTimeLine> CalculationLimitation;
-        protected Dictionary<ulong, DayTimeLine> FreeDaysLimitation;// Holds days that do not contain subevents within this time line
-        protected HashSet<ulong> DaysWithSubEvents = new HashSet<ulong>();
+        protected Dictionary<long, DayTimeLine> CalculationLimitationWithUnUsables;
+        protected Dictionary<long, DayTimeLine> CalculationLimitation;
+        protected Dictionary<long, DayTimeLine> FreeDaysLimitation;// Holds days that do not contain subevents within this time line
+        protected HashSet<long> DaysWithSubEvents = new HashSet<long>();
         protected List<SubCalendarEvent> _RemovedSubEvents = new List<SubCalendarEvent>();
         protected EventPreference _EventDayPreference;
         protected string _LastCompletionTime;
         protected CalendarEvent _DefaultCalendarEvent;
         DateTimeOffset[] completionDates = new DateTimeOffset[0];
-        HashSet<ulong> completeDayIndexes = new HashSet<ulong>();
+        HashSet<long> completeDayIndexes = new HashSet<long>();
         protected TimeLine _CalculationStartToEnd;
         #region undoMembers
         public int UndoSplits;
@@ -1115,7 +1115,7 @@ namespace TilerElements
                     double availableSpanRatio = (double)totalInterferringSpan.Ticks / totalAvailableSpan.Ticks;
                     DayOfWeek weekDay = referenceNow.getDayOfTheWeek(timeline);
                     double dayIndexScore = DayPreference[weekDay].EvaluationScore;
-                    ulong completeDayIndex = referenceNow.getDayIndexFromStartOfTime(timeline.Start);
+                    long completeDayIndex = referenceNow.getDayIndexFromStartOfTime(timeline.Start);
                     double dayIndexCount = completeDayIndexes.Contains(completeDayIndex) ? 1 : 0;// if day has already being marked with event as complete 
                     IList<double> dimensionsPerDay;
                     if (!factorInTimelineOrder)
@@ -1392,7 +1392,7 @@ namespace TilerElements
         /// function updates the free days by removing the Daytimeline using the universal dayindex days selected. Note not thread safe
         /// </summary>
         /// <param name="UniversalDayIndex"></param>
-        public void removeDayTimeFromFreeUpdays(ulong UniversalDayIndex)
+        public void removeDayTimeFromFreeUpdays(long UniversalDayIndex)
         {
             if (FreeDaysLimitation != null)
             {
@@ -1405,11 +1405,11 @@ namespace TilerElements
         /// function updates the free days by removing the Daytimelines using the universal dayindexes provided. Note not thread safe
         /// </summary>
         /// <param name="AllUniversalDayIndexes"></param>
-        public void removeDayTimesFromFreeUpdays(IEnumerable<ulong> AllUniversalDayIndexes)
+        public void removeDayTimesFromFreeUpdays(IEnumerable<long> AllUniversalDayIndexes)
         {
             if (FreeDaysLimitation != null)
             {
-                foreach (ulong eachIndex in AllUniversalDayIndexes)
+                foreach (long eachIndex in AllUniversalDayIndexes)
                 {
                     FreeDaysLimitation.Remove(eachIndex);
                 }
@@ -1419,7 +1419,7 @@ namespace TilerElements
         }
 
 
-        public void removeDayTimesFromFreeUpdays(ulong AllUniversalDayIndex)
+        public void removeDayTimesFromFreeUpdays(long AllUniversalDayIndex)
         {
             if (FreeDaysLimitation != null)
             {
@@ -1730,25 +1730,25 @@ namespace TilerElements
 
             foreach (SubCalendarEvent eachSubCalendarEvent in UnDesignables)
             {
-                ulong unWantedIndex = eachSubCalendarEvent.resetAndgetUnUsableIndex();
+                long unWantedIndex = eachSubCalendarEvent.resetAndgetUnUsableIndex();
                 CalculationLimitation.Remove(unWantedIndex);
                 FreeDaysLimitation.Remove(unWantedIndex);
             }
         }
 
-        public void updateUnusableDaysAndRemoveDaysWithInsufficientFreeSpace(IEnumerable<ulong> UnUsableDays)
+        public void updateUnusableDaysAndRemoveDaysWithInsufficientFreeSpace(IEnumerable<long> UnUsableDays)
         {
             updateUnusableDays(UnUsableDays);
             removeDayTimeLinesWithInsufficientSpace();
         }
 
-        public void updateUnusableDays(IEnumerable<ulong> UnUsableDays)
+        public void updateUnusableDays(IEnumerable<long> UnUsableDays)
         {
             List<SubCalendarEvent> Undesignated = UnDesignables.ToList();
 
             foreach (SubCalendarEvent eachSubCalendarEvent in UnDesignables)
             {
-                ulong unWantedIndex = eachSubCalendarEvent.resetAndgetUnUsableIndex();
+                long unWantedIndex = eachSubCalendarEvent.resetAndgetUnUsableIndex();
                 CalculationLimitation.Remove(unWantedIndex);
                 FreeDaysLimitation.Remove(unWantedIndex);
             }
@@ -1910,7 +1910,7 @@ namespace TilerElements
                         long timeInMs = long.Parse(timeString);
                         DateTimeOffset time = DateTimeOffset.FromUnixTimeMilliseconds(timeInMs);
                         completionDates[i] = time;
-                        ulong dayIndex = now.getDayIndexFromStartOfTime(time);
+                        long dayIndex = now.getDayIndexFromStartOfTime(time);
                         completeDayIndexes.Add(dayIndex);
                     }
 

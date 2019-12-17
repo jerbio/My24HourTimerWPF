@@ -9,7 +9,7 @@ namespace TilerElements
     public class TimeLineRestricted:TimeLine
     {
         RestrictionProfile RestrictionInfo;
-        Dictionary<ulong, HashSet<TimeLine>> DayOfYearToTimeLine;
+        Dictionary<long, HashSet<TimeLine>> DayOfYearToTimeLine;
         DateTimeOffset NonViableStart;
         DateTimeOffset NonViableEnd;
         TimeSpan RangeSpanInfo;
@@ -17,8 +17,8 @@ namespace TilerElements
         /// _isViableis true if the noViableStart - noViableEnd has a timeframe that can include the restrictionDay. So for example nonvialbleStart - nonviableEnd is 9:00a of July 1 2019- 10:00a of July 1 2019 but the Restriction Profile has 12:00p - 10:001  of any day. There is no scenario where the restricted schedule will be viable
         /// </summary>
         bool _isViable= false;
-        ulong EarliestDayIndex;
-        ulong LatestDayIndex;
+        long EarliestDayIndex;
+        long LatestDayIndex;
         ReferenceNow Now;
         public TimeLineRestricted(DateTimeOffset StartData, DateTimeOffset EndData, RestrictionProfile RestrictionData, ReferenceNow now)
         {
@@ -36,24 +36,24 @@ namespace TilerElements
         void initialize()
         {
             _isViable= false;
-            DayOfYearToTimeLine = new Dictionary<ulong, HashSet<TimeLine>>();
+            DayOfYearToTimeLine = new Dictionary<long, HashSet<TimeLine>>();
             List<TimeLine> AllTImeLines = RestrictionInfo.getAllNonPartialTimeFrames(new TimeLine(NonViableStart, NonViableEnd)).OrderBy(obj => obj.Start).ToList();
 
-            ILookup<ulong, TimeLine> lookUpData0 = AllTImeLines.ToLookup(obj => Now.getDayIndexFromStartOfTime(obj.Start), obj => obj);
-            ILookup<ulong, TimeLine> lookUpData1 = AllTImeLines.ToLookup(obj => Now.getDayIndexFromStartOfTime(obj.End), obj => obj);
+            ILookup<long, TimeLine> lookUpData0 = AllTImeLines.ToLookup(obj => Now.getDayIndexFromStartOfTime(obj.Start), obj => obj);
+            ILookup<long, TimeLine> lookUpData1 = AllTImeLines.ToLookup(obj => Now.getDayIndexFromStartOfTime(obj.End), obj => obj);
 
 
             //ILookup<ulong,TimeLine>lookUpData =.ToLookup(obj=>ReferenceNow.getDayIndexFromStartOfTime(obj.Start),obj=>obj);
             RangeSpanInfo=new TimeSpan(0);
             long TotalTicks =0;
-            foreach (IGrouping<ulong,TimeLine> eachIGrouping in lookUpData0)
+            foreach (IGrouping<long,TimeLine> eachIGrouping in lookUpData0)
             {
                 DayOfYearToTimeLine.Add(eachIGrouping.Key, new HashSet<TimeLine>(lookUpData0[eachIGrouping.Key]));
 
                 TotalTicks += lookUpData0[eachIGrouping.Key].Sum(obj => obj.TimelineSpan.Ticks);
             }
 
-            foreach (IGrouping<ulong, TimeLine> eachIGrouping in lookUpData1)
+            foreach (IGrouping<long, TimeLine> eachIGrouping in lookUpData1)
             {
                 if (DayOfYearToTimeLine.ContainsKey(eachIGrouping.Key))
                 { 
@@ -105,8 +105,8 @@ namespace TilerElements
 
         public override bool doesTimeLineInterfere(TimeLine TimeLineData)
         {
-            ulong StartIndex = Now.getDayIndexFromStartOfTime(TimeLineData.Start);
-            ulong EndIndex = Now.getDayIndexFromStartOfTime(TimeLineData.End);
+            long StartIndex = Now.getDayIndexFromStartOfTime(TimeLineData.Start);
+            long EndIndex = Now.getDayIndexFromStartOfTime(TimeLineData.End);
 
             StartIndex = EarliestDayIndex > StartIndex ? EarliestDayIndex : StartIndex;
             EndIndex = LatestDayIndex < EndIndex ? LatestDayIndex : EndIndex;
@@ -114,7 +114,7 @@ namespace TilerElements
             bool retValue = false;
 
             bool breakOuter = false;
-            for (ulong i = StartIndex; i <= EndIndex; i++)
+            for (long i = StartIndex; i <= EndIndex; i++)
             {
                 if (DayOfYearToTimeLine.ContainsKey(i))
                 {

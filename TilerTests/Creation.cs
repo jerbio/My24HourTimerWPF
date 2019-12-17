@@ -31,6 +31,20 @@ namespace TilerTests
         //}
 
         [TestMethod]
+        public void ReferenceNowLogic()
+        {
+            TimeSpan timeDifference = TimeSpan.FromHours(-6);
+            DateTimeOffset currentTime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, timeDifference);
+            DateTimeOffset endOfDay = new DateTimeOffset(1970, 1, 1, 22, 0, 0, timeDifference);
+
+            ReferenceNow now = new ReferenceNow(currentTime, endOfDay, timeDifference);
+            DateTimeOffset dayTimeOffset = now.getClientBeginningOfDay(0);
+            Assert.AreEqual(dayTimeOffset.Hour, 6);
+            Assert.AreEqual(dayTimeOffset.Year, 1970);
+            Assert.AreEqual(dayTimeOffset.Day, 1);
+        }
+
+        [TestMethod]
         public void TestContextCaching ()
         {
             DateTimeOffset refNow = DateTimeOffset.UtcNow;

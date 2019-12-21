@@ -60,7 +60,7 @@ namespace TilerTests
 
         public TestSchedule(IEnumerable<CalendarEvent> calendarEvents ,UserAccount AccountEntry, DateTimeOffset referenceNow, IEnumerable<Location> Locations, uint LatestId = 0) : base(AccountEntry, referenceNow)
         {
-            AllEventDictionary =  calendarEvents.ToDictionary(calEvent => calEvent.Calendar_EventID.getCalendarEventComponent(), calEvent => calEvent);
+            AllEventDictionary = calendarEvents.ToDictionary(calEvent => calEvent.Calendar_EventID.getAllEventDictionaryLookup, calEvent => calEvent);
             this.Locations = Locations.ToDictionary(obj => obj.Description, obj => obj);
             if (LatestId != 0)
             {

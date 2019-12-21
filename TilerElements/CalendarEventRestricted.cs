@@ -250,7 +250,7 @@ namespace TilerElements
         public void setNow (ReferenceNow now, bool updateCalendarEventRange = false)
         {
             _Now = now;
-            if (this.IsRecurring)
+            if (this.IsNotRecurringChildCalEVent)
             {
                 foreach(CalendarEventRestricted calRestricted in Repeat.RecurringCalendarEvents())
                 {

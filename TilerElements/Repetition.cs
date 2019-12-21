@@ -179,7 +179,7 @@ namespace TilerElements
         {
 
 
-            if (!MyParentEvent.IsRecurring)//Checks if Repetition object is enabled or disabled. If Disabled then just return else continue
+            if (!MyParentEvent.IsNotRecurringChildCalEVent)//Checks if Repetition object is enabled or disabled. If Disabled then just return else continue
             {
                 return;
             }
@@ -326,7 +326,7 @@ namespace TilerElements
 
         public void PopulateRepetitionParameters(CalendarEventRestricted MyParentEvent)
         {
-            if (!MyParentEvent.IsRecurring)//Checks if Repetition object is enabled or disabled. If Disabled then just return else continue
+            if (!MyParentEvent.IsNotRecurringChildCalEVent)//Checks if Repetition object is enabled or disabled. If Disabled then just return else continue
             {
                 return;
             }
@@ -944,7 +944,7 @@ namespace TilerElements
             }
             else
             {
-                retValue = _DictionaryOfIDAndCalendarEvents.Values.ToArray();
+                retValue = _DictionaryOfIDAndCalendarEvents?.Values.ToArray() ?? new CalendarEvent[0]; ;
             }
             return retValue;
         }

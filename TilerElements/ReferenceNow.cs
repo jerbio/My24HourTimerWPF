@@ -31,8 +31,8 @@ namespace TilerElements
         public ReferenceNow(DateTimeOffset now, DateTimeOffset startOfDay, TimeSpan timeDifference)
         {
             TimeZoneDiff = timeDifference;
-
-            StartOfDayStartOfTime = new DateTimeOffset(1970, 1, 1, startOfDay.Hour, startOfDay.Minute, 0, timeDifference).ToUniversalTime();
+            DateTimeOffset startOfDayUniversal = startOfDay.ToUniversalTime();
+            StartOfDayStartOfTime = new DateTimeOffset(1970, 1, 1, startOfDayUniversal.Hour, startOfDayUniversal.Minute, 0, new TimeSpan()).ToUniversalTime();
             CalculationNow = now.removeSecondsAndMilliseconds().ToUniversalTime();
             ImmutableNow = CalculationNow;
             

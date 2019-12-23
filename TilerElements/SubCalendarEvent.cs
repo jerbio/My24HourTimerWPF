@@ -321,6 +321,16 @@ namespace TilerElements
             _LastReasonStartTimeChanged = this.Start;
         }
 
+        public override NowProfile initializeNowProfile()
+        {
+            if(string.IsNullOrEmpty(this.NowProfileId) || string.IsNullOrWhiteSpace(this.NowProfileId))
+            {
+                _ProfileOfNow = ParentCalendarEvent.initializeNowProfile();
+                return _ProfileOfNow;
+            }
+            throw new Exception("Now profile has already being initialized, try loading profile object to memory");
+        }
+
         virtual public void clearAllReasons()
         {
             ReasonsForCurrentPosition = new Dictionary<TimeSpan, List<Reason>>();
@@ -1105,9 +1115,8 @@ namespace TilerElements
             {
                 throw new Exception("Tried modifying the rigid status, but cannot validate the ParentCalendar Event or Repeat parent calendarevent");
             }
-
-            
         }
+
         #endregion
 
         #region Class Properties
@@ -1430,6 +1439,18 @@ namespace TilerElements
             }
         }
 
+        public override NowProfile ProfileOfNow_EventDB
+        {
+            get
+            {
+                return _ProfileOfNow ?? this.ParentCalendarEvent?.getNowInfo;
+            }
+            set
+            {
+                _ProfileOfNow = value;
+            }
+        }
+
         /// <summary>
         /// SInce the function shiftSUbEventsByTimeAndId reorders all sub events by time and Id, meaning the subevent withe lowest alphabetically ordered id gets the earliesttime
         /// This ensures that when the "shiftSUbEventsByTimeAndId" is called the subevent doesn't get reordered from the id.
@@ -1446,7 +1467,7 @@ namespace TilerElements
         {
             get
             {
-                return _ProfileOfNow?? ParentCalendarEvent.getNowInfo;
+                return _ProfileOfNow?? ParentCalendarEvent.getNowInfo ?? RepeatParentEvent?.getNowInfo;
             }
         }
 

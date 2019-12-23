@@ -336,9 +336,10 @@ namespace TilerTests
             //testSubEvent = testEvent.ActiveSubEvents[0];
             testSubEvent = TestUtility.getSubEventById(testSubEvent.getId, user);
             List<EventID> subEventIds = new List<EventID>() { testSubEvent.SubEvent_ID, testSubEvent0.SubEvent_ID, testSubEvent1.SubEvent_ID };// This tries to redelete testSubEvent.SubEvent_ID and that should have no effect so the count should stay the same
+            HashSet<string> calendarIds = new HashSet<string>(subEventIds.Select(o => o.ToString()));
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
-            Schedule = new TestSchedule(user, refNow);
+            Schedule = new TestSchedule(user, refNow, calendarIds: calendarIds);
             Schedule.deleteSubCalendarEvents(subEventIds.Select(subeventid => subeventid.ToString())).Wait();
             Schedule.persistToDB().Wait();
 

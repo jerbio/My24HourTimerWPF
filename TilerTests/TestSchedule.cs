@@ -13,18 +13,17 @@ namespace TilerTests
     internal class TestSchedule : DB_Schedule
     {
         protected DateTimeOffset StartOfDay;
-        public TestSchedule(UserAccount AccountEntry, DateTimeOffset referenceNow, DateTimeOffset startOfDay, uint LatestId = 0, DataRetrivalOption retrievalOption = DataRetrivalOption.Evaluation, TimeLine rangeOfLookup = null) : base(AccountEntry, referenceNow, retrievalOption, rangeOfLookup)
+        public TestSchedule(UserAccount AccountEntry, DateTimeOffset referenceNow, DateTimeOffset startOfDay, uint LatestId = 0, DataRetrivalOption retrievalOption = DataRetrivalOption.Evaluation, TimeLine rangeOfLookup = null, HashSet<string> calendarIds = null) : base(AccountEntry, referenceNow, startOfDay, retrievalOption, rangeOfLookup, calendarIds: calendarIds)
         {
             StartOfDay = startOfDay;
             this.retrievalOption = retrievalOption;
-            Initialize(referenceNow, StartOfDay).Wait();
             myAccount = AccountEntry;
             if (LatestId != 0)
             {
                 EventID.Initialize(LatestId);
             }
         }
-        public TestSchedule(UserAccount AccountEntry, DateTimeOffset referenceNow, uint LatestId = 0, DataRetrivalOption retrievalOption = DataRetrivalOption.Evaluation, TimeLine rangeOfLookup = null) : base(AccountEntry, referenceNow, retrievalOption, rangeOfLookup)
+        public TestSchedule(UserAccount AccountEntry, DateTimeOffset referenceNow, uint LatestId = 0, DataRetrivalOption retrievalOption = DataRetrivalOption.Evaluation, TimeLine rangeOfLookup = null, HashSet<string> calendarIds = null) : base(AccountEntry, referenceNow, retrievalOption, rangeOfLookup, calendarIds: calendarIds)
         {
             if (LatestId != 0)
             {
@@ -32,12 +31,11 @@ namespace TilerTests
             }
         }
 
-        async override protected Task Initialize(DateTimeOffset referenceNow)
+        async override protected Task Initialize(DateTimeOffset referenceNow, DateTimeOffset StartOfDay, HashSet<string> calendarIds = null)
         {
-            DateTimeOffset StartOfDay = myAccount.ScheduleData.getDayReferenceTime();
             _Now = new ReferenceNow(referenceNow, StartOfDay, myAccount.getTilerUser().TimeZoneDifference);
-
-            Tuple<Dictionary<string, CalendarEvent>, DateTimeOffset, Dictionary<string, Location>> profileData = await myAccount.ScheduleData.getProfileInfo(RangeOfLookup, _Now, retrievalOption).ConfigureAwait(false);
+            this.RangeOfLookup = this.RangeOfLookup ?? new TimeLine(_Now.constNow.AddDays(DB_Schedule.TimeLookUpDayStart), _Now.constNow.AddDays(DB_Schedule.TimeLookUpDayEnd));
+            Tuple<Dictionary<string, CalendarEvent>, DateTimeOffset, Dictionary<string, Location>> profileData = await myAccount.ScheduleData.getProfileInfo(RangeOfLookup, _Now, retrievalOption, calendarIds: calendarIds).ConfigureAwait(false);
             TravelCache travelCache = await myAccount.ScheduleData.getTravelCache(myAccount.UserID).ConfigureAwait(false);
             updateTravelCache(travelCache);
             myAccount.Now = _Now;
@@ -56,6 +54,12 @@ namespace TilerTests
                 Locations = profileData.Item3;
             }
             TilerUser = myAccount.getTilerUser();
+        }
+
+        async override protected Task Initialize(DateTimeOffset referenceNow, HashSet<string> calendarIds = null)
+        {
+            DateTimeOffset StartOfDay = myAccount.ScheduleData.getDayReferenceTime();
+            await Initialize(referenceNow, StartOfDay, calendarIds).ConfigureAwait(false);
         }
 
         public TestSchedule(IEnumerable<CalendarEvent> calendarEvents ,UserAccount AccountEntry, DateTimeOffset referenceNow, IEnumerable<Location> Locations, uint LatestId = 0) : base(AccountEntry, referenceNow)

@@ -38,6 +38,7 @@ namespace TilerElements
         DateTimeOffset[] completionDates = new DateTimeOffset[0];
         HashSet<long> completeDayIndexes = new HashSet<long>();
         protected TimeLine _CalculationStartToEnd;
+        protected bool _RepeatIsLoaded = true;
         #region undoMembers
         public int UndoSplits;
         public TimeSpan UndoAverageTimePerSplit;
@@ -281,7 +282,7 @@ namespace TilerElements
         {
             CalendarEvent calEvent;
             TempTilerEventChanges retvalue = new TempTilerEventChanges();
-            if (base.IsNotRecurringChildCalEVent)
+            if (IsFromRecurringAndNotChildRepeatCalEvent)
             {
                 calEvent = Repeat.getCalendarEvent(eventId.ToString());
             } else
@@ -334,7 +335,7 @@ namespace TilerElements
         {
             CalendarEvent calEvent;
             TempTilerEventChanges retvalue = new TempTilerEventChanges();
-            if (base.IsNotRecurringChildCalEVent)
+            if (IsFromRecurringAndNotChildRepeatCalEvent)
             {
                 calEvent = Repeat.getCalendarEvent(eventId.ToString());
             }
@@ -415,7 +416,7 @@ namespace TilerElements
                 {
                     subEVent.updateprocrastinationtree(procrastination);
                 }
-                if (this.IsNotRecurringChildCalEVent)
+                if (this.IsFromRecurringAndNotChildRepeatCalEvent)
                 {
                     foreach (CalendarEvent cal in this.Repeat.RecurringCalendarEvents())
                     {
@@ -443,7 +444,7 @@ namespace TilerElements
                     subEVent.updatenowprofiletree(nowProfile);
                 }
 
-                if (this.IsNotRecurringChildCalEVent)
+                if (this.IsFromRecurringAndNotChildRepeatCalEvent)
                 {
                     foreach (CalendarEvent cal in this.Repeat.RecurringCalendarEvents())
                     {
@@ -527,8 +528,19 @@ namespace TilerElements
         ///*
         public void updateProcrastinate(Procrastination ProcrastinationTime)
         {
-            _ProfileOfProcrastination.Update(ProcrastinationTime);
-            _ProfileOfNow.reset();
+            if (_ProfileOfProcrastination != null)
+            {
+                _ProfileOfProcrastination.Update(ProcrastinationTime);
+            } else
+            {
+                _ProfileOfProcrastination = ProcrastinationTime;
+                _ProfileOfProcrastination.Id = this.ProcrastinationId;
+            }
+            if(getNowInfo != null)
+            {
+                getNowInfo.reset();
+            }
+            
         }
         //*/
 
@@ -593,7 +605,19 @@ namespace TilerElements
 
         public virtual void UpdateNowProfile(NowProfile ProfileNowData)
         {
-            _ProfileOfNow.update(ProfileNowData);
+            if(_ProfileOfNow!=null)
+            {
+                _ProfileOfNow.update(ProfileNowData);
+            } else
+            {
+                _ProfileOfNow = ProfileNowData;
+                string nowProfileId = this.NowProfileId;
+                if (!string.IsNullOrEmpty(nowProfileId))
+                {
+                    _ProfileOfNow.Id = nowProfileId;
+                }
+            }
+            
             getProcrastinationInfo.reset();
         }
 
@@ -759,7 +783,7 @@ namespace TilerElements
         virtual public void SetCompletion(bool CompletionStatus, bool goDeep = false)
         {
             _Complete = CompletionStatus;
-            if (IsNotRecurringChildCalEVent)
+            if (IsFromRecurringAndNotChildRepeatCalEvent)
             {
                 if (goDeep)
                 {
@@ -913,6 +937,26 @@ namespace TilerElements
         }
 
 
+        public override NowProfile initializeNowProfile()
+        {
+            if (this.RepeatParentEvent==null && (!string.IsNullOrEmpty(this.RepeatParentEventId) && string.IsNullOrWhiteSpace(this.RepeatParentEventId)) && (string.IsNullOrEmpty(this.NowProfileId) || string.IsNullOrWhiteSpace(this.NowProfileId)))
+            {
+                this._ProfileOfNow = new NowProfile(new DateTimeOffset(), true);
+                return this._ProfileOfNow;
+            } else if(this.RepeatParentEvent != null)
+            {
+                _ProfileOfNow = this.RepeatParentEvent.initializeNowProfile();
+                return _ProfileOfNow;
+            } else if(!(string.IsNullOrEmpty(this.NowProfileId) || string.IsNullOrWhiteSpace(this.NowProfileId)))
+            {
+                throw new Exception("Now profile has already being initialize try loading it into memory");
+            } else
+            {
+                throw new Exception("Initialization issue, you haven't ninitialized repeatparent object");
+            }
+            
+        }
+
         /// <summary>
         /// Returns a repeating calendarevent. The ID has to be the string up the repeat CalEvent
         /// </summary>
@@ -928,7 +972,7 @@ namespace TilerElements
                 }
             }
             return null;*/
-            if (IsNotRecurringChildCalEVent)
+            if (IsFromRecurringAndNotChildRepeatCalEvent && isRepeatLoaded)
             {
                 return _EventRepetition.getCalendarEvent(CalendarIDUpToRepeatCalEvent);
             }
@@ -1010,7 +1054,7 @@ namespace TilerElements
         {
             int i = 0;
 
-            if (IsNotRecurringChildCalEVent)
+            if (IsFromRecurringAndNotChildRepeatCalEvent)
             {
                 IEnumerable<CalendarEvent> AllrepeatingCalEvents = _EventRepetition.RecurringCalendarEvents();
                 foreach (CalendarEvent MyCalendarEvent in AllrepeatingCalEvents)
@@ -1036,7 +1080,7 @@ namespace TilerElements
 
         public virtual bool updateSubEvent(EventID SubEventID, SubCalendarEvent UpdatedSubEvent)
         {
-            if (this.IsNotRecurringChildCalEVent)
+            if (this.IsFromRecurringAndNotChildRepeatCalEvent)
             {
                 IEnumerable<CalendarEvent> AllrepeatingCalEvents = Repeat.RecurringCalendarEvents();
 
@@ -1608,7 +1652,7 @@ namespace TilerElements
                 if (delta > 0)
                 {
 
-                    if (IsNotRecurringChildCalEVent)
+                    if (IsFromRecurringAndNotChildRepeatCalEvent)
                     {
                         _EventRepetition.RecurringCalendarEvents().AsParallel().ForAll(obj => obj.IncreaseSplitCount(Change));
                         return 2;
@@ -1621,7 +1665,7 @@ namespace TilerElements
                 }
                 else
                 {
-                    if (IsNotRecurringChildCalEVent)
+                    if (IsFromRecurringAndNotChildRepeatCalEvent)
                     {
                         _EventRepetition.RecurringCalendarEvents().AsParallel().ForAll(obj => obj.ReduceSplitCount(Change));
                         return 1;
@@ -1825,7 +1869,7 @@ namespace TilerElements
             {
                 subEvent.updateEventName(NewName);
             }
-            if (!justThisCalendarEvent && base.IsNotRecurringChildCalEVent)
+            if (!justThisCalendarEvent && IsFromRecurringAndNotChildRepeatCalEvent)
             {
                 foreach (CalendarEvent calEvent in Repeat.RecurringCalendarEvents().Where(obj => obj.getId != this.getId))
                 {
@@ -2009,21 +2053,30 @@ namespace TilerElements
         #endregion
 
         #region Properties
-        public virtual bool IsRecurringChildCalEVent
+        public virtual bool IsFromRecurringAndIsChildCalEvent
         {
             get
             {
-                return base.IsNotRecurringChildCalEVent && IsRepeatsChildCalEvent;
+                return IsFromRecurring && IsRepeatsChildCalEvent;
             }
         }
 
-        public override bool IsNotRecurringChildCalEVent
+        public virtual bool IsFromRecurringAndNotChildRepeatCalEvent
         {
             get
             {
-                return base.IsNotRecurringChildCalEVent && !IsRepeatsChildCalEvent;
+                return IsFromRecurring && !IsRepeatsChildCalEvent;
             }
         }
+
+        public override bool IsFromRecurring
+        {
+            get
+            {
+                return this.IsRecurring || IsRepeatsChildCalEvent;
+            }
+        }
+
         override public string getId
         {
             get
@@ -2085,7 +2138,7 @@ namespace TilerElements
         {//return All Subcalevents that are enabled. returns 
             get
             {
-                if (IsNotRecurringChildCalEVent)
+                if (IsFromRecurringAndNotChildRepeatCalEvent)
                 {
                     return this.ActiveRepeatSubCalendarEvents;
                 }
@@ -2100,7 +2153,7 @@ namespace TilerElements
         {//return All Subcalevents that are enabled. returns 
             get
             {
-                if (IsNotRecurringChildCalEVent)
+                if (IsFromRecurringAndNotChildRepeatCalEvent)
                 {
                     return this.ActiveRepeatSubCalendarEvents.OrderBy(o => o.Start);
                 }
@@ -2116,7 +2169,7 @@ namespace TilerElements
         {//return All Subcalevents that are enabled.
             get
             {
-                if (IsNotRecurringChildCalEVent)
+                if (IsFromRecurringAndNotChildRepeatCalEvent)
                 {
                     return this.ActiveRepeatSubCalendarEvents;
                 }
@@ -2132,7 +2185,7 @@ namespace TilerElements
         {//return All Subcalevents that enabled or not.
             get
             {
-                if (IsNotRecurringChildCalEVent)
+                if (IsFromRecurringAndNotChildRepeatCalEvent)
                 {
                     return this.Repeat.RecurringCalendarEvents().SelectMany(obj => obj.AllSubEvents).ToArray();
                 }
@@ -2259,7 +2312,6 @@ namespace TilerElements
 
         public CustomErrors Error
         {
-
             get
             {
                 return CalendarError;
@@ -2271,7 +2323,7 @@ namespace TilerElements
             get
             {
                 List<SubCalendarEvent> MyRepeatingSubCalendarEvents = new List<SubCalendarEvent>();
-                if (IsNotRecurringChildCalEVent)
+                if (IsFromRecurringAndNotChildRepeatCalEvent && this.isRepeatLoaded)
                 {
                     return this.Repeat.RecurringCalendarEvents().Where(calEvent => calEvent.isActive).SelectMany(obj => obj.ActiveSubEvents).ToArray();
                 }
@@ -2279,7 +2331,6 @@ namespace TilerElements
                 return MyRepeatingSubCalendarEvents.ToArray();
 
             }
-
         }
 
         public SubCalendarEvent[] EnabledRepeatSubCalendarEvents
@@ -2287,7 +2338,7 @@ namespace TilerElements
             get
             {
                 List<SubCalendarEvent> MyRepeatingSubCalendarEvents = new List<SubCalendarEvent>();
-                if (IsNotRecurringChildCalEVent)
+                if (IsFromRecurringAndNotChildRepeatCalEvent)
                 {
                     return this.Repeat.RecurringCalendarEvents().SelectMany(obj => obj.EnabledSubEvents).ToArray();
                 }
@@ -2402,6 +2453,28 @@ namespace TilerElements
                 return _DataBlob;
             }
         }
+        /// <summary>
+        /// Flag to check if a repeating or non-repeating event loads the repeating object
+        /// </summary>
+        virtual public bool isRepeatLoaded
+        {
+            get
+            {
+                return _RepeatIsLoaded;
+            }
+        }
+        [NotMapped]
+        virtual public bool isRepeatLoaded_DB
+        {
+            set
+            {
+                _RepeatIsLoaded = value;
+            }
+            get
+            {
+                return _RepeatIsLoaded;
+            }
+        }
 
         [NotMapped]
         virtual public CalendarEvent DefaultCalendarEvent
@@ -2416,11 +2489,23 @@ namespace TilerElements
             }
         }
 
+        public override NowProfile ProfileOfNow_EventDB
+        {
+            get
+            {
+                return _ProfileOfNow ?? this.RepeatParentEvent?.getNowInfo;
+            }
+            set
+            {
+                _ProfileOfNow = value;
+            }
+        }
+
         virtual public IEnumerable<SubCalendarEvent> RemoveSubEventFromEntity
         {
             get
             {
-                if(IsNotRecurringChildCalEVent)
+                if(IsFromRecurringAndNotChildRepeatCalEvent && isRepeatLoaded)
                 {
                     var recurringCalEvents = Repeat.RecurringCalendarEvents();
                     return recurringCalEvents.SelectMany(calEVent => calEVent._RemovedSubEvents);
@@ -2446,7 +2531,7 @@ namespace TilerElements
                 if (string.IsNullOrEmpty(DayPreferenceId) && this._EventDayPreference == null)
                 {
                     _EventDayPreference = new EventPreference();
-                    if (this.IsNotRecurringChildCalEVent)
+                    if (this.IsFromRecurringAndNotChildRepeatCalEvent)
                     {
                         foreach (CalendarEvent calEvent in this.Repeat.RecurringCalendarEvents())
                         {

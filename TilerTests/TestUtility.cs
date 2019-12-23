@@ -416,7 +416,7 @@ namespace TilerTests
                     throw new ArgumentNullException("now", "You need to add a referencenow object for creation of calendareventrestricted object");
                 }
                 EventName name = new EventName(null, null, "TestCalendarEvent-" + Guid.NewGuid().ToString() + "-Restricted");
-                RetValue = new CalendarEventRestricted(testUser, new TilerUserGroup(), name, Start, End, restrictionProfile, duration, repetition, false, true, splitCount, false, new NowProfile(), location, new TimeSpan(), new TimeSpan(), null, now, new Procrastination(Utility.JSStartTime, new TimeSpan()), UiSettings: new EventDisplay(), NoteData: note);
+                RetValue = new CalendarEventRestricted(testUser, new TilerUserGroup(), name, Start, End, restrictionProfile, duration, repetition, false, true, splitCount, false, new NowProfile(), location, new TimeSpan(), new TimeSpan(), null, now, new Procrastination(Utility.BeginningOfTime, new TimeSpan()), UiSettings: new EventDisplay(), NoteData: note);
                 name.Creator_EventDB = RetValue.getCreator;
                 name.AssociatedEvent = RetValue;
             }
@@ -1038,8 +1038,8 @@ namespace TilerTests
 
             retValue &= isTestEquivalent(firstCalEvent as TilerEvent, secondCalEvent as TilerEvent);
             Assert.IsTrue(retValue);
-            retValue &= (firstCalEvent.IsNotRecurringChildCalEVent == secondCalEvent.IsNotRecurringChildCalEVent ?
-                    (firstCalEvent.IsNotRecurringChildCalEVent ? isTestEquivalent(firstCalEvent.Repeat, secondCalEvent.Repeat) : true) : //if repeat is enabled the run equivalecy test else then passing test
+            retValue &= (firstCalEvent.IsFromRecurringAndNotChildRepeatCalEvent == secondCalEvent.IsFromRecurringAndNotChildRepeatCalEvent ?
+                    (firstCalEvent.IsFromRecurringAndNotChildRepeatCalEvent ? isTestEquivalent(firstCalEvent.Repeat, secondCalEvent.Repeat) : true) : //if repeat is enabled the run equivalecy test else then passing test
                     false); // if calendar repeat flags aren't the same then the calEvents are not equal
             Assert.IsTrue(retValue);
             retValue &= (firstCalEvent.getIsEventRestricted == secondCalEvent.getIsEventRestricted ?
@@ -1146,6 +1146,7 @@ namespace TilerTests
                 else
                 {
                     retValue = firstProcrastination == secondProcrastination;
+                    retValue = !retValue ? (firstProcrastination ?? secondProcrastination).isNull : retValue;
                 }
             }
             Assert.IsTrue(retValue);
@@ -1369,10 +1370,10 @@ namespace TilerTests
                 && (firstPreference.SaturdayLastTimeUpdated == secondPreference.SaturdayLastTimeUpdated)
                 && (firstPreference.SaturdayMorningCount == secondPreference.SaturdayMorningCount)
                 && (firstPreference.SaturdayNightCount == secondPreference.SaturdayNightCount)
-                )
-                {
-                    retValue = true;
-                }
+            )
+            {
+                retValue = true;
+            }
             firstPreference.init();
             secondPreference.init();
             for (int i = 0; i < firstPreference.DayConfigs.Count; i++)

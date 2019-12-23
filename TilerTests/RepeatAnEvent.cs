@@ -610,7 +610,7 @@ namespace TilerTests
 
             schedule.RepeatEvent(firstSubEvent.Id, new Location());
         }
-
+            
 
         /// <summary>
         /// Repetition can only run on non rigid events but should work on locked events
@@ -649,12 +649,13 @@ namespace TilerTests
             CalendarEvent rigidEvent = TestUtility.generateCalendarEvent(tilerUser, rigidDuration, rigidRepetition, rigidStart, rigidEnd, 1, true);
             schedule = new TestSchedule(user, refNow);
             schedule.AddToScheduleAndCommitAsync(rigidEvent).Wait();
+            List<SubCalendarEvent> subEvents = schedule.getCalendarEvent(rigidEvent.Id).ActiveSubEvents.OrderBy(o => o.Start).ToList();
+            
             #endregion
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             schedule = new TestSchedule(user, refNow);
-            List<SubCalendarEvent> subEvents = schedule.getCalendarEvent(rigidEvent.Id).ActiveSubEvents.OrderBy(o => o.Start).ToList();
-            SubCalendarEvent firstRigidSubevent = subEvents.First();
+            SubCalendarEvent firstRigidSubevent = schedule.getSubCalendarEvent(subEvents.First().Id);
             DateTimeOffset middleOfRigid = Utility.MiddleTime(firstRigidSubevent);
             schedule = new TestSchedule(user, middleOfRigid);
             schedule.RepeatEvent(firstRigidSubevent.Id, new Location());

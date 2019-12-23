@@ -92,22 +92,24 @@ namespace TilerTests
             TimeLine RepetitionActualTImeLine = new TimeLine(start, end);
             Repetition repetition = new Repetition(RepetitionTImeLine, Repetition.Frequency.DAILY, RepetitionActualTImeLine);
             CalendarEvent repeatTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 2, false);
-            Schedule = new TestSchedule(user, refNow);
+            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
             Schedule.AddToScheduleAndCommitAsync(repeatTestEvent).Wait();
-            int beforeRepeatCompletionCount = Schedule.getAllCalendarEvents().Count();
+            int beforeRepeatCompletionCount = Schedule.getAllCalendarEvents().ToLookup(calEvent => calEvent.RepeatParentEventId).Count();
 
             string completedRepeatSubEventId = repeatTestEvent.AllSubEvents[0].getId;
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow);
+            HashSet<string> calendarIds = new HashSet<string>();
+            calendarIds.Add(repeatTestEvent.Id);
+            Schedule = new TestSchedule(user, refNow, calendarIds: calendarIds);
             Schedule.markAsCompleteCalendarEventAndReadjust(repeatTestEvent.Id).Wait();
             Schedule.WriteFullScheduleToLog().Wait();
 
 
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow);
-            int afterRepeatCompletionCount = Schedule.getAllCalendarEvents().Count();
+            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            int afterRepeatCompletionCount = Schedule.getAllCalendarEvents().ToLookup(calEvent => calEvent.RepeatParentEventId).Count();
             Assert.AreEqual(beforeRepeatCompletionCount, afterRepeatCompletionCount + 1);
             EventID repeatEventId = new EventID(completedRepeatSubEventId);
             CalendarEvent retrievedRepeatCalendarEvent = TestUtility.getCalendarEventById(repeatEventId.getCalendarEventID(), user);
@@ -126,12 +128,14 @@ namespace TilerTests
             CalendarEvent RigidRepeatTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, RigidRepetition, start, RigidRepetitionActualTImeLine.End, 1, true);
             Schedule = new TestSchedule(user, refNow);
             Schedule.AddToScheduleAndCommitAsync(RigidRepeatTestEvent).Wait();
-            int beforeRigidRepeatCompletionCount = Schedule.getAllCalendarEvents().Count();
+            int beforeRigidRepeatCompletionCount = Schedule.getAllCalendarEvents().ToLookup(calEvent => calEvent.RepeatParentEventId).Count();
 
             string completedRigidRepeatSubEventId = RigidRepeatTestEvent.AllSubEvents[0].getId;
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow);
+            HashSet<string> rigidCalendarIds = new HashSet<string>();
+            rigidCalendarIds.Add(RigidRepeatTestEvent.Id);
+            Schedule = new TestSchedule(user, refNow, calendarIds: rigidCalendarIds);
             Schedule.markAsCompleteCalendarEventAndReadjust(RigidRepeatTestEvent.Id).Wait();
             Schedule.WriteFullScheduleToLog().Wait();
 
@@ -139,7 +143,7 @@ namespace TilerTests
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
-            int afterRigidRepeatCompletionCount = Schedule.getAllCalendarEvents().Count();
+            int afterRigidRepeatCompletionCount = Schedule.getAllCalendarEvents().ToLookup(calEvent => calEvent.RepeatParentEventId).Count();
             Assert.AreEqual(beforeRigidRepeatCompletionCount, afterRigidRepeatCompletionCount + 1);
             EventID RigidRepeatEventId = new EventID(completedRigidRepeatSubEventId);
             CalendarEvent retrievedRigidRepeatCalendarEvent = TestUtility.getCalendarEventById(RigidRepeatEventId.getCalendarEventID(), user);
@@ -359,7 +363,13 @@ namespace TilerTests
             List<EventID> subEventIds = new List<EventID>() { testSubEvent.SubEvent_ID, testSubEvent0.SubEvent_ID, testSubEvent1.SubEvent_ID };
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
 
-            Schedule = new TestSchedule(user, refNow);
+
+            HashSet<string> calendarIds = new HashSet<string>();
+            foreach(string subeventId in subEventIds.Select(o => o.getAllEventDictionaryLookup))
+            {
+                calendarIds.Add(subeventId);
+            }
+            Schedule = new TestSchedule(user, refNow, calendarIds: calendarIds);
             Schedule.markSubEventsAsComplete(subEventIds.Select(subeventid => subeventid.ToString())).Wait();
             Schedule.WriteFullScheduleToLog().Wait();
 

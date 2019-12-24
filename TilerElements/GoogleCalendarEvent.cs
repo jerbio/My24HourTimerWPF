@@ -64,11 +64,17 @@ namespace TilerElements
             this._CompletedCount = 1;
             this._Creator = user;
             this._EventRepetition = new Repetition(true, this.StartToEnd, "Daily", AllCalendarEvent.ToArray());
+            foreach(CalendarEvent calEvent in AllCalendarEvent)
+            {
+                calEvent.RepeatParentEvent = this;
+                calEvent.IsRepeatsChildCalEvent = true;
+            }
             this._Name = new EventName(user, this, "GOOGLE MOTHER EVENT");
             this._DataBlob = new MiscData();
             this._ProfileOfNow = new NowProfile();
             this.ThirdPartyTypeInfo = ThirdPartyControl.CalendarTool.google;
             _SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
+            this.IsRepeatsChildCalEvent = false;
         }
 
 

@@ -2053,6 +2053,20 @@ namespace TilerElements
         #endregion
 
         #region Properties
+        public IEnumerable<CalendarEvent> RecurringCalendarEvents
+        {
+            get
+            {
+                if (this.IsRecurring)
+                {
+                    return this.Repeat.RecurringCalendarEvents();
+                } else
+                {
+                    return null;
+                }
+            }
+        }
+
         public virtual bool IsFromRecurringAndIsChildCalEvent
         {
             get
@@ -2528,7 +2542,7 @@ namespace TilerElements
         {
             get
             {
-                if (string.IsNullOrEmpty(DayPreferenceId) && this._EventDayPreference == null)
+                if (string.IsNullOrEmpty(DayPreferenceId) && ((this._EventDayPreference == null)||(this._EventDayPreference.isNull)) && !this.isRigid)
                 {
                     _EventDayPreference = new EventPreference();
                     if (this.IsFromRecurringAndNotChildRepeatCalEvent)
@@ -2544,7 +2558,12 @@ namespace TilerElements
                         }
                     }
                 }
-                return this._EventDayPreference;
+                var retValue = this._EventDayPreference;
+                if (retValue != null)
+                {
+                    retValue = retValue.isNull ? null : this._EventDayPreference;
+                }
+                return retValue;
             }
         }
         #endregion

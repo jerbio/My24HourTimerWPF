@@ -107,6 +107,7 @@ namespace TilerElements
                 foreach (CalendarEvent MyRepeatCalendarEvent in ReadFromFileRecurringListOfCalendarEvents)
                 {
                     _DictionaryOfIDAndCalendarEvents.Add(MyRepeatCalendarEvent.getId, MyRepeatCalendarEvent);
+                    MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
                 }
                 _Location = ReadFromFileRecurringListOfCalendarEvents[0].LocationObj;
                 _EnableRepeat = ReadFromFileEnableFlag;

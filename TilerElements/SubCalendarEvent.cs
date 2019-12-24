@@ -984,7 +984,7 @@ namespace TilerElements
 
         public override void InitializeDayPreference(TimeLine timeLine)
         {
-            if (_DaySectionPreference == null)
+            if (_DaySectionPreference == null && !ParentCalendarEvent.isRigid)
             {
                 _DaySectionPreference = ParentCalendarEvent.DayPreference.toTimeOfDayPreference(timeLine);
             }

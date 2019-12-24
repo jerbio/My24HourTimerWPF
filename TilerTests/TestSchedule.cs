@@ -43,7 +43,7 @@ namespace TilerTests
             {
                 DateTimeOffset referenceDayTimeNow = new DateTimeOffset(Now.calculationNow.Year, Now.calculationNow.Month, Now.calculationNow.Day, profileData.Item2.Hour, profileData.Item2.Minute, profileData.Item2.Second, new TimeSpan());// profileData.Item2;
                 ReferenceDayTIime = Now.calculationNow < referenceDayTimeNow ? referenceDayTimeNow.AddDays(-1) : referenceDayTimeNow;
-                AllEventDictionary = profileData.Item1;
+                initializeAllEventDictionary(profileData.Item1.Values);
                 if (AllEventDictionary != null)
                 {
                     EventID.Initialize((uint)(myAccount.LastEventTopNodeID));
@@ -64,7 +64,7 @@ namespace TilerTests
 
         public TestSchedule(IEnumerable<CalendarEvent> calendarEvents ,UserAccount AccountEntry, DateTimeOffset referenceNow, IEnumerable<Location> Locations, uint LatestId = 0) : base(AccountEntry, referenceNow)
         {
-            AllEventDictionary = calendarEvents.ToDictionary(calEvent => calEvent.Calendar_EventID.getAllEventDictionaryLookup, calEvent => calEvent);
+            initializeAllEventDictionary(calendarEvents);
             this.Locations = Locations.ToDictionary(obj => obj.Description, obj => obj);
             if (LatestId != 0)
             {
@@ -85,8 +85,12 @@ namespace TilerTests
             };
             updateTravelCache(travelCache);
             var scheduleData = AccountEntry.ScheduleLogControl.getAllCalendarFromXml(scheduleDump, _Now);
-            AllEventDictionary = scheduleData.Item1;
+            initializeAllEventDictionary(scheduleData.Item1.Values);
             ThirdPartyCalendars = scheduleData.Item2;
+            foreach (CalendarEvent calEvent in ThirdPartyCalendars.SelectMany(o=>o.Value))
+            {
+                addCalendarEventToAllEventDictionary(calEvent);
+            }
             ReferenceDayTIime = Now.calculationNow;
             this.Locations = AccountEntry.ScheduleLogControl.getLocationCache(scheduleDump);
             CompleteSchedule = getTimeLine();

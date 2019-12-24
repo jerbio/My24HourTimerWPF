@@ -87,7 +87,7 @@ namespace TilerElements
         [NotMapped]
         public double SaturdayEvaluation { get; set; } = 0;
         [NotMapped]
-        protected bool _isNull = true;
+        protected bool _isNull = false;
         public bool isNull {
             get
                 {
@@ -114,21 +114,23 @@ namespace TilerElements
 
         public void init ()
         {
-            _SundayPreference = new SundayConfig() { Preference = this };
-            _MondayPreference = new MondayConfig() { Preference = this };
-            _TuesdayPreference = new TuesdayConfig() { Preference = this };
-            _WednesdayPreference = new WednesdayConfig() { Preference = this };
-            _ThursdayPreference = new ThursdayConfig() { Preference = this };
-            _FridayPreference = new FridayConfig() { Preference = this };
-            _SaturdayPreference = new SaturdayConfig() { Preference = this };
+            if(!this.isNull)
+            {
+                _SundayPreference = new SundayConfig() { Preference = this };
+                _MondayPreference = new MondayConfig() { Preference = this };
+                _TuesdayPreference = new TuesdayConfig() { Preference = this };
+                _WednesdayPreference = new WednesdayConfig() { Preference = this };
+                _ThursdayPreference = new ThursdayConfig() { Preference = this };
+                _FridayPreference = new FridayConfig() { Preference = this };
+                _SaturdayPreference = new SaturdayConfig() { Preference = this };
 
-            _DayConfigs = new List<DayConfig>()
+                _DayConfigs = new List<DayConfig>()
             {
                 _SundayPreference, _MondayPreference, _TuesdayPreference, _WednesdayPreference, _ThursdayPreference, _FridayPreference, _SaturdayPreference
             };
 
-            updateConfigOrder();
-            _isNull = false;
+                updateConfigOrder();
+            }   
         }
 
         public EventPreference createCopy(string eventId = null)
@@ -183,6 +185,7 @@ namespace TilerElements
             retValue.SaturdayAfterNoonCount = this.SaturdayAfterNoonCount;
             retValue.SaturdayEveningCount = this.SaturdayEveningCount;
             retValue.SaturdayNightCount = this.SaturdayNightCount;
+            retValue._isNull = this._isNull;
             retValue.init();
             return retValue;
         }

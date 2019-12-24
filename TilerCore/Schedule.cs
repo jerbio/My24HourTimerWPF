@@ -109,6 +109,7 @@ namespace TilerCore
                 _Id = value;
             }
         }
+        protected Dictionary<string, HashSet<CalendarEvent>> RepeatParentToCalendarEvents;
         protected Dictionary<string, CalendarEvent> AllEventDictionary;
         protected DateTimeOffset ReferenceDayTIime;
         protected Dictionary<string, Location> Locations;
@@ -202,7 +203,7 @@ namespace TilerCore
 
         public Schedule(Dictionary<string, CalendarEvent> allEventDictionary, DateTimeOffset starOfDay, Dictionary<string, Location> locations, DateTimeOffset referenceNow, TilerUser user, TimeLine rangeOfLookup) : base()
         {
-            AllEventDictionary = allEventDictionary;
+            initializeAllEventDictionary(allEventDictionary.Values);
             TilerUser = user;
             TimeZoneDifference = user.TimeZoneDifference;
             _Now = new ReferenceNow(referenceNow, starOfDay, TimeZoneDifference);
@@ -335,6 +336,18 @@ namespace TilerCore
             return getCalendarEvent(userEvent);
         }
 
+        public virtual IEnumerable<CalendarEvent> getAllRelatedCalendarEvents (string eventId)
+        {
+            EventID eventIdObj = new EventID(eventId);
+            return getAllRelatedCalendarEvents(eventIdObj);
+        }
+        public virtual IEnumerable<CalendarEvent> getAllRelatedCalendarEvents (EventID eventId)
+        {
+            string calendarId = eventId.getCalendarEventComponent();
+            var retValue = RepeatParentToCalendarEvents[calendarId];
+            return retValue;
+        }
+
         /// <summary>
         /// function retrieves a calendarevent. 
         /// If the ID is repeating event ID it'll get the repeating calendar event
@@ -343,14 +356,18 @@ namespace TilerCore
         /// <returns></returns>
         public CalendarEvent getCalendarEvent(EventID myEventID)
         {
-            CalendarEvent calEvent, repeatEvent = null;
+            CalendarEvent calEvent = null, repeatEvent = null;
             if (AllEventDictionary.ContainsKey(myEventID.getAllEventDictionaryLookup))
             {
                 calEvent = AllEventDictionary[myEventID.getAllEventDictionaryLookup];
             } else
             {
-                calEvent = AllEventDictionary[myEventID.getCalendarEventID()];
-                repeatEvent = calEvent.getRepeatedCalendarEvent(myEventID.getIDUpToRepeatCalendarEvent());
+                string calendarId = myEventID.getCalendarEventID();
+                if (AllEventDictionary.ContainsKey(calendarId))
+                {
+                    calEvent = AllEventDictionary[calendarId];
+                    repeatEvent = calEvent.getRepeatedCalendarEvent(myEventID.getIDUpToRepeatCalendarEvent());
+                }
             }
 
 
@@ -363,6 +380,7 @@ namespace TilerCore
                 return repeatEvent;
             }
         }
+        
 
         public ProcrastinateCalendarEvent getProcrastinateAllEvent()
         {
@@ -392,8 +410,61 @@ namespace TilerCore
         protected bool removeFromAllEventDictionary(string eventId)
         {
             EventID eventIdObj = new EventID(eventId);
+            var calEvent = getCalendarEvent(eventIdObj);
             bool retValue = AllEventDictionary.Remove(eventIdObj.getAllEventDictionaryLookup);
+            if(calEvent!=null)
+            {
+                string calendarEventId = calEvent.Calendar_EventID.getCalendarEventComponent();
+
+                HashSet<CalendarEvent> calEvents = RepeatParentToCalendarEvents[calendarEventId];
+                calEvents.Remove(calEvent);
+                if (calEvents.Count < 1)
+                {
+                    RepeatParentToCalendarEvents.Remove(calendarEventId);
+                }
+            }
+            
             return retValue;
+        }
+
+        public void updateAllEventDictionary(CalendarEvent calendarEvent)
+        {
+            if (!calendarEvent.IsFromRecurringAndNotChildRepeatCalEvent)
+            {
+                if (AllEventDictionary.ContainsKey(calendarEvent.Calendar_EventID.getAllEventDictionaryLookup))
+                {
+                    removeFromAllEventDictionary(calendarEvent.Calendar_EventID.getAllEventDictionaryLookup);
+                }
+            } else
+            {
+                foreach (CalendarEvent calEvent in calendarEvent.Repeat.RecurringCalendarEvents())
+                {
+                    removeFromAllEventDictionary(calEvent.Calendar_EventID.getAllEventDictionaryLookup);
+                }
+                removeFromAllEventDictionary(calendarEvent.Calendar_EventID.getAllEventDictionaryLookup);
+            }
+                
+            addCalendarEventToAllEventDictionary(calendarEvent);
+        }
+
+        public virtual void addCalendarEventToAllEventDictionary(CalendarEvent calendarEvent)
+        {
+            addCaleventToAllEventDictionary(calendarEvent.getTilerID.getAllEventDictionaryLookup, calendarEvent);
+        }
+
+        virtual public void initializeAllEventDictionary()
+        {
+            AllEventDictionary = new Dictionary<string, CalendarEvent>();
+            RepeatParentToCalendarEvents = new Dictionary<string, HashSet<CalendarEvent>>();
+        }
+
+        virtual protected void initializeAllEventDictionary(IEnumerable<CalendarEvent> calEvents)
+        {
+            initializeAllEventDictionary();
+            foreach (CalendarEvent calEvent in calEvents)
+            {
+                addCalendarEventToAllEventDictionary(calEvent);
+            }
         }
 
         void addCaleventToAllEventDictionary(EventID eventId, CalendarEvent NewEvent)
@@ -403,13 +474,26 @@ namespace TilerCore
                 AllEventDictionary.Add(eventId.getAllEventDictionaryLookup, NewEvent);
             } else
             {
-                foreach(CalendarEvent calEvent in NewEvent.Repeat.RecurringCalendarEvents())
+                if(NewEvent.isRepeatLoaded)
                 {
-                    addCaleventToAllEventDictionary(calEvent.Calendar_EventID.getAllEventDictionaryLookup, calEvent);
+                    foreach (CalendarEvent calEvent in NewEvent.RecurringCalendarEvents)
+                    {
+                        addCaleventToAllEventDictionary(calEvent.Calendar_EventID.getAllEventDictionaryLookup, calEvent);
+                    }
                 }
                 AllEventDictionary.Add(eventId.getAllEventDictionaryLookup, NewEvent);
             }
-            
+            string calendarEventId = NewEvent.Calendar_EventID.getCalendarEventComponent();
+            HashSet<CalendarEvent> calendarEvents;
+            if (RepeatParentToCalendarEvents.ContainsKey(calendarEventId))
+            {
+                calendarEvents = RepeatParentToCalendarEvents[calendarEventId];
+            } else
+            {
+                calendarEvents = new HashSet<CalendarEvent>();
+                RepeatParentToCalendarEvents.Add(calendarEventId, calendarEvents);
+            }
+            calendarEvents.Add(NewEvent);
         }
 
         void addCaleventToAllEventDictionary(string eventId, CalendarEvent NewEvent)
@@ -2975,7 +3059,7 @@ namespace TilerCore
             int numberOfDays = AllDayTImeLine.Count();
 
             AllCalEvents.AsParallel().ForAll(obj => obj.initializeCalculablesAndUndesignables());
-            AllCalEvents.AsParallel().ForAll(obj => obj.DayPreference.init());
+            AllCalEvents.AsParallel().ForAll(obj => obj.DayPreference?.init());
             Dictionary<string, CalendarEvent> DictOfCalEvents = AllCalEvents.ToDictionary(obj => obj.getId, obj => obj);
             Dictionary<string, SubCalendarEvent> DictOfSubEvents = TotalActiveEvents.ToDictionary(obj => obj.getId, obj => obj);
 
@@ -5427,7 +5511,7 @@ namespace TilerCore
                     subEvent.ParentCalendarEvent.repeatEventAfterTime(subEvent.End);
                     HashSet<SubCalendarEvent> NotDoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
                     CalendarEvent ScheduleUpdated = CalendarEvent.getEmptyCalendarEvent(new EventID());
-                    addCalendarEventToGlobalSchedule(ScheduleUpdated);
+                    addCalendarEventToAllEventDictionary(ScheduleUpdated);
                     ScheduleUpdated = EvaluateTotalTimeLineAndAssignValidTimeSpots(ScheduleUpdated, NotDoneYet, location);
                 } else
                 {
@@ -5450,12 +5534,6 @@ namespace TilerCore
                 }
                 
             }
-        }
-
-
-        public virtual void addCalendarEventToGlobalSchedule(CalendarEvent calendarEvent)
-        {
-            addCaleventToAllEventDictionary(calendarEvent.getTilerID.getCalendarEventComponent(), calendarEvent);
         }
 
         public virtual void RepeatEvent(string eventId, Location location)

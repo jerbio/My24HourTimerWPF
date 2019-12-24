@@ -228,7 +228,30 @@ namespace TilerTests
             var beforAfteranalysis = await pushSchedule.TimeStone.PushedAll(Procrastinationpan, null);
 
             var sleepEvaluationABefore = beforAfteranalysis.Item1.SleepEvaluation.ScoreTimeLine();
+            Dictionary<string, CalendarEvent> beforeCalendarEvents = new Dictionary<string, CalendarEvent>();
+            foreach(CalendarEvent calEVent in beforAfteranalysis.Item1.orderedByStartThenEndSubEvents.Select(o => o.ParentCalendarEvent))
+            {
+                if(!beforeCalendarEvents.ContainsKey(calEVent.Id))
+                {
+                    beforeCalendarEvents.Add(calEVent.Id, calEVent);
+                }
+            }
+
+            OutLookConnector outlook = new OutLookConnector(beforeCalendarEvents);
+            outlook.WriteToOutlook();
+
             var sleepEvaluationAfter = beforAfteranalysis.Item2.SleepEvaluation.ScoreTimeLine();
+            Dictionary<string, CalendarEvent> afterCalendarEvents = new Dictionary<string, CalendarEvent>();
+            foreach (CalendarEvent calEVent in beforAfteranalysis.Item2.orderedByStartThenEndSubEvents.Select(o => o.ParentCalendarEvent))
+            {
+                if (!afterCalendarEvents.ContainsKey(calEVent.Id))
+                {
+                    afterCalendarEvents.Add(calEVent.Id, calEVent);
+                }
+            }
+            OutLookConnector outlook1 = new OutLookConnector(afterCalendarEvents);
+            outlook1.WriteToOutlook();
+
             Assert.IsTrue(sleepEvaluationABefore < sleepEvaluationAfter);
 
             JObject beforeJsonResult = beforAfteranalysis.Item1.SleepEvaluation.ToJson();

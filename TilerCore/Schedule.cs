@@ -1953,27 +1953,31 @@ namespace TilerCore
                 Where(subEvent => subEvent.getCalculationRange.End > NowTIme).
                 //Where(subEvent => subEvent.End >= NowTIme).
                 Where(subEvent => (subEvent.isRigid && subEvent.ActiveSlot.IsDateTimeWithin(NowTIme)) || subEvent.canExistWithinTimeLine(CalculationTImeLine) || subEvent.getIsProcrastinateCalendarEvent));
+            TimeSpan maxSubeventSpan = Utility.OneDayTimeSpan.Add(-Utility.OneMinuteTimeSpan);
             ConcurrentBag<SubCalendarEvent> subEvents = new ConcurrentBag<SubCalendarEvent>();
             subEventsInSet.AsParallel().ForAll((subEvent) =>
             {
-                if (subEvent.isLocked)
+                if(subEvent.RangeSpan <= maxSubeventSpan)
                 {
-                    if (subEvent.StartToEnd.doesTimeLineInterfere(CalculationTImeLine))
+                    if (subEvent.isLocked)
                     {
-                        subEvents.Add(subEvent);
-                    }
-                }
-                else
-                {
-                    if (!subEvent.getIsEventRestricted)
-                    {
-                        subEvents.Add(subEvent);
+                        if (subEvent.StartToEnd.doesTimeLineInterfere(CalculationTImeLine))
+                        {
+                            subEvents.Add(subEvent);
+                        }
                     }
                     else
                     {
-                        if (subEvent.getCalculationRange.doesTimeLineInterfere(CalculationTImeLine))
+                        if (!subEvent.getIsEventRestricted)
                         {
                             subEvents.Add(subEvent);
+                        }
+                        else
+                        {
+                            if (subEvent.getCalculationRange.doesTimeLineInterfere(CalculationTImeLine))
+                            {
+                                subEvents.Add(subEvent);
+                            }
                         }
                     }
                 }

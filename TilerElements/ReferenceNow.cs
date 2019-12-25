@@ -11,7 +11,7 @@ namespace TilerElements
     {
         protected static DateTimeOffset _StartOfTime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, new TimeSpan());
         public static readonly long UndesignatedDayIndex = 0;
-        public DateTimeOffset StartOfDayStartOfTime;// holds the start of day from 1970 January 1st. So if 10:00PM MST(-6:00) is provided this will be January 2 4:00AM because January 1, 1970 10:00PM MST is January 2 4:00A UTC
+        public DateTimeOffset EndOfDayStartOfTime;// holds the End of day from 1970 January 1st. Note this will be the end of the zero universal index day. So if 10:00PM MST(-6:00) is provided this will be January 2 4:00AM because January 1, 1970 10:00PM MST is January 2 4:00A UTC
         private DateTimeOffset CalculationNow;
         private DateTimeOffset ImmutableNow;
         const int numberOfDfDays = 90;
@@ -28,11 +28,11 @@ namespace TilerElements
         long lastDayIndex = 0;
         uint _DayCount;
 
-        public ReferenceNow(DateTimeOffset now, DateTimeOffset startOfDay, TimeSpan timeDifference)
+        public ReferenceNow(DateTimeOffset now, DateTimeOffset endOfDay, TimeSpan timeDifference)
         {
             TimeZoneDiff = timeDifference;
-            DateTimeOffset startOfDayUniversal = startOfDay.ToUniversalTime();
-            StartOfDayStartOfTime = new DateTimeOffset(1970, 1, 1, startOfDayUniversal.Hour, startOfDayUniversal.Minute, 0, new TimeSpan()).ToUniversalTime();
+            //DateTimeOffset endOfDayUniversal = endOfDay.ToUniversalTime();
+            EndOfDayStartOfTime = new DateTimeOffset(1970, 1, 1, endOfDay.Hour, endOfDay.Minute, 0, endOfDay.Offset).ToUniversalTime();
             CalculationNow = now.removeSecondsAndMilliseconds().ToUniversalTime();
             ImmutableNow = CalculationNow;
             
@@ -40,17 +40,17 @@ namespace TilerElements
             DayOfWeek currentDayOfWeek = currentTime.DayOfWeek;
             DateTimeOffset startTimeForDayOfweek = currentTime.Add(timeDifference).removeSecondsAndMilliseconds();
             _ConstDayOfTheWeek = getDayOfTheWeek(ImmutableNow).Item1;
-            ImmutableDayIndex = (long)(ImmutableNow - StartOfDayStartOfTime).TotalDays;
+            ImmutableDayIndex = (long)(ImmutableNow - EndOfDayStartOfTime).TotalDays;
             InitializeParameters();
         }
 
         public virtual void InitializeParameters()
         {
-            DateTimeOffset IndifferentStartOfDay = new DateTimeOffset(CalculationNow.Year, CalculationNow.Month, CalculationNow.Day, StartOfDayStartOfTime.Hour, StartOfDayStartOfTime.Minute, 0, new TimeSpan());
-            DateTimeOffset refDayStart = CalculationNow;// < IndifferentStartOfDay ? CalculationNow : IndifferentStartOfDay;
-            DateTimeOffset refDayEnd = CalculationNow < IndifferentStartOfDay ?refDayStart :refDayStart .AddDays(1);
-            refDayEnd = new DateTimeOffset(refDayEnd.Year, refDayEnd.Month, refDayEnd.Day, StartOfDayStartOfTime.Hour, StartOfDayStartOfTime.Minute, 0, new TimeSpan());
-            refFirstDay = new DayTimeLine(refDayStart, refDayEnd, (long)(refDayStart - StartOfDayStartOfTime).TotalDays,0);
+            DateTimeOffset IndifferentEndOfDay = new DateTimeOffset(CalculationNow.Year, CalculationNow.Month, CalculationNow.Day, EndOfDayStartOfTime.Hour, EndOfDayStartOfTime.Minute, 0, new TimeSpan());
+            DateTimeOffset refDayStart = CalculationNow;
+            DateTimeOffset refDayEnd = CalculationNow < IndifferentEndOfDay ?refDayStart :refDayStart .AddDays(1);
+            refDayEnd = new DateTimeOffset(refDayEnd.Year, refDayEnd.Month, refDayEnd.Day, EndOfDayStartOfTime.Hour, EndOfDayStartOfTime.Minute, 0, new TimeSpan());
+            refFirstDay = new DayTimeLine(refDayStart, refDayEnd, (long)(refDayStart - EndOfDayStartOfTime).TotalDays,0);
             ComputationBound = new TimeLine(CalculationNow, CalculationNow.Add(ConstOfCalculation));
             InitializeAllDays();
         }
@@ -325,7 +325,7 @@ namespace TilerElements
         public long getDayIndexFromStartOfTime(DateTimeOffset myDay)
         {
 
-            double totalDays = (myDay - StartOfDayStartOfTime).TotalDays;
+            double totalDays = (myDay - EndOfDayStartOfTime).TotalDays;
             long retValue = totalDays >= 0 ? (long)totalDays : ((long)totalDays - 1);
             return retValue;
         }
@@ -378,7 +378,7 @@ namespace TilerElements
         /// <returns></returns>
         public DateTimeOffset getClientBeginningOfDay(long dayIndex)
         {
-            DateTimeOffset retValue = StartOfDayStartOfTime.AddDays(dayIndex).ToOffset(TimeZoneDiff);
+            DateTimeOffset retValue = EndOfDayStartOfTime.AddDays(dayIndex).ToOffset(TimeZoneDiff);
             retValue = new DateTimeOffset(retValue.Year, retValue.Month, retValue.Day, 0, 0, 0, TimeZoneDiff).ToUniversalTime();
             return retValue;
         }
@@ -443,11 +443,11 @@ namespace TilerElements
             }
         }
 
-        public DateTimeOffset StartOfDay
+        public DateTimeOffset EndOfDay
         {
             get
             {
-                return this.StartOfDayStartOfTime;
+                return this.EndOfDayStartOfTime;
             }
         }
 

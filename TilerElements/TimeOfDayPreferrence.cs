@@ -60,11 +60,11 @@ namespace TilerElements
 
         static public Dictionary<DaySection, TimeLine> splitIntoDaySections(TimeLine timeLine)
         {
-            if(timeLine.TimelineSpan<=Utility.OneDayTImeSpan)
+            if(timeLine.TimelineSpan<=Utility.OneDayTimeSpan)
             {
                 TimeLine refreshedTimeLine = timeLine.StartToEnd;
                 Dictionary<DaySection, TimeLine> retValue = new Dictionary<DaySection, TimeLine>();
-                TimeSpan spanPerSection = TimeSpan.FromTicks(Utility.OneDayTImeSpan.Ticks / 4);
+                TimeSpan spanPerSection = TimeSpan.FromTicks(Utility.OneDayTimeSpan.Ticks / 4);
                 TimeSpan spanLeft = refreshedTimeLine.TimelineSpan;
                 List<DaySection> daySections = ActiveDaySections.ToList();
                 int i = daySections.Count - 1;

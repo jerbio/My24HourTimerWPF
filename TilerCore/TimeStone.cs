@@ -45,7 +45,7 @@ namespace TilerCore
             CalendarEvent calEvent = schedule.getCalendarEvent(eventId);
             DateTimeOffset newStartTime = schedule.Now.constNow + pushSpan;
 
-            var beforeNow = new ReferenceNow(schedule.Now.constNow, schedule.Now.StartOfDay, schedule.Now.TimeZoneDifference);
+            var beforeNow = new ReferenceNow(schedule.Now.constNow, schedule.Now.EndOfDay, schedule.Now.TimeZoneDifference);
             Health beforeChange = new Health(schedule.getAllCalendarEvents().Where(obj => obj.isActive).Select(obj => obj.createCopy()), beforeNow.constNow, assessmentWindow.TimelineSpan, beforeNow, schedule.getHomeLocation);
             if (schedule.CurrentLocation== null)
             {
@@ -74,7 +74,7 @@ namespace TilerCore
             {
                 schedule.CurrentLocation= Location.getDefaultLocation();
             }
-            var beforeNow = new ReferenceNow(schedule.Now.constNow, schedule.Now.StartOfDay, schedule.Now.TimeZoneDifference);
+            var beforeNow = new ReferenceNow(schedule.Now.constNow, schedule.Now.EndOfDay, schedule.Now.TimeZoneDifference);
             var procradstinateResult = schedule.ProcrastinateAll(pushSpan);
 
             var beforeCalevents = procradstinateResult.Item2.Values.Where(obj => obj.isActive).Select(obj => obj.createCopy()).ToList();
@@ -86,7 +86,7 @@ namespace TilerCore
             Health beforeChange = new Health(procradstinateResult.Item2.Values.Where(obj => obj.isActive).Select(obj => obj.createCopy()), beforeNow.constNow, assessmentWindow.TimelineSpan, beforeNow, schedule.getHomeLocation);
 
             var afterSubEVents = schedule.getAllActiveCalendarEvents().SelectMany(calEvent => calEvent.ActiveSubEvents).Where(subEvent => { subEvent.resetAndgetUnUsableIndex(); return true; });//.Where(subEvent => !subEvent.isDesignated).ToList();
-            var afterNow = new ReferenceNow(schedule.Now.constNow, schedule.Now.StartOfDay, schedule.Now.TimeZoneDifference);
+            var afterNow = new ReferenceNow(schedule.Now.constNow, schedule.Now.EndOfDay, schedule.Now.TimeZoneDifference);
             var afterCalevents = schedule.getAllActiveCalendarEvents().Where(obj => obj.isActive).ToList();
             var afterorderedDayTimeLines = afterNow.getAllDaysLookup().OrderBy(obj => obj.Key).Select(obj => obj.Value);
             //afterCalevents.AsParallel().ForAll((calEvent) => calEvent.InitialCalculationLookupDays(afterorderedDayTimeLines, afterNow));

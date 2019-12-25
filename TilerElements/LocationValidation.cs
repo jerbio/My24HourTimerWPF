@@ -14,6 +14,7 @@ namespace TilerElements
         public double AverageLatitude { get; set; } = 0;
         public double AverageDistanceFromAverageLocation { get; set; } = 0;
         public double AverageVariance { get; set; } = 0;
+        public static readonly TimeSpan CacheExpirationTimeSpan = TimeSpan.FromDays(30);
         [NonSerialized]
         bool isInstantiated = false;
         [NonSerialized]
@@ -102,11 +103,11 @@ namespace TilerElements
         internal Location getClosestLocation(Location location)
         {
             double lowestDistance = double.MaxValue;
-            Location retValue = null;
+            LocationJson retValue = null;
             if(locations.Count > 0)
             {
                 retValue = locations.First();
-                foreach (Location loc in locations)
+                foreach (LocationJson loc in locations)
                 {
                     double distance = Location.calculateDistance(location, loc, -1);
                     if (distance > 0)
@@ -118,7 +119,7 @@ namespace TilerElements
                     }
                 }
             }
-            
+            retValue.LastUsed = DateTimeOffset.UtcNow;
             return retValue;
         }
 
@@ -152,17 +153,43 @@ namespace TilerElements
             {
                 this.instantiate();
             }
-            Location retValue;
+            LocationJson retValue;
             if (!string.IsNullOrEmpty(id))
             {
                 if (dictionary_location.ContainsKey(id))
                 {
                     retValue = dictionary_location[id];
+                    retValue.LastUsed = DateTimeOffset.UtcNow;
                     return retValue;
                 }
             }
             retValue = null;
             return retValue;
+        }
+
+        public void purge(DateTimeOffset currentTime)
+        {
+            if (dictionary_location != null)
+            {
+                bool reevaluateAverages = false;
+                var locations = dictionary_location.Values.ToList();
+                foreach (var location in locations)
+                {
+                    TimeSpan lasUsedSpan = currentTime - location.LastUsed;
+                    if (lasUsedSpan > CacheExpirationTimeSpan)
+                    {
+                        dictionary_location.Remove(location.Id);
+                        reevaluateAverages = true;
+                    }
+                }
+
+                if(reevaluateAverages)
+                {
+                    this.locations = dictionary_location.Values.ToList();
+                    updateAverageLocation();
+                    updateAverageLocationDistance();
+                }
+            }
         }
     }
 }

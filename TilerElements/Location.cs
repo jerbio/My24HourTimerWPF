@@ -692,6 +692,14 @@ namespace TilerElements
             return RetValue;
         }
 
+        public void purgeLocationCache(DateTimeOffset currentTime)
+        {
+            if (_LocationValidation != null)
+            {
+                _LocationValidation.purge(currentTime);
+            }
+        }
+
         public void undoUpdate(Undo undo)
         {
             _UndoLatitude = _Latitude;

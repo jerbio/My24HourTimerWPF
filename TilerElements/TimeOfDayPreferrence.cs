@@ -38,7 +38,7 @@ namespace TilerElements
         protected List<Tuple<int, DaySection, bool, TimeLine>> generateTimeFrames(TimeLine timeLine, List<DaySection> preferredOrder = null)
         {
             tImeLineStart = timeLine.Start;
-            List<DaySection> tempDaySectionOrder = preferredOrder ?? new List<DaySection>() { DaySection.Sleep, DaySection.Morning, DaySection.Afternoon, DaySection.Evening, DaySection.None };
+            List<DaySection> tempDaySectionOrder = preferredOrder ?? new List<DaySection>() { DaySection.Morning, DaySection.Afternoon, DaySection.Evening, DaySection.Sleep, DaySection.None };
             List<Tuple<int, DaySection, bool, TimeLine>> retValue = new List<Tuple<int, DaySection, bool, TimeLine>>();
             var daySectionsToTimeline = splitIntoDaySections(timeLine);
 

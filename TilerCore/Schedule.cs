@@ -778,6 +778,17 @@ namespace TilerCore
             return this.Locations.Values;
         }
 
+        /// <summary>
+        /// Function makes clears the cached locations that haven't being used in over 30 days
+        /// </summary>
+        protected void purgeLocations()
+        {
+            foreach(var location in this.Locations.Values)
+            {
+                location.purgeLocationCache(Now.constNow);
+            }
+        }
+
         public Location getLocation(string locationDescription)
         {
             Location retValue = this.Locations[locationDescription.ToLower()];
@@ -2210,6 +2221,7 @@ namespace TilerCore
             Stopwatch watch = new Stopwatch();
             watch.Start();
             ParallelizeCallsToDay(SortedInterFerringCalendarEvents_Deadline, ArrayOfInterferringSubEvents, AllDayTImeLine, callLocation, OptimizeFirstTwentyFour, preserveFirstTwentyFourHours, shuffle);
+            purgeLocations();
             watch.Stop();
             TimeSpan scheduleElapsedTime = watch.Elapsed;
             Debug.WriteLine("ParallelizeCallsToDay took " + scheduleElapsedTime.ToString());
@@ -3241,6 +3253,7 @@ namespace TilerCore
                     throw E;
                 }
             }
+            
             Debug.WriteLine("Optimization took" + OptimizationWatch.Elapsed.ToString());
             foreach (DayTimeLine dayTimeLine in moveToMiddleDays)
             {

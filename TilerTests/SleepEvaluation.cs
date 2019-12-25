@@ -52,7 +52,7 @@ namespace TilerTests
         }
 
         /// <summary>
-        /// Test creates multiple calendar events and verifies if the sleep span is still pr
+        /// Test creates multiple calendar events and verifies if the sleep span is still preserved
         /// </summary>
         [TestMethod]
         public void sleepTestMethod2()

@@ -9,6 +9,6 @@ namespace TilerElements
     [Serializable]
     public class LocationJson:Location
     {
-        public DateTimeOffset LastUsed { get; set; } = Utility.JSStartTime;
+        public DateTimeOffset LastUsed { get; set; } = Utility.BeginningOfTime;
     }
 }

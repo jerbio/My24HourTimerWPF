@@ -266,6 +266,10 @@
     <Content Include="WagTapCalLogs\magnet-967c-4afc-aa45-9ffd9a0a3e3d.xml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\WagTapWeb\DBTilerElement\DBTilerElement.csproj">
+      <Project>{86E36121-0952-46AB-9DF4-5AF34E2141B6}</Project>
+      <Name>DBTilerElement</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ScheduleAnalysis\ScheduleAnalysis.csproj">
       <Project>{bcb7ff8a-4b37-4ce2-9a41-4ccb7d616afd}</Project>
       <Name>ScheduleAnalysis</Name>

@@ -416,7 +416,7 @@ namespace TilerTests
                     throw new ArgumentNullException("now", "You need to add a referencenow object for creation of calendareventrestricted object");
                 }
                 EventName name = new EventName(null, null, "TestCalendarEvent-" + Guid.NewGuid().ToString() + "-Restricted");
-                RetValue = new CalendarEventRestricted(testUser, new TilerUserGroup(), name, Start, End, restrictionProfile, duration, repetition, false, true, splitCount, false, new NowProfile(), location, new TimeSpan(), new TimeSpan(), null, now, new Procrastination(Utility.JSStartTime, new TimeSpan()), UiSettings: new EventDisplay(), NoteData: note);
+                RetValue = new CalendarEventRestricted(testUser, new TilerUserGroup(), name, Start, End, restrictionProfile, duration, repetition, false, true, splitCount, false, new NowProfile(), location, new TimeSpan(), new TimeSpan(), null, now, new Procrastination(Utility.BeginningOfTime, new TimeSpan()), UiSettings: new EventDisplay(), NoteData: note);
                 name.Creator_EventDB = RetValue.getCreator;
                 name.AssociatedEvent = RetValue;
             }
@@ -952,7 +952,7 @@ namespace TilerTests
                     }
                 }
             }
-
+            Assert.IsTrue(retValue);
 
             var firstLocations = FirstSchedule.getAllLocations().Where(obj => !obj.isNull && !obj.isDefault);
             firstLocations = firstLocations.Concat(firstLocations.Where(location => location.LocationValidation != null).SelectMany(location => location.LocationValidation.locations));
@@ -1038,8 +1038,8 @@ namespace TilerTests
 
             retValue &= isTestEquivalent(firstCalEvent as TilerEvent, secondCalEvent as TilerEvent);
             Assert.IsTrue(retValue);
-            retValue &= (firstCalEvent.IsRecurring == secondCalEvent.IsRecurring ?
-                    (firstCalEvent.IsRecurring ? isTestEquivalent(firstCalEvent.Repeat, secondCalEvent.Repeat) : true) : //if repeat is enabled the run equivalecy test else then passing test
+            retValue &= (firstCalEvent.IsFromRecurringAndNotChildRepeatCalEvent == secondCalEvent.IsFromRecurringAndNotChildRepeatCalEvent ?
+                    (firstCalEvent.IsFromRecurringAndNotChildRepeatCalEvent ? isTestEquivalent(firstCalEvent.Repeat, secondCalEvent.Repeat) : true) : //if repeat is enabled the run equivalecy test else then passing test
                     false); // if calendar repeat flags aren't the same then the calEvents are not equal
             Assert.IsTrue(retValue);
             retValue &= (firstCalEvent.getIsEventRestricted == secondCalEvent.getIsEventRestricted ?
@@ -1146,6 +1146,7 @@ namespace TilerTests
                 else
                 {
                     retValue = firstProcrastination == secondProcrastination;
+                    retValue = !retValue ? (firstProcrastination ?? secondProcrastination).isNull : retValue;
                 }
             }
             Assert.IsTrue(retValue);
@@ -1170,6 +1171,7 @@ namespace TilerTests
                 } else
                 {
                     retValue = firstNow == secondNow;
+                    retValue = !retValue ? !(firstNow ?? secondNow).isInitialized : retValue;
                 }
                 
             }
@@ -1319,71 +1321,81 @@ namespace TilerTests
         public static bool isTestEquivalent(this EventPreference firstPreference, EventPreference secondPreference)
         {
             bool retValue = false;
-            if ((firstPreference.SundayCount == secondPreference.SundayCount)
-                && (firstPreference.SundayAfterNoonCount == secondPreference.SundayAfterNoonCount)
-                && (firstPreference.SundayDawnCount == secondPreference.SundayDawnCount)
-                && (firstPreference.SundayEveningCount == secondPreference.SundayEveningCount)
-                && (firstPreference.SundayLastTimeUpdated == secondPreference.SundayLastTimeUpdated)
-                && (firstPreference.SundayMorningCount == secondPreference.SundayMorningCount)
-                && (firstPreference.SundayNightCount== secondPreference.SundayNightCount)
-                && (firstPreference.MondayCount == secondPreference.MondayCount)
-                && (firstPreference.MondayAfterNoonCount == secondPreference.MondayAfterNoonCount)
-                && (firstPreference.MondayDawnCount == secondPreference.MondayDawnCount)
-                && (firstPreference.MondayEveningCount == secondPreference.MondayEveningCount)
-                && (firstPreference.MondayLastTimeUpdated == secondPreference.MondayLastTimeUpdated)
-                && (firstPreference.MondayMorningCount == secondPreference.MondayMorningCount)
-                && (firstPreference.MondayNightCount == secondPreference.MondayNightCount)
-                && (firstPreference.TuesdayCount == secondPreference.TuesdayCount)
-                && (firstPreference.TuesdayAfterNoonCount == secondPreference.TuesdayAfterNoonCount)
-                && (firstPreference.TuesdayDawnCount == secondPreference.TuesdayDawnCount)
-                && (firstPreference.TuesdayEveningCount == secondPreference.TuesdayEveningCount)
-                && (firstPreference.TuesdayLastTimeUpdated == secondPreference.TuesdayLastTimeUpdated)
-                && (firstPreference.TuesdayMorningCount == secondPreference.TuesdayMorningCount)
-                && (firstPreference.TuesdayNightCount == secondPreference.TuesdayNightCount)
-                && (firstPreference.WednesdayCount == secondPreference.WednesdayCount)
-                && (firstPreference.WednesdayAfterNoonCount == secondPreference.WednesdayAfterNoonCount)
-                && (firstPreference.WednesdayDawnCount == secondPreference.WednesdayDawnCount)
-                && (firstPreference.WednesdayEveningCount == secondPreference.WednesdayEveningCount)
-                && (firstPreference.WednesdayLastTimeUpdated == secondPreference.WednesdayLastTimeUpdated)
-                && (firstPreference.WednesdayMorningCount == secondPreference.WednesdayMorningCount)
-                && (firstPreference.WednesdayNightCount == secondPreference.WednesdayNightCount)
-                && (firstPreference.ThursdayCount == secondPreference.ThursdayCount)
-                && (firstPreference.ThursdayAfterNoonCount == secondPreference.ThursdayAfterNoonCount)
-                && (firstPreference.ThursdayDawnCount == secondPreference.ThursdayDawnCount)
-                && (firstPreference.ThursdayEveningCount == secondPreference.ThursdayEveningCount)
-                && (firstPreference.ThursdayLastTimeUpdated == secondPreference.ThursdayLastTimeUpdated)
-                && (firstPreference.ThursdayMorningCount == secondPreference.ThursdayMorningCount)
-                && (firstPreference.ThursdayNightCount == secondPreference.ThursdayNightCount)
-                && (firstPreference.FridayCount == secondPreference.FridayCount)
-                && (firstPreference.FridayAfterNoonCount == secondPreference.FridayAfterNoonCount)
-                && (firstPreference.FridayDawnCount == secondPreference.FridayDawnCount)
-                && (firstPreference.FridayEveningCount == secondPreference.FridayEveningCount)
-                && (firstPreference.FridayLastTimeUpdated == secondPreference.FridayLastTimeUpdated)
-                && (firstPreference.FridayMorningCount == secondPreference.FridayMorningCount)
-                && (firstPreference.FridayNightCount == secondPreference.FridayNightCount)
-                && (firstPreference.SaturdayCount == secondPreference.SaturdayCount)
-                && (firstPreference.SaturdayAfterNoonCount == secondPreference.SaturdayAfterNoonCount)
-                && (firstPreference.SaturdayDawnCount == secondPreference.SaturdayDawnCount)
-                && (firstPreference.SaturdayEveningCount == secondPreference.SaturdayEveningCount)
-                && (firstPreference.SaturdayLastTimeUpdated == secondPreference.SaturdayLastTimeUpdated)
-                && (firstPreference.SaturdayMorningCount == secondPreference.SaturdayMorningCount)
-                && (firstPreference.SaturdayNightCount == secondPreference.SaturdayNightCount)
+
+            if (firstPreference != null && firstPreference != null)
+            {
+                if ((firstPreference.SundayCount == secondPreference.SundayCount)
+                    && (firstPreference.SundayAfterNoonCount == secondPreference.SundayAfterNoonCount)
+                    && (firstPreference.SundayDawnCount == secondPreference.SundayDawnCount)
+                    && (firstPreference.SundayEveningCount == secondPreference.SundayEveningCount)
+                    && (firstPreference.SundayLastTimeUpdated == secondPreference.SundayLastTimeUpdated)
+                    && (firstPreference.SundayMorningCount == secondPreference.SundayMorningCount)
+                    && (firstPreference.SundayNightCount == secondPreference.SundayNightCount)
+                    && (firstPreference.MondayCount == secondPreference.MondayCount)
+                    && (firstPreference.MondayAfterNoonCount == secondPreference.MondayAfterNoonCount)
+                    && (firstPreference.MondayDawnCount == secondPreference.MondayDawnCount)
+                    && (firstPreference.MondayEveningCount == secondPreference.MondayEveningCount)
+                    && (firstPreference.MondayLastTimeUpdated == secondPreference.MondayLastTimeUpdated)
+                    && (firstPreference.MondayMorningCount == secondPreference.MondayMorningCount)
+                    && (firstPreference.MondayNightCount == secondPreference.MondayNightCount)
+                    && (firstPreference.TuesdayCount == secondPreference.TuesdayCount)
+                    && (firstPreference.TuesdayAfterNoonCount == secondPreference.TuesdayAfterNoonCount)
+                    && (firstPreference.TuesdayDawnCount == secondPreference.TuesdayDawnCount)
+                    && (firstPreference.TuesdayEveningCount == secondPreference.TuesdayEveningCount)
+                    && (firstPreference.TuesdayLastTimeUpdated == secondPreference.TuesdayLastTimeUpdated)
+                    && (firstPreference.TuesdayMorningCount == secondPreference.TuesdayMorningCount)
+                    && (firstPreference.TuesdayNightCount == secondPreference.TuesdayNightCount)
+                    && (firstPreference.WednesdayCount == secondPreference.WednesdayCount)
+                    && (firstPreference.WednesdayAfterNoonCount == secondPreference.WednesdayAfterNoonCount)
+                    && (firstPreference.WednesdayDawnCount == secondPreference.WednesdayDawnCount)
+                    && (firstPreference.WednesdayEveningCount == secondPreference.WednesdayEveningCount)
+                    && (firstPreference.WednesdayLastTimeUpdated == secondPreference.WednesdayLastTimeUpdated)
+                    && (firstPreference.WednesdayMorningCount == secondPreference.WednesdayMorningCount)
+                    && (firstPreference.WednesdayNightCount == secondPreference.WednesdayNightCount)
+                    && (firstPreference.ThursdayCount == secondPreference.ThursdayCount)
+                    && (firstPreference.ThursdayAfterNoonCount == secondPreference.ThursdayAfterNoonCount)
+                    && (firstPreference.ThursdayDawnCount == secondPreference.ThursdayDawnCount)
+                    && (firstPreference.ThursdayEveningCount == secondPreference.ThursdayEveningCount)
+                    && (firstPreference.ThursdayLastTimeUpdated == secondPreference.ThursdayLastTimeUpdated)
+                    && (firstPreference.ThursdayMorningCount == secondPreference.ThursdayMorningCount)
+                    && (firstPreference.ThursdayNightCount == secondPreference.ThursdayNightCount)
+                    && (firstPreference.FridayCount == secondPreference.FridayCount)
+                    && (firstPreference.FridayAfterNoonCount == secondPreference.FridayAfterNoonCount)
+                    && (firstPreference.FridayDawnCount == secondPreference.FridayDawnCount)
+                    && (firstPreference.FridayEveningCount == secondPreference.FridayEveningCount)
+                    && (firstPreference.FridayLastTimeUpdated == secondPreference.FridayLastTimeUpdated)
+                    && (firstPreference.FridayMorningCount == secondPreference.FridayMorningCount)
+                    && (firstPreference.FridayNightCount == secondPreference.FridayNightCount)
+                    && (firstPreference.SaturdayCount == secondPreference.SaturdayCount)
+                    && (firstPreference.SaturdayAfterNoonCount == secondPreference.SaturdayAfterNoonCount)
+                    && (firstPreference.SaturdayDawnCount == secondPreference.SaturdayDawnCount)
+                    && (firstPreference.SaturdayEveningCount == secondPreference.SaturdayEveningCount)
+                    && (firstPreference.SaturdayLastTimeUpdated == secondPreference.SaturdayLastTimeUpdated)
+                    && (firstPreference.SaturdayMorningCount == secondPreference.SaturdayMorningCount)
+                    && (firstPreference.SaturdayNightCount == secondPreference.SaturdayNightCount)
                 )
                 {
                     retValue = true;
                 }
-            firstPreference.init();
-            secondPreference.init();
-            for (int i = 0; i < firstPreference.DayConfigs.Count; i++)
-            {
-                bool lookup = firstPreference[i].isTestEquivalent(secondPreference[i]);
-                if(!lookup)
+                firstPreference.init();
+                secondPreference.init();
+                for (int i = 0; i < firstPreference.DayConfigs.Count; i++)
                 {
-                    break;
+                    bool lookup = firstPreference[i].isTestEquivalent(secondPreference[i]);
+                    if (!lookup)
+                    {
+                        break;
+                    }
+                    retValue = retValue && lookup;
                 }
-                retValue = retValue && lookup;
+                Assert.IsTrue(retValue);
             }
-            Assert.IsTrue(retValue);
+            else
+            {
+                retValue = firstPreference == secondPreference;
+                retValue = !retValue ? (firstPreference ?? secondPreference).isNull : retValue;
+                Assert.IsTrue(retValue);
+            }
             return retValue;
         }
 

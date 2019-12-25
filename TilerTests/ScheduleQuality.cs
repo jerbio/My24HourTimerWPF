@@ -117,7 +117,7 @@ namespace TilerTests
             int repeatSplitCount = 2;
             CalendarEvent testEvent = TestUtility
                 .generateCalendarEvent(tilerUser, duration, repetition, calTimeLine.Start, calTimeLine.End, repeatSplitCount, false);
-
+            List<CalendarEvent> recurringCalendarEvents = testEvent.RecurringCalendarEvents.OrderBy(o => o.Start).ToList();
             int firstDayIncrement = 2;
             int secondDayIncrement = 4;
 
@@ -134,44 +134,110 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             refNow = firstDayFromStart;
             Schedule = new TestSchedule(user, refNow);
-            testEvent = Schedule.getCalendarEvent(testEvent.Id);
-            SubCalendarEvent subEvent = testEvent.ActiveSubEvents.OrderBy(sub => sub.Start).First();
+            CalendarEvent firstRecurrence = Schedule.getCalendarEvent(recurringCalendarEvents.First().Id);
+            SubCalendarEvent subEvent = firstRecurrence.ActiveSubEvents.OrderBy(sub => sub.Start).First();
             Schedule.SetSubeventAsNow(subEvent.Id);
             Schedule.persistToDB().Wait();
+
+            IEnumerable<CalendarEvent> allRepeatingCalevents = Schedule.getAllRelatedCalendarEvents(testEvent.Id);
+            NowProfile nowProfile = allRepeatingCalevents.First().getNowInfo;
+            EventPreference daypreference = allRepeatingCalevents.First().DayPreference;
+            foreach (CalendarEvent calEvent in allRepeatingCalevents)
+            {
+                Assert.AreEqual(calEvent.getNowInfo, nowProfile);
+                Assert.AreEqual(calEvent.getNowInfo.Id, nowProfile.Id);
+                Assert.AreEqual(calEvent.NowProfileId, nowProfile.Id);
+                Assert.AreEqual(calEvent.DayPreference, daypreference);
+                Assert.AreEqual(calEvent.DayPreference.Id, daypreference.Id);
+                Assert.AreEqual(calEvent.DayPreferenceId, daypreference.Id);
+            }
 
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
-            testEvent = Schedule.getCalendarEvent(testEvent.Id);
+            firstRecurrence = Schedule.getCalendarEvent(firstRecurrence.Id);
             Schedule.markSubEventAsComplete(subEvent.Id).Wait();
             Schedule.persistToDB().Wait();
 
+            allRepeatingCalevents = Schedule.getAllRelatedCalendarEvents(testEvent.Id);
+            nowProfile = allRepeatingCalevents.First().getNowInfo;
+            daypreference = allRepeatingCalevents.First().DayPreference;
+            foreach (CalendarEvent calEvent in allRepeatingCalevents)
+            {
+                Assert.AreEqual(calEvent.getNowInfo, nowProfile);
+                Assert.AreEqual(calEvent.getNowInfo.Id, nowProfile.Id);
+                Assert.AreEqual(calEvent.NowProfileId, nowProfile.Id);
+                Assert.AreEqual(calEvent.DayPreference, daypreference);
+                Assert.AreEqual(calEvent.DayPreference.Id, daypreference.Id);
+                Assert.AreEqual(calEvent.DayPreferenceId, daypreference.Id);
+            }
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             refNow = secondDayFromStart;
             Schedule = new TestSchedule(user, refNow);
-            testEvent = Schedule.getCalendarEvent(testEvent.Id);
-            subEvent = testEvent.ActiveSubEvents.OrderBy(sub => sub.Start).First();
-            testEvent = Schedule.getCalendarEvent(testEvent.Id);
+            CalendarEvent nextOccurence = Schedule.getAllActiveSubEvents().OrderBy(o=>o.Start).First().ParentCalendarEvent;
+            subEvent = nextOccurence.ActiveSubEvents.OrderBy(sub => sub.Start).First();
+            
             Schedule.SetSubeventAsNow(subEvent.Id);
             Schedule.persistToDB().Wait();
+
+            allRepeatingCalevents = Schedule.getAllRelatedCalendarEvents(testEvent.Id);
+            nowProfile = allRepeatingCalevents.First().getNowInfo;
+            daypreference = allRepeatingCalevents.First().DayPreference;
+            foreach (CalendarEvent calEvent in allRepeatingCalevents)
+            {
+                Assert.AreEqual(calEvent.getNowInfo, nowProfile);
+                Assert.AreEqual(calEvent.getNowInfo.Id, nowProfile.Id);
+                Assert.AreEqual(calEvent.NowProfileId, nowProfile.Id);
+                Assert.AreEqual(calEvent.DayPreference, daypreference);
+                Assert.AreEqual(calEvent.DayPreference.Id, daypreference.Id);
+                Assert.AreEqual(calEvent.DayPreferenceId, daypreference.Id);
+            }
 
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
-            testEvent = Schedule.getCalendarEvent(testEvent.Id);
-            subEvent = testEvent.ActiveSubEvents.OrderBy(sub => sub.Start).First();
+            nextOccurence = Schedule.getCalendarEvent(nextOccurence.Id);
+            subEvent = nextOccurence.ActiveSubEvents.OrderBy(sub => sub.Start).First();
             Schedule.markSubEventAsComplete(subEvent.Id).Wait();
             Schedule.persistToDB().Wait();
+
+            allRepeatingCalevents = Schedule.getAllRelatedCalendarEvents(testEvent.Id);
+            nowProfile = allRepeatingCalevents.First().getNowInfo;
+            daypreference = allRepeatingCalevents.First().DayPreference;
+            foreach (CalendarEvent calEvent in allRepeatingCalevents)
+            {
+                Assert.AreEqual(calEvent.getNowInfo, nowProfile);
+                Assert.AreEqual(calEvent.getNowInfo.Id, nowProfile.Id);
+                Assert.AreEqual(calEvent.NowProfileId, nowProfile.Id);
+                Assert.AreEqual(calEvent.DayPreference, daypreference);
+                Assert.AreEqual(calEvent.DayPreference.Id, daypreference.Id);
+                Assert.AreEqual(calEvent.DayPreferenceId, daypreference.Id);
+            }
+
 
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
             Schedule.FindMeSomethingToDo(new Location()).Wait();
-            testEvent = Schedule.getCalendarEvent(testEvent.Id);
+            IEnumerable<CalendarEvent> calEvents = Schedule.getAllRelatedCalendarEvents(nextOccurence.Id);
             Schedule.persistToDB().Wait();
 
-            List<SubCalendarEvent> subEvents = Schedule.getCalendarEvent(testEvent.Id).ActiveSubEvents.ToList();
+            allRepeatingCalevents = Schedule.getAllRelatedCalendarEvents(testEvent.Id);
+            nowProfile = allRepeatingCalevents.First().getNowInfo;
+            daypreference = allRepeatingCalevents.First().DayPreference;
+            foreach (CalendarEvent calEvent in allRepeatingCalevents)
+            {
+                Assert.AreEqual(calEvent.getNowInfo, nowProfile);
+                Assert.AreEqual(calEvent.getNowInfo.Id, nowProfile.Id);
+                Assert.AreEqual(calEvent.NowProfileId, nowProfile.Id);
+                Assert.AreEqual(calEvent.DayPreference, daypreference);
+                Assert.AreEqual(calEvent.DayPreference.Id, daypreference.Id);
+                Assert.AreEqual(calEvent.DayPreferenceId, daypreference.Id);
+            }
+
+
+            List<SubCalendarEvent> subEvents = calEvents.SelectMany(o =>o.ActiveSubEvents).ToList();
             List<DateTimeOffset> allCorrespondingRepeatDays = new List<DateTimeOffset>();
             List<DateTimeOffset> repeatDates = new List<DateTimeOffset>() { firstDayFromStart, secondDayFromStart };
             TimeLine activeTImeLine = new TimeLine(Schedule.Now.constNow, testEvent.End);
@@ -234,7 +300,7 @@ namespace TilerTests
             DateTimeOffset secondRefNow = daySectionTuple.Item2.Start.Add(TimeSpan.FromSeconds(daySectionTuple.Item2.TimelineSpan.TotalSeconds / 2)).removeSecondsAndMilliseconds();
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, secondRefNow);
+            Schedule = new TestSchedule(user, secondRefNow, retrievalOption: DataRetrivalOption.All);
             Schedule.SetCalendarEventAsNow(testEvent0.Id);
             Schedule.persistToDB().Wait();
             var sectionTuple = daySections[6];
@@ -373,13 +439,14 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
             Schedule.FindMeSomethingToDo(new Location()).Wait();
-            repeatEvent = Schedule.getCalendarEvent(repeatEvent.Id);
+            //repeatEvent = Schedule.getCalendarEvent(repeatEvent.Id);
             Schedule.persistToDB().Wait();
 
-            CalendarEvent repeatEventRetrieved = Schedule.getCalendarEvent(repeatEvent.Id);
-            CalendarEvent testEvent0Retrieved = Schedule.getCalendarEvent(testEvent0.Id);
+            //CalendarEvent repeatEventRetrieved = Schedule.getCalendarEvent(repeatEvent.Id);
+            IEnumerable<CalendarEvent> repeatEventRetrieved = Schedule.getAllRelatedCalendarEvents(repeatEvent.Id);
+            //CalendarEvent testEvent0Retrieved = Schedule.getCalendarEvent(testEvent0.Id);
 
-            List<SubCalendarEvent> repeatSubEvents = repeatEventRetrieved.ActiveSubEvents.ToList();
+            List<SubCalendarEvent> repeatSubEvents = repeatEventRetrieved.SelectMany(o => o.ActiveSubEvents).ToList();
             List<CalendarEvent> allCalendarEvnts = repeatEvent.Repeat.RecurringCalendarEvents().ToList();
             List<DateTimeOffset> allValidDays = new List<DateTimeOffset>();
             TimeLine activeTImeLine = new TimeLine(Schedule.Now.constNow, repeatEvent.End);

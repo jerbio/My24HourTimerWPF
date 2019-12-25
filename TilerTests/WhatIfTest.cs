@@ -83,7 +83,8 @@ namespace TilerTests
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             schedule = new DB_Schedule(user, refNow);
-            Health mondayHealth = await schedule.TimeStone.SubeventDifferentDay(wednesdayStart.AddDays(-2), whatIfSubEvent.SubEvent_ID).ConfigureAwait(false);
+            DateTimeOffset whatIfMondayStart = wednesdayStart.AddDays(-2);
+            Health mondayHealth = await schedule.TimeStone.SubeventDifferentDay(whatIfMondayStart, whatIfSubEvent.SubEvent_ID).ConfigureAwait(false);
             HealthEvaluation mondayEvaluation = new HealthEvaluation(mondayHealth);
             HealthEvaluation tuesdayEvaluation = new HealthEvaluation(tuesdayHealth);
 
@@ -228,7 +229,34 @@ namespace TilerTests
             var beforAfteranalysis = await pushSchedule.TimeStone.PushedAll(Procrastinationpan, null);
 
             var sleepEvaluationABefore = beforAfteranalysis.Item1.SleepEvaluation.ScoreTimeLine();
+            
+
             var sleepEvaluationAfter = beforAfteranalysis.Item2.SleepEvaluation.ScoreTimeLine();
+
+            //Dictionary<string, CalendarEvent> beforeCalendarEvents = new Dictionary<string, CalendarEvent>();
+            //foreach (CalendarEvent calEVent in beforAfteranalysis.Item1.orderedByStartThenEndSubEvents.Select(o => o.ParentCalendarEvent))
+            //{
+            //    if (!beforeCalendarEvents.ContainsKey(calEVent.Id))
+            //    {
+            //        beforeCalendarEvents.Add(calEVent.Id, calEVent);
+            //    }
+            //}
+
+            //OutLookConnector outlook = new OutLookConnector(beforeCalendarEvents);
+            //outlook.WriteToOutlook();
+
+
+            //Dictionary<string, CalendarEvent> afterCalendarEvents = new Dictionary<string, CalendarEvent>();
+            //foreach (CalendarEvent calEVent in beforAfteranalysis.Item2.orderedByStartThenEndSubEvents.Select(o => o.ParentCalendarEvent))
+            //{
+            //    if (!afterCalendarEvents.ContainsKey(calEVent.Id))
+            //    {
+            //        afterCalendarEvents.Add(calEVent.Id, calEVent);
+            //    }
+            //}
+            //OutLookConnector outlook1 = new OutLookConnector(afterCalendarEvents);
+            //outlook1.WriteToOutlook();
+
             Assert.IsTrue(sleepEvaluationABefore < sleepEvaluationAfter);
 
             JObject beforeJsonResult = beforAfteranalysis.Item1.SleepEvaluation.ToJson();

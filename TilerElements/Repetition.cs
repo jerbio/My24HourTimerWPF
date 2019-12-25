@@ -107,6 +107,7 @@ namespace TilerElements
                 foreach (CalendarEvent MyRepeatCalendarEvent in ReadFromFileRecurringListOfCalendarEvents)
                 {
                     _DictionaryOfIDAndCalendarEvents.Add(MyRepeatCalendarEvent.getId, MyRepeatCalendarEvent);
+                    MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
                 }
                 _Location = ReadFromFileRecurringListOfCalendarEvents[0].LocationObj;
                 _EnableRepeat = ReadFromFileEnableFlag;
@@ -944,7 +945,7 @@ namespace TilerElements
             }
             else
             {
-                retValue = _DictionaryOfIDAndCalendarEvents.Values.ToArray();
+                retValue = _DictionaryOfIDAndCalendarEvents?.Values.ToArray() ?? new CalendarEvent[0]; ;
             }
             return retValue;
         }

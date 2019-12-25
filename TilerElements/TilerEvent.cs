@@ -236,6 +236,8 @@ namespace TilerElements
             }
         }
 
+        public abstract NowProfile initializeNowProfile();
+
 
         protected virtual void updateStartTime(DateTimeOffset time)
         {
@@ -875,7 +877,7 @@ namespace TilerElements
 
         public string NowProfileId { get; set; }
         [ForeignKey("NowProfileId")]
-        public NowProfile ProfileOfNow_EventDB
+        public virtual NowProfile ProfileOfNow_EventDB
         {
             get
             {
@@ -1045,6 +1047,21 @@ namespace TilerElements
             set
             {
                 _IsRepeat = value;
+            }
+        }
+
+        
+        /// <summary>
+        /// This means this enetity is from a repeating origin
+        /// So for example a subEvent with a repeating parent event will be true
+        /// or a repeating calendarevent for monday, Wednesday, and Friday will all have this as true. 
+        /// The only time this is is when there is no related repeat object
+        /// </summary>
+        public virtual bool IsFromRecurring
+        {
+            get
+            {
+                return IsRecurring;
             }
         }
 

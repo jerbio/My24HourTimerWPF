@@ -17,12 +17,14 @@ namespace TilerCore
             CalendarEvent calEvent = schedule.getCalendarEvent(eventId);
             DayTimeLine timeLine = schedule.Now.getDayTimeLineByTime(newDay);
             TempTilerEventChanges tilerChanges = calEvent.prepForWhatIfDifferentDay(timeLine, eventId);
+            schedule.updateAllEventDictionary(calEvent);
+
             if (schedule.CurrentLocation== null)
             {
                 schedule.CurrentLocation = Location.getDefaultLocation();
             }
             await schedule.FindMeSomethingToDo(schedule.CurrentLocation).ConfigureAwait(false);
-            Health scheduleHealth = new Health(schedule.getAllCalendarEvents(), schedule.Now.ComputationRange.Start, schedule.Now.ComputationRange.TimelineSpan, schedule.Now, schedule.getHomeLocation);
+            Health scheduleHealth = new Health(schedule.getAllActiveCalendarEvents(), schedule.Now.ComputationRange.Start, schedule.Now.ComputationRange.TimelineSpan, schedule.Now, schedule.getHomeLocation);
             calEvent.ReverseWhatIf(tilerChanges);
             return scheduleHealth;
         }
@@ -83,9 +85,9 @@ namespace TilerCore
             WhatIfSubEventDayDesignation(orderedDayTimeLines.ToArray(), beforeSubEvents);
             Health beforeChange = new Health(procradstinateResult.Item2.Values.Where(obj => obj.isActive).Select(obj => obj.createCopy()), beforeNow.constNow, assessmentWindow.TimelineSpan, beforeNow, schedule.getHomeLocation);
 
-            var afterSubEVents = schedule.getAllCalendarEvents().Where(obj => obj.isActive).SelectMany(calEvent => calEvent.ActiveSubEvents).Where(subEvent => { subEvent.resetAndgetUnUsableIndex(); return true; });//.Where(subEvent => !subEvent.isDesignated).ToList();
+            var afterSubEVents = schedule.getAllActiveCalendarEvents().SelectMany(calEvent => calEvent.ActiveSubEvents).Where(subEvent => { subEvent.resetAndgetUnUsableIndex(); return true; });//.Where(subEvent => !subEvent.isDesignated).ToList();
             var afterNow = new ReferenceNow(schedule.Now.constNow, schedule.Now.StartOfDay, schedule.Now.TimeZoneDifference);
-            var afterCalevents = schedule.getAllCalendarEvents().Where(obj => obj.isActive).ToList();
+            var afterCalevents = schedule.getAllActiveCalendarEvents().Where(obj => obj.isActive).ToList();
             var afterorderedDayTimeLines = afterNow.getAllDaysLookup().OrderBy(obj => obj.Key).Select(obj => obj.Value);
             //afterCalevents.AsParallel().ForAll((calEvent) => calEvent.InitialCalculationLookupDays(afterorderedDayTimeLines, afterNow));
             WhatIfSubEventDayDesignation(afterorderedDayTimeLines.ToArray(), afterSubEVents);

@@ -912,7 +912,8 @@ namespace TilerTests
             Schedule.AddToScheduleAndCommitAsync(nonRigidCalendarEvent).Wait();
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, startOfDay);
+            HashSet<string> calendarIds = new HashSet<string>() { nonRigidCalendarEvent.Id };
+            Schedule = new TestSchedule(user, refNow, startOfDay, retrievalOption: DataRetrivalOption.All, calendarIds: calendarIds);
             nonRigidCalendarEvent = Schedule.getCalendarEvent(nonRigidCalendarEvent.Id);
             SubCalendarEvent testSubEvent = nonRigidCalendarEvent.ActiveSubEvents.OrderBy(subEventIter => subEventIter.Start).First();
 

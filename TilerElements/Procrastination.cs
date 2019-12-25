@@ -13,8 +13,8 @@ namespace TilerElements
     {
         static Procrastination defaultProcrastination;
         protected string _Id;
-        protected DateTimeOffset _FromTime = Utility.JSStartTime; //Time from which an event was procrastinated
-        protected DateTimeOffset _BeginTIme = Utility.JSStartTime;//Next time for a possible calculation of a new schedule
+        protected DateTimeOffset _FromTime = Utility.BeginningOfTime; //Time from which an event was procrastinated
+        protected DateTimeOffset _BeginTIme = Utility.BeginningOfTime;//Next time for a possible calculation of a new schedule
         protected int _SectionOfDay;// stores the section of day from which it was procrastinated
         
         protected TilerEvent _UndoAssociatedEvent;
@@ -31,18 +31,15 @@ namespace TilerElements
         public Procrastination(DateTimeOffset From, TimeSpan Span)
         {
             _FromTime = From;
-            if (_FromTime == DateTime.MinValue)
-            {
-                _FromTime = Utility.JSStartTime;
-            }
             _BeginTIme = _FromTime.Add(Span);
+            _isNull = _BeginTIme.isBeginningOfTime();
         }
 
 
         internal void reset()
         {
-            _FromTime = Utility.JSStartTime;
-            _BeginTIme = Utility.JSStartTime;
+            _FromTime = Utility.BeginningOfTime;
+            _BeginTIme = Utility.BeginningOfTime;
         }
 
 

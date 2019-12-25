@@ -101,6 +101,7 @@ namespace TilerTests
             var scheduleAndDump = TestUtility.getSchedule(scheduleId);
             Schedule schedule = scheduleAndDump.Item1;
             schedule.FindMeSomethingToDo(currentLocation).Wait();
+            (schedule as TestSchedule).WriteFullScheduleToOutlook();
             DateTimeOffset oct25 = new DateTimeOffset(2019, 10, 25, 14, 0, 0, new TimeSpan());
             DateTimeOffset oct26 = new DateTimeOffset(2019, 10, 26, 14, 0, 0, new TimeSpan());
 

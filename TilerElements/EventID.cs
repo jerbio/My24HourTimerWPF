@@ -359,7 +359,14 @@ namespace TilerElements
             EventIDGenerator.Initialize(LastID);
         }
 
-        
+        public string getAllEventDictionaryLookup
+        {
+            get
+            {
+                string retValue = this.getRepeatCalendarEventID();
+                return retValue;
+            }
+        }
 
         private static class EventIDGenerator
         {

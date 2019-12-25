@@ -23,7 +23,7 @@ namespace TilerElements
                 _Id = value;
             }
         }
-        public DateTimeOffset SundayLastTimeUpdated { get; set; } = Utility.JSStartTime;
+        public DateTimeOffset SundayLastTimeUpdated { get; set; } = Utility.BeginningOfTime;
         public double SundayCount { get; set; } = 0;
         public double SundayDawnCount { get; set; } = 0;
         public double SundayMorningCount { get; set; } = 0;
@@ -32,7 +32,7 @@ namespace TilerElements
         public double SundayNightCount { get; set; } = 0;
         [NotMapped]
         public double SundayEvaluation { get; set; } = 0;
-        public DateTimeOffset MondayLastTimeUpdated { get; set; } = Utility.JSStartTime;
+        public DateTimeOffset MondayLastTimeUpdated { get; set; } = Utility.BeginningOfTime;
         public double MondayCount { get; set; } = 0;
         public double MondayDawnCount { get; set; } = 0;
         public double MondayMorningCount { get; set; } = 0;
@@ -41,7 +41,7 @@ namespace TilerElements
         public double MondayNightCount { get; set; } = 0;
         [NotMapped]
         public double MondayEvaluation { get; set; } = 0;
-        public DateTimeOffset TuesdayLastTimeUpdated { get; set; } = Utility.JSStartTime;
+        public DateTimeOffset TuesdayLastTimeUpdated { get; set; } = Utility.BeginningOfTime;
         public double TuesdayCount { get; set; } = 0;
         public double TuesdayDawnCount { get; set; } = 0;
         public double TuesdayMorningCount { get; set; } = 0;
@@ -50,7 +50,7 @@ namespace TilerElements
         public double TuesdayNightCount { get; set; } = 0;
         [NotMapped]
         public double TuesdayEvaluation { get; set; } = 0;
-        public DateTimeOffset WednesdayLastTimeUpdated { get; set; } = Utility.JSStartTime;
+        public DateTimeOffset WednesdayLastTimeUpdated { get; set; } = Utility.BeginningOfTime;
         public double WednesdayCount { get; set; } = 0;
         public double WednesdayDawnCount { get; set; } = 0;
         public double WednesdayMorningCount { get; set; } = 0;
@@ -59,7 +59,7 @@ namespace TilerElements
         public double WednesdayNightCount { get; set; } = 0;
         [NotMapped]
         public double WednesdayEvaluation { get; set; } = 0;
-        public DateTimeOffset ThursdayLastTimeUpdated { get; set; } = Utility.JSStartTime;
+        public DateTimeOffset ThursdayLastTimeUpdated { get; set; } = Utility.BeginningOfTime;
         public double ThursdayCount { get; set; } = 0;
         public double ThursdayDawnCount { get; set; } = 0;
         public double ThursdayMorningCount { get; set; } = 0;
@@ -68,7 +68,7 @@ namespace TilerElements
         public double ThursdayNightCount { get; set; } = 0;
         [NotMapped]
         public double ThursdayEvaluation { get; set; } = 0;
-        public DateTimeOffset FridayLastTimeUpdated { get; set; } = Utility.JSStartTime;
+        public DateTimeOffset FridayLastTimeUpdated { get; set; } = Utility.BeginningOfTime;
         public double FridayCount { get; set; } = 0;
         public double FridayDawnCount { get; set; } = 0;
         public double FridayMorningCount { get; set; } = 0;
@@ -77,7 +77,7 @@ namespace TilerElements
         public double FridayNightCount { get; set; } = 0;
         [NotMapped]
         public double FridayEvaluation { get; set; } = 0;
-        public DateTimeOffset SaturdayLastTimeUpdated { get; set; } = Utility.JSStartTime;
+        public DateTimeOffset SaturdayLastTimeUpdated { get; set; } = Utility.BeginningOfTime;
         public double SaturdayCount { get; set; } = 0;
         public double SaturdayDawnCount { get; set; } = 0;
         public double SaturdayMorningCount { get; set; } = 0;
@@ -87,7 +87,7 @@ namespace TilerElements
         [NotMapped]
         public double SaturdayEvaluation { get; set; } = 0;
         [NotMapped]
-        public bool _isNull = false;
+        protected bool _isNull = false;
         public bool isNull {
             get
                 {
@@ -114,20 +114,23 @@ namespace TilerElements
 
         public void init ()
         {
-            _SundayPreference = new SundayConfig() { Preference = this };
-            _MondayPreference = new MondayConfig() { Preference = this };
-            _TuesdayPreference = new TuesdayConfig() { Preference = this };
-            _WednesdayPreference = new WednesdayConfig() { Preference = this };
-            _ThursdayPreference = new ThursdayConfig() { Preference = this };
-            _FridayPreference = new FridayConfig() { Preference = this };
-            _SaturdayPreference = new SaturdayConfig() { Preference = this };
+            if(!this.isNull)
+            {
+                _SundayPreference = new SundayConfig() { Preference = this };
+                _MondayPreference = new MondayConfig() { Preference = this };
+                _TuesdayPreference = new TuesdayConfig() { Preference = this };
+                _WednesdayPreference = new WednesdayConfig() { Preference = this };
+                _ThursdayPreference = new ThursdayConfig() { Preference = this };
+                _FridayPreference = new FridayConfig() { Preference = this };
+                _SaturdayPreference = new SaturdayConfig() { Preference = this };
 
-            _DayConfigs = new List<DayConfig>()
+                _DayConfigs = new List<DayConfig>()
             {
                 _SundayPreference, _MondayPreference, _TuesdayPreference, _WednesdayPreference, _ThursdayPreference, _FridayPreference, _SaturdayPreference
             };
 
-            updateConfigOrder();
+                updateConfigOrder();
+            }   
         }
 
         public EventPreference createCopy(string eventId = null)
@@ -182,6 +185,7 @@ namespace TilerElements
             retValue.SaturdayAfterNoonCount = this.SaturdayAfterNoonCount;
             retValue.SaturdayEveningCount = this.SaturdayEveningCount;
             retValue.SaturdayNightCount = this.SaturdayNightCount;
+            retValue._isNull = this._isNull;
             retValue.init();
             return retValue;
         }

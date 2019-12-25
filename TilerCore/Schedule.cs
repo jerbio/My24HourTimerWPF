@@ -1201,6 +1201,8 @@ namespace TilerCore
             if (DelaySpan.Ticks > 0)
             {
                 EventDisplay ProcrastinateDisplay = new EventDisplay(true, new TilerColor(), 2);
+                Dictionary<string, CalendarEvent> AllEventDictionary_Cpy = new Dictionary<string, CalendarEvent>();
+                AllEventDictionary_Cpy = getDeepCopyOfEventDictionary();
 
                 EventName blockName = new EventName(null, null, NameOfEvent);
                 TilerUser user = this.User;
@@ -1210,21 +1212,14 @@ namespace TilerCore
 
                 blockName.Creator_EventDB = procrastinateAll.getCreator;
                 blockName.AssociatedEvent = procrastinateAll;
-                return Procrastinate(procrastinateAll);
+                HashSet<SubCalendarEvent> NotdoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
+                clearAllRepetitionLock();
+                procrastinateAll = EvaluateTotalTimeLineAndAssignValidTimeSpots(procrastinateAll, NotdoneYet, null, null, 1) as ProcrastinateCalendarEvent;
+
+                Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(procrastinateAll.Error, AllEventDictionary_Cpy);
+                return retValue;
             }
             throw new CustomErrors(CustomErrors.Errors.procrastinationBeforeNow, "Cannot go back in time quite yet");
-        }
-
-        private Tuple<CustomErrors, Dictionary<string, CalendarEvent>> Procrastinate(CalendarEvent NewEvent)
-        {
-            HashSet<SubCalendarEvent> NotdoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
-            Dictionary<string, CalendarEvent> AllEventDictionary_Cpy = new Dictionary<string, CalendarEvent>();
-            AllEventDictionary_Cpy = getDeepCopyOfEventDictionary();
-            clearAllRepetitionLock();
-            NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, NotdoneYet, null, null, 1);
-
-            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(NewEvent.Error, AllEventDictionary_Cpy);
-            return retValue;
         }
 
 

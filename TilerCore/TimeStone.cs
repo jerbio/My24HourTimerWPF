@@ -208,5 +208,32 @@ namespace TilerCore
             return RetValue;
         }
         
+        virtual public async Task<Tuple<Health, Health>> WhatIfSetAsNow(string eventId) {
+            SubCalendarEvent subEvent = schedule.getSubCalendarEvent(eventId);
+            var travelCache = schedule.TravelCache;
+            var deepCopy = schedule.getDeepCopyOfEventDictionary();
+            var locationCache = schedule.getAllLocations().ToDictionary(location => location.Id, location => location);
+            if (subEvent == null)
+            {
+                schedule.SetSubeventAsNow(eventId);
+            }
+            else
+            {
+                schedule.SetCalendarEventAsNow(eventId);
+            }
+            Schedule beforeSchedule = new Schedule(deepCopy, schedule.Now.EndOfDayStartOfTime, locationCache, schedule.Now.constNow, null, null);
+            beforeSchedule.updateTravelCache(travelCache);
+
+            Health beforeSetAsNow = new Health(beforeSchedule.getAllCalendarEvents(), schedule.Now.EndOfDayStartOfTime, TimeSpan.FromDays(Utility.defaultEndDay), beforeSchedule.Now, beforeSchedule.getHomeLocation);
+            Health afterSetAsNow = new Health(schedule.getAllCalendarEvents(), schedule.Now.EndOfDayStartOfTime, TimeSpan.FromDays(Utility.defaultEndDay), schedule.Now, schedule.getHomeLocation);
+            var retValue = new Tuple<Health, Health>(beforeSetAsNow, afterSetAsNow);
+            return retValue;
+        }
+
+
+
+        virtual public async Task<Tuple<Health, Health>> WhatIfSetAsNow(EventID eventId) {
+            return await WhatIfSetAsNow(eventId.ToString()).ConfigureAwait(false);
+        }
     }
 }

@@ -502,7 +502,7 @@ namespace TilerCore
             addCaleventToAllEventDictionary(EventIdObj, NewEvent);
         }
 
-        Dictionary<string, CalendarEvent>  getDeepCopyOfEventDictionary()
+        public virtual Dictionary<string, CalendarEvent>  getDeepCopyOfEventDictionary()
         {
             Dictionary<string, CalendarEvent> retVallue = new Dictionary<string, CalendarEvent>();
             retVallue = AllEventDictionary.ToDictionary(obj => obj.Key, obj => obj.Value.createCopy());

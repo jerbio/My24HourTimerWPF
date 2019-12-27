@@ -1003,57 +1003,68 @@ namespace TilerTests
         public static bool isTestEquivalent(this CalendarEvent firstCalEvent, CalendarEvent secondCalEvent)
         {
             bool retValue = true;
-            if (firstCalEvent.AllSubEvents.Count() == secondCalEvent.AllSubEvents.Count() &&  firstCalEvent.NumberOfSplit == secondCalEvent.NumberOfSplit)
+            if (firstCalEvent != null && secondCalEvent != null)
             {
-                Dictionary<string, SubCalendarEvent> firstdictionary = firstCalEvent.AllSubEvents.ToDictionary(subEvent => subEvent.Id, subEvent => subEvent);
-                Dictionary<string, SubCalendarEvent> seconddictionary = secondCalEvent.AllSubEvents.ToDictionary(subEvent => subEvent.Id, subEvent => subEvent);
-                foreach (SubCalendarEvent subEvent in firstdictionary.Values)
+                if (firstCalEvent.AllSubEvents.Count() == secondCalEvent.AllSubEvents.Count() && firstCalEvent.NumberOfSplit == secondCalEvent.NumberOfSplit)
                 {
-                    if (seconddictionary.ContainsKey(subEvent.Id))
+                    Dictionary<string, SubCalendarEvent> firstdictionary = firstCalEvent.AllSubEvents.ToDictionary(subEvent => subEvent.Id, subEvent => subEvent);
+                    Dictionary<string, SubCalendarEvent> seconddictionary = secondCalEvent.AllSubEvents.ToDictionary(subEvent => subEvent.Id, subEvent => subEvent);
+                    foreach (SubCalendarEvent subEvent in firstdictionary.Values)
                     {
-                        var secondSubEvent = seconddictionary[subEvent.Id];
-                        retValue = subEvent.isTestEquivalent(secondSubEvent)
-                            && subEvent.Location.isTestEquivalent(secondSubEvent.Location)
-                            && subEvent.getUIParam.isTestEquivalent(secondSubEvent.getUIParam);
-                        if(subEvent.getIsEventRestricted)
+                        if (seconddictionary.ContainsKey(subEvent.Id))
                         {
-                            retValue = retValue && (subEvent as SubCalendarEventRestricted).getRestrictionProfile().isTestEquivalent((secondSubEvent as SubCalendarEventRestricted).getRestrictionProfile());
-                        }
+                            var secondSubEvent = seconddictionary[subEvent.Id];
+                            retValue = subEvent.isTestEquivalent(secondSubEvent)
+                                && subEvent.Location.isTestEquivalent(secondSubEvent.Location)
+                                && subEvent.getUIParam.isTestEquivalent(secondSubEvent.getUIParam);
+                            if (subEvent.getIsEventRestricted)
+                            {
+                                retValue = retValue && (subEvent as SubCalendarEventRestricted).getRestrictionProfile().isTestEquivalent((secondSubEvent as SubCalendarEventRestricted).getRestrictionProfile());
+                            }
 
-                        if (!retValue)
-                        {
-                            break; 
+                            if (!retValue)
+                            {
+                                break;
+                            }
                         }
-                    } else
-                    {
-                        retValue = false;
-                        break;
+                        else
+                        {
+                            retValue = false;
+                            break;
+                        }
                     }
                 }
+                else
+                {
+                    retValue = false;
+                }
+
+                retValue &= isTestEquivalent(firstCalEvent as TilerEvent, secondCalEvent as TilerEvent);
+                Assert.IsTrue(retValue);
+                retValue &= (firstCalEvent.IsFromRecurringAndNotChildRepeatCalEvent == secondCalEvent.IsFromRecurringAndNotChildRepeatCalEvent ?
+                        (firstCalEvent.IsFromRecurringAndNotChildRepeatCalEvent ? isTestEquivalent(firstCalEvent.Repeat, secondCalEvent.Repeat) : true) : //if repeat is enabled the run equivalecy test else then passing test
+                        false); // if calendar repeat flags aren't the same then the calEvents are not equal
+                Assert.IsTrue(retValue);
+                retValue &= (firstCalEvent.getIsEventRestricted == secondCalEvent.getIsEventRestricted ?
+                        (firstCalEvent.getIsEventRestricted ? isTestEquivalent((firstCalEvent as CalendarEventRestricted).RestrictionProfile, (secondCalEvent as CalendarEventRestricted).RestrictionProfile) : true) : //if restriction profile is enabled the run equivalecy test else then passing test
+                        false);
+                Assert.IsTrue(retValue);
+                retValue &= (firstCalEvent.getUIParam.isTestEquivalent(secondCalEvent.getUIParam));
+                Assert.IsTrue(retValue);
+                retValue &= (firstCalEvent.DayPreference.isTestEquivalent(secondCalEvent.DayPreference));
+                Assert.IsTrue(retValue);
+
+
+                Assert.IsTrue(retValue);
             }
             else
             {
-                retValue = false;
+                retValue = firstCalEvent == null && secondCalEvent == null;
+                Assert.IsTrue(retValue);
             }
 
-            retValue &= isTestEquivalent(firstCalEvent as TilerEvent, secondCalEvent as TilerEvent);
-            Assert.IsTrue(retValue);
-            retValue &= (firstCalEvent.IsFromRecurringAndNotChildRepeatCalEvent == secondCalEvent.IsFromRecurringAndNotChildRepeatCalEvent ?
-                    (firstCalEvent.IsFromRecurringAndNotChildRepeatCalEvent ? isTestEquivalent(firstCalEvent.Repeat, secondCalEvent.Repeat) : true) : //if repeat is enabled the run equivalecy test else then passing test
-                    false); // if calendar repeat flags aren't the same then the calEvents are not equal
-            Assert.IsTrue(retValue);
-            retValue &= (firstCalEvent.getIsEventRestricted == secondCalEvent.getIsEventRestricted ?
-                    (firstCalEvent.getIsEventRestricted ? isTestEquivalent((firstCalEvent as CalendarEventRestricted).RestrictionProfile, (secondCalEvent as CalendarEventRestricted).RestrictionProfile) : true) : //if restriction profile is enabled the run equivalecy test else then passing test
-                    false);
-            Assert.IsTrue(retValue);
-            retValue &= (firstCalEvent.getUIParam.isTestEquivalent(secondCalEvent.getUIParam));
-            Assert.IsTrue(retValue);
-            retValue &= (firstCalEvent.DayPreference.isTestEquivalent(secondCalEvent.DayPreference));
-            Assert.IsTrue(retValue);
-
-
-            Assert.IsTrue(retValue);
             return retValue;
+
         }
 
         public static bool isTestEquivalent(this Repetition firstRepetition, Repetition secondRepetition)

@@ -111,10 +111,10 @@ namespace TilerElements
             }
         }
 
-        public Location(double MyxValue, double MyyValue, string AddressEntry, string AddressDescription, bool isNull, bool isDefaultFlag, string ID = "")
+        public Location(double latitutde, double longitude, string AddressEntry, string AddressDescription, bool isNull, bool isDefaultFlag, string ID = "")
         {
-            _Latitude = MyxValue;
-            _Longitude = MyyValue;
+            _Latitude = latitutde;
+            _Longitude = longitude;
             _TaggedAddress = AddressEntry;
             _TaggedDescription = AddressDescription;
             updateSearchedLocation();
@@ -181,7 +181,7 @@ namespace TilerElements
         /// </summary>
         /// <param name="anchorLocation"></param>
         /// <returns></returns>
-        internal Location validate(Location anchorLocation)
+        internal Location validate(Location anchorLocation, DateTimeOffset currentTime)
         {
             Location retValue = null;
             _TaggedAddress = _TaggedAddress.Trim();
@@ -242,11 +242,18 @@ namespace TilerElements
                                 this._NullLocation = false;
                                 this._DefaultFlag = false;
                                 retValue.updateSearchedLocation();
+                                LocationJson retValueJson = (retValue as LocationJson);
+                                if (retValueJson != null)
+                                {
+                                    retValueJson.LastUsed = currentTime;
+                                }
+                                
                                 if (!useThis)
                                 {
                                     retValue._Id = result.PlaceId;
                                     _LocationValidation.addLocation(retValue as LocationJson);
-                                }   
+                                }
+                                
                             }
                             else
                             {
@@ -261,7 +268,7 @@ namespace TilerElements
                         }
                     } else
                     {
-                        retValue = _LocationValidation.getClosestLocation(anchorLocation);
+                        retValue = _LocationValidation.getClosestLocation(anchorLocation, currentTime);
                     }
                 }
                 else
@@ -352,10 +359,11 @@ namespace TilerElements
             return retValue;
         }
 
-        public Location getLocationThroughValidation(string locationId) {
+        public Location getLocationThroughValidation(string locationId, DateTimeOffset currentTime)
+        {
             if(!string.IsNullOrEmpty(locationId) && !string.IsNullOrWhiteSpace(locationId) && _LocationValidation!=null)
             {
-                return _LocationValidation.getLocation(locationId);
+                return _LocationValidation.getLocation(locationId, currentTime);
             }
             return null;
         }

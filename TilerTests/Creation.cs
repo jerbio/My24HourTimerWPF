@@ -18,17 +18,11 @@ namespace TilerTests
     [TestClass]
     public class Creation
     {
-        TestSchedule Schedule;
-
         public TestContext TestContext
         {
             get;
             set;
         }
-        //[TestInitialize]
-        //public void initializeTests() {
-        //    TestUtility.init();
-        //}
 
         [TestMethod]
         public void ReferenceNowLogic()
@@ -53,7 +47,7 @@ namespace TilerTests
             tilerUser = user.getTilerUser();
             user.Login().Wait();
 
-            Schedule = new TestSchedule(user, refNow);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
             TimeSpan duration = TimeSpan.FromHours(1);
             TimeLine timeLine = TestUtility.getTimeFrames(refNow, duration).First();
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), timeLine.Start, timeLine.End, 1, false);
@@ -119,7 +113,7 @@ namespace TilerTests
             tilerUser = user.getTilerUser();
             user.Login().Wait();
 
-            Schedule = new TestSchedule(user, refNow);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
             TimeSpan duration = TimeSpan.FromHours(1);
             TimeLine timeLine = TestUtility.getTimeFrames(refNow, duration).First();
             CalendarEvent testCalEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), timeLine.Start, timeLine.End, 1, false);
@@ -150,7 +144,7 @@ namespace TilerTests
             tilerUser = user.getTilerUser();
             user.Login().Wait();
 
-            Schedule = new TestSchedule(user, refNow);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
             TimeSpan duration = TimeSpan.FromHours(1);
             TimeLine timeLine = TestUtility.getTimeFrames(refNow, duration).First();
             TilerColor tilerColor = new TilerColor(255, 255, 0, 1, 5);
@@ -194,7 +188,7 @@ namespace TilerTests
             List<CalendarEvent> calEvents = TestUtility.generateAllCalendarEventVaraints(schedule,duration, refNow, tilerUser, user);
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
             Task<ScheduleDump> taskScheduleDump = Schedule.CreateScheduleDump(Schedule.Now);
             taskScheduleDump.Wait();
             ScheduleDump scheduleDump = taskScheduleDump.Result;
@@ -214,7 +208,7 @@ namespace TilerTests
             tilerUser = user.getTilerUser();
             user.Login().Wait();
 
-            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            TestSchedule Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
             TimeSpan duration = TimeSpan.FromHours(1);
             TimeLine timeLine = TestUtility.getTimeFrames(refNow, duration).First();
             TilerColor tilerColor = new TilerColor(255, 255, 0, 1, 5);
@@ -303,7 +297,7 @@ namespace TilerTests
             user.Login().Wait();
 
             DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
-            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            TestSchedule Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
             TimeSpan duration = TimeSpan.FromHours(4);
 
             TimeLine timeLine = TestUtility.getTimeFrames(refNow, duration).First();
@@ -391,7 +385,7 @@ namespace TilerTests
             tilerUser = user.getTilerUser();
             user.Login().Wait();
             DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
-            Schedule = new TestSchedule(user, refNow);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
             TimeSpan duration = TimeSpan.FromHours(5);
             List<TimeLine> timeLines = TestUtility.getTimeFrames(refNow , duration);
             foreach(TimeLine eachTimeLine in timeLines)
@@ -421,7 +415,7 @@ namespace TilerTests
             tilerUser = user.getTilerUser();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            Schedule = new TestSchedule(user, refNow);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
             TimeSpan duration = TimeSpan.FromHours(1);
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(duration);
@@ -453,7 +447,7 @@ namespace TilerTests
             tilerUser = user.getTilerUser();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            Schedule = new TestSchedule(user, refNow);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
             TimeSpan duration = TimeSpan.FromHours(1);
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(duration);
@@ -489,7 +483,7 @@ namespace TilerTests
             tilerUser = user.getTilerUser();
             user.Login().Wait();
             DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
-            Schedule = new TestSchedule(user, refNow);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
             TimeSpan duration = TimeSpan.FromHours(5);
             Location location = TestUtility.getAdHocLocations()[0];
             location.verify();
@@ -527,7 +521,7 @@ namespace TilerTests
             location.verify();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            Schedule = new TestSchedule(user, refNow);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
             TimeSpan duration = TimeSpan.FromHours(1);
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(duration);
@@ -591,7 +585,7 @@ namespace TilerTests
             tilerUser = user.getTilerUser();
             user.Login().Wait();
             DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
-            Schedule = new TestSchedule(user, refNow);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
             TimeSpan duration = TimeSpan.FromHours(4);
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(duration);
@@ -623,7 +617,7 @@ namespace TilerTests
             tilerUser = user.getTilerUser();
             user.Login().Wait();
             DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
-            Schedule = new TestSchedule(user, refNow);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
             TimeSpan duration = TimeSpan.FromHours(4);
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(duration);
@@ -657,7 +651,7 @@ namespace TilerTests
             tilerUser = user.getTilerUser();
             user.Login().Wait();
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            Schedule = new TestSchedule(user, refNow);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
             TimeSpan duration = TimeSpan.FromHours(1);
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(duration);
@@ -706,7 +700,7 @@ namespace TilerTests
             tilerUser = user.getTilerUser();
             DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
             user.Login().Wait();
-            Schedule = new TestSchedule(user, refNow);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
             TimeSpan duration = TimeSpan.FromHours(4);
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(duration);
@@ -750,7 +744,7 @@ namespace TilerTests
             tilerUser = user.getTilerUser();
             DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
             user.Login().Wait();
-            Schedule = new TestSchedule(user, refNow);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
             TimeSpan duration = TimeSpan.FromHours(4);
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(duration);
@@ -845,7 +839,7 @@ namespace TilerTests
             tilerUser = user.getTilerUser();
             user.Login().Wait();
             DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
-            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            TestSchedule Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
             TimeSpan duration = TimeSpan.FromHours(4);
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(duration);
@@ -881,7 +875,7 @@ namespace TilerTests
             tilerUser = user.getTilerUser();
             user.Login().Wait();
             DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
-            Schedule = new TestSchedule(user, refNow);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
             TimeSpan duration = TimeSpan.FromHours(4);
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(duration);
@@ -918,7 +912,7 @@ namespace TilerTests
             tilerUser = user.getTilerUser();
             user.Login().Wait();
             DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
-            Schedule = new TestSchedule(user, refNow);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
             TimeSpan duration = TimeSpan.FromHours(4);
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(duration);
@@ -970,7 +964,7 @@ namespace TilerTests
             tilerUser = user.getTilerUser();
             user.Login().Wait();
             DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/3/2017");
-            Schedule = new TestSchedule(user, refNow);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
             TimeSpan duration = TimeSpan.FromHours(4);
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(duration);
@@ -1034,7 +1028,7 @@ namespace TilerTests
             tilerUser = user.getTilerUser();
             user.Login().Wait();
             DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
-            Schedule = new TestSchedule(user, refNow);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
             TimeSpan duration = TimeSpan.FromHours(4);
             DateTimeOffset start = refNow;
             DateTimeOffset end = start.AddDays(21);
@@ -1081,7 +1075,7 @@ namespace TilerTests
             Assert.IsTrue(newlyaddedevent.isTestEquivalent(testEvent));
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(newlyaddedevent.isTestEquivalent(loadedFromSchedule));
@@ -1116,7 +1110,7 @@ namespace TilerTests
             Assert.IsTrue(newlyaddedevent.isTestEquivalent(testEvent));
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(newlyaddedevent.isTestEquivalent(loadedFromSchedule));
@@ -1166,7 +1160,7 @@ namespace TilerTests
             Assert.AreEqual(renamedEvent.getName.NameId, testEvent.getName.NameId);
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(renamedEvent.isTestEquivalent(loadedFromSchedule));
@@ -1211,7 +1205,7 @@ namespace TilerTests
             Assert.AreEqual(renamedEvent.Notes.UserNote, newNoteName);
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(renamedEvent.isTestEquivalent(loadedFromSchedule));
@@ -1229,7 +1223,7 @@ namespace TilerTests
             tilerUser = user.getTilerUser();
             user.Login().Wait();
 
-            Schedule = new TestSchedule(user, refNow);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
             TimeSpan duration = TimeSpan.FromHours(1);
             TimeLine timeLine = new TimeLine(refNow, refNow.AddHours(2));
             TilerColor tilerColor = new TilerColor(255, 255, 0, 1, 5);
@@ -1327,12 +1321,12 @@ namespace TilerTests
             TimeLine lookupWindow = new TimeLine(refNow.AddDays(-dayDelta), refNow.AddDays(dayDelta*2));
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, rangeOfLookup: lookupWindow, retrievalOption: DataRetrivalOption.All);
+            Schedule = new TestSchedule(user, refNow, rangeOfLookup: lookupWindow);
             Location location = TestUtility.getAdHocLocations()[0];
             Schedule.FindMeSomethingToDo(location).Wait();
             Schedule.persistToDB().Wait();
-            CalendarEvent calEvent = Schedule.getCalendarEvent(repeatEvent.Calendar_EventID);
-            Assert.IsTrue(calEvent.ActiveSubEvents.Count() == 5);
+            IEnumerable<CalendarEvent> calEvents = Schedule.getAllRelatedCalendarEvents(repeatEvent.Calendar_EventID);
+            Assert.IsTrue(calEvents.SelectMany(obj=> obj.ActiveSubEvents).Count() == 5);// this is 5 because of we ignore the subevents outside the range
 
             UserAccount userAcc = TestUtility.getTestUser(userId: tilerUser.Id);
             Task<CalendarEvent> waitVar = userAcc.ScheduleLogControl.getCalendarEventWithID(repeatEvent.Id);
@@ -1343,9 +1337,16 @@ namespace TilerTests
 
             lookupWindow = new TimeLine(refNow, repeatTimeLine.End);
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All, rangeOfLookup: lookupWindow);
-            CalendarEvent repeatFromSchedule = Schedule.getCalendarEvent(repeatEvent.Id);
-            Assert.IsTrue(repeatFromSchedule.isTestEquivalent(verificationEventPulled));
+            Schedule = new TestSchedule(user, refNow, rangeOfLookup: lookupWindow);
+            
+
+            foreach(CalendarEvent calEvent in verificationEventPulled.RecurringCalendarEvents)
+            {
+                CalendarEvent repeatFromSchedule = Schedule.getCalendarEvent(calEvent.Id);
+                Assert.IsTrue(repeatFromSchedule.isTestEquivalent(calEvent));
+            }
+
+            
         }
 
 
@@ -1366,7 +1367,7 @@ namespace TilerTests
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             tilerUser.BeginningOfWeek = userWeekDay;
-            Schedule = new TestSchedule(user, refNow);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
             TimeSpan duration = TimeSpan.FromHours(4);
             DateTimeOffset start = refNow;
             DateTimeOffset end = start.AddDays(21);
@@ -1494,7 +1495,6 @@ namespace TilerTests
 
             var values = Enum.GetValues(typeof(TimeOfDayPreferrence.DaySection)).Cast<TimeOfDayPreferrence.DaySection>().ToList();
             Assert.AreEqual(values.Count - 2, TimeOfDayPreferrence.ActiveDaySections.Count);
-
         }
 
         [TestCleanup]

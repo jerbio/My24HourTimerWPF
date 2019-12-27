@@ -816,6 +816,8 @@ namespace TilerElements
             this._EventDayPreference = dayPreference;
         }
 
+        
+
         /// <summary>
         /// Pauses a sub event in the calendar event
         /// </summary>
@@ -2053,6 +2055,19 @@ namespace TilerElements
         #endregion
 
         #region Properties
+        public override DateTimeOffset TimeOfScheduleLoad {
+            get {
+                return base.TimeOfScheduleLoad;
+            }
+            set {
+                base.TimeOfScheduleLoad = value;
+                foreach(SubCalendarEvent subEvent in AllSubEvents)
+                {
+                    subEvent.TimeOfScheduleLoad = TimeOfScheduleLoad;
+                }
+            }
+        }
+
         public IEnumerable<CalendarEvent> RecurringCalendarEvents
         {
             get
@@ -2199,7 +2214,7 @@ namespace TilerElements
         {//return All Subcalevents that enabled or not.
             get
             {
-                if (IsFromRecurringAndNotChildRepeatCalEvent)
+                if (IsFromRecurringAndNotChildRepeatCalEvent && this._RepeatIsLoaded)
                 {
                     return this.Repeat.RecurringCalendarEvents().SelectMany(obj => obj.AllSubEvents).ToArray();
                 }

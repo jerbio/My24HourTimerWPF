@@ -56,6 +56,7 @@ namespace TilerElements
         protected string _UndoId;
         protected bool _IsRepeat = false;
         protected CalendarEvent _RepeatParentEvent;
+        protected DateTimeOffset _TimeOfScheduleLoad;
 
         #region undoParameters
         public DateTimeOffset UndoStartDateTime;
@@ -229,7 +230,7 @@ namespace TilerElements
 
         public void validateLocation(Location location)
         {
-            Location validatedLocation = this._LocationInfo.validate(location);
+            Location validatedLocation = this._LocationInfo.validate(location, TimeOfScheduleLoad);
             if (validatedLocation != null && !validatedLocation.isNull && !validatedLocation.isDefault)
             {
                 _LocationValidationId = validatedLocation.Id;
@@ -559,7 +560,7 @@ namespace TilerElements
                 }
                 if (_LocationInfo.IsAmbiguous)
                 {
-                    Location retValue = _LocationInfo.getLocationThroughValidation(_LocationValidationId);
+                    Location retValue = _LocationInfo.getLocationThroughValidation(_LocationValidationId, TimeOfScheduleLoad);
                     if (retValue != null && !retValue.isDefault)
                     {
                         updateLocationValidationId(retValue?.Id);
@@ -713,6 +714,18 @@ namespace TilerElements
             set
             {
                 this._AutoDeleted = value;
+            }
+        }
+
+        [NotMapped]
+        public virtual DateTimeOffset TimeOfScheduleLoad
+        {
+            get {
+                return _TimeOfScheduleLoad;
+            }
+            set
+            {
+                _TimeOfScheduleLoad = value;
             }
         }
 

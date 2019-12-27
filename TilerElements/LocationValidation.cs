@@ -100,7 +100,7 @@ namespace TilerElements
             AverageVariance = locations.Select(loc => Location.calculateDistance(location, loc, -1)).Where(dist => dist >= 0).Select(dist => Math.Abs(dist - AverageDistanceFromAverageLocation)).Average();
         }
 
-        internal Location getClosestLocation(Location location)
+        internal Location getClosestLocation(Location location, DateTimeOffset currentTime)
         {
             double lowestDistance = double.MaxValue;
             LocationJson retValue = null;
@@ -115,11 +115,12 @@ namespace TilerElements
                         if (distance < lowestDistance)
                         {
                             retValue = loc;
+                            lowestDistance = distance;
                         }
                     }
                 }
             }
-            retValue.LastUsed = DateTimeOffset.UtcNow;
+            retValue.LastUsed = currentTime;
             return retValue;
         }
 
@@ -147,7 +148,7 @@ namespace TilerElements
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        internal Location getLocation(string id)
+        internal Location getLocation(string id, DateTimeOffset currentTime)
         {
             if (!this.isInstantiated)
             {
@@ -159,7 +160,7 @@ namespace TilerElements
                 if (dictionary_location.ContainsKey(id))
                 {
                     retValue = dictionary_location[id];
-                    retValue.LastUsed = DateTimeOffset.UtcNow;
+                    retValue.LastUsed = currentTime;
                     return retValue;
                 }
             }
@@ -176,7 +177,7 @@ namespace TilerElements
                 foreach (var location in locations)
                 {
                     TimeSpan lasUsedSpan = currentTime - location.LastUsed;
-                    if (lasUsedSpan > CacheExpirationTimeSpan)
+                    if (lasUsedSpan >= CacheExpirationTimeSpan)
                     {
                         dictionary_location.Remove(location.Id);
                         reevaluateAverages = true;

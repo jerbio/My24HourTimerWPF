@@ -160,5 +160,136 @@ namespace TilerTests
             Assert.AreEqual(lastActiveSchedulingLookupCount, 2);
             Assert.AreEqual(lastActiveSchedulingUpdateCount, 2);
         }
+
+
+        /// <summary>
+        /// Test validates that the right cache location is picked relative to the current location. It verifies that the cache is also purged after the CacheExpirationTimeSpan timespan
+        /// </summary>
+        [TestMethod]
+        public void LocationCacheAndPurging()
+        {
+            string gymName = "24 hour fitness";
+            Location coloadoSpringLocation = new Location(38.8659815, -104.7189151);
+            Location broomfieldLocation = new Location(39.9456167, -105.1376022);
+            Location boulderLocation = new Location(40.0293704, -105.2749966);
+            Location homeLocation = new Location(39.9257505, -105.1480946);
+            Location workLocation = new Location(40.0202094, -105.2511518);
+            Location gymLocation = new Location(gymName);
+            string coSpringsString = "colorado springs";
+            string boulderString = "boulder";
+            string broomfieldString = "broomfield";
+
+            var packet = TestUtility.CreatePacket();
+            TilerUser tilerUser = packet.User;
+            UserAccount user = packet.Account;
+            DateTimeOffset refNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
+
+            ///Adding event around colorado spring location should have all subevents select a gym around 24 hour fitness
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            TestSchedule schedule = new TestSchedule(user, refNow);
+            TimeSpan duration = TimeSpan.FromHours(2);
+            int splitCount = 2;
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = start.AddDays(90);
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, splitCount, false, location: gymLocation);
+            schedule.CurrentLocation = coloadoSpringLocation;
+            schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
+            foreach (Location location in schedule.getAllCalendarEvents().SelectMany(o => o.ActiveSubEvents.Select(sub => sub.Location)).ToList())
+            {
+                Assert.IsTrue(location.Address.ToLower().Contains(coSpringsString));
+            }
+
+            ///Running a schedule update around broomfield should have all gym locations around broomfield. The old colorado springs is going to be used one more time(this around parallelcallstotwentyfourhours) before a refresh around optimization
+            DateTimeOffset oneDayAfterRefNow = refNow.AddDays(1);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, oneDayAfterRefNow);
+            schedule.CurrentLocation = broomfieldLocation;
+            schedule.FindMeSomethingToDo(broomfieldLocation).Wait();
+            schedule.persistToDB().Wait();
+            Assert.AreEqual(schedule.getAllLocations().Count(), 1);
+            foreach (Location location in schedule.getAllCalendarEvents().SelectMany(o => o.ActiveSubEvents.Select(sub => sub.Location)).ToList())
+            {
+                Assert.IsTrue(location.Address.ToLower().Contains(broomfieldString));// this can sometime use lafayette. This happened in my case when I ran this test with a VPN location in london. If this fails verify your PCs location
+                (location as LocationJson).LastUsed = schedule.Now.constNow;
+            }
+
+            ///Running a schedule update around boulder should have all gym locations around boulder. 
+            DateTimeOffset fifteenDayAfterRefNow = refNow.AddDays(15);
+            schedule = new TestSchedule(user, fifteenDayAfterRefNow);
+            schedule.CurrentLocation = boulderLocation;
+            schedule.FindMeSomethingToDo(boulderLocation).Wait();
+            schedule.persistToDB().Wait();
+            Assert.AreEqual(schedule.getAllLocations().Count(), 1);
+            foreach (Location location in schedule.getAllCalendarEvents().SelectMany(o => o.ActiveSubEvents.Select(sub => sub.Location)).ToList())
+            {
+
+                Assert.IsTrue(location.Address.ToLower().Contains(boulderString));
+                Assert.AreEqual((location as LocationJson).LastUsed, schedule.Now.constNow);
+            }
+
+
+            ///Running a schedule update around colorado springs should have all gym locations around colorado springs.
+            DateTimeOffset thirtyDayAfterRefNow = refNow.AddDays(30);
+            schedule = new TestSchedule(user, thirtyDayAfterRefNow);
+            schedule.CurrentLocation = coloadoSpringLocation;
+            schedule.FindMeSomethingToDo(coloadoSpringLocation).Wait();
+            schedule.persistToDB().Wait();
+            foreach (Location location in schedule.getAllCalendarEvents().SelectMany(o => o.ActiveSubEvents.Select(sub => sub.Location)).ToList())
+            {
+                Assert.IsTrue(location.Address.ToLower().Contains(coSpringsString));
+                Assert.AreEqual((location as LocationJson).LastUsed, schedule.Now.constNow);
+            }
+
+            Assert.AreEqual(schedule.getAllLocations().Count(), 1);
+
+            Location twentyHourFitnessAmbiguous = schedule.getAllLocations().First();
+
+            Assert.AreEqual(twentyHourFitnessAmbiguous.LocationValidation.locations.Count(), 3);
+            bool boulderCheck = false, coloradoSpringCheck = false, broomfieldCheck = false;
+
+            foreach (Location locations in twentyHourFitnessAmbiguous.LocationValidation.locations)
+            {
+                boulderCheck |= locations.Address.ToLower().Contains(boulderString);
+                broomfieldCheck |= locations.Address.ToLower().Contains(broomfieldString);
+                coloradoSpringCheck |= locations.Address.ToLower().Contains(coSpringsString);
+            }
+
+            Assert.IsTrue(boulderCheck);
+            Assert.IsTrue(coloradoSpringCheck);
+            Assert.IsTrue(broomfieldCheck);
+
+            ///Running a schedule update around colorado springs should have all gym locations around colorado springs. The old broomfield is going to be used one more time(this around parallelcallstotwentyfourhours) before a refresh when optimization
+            DateTimeOffset sixtyDayAfterRefNow = refNow.AddDays(45);
+            schedule = new TestSchedule(user, sixtyDayAfterRefNow);
+            schedule.CurrentLocation = coloadoSpringLocation;
+            schedule.FindMeSomethingToDo(coloadoSpringLocation).Wait();
+            schedule.persistToDB().Wait();
+            foreach (Location location in schedule.getAllCalendarEvents().SelectMany(o => o.ActiveSubEvents.Select(sub => sub.Location)).ToList())
+            {
+                Assert.IsTrue(location.Address.ToLower().Contains(coSpringsString));
+                Assert.AreEqual((location as LocationJson).LastUsed, schedule.Now.constNow);
+            }
+
+            Assert.AreEqual(schedule.getAllLocations().Count(), 1);
+
+            twentyHourFitnessAmbiguous = schedule.getAllLocations().First();
+            Assert.AreEqual(twentyHourFitnessAmbiguous.LocationValidation.locations.Count(), 2);
+
+            boulderCheck = false;
+            coloradoSpringCheck = false;
+            broomfieldCheck = false;
+
+            foreach (Location locations in twentyHourFitnessAmbiguous.LocationValidation.locations)
+            {
+                boulderCheck |= locations.Address.ToLower().Contains(boulderString);
+                broomfieldCheck |= locations.Address.ToLower().Contains(broomfieldString);
+                coloradoSpringCheck |= locations.Address.ToLower().Contains(coSpringsString);
+            }
+
+            Assert.IsTrue(boulderCheck);
+            Assert.IsTrue(coloradoSpringCheck);
+            Assert.IsFalse(broomfieldCheck);
+
+        }
     }
 }

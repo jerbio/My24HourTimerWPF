@@ -110,7 +110,7 @@ namespace TilerCore
             }
         }
         protected Dictionary<string, HashSet<CalendarEvent>> RepeatParentToCalendarEvents;
-        protected Dictionary<string, CalendarEvent> AllEventDictionary;
+        private Dictionary<string, CalendarEvent> AllEventDictionary;
         protected DateTimeOffset ReferenceDayTIime;
         protected Dictionary<string, Location> Locations;
         protected TimeLine CompleteSchedule;
@@ -472,6 +472,7 @@ namespace TilerCore
             if(!NewEvent.IsFromRecurringAndNotChildRepeatCalEvent)
             {
                 AllEventDictionary.Add(eventId.getAllEventDictionaryLookup, NewEvent);
+                NewEvent.TimeOfScheduleLoad = Now.constNow;
             } else
             {
                 if(NewEvent.isRepeatLoaded)
@@ -482,6 +483,7 @@ namespace TilerCore
                     }
                 }
                 AllEventDictionary.Add(eventId.getAllEventDictionaryLookup, NewEvent);
+                NewEvent.TimeOfScheduleLoad = Now.constNow;
             }
             string calendarEventId = NewEvent.Calendar_EventID.getCalendarEventComponent();
             HashSet<CalendarEvent> calendarEvents;
@@ -776,6 +778,17 @@ namespace TilerCore
         public IEnumerable<Location> getAllLocations()
         {
             return this.Locations.Values;
+        }
+
+        /// <summary>
+        /// Function makes clears the cached locations that haven't being used in over 30 days
+        /// </summary>
+        protected void purgeLocations()
+        {
+            foreach(var location in this.Locations.Values)
+            {
+                location.purgeLocationCache(Now.constNow);
+            }
         }
 
         public Location getLocation(string locationDescription)
@@ -1338,13 +1351,11 @@ namespace TilerCore
             {
                 subEvent.PinToEnd(CompleteSchedule);
             }
-            //HashSet<SubCalendarEvent> NotdoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
-            HashSet<SubCalendarEvent> NotdoneYet = new HashSet<SubCalendarEvent>();// getNoneDoneYetBetweenNowAndReerenceStartTIme();
+
+            NewEvent.TimeOfScheduleLoad = Now.constNow;// ensures that any latter dependencies on time loaded(e.g locaiton validation) use the verified location
+            HashSet<SubCalendarEvent> NotdoneYet = new HashSet<SubCalendarEvent>();
             NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, NotdoneYet, null);
-
-
-
-            ///
+            
 
             if (NewEvent == null)//checks if event was assigned and ID ehich means it was successfully able to find a spot
             {
@@ -2210,6 +2221,7 @@ namespace TilerCore
             Stopwatch watch = new Stopwatch();
             watch.Start();
             ParallelizeCallsToDay(SortedInterFerringCalendarEvents_Deadline, ArrayOfInterferringSubEvents, AllDayTImeLine, callLocation, OptimizeFirstTwentyFour, preserveFirstTwentyFourHours, shuffle);
+            purgeLocations();
             watch.Stop();
             TimeSpan scheduleElapsedTime = watch.Elapsed;
             Debug.WriteLine("ParallelizeCallsToDay took " + scheduleElapsedTime.ToString());
@@ -3241,6 +3253,7 @@ namespace TilerCore
                     throw E;
                 }
             }
+            
             Debug.WriteLine("Optimization took" + OptimizationWatch.Elapsed.ToString());
             foreach (DayTimeLine dayTimeLine in moveToMiddleDays)
             {

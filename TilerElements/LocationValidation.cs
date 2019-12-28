@@ -14,6 +14,7 @@ namespace TilerElements
         public double AverageLatitude { get; set; } = 0;
         public double AverageDistanceFromAverageLocation { get; set; } = 0;
         public double AverageVariance { get; set; } = 0;
+        public static readonly TimeSpan CacheExpirationTimeSpan = TimeSpan.FromDays(30);
         [NonSerialized]
         bool isInstantiated = false;
         [NonSerialized]
@@ -99,14 +100,14 @@ namespace TilerElements
             AverageVariance = locations.Select(loc => Location.calculateDistance(location, loc, -1)).Where(dist => dist >= 0).Select(dist => Math.Abs(dist - AverageDistanceFromAverageLocation)).Average();
         }
 
-        internal Location getClosestLocation(Location location)
+        internal Location getClosestLocation(Location location, DateTimeOffset currentTime)
         {
             double lowestDistance = double.MaxValue;
-            Location retValue = null;
+            LocationJson retValue = null;
             if(locations.Count > 0)
             {
                 retValue = locations.First();
-                foreach (Location loc in locations)
+                foreach (LocationJson loc in locations)
                 {
                     double distance = Location.calculateDistance(location, loc, -1);
                     if (distance > 0)
@@ -114,11 +115,12 @@ namespace TilerElements
                         if (distance < lowestDistance)
                         {
                             retValue = loc;
+                            lowestDistance = distance;
                         }
                     }
                 }
             }
-            
+            retValue.LastUsed = currentTime;
             return retValue;
         }
 
@@ -146,23 +148,49 @@ namespace TilerElements
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        internal Location getLocation(string id)
+        internal Location getLocation(string id, DateTimeOffset currentTime)
         {
             if (!this.isInstantiated)
             {
                 this.instantiate();
             }
-            Location retValue;
+            LocationJson retValue;
             if (!string.IsNullOrEmpty(id))
             {
                 if (dictionary_location.ContainsKey(id))
                 {
                     retValue = dictionary_location[id];
+                    retValue.LastUsed = currentTime;
                     return retValue;
                 }
             }
             retValue = null;
             return retValue;
+        }
+
+        public void purge(DateTimeOffset currentTime)
+        {
+            if (dictionary_location != null)
+            {
+                bool reevaluateAverages = false;
+                var locations = dictionary_location.Values.ToList();
+                foreach (var location in locations)
+                {
+                    TimeSpan lasUsedSpan = currentTime - location.LastUsed;
+                    if (lasUsedSpan >= CacheExpirationTimeSpan)
+                    {
+                        dictionary_location.Remove(location.Id);
+                        reevaluateAverages = true;
+                    }
+                }
+
+                if(reevaluateAverages)
+                {
+                    this.locations = dictionary_location.Values.ToList();
+                    updateAverageLocation();
+                    updateAverageLocationDistance();
+                }
+            }
         }
     }
 }

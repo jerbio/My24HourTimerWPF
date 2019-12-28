@@ -44,7 +44,7 @@ namespace TilerTests
                 DateTimeOffset referenceDayTimeNow = new DateTimeOffset(Now.calculationNow.Year, Now.calculationNow.Month, Now.calculationNow.Day, profileData.Item2.Hour, profileData.Item2.Minute, profileData.Item2.Second, new TimeSpan());// profileData.Item2;
                 ReferenceDayTIime = Now.calculationNow < referenceDayTimeNow ? referenceDayTimeNow.AddDays(-1) : referenceDayTimeNow;
                 initializeAllEventDictionary(profileData.Item1.Values);
-                if (AllEventDictionary != null)
+                if (getAllEventDictionary != null)
                 {
                     EventID.Initialize((uint)(myAccount.LastEventTopNodeID));
                     initializeThirdPartyCalendars();

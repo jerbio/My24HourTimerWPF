@@ -1443,7 +1443,7 @@ namespace TilerElements
         {
             get
             {
-                return _ProfileOfNow ?? this.ParentCalendarEvent?.getNowInfo;
+                return _ProfileOfNow ?? (_ProfileOfNow = this.ParentCalendarEvent?.getNowInfo);
             }
             set
             {

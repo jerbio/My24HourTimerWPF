@@ -2614,7 +2614,7 @@ namespace TilerCore
                     EachDay.RemoveSubEvent(subEvent.Id);
                 }
 
-                Tuple<SubCalendarEvent, SubCalendarEvent, SubCalendarEvent> wakeAndSleepEvents = spaceEventsByTravelTime(EachDay, dayPath.getSubevents());
+                Tuple<SubCalendarEvent, SubCalendarEvent, SubCalendarEvent> wakeAndSleepEvents = spaceEventsByTravelTime(EachDay, dayPath.getOptimizedSubevents());
                 if(wakeAndSleepEvents.Item1!=null)
                 {
                     EachDay.WakeSubEvent = wakeAndSleepEvents.Item1;

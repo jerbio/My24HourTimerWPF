@@ -17,6 +17,7 @@ namespace TilerCore
         Dictionary<SubCalendarEvent, Dictionary<Reason.Options, Reason>> subEventToReason = new Dictionary<SubCalendarEvent, Dictionary<Reason.Options, Reason>>();
         Dictionary<SubCalendarEvent, Dictionary<TimeOfDayPreferrence.DaySection, HashSet<string>>> subEvent_Dict_To_DaySecion = new Dictionary<SubCalendarEvent, Dictionary<TimeOfDayPreferrence.DaySection, HashSet<string>>>();
         protected List<SubCalendarEvent> UnassignedSubevents = new List<SubCalendarEvent>();// These are disabled events, events that could not find a slot
+        protected List<SubCalendarEvent> ReassignedDisabledSubevents = new List<SubCalendarEvent>();
         /// <summary>
         /// This holds the subevents that cannot fit anywhere within this and also have no partial timefram that works
         /// </summary>
@@ -201,7 +202,7 @@ namespace TilerCore
                     if (Utility.tryPinSubEventsToStart(reOptimizedSubevents, DayInfo))
                     {
                         correctlyAssignedevents = reOptimizedSubevents.ToList();
-                        
+                        ReassignedDisabledSubevents.Add(disabledSubEvent);
                     }
                     else
                     {
@@ -214,7 +215,11 @@ namespace TilerCore
             }
         }
 
-        public List<SubCalendarEvent> getSubevents()
+        /// <summary>
+        /// Returns all the pinned subevents and the reassigned disabled sub events
+        /// </summary>
+        /// <returns></returns>
+        public List<SubCalendarEvent> getOptimizedSubevents()
         {
             List<SubCalendarEvent> retValue = new List<SubCalendarEvent>();
             HashSet<SubCalendarEvent> subEventSet = new HashSet<SubCalendarEvent>();
@@ -226,6 +231,8 @@ namespace TilerCore
                     retValue.Add(subEvent);
                 }
             }
+
+            retValue.AddRange(ReassignedDisabledSubevents);
             return retValue;
         }
 

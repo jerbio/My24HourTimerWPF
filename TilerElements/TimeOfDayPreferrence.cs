@@ -58,6 +58,16 @@ namespace TilerElements
             return retValue;
         }
 
+        /// <summary>
+        /// Giving a timeline this function will return the timeline for each day section. NOTE this gets the timeline based on the end of the timeline. So this means the first six hour timeline before the end is evening, and the next is afer morning then evening.
+        /// So if you have a timeline of 10:00AM - 10:00PM this will result in Dictionary of only two entries
+        /// 4:00PM - 10:00PM will be evening
+        /// 10:AM - 4:00PM will be afternoon.
+        /// There will be no morning or sleep day sections.
+        /// </summary>
+        /// <param name="timeLine"></param>
+        /// <returns></returns>
+
         static public Dictionary<DaySection, TimeLine> splitIntoDaySections(TimeLine timeLine)
         {
             if(timeLine.TimelineSpan<=Utility.OneDayTimeSpan)

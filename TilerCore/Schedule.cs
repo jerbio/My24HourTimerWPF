@@ -2677,12 +2677,21 @@ namespace TilerCore
             return retValue;
         }
 
-        Tuple<SubCalendarEvent, SubCalendarEvent, SubCalendarEvent> spaceEventsByTravelTime(DayTimeLine myDay, List<SubCalendarEvent> subEvents, bool useRemoteCalls = true)
+        Tuple<SubCalendarEvent, SubCalendarEvent, SubCalendarEvent> spaceEventsByTravelTime(DayTimeLine dayTimeline, List<SubCalendarEvent> subEvents, bool useRemoteCalls = true, DayTimeLine precedingDay = null)
         {
             SubCalendarEvent wakeSubEvent = null, SleepSubEvent = null, SleepOfPreviousDay = null;
             subEvents.ForEach(subEvent => subEvent.Conflicts.UpdateConflictFlag(false));
             List<SubCalendarEvent> orderedByStartSubEvents = subEvents.OrderBy(subEvent => subEvent.Start).ThenBy(o => o.getActiveDuration).ToList();// the duration is needed for instances where there are two events with the same start. Think Zero time span events, where start time and end times are the same. In this case the next event after a zero time span events can have a same start time thats the same as the zero timespan event. An example zero time sapn event is the initializing procrastinate all event
-            TimeLine myTimeLine = myDay.getJustTimeLine();
+            TimeLine dayOnlyTimeLine = dayTimeline.getJustTimeLine();
+            Location precedingDayLocation = null;
+            if(precedingDay != null)
+            {
+                SubCalendarEvent precedingDaySleepSubEvent = precedingDay.SleepSubEvent;
+                if(precedingDaySleepSubEvent!=null)
+                {
+                    precedingDayLocation = precedingDaySleepSubEvent.Location;
+                }
+            }
 
             Dictionary<SubCalendarEvent, int> subEventToIndex = new Dictionary<SubCalendarEvent, int>();
             for(int i = 0; i< orderedByStartSubEvents.Count; i++)
@@ -2693,8 +2702,8 @@ namespace TilerCore
 
             if (orderedByStartSubEvents.Count > 0)
             {
-                DateTimeOffset EarliestStart = myTimeLine.Start;// AllSubEvents.Max(obj => obj.Start);
-                DateTimeOffset LatestEnd = myTimeLine.End;//AllSubEvents.Max(obj=>obj.End);
+                DateTimeOffset EarliestStart = dayOnlyTimeLine.Start;// AllSubEvents.Max(obj => obj.Start);
+                DateTimeOffset LatestEnd = dayOnlyTimeLine.End;//AllSubEvents.Max(obj=>obj.End);
 
                 DateTimeOffset LowestSubEventStart = orderedByStartSubEvents.Min(obj => obj.Start);
                 DateTimeOffset HighestSubEventStart = orderedByStartSubEvents.Max(obj => obj.End);
@@ -2736,7 +2745,7 @@ namespace TilerCore
                 TimeLine maxSleepTimeLine = sleepKvp.Value.Item1.TimelineSpan >= sleepKvp.Value.Item2.TimelineSpan ? sleepKvp.Value.Item1 : sleepKvp.Value.Item2;
 
                 List<SubCalendarEvent> orderedByScoreSubEvent = orderedByStartSubEvents.OrderBy(sub => sub.Score).ToList();
-                Dictionary<DaySection, TimeLine> splitIntoDaySection = TimeOfDayPreferrence.splitIntoDaySections(myDay);
+                Dictionary<DaySection, TimeLine> splitIntoDaySection = TimeOfDayPreferrence.splitIntoDaySections(dayOnlyTimeLine);
                 List<SubCalendarEvent> postSleepSubEvents = new List<SubCalendarEvent>();
                 TimeLine postSleepTimeline = new TimeLine(RefTimeLine.Start, RefTimeLine.End);
                 TimeLine sleepTimeLine = null;
@@ -2746,61 +2755,77 @@ namespace TilerCore
                     int sleepSubEventindex = subEventToIndex[sleepKvp.Key];
                     TimeLine sleepSectionTimeLine = splitIntoDaySection[DaySection.Sleep];
                     TimeLine beforeTimeLine = sleepSectionTimeLine.InterferringTimeLine(sleepKvp.Value.Item1);
+                    if(beforeTimeLine!=null && beforeTimeLine.TimelineSpan <= Utility.SleepSpan && sleepKvp.Value.Item1.TimelineSpan >= Utility.SleepSpan)// this ensures we try to get at six hours of sleep. If the timeframe interferring with the sleep section is less than six hours but the timeline available to the "free space " before the sleep subeent is more than six hours then there might be some lee way
+                    {
+                        TimeSpan leftOverpan = Utility.SleepSpan - beforeTimeLine.TimelineSpan;
+                        beforeTimeLine = new TimeLine(beforeTimeLine.Start, beforeTimeLine.End.Add(leftOverpan));
+                    }
                     TimeLine afterTimeLine = sleepSectionTimeLine.InterferringTimeLine(sleepKvp.Value.Item2);
+                    if (afterTimeLine != null && afterTimeLine.TimelineSpan <= Utility.SleepSpan && sleepKvp.Value.Item2.TimelineSpan >= Utility.SleepSpan)// this ensures we try to get at six hours of sleep. If the timeframe interferring with the sleep section is less than six hours but the timeline available to the "free space " before the sleep subeent is more than six hours then there might be some lee way
+                    {
+                        TimeSpan leftOverpan = Utility.SleepSpan - afterTimeLine.TimelineSpan;
+                        afterTimeLine = new TimeLine(afterTimeLine.Start, afterTimeLine.End.Add(leftOverpan));
+                    }
 
-                    if(beforeTimeLine!=null && afterTimeLine != null)
+
+                    if (beforeTimeLine!=null && afterTimeLine != null)
                     {
                         if(beforeTimeLine.TimelineSpan >= afterTimeLine.TimelineSpan)
                         {
-                            if(!Utility.tryPinSubEventsToEnd(orderedByStartSubEvents, myDay))
+                            if(!Utility.tryPinSubEventsToEnd(orderedByStartSubEvents, dayOnlyTimeLine))
                             {
                                 throw new Exception("this pinning should not fail when it is the max Available spot");
                             }
                             postSleepSubEvents.AddRange(orderedByStartSubEvents.Skip(sleepSubEventindex));
                             previousDaySleepSubeventIndex = sleepSubEventindex - 1;
-                            postSleepTimeline = new TimeLine(beforeTimeLine.End, myDay.End);
+                            postSleepTimeline = new TimeLine(beforeTimeLine.End, dayOnlyTimeLine.End);
                             sleepTimeLine = new TimeLine(beforeTimeLine.Start, beforeTimeLine.End);
                         }
                         else
                         {
-                            if (!Utility.tryPinSubEventsToStart(orderedByStartSubEvents, myDay))
+                            if (!Utility.tryPinSubEventsToStart(orderedByStartSubEvents, dayOnlyTimeLine))
                             {
                                 throw new Exception("this pinning should not fail when it is the max Available spot");
                             }
                             postSleepSubEvents.AddRange(orderedByStartSubEvents.Skip(sleepSubEventindex+1));
                             previousDaySleepSubeventIndex = sleepSubEventindex;
-                            postSleepTimeline = new TimeLine(afterTimeLine.End, myDay.End);
+                            postSleepTimeline = new TimeLine(afterTimeLine.End, dayOnlyTimeLine.End);
                             sleepTimeLine = new TimeLine(afterTimeLine.Start, afterTimeLine.End);
                         }
                     } else if(beforeTimeLine!=null)
                     {
-                        if (!Utility.tryPinSubEventsToEnd(orderedByStartSubEvents, myDay))
+                        if (!Utility.tryPinSubEventsToEnd(orderedByStartSubEvents, dayOnlyTimeLine))
                         {
                             throw new Exception("this pinning should not fail when it is the max Available spot");
                         }
                         postSleepSubEvents.AddRange(orderedByStartSubEvents.Skip(sleepSubEventindex));
                         previousDaySleepSubeventIndex = sleepSubEventindex - 1;
-                        postSleepTimeline = new TimeLine(beforeTimeLine.End, myDay.End);
+                        postSleepTimeline = new TimeLine(beforeTimeLine.End, dayOnlyTimeLine.End);
                         sleepTimeLine = new TimeLine(beforeTimeLine.Start, beforeTimeLine.End);
                     }
                     else if (afterTimeLine != null)
                     {
-                        if (!Utility.tryPinSubEventsToStart(orderedByStartSubEvents, myDay))
+                        if (!Utility.tryPinSubEventsToStart(orderedByStartSubEvents, dayOnlyTimeLine))
                         {
                             throw new Exception("this pinning should not fail when it is the max Available spot");
                         }
                         postSleepSubEvents.AddRange(orderedByStartSubEvents.Skip(sleepSubEventindex+1));
                         previousDaySleepSubeventIndex = sleepSubEventindex;
-                        postSleepTimeline = new TimeLine(afterTimeLine.End, myDay.End);
+                        postSleepTimeline = new TimeLine(afterTimeLine.End, dayOnlyTimeLine.End);
                         sleepTimeLine = new TimeLine(afterTimeLine.Start, afterTimeLine.End);
                     } else
                     {
                         postSleepSubEvents = orderedByStartSubEvents.ToList();
                     }
 
-                    if(previousDaySleepSubeventIndex >= 0)
+                    if(previousDaySleepSubeventIndex >= 0)// if there is going to be a sleepEvent for he previous day
                     {
                         SleepOfPreviousDay = orderedByStartSubEvents[previousDaySleepSubeventIndex];
+                        List<SubCalendarEvent> subEventsBeforeSleep = orderedByStartSubEvents.Take(previousDaySleepSubeventIndex + 1).ToList();
+                        if(!Utility.tryPinSubEventsToStart(subEventsBeforeSleep, dayOnlyTimeLine))
+                        {
+                            throw new Exception("There is a wrong misconception in your algorithm jay");
+                        }
                     }
                 }
                 else
@@ -2901,7 +2926,7 @@ namespace TilerCore
                     }
 
 
-                    TimeLine timeLine = new TimeLine(startTime, myDay.End);
+                    TimeLine timeLine = new TimeLine(startTime, dayOnlyTimeLine.End);
                     bool allIsPinned = true && Utility.tryPinSubEventsToStart(new List<SubCalendarEvent>() { subEvent}, timeLine);
                     SubCalendarEvent previousSubEvent = subEvent;
                     foreach (SubCalendarEvent eachSubEvent in subsequentSubevents)
@@ -2912,7 +2937,7 @@ namespace TilerCore
                             {
                                 TimeSpan beforeTimeSpan = subEventToBuffer[eachSubEvent].Item1;
                                 beforeTimeSpan = beforeTimeSpan == Utility.NegativeTimeSpan ? Utility.ZeroTimeSpan : beforeTimeSpan;
-                                timeLine = new TimeLine(previousSubEvent.End + beforeTimeSpan, myDay.End);
+                                timeLine = new TimeLine(previousSubEvent.End + beforeTimeSpan, dayOnlyTimeLine.End);
                                 if(eachSubEvent.Start >= timeLine.Start)// subsequent subevent is already later than the previous subevent + its buffer span
                                 {
                                     break;
@@ -2920,7 +2945,7 @@ namespace TilerCore
                             }
                             else
                             {
-                                timeLine = new TimeLine(previousSubEvent.End, myDay.End);
+                                timeLine = new TimeLine(previousSubEvent.End, dayOnlyTimeLine.End);
                             }
                             bool pinResult = eachSubEvent.PinToStart(timeLine);
                             allIsPinned &= pinResult;

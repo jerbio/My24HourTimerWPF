@@ -199,7 +199,7 @@ namespace TilerCore
                 foreach (SubCalendarEvent disabledSubEvent in subEventsEvaluated.Select(obj => obj.Key))
                 {
                     List<SubCalendarEvent> reOptimizedSubevents = optimizeDisabledEvent(DayInfo, correctlyAssignedevents, disabledSubEvent);
-                    if (Utility.tryPinSubEventsToStart(reOptimizedSubevents, DayInfo))
+                    if (reOptimizedSubevents.Count > correctlyAssignedevents.Count && Utility.tryPinSubEventsToStart(reOptimizedSubevents, DayInfo))
                     {
                         correctlyAssignedevents = reOptimizedSubevents.ToList();
                         ReassignedDisabledSubevents.Add(disabledSubEvent);

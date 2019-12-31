@@ -276,7 +276,7 @@ namespace TilerElements
             {
                 subEvent.RepeatParentEvent = MyParentEvent;
             }
-            if (EachRepeatCalendarStart > MyParentEvent.Repeat.Range.End || ((EachRepeatCalendarEnd - EachRepeatCalendarStart) < MyRepeatCalendarEvent.AverageTimeSpanPerSubEvent))
+            if (EachRepeatCalendarStart > MyParentEvent.Repeat.Range.End)
             {
                 return;
             }
@@ -285,8 +285,12 @@ namespace TilerElements
 
             for (; MyRepeatCalendarEvent.Start < MyParentEvent.Repeat.Range.End;)
             {
-                MyArrayOfRepeatingCalendarEvents.Add(MyRepeatCalendarEvent);
-                _DictionaryOfIDAndCalendarEvents.Add(MyRepeatCalendarEvent.getId, MyRepeatCalendarEvent);
+                if (MyRepeatCalendarEvent.StartToEnd.TimelineSpan >= MyRepeatCalendarEvent.AverageTimeSpanPerSubEvent)
+                {
+                    MyArrayOfRepeatingCalendarEvents.Add(MyRepeatCalendarEvent);
+                    _DictionaryOfIDAndCalendarEvents.Add(MyRepeatCalendarEvent.getId, MyRepeatCalendarEvent);
+                }
+
                 TimeSpan repeatSpan = EachRepeatCalendarEnd - EachRepeatCalendarStart;
                 EachRepeatCalendarStart = IncreaseByFrequency(EachRepeatCalendarStart, getFrequency); ;
                 EachRepeatCalendarEnd = IncreaseByFrequency(EachRepeatCalendarEnd, getFrequency);

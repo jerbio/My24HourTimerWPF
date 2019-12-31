@@ -232,6 +232,7 @@ namespace TilerElements
                                 retValue._Latitude = Convert.ToDouble(result.Geometry.Location.Latitude);
                                 retValue._Longitude = Convert.ToDouble(result.Geometry.Location.Longitude);
                                 retValue._LookupString = this._LookupString;
+                                retValue.SearchdDescription = this.SearchdDescription;
                                 retValue.UserId = this.UserId??this.User?.Id;
                                 retValue._NullLocation = false;
                                 retValue._DefaultFlag = false;

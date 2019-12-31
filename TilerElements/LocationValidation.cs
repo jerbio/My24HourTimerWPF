@@ -96,8 +96,16 @@ namespace TilerElements
         internal void updateAverageLocationDistance()
         {
             Location location = new Location(AverageLatitude, AverageLongitude);
-            AverageDistanceFromAverageLocation = locations.Select(loc => Location.calculateDistance(location, loc, -1)).Where(dist => dist >= 0).Average();
-            AverageVariance = locations.Select(loc => Location.calculateDistance(location, loc, -1)).Where(dist => dist >= 0).Select(dist => Math.Abs(dist - AverageDistanceFromAverageLocation)).Average();
+            if(locations.Count > 0)
+            {
+                AverageDistanceFromAverageLocation = locations.Select(loc => Location.calculateDistance(location, loc, -1)).Where(dist => dist >= 0).Average();
+                AverageVariance = locations.Select(loc => Location.calculateDistance(location, loc, -1)).Where(dist => dist >= 0).Select(dist => Math.Abs(dist - AverageDistanceFromAverageLocation)).Average();
+            } else
+            {
+                AverageDistanceFromAverageLocation = 0;
+                AverageVariance = 0;
+            }
+            
         }
 
         internal Location getClosestLocation(Location location, DateTimeOffset currentTime)
@@ -174,11 +182,13 @@ namespace TilerElements
             {
                 bool reevaluateAverages = false;
                 var locations = dictionary_location.Values.ToList();
+                List<LocationJson> removedLocations = new List<LocationJson>();
                 foreach (var location in locations)
                 {
                     TimeSpan lasUsedSpan = currentTime - location.LastUsed;
                     if (lasUsedSpan >= CacheExpirationTimeSpan)
                     {
+                        removedLocations.Add(location);
                         dictionary_location.Remove(location.Id);
                         reevaluateAverages = true;
                     }

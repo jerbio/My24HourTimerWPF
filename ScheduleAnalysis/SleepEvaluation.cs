@@ -114,9 +114,9 @@ namespace ScheduleAnalysis
                 JObject sleepJson = new JObject();
                 sleepJson.Add("SleepTimeline", sleepTimeLine.Item1.ToJson());
                 sleepJson.Add("MaximumSleepTimeLine", sleepTimeLine.Item2.ToJson());
-
-                sleepTimeLinesJson.Add(currentDay.ToUnixTimeMilliseconds().ToString(), sleepJson);
-                dayDistribution.Add(currentDay.ToUnixTimeMilliseconds().ToString(), sleepJson);
+                string dayId = currentDay.ToUnixTimeMilliseconds().ToString();
+                sleepTimeLinesJson.Add(dayId, sleepJson);
+                dayDistribution.Add(dayId, sleepJson);
             }
 
             JObject undesirableSleepTimeLines = new JObject();
@@ -127,9 +127,18 @@ namespace ScheduleAnalysis
                 DateTimeOffset currentDay = Now.getClientBeginningOfDay(sleepTimeLine.Item2);
                 TimeSpan lostTimeSpan = ExpectedSleepSpan - sleepTimeLine.Item1.TimelineSpan;
                 JObject undesiredDetails = new JObject();
+                string dayId = currentDay.ToUnixTimeMilliseconds().ToString();
                 undesiredDetails.Add("LostSleep", lostTimeSpan.TotalMilliseconds);
                 undesiredDetails.Add("SleepTimeline", sleepTimeLine.Item1.ToJson());
-                undesirableSleepTimeLines.Add(currentDay.ToUnixTimeMilliseconds().ToString(), undesiredDetails);
+                undesirableSleepTimeLines.Add(dayId, undesiredDetails);
+                if(!dayDistribution.ContainsKey(dayId))
+                {
+                    dayDistribution.Add(dayId, undesiredDetails);
+                } else
+                {
+                    dayDistribution[dayId] = undesiredDetails;
+                }
+                
             }
 
 

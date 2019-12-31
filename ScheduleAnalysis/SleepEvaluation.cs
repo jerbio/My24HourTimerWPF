@@ -104,6 +104,7 @@ namespace ScheduleAnalysis
         {
             JObject retValue = new JObject();
             JObject sleepTimeLinesJson = new JObject();
+            JObject dayDistribution = new JObject();
             var sleepTimeLines = SleepTimeLines.ToList();
             double score = this.ScoreTimeLine();
             for (int i = 0; i < sleepTimeLines.Count; i++)
@@ -115,6 +116,7 @@ namespace ScheduleAnalysis
                 sleepJson.Add("MaximumSleepTimeLine", sleepTimeLine.Item2.ToJson());
 
                 sleepTimeLinesJson.Add(currentDay.ToUnixTimeMilliseconds().ToString(), sleepJson);
+                dayDistribution.Add(currentDay.ToUnixTimeMilliseconds().ToString(), sleepJson);
             }
 
             JObject undesirableSleepTimeLines = new JObject();
@@ -134,6 +136,7 @@ namespace ScheduleAnalysis
             retValue.Add("Score", score);
             retValue.Add("SleepTimeLines", sleepTimeLinesJson);
             retValue.Add("UndesiredTimeLines", undesirableSleepTimeLines);
+            retValue.Add("days", dayDistribution);
             return retValue;
         }
 

@@ -97,6 +97,54 @@ namespace TilerCore
             return retValue;
         }
 
+        /// <summary>
+        /// function assesses changes to a schedule. It tests if a time chunk is cleared out. It tries to see the effect of the schedule change.
+        /// </summary>
+        /// <param name="pushSpan"></param>
+        /// <param name="assessmentWindow"></param>
+        /// <returns></returns>
+        virtual public async Task<Tuple<Health, Health>> EventUpdate(
+            DateTimeOffset SubeventStart,
+            DateTimeOffset SubeventEnd,
+            DateTimeOffset TimeLineStart,
+            DateTimeOffset TimeLineEnd,
+            int SplitCount,
+            string eventId)
+        {
+            SubCalendarEvent subEvent = schedule.getSubCalendarEvent(eventId);
+            var travelCache = schedule.TravelCache;
+            var deepCopy = schedule.getDeepCopyOfEventDictionary();
+            var locationCache = schedule.getAllLocations().ToDictionary(location => location.Id, location => location);
+
+            schedule.BundleChangeUpdate(eventId, subEvent.Name, SubeventStart, SubeventEnd, TimeLineStart, TimeLineEnd, SplitCount, "PREViEW CHANGES");
+
+            Schedule beforeSchedule = new Schedule(deepCopy, schedule.Now.EndOfDayStartOfTime, locationCache, schedule.Now.constNow, schedule.User, null);
+            beforeSchedule.updateTravelCache(travelCache);
+
+            Health beforeSetAsNow = new Health(beforeSchedule.getAllCalendarEvents(), schedule.Now.ComputationRange.Start, schedule.Now.ComputationRange.TimelineSpan, beforeSchedule.Now, beforeSchedule.getHomeLocation);
+            Health afterSetAsNow = new Health(schedule.getAllCalendarEvents(), schedule.Now.ComputationRange.Start, schedule.Now.ComputationRange.TimelineSpan, schedule.Now, schedule.getHomeLocation);
+            var retValue = new Tuple<Health, Health>(beforeSetAsNow, afterSetAsNow);
+            return retValue;
+        }
+
+        virtual public async Task<Tuple<Health, Health>> EventUpdate()
+        {
+            var travelCache = schedule.TravelCache;
+            var deepCopy = schedule.getDeepCopyOfEventDictionary();
+            var locationCache = schedule.getAllLocations().ToDictionary(location => location.Id, location => location);
+            schedule.UpdateSchedule();
+
+            Schedule beforeSchedule = new Schedule(deepCopy, schedule.Now.EndOfDayStartOfTime, locationCache, schedule.Now.constNow, schedule.User, null);
+            beforeSchedule.updateTravelCache(travelCache);
+
+            
+
+            Health beforeSetAsNow = new Health(beforeSchedule.getAllCalendarEvents(), schedule.Now.ComputationRange.Start, schedule.Now.ComputationRange.TimelineSpan, beforeSchedule.Now, beforeSchedule.getHomeLocation);
+            Health afterSetAsNow = new Health(schedule.getAllCalendarEvents(), schedule.Now.ComputationRange.Start, schedule.Now.ComputationRange.TimelineSpan, schedule.Now, schedule.getHomeLocation);
+            var retValue = new Tuple<Health, Health>(beforeSetAsNow, afterSetAsNow);
+            return retValue;
+        }
+
 
         Dictionary<SubCalendarEvent, List<long>> WhatIfSubEventDayDesignation(DayTimeLine[] OrderedyAscendingAllDays, IEnumerable<SubCalendarEvent> subEvents)
         {
@@ -224,8 +272,8 @@ namespace TilerCore
             Schedule beforeSchedule = new Schedule(deepCopy, schedule.Now.EndOfDayStartOfTime, locationCache, schedule.Now.constNow, null, null);
             beforeSchedule.updateTravelCache(travelCache);
 
-            Health beforeSetAsNow = new Health(beforeSchedule.getAllCalendarEvents(), schedule.Now.EndOfDayStartOfTime, TimeSpan.FromDays(Utility.defaultEndDay), beforeSchedule.Now, beforeSchedule.getHomeLocation);
-            Health afterSetAsNow = new Health(schedule.getAllCalendarEvents(), schedule.Now.EndOfDayStartOfTime, TimeSpan.FromDays(Utility.defaultEndDay), schedule.Now, schedule.getHomeLocation);
+            Health beforeSetAsNow = new Health(beforeSchedule.getAllCalendarEvents(), schedule.Now.ComputationRange.Start, schedule.Now.ComputationRange.TimelineSpan, beforeSchedule.Now, beforeSchedule.getHomeLocation);
+            Health afterSetAsNow = new Health(schedule.getAllCalendarEvents(), schedule.Now.ComputationRange.Start, schedule.Now.ComputationRange.TimelineSpan, schedule.Now, schedule.getHomeLocation);
             var retValue = new Tuple<Health, Health>(beforeSetAsNow, afterSetAsNow);
             return retValue;
         }

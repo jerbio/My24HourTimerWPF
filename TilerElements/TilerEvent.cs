@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -11,7 +12,7 @@ using static TilerElements.TimeOfDayPreferrence;
 
 namespace TilerElements
 {
-    public abstract class TilerEvent : IWhy, IUndoable, IHasId
+    public abstract class TilerEvent : IWhy, IUndoable, IHasId, IJson
     {
         public enum AccessType { owner, writer, reader, none }
         protected AccessType _Access = AccessType.owner;
@@ -97,6 +98,11 @@ namespace TilerElements
         public TilerUserGroup getAllUsers()
         {
             return _Users;
+        }
+
+        public JObject ToJson()
+        {
+            return Json;
         }
 
         /// <summary>
@@ -1030,6 +1036,37 @@ namespace TilerElements
             }
         }
 
+        virtual public bool userLocked
+        {
+            get
+            {
+                return _userLocked;
+            }
+            set
+            {
+                _userLocked = value;
+            }
+        }
+
+        public virtual string RepeatParentEventId { get; set; }
+        /// <summary>
+        /// I chose to the class TilerEvent as the type for this Data memeber because if I use calendarevent(as one might assume),
+        /// entity framework would try to create one to many relationship with the "AllSubevents_DB" data meber in calendarEvent which isnt what we're going for.
+        /// This Data member only stores the CalendarEvent from which repetition was created
+        /// </summary>
+        [ForeignKey("RepeatParentEventId")]
+        public virtual TilerEvent RepeatParentEvent
+        {
+            get
+            {
+                return _RepeatParentEvent;
+            }
+            set
+            {
+                _RepeatParentEvent = value as CalendarEvent;
+            }
+        }
+
         public virtual RestrictionProfile RestrictionProfile { get; set; } = null;
         #region undoProperties
         public virtual bool FirstInstantiation { get; set; } = true;
@@ -1255,37 +1292,6 @@ namespace TilerElements
             }
         }
 
-        virtual public bool userLocked
-        {
-            get
-            {
-                return _userLocked;
-            }
-            set
-            {
-                _userLocked = value;
-            }
-        }
-
-        public virtual string RepeatParentEventId { get; set; }
-        /// <summary>
-        /// I chose to the class TilerEvent as the type for this Data memeber because if I use calendarevent(as one might assume),
-        /// entity framework would try to create one to many relationship with the "AllSubevents_DB" data meber in calendarEvent which isnt what we're going for.
-        /// This Data member only stores the CalendarEvent from which repetition was created
-        /// </summary>
-        [ForeignKey("RepeatParentEventId")]
-        public virtual TilerEvent RepeatParentEvent
-        {
-            get
-            {
-                return _RepeatParentEvent;
-            }
-            set
-            {
-                _RepeatParentEvent = value as CalendarEvent;
-            }
-        }
-
         virtual public TimeLine StartToEnd
         {
             get
@@ -1300,6 +1306,21 @@ namespace TilerElements
             get
             {
                 return _TimeZone;
+            }
+        }
+
+        virtual public JObject Json
+        {
+            get
+            {
+                JObject retValue = new JObject();
+                retValue.Add("id", this.Id);
+                retValue.Add("start", this.Start.ToUnixTimeMilliseconds());
+                retValue.Add("end", this.End.ToUnixTimeMilliseconds());
+                retValue.Add("name", this.Name?.NameValue);
+                retValue.Add("isRigid", this.isRigid);
+
+                return retValue;
             }
         }
     }

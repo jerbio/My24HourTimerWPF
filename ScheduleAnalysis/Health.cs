@@ -61,6 +61,35 @@ namespace ScheduleAnalysis
             return retValue;
         }
 
+        public List<SubCalendarEvent> TardyEvaluation()
+        {
+            IEnumerable<SubCalendarEvent> tardySubEVents = orderedByStartThenEndSubEvents.Where(subEvent => subEvent.isTardy);
+            List<SubCalendarEvent> retValue = tardySubEVents.ToList();
+            return retValue;
+        }
+
+        public JObject TardyJson ()
+        {
+            List<SubCalendarEvent> tardyResult = TardyEvaluation();
+            JObject retValue = new JObject();
+            JArray subEvents = new JArray(tardyResult.Select(o => o.Json));
+            retValue.Add("count", tardyResult.Count);
+            retValue.Add("subevents", subEvents);
+            ILookup<long, SubCalendarEvent> dayToSubEvents = tardyResult.ToLookup(obj => Now.getDayIndexFromStartOfTime(obj.Start), obj => obj);
+            JObject dayDistribution = new JObject();
+
+            foreach(var dayToSubevent in dayToSubEvents)
+            {
+                JArray subEvents_Jobj = new JArray(dayToSubevent.Select(obj => obj.ToJson()));
+                dayDistribution.Add(dayToSubevent.Key.ToString(), subEvents_Jobj);
+            }
+
+            retValue.Add("days", dayDistribution);
+
+            return retValue;
+
+        }
+
         /// <summary>
         /// Function evaluates the distance travelled by user at crow flies.  The result returns a tuple with two Items. Item 1 is total distance travelled. Item 2 is a dictionary of day index to distance travelled subevent
         /// </summary>
@@ -238,10 +267,13 @@ namespace ScheduleAnalysis
                 dayResult.Add("distances", distances);
                 return dayResult;
             })));
+            var tardyJson = TardyJson();
+
             retValue.Add("distance", distance);
             retValue.Add("position", positioningScore);
             retValue.Add("conflict", conflictScore);
             retValue.Add("sleep", sleep);
+            retValue.Add("tardy", tardyJson);
             retValue.Add("eventPerDayScore", eventPerDayScore);
             retValue.Add("scheduleScore", score);
             

@@ -918,6 +918,8 @@ namespace TilerTests
             Assert.IsTrue(retValue);
             retValue &= firstSubevent.isSleep == secondSubevent.isSleep;
             Assert.IsTrue(retValue);
+            retValue &= firstSubevent.isTardy == secondSubevent.isTardy;
+            Assert.IsTrue(retValue);
             return retValue;
         }
 

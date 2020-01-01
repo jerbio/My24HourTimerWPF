@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json.Linq;
 
 namespace TilerElements
 {
@@ -45,6 +46,18 @@ namespace TilerElements
             get
             {
                 return UniqueID.ToString();
+            }
+        }
+
+        public override JObject Json
+        {
+            get
+            {
+                JObject retvalue = base.Json;
+                JArray subEventsInBlob = new JArray(this.getSubCalendarEventsInBlob().Select(sub => sub.Json));
+
+                retvalue.Add("subEventsInBlob", subEventsInBlob);
+                return retvalue;
             }
         }
         #endregion

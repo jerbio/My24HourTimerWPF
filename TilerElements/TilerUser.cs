@@ -126,7 +126,7 @@ namespace TilerElements
         {
             set
             {
-                _TravelCache = new TravelCache();
+                _TravelCache = value;
             }
             get
             {

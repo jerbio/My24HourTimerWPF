@@ -203,10 +203,10 @@ namespace TilerCore
 
         public Schedule(Dictionary<string, CalendarEvent> allEventDictionary, DateTimeOffset starOfDay, Dictionary<string, Location> locations, DateTimeOffset referenceNow, TilerUser user, TimeLine rangeOfLookup) : base()
         {
+            _Now = new ReferenceNow(referenceNow, starOfDay, TimeZoneDifference);
             initializeAllEventDictionary(allEventDictionary.Values);
             TilerUser = user;
             TimeZoneDifference = user.TimeZoneDifference;
-            _Now = new ReferenceNow(referenceNow, starOfDay, TimeZoneDifference);
             this.RangeOfLookup = rangeOfLookup;
             this.Locations = locations;
         }
@@ -504,7 +504,7 @@ namespace TilerCore
             addCaleventToAllEventDictionary(EventIdObj, NewEvent);
         }
 
-        Dictionary<string, CalendarEvent>  getDeepCopyOfEventDictionary()
+        public virtual Dictionary<string, CalendarEvent>  getDeepCopyOfEventDictionary()
         {
             Dictionary<string, CalendarEvent> retVallue = new Dictionary<string, CalendarEvent>();
             retVallue = AllEventDictionary.ToDictionary(obj => obj.Key, obj => obj.Value.createCopy());
@@ -645,13 +645,16 @@ namespace TilerCore
                 {
                     myCalendarEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(myCalendarEvent, NoDoneYet, null, null, 0);
                 }
-                if(myCalendarEvent.StartToEnd.End <= Now.constNow)
+                
+                foreach(SubCalendarEvent subEVent in myCalendarEvent.ActiveSubEvents.Where(subEvent => subEvent.End > Now.constNow))
                 {
-                    foreach(SubCalendarEvent subEVent in myCalendarEvent.ActiveSubEvents.Where(subEvent => subEvent.End > Now.constNow))
+                    if(!subEVent.IsDateTimeWithin(Now.constNow))
                     {
                         subEVent.PinToEnd(myCalendarEvent.StartToEnd);
                     }
+                        
                 }
+                
                 
             }
 
@@ -671,6 +674,24 @@ namespace TilerCore
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(myCalendarEvent.Error, AllEventDictionary);
             return retValue;
         }
+
+        /// <summary>
+        /// Function simply updates the schedule with nothing. Meaning it just triggers a change without adding removing or shuffling the schedule
+        /// </summary>
+        /// <returns></returns>
+        public CustomErrors UpdateSchedule()
+        {
+            DateTimeOffset start = Now.constNow.AddDays(-1);
+            DateTimeOffset end = start.AddMilliseconds(1);
+
+            HashSet<SubCalendarEvent> NoDoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
+            EventID eventId = new EventID("0");
+            CalendarEvent tempCalendarEvent = CalendarEvent.getEmptyCalendarEvent(eventId, start, end);//creates an "empty" calendar event. If the calEvent is rigid it has time span of zero
+            tempCalendarEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(tempCalendarEvent, NoDoneYet, null, null, 0);
+            CustomErrors retValue = tempCalendarEvent.Error;
+            return retValue;
+        }
+
 
         public BusyTimeLine NextActivity
         {
@@ -2614,8 +2635,11 @@ namespace TilerCore
                     EachDay.RemoveSubEvent(subEvent.Id);
                 }
 
-                Tuple<SubCalendarEvent, SubCalendarEvent, SubCalendarEvent> wakeAndSleepEvents = spaceEventsByTravelTime(EachDay, dayPath.getOptimizedSubevents());
-                if(wakeAndSleepEvents.Item1!=null)
+
+                List<SubCalendarEvent> spaceSubEvents = dayPath.getOptimizedSubevents();
+                Tuple<SubCalendarEvent, SubCalendarEvent, SubCalendarEvent> wakeAndSleepEvents = spaceEventsByTravelTime(EachDay, spaceSubEvents);
+
+                if (wakeAndSleepEvents.Item1!=null)
                 {
                     EachDay.WakeSubEvent = wakeAndSleepEvents.Item1;
                 }
@@ -3007,7 +3031,11 @@ namespace TilerCore
                         subSequentSubEvents = orderedByStartSubEvents.GetRange(beginIndex, orderedByStartSubEvents.Count - beginIndex);
                     }
 
-                    pinToEnd(subSequentSubEvents, subEvent, BoundTimeLine);
+                    bool pinResult = pinToEnd(subSequentSubEvents, subEvent, BoundTimeLine);
+                    if(!pinResult)
+                    {
+                        subEvent.setAsTardy();
+                    }
                 }
             }
             Tuple<SubCalendarEvent, SubCalendarEvent, SubCalendarEvent> retValue = new Tuple<SubCalendarEvent, SubCalendarEvent, SubCalendarEvent>(wakeSubEvent, SleepSubEvent, SleepOfPreviousDay);
@@ -3044,7 +3072,10 @@ namespace TilerCore
             long DayIndex = Now.consttDayIndex;
             double occupancyThreshold = 0.67;// this placies a soft threshold for the occupancy that different cal events would use to determine if they should continue
             EventDayBags bagsPerDay = new EventDayBags(TotalDays);
-            TotalActiveEvents.AsParallel().ForAll(subEvent => { subEvent.isWake = false; subEvent.isSleep = false; });
+            TotalActiveEvents.AsParallel().ForAll(subEvent => {
+                subEvent.isWake = false; subEvent.isSleep = false;
+                subEvent.resetTardy();
+            });
             TotalActiveEvents.ForEach((subEvent) => ConflictinSubEvents.Add(subEvent));
             AllCalEvents.ForEach
                 //.AsParallel().ForAll

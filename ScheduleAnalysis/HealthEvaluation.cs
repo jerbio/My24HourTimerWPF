@@ -14,7 +14,7 @@ namespace ScheduleAnalysis
     public class HealthEvaluation : IJson
     {
         Health ScheduleHealth;
-        List<BlobSubCalendarEvent> _ConflictingEvents { get; set; }
+        Tuple<double, ILookup<long, BlobSubCalendarEvent>> _ConflictingEvents { get; set; }
         double _TotalDistance { get; set; }
         double _PositioningScore { get; set; }
         List<TimeSpan> _SleepSchedule { get; set; }
@@ -38,7 +38,7 @@ namespace ScheduleAnalysis
         {
             JObject retValue = new JObject();
             JArray conflict = new JArray();
-            _ConflictingEvents.ForEach((blob) => {
+            _ConflictingEvents.Item2.SelectMany(entry => _ConflictingEvents.Item2[entry.Key]).ToList().ForEach((blob) => {
                 JArray conflictingSubEvents = new JArray();
                 foreach(SubCalendarEvent subEvent in blob.getSubCalendarEventsInBlob())
                 {
@@ -58,13 +58,9 @@ namespace ScheduleAnalysis
 
         public List<BlobSubCalendarEvent> ConflictingEvents
         {
-            set
-            {
-                _ConflictingEvents = value;
-            }
             get
             {
-                return _ConflictingEvents;
+                return _ConflictingEvents.Item2.SelectMany(entry => _ConflictingEvents.Item2[entry.Key]).ToList();
             }
         }
         public double TotalDistance

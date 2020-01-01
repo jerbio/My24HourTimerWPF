@@ -26,7 +26,8 @@ namespace TilerElements
             Tile_Or_Event_ID_Cannot_Be_Found = 40000011,
             Repeated_Tile_Is_Not_Current_Tile = 40000012,
             TilerConfig_Repeat_Third_Party = 400000013,
-            TilerConfig_Repeat_Procrastinate_All = 400000014
+            TilerConfig_Repeat_Procrastinate_All = 400000014,
+            Preview_Calendar_Type_Not_Supported = 50000001
         };
         static Dictionary<Errors, String> errorMessage = new Dictionary<Errors, string>()
         {
@@ -46,7 +47,8 @@ namespace TilerElements
             {Errors.Tile_Or_Event_ID_Cannot_Be_Found, "Tile or Event with the provided ID cannot be found" },
             {Errors.Repeated_Tile_Is_Not_Current_Tile, "Cannot repeat Tile that is not current active tile" },
             {Errors.TilerConfig_Repeat_Third_Party, "Cannot repeat Third party event" },
-            {Errors.TilerConfig_Repeat_Procrastinate_All, "Cannot repeat Procrastinate All Tile" }
+            {Errors.TilerConfig_Repeat_Procrastinate_All, "Cannot repeat Procrastinate All Tile" },
+            {Errors.Preview_Calendar_Type_Not_Supported, "Selected Calendar is not supported for manipulation" }
 
         };
         string ErrorMessage;
@@ -58,6 +60,7 @@ namespace TilerElements
          * 20000000<=Code => Log control issue
          * 30000000<=Code => Database control issue
          * 40000000<=Code => Schedule Maniputlation Error issue
+         * 50000000<=Code => Prediction Maniputlation Error issue
          */
 
         public CustomErrors(int ErrorCode, string MessagEntry=null, TilerEvent tilerEvent = null)

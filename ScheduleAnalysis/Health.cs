@@ -55,10 +55,40 @@ namespace ScheduleAnalysis
         {
             Tuple<double, Dictionary<long, List<double>>> distanceEvaluation = evaluateTotalDistance();
             double positioningScore = evaluatePositioning();
-            double conflictScore = evaluateConflicts().Sum(blob => blob.getSubCalendarEventsInBlob().Count());
+            double conflictScore = evaluateConflicts().Item1;
             double eventPerDayScore = eventsPerDay();
             double retValue = Utility.CalcuateResultant(distanceEvaluation.Item1, positioningScore, conflictScore, SleepEvaluation.ScoreTimeLine(), eventPerDayScore);
             return retValue;
+        }
+
+        public List<SubCalendarEvent> TardyEvaluation()
+        {
+            IEnumerable<SubCalendarEvent> tardySubEVents = orderedByStartThenEndSubEvents.Where(subEvent => subEvent.isTardy);
+            List<SubCalendarEvent> retValue = tardySubEVents.ToList();
+            return retValue;
+        }
+
+        public JObject TardyJson ()
+        {
+            List<SubCalendarEvent> tardyResult = TardyEvaluation();
+            JObject retValue = new JObject();
+            JArray subEvents = new JArray(tardyResult.Select(o => o.Json));
+            retValue.Add("count", tardyResult.Count);
+            retValue.Add("subevents", subEvents);
+            ILookup<long, SubCalendarEvent> dayToSubEvents = tardyResult.ToLookup(obj => Now.getDayIndexFromStartOfTime(obj.Start), obj => obj);
+            JObject dayDistribution = new JObject();
+
+            foreach(var dayToSubevent in dayToSubEvents)
+            {
+                JArray subEvents_Jobj = new JArray(dayToSubevent.Select(obj => obj.ToJson()));
+                long beginningOfDay = Now.getClientBeginningOfDay(dayToSubevent.Key).ToUnixTimeMilliseconds();
+                dayDistribution.Add(beginningOfDay.ToString(), subEvents_Jobj);
+            }
+
+            retValue.Add("days", dayDistribution);
+
+            return retValue;
+
         }
 
         /// <summary>
@@ -191,10 +221,13 @@ namespace ScheduleAnalysis
             return retValue;
         }
 
-        public List<BlobSubCalendarEvent> evaluateConflicts()
+        public Tuple<double, ILookup<long, BlobSubCalendarEvent>> evaluateConflicts()
         {
             List<BlobSubCalendarEvent> conflictingEvents = Utility.getConflictingEvents(_orderedByStartThenEndSubEvents);
-            return conflictingEvents;
+            double conflictTotal = conflictingEvents.Sum(blob => blob.getSubCalendarEventsInBlob().Count());
+            ILookup<long, BlobSubCalendarEvent> subEventLookup = conflictingEvents.ToLookup(obj => Now.getClientBeginningOfDay( Now.getDayIndexFromStartOfTime(obj.Start)).ToUnixTimeMilliseconds(), obj => obj);
+            Tuple<double, ILookup<long, BlobSubCalendarEvent>> retValue = new Tuple<double, ILookup<long, BlobSubCalendarEvent>>(conflictTotal, subEventLookup);
+            return retValue;
         }
 
         internal HealthEvaluation getEvaluation(bool forceReevaluation = false)
@@ -214,12 +247,29 @@ namespace ScheduleAnalysis
             int retValue = comparison.Compare;
             return retValue;
         }
+        
 
-        public JObject ToJson()
+        public JObject convertConflictEvalToJson(Tuple<double, ILookup<long, BlobSubCalendarEvent>> conflictEval)
+        {
+            JObject retValue = new JObject();
+            retValue.Add("score", conflictEval.Item1);
+            JObject days = new JObject();
+            foreach(var lookup in conflictEval.Item2)
+            {
+                JArray subEvents = new JArray(lookup.Select(o=>o.Json));
+                days.Add(lookup.Key.ToString(), subEvents);
+            }
+            retValue.Add("days", days);
+
+            return retValue;
+        }
+
+    public JObject ToJson()
         {
             var distanceEvaluation = evaluateTotalDistance();
             double positioningScore = evaluatePositioning();
-            double conflictScore = evaluateConflicts().Sum(blob => blob.getSubCalendarEventsInBlob().Count());
+            var conflictEval = evaluateConflicts();
+            double conflictScore = conflictEval.Item1;
             Tuple<double, List<Tuple<TimeLine, TimeLine, long>>> sleepEvaluation = SleepEvaluation.scoreAndTimeLine();
 
             double score = Utility.CalcuateResultant(distanceEvaluation.Item1, positioningScore, conflictScore, sleepEvaluation.Item1);
@@ -238,10 +288,14 @@ namespace ScheduleAnalysis
                 dayResult.Add("distances", distances);
                 return dayResult;
             })));
+            var tardyJson = TardyJson();
+            var conflictJson = convertConflictEvalToJson(conflictEval);
+
             retValue.Add("distance", distance);
             retValue.Add("position", positioningScore);
-            retValue.Add("conflict", conflictScore);
+            retValue.Add("conflict", conflictJson);
             retValue.Add("sleep", sleep);
+            retValue.Add("tardy", tardyJson);
             retValue.Add("eventPerDayScore", eventPerDayScore);
             retValue.Add("scheduleScore", score);
             

@@ -46,6 +46,7 @@ namespace TilerElements
         public string ThirdPartyType { get; set; }
         public string Notes { get; set; }
         public bool isReadOnly { get; set; }
+        public bool isTardy { get; set; }
         public CalEvent CalEvent { get; set; }
     }
 }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json.Linq;
+
 namespace TilerElements
 {
     public class SubCalendarEvent : TilerEvent,IDefinedRange
@@ -40,6 +42,7 @@ namespace TilerElements
         protected bool tempLock { get; set; } = false;// This should never get persisted
         protected bool lockedPrecedingHours { get; set; } = false;// This should never get persisted
         protected bool _enablePre_reschedulingTimelineLockDown { get; set; } = true;// This prevent locking for preceding twentyFour or for interferring with now
+        protected bool _isTardy { get; set; } = false;//Named tardy 'cause we fancy like that
         /// <summary>
         /// This holds the current session reasons. It will updated based on data and calculation optimizations from HistoricalCurrentPosition
         /// </summary>
@@ -150,6 +153,15 @@ namespace TilerElements
 
         #region Class functions
 
+        public void resetTardy()
+        {
+            _isTardy = false;
+        }
+
+        public void setAsTardy()
+        {
+            _isTardy = true;
+        }
         public virtual void updateCalculationEventRange(TimeLine timeLine)
         {
             TimeLine interferringTimeLine = this.getCalendarEventRange.InterferringTimeLine(timeLine);
@@ -424,6 +436,7 @@ namespace TilerElements
             MySubCalendarEventCopy._enablePre_reschedulingTimelineLockDown = this._enablePre_reschedulingTimelineLockDown;
             MySubCalendarEventCopy._RepetitionLock= this._RepetitionLock;
             MySubCalendarEventCopy.ParentCalendarEvent = parentCalendarEvent;
+            MySubCalendarEventCopy._isTardy = this._isTardy;
             if (this.CalculationTimeLine != null)
             {
                 MySubCalendarEventCopy.CalculationTimeLine = this.CalculationTimeLine.CreateCopy();
@@ -1120,6 +1133,27 @@ namespace TilerElements
         #endregion
 
         #region Class Properties
+        /// <summary>
+        /// Is the subevent late
+        /// </summary>
+        public bool isTardy
+        {
+            get
+            {
+                return _isTardy;
+            }
+        }
+
+        /// <summary>
+        /// Is the subevent late
+        /// </summary>
+        public bool isOntime
+        {
+            get
+            {
+                return !isTardy;
+            }
+        }
 
         /// <summary>
         /// Pathoptimization has been acknowledged on this subevent
@@ -1451,6 +1485,19 @@ namespace TilerElements
             }
         }
 
+        public virtual bool IsTardy_DB
+        {
+            get
+            {
+                return _isTardy;
+            }
+
+            set
+            {
+                _isTardy = value;
+            }
+        }
+
         /// <summary>
         /// SInce the function shiftSUbEventsByTimeAndId reorders all sub events by time and Id, meaning the subevent withe lowest alphabetically ordered id gets the earliesttime
         /// This ensures that when the "shiftSUbEventsByTimeAndId" is called the subevent doesn't get reordered from the id.
@@ -1484,6 +1531,17 @@ namespace TilerElements
             get
             {
                 return _RepetitionLock;
+            }
+        }
+
+        public override JObject Json
+        {
+            get
+            {
+                JObject retValue = base.Json;
+                retValue.Add("SubCalCalEventStart", this.CalendarEventRangeStart.ToUnixTimeMilliseconds());
+                retValue.Add("SubCalCalEventEnd", this.CalendarEventRangeEnd.ToUnixTimeMilliseconds());
+                return retValue;
             }
         }
         #endregion

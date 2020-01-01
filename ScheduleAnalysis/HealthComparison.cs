@@ -91,10 +91,6 @@ namespace ScheduleAnalysis
                 return (int)retValue;
             }
         }
-
-        //public IEnumerable<IConsequence> consequences()
-        //{
-
-        //}
+        
     }
 }

@@ -104,7 +104,8 @@ namespace ScheduleAnalysis
         {
             JObject retValue = new JObject();
             JObject sleepTimeLinesJson = new JObject();
-            var sleepTimeLines = SleepTimeLines.ToList();
+            JObject dayDistribution = new JObject();
+            var sleepTimeLines = SleepTimeLines.ToList().Take(10).ToList();
             double score = this.ScoreTimeLine();
             for (int i = 0; i < sleepTimeLines.Count; i++)
             {
@@ -113,8 +114,9 @@ namespace ScheduleAnalysis
                 JObject sleepJson = new JObject();
                 sleepJson.Add("SleepTimeline", sleepTimeLine.Item1.ToJson());
                 sleepJson.Add("MaximumSleepTimeLine", sleepTimeLine.Item2.ToJson());
-
-                sleepTimeLinesJson.Add(currentDay.ToUnixTimeMilliseconds().ToString(), sleepJson);
+                string dayId = currentDay.ToUnixTimeMilliseconds().ToString();
+                sleepTimeLinesJson.Add(dayId, sleepJson);
+                dayDistribution.Add(dayId, sleepJson);
             }
 
             JObject undesirableSleepTimeLines = new JObject();
@@ -125,15 +127,25 @@ namespace ScheduleAnalysis
                 DateTimeOffset currentDay = Now.getClientBeginningOfDay(sleepTimeLine.Item2);
                 TimeSpan lostTimeSpan = ExpectedSleepSpan - sleepTimeLine.Item1.TimelineSpan;
                 JObject undesiredDetails = new JObject();
+                string dayId = currentDay.ToUnixTimeMilliseconds().ToString();
                 undesiredDetails.Add("LostSleep", lostTimeSpan.TotalMilliseconds);
                 undesiredDetails.Add("SleepTimeline", sleepTimeLine.Item1.ToJson());
-                undesirableSleepTimeLines.Add(currentDay.ToUnixTimeMilliseconds().ToString(), undesiredDetails);
+                undesirableSleepTimeLines.Add(dayId, undesiredDetails);
+                if(!dayDistribution.ContainsKey(dayId))
+                {
+                    dayDistribution.Add(dayId, undesiredDetails);
+                } else
+                {
+                    dayDistribution[dayId] = undesiredDetails;
+                }
+                
             }
 
 
             retValue.Add("Score", score);
             retValue.Add("SleepTimeLines", sleepTimeLinesJson);
             retValue.Add("UndesiredTimeLines", undesirableSleepTimeLines);
+            retValue.Add("days", dayDistribution);
             return retValue;
         }
 

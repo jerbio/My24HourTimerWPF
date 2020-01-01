@@ -105,7 +105,7 @@ namespace ScheduleAnalysis
             JObject retValue = new JObject();
             JObject sleepTimeLinesJson = new JObject();
             JObject dayDistribution = new JObject();
-            var sleepTimeLines = SleepTimeLines.ToList();
+            var sleepTimeLines = SleepTimeLines.ToList().Take(10).ToList();
             double score = this.ScoreTimeLine();
             for (int i = 0; i < sleepTimeLines.Count; i++)
             {

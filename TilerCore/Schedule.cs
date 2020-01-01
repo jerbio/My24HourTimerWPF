@@ -645,13 +645,16 @@ namespace TilerCore
                 {
                     myCalendarEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(myCalendarEvent, NoDoneYet, null, null, 0);
                 }
-                if(myCalendarEvent.StartToEnd.End <= Now.constNow)
+                
+                foreach(SubCalendarEvent subEVent in myCalendarEvent.ActiveSubEvents.Where(subEvent => subEvent.End > Now.constNow))
                 {
-                    foreach(SubCalendarEvent subEVent in myCalendarEvent.ActiveSubEvents.Where(subEvent => subEvent.End > Now.constNow))
+                    if(!subEVent.IsDateTimeWithin(Now.constNow))
                     {
                         subEVent.PinToEnd(myCalendarEvent.StartToEnd);
                     }
+                        
                 }
+                
                 
             }
 

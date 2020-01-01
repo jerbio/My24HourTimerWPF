@@ -1484,7 +1484,7 @@ namespace TilerElements
                 _ProfileOfNow = value;
             }
         }
-        [NotMapped]
+
         public virtual bool IsTardy_DB
         {
             get

@@ -389,5 +389,83 @@ namespace TilerTests
 
             }
         }
+
+        /// <summary>
+        /// Test ensures that when set as now is called there is a bumper for travel time.
+        /// This also test agains shuffle too.
+        /// </summary>
+        [TestMethod]
+        public void setSubCalendarEventAsNowSpacing()
+        {
+            TestUtility.initializeLocationApi();
+            Location currentLocation = new Location("3333 Walnut Rd Boulder, CO");
+            currentLocation.verify();
+            Location homeLocation = new Location("413 summit blvd broomfield CO");
+            homeLocation.verify();
+            Location tangerineLocation = new Location("300 S Public Rd, Lafayette, CO 80026");
+            tangerineLocation.verify();
+            TestSchedule Schedule;
+            TilerUser tilerUser = TestUtility.createUser();
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            refNow = refNow.removeSecondsAndMilliseconds();
+            DateTimeOffset endOfDay = new DateTimeOffset(1, 1, 1, 20, 0, 0, new TimeSpan());
+            TimeSpan duration = TimeSpan.FromHours(2);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.AddDays(14);
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 3, false, location: homeLocation);
+            Schedule = new TestSchedule(user, refNow, endOfDay);
+            Schedule.CurrentLocation = currentLocation;
+            Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
+
+            CalendarEvent testEvent_DB = TestUtility.getCalendarEventById(testEvent.Id, user);
+            SubCalendarEvent firstSubEvent = testEvent_DB.OrderByStartActiveSubEvents.First();
+            TimeSpan suggestingDriviingSpan = TimeSpan.FromMinutes(14);// it usually takes over 14 minutes to drive to work so this should handle the drive time
+            TimeSpan evaluatedDrivingSpan = firstSubEvent.Start - refNow;
+            Assert.IsTrue(evaluatedDrivingSpan > suggestingDriviingSpan);
+
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            DateTimeOffset secondRefnow = refNow.AddHours(1);
+            Schedule = new TestSchedule(user, secondRefnow, endOfDay);
+            Schedule.FindMeSomethingToDo(currentLocation).Wait();
+            Schedule.persistToDB().Wait();
+
+            CalendarEvent testEvent_DB0 = TestUtility.getCalendarEventById(testEvent.Id, user);
+            SubCalendarEvent firstSubEVentAfterShuffle = testEvent_DB0.OrderByStartActiveSubEvents. Where(sub => sub.Start >= secondRefnow).First();
+            evaluatedDrivingSpan = firstSubEVentAfterShuffle.Start - secondRefnow;
+            Assert.IsTrue(evaluatedDrivingSpan > suggestingDriviingSpan);
+
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            DateTimeOffset thirdRefnow = refNow.AddHours(2);
+            SubCalendarEvent setAsNowSubEvent = firstSubEVentAfterShuffle;
+            Schedule = new TestSchedule(user, thirdRefnow, endOfDay);
+            Schedule.CurrentLocation = currentLocation;
+            Schedule.SetSubeventAsNow(setAsNowSubEvent.Id);
+            Schedule.persistToDB().Wait();
+
+            CalendarEvent testEvent_DB1 = TestUtility.getCalendarEventById(testEvent.Id, user);
+            SubCalendarEvent firstSubEventAfterSetAsNow = testEvent_DB1.OrderByStartActiveSubEvents.First();
+            evaluatedDrivingSpan = firstSubEventAfterSetAsNow.Start - thirdRefnow;
+            Assert.IsTrue(evaluatedDrivingSpan > suggestingDriviingSpan);
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            DateTimeOffset refNowAfter3Days = Schedule.Now.firstDay.End.AddDays(4);
+            Schedule = new TestSchedule(user, refNowAfter3Days, endOfDay);
+            Schedule.CurrentLocation = currentLocation;
+            Schedule.FindMeSomethingToDo(tangerineLocation).Wait();
+            Schedule.persistToDB().Wait();
+            SubCalendarEvent subEvent = Schedule.getAllActiveSubEvents().OrderBy(sub => sub.Start).Where(o => o.Start > refNowAfter3Days).First();
+            DateTimeOffset earliestTIme = Schedule.Now.firstDay.Start + Utility.SleepSpan + Schedule.MorningPreparationTime;
+            Assert.IsTrue(subEvent.Start >= earliestTIme);
+
+
+        }
     }
 }

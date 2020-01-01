@@ -992,6 +992,15 @@ namespace TilerElements
             }
         }
 
+        public bool isNotNullAndNotDefault
+        {
+            get
+            {
+                return !this.isNull && !this.isDefault;
+            }
+        }
+
+
         public string Id
         {
             get

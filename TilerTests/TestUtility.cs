@@ -40,7 +40,7 @@ namespace TilerTests
             {
                 isInitialized = true;
             }
-            initializeLocation();
+            initializeLocationApi();
         }
 
         public static Packet CreatePacket()
@@ -265,7 +265,7 @@ namespace TilerTests
             return retValue;
         }
 
-        public static void initializeLocation ()
+        public static void initializeLocationApi ()
         {
             string apiKey = "AIzaSyDXrtMxPbt6Dqlllpm77AQ47vcCFxZ4oUU";
             Location.updateApiKey(apiKey);
@@ -273,11 +273,11 @@ namespace TilerTests
 
         public static List<Location> getAdHocLocations(string userId = null)
         {
-            Location homeLocation = new Location(41.480352, -81.585446 , "2895 Van aken Blvd cleveland OH 44120", "Home", false, false);
-            Location workLocation = new Location(41.5002762, -81.6839155, "1228 euclid Ave cleveland OH", "Work", false, false);
-            Location gymLocation = new Location(41.4987461, -81.6884993, "619 Prospect Avenue Cleveland, OH 44115", "Gym", false, false);
-            Location shakerLibrary = new Location(41.4658937, -81.5664832, "16500 Van Aken Blvd, Shaker Heights, OH 44120", "Shaker Library", false, false);
-            Location churchLocation = new Location(41.569467, -81.539422, "1465 Dille Rd, Cleveland, OH 44117", "Church", false, false);
+            Location homeLocation = new Location(39.9271851, -105.1434801, "413 summit blvd broomfield CO", "Home", false, false);
+            Location workLocation = new Location(40.0202053, -105.2511518, "3333 Walnut Street, Boulder, CO", "Work", false, false);
+            Location gymLocation = new Location(40.0352953, -105.2580611, "2900 Iris Ave, Boulder, CO 80301", "Gym", false, false);
+            Location shakerLibrary = new Location(40.051721, -105.2749269, "3450 Mitchell Ln, Boulder, CO 80301", "Shaker Library", false, false);
+            Location churchLocation = new Location(39.8462601, -105.1252131, "7500 Sheridan Boulevard, Westminster, CO 80003", "Church", false, false);
             if (CheckForInternetConnection())
             {
                 homeLocation.verify();

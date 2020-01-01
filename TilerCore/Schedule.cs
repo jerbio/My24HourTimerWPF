@@ -47,6 +47,7 @@ using TilerElements;
 
 using System.IO;
 using static TilerElements.TimeOfDayPreferrence;
+using static TilerElements.LocationCacheEntry;
 
 namespace TilerCore
 {
@@ -114,7 +115,6 @@ namespace TilerCore
         protected DateTimeOffset ReferenceDayTIime;
         protected Dictionary<string, Location> Locations;
         protected TimeLine CompleteSchedule;
-        public TimeSpan ZeroTimeSpan = new TimeSpan(0);
         public TimeSpan TwentyFourHourTimeSpan = new TimeSpan(1, 0, 0, 0);
         public TimeSpan OnewWeekTimeSpan = new TimeSpan(7, 0, 0, 0);
         public TimeSpan HourTimeSpan = new TimeSpan(0, 1, 0, 0);
@@ -133,8 +133,8 @@ namespace TilerCore
         protected TravelCache _TravelCache;
 
         protected double PercentageOccupancy = 0;
-        //public static DateTimeOffset Now = new DateTimeOffset(2014,4,6,0,0,0);//DateTimeOffset.UtcNow;
-        protected ReferenceNow _Now;// = new ReferenceNow( DateTimeOffset.UtcNow);
+        protected ReferenceNow _Now;
+        protected TimeSpan _MorningPreparationTime = Utility.QuarterHourTimeSpan;
         protected HashSet<SubCalendarEvent> ConflictinSubEvents = new HashSet<SubCalendarEvent>();
         protected DataRetrivalOption retrievalOption = DataRetrivalOption.Evaluation;
         public ReferenceNow Now
@@ -184,6 +184,18 @@ namespace TilerCore
             get
             {
                 return _CurrentLocation;
+            }
+        }
+
+        public TimeSpan MorningPreparationTime
+        {
+            set
+            {
+                _MorningPreparationTime = value;
+            }
+            get
+            {
+                return _MorningPreparationTime;
             }
         }
 
@@ -1281,7 +1293,17 @@ namespace TilerCore
             SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
             ReferenceSubEvent.disableRepetitionLock();
             referenceCalendarEvent.DayPreference.init();
+            TimeSpan bumperTimeSpan = Utility.ZeroTimeSpan;
 
+            /// Adds a buffer span to ensure one can travel to location after hitting "Do now"
+            if(CurrentLocation != null && CurrentLocation.isNotNullAndNotDefault)
+            {
+                if(ReferenceSubEvent.isLocationAmbiguous)
+                {
+                    ReferenceSubEvent.validateLocation(CurrentLocation);
+                }
+                bumperTimeSpan = getTravelSpan(CurrentLocation, ReferenceSubEvent.Location);
+            }
             NowProfile nowProfile = ReferenceSubEvent.getNowInfo ?? ReferenceSubEvent.initializeNowProfile();
 
             if (Now.getDayIndexFromStartOfTime( nowProfile.PreferredTime) != Now.getDayIndexFromStartOfTime(Now.constNow) || !nowProfile.isInitialized)
@@ -1295,11 +1317,11 @@ namespace TilerCore
             }
 
             EventID SubEventID = new EventID(EventID);
-
-
             bool InitialRigid = ReferenceSubEvent.isRigid;
 
-            if (!ReferenceSubEvent.shiftEvent(Now.calculationNow - ReferenceSubEvent.Start, Force, lockToId: lockToId) && !Force)
+            TimeSpan subeventStartTimeShift = Now.calculationNow - ReferenceSubEvent.Start + bumperTimeSpan;
+
+            if (!ReferenceSubEvent.shiftEvent(subeventStartTimeShift, Force, lockToId: lockToId) && !Force)
             {
                 return new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(new CustomErrors("You will be going outside the limits of this event, Is that Ok?", 5), null);
             }
@@ -2582,6 +2604,8 @@ namespace TilerCore
                     beginLocation = home;
                 }
 
+                EachDay.BeginLocation = beginLocation;
+
                 Dictionary<Location, int> durationToTimeSpan = new Dictionary<Location, int>();
 
                 foreach(SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => !sub.Location.isDefault && !sub.Location.isNull))
@@ -2637,6 +2661,7 @@ namespace TilerCore
 
 
                 List<SubCalendarEvent> spaceSubEvents = dayPath.getOptimizedSubevents();
+                
                 Tuple<SubCalendarEvent, SubCalendarEvent, SubCalendarEvent> wakeAndSleepEvents = spaceEventsByTravelTime(EachDay, spaceSubEvents);
 
                 if (wakeAndSleepEvents.Item1!=null)
@@ -2888,6 +2913,42 @@ namespace TilerCore
                 }
                 #endregion
 
+                #region try to add additional space for current location and first post sleep subevent
+                if (dayTimeline.BeginLocation != null && dayTimeline.BeginLocation.isNotNullAndNotDefault)
+                {
+                    SubCalendarEvent firstPostSleepSubEvent = postSleepSubEvents.FirstOrDefault();
+                    if(firstPostSleepSubEvent!=null)
+                    {
+                        TimeSpan travelSpan = getTravelSpan(dayTimeline.BeginLocation, firstPostSleepSubEvent.Location);
+                        TimeLine newPostTimeLine = new TimeLine(postSleepTimeline.Start.Add(travelSpan), postSleepTimeline.End);
+                        if (Utility.tryPinSubEventsToStart(postSleepSubEvents, newPostTimeLine))
+                        {
+                            postSleepTimeline = newPostTimeLine;
+                        }
+                        else
+                        {
+                            firstPostSleepSubEvent.setAsTardy();
+                        }
+                    }
+                        
+                }
+                #endregion
+
+                #region try to add additional space for morning preparation
+                if (sleepTimeLine!=null && sleepTimeLine.TimelineSpan >= Utility.SleepSpan)
+                {
+                    if(postSleepSubEvents.Count > 0)
+                    {
+                        SubCalendarEvent firstPostSleepSubEvent = postSleepSubEvents.First();
+                        TimeLine newPostTimeLine = new TimeLine(postSleepTimeline.Start.Add(MorningPreparationTime), postSleepTimeline.End);
+                        if (Utility.tryPinSubEventsToStart(postSleepSubEvents, newPostTimeLine))
+                        {
+                            postSleepTimeline = newPostTimeLine;
+                        }
+                    }
+                    
+                }
+                #endregion
 
                 if (!Utility.PinSubEventsToStart(postSleepSubEvents, postSleepTimeline))
                 {
@@ -3042,12 +3103,27 @@ namespace TilerCore
             return retValue;
         }
 
-
-        public void shifAfter(SubCalendarEvent subEvent, TimeSpan bump, TimeLine timeLineLimit,  List<SubCalendarEvent> subEvents, HashSet<SubCalendarEvent> alreadyBumped)
+        TimeSpan getTravelSpan (Location firstLocation, Location secondLocation, TravelMedium medium = TravelMedium.driving, bool ignoreCache = false)
         {
+            TimeSpan retValue;
+            if(!ignoreCache)
+            {
+                var cacheEntry = TravelCache.getLocation(firstLocation, secondLocation, Now.constNow, medium);
+                if(cacheEntry!=null)
+                {
+                    retValue = cacheEntry.TimeSpan;
+                }
+                else
+                {
+                    retValue = Location.getDrivingTimeFromWeb(firstLocation, secondLocation).removeSecondsAndMilliseconds();
+                }
+            }
+            else
+            {
+                retValue = Location.getDrivingTimeFromWeb(firstLocation, secondLocation).removeSecondsAndMilliseconds();
+            }
 
-
-
+            return retValue;
         }
 
         /// <summary>

@@ -130,7 +130,7 @@ namespace TilerTests
                 }
             }
 
-            Assert.AreEqual(lastActiveSchedulingLookupCount, 2);
+            Assert.AreEqual(lastActiveSchedulingLookupCount, 3);
             Assert.AreEqual(lastActiveSchedulingUpdateCount, 0);
 
 

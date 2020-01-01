@@ -15,6 +15,8 @@ namespace TilerElements
         SubCalendarEvent _sleepSubEvent;
         SubCalendarEvent _wakeSubEVent;
         SubCalendarEvent _previousDaySleepSubEvent;
+        Location _beginLocation;
+        Location _endLocation;
         #region Constructor
         public DayTimeLine(DateTimeOffset Start, DateTimeOffset End, long UniversalIndex, int BoundedIndex=-1):base(Start, End, null)
         {
@@ -100,6 +102,29 @@ namespace TilerElements
         /// This is the subevent for the current day after which sleep is expected. This sleep time chunk is before "WakeSubevent". This often occurs if an event has a deadline that is within the sleep time frame. So for example a 1 hour subevent with a 2:00am deadline when the sleep time frame of 12:00AM- 6:00AM 
         /// </summary>
         public SubCalendarEvent PrecedingDaySleepSubEvent { get; set; }
+        public Location BeginLocation
+        {
+            get
+            {
+                return _beginLocation;
+            }
+            set
+            {
+                _beginLocation = value;
+            }
+        }
+
+        public Location EndLocation
+        {
+            get
+            {
+                return _endLocation;
+            }
+            set
+            {
+                _endLocation = value;
+            }
+        }
         #endregion
 
     }

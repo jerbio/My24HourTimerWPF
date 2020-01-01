@@ -20,7 +20,7 @@ namespace TilerTests
             UserAccount user = setupPacket.Account;
             TilerUser tilerUser = setupPacket.User;
             DateTimeOffset refNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
-            refNow = new DateTimeOffset(refNow.Year, refNow.Month, 1, 0, 0, 0, new TimeSpan());
+            refNow = new DateTimeOffset(refNow.Year, refNow.Month, 1, 0, 0, 0, new TimeSpan()).getClosestDayOfWeekAfterTime(DayOfWeek.Sunday);// Adding the sunday part to avoid autodeletions reducing the active count
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             TestSchedule schedule = new TestSchedule(user, refNow);
             int hourCount = 2;
@@ -93,7 +93,7 @@ namespace TilerTests
             UserAccount user = setupPacket.Account;
             TilerUser tilerUser = setupPacket.User;
             DateTimeOffset refNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
-            refNow = new DateTimeOffset(refNow.Year, refNow.Month, 1, 0, 0, 0, new TimeSpan());
+            refNow = new DateTimeOffset(refNow.Year, refNow.Month, 1, 0, 0, 0, new TimeSpan()).getClosestDayOfWeekAfterTime(DayOfWeek.Sunday);// Adding the sunday part to avoid autodeletions reducing the active count
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             TestSchedule schedule = new TestSchedule(user, refNow);
             int hourCount = 2;
@@ -167,7 +167,7 @@ namespace TilerTests
             UserAccount user = setupPacket.Account;
             TilerUser tilerUser = setupPacket.User;
             DateTimeOffset refNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
-            refNow = new DateTimeOffset(refNow.Year, refNow.Month, 1, 0, 0, 0, new TimeSpan());
+            refNow = new DateTimeOffset(refNow.Year, refNow.Month, 1, 0, 0, 0, new TimeSpan()).getClosestDayOfWeekAfterTime(DayOfWeek.Sunday);// Adding the sunday part to avoid autodeletions reducing the active count
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             int hourCount = 8;
             DateTimeOffset start = refNow;
@@ -268,7 +268,7 @@ namespace TilerTests
             UserAccount user = setupPacket.Account;
             TilerUser tilerUser = setupPacket.User;
             DateTimeOffset refNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
-            refNow = new DateTimeOffset(refNow.Year, refNow.Month, 1, 0, 0, 0, new TimeSpan());
+            refNow = new DateTimeOffset(refNow.Year, refNow.Month, 1, 0, 0, 0, new TimeSpan()).getClosestDayOfWeekAfterTime(DayOfWeek.Sunday);// Adding the sunday part to avoid autodeletions reducing the active count
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             int hourCount = 8;
             DateTimeOffset start = refNow;
@@ -354,7 +354,7 @@ namespace TilerTests
             UserAccount user = setupPacket.Account;
             TilerUser tilerUser = setupPacket.User;
             DateTimeOffset refNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
-            refNow = new DateTimeOffset(refNow.Year, refNow.Month, 1, 0, 0, 0, new TimeSpan());
+            refNow = new DateTimeOffset(refNow.Year, refNow.Month, 1, 0, 0, 0, new TimeSpan()).getClosestDayOfWeekAfterTime(DayOfWeek.Sunday);// Adding the sunday part to avoid autodeletions reducing the active count
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             int hourCount = 8;
             DateTimeOffset start = refNow;

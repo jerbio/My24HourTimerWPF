@@ -1456,6 +1456,18 @@ namespace TilerElements
             list[indexB] = tmp;
         }
 
+        public static DateTimeOffset getClosestDayOfWeekAfterTime(this DateTimeOffset currentTime, DayOfWeek dayOfWeek)
+        {
+            int dayOfWeekIndex = (int)currentTime.DayOfWeek;
+            int desiredDayOfWeek = (int)dayOfWeek;
+
+
+            int dayDiff = ((desiredDayOfWeek - dayOfWeekIndex) + 7) % 7;
+
+            DateTimeOffset retValue = currentTime.AddDays(dayDiff);
+
+            return retValue;
+        }
 
         static public DateTimeOffset MiddleTime(IDefinedRange timeLine)
         {

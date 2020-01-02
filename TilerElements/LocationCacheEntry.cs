@@ -136,41 +136,51 @@ namespace TilerElements
         {
             unchecked
             {
-                return LocationCacheEntry.getHashCode(TaiyeId, KehindeId, Medium_DB, this.TravelCache.Id);
+                return (int) LocationCacheEntry.getHashCode(TaiyeId, KehindeId, Medium_DB, this.TravelCache.Id).Item2;
             }
         }
 
-        private static int getHashCode (string TaiyeId, string KehindeId, string medium, string travelCahceId)
+        private static Tuple<bool, double> getHashCode (string TaiyeId, string KehindeId, string medium, string travelCahceId)
         {
             unchecked
             {
-                int cacheId = travelCahceId.GetHashCode();
-                int taiyeCode = TaiyeId.GetHashCode();
-                int kehindeCode = KehindeId.GetHashCode();
-
-                int smallerCode = 0, largerCode = 0;
-                if (taiyeCode < kehindeCode)
+                bool isValid = true;
+                if(!string.IsNullOrEmpty(TaiyeId) && !string.IsNullOrWhiteSpace(KehindeId))
                 {
-                    smallerCode = taiyeCode;
-                    largerCode = kehindeCode;
+                    int cacheId = travelCahceId.GetHashCode();
+                    int taiyeCode = TaiyeId.GetHashCode();
+                    int kehindeCode = KehindeId.GetHashCode();
+
+                    int smallerCode = 0, largerCode = 0;
+                    if (taiyeCode < kehindeCode)
+                    {
+                        smallerCode = taiyeCode;
+                        largerCode = kehindeCode;
+                    }
+                    else
+                    {
+                        smallerCode = kehindeCode;
+                        largerCode = taiyeCode;
+                    }
+
+                    medium = medium.ToLower();
+                    int hash = 17;
+                    hash = hash * 23 + smallerCode.GetHashCode();
+                    hash = hash * 23 + largerCode.GetHashCode();
+                    hash = hash * 23 + medium.GetHashCode();
+                    hash = hash * 23 + cacheId.GetHashCode();
+
+                    return new Tuple<bool, double>(isValid, hash);
                 }
                 else
                 {
-                    smallerCode = kehindeCode;
-                    largerCode = taiyeCode;
+                    isValid = false;
+                    return new Tuple<bool, double>(isValid, double.NaN);
                 }
-
-                medium = medium.ToLower();
-                int hash = 17;
-                hash = hash * 23 + smallerCode.GetHashCode();
-                hash = hash * 23 + largerCode.GetHashCode();
-                hash = hash * 23 + medium.GetHashCode();
-                hash = hash * 23 + cacheId.GetHashCode();
-                return hash;
             }
         }
 
-        public static int getHashCode(Location firstLocation, Location secondLocation, string medium, string travelCahceId) {
+        public static Tuple<bool, double> getHashCode(Location firstLocation, Location secondLocation, string medium, string travelCahceId) {
             string firstId = firstLocation.ThirdPartyId ?? firstLocation.Id;
             string secondId = secondLocation.ThirdPartyId ?? secondLocation.Id;
 

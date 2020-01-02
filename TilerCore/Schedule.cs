@@ -3108,7 +3108,7 @@ namespace TilerCore
             TimeSpan retValue;
             if(!ignoreCache)
             {
-                var cacheEntry = TravelCache.getLocation(firstLocation, secondLocation, Now.constNow, medium);
+                var cacheEntry = TravelCache.getLocationCacheEntry(firstLocation, secondLocation, Now.constNow, medium);
                 if(cacheEntry!=null)
                 {
                     retValue = cacheEntry.TimeSpan;
@@ -4111,7 +4111,7 @@ namespace TilerCore
             LocationCacheEntry entry = null;
             if (_isTravelCacheUpdated)
             {
-                entry = TravelCache.getLocation(locationA, locationB, Now.constNow);
+                entry = TravelCache.getLocationCacheEntry(locationA, locationB, Now.constNow);
             }
             return entry;
         }

@@ -183,6 +183,8 @@ namespace TilerTests
             TilerUser tilerUser = packet.User;
             UserAccount user = packet.Account;
             DateTimeOffset refNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
+            refNow = refNow.Date.ToUniversalTime();
+
 
             ///Adding event around colorado spring location should have all subevents select a gym around 24 hour fitness
             TestUtility.reloadTilerUser(ref user, ref tilerUser);

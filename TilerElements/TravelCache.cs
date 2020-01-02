@@ -63,37 +63,46 @@ namespace TilerElements
                 _LocationCombo = new SubEventDictionary<int, LocationCacheEntry>();
             }
 
-            string key = LocationCacheEntry.getHashCode(firstLocation, secondLocation, medium.ToString(), this.Id).ToString();
-            if (_LocationCombo.ContainsKey(key))
+            if(firstLocation.isNotNullAndNotDefault && secondLocation.isNotNullAndNotDefault)
             {
-                entry = _LocationCombo[key];
-                entry.LastUpdate = lastUpdate;
-                entry.TimeSpanInMs = timeSpanInMs.TotalMilliseconds;
+                string key = LocationCacheEntry.getHashCode(firstLocation, secondLocation, medium.ToString(), this.Id).Item2.ToString();
+                if (_LocationCombo.ContainsKey(key))
+                {
+                    entry = _LocationCombo[key];
+                    entry.LastUpdate = lastUpdate;
+                    entry.TimeSpanInMs = timeSpanInMs.TotalMilliseconds;
+                }
+                else
+                {
+                    AddLocationCombination(firstLocation, secondLocation, timeSpanInMs, lastUpdate, medium, distance);
+                }
             }
-            else
-            {
-                AddLocationCombination(firstLocation, secondLocation, timeSpanInMs, lastUpdate, medium, distance);
-            }
+
+            
         }
 
-        public LocationCacheEntry getLocation(Location first, Location second, DateTimeOffset TimeOfLookup, TravelMedium medium = TravelMedium.driving)
+        public LocationCacheEntry getLocationCacheEntry(Location first, Location second, DateTimeOffset TimeOfLookup, TravelMedium medium = TravelMedium.driving)
         {
             if (!TimeOfLookup.isBeginningOfTime())
             {
-                LocationCacheEntry entry = new LocationCacheEntry()
+                if (first.isNotNullAndNotDefault && second.isNotNullAndNotDefault)
                 {
-                    Taiye = second,
-                    Kehinde = first,
-                    Medium = medium,
-                    TravelCache = this
-                };
-                string hashCode = entry.GetHashCode().ToString();
-                if (_LocationCombo != null && _LocationCombo.ContainsKey(hashCode))
-                {
-                    var retValue = _LocationCombo[hashCode];
-                    retValue.LastLookup = TimeOfLookup;
-                    return retValue;
+                    LocationCacheEntry entry = new LocationCacheEntry()
+                    {
+                        Taiye = second,
+                        Kehinde = first,
+                        Medium = medium,
+                        TravelCache = this
+                    };
+                    string hashCode = entry.GetHashCode().ToString();
+                    if (_LocationCombo != null && _LocationCombo.ContainsKey(hashCode))
+                    {
+                        var retValue = _LocationCombo[hashCode];
+                        retValue.LastLookup = TimeOfLookup;
+                        return retValue;
+                    }
                 }
+                
                 return null;
             } else
             {

@@ -450,7 +450,7 @@ namespace TilerTests
             Schedule.persistToDB().Wait();
 
             CalendarEvent testEvent_DB1 = TestUtility.getCalendarEventById(testEvent.Id, user);
-            SubCalendarEvent firstSubEventAfterSetAsNow = testEvent_DB1.OrderByStartActiveSubEvents.First();
+            SubCalendarEvent firstSubEventAfterSetAsNow = testEvent_DB1.OrderByStartActiveSubEvents.Where(sub => sub.Start >= thirdRefnow).First();
             evaluatedDrivingSpan = firstSubEventAfterSetAsNow.Start - thirdRefnow;
             Assert.IsTrue(evaluatedDrivingSpan > suggestingDriviingSpan);
 

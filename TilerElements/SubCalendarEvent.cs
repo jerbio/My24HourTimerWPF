@@ -626,7 +626,7 @@ namespace TilerElements
             retValue._CalendarEventRange = new TimeLine(ProcrastinationData.PreferredStartTime, retValue.getCalendarEventRange.End);
             TimeSpan SpanShift = (retValue.getCalendarEventRange.End - retValue.RangeSpan) - retValue.Start;
             retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventData.getId);
-            retValue.shiftEvent(SpanShift,true);
+            retValue.shiftEvent(ProcrastinationData.PreferredStartTime,true);
             return retValue;
         }
 

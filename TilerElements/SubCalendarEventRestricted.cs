@@ -478,7 +478,7 @@ namespace TilerElements
             TimeSpan SpanShift = ProcrastinationData.PreferredStartTime - retValue.Start;
             retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventData.getId);
             retValue.initializeCalendarEventRange(retValue._ProfileOfRestriction, CalendarEventData.StartToEnd);
-            retValue.shiftEvent(SpanShift, true);
+            retValue.shiftEvent(ProcrastinationData.PreferredStartTime, true);
             return retValue;
         }
 

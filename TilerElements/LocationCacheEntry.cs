@@ -77,7 +77,7 @@ namespace TilerElements
                 _Taiye = value;
                 if (value != null)
                 {
-                    _TaiyeId = _Taiye?.ThirdPartyId ?? _Taiye.Id;
+                    _TaiyeId = string.IsNullOrEmpty(_Taiye.ThirdPartyId) || string.IsNullOrWhiteSpace(_Taiye.ThirdPartyId) ? _Taiye.Id : _Taiye.ThirdPartyId;
                 }
             }
         }
@@ -92,7 +92,7 @@ namespace TilerElements
                 _Kehinde = value;
                 if(value!= null)
                 {
-                    _KehindeId = _Kehinde?.ThirdPartyId ?? _Kehinde.Id;
+                    _KehindeId = string.IsNullOrEmpty(_Kehinde.ThirdPartyId) || string.IsNullOrWhiteSpace(_Kehinde.ThirdPartyId) ? _Kehinde.Id : _Kehinde.ThirdPartyId;
                 }
                 
             }
@@ -136,11 +136,18 @@ namespace TilerElements
         {
             unchecked
             {
-                return (int) LocationCacheEntry.getHashCode(TaiyeId, KehindeId, Medium_DB, this.TravelCache.Id).Item2;
+                var retValue = LocationCacheEntry.getHashCode(TaiyeId, KehindeId, Medium_DB, this.TravelCache.Id);
+                if(retValue.Item1)
+                {
+                    return retValue.Item2;
+                } else
+                {
+                    throw new Exception("invalid location");
+                }
             }
         }
 
-        private static Tuple<bool, double> getHashCode (string TaiyeId, string KehindeId, string medium, string travelCahceId)
+        private static Tuple<bool, int> getHashCode (string TaiyeId, string KehindeId, string medium, string travelCahceId)
         {
             unchecked
             {
@@ -170,19 +177,19 @@ namespace TilerElements
                     hash = hash * 23 + medium.GetHashCode();
                     hash = hash * 23 + cacheId.GetHashCode();
 
-                    return new Tuple<bool, double>(isValid, hash);
+                    return new Tuple<bool, int>(isValid, hash);
                 }
                 else
                 {
                     isValid = false;
-                    return new Tuple<bool, double>(isValid, double.NaN);
+                    return new Tuple<bool, int>(isValid, -1);
                 }
             }
         }
 
-        public static Tuple<bool, double> getHashCode(Location firstLocation, Location secondLocation, string medium, string travelCahceId) {
-            string firstId = firstLocation.ThirdPartyId ?? firstLocation.Id;
-            string secondId = secondLocation.ThirdPartyId ?? secondLocation.Id;
+        public static Tuple<bool, int> getHashCode(Location firstLocation, Location secondLocation, string medium, string travelCahceId) {
+            string firstId = string.IsNullOrEmpty(firstLocation.ThirdPartyId)|| string.IsNullOrWhiteSpace(firstLocation.ThirdPartyId) ? firstLocation.Id : firstLocation.ThirdPartyId;
+            string secondId = string.IsNullOrEmpty(secondLocation.ThirdPartyId) || string.IsNullOrWhiteSpace(secondLocation.ThirdPartyId) ? secondLocation.Id : secondLocation.ThirdPartyId;
 
             return LocationCacheEntry.getHashCode(firstId, secondId, medium, travelCahceId);
         }

@@ -27,7 +27,8 @@ namespace TilerElements
             Repeated_Tile_Is_Not_Current_Tile = 40000012,
             TilerConfig_Repeat_Third_Party = 400000013,
             TilerConfig_Repeat_Procrastinate_All = 400000014,
-            Preview_Calendar_Type_Not_Supported = 50000001
+            Preview_Calendar_Type_Not_Supported = 50000001,
+            Preview_Calendar_Not_Enough_Data_For_Preview = 50000002
         };
         static Dictionary<Errors, String> errorMessage = new Dictionary<Errors, string>()
         {
@@ -48,7 +49,8 @@ namespace TilerElements
             {Errors.Repeated_Tile_Is_Not_Current_Tile, "Cannot repeat Tile that is not current active tile" },
             {Errors.TilerConfig_Repeat_Third_Party, "Cannot repeat Third party event" },
             {Errors.TilerConfig_Repeat_Procrastinate_All, "Cannot repeat Procrastinate All Tile" },
-            {Errors.Preview_Calendar_Type_Not_Supported, "Selected Calendar is not supported for manipulation" }
+            {Errors.Preview_Calendar_Type_Not_Supported, "Selected Calendar is not supported for manipulation" },
+            {Errors.Preview_Calendar_Not_Enough_Data_For_Preview, "Tiler cannot confidently make prediction" }
 
         };
         string ErrorMessage;

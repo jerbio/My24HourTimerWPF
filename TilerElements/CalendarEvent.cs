@@ -39,6 +39,9 @@ namespace TilerElements
         HashSet<long> completeDayIndexes = new HashSet<long>();
         protected TimeLine _CalculationStartToEnd;
         protected bool _RepeatIsLoaded = true;
+        protected DateTimeOffset _InitialStartTime;
+        protected DateTimeOffset _InitialEndTime;
+
         #region undoMembers
         public int UndoSplits;
         public TimeSpan UndoAverageTimePerSplit;
@@ -147,7 +150,8 @@ namespace TilerElements
             if(this.Location_DB!=null) {
                 _LocationInfo.User = this.getCreator;
             }
-            
+            this._InitialStartTime = start;
+            this._InitialEndTime = end;
             _EventDayPreference = new EventPreference();
         }
 
@@ -2130,24 +2134,6 @@ namespace TilerElements
             }
         }
 
-        public int NumberOfSplit
-        {
-            set
-            {
-                _Splits = value;
-            }
-            get
-            {
-                return _Splits;
-            }
-        }
-
-
-        public bool IsRepeatsChildCalEvent
-        {
-            get; set;
-        }
-
         public TimeSpan AverageTimeSpanPerSubEvent
         {
             get
@@ -2223,121 +2209,7 @@ namespace TilerElements
             }
         }
 
-        public virtual ICollection<SubCalendarEvent> AllSubEvents_DB
-        {
-            set
-            {
-                this._SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
-                if (value != null)
-                {
-                    this._SubEvents = new SubEventDictionary<string, SubCalendarEvent>(value);
-                }
-            }
-            get
-            {
-                return _SubEvents ?? (_SubEvents = new SubEventDictionary<string, SubCalendarEvent>());
-            }
-        }
 
-        [DefaultValue(0)]
-        virtual public int CompletionCount_DB
-        {
-            set
-            {
-                _CompletedCount = value;
-            }
-            get
-            {
-                return _CompletedCount;
-            }
-        }
-        [DefaultValue(0)]
-        virtual public int DeletionCount_DB
-        {
-            set
-            {
-                _DeletedCount = value;
-            }
-
-            get
-            {
-                return _DeletedCount;
-            }
-        }
-
-        override public int AutoDeletionCount_DB
-        {
-            set
-            {
-                _AutoDeletedCount = value;
-            }
-
-            get
-            {
-                return _AutoDeletedCount;
-            }
-        }
-
-
-        public string DayPreferenceId
-        {
-            get; set;
-        }
-        [ForeignKey("DayPreferenceId")]
-        virtual public EventPreference DayPreference_DB
-        {
-            get
-            {
-                if (_EventDayPreference == null)
-                {
-                    return null;
-                }
-                else
-                {
-                    return _EventDayPreference.isNull ? null : _EventDayPreference;
-                }
-            }
-            set
-            {
-                _EventDayPreference = value;
-            }
-        }
-
-        public string RepeatParentId
-        {
-            get {
-                return this.RepeatParentEventId;
-            }
-            set
-            {
-                this.RepeatParentEventId = value;
-            }
-        }
-        [ForeignKey("RepeatParentId")]
-        virtual public CalendarEvent RepeatParent_DB
-        {
-            get
-            {
-                return _RepeatParentEvent;
-            }
-            set
-            {
-                _RepeatParentEvent = value;
-            }
-        }
-
-
-        virtual public double AverageTimeSpanPerSubEvent_DB
-        {
-            set
-            {
-                _AverageTimePerSplit = TimeSpan.FromMilliseconds(value);
-            }
-            get
-            {
-                return _AverageTimePerSplit.TotalMilliseconds;
-            }
-        }
 
         public CustomErrors Error
         {
@@ -2441,17 +2313,6 @@ namespace TilerElements
             }
         }
 
-        virtual public string LastCompletionTime_DB
-        {
-            set
-            {
-                _LastCompletionTime = value;
-            }
-            get
-            {
-                return _LastCompletionTime;
-            }
-        }
 
         public virtual DateTimeOffset CalculationStart
         {
@@ -2518,18 +2379,6 @@ namespace TilerElements
             }
         }
 
-        public override NowProfile ProfileOfNow_EventDB
-        {
-            get
-            {
-                return _ProfileOfNow ?? this.RepeatParentEvent?.getNowInfo;
-            }
-            set
-            {
-                _ProfileOfNow = value;
-            }
-        }
-
         virtual public IEnumerable<SubCalendarEvent> RemoveSubEventFromEntity
         {
             get
@@ -2581,6 +2430,199 @@ namespace TilerElements
                 return retValue;
             }
         }
+
+        #region DB Properties
+
+        virtual public string LastCompletionTime_DB
+        {
+            set
+            {
+                _LastCompletionTime = value;
+            }
+            get
+            {
+                return _LastCompletionTime;
+            }
+        }
+
+        public override NowProfile ProfileOfNow_EventDB
+        {
+            get
+            {
+                return _ProfileOfNow ?? this.RepeatParentEvent?.getNowInfo;
+            }
+            set
+            {
+                _ProfileOfNow = value;
+            }
+        }
+
+        public string RepeatParentId
+        {
+            get
+            {
+                return this.RepeatParentEventId;
+            }
+            set
+            {
+                this.RepeatParentEventId = value;
+            }
+        }
+        [ForeignKey("RepeatParentId")]
+        virtual public CalendarEvent RepeatParent_DB
+        {
+            get
+            {
+                return _RepeatParentEvent;
+            }
+            set
+            {
+                _RepeatParentEvent = value;
+            }
+        }
+
+
+        virtual public double AverageTimeSpanPerSubEvent_DB
+        {
+            set
+            {
+                _AverageTimePerSplit = TimeSpan.FromMilliseconds(value);
+            }
+            get
+            {
+                return _AverageTimePerSplit.TotalMilliseconds;
+            }
+        }
+
+        public virtual ICollection<SubCalendarEvent> AllSubEvents_DB
+        {
+            set
+            {
+                this._SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
+                if (value != null)
+                {
+                    this._SubEvents = new SubEventDictionary<string, SubCalendarEvent>(value);
+                }
+            }
+            get
+            {
+                return _SubEvents ?? (_SubEvents = new SubEventDictionary<string, SubCalendarEvent>());
+            }
+        }
+
+        [DefaultValue(0)]
+        virtual public int CompletionCount_DB
+        {
+            set
+            {
+                _CompletedCount = value;
+            }
+            get
+            {
+                return _CompletedCount;
+            }
+        }
+        [DefaultValue(0)]
+        virtual public int DeletionCount_DB
+        {
+            set
+            {
+                _DeletedCount = value;
+            }
+
+            get
+            {
+                return _DeletedCount;
+            }
+        }
+
+        override public int AutoDeletionCount_DB
+        {
+            set
+            {
+                _AutoDeletedCount = value;
+            }
+
+            get
+            {
+                return _AutoDeletedCount;
+            }
+        }
+
+
+
+
+        public long InitialStartTime_DB
+        {
+            get
+            {
+                return _InitialStartTime.ToUnixTimeMilliseconds();
+            }
+            set
+            {
+
+                _InitialStartTime = DateTimeOffset.FromUnixTimeMilliseconds(value);
+            }
+        }
+
+        public long InitialEndTime_DB
+        {
+            get
+            {
+                return _InitialEndTime.ToUnixTimeMilliseconds();
+            }
+            set
+            {
+                _InitialEndTime = DateTimeOffset.FromUnixTimeMilliseconds(value);
+            }
+        }
+
+        public string DayPreferenceId
+        {
+            get; set;
+        }
+
+        [ForeignKey("DayPreferenceId")]
+        virtual public EventPreference DayPreference_DB
+        {
+            get
+            {
+                if (_EventDayPreference == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return _EventDayPreference.isNull ? null : _EventDayPreference;
+                }
+            }
+            set
+            {
+                _EventDayPreference = value;
+            }
+        }
+
+
+        public int NumberOfSplit
+        {
+            set
+            {
+                _Splits = value;
+            }
+            get
+            {
+                return _Splits;
+            }
+        }
+
+
+        public bool IsRepeatsChildCalEvent
+        {
+            get; set;
+        }
+
+
+        #endregion
         #endregion
 
     }

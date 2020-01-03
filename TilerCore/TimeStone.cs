@@ -283,5 +283,26 @@ namespace TilerCore
         virtual public async Task<Tuple<Health, Health>> WhatIfSetAsNow(EventID eventId) {
             return await WhatIfSetAsNow(eventId.ToString()).ConfigureAwait(false);
         }
+
+        virtual protected bool isDataSufficient()
+        {
+            List<CalendarEvent> allCalEvents = schedule.getAllCalendarEvents().OrderBy(o => o.Start).ThenBy(o => o.End).ToList();
+            bool minCalendarCount = allCalEvents.Count > 10;
+            bool minCompletionCount = allCalEvents.Where(calEvent => calEvent.CompletionCount > 2).Count() > 5;
+
+            return minCalendarCount && minCompletionCount;
+        }
+
+        virtual public DateTimeOffset projectedCompletionDate(CalendarEvent calEvent)
+        {
+            if(isDataSufficient()) {
+                throw new NotImplementedException();
+            } else {
+                throw new CustomErrors(CustomErrors.Errors.Preview_Calendar_Not_Enough_Data_For_Preview);
+            }
+
+            
+            
+        }
     }
 }

@@ -39,9 +39,9 @@ namespace TilerElements
             }
             base.redo(undoId);
         }
-        public CalendarEventRestricted(TilerUser creator, TilerUserGroup userGroup, EventName Name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, NowProfile profileOfNow,  Location Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventID eventId, ReferenceNow now, Procrastination procrastination, EventDisplay UiSettings = null, MiscData NoteData=null, string timeZone = null)
+        public CalendarEventRestricted(TilerUser creator, TilerUserGroup userGroup, EventName name, DateTimeOffset start, DateTimeOffset end, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, NowProfile profileOfNow,  Location Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventID eventId, ReferenceNow now, Procrastination procrastination, EventDisplay UiSettings = null, MiscData NoteData=null, string timeZone = null)
         {
-           _Name =  Name;
+           _Name =  name;
             _RigidSchedule = isRigid;
             _ProfileOfRestriction = restrictionProfile;
             _Splits = Divisions;
@@ -74,8 +74,8 @@ namespace TilerElements
             }
             _EventDayPreference = new EventPreference();
             _ProfileOfProcrastination = procrastination;
-            updateStartTime(Start);
-            updateEndTime(End);
+            updateStartTime(start);
+            updateEndTime(end);
             if (RepetitionProfile.EnableRepeat)
             {
                 _Splits = Divisions;
@@ -83,6 +83,8 @@ namespace TilerElements
                 _AverageTimePerSplit = new TimeSpan();
                 this._EventRepetition = RepetitionProfile;
             }
+            this._InitialStartTime = start;
+            this._InitialEndTime = end;
             InstantiateSubEvents();
         }
 

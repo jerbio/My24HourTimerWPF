@@ -34,6 +34,7 @@ namespace TilerElements
         protected List<SubCalendarEvent> _RemovedSubEvents = new List<SubCalendarEvent>();
         protected EventPreference _EventDayPreference;
         protected string _LastCompletionTime;
+        protected string _DeadlineTimes;
         protected CalendarEvent _DefaultCalendarEvent;
         DateTimeOffset[] completionDates = new DateTimeOffset[0];
         HashSet<long> completeDayIndexes = new HashSet<long>();
@@ -769,6 +770,21 @@ namespace TilerElements
 
             throw new Exception("You are Completing more tasks Than is available");
 
+        }
+
+        
+
+        internal void addDeadlineTime(DateTimeOffset time)
+        {
+            _DeadlineTimes = (_DeadlineTimes ?? "") + time.ToUnixTimeMilliseconds().ToString() + ",";
+        }
+
+        internal void removeDeadlineTime(DateTimeOffset time)
+        {
+            _DeadlineTimes = (_DeadlineTimes ?? "");
+            string timeString = time.ToUnixTimeMilliseconds().ToString() + ",";
+            int index = _DeadlineTimes.IndexOf(timeString);
+            _DeadlineTimes.Remove(index, timeString.Count());
         }
 
         internal void addCompletionTimes(DateTimeOffset time)
@@ -1984,6 +2000,7 @@ namespace TilerElements
         protected override void updateEndTime(DateTimeOffset time)
         {
             base.updateEndTime(time);
+            addDeadlineTime(time);
             updateCalculationStartToEnd();
         }
 
@@ -2432,6 +2449,18 @@ namespace TilerElements
         }
 
         #region DB Properties
+
+        virtual public string DeadlineTimes_DB
+        {
+            set
+            {
+                _DeadlineTimes = value;
+            }
+            get
+            {
+                return _DeadlineTimes;
+            }
+        }
 
         virtual public string LastCompletionTime_DB
         {

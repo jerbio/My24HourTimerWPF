@@ -134,7 +134,7 @@ namespace TilerCore
 
         protected double PercentageOccupancy = 0;
         protected ReferenceNow _Now;
-        protected TimeSpan _MorningPreparationTime = Utility.QuarterHourTimeSpan;
+        protected TimeSpan _MorningPreparationTime = TimeSpan.FromMinutes(45);// trying to get 45 minutes
         protected HashSet<SubCalendarEvent> ConflictinSubEvents = new HashSet<SubCalendarEvent>();
         protected DataRetrivalOption retrievalOption = DataRetrivalOption.Evaluation;
         public ReferenceNow Now

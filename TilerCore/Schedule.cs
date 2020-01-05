@@ -2608,7 +2608,7 @@ namespace TilerCore
 
                 Dictionary<Location, int> durationToTimeSpan = new Dictionary<Location, int>();
 
-                foreach(SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => sub.IsLocationValidated || sub.Location.IsVerified || sub.IsValidationRun))
+                foreach(SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => sub.Location.IsVerified || sub.IsValidationRun))
                 {
                     int durationQutient = ((int)Math.Round(subEvent.getActiveDuration.TotalMinutes / Utility.QuarterHourTimeSpan.TotalMinutes));
                     if (durationToTimeSpan.ContainsKey(subEvent.Location))

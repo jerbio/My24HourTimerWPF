@@ -45,7 +45,7 @@ namespace TilerElements
 
         static public SubCalendarEvent convertFromGoogleToSubCalendarEvent(SubCalEvent SubCalEventData, TilerElements.Location location = null)
         {
-            if (location != null && !String.IsNullOrEmpty(SubCalEventData.SubCalAddress))
+            if (location == null && !String.IsNullOrEmpty(SubCalEventData.SubCalAddress))
             {
                 location = new TilerElements.Location(SubCalEventData.SubCalAddress);
             }

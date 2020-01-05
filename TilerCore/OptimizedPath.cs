@@ -173,7 +173,6 @@ namespace TilerCore
                     List<SubCalendarEvent> NoPosition = AllSubCalendarEvents.Where(obj => (!obj.isLocked)).Where(obj => (!obj.isOptimized)).Where(obj =>
                     {
                         var TimeOfDay = obj.getDayPreference().getCurrentDayPreference();
-                        //return ((TimeOfDay != TimeOfDayPreferrence.DaySection.Disabled)&&(TimeOfDay!=TimeOfDayPreferrence.DaySection.None));
                         return ((TimeOfDay != TimeOfDayPreferrence.DaySection.Disabled));
                     }).ToList();
                     optimizeDisabledEvents();

@@ -58,6 +58,7 @@ namespace TilerElements
         protected bool _IsRepeat = false;
         protected CalendarEvent _RepeatParentEvent;
         protected DateTimeOffset _TimeOfScheduleLoad;
+        protected bool _ValidationIsRun = false;
 
         #region undoParameters
         public DateTimeOffset UndoStartDateTime;
@@ -236,6 +237,7 @@ namespace TilerElements
 
         public void validateLocation(Location location)
         {
+            _ValidationIsRun = true;
             Location validatedLocation = this._LocationInfo.validate(location, TimeOfScheduleLoad);
             if (validatedLocation != null && !validatedLocation.isNull && !validatedLocation.isDefault)
             {
@@ -419,6 +421,17 @@ namespace TilerElements
             get
             {
                 return StartDateTime;
+            }
+        }
+
+        /// <summary>
+        /// Return if validation has already being run
+        /// </summary>
+        virtual public bool IsValidationRun
+        {
+            get
+            {
+                return _ValidationIsRun;
             }
         }
 

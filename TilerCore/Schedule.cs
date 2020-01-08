@@ -648,7 +648,17 @@ namespace TilerCore
                 {
                     NoDoneYet.Remove(subEvent);
                 }
-                if(
+
+                foreach (SubCalendarEvent subEVent in myCalendarEvent.ActiveSubEvents)
+                {
+                    if (!subEVent.IsDateTimeWithin(Now.constNow))
+                    {
+                        subEVent.PinToEnd(myCalendarEvent.StartToEnd);
+                    }
+                }
+
+
+                if (
                     (
                     (triggerSubEvent == null && (myCalendarEvent.End > Now.constNow)) ||
                     (triggerSubEvent.isLocked && triggerSubEvent.End > Now.constNow) ||
@@ -657,17 +667,6 @@ namespace TilerCore
                 {
                     myCalendarEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(myCalendarEvent, NoDoneYet, null, null, 0);
                 }
-                
-                foreach(SubCalendarEvent subEVent in myCalendarEvent.ActiveSubEvents.Where(subEvent => subEvent.End > Now.constNow))
-                {
-                    if(!subEVent.IsDateTimeWithin(Now.constNow))
-                    {
-                        subEVent.PinToEnd(myCalendarEvent.StartToEnd);
-                    }
-                        
-                }
-                
-                
             }
 
             if (isNameChange)

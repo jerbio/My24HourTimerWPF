@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -24,6 +25,7 @@ namespace TilerElements
         public virtual DateTimeOffset LastUpdate { get; set; }
         public virtual double TimeSpanInMs { get; set; }
         public virtual double Distance { get; set; }
+        protected TilerUser _User;
 
         public virtual TravelMedium Medium
         {
@@ -51,7 +53,7 @@ namespace TilerElements
 
             }
         }
-
+        [Index("UserIdAndLocationCacheEntry", Order = 1, IsUnique = true)]
         public virtual string Id {
             get
             {
@@ -120,6 +122,21 @@ namespace TilerElements
             set
             {
                 _KehindeId = value;
+            }
+        }
+
+        [Index("UserIdAndLocationCacheEntry", Order = 0, IsUnique = true)]
+        public string UserId { get; set; }
+        [Required, ForeignKey("UserId")]
+        public TilerUser User
+        {
+            get
+            {
+                return _User;
+            }
+            set
+            {
+                _User = value;
             }
         }
 

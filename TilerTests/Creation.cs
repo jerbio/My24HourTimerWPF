@@ -887,7 +887,8 @@ namespace TilerTests
             Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
             CalendarEvent newlyaddedevent = TestUtility.getCalendarEventById(testEvent.Calendar_EventID, user);
             Assert.AreEqual(testEvent.getId, newlyaddedevent.getId);
-            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            HashSet<string> calendarIds = new HashSet<string>() { newlyaddedevent.Id };
+            Schedule = new TestSchedule(user, refNow, calendarIds: calendarIds);
             CalendarEvent newlyaddedevent0 = Schedule.getCalendarEvent(newlyaddedevent.Calendar_EventID.getAllEventDictionaryLookup);
             List<SubCalendarEvent> subEvents = newlyaddedevent0.AllSubEvents.OrderBy(subEvent => subEvent.Start).ToList();
             int currentDayIndex = (int)repetitionRange.Start.DayOfWeek;

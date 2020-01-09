@@ -913,9 +913,9 @@ namespace TilerTests
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             HashSet<string> calendarIds = new HashSet<string>() { nonRigidCalendarEvent.Id };
-            Schedule = new TestSchedule(user, refNow, startOfDay, retrievalOption: DataRetrivalOption.All, calendarIds: calendarIds);
+            Schedule = new TestSchedule(user, refNow, startOfDay, calendarIds: calendarIds);
             nonRigidCalendarEvent = Schedule.getCalendarEvent(nonRigidCalendarEvent.Id);
-            SubCalendarEvent testSubEvent = nonRigidCalendarEvent.ActiveSubEvents.OrderBy(subEventIter => subEventIter.Start).First();
+            SubCalendarEvent testSubEvent = Schedule.getAllRelatedActiveSubEvents(nonRigidCalendarEvent.Id).OrderBy(subEventIter => subEventIter.Start).First();
 
             DateTimeOffset tileNewStart = start.AddDays(1);
             DateTimeOffset tileNewEnd = tileNewStart.Add(duration);

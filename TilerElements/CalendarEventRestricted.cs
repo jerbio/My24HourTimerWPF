@@ -406,6 +406,11 @@ namespace TilerElements
                     {
                         _EventDuration = End - Start;
                     }
+                    AllSubEvents.AsParallel().ForAll(obj =>
+                    {
+                        obj.changeCalendarEventRange(this.StartToEnd);
+                        obj.updateCalculationEventRange(this.CalculationStartToEnd);
+                    });
                 }
                 else
                 {

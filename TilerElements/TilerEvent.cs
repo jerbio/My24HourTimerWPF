@@ -536,6 +536,9 @@ namespace TilerElements
         #region dbProperties
         virtual public DateTimeOffset TimeCreated { get; set; } = DateTimeOffset.Parse(DateTimeOffset.UtcNow.ToLocalTime().ToString("MM/dd/yyyy hh:mm tt"));
 
+
+        [Index("UserIdAndStart", Order = 0)]
+        [Index("UserIdAndEnd", Order = 0)]
         virtual public string Id
         {
             get
@@ -686,7 +689,7 @@ namespace TilerElements
             }
         }
 
-
+        [Index("UserIdAndStart", Order = 1)]
         virtual public DateTimeOffset StartTime_EventDB
         {
             get
@@ -700,6 +703,7 @@ namespace TilerElements
             }
         }
 
+        [Index("UserIdAndEnd", Order = 1)]
         virtual public DateTimeOffset EndTime_EventDB
         {
             get
@@ -1061,6 +1065,7 @@ namespace TilerElements
             }
         }
 
+        [Index("RepeatParentCalendarEventId", Order = 0)]
         public virtual string RepeatParentEventId { get; set; }
         /// <summary>
         /// I chose to the class TilerEvent as the type for this Data memeber because if I use calendarevent(as one might assume),

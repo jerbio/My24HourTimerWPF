@@ -348,6 +348,29 @@ namespace TilerCore
             return getCalendarEvent(userEvent);
         }
 
+        public virtual IEnumerable<SubCalendarEvent> getAllRelatedActiveSubEvents(EventID eventId)
+        {
+            return getAllRelatedCalendarEvents(eventId).SelectMany(obj => obj.ActiveSubEvents);
+        }
+
+        public virtual IEnumerable<SubCalendarEvent> getAllRelatedActiveSubEvents(string eventId)
+        {
+            EventID eventIdObj = new EventID(eventId);
+            return getAllRelatedActiveSubEvents(eventIdObj);
+        }
+
+        public virtual IEnumerable<SubCalendarEvent> getAllRelatedAllSubEvents(EventID eventId)
+        {
+            return getAllRelatedCalendarEvents(eventId).SelectMany(obj => obj.AllSubEvents);
+        }
+
+        public virtual IEnumerable<SubCalendarEvent> getAllRelatedAllSubEvents(string eventId)
+        {
+            EventID eventIdObj = new EventID(eventId);
+            return getAllRelatedActiveSubEvents(eventIdObj);
+        }
+
+
         public virtual IEnumerable<CalendarEvent> getAllRelatedCalendarEvents (string eventId)
         {
             EventID eventIdObj = new EventID(eventId);
@@ -1271,10 +1294,12 @@ namespace TilerCore
         public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> SetCalendarEventAsNow(string CalendarID, bool Force = false)
         {
             CalendarEvent calendarEvent = getCalendarEvent(CalendarID);
-            IEnumerable<SubCalendarEvent> orderedSubEvents = calendarEvent.ActiveSubEvents.Where(obj => obj.End > Now.constNow ).OrderBy(obj => obj.End);
+            IEnumerable<SubCalendarEvent> orderedSubEvents = getAllRelatedCalendarEvents(calendarEvent.Id).SelectMany(o => o.ActiveSubEvents).Where(obj => obj.End > Now.constNow).OrderBy(obj => obj.End);
+            
+            
             if (orderedSubEvents.Count() < 1)
             {
-                orderedSubEvents = calendarEvent.ActiveSubEvents.OrderBy(obj => obj.End).Reverse();//I didn't do OrderByDescending because an interest situation where two events I ordered have the same start then they are aordered by the id. Which means the lesser Id gets picked
+                orderedSubEvents = getAllRelatedCalendarEvents(calendarEvent.Id).SelectMany(o => o.ActiveSubEvents).OrderBy(obj => obj.End).Reverse();//I didn't do OrderByDescending because an interest situation where two events I ordered have the same start then they are aordered by the id. Which means the lesser Id gets picked
             }
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(new CustomErrors("No Active Event Found", 100), null);
             if (orderedSubEvents.Count() > 0)

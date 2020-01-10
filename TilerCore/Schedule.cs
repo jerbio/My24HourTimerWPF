@@ -2636,7 +2636,7 @@ namespace TilerCore
                     int durationQutient = ((int)Math.Round(subEvent.getActiveDuration.TotalMinutes / Utility.QuarterHourTimeSpan.TotalMinutes));
                     if (durationToTimeSpan.ContainsKey(subEvent.Location))
                     {
-                        durationToTimeSpan[subEvent.Location] = durationQutient;
+                        durationToTimeSpan[subEvent.Location] += durationQutient;
                     }
                     else {
                         durationToTimeSpan.Add(subEvent.Location, durationQutient);
@@ -2644,7 +2644,7 @@ namespace TilerCore
                 }
                 
 
-                foreach (SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => sub.isLocationAmbiguous && !sub.IsValidationRun))
+                foreach (SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => sub.isLocationAmbiguous && !sub.IsValidationRun).OrderBy(o=>o.Score))
                 {
                     List<Location> otherSubEventLocation = new List<Location>();
                     foreach (var kvp in durationToTimeSpan)
@@ -2671,6 +2671,15 @@ namespace TilerCore
                     if(averageLocation!=null && !averageLocation.isDefault && !averageLocation.isNull)
                     {
                         subEvent.validateLocation(averageLocation);/// This might kill performance because of multiple calls to google for validation
+                        int durationQutient = ((int)Math.Round(subEvent.getActiveDuration.TotalMinutes / Utility.QuarterHourTimeSpan.TotalMinutes));
+                        if (durationToTimeSpan.ContainsKey(subEvent.Location))
+                        {
+                            durationToTimeSpan[subEvent.Location] += durationQutient;
+                        }
+                        else
+                        {
+                            durationToTimeSpan.Add(subEvent.Location, durationQutient);
+                        }
                     }
                 }
                 OptimizedPath dayPath = new OptimizedPath(EachDay, beginLocation, endLocation, home);

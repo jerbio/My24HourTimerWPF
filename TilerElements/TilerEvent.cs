@@ -58,6 +58,7 @@ namespace TilerElements
         protected bool _IsRepeat = false;
         protected CalendarEvent _RepeatParentEvent;
         protected DateTimeOffset _TimeOfScheduleLoad;
+        protected bool _ValidationIsRun = false;
 
         #region undoParameters
         public DateTimeOffset UndoStartDateTime;
@@ -236,6 +237,7 @@ namespace TilerElements
 
         public void validateLocation(Location location)
         {
+            _ValidationIsRun = true;
             Location validatedLocation = this._LocationInfo.validate(location, TimeOfScheduleLoad);
             if (validatedLocation != null && !validatedLocation.isNull && !validatedLocation.isDefault)
             {
@@ -422,6 +424,17 @@ namespace TilerElements
             }
         }
 
+        /// <summary>
+        /// Return if validation has already being run
+        /// </summary>
+        virtual public bool IsValidationRun
+        {
+            get
+            {
+                return _ValidationIsRun;
+            }
+        }
+
         virtual public bool IsLocationValidated
         {
             get
@@ -523,6 +536,9 @@ namespace TilerElements
         #region dbProperties
         virtual public DateTimeOffset TimeCreated { get; set; } = DateTimeOffset.Parse(DateTimeOffset.UtcNow.ToLocalTime().ToString("MM/dd/yyyy hh:mm tt"));
 
+
+        [Index("UserIdAndStart", Order = 0)]
+        [Index("UserIdAndEnd", Order = 0)]
         virtual public string Id
         {
             get
@@ -673,7 +689,7 @@ namespace TilerElements
             }
         }
 
-
+        [Index("UserIdAndStart", Order = 1)]
         virtual public DateTimeOffset StartTime_EventDB
         {
             get
@@ -687,6 +703,7 @@ namespace TilerElements
             }
         }
 
+        [Index("UserIdAndEnd", Order = 1)]
         virtual public DateTimeOffset EndTime_EventDB
         {
             get
@@ -1048,6 +1065,7 @@ namespace TilerElements
             }
         }
 
+        [Index("RepeatParentCalendarEventId", Order = 0)]
         public virtual string RepeatParentEventId { get; set; }
         /// <summary>
         /// I chose to the class TilerEvent as the type for this Data memeber because if I use calendarevent(as one might assume),

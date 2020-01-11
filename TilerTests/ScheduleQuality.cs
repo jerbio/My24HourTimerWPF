@@ -300,7 +300,9 @@ namespace TilerTests
             DateTimeOffset secondRefNow = daySectionTuple.Item2.Start.Add(TimeSpan.FromSeconds(daySectionTuple.Item2.TimelineSpan.TotalSeconds / 2)).removeSecondsAndMilliseconds();
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, secondRefNow, retrievalOption: DataRetrivalOption.All);
+            HashSet<string>  calendarIds = new HashSet<string>();
+            calendarIds.Add(testEvent0.Id);
+            Schedule = new TestSchedule(user, secondRefNow, calendarIds: calendarIds);
             Schedule.SetCalendarEventAsNow(testEvent0.Id);
             Schedule.persistToDB().Wait();
             var sectionTuple = daySections[6];

@@ -216,6 +216,7 @@ namespace TilerTests
             }
 
             ///Running a schedule update around boulder should have all gym locations around boulder. 
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             DateTimeOffset fifteenDayAfterRefNow = refNow.AddDays(15);
             schedule = new TestSchedule(user, fifteenDayAfterRefNow);
             schedule.CurrentLocation = boulderLocation;
@@ -231,6 +232,7 @@ namespace TilerTests
 
 
             ///Running a schedule update around colorado springs should have all gym locations around colorado springs.
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             DateTimeOffset thirtyDayAfterRefNow = refNow.AddDays(30);
             schedule = new TestSchedule(user, thirtyDayAfterRefNow);
             schedule.CurrentLocation = coloadoSpringLocation;

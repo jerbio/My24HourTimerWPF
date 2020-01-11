@@ -1837,20 +1837,18 @@ namespace TilerElements
             AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(newTImeLine));
             bool worksForAllSubevents = true;
             SubCalendarEvent failingSubEvent = SubCalendarEvent.getEmptySubCalendarEvent(this.Calendar_EventID);
-            foreach (var obj in AllSubEvents)
+            foreach (SubCalendarEvent subEvent in AllSubEvents)
             {
-                
-                if(!(!this.isLocked && obj.isLocked)) // if the subevent is unlocked but the parent is locked then don't bother checking
+                if(!(!this.isLocked && subEvent.isLocked)) // if the subevent is unlocked but the parent is locked then don't bother checking
                 {
-                    bool canExistWithinNewTimeLine = obj.canExistWithinTimeLine(newTImeLine);
+                    bool canExistWithinNewTimeLine = subEvent.canExistWithinTimeLine(newTImeLine);
                     if (!canExistWithinNewTimeLine)
                     {
                         worksForAllSubevents = false;
-                        failingSubEvent = obj;
+                        failingSubEvent = subEvent;
                         break;
                     }
                 }
-                
             }
             if (worksForAllSubevents)
             {

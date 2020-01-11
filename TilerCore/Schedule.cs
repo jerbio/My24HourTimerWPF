@@ -134,7 +134,7 @@ namespace TilerCore
 
         protected double PercentageOccupancy = 0;
         protected ReferenceNow _Now;
-        protected TimeSpan _MorningPreparationTime = Utility.QuarterHourTimeSpan;
+        protected TimeSpan _MorningPreparationTime = TimeSpan.FromMinutes(45);// trying to get 45 minutes
         protected HashSet<SubCalendarEvent> ConflictinSubEvents = new HashSet<SubCalendarEvent>();
         protected DataRetrivalOption retrievalOption = DataRetrivalOption.Evaluation;
         public ReferenceNow Now
@@ -347,6 +347,29 @@ namespace TilerCore
             EventID userEvent = new EventID(EventID);
             return getCalendarEvent(userEvent);
         }
+
+        public virtual IEnumerable<SubCalendarEvent> getAllRelatedActiveSubEvents(EventID eventId)
+        {
+            return getAllRelatedCalendarEvents(eventId).SelectMany(obj => obj.ActiveSubEvents);
+        }
+
+        public virtual IEnumerable<SubCalendarEvent> getAllRelatedActiveSubEvents(string eventId)
+        {
+            EventID eventIdObj = new EventID(eventId);
+            return getAllRelatedActiveSubEvents(eventIdObj);
+        }
+
+        public virtual IEnumerable<SubCalendarEvent> getAllRelatedAllSubEvents(EventID eventId)
+        {
+            return getAllRelatedCalendarEvents(eventId).SelectMany(obj => obj.AllSubEvents);
+        }
+
+        public virtual IEnumerable<SubCalendarEvent> getAllRelatedAllSubEvents(string eventId)
+        {
+            EventID eventIdObj = new EventID(eventId);
+            return getAllRelatedActiveSubEvents(eventIdObj);
+        }
+
 
         public virtual IEnumerable<CalendarEvent> getAllRelatedCalendarEvents (string eventId)
         {
@@ -648,7 +671,17 @@ namespace TilerCore
                 {
                     NoDoneYet.Remove(subEvent);
                 }
-                if(
+
+                foreach (SubCalendarEvent subEVent in myCalendarEvent.ActiveSubEvents)
+                {
+                    if (!subEVent.IsDateTimeWithin(Now.constNow))
+                    {
+                        subEVent.PinToEnd(myCalendarEvent.StartToEnd);
+                    }
+                }
+
+
+                if (
                     (
                     (triggerSubEvent == null && (myCalendarEvent.End > Now.constNow)) ||
                     (triggerSubEvent.isLocked && triggerSubEvent.End > Now.constNow) ||
@@ -657,17 +690,6 @@ namespace TilerCore
                 {
                     myCalendarEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(myCalendarEvent, NoDoneYet, null, null, 0);
                 }
-                
-                foreach(SubCalendarEvent subEVent in myCalendarEvent.ActiveSubEvents.Where(subEvent => subEvent.End > Now.constNow))
-                {
-                    if(!subEVent.IsDateTimeWithin(Now.constNow))
-                    {
-                        subEVent.PinToEnd(myCalendarEvent.StartToEnd);
-                    }
-                        
-                }
-                
-                
             }
 
             if (isNameChange)
@@ -1272,10 +1294,12 @@ namespace TilerCore
         public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> SetCalendarEventAsNow(string CalendarID, bool Force = false)
         {
             CalendarEvent calendarEvent = getCalendarEvent(CalendarID);
-            IEnumerable<SubCalendarEvent> orderedSubEvents = calendarEvent.ActiveSubEvents.Where(obj => obj.End > Now.constNow ).OrderBy(obj => obj.End);
+            IEnumerable<SubCalendarEvent> orderedSubEvents = getAllRelatedCalendarEvents(calendarEvent.Id).SelectMany(o => o.ActiveSubEvents).Where(obj => obj.End > Now.constNow).OrderBy(obj => obj.End);
+            
+            
             if (orderedSubEvents.Count() < 1)
             {
-                orderedSubEvents = calendarEvent.ActiveSubEvents.OrderBy(obj => obj.End).Reverse();//I didn't do OrderByDescending because an interest situation where two events I ordered have the same start then they are aordered by the id. Which means the lesser Id gets picked
+                orderedSubEvents = getAllRelatedCalendarEvents(calendarEvent.Id).SelectMany(o => o.ActiveSubEvents).OrderBy(obj => obj.End).Reverse();//I didn't do OrderByDescending because an interest situation where two events I ordered have the same start then they are aordered by the id. Which means the lesser Id gets picked
             }
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(new CustomErrors("No Active Event Found", 100), null);
             if (orderedSubEvents.Count() > 0)
@@ -2005,8 +2029,7 @@ namespace TilerCore
             HashSet<SubCalendarEvent> subEventsInSet = new HashSet<SubCalendarEvent>(getAllActiveCalendarEvents().Concat(InitializingCalEvents).Where(calEvent => calEvent.isActive)
                 .SelectMany(calEvent => calEvent.ActiveSubEvents).AsParallel().
                 Where(subEvent => subEvent.getCalculationRange.End > NowTIme).
-                //Where(subEvent => subEvent.End >= NowTIme).
-                Where(subEvent => (subEvent.isRigid && subEvent.ActiveSlot.IsDateTimeWithin(NowTIme)) || subEvent.canExistWithinTimeLine(CalculationTImeLine) || subEvent.getIsProcrastinateCalendarEvent));
+                Where(subEvent => (subEvent.isRigid && subEvent.ActiveSlot.IsDateTimeWithin(NowTIme)) || subEvent.ActiveSlot.doesTimeLineInterfere(CalculationTImeLine) || subEvent.canExistWithinTimeLine(CalculationTImeLine) || subEvent.getIsProcrastinateCalendarEvent));
             TimeSpan maxSubeventSpan = Utility.OneDayTimeSpan.Add(-Utility.OneMinuteTimeSpan);
             ConcurrentBag<SubCalendarEvent> subEvents = new ConcurrentBag<SubCalendarEvent>();
             subEventsInSet.AsParallel().ForAll((subEvent) =>
@@ -2608,12 +2631,12 @@ namespace TilerCore
 
                 Dictionary<Location, int> durationToTimeSpan = new Dictionary<Location, int>();
 
-                foreach(SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => !sub.Location.isDefault && !sub.Location.isNull))
+                foreach(SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => sub.Location.IsVerified || sub.IsValidationRun))
                 {
                     int durationQutient = ((int)Math.Round(subEvent.getActiveDuration.TotalMinutes / Utility.QuarterHourTimeSpan.TotalMinutes));
                     if (durationToTimeSpan.ContainsKey(subEvent.Location))
                     {
-                        durationToTimeSpan[subEvent.Location] = durationQutient;
+                        durationToTimeSpan[subEvent.Location] += durationQutient;
                     }
                     else {
                         durationToTimeSpan.Add(subEvent.Location, durationQutient);
@@ -2621,7 +2644,7 @@ namespace TilerCore
                 }
                 
 
-                foreach (SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => sub.isLocationAmbiguous))
+                foreach (SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => sub.isLocationAmbiguous && !sub.IsValidationRun).OrderBy(o=>o.Score))
                 {
                     List<Location> otherSubEventLocation = new List<Location>();
                     foreach (var kvp in durationToTimeSpan)
@@ -2648,6 +2671,15 @@ namespace TilerCore
                     if(averageLocation!=null && !averageLocation.isDefault && !averageLocation.isNull)
                     {
                         subEvent.validateLocation(averageLocation);/// This might kill performance because of multiple calls to google for validation
+                        int durationQutient = ((int)Math.Round(subEvent.getActiveDuration.TotalMinutes / Utility.QuarterHourTimeSpan.TotalMinutes));
+                        if (durationToTimeSpan.ContainsKey(subEvent.Location))
+                        {
+                            durationToTimeSpan[subEvent.Location] += durationQutient;
+                        }
+                        else
+                        {
+                            durationToTimeSpan.Add(subEvent.Location, durationQutient);
+                        }
                     }
                 }
                 OptimizedPath dayPath = new OptimizedPath(EachDay, beginLocation, endLocation, home);

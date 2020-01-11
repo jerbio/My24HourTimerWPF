@@ -1272,6 +1272,7 @@ namespace TilerElements
             }
         }
 
+        [Index("SubEventToParentCalendarEventId", Order = 0)]
         virtual public string CalendarEventId { get; set; }
         [ForeignKey("CalendarEventId")]
         virtual public CalendarEvent ParentCalendarEvent

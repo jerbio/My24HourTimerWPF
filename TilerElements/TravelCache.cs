@@ -45,6 +45,8 @@ namespace TilerElements
                 Distance = calculatedDistance,
                 LastLookup = lastUpdate,
                 LastUpdate = lastUpdate,
+                User = _TilerUser,
+                UserId = Id,
                 TravelCache = this
             };
             if (_LocationCombo == null)
@@ -92,6 +94,8 @@ namespace TilerElements
                         Taiye = second,
                         Kehinde = first,
                         Medium = medium,
+                        User = _TilerUser,
+                        UserId = Id,
                         TravelCache = this
                     };
                     string hashCode = entry.GetHashCode().ToString();
@@ -120,6 +124,18 @@ namespace TilerElements
             }
         }
 
+        public IEnumerable<LocationCacheEntry> purgedLocations
+        {
+            get {
+                List<LocationCacheEntry> retValue = new List<LocationCacheEntry>();
+                if (_LocationCombo != null && _LocationCombo.Count > 0)
+                {
+                    retValue = _LocationCombo.Values.OrderByDescending(o => o.LastLookup).Skip(cacheEntryLimit).ToList();
+                }
+                return retValue;
+            }
+        }
+        
 
 
         public virtual ICollection<LocationCacheEntry> LocationCombo_DB

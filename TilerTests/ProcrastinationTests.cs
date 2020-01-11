@@ -180,7 +180,9 @@ namespace TilerTests
             Schedule.AddToScheduleAndCommitAsync(testEvent1).Wait();
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            var calendarIds = new HashSet<string>();
+            calendarIds.Add(testEvent.getId);
+            Schedule = new TestSchedule(user, refNow, calendarIds: calendarIds);
             var setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
             Schedule.persistToDB().Wait();
 

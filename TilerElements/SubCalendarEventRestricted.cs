@@ -359,15 +359,6 @@ namespace TilerElements
             }
             return retValue;
         }
-
-
-        public RestrictionProfile RetrictionInfo
-        {
-            get 
-            {
-                return _ProfileOfRestriction;
-            }
-        }
         
         public override bool UpdateThis(SubCalendarEvent SubEventEntryData)
         {
@@ -491,10 +482,12 @@ namespace TilerElements
         #endregion
 
         #region properties
-
-        public RestrictionProfile getRestrictionProfile()
+        public override RestrictionProfile RestrictionProfile
         {
-            return _ProfileOfRestriction;
+            get
+            {
+                return _ProfileOfRestriction;
+            }
         }
 
         virtual public DateTimeOffset HardRangeStartTime_EventDB
@@ -543,16 +536,17 @@ namespace TilerElements
             }
         }
 
-        public override RestrictionProfile RestrictionProfile
-        {
-            get
-            {
-                return _ProfileOfRestriction;
-            }
 
+        public override RestrictionProfile RestrictionProfile_DB
+        {
             set
             {
                 _ProfileOfRestriction = value;
+            }
+
+            get
+            {
+                return _ProfileOfRestriction;
             }
         }
         #endregion

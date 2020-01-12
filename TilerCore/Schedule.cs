@@ -611,7 +611,7 @@ namespace TilerCore
                 ChangedSubCal = new SubCalendarEventRestricted((CalendarEventRestricted)mySubCalEvent.ParentCalendarEvent,
                     mySubCalEvent.getCreator, mySubCalEvent.getAllUsers(), mySubCalEvent.ParentCalendarEvent.Id,
                     mySubCalEvent.getName, SubeventStart, SubeventEnd,
-                    ((SubCalendarEventRestricted)mySubCalEvent).getRestrictionProfile(), mySubCalEvent.ParentCalendarEvent.StartToEnd,
+                    ((SubCalendarEventRestricted)mySubCalEvent).RestrictionProfile, mySubCalEvent.ParentCalendarEvent.StartToEnd,
                     mySubCalEvent.isEnabled, mySubCalEvent.getIsComplete, mySubCalEvent.Conflicts, mySubCalEvent.isRigid,
                     new TimeSpan(), new TimeSpan(),
                     mySubCalEvent.LocationObj, mySubCalEvent.getUIParam, mySubCalEvent.Notes, Now, mySubCalEvent.ParentCalendarEvent.getNowInfo, mySubCalEvent.Priority_EventDB, mySubCalEvent.ThirdPartyID, subEventID: mySubCalEvent.Id);
@@ -2492,7 +2492,7 @@ namespace TilerCore
             SortedInterFerringCalendarEvents_Deadline = SortedInterFerringCalendarEvents_Deadline.OrderBy(obj => obj.End).ToList();
             Stopwatch watch = new Stopwatch();
             watch.Start();
-            ParallelizeCallsToDay(SortedInterFerringCalendarEvents_Deadline, ArrayOfInterferringSubEvents.ToList(), AllDays, callLocation, true);
+            ParallelizeCallsToDay(SortedInterFerringCalendarEvents_Deadline, ArrayOfInterferringSubEvents.ToList(), AllDays, callLocation, false);
             watch.Stop();
             TimeSpan scheduleElapsedTime = watch.Elapsed;
             Debug.WriteLine("ParallelizeCallsToDay took " + scheduleElapsedTime.ToString());
@@ -3385,12 +3385,13 @@ namespace TilerCore
 
             
             IDictionary<DayTimeLine, OptimizedPath> dayToOptimization = null;
-            List<DayTimeLine> OptimizedDays = AllDayTImeLine.Take(OptimizedDayLimit).ToList();
-            List<DayTimeLine> moveToMiddleDays = AllDayTImeLine.Skip(OptimizedDayLimit).ToList();
+            List<DayTimeLine> OptimizedDays = new List<DayTimeLine>();
+            
             var OptimizationWatch = new Stopwatch();
             OptimizationWatch.Start();
             if (Optimize)
             {
+                OptimizedDays = AllDayTImeLine.Take(OptimizedDayLimit).ToList();
                 long FirstIndex = AllDayTImeLine[0].UniversalIndex;
                 try
                 {
@@ -3417,7 +3418,8 @@ namespace TilerCore
                     throw E;
                 }
             }
-            
+
+            List<DayTimeLine> moveToMiddleDays = AllDayTImeLine.Skip(OptimizedDayLimit).ToList();
             Debug.WriteLine("Optimization took" + OptimizationWatch.Elapsed.ToString());
             foreach (DayTimeLine dayTimeLine in moveToMiddleDays)
             {

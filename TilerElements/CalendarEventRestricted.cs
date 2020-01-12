@@ -234,16 +234,24 @@ namespace TilerElements
             }
         }
 
+        public override RestrictionProfile RestrictionProfile_DB
+        {
+            set
+            {
+                _ProfileOfRestriction = value;
+            }
+
+            get
+            {
+                return _ProfileOfRestriction;
+            }
+        }
+
         public override RestrictionProfile RestrictionProfile
         {
             get
             {
                 return _ProfileOfRestriction;
-            }
-
-            set
-            {
-                _ProfileOfRestriction = value;
             }
         }
 

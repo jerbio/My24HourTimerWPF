@@ -1085,7 +1085,10 @@ namespace TilerElements
             }
         }
 
-        public virtual RestrictionProfile RestrictionProfile { get; set; } = null;
+
+        public virtual RestrictionProfile RestrictionProfile_DB { get; set; } = null;
+
+        public virtual RestrictionProfile RestrictionProfile { get; }
         #region undoProperties
         public virtual bool FirstInstantiation { get; set; } = true;
 

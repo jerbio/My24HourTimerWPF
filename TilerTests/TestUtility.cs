@@ -1021,7 +1021,7 @@ namespace TilerTests
                                 && subEvent.getUIParam.isTestEquivalent(secondSubEvent.getUIParam);
                             if (subEvent.getIsEventRestricted)
                             {
-                                retValue = retValue && (subEvent as SubCalendarEventRestricted).getRestrictionProfile().isTestEquivalent((secondSubEvent as SubCalendarEventRestricted).getRestrictionProfile());
+                                retValue = retValue && (subEvent as SubCalendarEventRestricted).RestrictionProfile.isTestEquivalent((secondSubEvent as SubCalendarEventRestricted).RestrictionProfile);
                             }
 
                             if (!retValue)

@@ -1350,6 +1350,7 @@ namespace TilerCore
                 return new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(new CustomErrors("You will be going outside the limits of this event, Is that Ok?", 5), null);
             }
 
+            Now.UpdateNow(ReferenceSubEvent.Start);
 
             if (ReferenceSubEvent.End > referenceCalendarEvent.End || ReferenceSubEvent.Start < referenceCalendarEvent.Start)
             {

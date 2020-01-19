@@ -260,13 +260,16 @@ namespace TilerElements
             _Now = now;
             if (this.IsFromRecurringAndNotChildRepeatCalEvent)
             {
-                foreach(CalendarEventRestricted calRestricted in Repeat.RecurringCalendarEvents())
+                if (Repeat!=null)
                 {
-                    calRestricted.setNow(_Now, updateCalendarEventRange);
+                    foreach (CalendarEventRestricted calRestricted in Repeat.RecurringCalendarEvents())
+                    {
+                        calRestricted.setNow(_Now, updateCalendarEventRange);
+                    }
                 }
             } else
             {
-                foreach (SubCalendarEvent subEvent in ActiveSubEvents)
+                foreach (SubCalendarEvent subEvent in AllSubEvents)
                 {//only selecting Active Subevents for performance reasons
                     SubCalendarEventRestricted subEventAsRestricted = (subEvent as SubCalendarEventRestricted);
                     subEventAsRestricted?.setNow(now, updateCalendarEventRange);

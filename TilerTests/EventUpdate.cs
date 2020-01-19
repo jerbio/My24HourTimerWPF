@@ -1195,7 +1195,8 @@ namespace TilerTests
                 DateTimeOffset newStart = testSubEvent.Start.AddDays(10);
                 DateTimeOffset newEnd = newStart.Add(duration);
                 TestUtility.reloadTilerUser(ref user, ref tilerUser);
-                schedule = new TestSchedule(user, refNow, startOfDay);
+                HashSet<string> calendarIds = new HashSet<string>() { testSubEvent.getId };
+                schedule = new TestSchedule(user, refNow, startOfDay, calendarIds: calendarIds);
                 if (previousSubEvent != null)
                 {
                     SubCalendarEvent previousInMemory = schedule.getSubCalendarEvent(previousSubEvent.Id);

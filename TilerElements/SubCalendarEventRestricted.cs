@@ -338,6 +338,19 @@ namespace TilerElements
         }
 
 
+        public override void updateCalculationEventRange(TimeLine timeLine)
+        {
+            TimeLine interferringTimeLine = this.getCalendarEventRange.InterferringTimeLine(timeLine);
+            if (interferringTimeLine == null)
+            {
+                this.CalculationTimeLine = new TimeLineRestricted(timeLine, this.RestrictionProfile, this._Now);
+            }
+            else
+            {
+                this.CalculationTimeLine = new TimeLineRestricted(interferringTimeLine, this.RestrictionProfile, this._Now);
+            }
+        }
+
         /*
         public override void updateEventSequence()
         {

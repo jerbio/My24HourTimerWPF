@@ -408,6 +408,7 @@ namespace TilerTests
                 TestUtility.reloadTilerUser(ref user, ref tilerUser);
                 refNow = repeatDates[i];
                 repeatEvent = TestUtility.getCalendarEventById(repeatEvent.Id, user);
+                TestUtility.reloadTilerUser(ref user, ref tilerUser);
                 Schedule = new TestSchedule(user, refNow);
                 SubCalendarEvent subEvent = repeatEvent.ActiveSubEvents.OrderByDescending(obj => obj.Start).First();// ensures that the latter events get piccked "as now" because we when the final refnow is 7/7/2019 meaning the first calendarevents in recurring calendar events can only fit on the last day so it won't be capable of being optimized
                 Schedule.SetSubeventAsNow(subEvent.Id);

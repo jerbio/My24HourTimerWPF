@@ -216,7 +216,7 @@ namespace TilerElements
 
                 EachRepeatCalendarStart = _initializingRange.Start;
                 EachRepeatCalendarEnd = _initializingRange.End;
-                MyRepeatCalendarEvent = new RigidCalendarEvent(MyParentEvent.getName, _initializingRange.Start, _initializingRange.End, MyParentEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, new Repetition(), MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID);
+                MyRepeatCalendarEvent = new RigidCalendarEvent(MyParentEvent.getName, _initializingRange.Start, _initializingRange.End, MyParentEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, new Repetition(), MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID, MyParentEvent.getNowInfo);
             }
             else
             {
@@ -310,7 +310,7 @@ namespace TilerElements
                 MyEventCalendarID = EventID.GenerateRepeatCalendarEvent(MyParentEvent.getId);
                 if (MyRepeatCalendarEvent.isRigid)
                 {
-                    MyRepeatCalendarEvent = new RigidCalendarEvent(MyRepeatCalendarEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyRepeatCalendarEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyRepeatCalendarEvent.Repeat, MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID);
+                    MyRepeatCalendarEvent = new RigidCalendarEvent(MyRepeatCalendarEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyRepeatCalendarEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyRepeatCalendarEvent.Repeat, MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID, MyParentEvent.getNowInfo);
                 }
                 else
                 {
@@ -482,6 +482,7 @@ namespace TilerElements
 
             Repetition repetitionData = new Repetition(repetitionTimeline, this.getFrequency, ActiveTimeline, 7);
             repetitionData.ParentEvent = MyParentEvent;
+            MyParentEvent.isRepeatLoaded_DB = true;
 
             this.ParentEvent = MyParentEvent;
             this._initializingRange = ActiveTimeline;
@@ -490,7 +491,7 @@ namespace TilerElements
             CalendarEvent MyRepeatCalendarEvent;
             if (MyParentEvent.isRigid)
             {
-                MyRepeatCalendarEvent = new RigidCalendarEvent(MyParentEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, repetitionData, MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID);
+                MyRepeatCalendarEvent = new RigidCalendarEvent(MyParentEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, repetitionData, MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID, MyParentEvent.getNowInfo);
             }
             else
             {
@@ -523,6 +524,7 @@ namespace TilerElements
 
             Repetition repetitionData = new Repetition(repetitionTimeline, this.getFrequency, ActiveTimeline, 7);
             repetitionData.ParentEvent = MyParentEvent;
+            MyParentEvent.isRepeatLoaded_DB = true;
 
             this._initializingRange = ActiveTimeline;
             this._RepetitionRange = repetitionTimeline;

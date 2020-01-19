@@ -95,7 +95,7 @@ namespace TilerTests
             CalendarEvent repeatTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 2, false);
             Schedule = new TestSchedule(user, refNow);
             Schedule.AddToScheduleAndCommitAsync(repeatTestEvent).Wait();
-            int beforeRepeatDeletionCount = Schedule.getAllCalendarEvents().ToLookup(o=>o.RepeatParentEvent).Count();
+            int beforeRepeatDeletionCount = Schedule.getAllCalendarEvents().ToLookup(o=>o.getTilerID.getCalendarEventComponent()).Count();
             string DeletedRepeatSubEventId = repeatTestEvent.AllSubEvents[0].getId;
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
@@ -109,7 +109,7 @@ namespace TilerTests
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
-            int afterRepeatDeletionCount = Schedule.getAllCalendarEvents().ToLookup(o => o.RepeatParentEvent).Count();
+            int afterRepeatDeletionCount = Schedule.getAllCalendarEvents().ToLookup(o => o.getTilerID.getCalendarEventComponent()).Count();
             Assert.AreEqual(beforeRepeatDeletionCount, afterRepeatDeletionCount + 1);
             EventID repeatEventId = new EventID(DeletedRepeatSubEventId);
             CalendarEvent retrievedRepeatCalendarEvent = TestUtility.getCalendarEventById(repeatEventId.getCalendarEventID(), user);
@@ -123,7 +123,7 @@ namespace TilerTests
             repeatTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 2, false);
             Schedule = new TestSchedule(user, refNow);
             Schedule.AddToScheduleAndCommitAsync(repeatTestEvent).Wait();
-            beforeRepeatDeletionCount = Schedule.getAllCalendarEvents().ToLookup(o => o.RepeatParentEvent).Count();
+            beforeRepeatDeletionCount = Schedule.getAllCalendarEvents().ToLookup(o => o.getTilerID.getCalendarEventComponent()).Count();
             DeletedRepeatSubEventId = repeatTestEvent.AllSubEvents[0].getId;
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
@@ -137,7 +137,7 @@ namespace TilerTests
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
-            afterRepeatDeletionCount = Schedule.getAllCalendarEvents().ToLookup(o => o.RepeatParentEvent).Count();
+            afterRepeatDeletionCount = Schedule.getAllCalendarEvents().ToLookup(o => o.getTilerID.getCalendarEventComponent()).Count();
             Assert.AreEqual(beforeRepeatDeletionCount, afterRepeatDeletionCount + 1);
             repeatEventId = new EventID(DeletedRepeatSubEventId);
             retrievedRepeatCalendarEvent = TestUtility.getCalendarEventById(repeatEventId.getCalendarEventID(), user);
@@ -155,7 +155,7 @@ namespace TilerTests
             CalendarEvent RigidRepeatTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, RigidRepetition, start, RigidRepetitionActualTImeLine.End, 1, true);
             Schedule = new TestSchedule(user, refNow);
             Schedule.AddToScheduleAndCommitAsync(RigidRepeatTestEvent).Wait();
-            int beforeRigidRepeatDeletionCount = Schedule.getAllCalendarEvents().ToLookup(o => o.RepeatParentEvent).Count();
+            int beforeRigidRepeatDeletionCount = Schedule.getAllCalendarEvents().ToLookup(o => o.getTilerID.getCalendarEventComponent()).Count();
 
             string DeletedRigidRepeatSubEventId = RigidRepeatTestEvent.AllSubEvents[0].getId;
 
@@ -172,7 +172,7 @@ namespace TilerTests
             calendarIds = new HashSet<string>();
             calendarIds.Add(repeatTestEvent.Id);
             Schedule = new TestSchedule(user, refNow, calendarIds: calendarIds);
-            int afterRigidRepeatDeletionCount = Schedule.getAllCalendarEvents().ToLookup(o => o.RepeatParentEvent).Count();
+            int afterRigidRepeatDeletionCount = Schedule.getAllCalendarEvents().ToLookup(o => o.getTilerID.getCalendarEventComponent()).Count();
             Assert.AreEqual(beforeRigidRepeatDeletionCount, afterRigidRepeatDeletionCount + 1);
             EventID RigidRepeatEventId = new EventID(DeletedRigidRepeatSubEventId);
             CalendarEvent retrievedRigidRepeatCalendarEvent = TestUtility.getCalendarEventById(RigidRepeatEventId.getCalendarEventID(), user);
@@ -188,7 +188,7 @@ namespace TilerTests
             RigidRepeatTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, RigidRepetition, start, RigidRepetitionActualTImeLine.End, 1, true);
             Schedule = new TestSchedule(user, refNow);
             Schedule.AddToScheduleAndCommitAsync(RigidRepeatTestEvent).Wait();
-            beforeRigidRepeatDeletionCount = Schedule.getAllCalendarEvents().ToLookup(o => o.RepeatParentEvent).Count();
+            beforeRigidRepeatDeletionCount = Schedule.getAllCalendarEvents().ToLookup(o => o.getTilerID.getCalendarEventComponent()).Count();
 
             DeletedRigidRepeatSubEventId = RigidRepeatTestEvent.AllSubEvents[0].getId;
 
@@ -203,7 +203,7 @@ namespace TilerTests
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
-            afterRigidRepeatDeletionCount = Schedule.getAllCalendarEvents().ToLookup(o => o.RepeatParentEvent).Count();
+            afterRigidRepeatDeletionCount = Schedule.getAllCalendarEvents().ToLookup(o => o.getTilerID.getCalendarEventComponent()).Count();
             Assert.AreEqual(beforeRigidRepeatDeletionCount, afterRigidRepeatDeletionCount + 1);
             RigidRepeatEventId = new EventID(DeletedRigidRepeatSubEventId);
             retrievedRigidRepeatCalendarEvent = TestUtility.getCalendarEventById(RigidRepeatEventId.getCalendarEventID(), user);

@@ -120,7 +120,7 @@ namespace TilerTests
             watch.Stop();
             TimeSpan timeSpanToReloadSchedule = watch.Elapsed;
             Console.Write("The test took ", watch.Elapsed);
-            Assert.AreEqual(numberOfEvents, Schedule.getAllCalendarEvents().ToLookup(o => o.getTilerID.getCalendarEventComponent()).Count - 1);
+            Assert.AreEqual(numberOfEvents, Schedule.getAllCalendarEvents().ToLookup(o => o.getTilerID.getCalendarEventComponent()).Count);
         }
 
         [TestMethod]

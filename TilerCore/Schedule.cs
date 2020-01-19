@@ -1156,7 +1156,10 @@ namespace TilerCore
 
             CalendarEvent referenceCalendarEventWithSubEvent = getCalendarEvent(EventID);
             SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
-            ReferenceSubEvent.SetCompletionStatus(true, referenceCalendarEventWithSubEvent);
+            if (ReferenceSubEvent != null)
+            {
+                ReferenceSubEvent.SetCompletionStatus(true, referenceCalendarEventWithSubEvent);
+            }
         }
 
         /// <summary>
@@ -1169,7 +1172,11 @@ namespace TilerCore
             {
                 CalendarEvent referenceCalendarEventWithSubEvent = getCalendarEvent(EventID);
                 SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
-                ReferenceSubEvent.SetCompletionStatus(true, referenceCalendarEventWithSubEvent);
+                if(ReferenceSubEvent!=null)
+                {
+                    ReferenceSubEvent.SetCompletionStatus(true, referenceCalendarEventWithSubEvent);
+                }
+                
             }
         }
 
@@ -1262,7 +1269,10 @@ namespace TilerCore
             {
                 CalendarEvent referenceCalendarEventWithSubEvent = getCalendarEvent(eachString);
                 SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(eachString);
-                ReferenceSubEvent.disable(referenceCalendarEventWithSubEvent);
+                if (ReferenceSubEvent != null)
+                {
+                    ReferenceSubEvent.disable(referenceCalendarEventWithSubEvent);
+                }
             }
         }
 

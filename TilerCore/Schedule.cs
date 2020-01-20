@@ -2196,6 +2196,14 @@ namespace TilerCore
             }
 
             NoneCommitedCalendarEventsEvents.Add(MyCalendarEvent);
+            var ProcrastinateAllEvent = getProcrastinateAllEvent();
+            if (ProcrastinateAllEvent != null)
+            {
+                foreach (var SubEvent in ProcrastinateAllEvent.AllSubEvents)
+                {
+                    SubEvent.Location = CurrentLocation;
+                }
+            }
             Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluation(MyCalendarEvent, NoneCommitedCalendarEventsEvents, InterferringWithNowFlag, NotDoneYet, new TimeLine(Now.constNow.AddDays(-90), Now.ComputationRange.End));
             List<SubCalendarEvent> collectionOfInterferringSubCalEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToList();
             List<SubCalendarEvent> ArrayOfInterferringSubEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToList();
@@ -2319,6 +2327,14 @@ namespace TilerCore
                 removeFromAllEventDictionary(interferringWithNowCalEvent.Calendar_EventID.getAllEventDictionaryLookup);
             }
 
+            if (ProcrastinateAllEvent != null)
+            {
+                foreach (var SubEvent in ProcrastinateAllEvent.AllSubEvents)
+                {
+                    SubEvent.Location = null;
+                }
+            }
+
             return MyCalendarEvent;
 
         }
@@ -2407,6 +2423,15 @@ namespace TilerCore
             }
 
             NoneCommitedCalendarEventsEvents.Add(MyCalendarEvent);
+
+            var ProcrastinateAllEvent = getProcrastinateAllEvent();
+            if (ProcrastinateAllEvent != null)
+            {
+                foreach (var SubEvent in ProcrastinateAllEvent.AllSubEvents)
+                {
+                    SubEvent.Location = CurrentLocation;
+                }
+            }
 
             Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluation(MyCalendarEvent, NoneCommitedCalendarEventsEvents, InterferringWithNowFlag, NotDoneYet, new TimeLine(Now.constNow.AddDays(-90), Now.getAllDaysCount((uint)NumberOfDays).Last().End));
             //Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluationOldDesign(MyCalendarEvent, NoneCommitedCalendarEventsEvents, InterferringWithNowFlag, ExemptFromCalculation, new TimeLine(Now.constNow.AddDays(-90), Now.ComputationRange.End));
@@ -2536,6 +2561,14 @@ namespace TilerCore
                 else
                 {
                     ConflictingEvents.Add(eachSubCalendarEvent);
+                }
+            }
+
+            if (ProcrastinateAllEvent != null)
+            {
+                foreach (var SubEvent in ProcrastinateAllEvent.AllSubEvents)
+                {
+                    SubEvent.Location = null;
                 }
             }
             interFerringBlob.ForEach(obj => ConflictingEvents.AddRange(obj.getSubCalendarEventsInBlob()));

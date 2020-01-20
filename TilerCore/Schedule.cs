@@ -2329,9 +2329,10 @@ namespace TilerCore
 
             if (ProcrastinateAllEvent != null)
             {
+                Location location = new Location();
                 foreach (var SubEvent in ProcrastinateAllEvent.AllSubEvents)
                 {
-                    SubEvent.Location = null;
+                    SubEvent.Location = location;
                 }
             }
 
@@ -2566,9 +2567,10 @@ namespace TilerCore
 
             if (ProcrastinateAllEvent != null)
             {
+                Location location = new Location();
                 foreach (var SubEvent in ProcrastinateAllEvent.AllSubEvents)
                 {
-                    SubEvent.Location = null;
+                    SubEvent.Location = location;
                 }
             }
             interFerringBlob.ForEach(obj => ConflictingEvents.AddRange(obj.getSubCalendarEventsInBlob()));

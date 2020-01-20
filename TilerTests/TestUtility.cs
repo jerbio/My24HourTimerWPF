@@ -877,7 +877,14 @@ namespace TilerTests
                             {
                                 if ((firstTilerEvent.getIsComplete == secondTilerEvent.getIsComplete) && (firstTilerEvent.isEnabled == secondTilerEvent.isEnabled))
                                 {
-                                    retValue = true;
+                                    if ((firstTilerEvent.Ini_StartTime_EventDB == secondTilerEvent.Ini_StartTime_EventDB) && (firstTilerEvent.Ini_StartTime_EventDB == secondTilerEvent.Ini_StartTime_EventDB))
+                                    {
+                                        retValue = true;
+                                    }
+                                    else
+                                    {
+                                        retValue = false;
+                                    }
                                 }
                                 else
                                 {
@@ -1054,6 +1061,8 @@ namespace TilerTests
                 retValue &= (firstCalEvent.getUIParam.isTestEquivalent(secondCalEvent.getUIParam));
                 Assert.IsTrue(retValue);
                 retValue &= (firstCalEvent.DayPreference.isTestEquivalent(secondCalEvent.DayPreference));
+                Assert.IsTrue(retValue);
+                retValue &= (firstCalEvent.TimeLineUpdates_DB == secondCalEvent.TimeLineUpdates_DB);
                 Assert.IsTrue(retValue);
 
 

@@ -67,6 +67,8 @@ namespace TilerElements
             this._Users = users;
             _calendarEvent = calendarEvent;
             this._ProfileOfNow = nowProfile;
+            this._IniStartDateTime = this.Start;
+            this._IniEndDateTime = this.End;
         }
 
         public SubCalendarEventRestricted()
@@ -79,6 +81,8 @@ namespace TilerElements
             _ProfileOfRestriction = null;
             HardCalendarEventRange = null;
             _LastReasonStartTimeChanged = this.Start;
+            this._IniStartDateTime = this.Start;
+            this._IniEndDateTime = this.End;
         }
         #endregion
 

@@ -133,6 +133,8 @@ namespace TilerElements
                 _AverageTimePerSplit = new TimeSpan();
                 this._EventRepetition = RepetitionProfile;
             }
+            this._IniStartDateTime = this.Start;
+            this._IniEndDateTime = this.End;
             InstantiateSubEvents();
         }
 
@@ -408,6 +410,7 @@ namespace TilerElements
                     {
                         _EventDuration = End - Start;
                     }
+                    addUpdatedTimeLine(this.StartToEnd);
                     AllSubEvents.AsParallel().ForAll(obj =>
                     {
                         obj.changeCalendarEventRange(this.StartToEnd);

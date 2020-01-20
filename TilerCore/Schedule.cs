@@ -1112,7 +1112,7 @@ namespace TilerCore
                 List<SubCalendarEvent> AllValidSubCalEvents = new List<SubCalendarEvent>() { ReferenceSubEvent };// ProcrastinateEvent.AllActiveSubEvents.Where(obj => obj.End > ReferenceSubEvent.Start).ToList();
                 DateTimeOffset StartTime = Now.calculationNow;
                 DateTimeOffset EndTime = StartTime.Add(ReferenceSubEvent.getActiveDuration); ;
-                ReferenceSubEvent.SetCompletionStatus(true, referenceCalendarEventWithSubEvent);
+                ReferenceSubEvent.SetCompletionStatus(true, referenceCalendarEventWithSubEvent, this.Now);
 
 
                 TimeSpan TotalActiveDuration = Utility.SumOfActiveDuration(AllValidSubCalEvents);
@@ -1153,7 +1153,7 @@ namespace TilerCore
 
             CalendarEvent referenceCalendarEventWithSubEvent = getCalendarEvent(EventID);
             SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
-            ReferenceSubEvent.SetCompletionStatus(true, referenceCalendarEventWithSubEvent);
+            ReferenceSubEvent.SetCompletionStatus(true, referenceCalendarEventWithSubEvent, this.Now);
         }
 
         /// <summary>
@@ -1166,7 +1166,7 @@ namespace TilerCore
             {
                 CalendarEvent referenceCalendarEventWithSubEvent = getCalendarEvent(EventID);
                 SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
-                ReferenceSubEvent.SetCompletionStatus(true, referenceCalendarEventWithSubEvent);
+                ReferenceSubEvent.SetCompletionStatus(true, referenceCalendarEventWithSubEvent, this.Now);
             }
         }
 

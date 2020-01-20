@@ -19,6 +19,8 @@ namespace TilerElements
         public static TimeSpan ZeroTimeSpan = new TimeSpan(0);
         private DateTimeOffset StartDateTime;
         private DateTimeOffset EndDateTime;
+        protected DateTimeOffset _IniStartDateTime;
+        protected DateTimeOffset _IniEndDateTime;
         private DateTimeOffset TempStartDateTime;
         private DateTimeOffset TempEndDateTime;
         protected bool _Complete = false;
@@ -59,6 +61,7 @@ namespace TilerElements
         protected CalendarEvent _RepeatParentEvent;
         protected DateTimeOffset _TimeOfScheduleLoad;
         protected bool _ValidationIsRun = false;
+        protected DateTimeOffset _CompletionTime;
 
         #region undoParameters
         public DateTimeOffset UndoStartDateTime;
@@ -534,11 +537,9 @@ namespace TilerElements
         }
 
         #region dbProperties
+        [Index("EventIdAndCreation", IsClustered = true, IsUnique = true, Order = 1)]
         virtual public DateTimeOffset TimeCreated { get; set; } = DateTimeOffset.Parse(DateTimeOffset.UtcNow.ToLocalTime().ToString("MM/dd/yyyy hh:mm tt"));
-
-
-        [Index("UserIdAndStart", Order = 0)]
-        [Index("UserIdAndEnd", Order = 0)]
+        [Index("EventIdAndCreation", IsClustered = true, IsUnique = true, Order = 0)]
         virtual public string Id
         {
             get
@@ -713,6 +714,49 @@ namespace TilerElements
             set
             {
                 this.EndDateTime = value;
+            }
+        }
+
+        [Index("UserIdAndIniStart", Order = 1)]
+        virtual public DateTimeOffset Ini_StartTime_EventDB
+        {
+            get
+            {
+                return this._IniStartDateTime;
+            }
+
+            set
+            {
+                this._IniStartDateTime = value;
+            }
+        }
+
+        [Index("UserIdAndIniEnd", Order = 1)]
+        virtual public DateTimeOffset Ini_EndTime_EventDB
+        {
+            get
+            {
+                return this._IniEndDateTime;
+            }
+            set
+            {
+                this._IniEndDateTime = value;
+            }
+        }
+
+
+
+
+        [Index("UserIdAndCompleteTime", Order = 1)]
+        virtual public DateTimeOffset CompletionTime_EventDB
+        {
+            get
+            {
+                return this._CompletionTime;
+            }
+            set
+            {
+                this._CompletionTime = value;
             }
         }
 
@@ -1009,8 +1053,11 @@ namespace TilerElements
             }
         }
 
-
-
+        [Index("UserIdAndStart", Order = 0)]
+        [Index("UserIdAndEnd", Order = 0)]
+        [Index("UserIdAndIniStart", Order = 0)]
+        [Index("UserIdAndIniEnd", Order = 0)]
+        [Index("UserIdAndCompleteTime", Order = 0)]
         public string CreatorId { get; set; }
         [ForeignKey("CreatorId")]
         public TilerUser Creator_EventDB

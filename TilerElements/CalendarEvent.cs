@@ -1,4 +1,5 @@
 ﻿#define SetDefaultPreptimeToZero
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -34,7 +35,7 @@ namespace TilerElements
         protected List<SubCalendarEvent> _RemovedSubEvents = new List<SubCalendarEvent>();
         protected EventPreference _EventDayPreference;
         protected string _LastCompletionTime;
-        protected string _DeadlineTimes;
+        protected string _TimeLineUpdates;
         protected CalendarEvent _DefaultCalendarEvent;
         DateTimeOffset[] completionDates = new DateTimeOffset[0];
         HashSet<long> completeDayIndexes = new HashSet<long>();
@@ -154,6 +155,8 @@ namespace TilerElements
             this._InitialStartTime = start;
             this._InitialEndTime = end;
             _EventDayPreference = new EventPreference();
+            this._IniStartDateTime = this.Start;
+            this._IniEndDateTime = this.End;
         }
 
         public CalendarEvent(
@@ -262,6 +265,8 @@ namespace TilerElements
             _isProcrastinateEvent = MyUpdated._isProcrastinateEvent;
             ThirdPartyTypeInfo = MyUpdated.ThirdPartyTypeInfo;
             _EventDayPreference = MyUpdated._EventDayPreference;
+            this._IniStartDateTime = this.Start;
+            this._IniEndDateTime = this.End;
         }
         #endregion
 
@@ -771,25 +776,25 @@ namespace TilerElements
             throw new Exception("You are Completing more tasks Than is available");
 
         }
-
         
-
-        internal void addDeadlineTime(DateTimeOffset time)
-        {
-            _DeadlineTimes = (_DeadlineTimes ?? "") + time.ToUnixTimeMilliseconds().ToString() + ",";
-        }
-
-        internal void removeDeadlineTime(DateTimeOffset time)
-        {
-            _DeadlineTimes = (_DeadlineTimes ?? "");
-            string timeString = time.ToUnixTimeMilliseconds().ToString() + ",";
-            int index = _DeadlineTimes.IndexOf(timeString);
-            _DeadlineTimes.Remove(index, timeString.Count());
-        }
 
         internal void addCompletionTimes(DateTimeOffset time)
         {
             _LastCompletionTime = (_LastCompletionTime ?? "")+ time.ToUnixTimeMilliseconds().ToString() + ",";
+        }
+
+        internal void addUpdatedTimeLine(TimeLine updatedTimeLine)
+        {
+            JArray jArray = new JArray();
+            if(string.IsNullOrEmpty(_TimeLineUpdates) || string.IsNullOrWhiteSpace(_TimeLineUpdates))
+            {
+                _TimeLineUpdates = jArray.ToString();
+            } else
+            {
+                jArray = JArray.Parse(_TimeLineUpdates);
+            }
+            jArray.Add(updatedTimeLine.StartToEnd.ToJson());
+            _TimeLineUpdates = jArray.ToString();
         }
 
         internal void removeCompletionTimes(DateTimeOffset time)
@@ -1858,6 +1863,7 @@ namespace TilerElements
                 {
                     _EventDuration = End - Start;
                 }
+                addUpdatedTimeLine(this.StartToEnd);
                 AllSubEvents.AsParallel().ForAll(obj =>
                 {
                     obj.changeCalendarEventRange(this.StartToEnd);
@@ -1998,7 +2004,6 @@ namespace TilerElements
         protected override void updateEndTime(DateTimeOffset time)
         {
             base.updateEndTime(time);
-            addDeadlineTime(time);
             updateCalculationStartToEnd();
         }
 
@@ -2329,6 +2334,18 @@ namespace TilerElements
         }
 
 
+        virtual public string TimeLineUpdates_DB
+        {
+            set
+            {
+                _TimeLineUpdates = value;
+            }
+            get
+            {
+                return _TimeLineUpdates;
+            }
+        } 
+
         public virtual DateTimeOffset CalculationStart
         {
             get
@@ -2409,18 +2426,10 @@ namespace TilerElements
             }
         }
 
-        public virtual TimeOfDayPreferrence DayPreferrence
-        {
-            get
-            {
-                return _DaySectionPreference;
-            }
-        }
-
         public EventPreference DayPreference
         {
-            get
-            {
+             get
+             {
                 if (string.IsNullOrEmpty(DayPreferenceId) && ((this._EventDayPreference == null)||(this._EventDayPreference.isNull)) && !this.isRigid)
                 {
                     _EventDayPreference = new EventPreference();
@@ -2447,18 +2456,6 @@ namespace TilerElements
         }
 
         #region DB Properties
-
-        virtual public string DeadlineTimes_DB
-        {
-            set
-            {
-                _DeadlineTimes = value;
-            }
-            get
-            {
-                return _DeadlineTimes;
-            }
-        }
 
         virtual public string LastCompletionTime_DB
         {

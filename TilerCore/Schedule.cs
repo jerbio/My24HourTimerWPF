@@ -1241,10 +1241,6 @@ namespace TilerCore
 
 
             HashSet<SubCalendarEvent> NotDOneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
-            //ScheduleUpdated = EvaluateTotalTimeLineAndAssignValidTimeSpots(ScheduleUpdated, NotDOneYet);
-
-
-
             removeFromAllEventDictionary(ScheduleUpdated.getId);//removes the false calendar event
         }
 
@@ -1268,11 +1264,15 @@ namespace TilerCore
             foreach (string eachString in EventIDs)
             {
                 CalendarEvent referenceCalendarEventWithSubEvent = getCalendarEvent(eachString);
-                SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(eachString);
-                if (ReferenceSubEvent != null)
+                if(referenceCalendarEventWithSubEvent!=null)
                 {
-                    ReferenceSubEvent.disable(referenceCalendarEventWithSubEvent);
+                    SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(eachString);
+                    if (ReferenceSubEvent != null)
+                    {
+                        ReferenceSubEvent.disable(referenceCalendarEventWithSubEvent);
+                    }
                 }
+                
             }
         }
 

@@ -12,6 +12,7 @@ namespace TilerElements
             cannotAuthenticate = 1,
             BeginningOfTimeError = 2,
             UnknownError = 500,
+            UserEmailNotMatchingSubEvent = 10000002,
             TimelineFittabilityIssue = 40000000,
             cannotFitWithinTimeline = 40000001,
             procrastinationPastDeadline = 40000002,
@@ -48,7 +49,8 @@ namespace TilerElements
             {Errors.Repeated_Tile_Is_Not_Current_Tile, "Cannot repeat Tile that is not current active tile" },
             {Errors.TilerConfig_Repeat_Third_Party, "Cannot repeat Third party event" },
             {Errors.TilerConfig_Repeat_Procrastinate_All, "Cannot repeat Procrastinate All Tile" },
-            {Errors.Preview_Calendar_Type_Not_Supported, "Selected Calendar is not supported for manipulation" }
+            {Errors.Preview_Calendar_Type_Not_Supported, "Selected Calendar is not supported for manipulation" },
+            {Errors.UserEmailNotMatchingSubEvent, "Event ids do not match the event assosciated emails. Check if there is an email for each event id" }
 
         };
         string ErrorMessage;
@@ -56,7 +58,7 @@ namespace TilerElements
         int ErrorCode;
         /* Error Code 0: No Error
          * Error Code 5: Set Sub event as Now was selected however, The sub event will exceed the bounds of the CalendarEvent
-         * 10001000<=code => LoginCredential issue
+         * 10000000<=code => Invalid Request Made
          * 20000000<=Code => Log control issue
          * 30000000<=Code => Database control issue
          * 40000000<=Code => Schedule Maniputlation Error issue

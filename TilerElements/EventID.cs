@@ -311,8 +311,21 @@ namespace TilerElements
         }
 
 
-        
+        public static bool isLikeTilerId(string id)
+        {
+            EventID eventId = new EventID(id);
+            string calComponent = eventId.getCalendarEventComponent();
+            string dayComponent = eventId.getRepeatDayCalendarEventComponent();
+            string repeatComponent = eventId.getRepeatCalendarEventComponent();
+            string subCalendarComponent = eventId.getRepeatCalendarEventComponent();
 
+            bool calComponentIsValid = calComponent.isGuid() || calComponent.isInt();
+            bool dayComponentIsValid = dayComponent.isGuid() || dayComponent.isInt();
+            bool repeatComponentIsValid = repeatComponent.isGuid() || repeatComponent.isInt();
+            bool subCalendarComponentIsValid = subCalendarComponent.isGuid() || subCalendarComponent.isInt();
+
+            return calComponentIsValid && dayComponentIsValid && repeatComponentIsValid && subCalendarComponentIsValid;
+        }
 
         public override string ToString()
         {

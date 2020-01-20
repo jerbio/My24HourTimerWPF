@@ -1514,5 +1514,19 @@ namespace TilerElements
             }
             
         }
+
+        public static bool isGuid (this string input)
+        {
+            Guid guidOut;
+            bool retValue = Guid.TryParse(input, out guidOut);
+            return retValue;
+        }
+
+        public static bool isInt(this string input)
+        {
+            Int64 convertedOutput;
+            bool retValue = Int64.TryParse(input, out convertedOutput);
+            return retValue;
+        }
     }
 }

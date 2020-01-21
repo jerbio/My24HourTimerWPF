@@ -577,11 +577,11 @@ namespace TilerElements
             }
             get
             {
-                if (_LocationInfo.IsVerified)
+                if (_LocationInfo != null && _LocationInfo.IsVerified)
                 {
                     return _LocationInfo;
                 }
-                if (_LocationInfo.IsAmbiguous)
+                if (_LocationInfo!=null && _LocationInfo.IsAmbiguous)
                 {
                     Location retValue = _LocationInfo.getLocationThroughValidation(_LocationValidationId, TimeOfScheduleLoad);
                     if (retValue != null && !retValue.isDefault)
@@ -1132,7 +1132,10 @@ namespace TilerElements
             }
         }
 
-        public virtual RestrictionProfile RestrictionProfile { get; set; } = null;
+
+        public virtual RestrictionProfile RestrictionProfile_DB { get; set; } = null;
+
+        public virtual RestrictionProfile RestrictionProfile { get; }
         #region undoProperties
         public virtual bool FirstInstantiation { get; set; } = true;
 

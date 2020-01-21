@@ -450,13 +450,16 @@ namespace TilerCore
             if(calEvent!=null)
             {
                 string calendarEventId = calEvent.Calendar_EventID.getCalendarEventComponent();
-
-                HashSet<CalendarEvent> calEvents = RepeatParentToCalendarEvents[calendarEventId];
-                calEvents.Remove(calEvent);
-                if (calEvents.Count < 1)
+                if(RepeatParentToCalendarEvents.ContainsKey(calendarEventId))
                 {
-                    RepeatParentToCalendarEvents.Remove(calendarEventId);
+                    HashSet<CalendarEvent> calEvents = RepeatParentToCalendarEvents[calendarEventId];
+                    calEvents.Remove(calEvent);
+                    if (calEvents.Count < 1)
+                    {
+                        RepeatParentToCalendarEvents.Remove(calendarEventId);
+                    }
                 }
+                
             }
             
             return retValue;
@@ -611,7 +614,7 @@ namespace TilerCore
                 ChangedSubCal = new SubCalendarEventRestricted((CalendarEventRestricted)mySubCalEvent.ParentCalendarEvent,
                     mySubCalEvent.getCreator, mySubCalEvent.getAllUsers(), mySubCalEvent.ParentCalendarEvent.Id,
                     mySubCalEvent.getName, SubeventStart, SubeventEnd,
-                    ((SubCalendarEventRestricted)mySubCalEvent).getRestrictionProfile(), mySubCalEvent.ParentCalendarEvent.StartToEnd,
+                    ((SubCalendarEventRestricted)mySubCalEvent).RestrictionProfile, mySubCalEvent.ParentCalendarEvent.StartToEnd,
                     mySubCalEvent.isEnabled, mySubCalEvent.getIsComplete, mySubCalEvent.Conflicts, mySubCalEvent.isRigid,
                     new TimeSpan(), new TimeSpan(),
                     mySubCalEvent.LocationObj, mySubCalEvent.getUIParam, mySubCalEvent.Notes, Now, mySubCalEvent.ParentCalendarEvent.getNowInfo, mySubCalEvent.Priority_EventDB, mySubCalEvent.ThirdPartyID, subEventID: mySubCalEvent.Id);
@@ -1034,7 +1037,7 @@ namespace TilerCore
             {
                 CalendarEventTOBeRemoved = new RigidCalendarEvent(
                     //EventID.GenerateCalendarEvent(), 
-                    CalendarEventTOBeRemoved.getName, CalendarEventTOBeRemoved.Start, CalendarEventTOBeRemoved.End, CalendarEventTOBeRemoved.getActiveDuration, CalendarEventTOBeRemoved.getPreparation, CalendarEventTOBeRemoved.getPreDeadline, new Repetition(), CalendarEventTOBeRemoved.Location, new EventDisplay(), new MiscData(), false, false, CalendarEventTOBeRemoved.getCreator, CalendarEventTOBeRemoved.getAllUsers(), CalendarEventTOBeRemoved.getTimeZone, null);
+                    CalendarEventTOBeRemoved.getName, CalendarEventTOBeRemoved.Start, CalendarEventTOBeRemoved.End, CalendarEventTOBeRemoved.getActiveDuration, CalendarEventTOBeRemoved.getPreparation, CalendarEventTOBeRemoved.getPreDeadline, new Repetition(), CalendarEventTOBeRemoved.Location, new EventDisplay(), new MiscData(), false, false, CalendarEventTOBeRemoved.getCreator, CalendarEventTOBeRemoved.getAllUsers(), CalendarEventTOBeRemoved.getTimeZone, null, CalendarEventTOBeRemoved.getNowInfo);
             }
             else
             {
@@ -1067,7 +1070,7 @@ namespace TilerCore
             {
                 CalendarEventTOBeRemoved = new RigidCalendarEvent(
                     //EventID.GenerateCalendarEvent(), 
-                    CalendarEventTOBeRemoved.getName, CalendarEventTOBeRemoved.Start, CalendarEventTOBeRemoved.End, CalendarEventTOBeRemoved.getActiveDuration, CalendarEventTOBeRemoved.getPreparation, CalendarEventTOBeRemoved.getPreDeadline, new Repetition(), CalendarEventTOBeRemoved.Location, new EventDisplay(), new MiscData(), true, true, CalendarEventTOBeRemoved.getCreator, CalendarEventTOBeRemoved.getAllUsers(), CalendarEventTOBeRemoved.getTimeZone, null);
+                    CalendarEventTOBeRemoved.getName, CalendarEventTOBeRemoved.Start, CalendarEventTOBeRemoved.End, CalendarEventTOBeRemoved.getActiveDuration, CalendarEventTOBeRemoved.getPreparation, CalendarEventTOBeRemoved.getPreDeadline, new Repetition(), CalendarEventTOBeRemoved.Location, new EventDisplay(), new MiscData(), true, true, CalendarEventTOBeRemoved.getCreator, CalendarEventTOBeRemoved.getAllUsers(), CalendarEventTOBeRemoved.getTimeZone, null, CalendarEventTOBeRemoved.getNowInfo);
             }
             else
             {
@@ -1126,7 +1129,7 @@ namespace TilerCore
                 {
                     ScheduleUpdated = new RigidCalendarEvent(
                         //EventID.GenerateCalendarEvent(), 
-                        referenceCalendarEventWithSubEvent.getName, StartData, EndData, ReferenceSubEvent.getActiveDuration, referenceCalendarEventWithSubEvent.getPreDeadline, referenceCalendarEventWithSubEvent.getPreparation, new Repetition(), ReferenceSubEvent.Location, new EventDisplay(), new MiscData(), true, true, referenceCalendarEventWithSubEvent.getCreator, referenceCalendarEventWithSubEvent.getAllUsers(), ReferenceSubEvent.getTimeZone, null);
+                        referenceCalendarEventWithSubEvent.getName, StartData, EndData, ReferenceSubEvent.getActiveDuration, referenceCalendarEventWithSubEvent.getPreDeadline, referenceCalendarEventWithSubEvent.getPreparation, new Repetition(), ReferenceSubEvent.Location, new EventDisplay(), new MiscData(), true, true, referenceCalendarEventWithSubEvent.getCreator, referenceCalendarEventWithSubEvent.getAllUsers(), ReferenceSubEvent.getTimeZone, null, referenceCalendarEventWithSubEvent.getNowInfo);
                 }
                 else
                 {
@@ -1153,7 +1156,10 @@ namespace TilerCore
 
             CalendarEvent referenceCalendarEventWithSubEvent = getCalendarEvent(EventID);
             SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
-            ReferenceSubEvent.SetCompletionStatus(true, referenceCalendarEventWithSubEvent, this.Now);
+            if (ReferenceSubEvent != null)
+            {
+                ReferenceSubEvent.SetCompletionStatus(true, referenceCalendarEventWithSubEvent, this.Now);
+            }
         }
 
         /// <summary>
@@ -1166,7 +1172,10 @@ namespace TilerCore
             {
                 CalendarEvent referenceCalendarEventWithSubEvent = getCalendarEvent(EventID);
                 SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
-                ReferenceSubEvent.SetCompletionStatus(true, referenceCalendarEventWithSubEvent, this.Now);
+                if(ReferenceSubEvent!=null)
+                {
+                    ReferenceSubEvent.SetCompletionStatus(true, referenceCalendarEventWithSubEvent, this.Now);
+                }
             }
         }
 
@@ -1217,7 +1226,7 @@ namespace TilerCore
             {
                 ScheduleUpdated = new RigidCalendarEvent(
                     //EventID.GenerateCalendarEvent(), 
-                    referenceCalendarEventWithSubEvent.getName, StartData, EndData, ReferenceSubEvent.getActiveDuration, referenceCalendarEventWithSubEvent.getPreparation, referenceCalendarEventWithSubEvent.getPreDeadline, new Repetition(), ReferenceSubEvent.Location, new EventDisplay(), new MiscData(), false, false, ReferenceSubEvent.getCreator, ReferenceSubEvent.getAllUsers(), ReferenceSubEvent.getTimeZone, null);
+                    referenceCalendarEventWithSubEvent.getName, StartData, EndData, ReferenceSubEvent.getActiveDuration, referenceCalendarEventWithSubEvent.getPreparation, referenceCalendarEventWithSubEvent.getPreDeadline, new Repetition(), ReferenceSubEvent.Location, new EventDisplay(), new MiscData(), false, false, ReferenceSubEvent.getCreator, ReferenceSubEvent.getAllUsers(), ReferenceSubEvent.getTimeZone, null, referenceCalendarEventWithSubEvent.getNowInfo);
             }
             else
             {
@@ -1231,10 +1240,6 @@ namespace TilerCore
 
 
             HashSet<SubCalendarEvent> NotDOneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
-            //ScheduleUpdated = EvaluateTotalTimeLineAndAssignValidTimeSpots(ScheduleUpdated, NotDOneYet);
-
-
-
             removeFromAllEventDictionary(ScheduleUpdated.getId);//removes the false calendar event
         }
 
@@ -1258,8 +1263,15 @@ namespace TilerCore
             foreach (string eachString in EventIDs)
             {
                 CalendarEvent referenceCalendarEventWithSubEvent = getCalendarEvent(eachString);
-                SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(eachString);
-                ReferenceSubEvent.disable(referenceCalendarEventWithSubEvent);
+                if(referenceCalendarEventWithSubEvent!=null)
+                {
+                    SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(eachString);
+                    if (ReferenceSubEvent != null)
+                    {
+                        ReferenceSubEvent.disable(referenceCalendarEventWithSubEvent);
+                    }
+                }
+                
             }
         }
 
@@ -1293,13 +1305,13 @@ namespace TilerCore
 
         public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> SetCalendarEventAsNow(string CalendarID, bool Force = false)
         {
-            CalendarEvent calendarEvent = getCalendarEvent(CalendarID);
-            IEnumerable<SubCalendarEvent> orderedSubEvents = getAllRelatedCalendarEvents(calendarEvent.Id).SelectMany(o => o.ActiveSubEvents).Where(obj => obj.End > Now.constNow).OrderBy(obj => obj.End);
+            //CalendarEvent calendarEvent = getCalendarEvent(CalendarID);
+            IEnumerable<SubCalendarEvent> orderedSubEvents = getAllRelatedCalendarEvents(CalendarID).SelectMany(o => o.ActiveSubEvents).Where(obj => obj.End > Now.constNow).OrderBy(obj => obj.End);
             
             
             if (orderedSubEvents.Count() < 1)
             {
-                orderedSubEvents = getAllRelatedCalendarEvents(calendarEvent.Id).SelectMany(o => o.ActiveSubEvents).OrderBy(obj => obj.End).Reverse();//I didn't do OrderByDescending because an interest situation where two events I ordered have the same start then they are aordered by the id. Which means the lesser Id gets picked
+                orderedSubEvents = getAllRelatedCalendarEvents(CalendarID).SelectMany(o => o.ActiveSubEvents).OrderBy(obj => obj.End).Reverse();//I didn't do OrderByDescending because an interest situation where two events I ordered have the same start then they are aordered by the id. Which means the lesser Id gets picked
             }
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(new CustomErrors("No Active Event Found", 100), null);
             if (orderedSubEvents.Count() > 0)
@@ -1350,6 +1362,7 @@ namespace TilerCore
                 return new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(new CustomErrors("You will be going outside the limits of this event, Is that Ok?", 5), null);
             }
 
+            Now.UpdateNow(ReferenceSubEvent.Start);
 
             if (ReferenceSubEvent.End > referenceCalendarEvent.End || ReferenceSubEvent.Start < referenceCalendarEvent.Start)
             {
@@ -1460,7 +1473,7 @@ namespace TilerCore
             EventName name = new EventName(null, null, "NothingToDo");
             CalendarEvent NewEvent = new RigidCalendarEvent(
                 //EventID.GenerateCalendarEvent(), 
-                name, Now.constNow, Now.constNow.Add(duration), duration, new TimeSpan(), new TimeSpan(), new Repetition(), currentLocation, null, null, false, false, TilerUser, new TilerUserGroup(), timeZone, null);
+                name, Now.constNow, Now.constNow.Add(duration), duration, new TimeSpan(), new TimeSpan(), new Repetition(), currentLocation, null, null, false, false, TilerUser, new TilerUserGroup(), timeZone, null, new NowProfile());
             name.Creator_EventDB = NewEvent.getCreator;
             name.AssociatedEvent = NewEvent;
             clearAllRepetitionLock();
@@ -2182,6 +2195,14 @@ namespace TilerCore
             }
 
             NoneCommitedCalendarEventsEvents.Add(MyCalendarEvent);
+            var ProcrastinateAllEvent = getProcrastinateAllEvent();
+            if (ProcrastinateAllEvent != null)
+            {
+                foreach (var SubEvent in ProcrastinateAllEvent.AllSubEvents)
+                {
+                    SubEvent.Location = CurrentLocation;
+                }
+            }
             Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluation(MyCalendarEvent, NoneCommitedCalendarEventsEvents, InterferringWithNowFlag, NotDoneYet, new TimeLine(Now.constNow.AddDays(-90), Now.ComputationRange.End));
             List<SubCalendarEvent> collectionOfInterferringSubCalEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToList();
             List<SubCalendarEvent> ArrayOfInterferringSubEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToList();
@@ -2305,6 +2326,15 @@ namespace TilerCore
                 removeFromAllEventDictionary(interferringWithNowCalEvent.Calendar_EventID.getAllEventDictionaryLookup);
             }
 
+            if (ProcrastinateAllEvent != null)
+            {
+                Location location = new Location();
+                foreach (var SubEvent in ProcrastinateAllEvent.AllSubEvents)
+                {
+                    SubEvent.Location = location;
+                }
+            }
+
             return MyCalendarEvent;
 
         }
@@ -2393,6 +2423,15 @@ namespace TilerCore
             }
 
             NoneCommitedCalendarEventsEvents.Add(MyCalendarEvent);
+
+            var ProcrastinateAllEvent = getProcrastinateAllEvent();
+            if (ProcrastinateAllEvent != null)
+            {
+                foreach (var SubEvent in ProcrastinateAllEvent.AllSubEvents)
+                {
+                    SubEvent.Location = CurrentLocation;
+                }
+            }
 
             Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluation(MyCalendarEvent, NoneCommitedCalendarEventsEvents, InterferringWithNowFlag, NotDoneYet, new TimeLine(Now.constNow.AddDays(-90), Now.getAllDaysCount((uint)NumberOfDays).Last().End));
             //Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluationOldDesign(MyCalendarEvent, NoneCommitedCalendarEventsEvents, InterferringWithNowFlag, ExemptFromCalculation, new TimeLine(Now.constNow.AddDays(-90), Now.ComputationRange.End));
@@ -2492,7 +2531,7 @@ namespace TilerCore
             SortedInterFerringCalendarEvents_Deadline = SortedInterFerringCalendarEvents_Deadline.OrderBy(obj => obj.End).ToList();
             Stopwatch watch = new Stopwatch();
             watch.Start();
-            ParallelizeCallsToDay(SortedInterFerringCalendarEvents_Deadline, ArrayOfInterferringSubEvents.ToList(), AllDays, callLocation, true);
+            ParallelizeCallsToDay(SortedInterFerringCalendarEvents_Deadline, ArrayOfInterferringSubEvents.ToList(), AllDays, callLocation, false);
             watch.Stop();
             TimeSpan scheduleElapsedTime = watch.Elapsed;
             Debug.WriteLine("ParallelizeCallsToDay took " + scheduleElapsedTime.ToString());
@@ -2522,6 +2561,15 @@ namespace TilerCore
                 else
                 {
                     ConflictingEvents.Add(eachSubCalendarEvent);
+                }
+            }
+
+            if (ProcrastinateAllEvent != null)
+            {
+                Location location = new Location();
+                foreach (var SubEvent in ProcrastinateAllEvent.AllSubEvents)
+                {
+                    SubEvent.Location = location;
                 }
             }
             interFerringBlob.ForEach(obj => ConflictingEvents.AddRange(obj.getSubCalendarEventsInBlob()));
@@ -3385,12 +3433,13 @@ namespace TilerCore
 
             
             IDictionary<DayTimeLine, OptimizedPath> dayToOptimization = null;
-            List<DayTimeLine> OptimizedDays = AllDayTImeLine.Take(OptimizedDayLimit).ToList();
-            List<DayTimeLine> moveToMiddleDays = AllDayTImeLine.Skip(OptimizedDayLimit).ToList();
+            List<DayTimeLine> OptimizedDays = new List<DayTimeLine>();
+            
             var OptimizationWatch = new Stopwatch();
             OptimizationWatch.Start();
             if (Optimize)
             {
+                OptimizedDays = AllDayTImeLine.Take(OptimizedDayLimit).ToList();
                 long FirstIndex = AllDayTImeLine[0].UniversalIndex;
                 try
                 {
@@ -3417,7 +3466,8 @@ namespace TilerCore
                     throw E;
                 }
             }
-            
+
+            List<DayTimeLine> moveToMiddleDays = AllDayTImeLine.Skip(OptimizedDayLimit).ToList();
             Debug.WriteLine("Optimization took" + OptimizationWatch.Elapsed.ToString());
             foreach (DayTimeLine dayTimeLine in moveToMiddleDays)
             {
@@ -4558,6 +4608,7 @@ namespace TilerCore
             {
                 var3_beforeBreak.Add(AllPossibleBestFit_beforeBreak);
                 List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>> AveragedBestFit = OptimizeForDeadLine(DeadLineTODuration, PertinentFreeSpot.TimelineSpan);
+                //Dictionary<TimeSpan, Dictionary<string, SubCalendarEvent>> removedImpossibleValue = removeSubCalEventsThatCantWorkWithTimeLine(PertinentFreeSpot, PossibleSubCalEvents, true);
                 Dictionary<TimeSpan, Dictionary<string, SubCalendarEvent>> removedImpossibleValue = removeSubCalEventsThatCantWorkWithTimeLine(PertinentFreeSpot, PossibleSubCalEvents);
                 List<List<SubCalendarEvent>> PossibleSubCaleventsCobination = generateCombinationForDifferentEntries_NoMtuple(AveragedBestFit[0], removedImpossibleValue);
 

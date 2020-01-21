@@ -342,6 +342,19 @@ namespace TilerElements
         }
 
 
+        public override void updateCalculationEventRange(TimeLine timeLine)
+        {
+            TimeLine interferringTimeLine = this.getCalendarEventRange.InterferringTimeLine(timeLine);
+            if (interferringTimeLine == null)
+            {
+                this.CalculationTimeLine = new TimeLineRestricted(timeLine, this.RestrictionProfile, this._Now);
+            }
+            else
+            {
+                this.CalculationTimeLine = new TimeLineRestricted(interferringTimeLine, this.RestrictionProfile, this._Now);
+            }
+        }
+
         /*
         public override void updateEventSequence()
         {
@@ -362,15 +375,6 @@ namespace TilerElements
                 retValue = possibleTimeLines;
             }
             return retValue;
-        }
-
-
-        public RestrictionProfile RetrictionInfo
-        {
-            get 
-            {
-                return _ProfileOfRestriction;
-            }
         }
         
         public override bool UpdateThis(SubCalendarEvent SubEventEntryData)
@@ -495,10 +499,12 @@ namespace TilerElements
         #endregion
 
         #region properties
-
-        public RestrictionProfile getRestrictionProfile()
+        public override RestrictionProfile RestrictionProfile
         {
-            return _ProfileOfRestriction;
+            get
+            {
+                return _ProfileOfRestriction;
+            }
         }
 
         virtual public DateTimeOffset HardRangeStartTime_EventDB
@@ -547,16 +553,17 @@ namespace TilerElements
             }
         }
 
-        public override RestrictionProfile RestrictionProfile
-        {
-            get
-            {
-                return _ProfileOfRestriction;
-            }
 
+        public override RestrictionProfile RestrictionProfile_DB
+        {
             set
             {
                 _ProfileOfRestriction = value;
+            }
+
+            get
+            {
+                return _ProfileOfRestriction;
             }
         }
         #endregion

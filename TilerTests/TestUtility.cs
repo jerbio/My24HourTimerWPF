@@ -399,7 +399,7 @@ namespace TilerTests
                 if (rigidFlags)
                 {
                     RetValue = new RigidCalendarEvent(
-                        name, Start, End, duration, new TimeSpan(), new TimeSpan(), repetition, location, eventDisplay, note, true, false, testUser, new TilerUserGroup(), "UTC", null);
+                        name, Start, End, duration, new TimeSpan(), new TimeSpan(), repetition, location, eventDisplay, note, true, false, testUser, new TilerUserGroup(), "UTC", null, new NowProfile());
                 }
                 else
                 {
@@ -1028,7 +1028,7 @@ namespace TilerTests
                                 && subEvent.getUIParam.isTestEquivalent(secondSubEvent.getUIParam);
                             if (subEvent.getIsEventRestricted)
                             {
-                                retValue = retValue && (subEvent as SubCalendarEventRestricted).getRestrictionProfile().isTestEquivalent((secondSubEvent as SubCalendarEventRestricted).getRestrictionProfile());
+                                retValue = retValue && (subEvent as SubCalendarEventRestricted).RestrictionProfile.isTestEquivalent((secondSubEvent as SubCalendarEventRestricted).RestrictionProfile);
                             }
 
                             if (!retValue)
@@ -1047,7 +1047,7 @@ namespace TilerTests
                 {
                     retValue = false;
                 }
-
+                Assert.IsTrue(retValue);
                 retValue &= isTestEquivalent(firstCalEvent as TilerEvent, secondCalEvent as TilerEvent);
                 Assert.IsTrue(retValue);
                 retValue &= (firstCalEvent.IsFromRecurringAndNotChildRepeatCalEvent == secondCalEvent.IsFromRecurringAndNotChildRepeatCalEvent ?

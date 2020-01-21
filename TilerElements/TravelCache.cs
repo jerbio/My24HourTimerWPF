@@ -73,6 +73,9 @@ namespace TilerElements
                     entry = _LocationCombo[key];
                     entry.LastUpdate = lastUpdate;
                     entry.TimeSpanInMs = timeSpanInMs.TotalMilliseconds;
+                    entry.Taiye = firstLocation;
+                    entry.Kehinde = secondLocation;
+                    entry.Medium = medium;
                 }
                 else
                 {

@@ -238,8 +238,8 @@ namespace TilerTests
             
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            
-            schedule = new TestSchedule(user, secondRefNow);
+            var calendarIds = new HashSet<string>() { tilerUser.ClearAllId };
+            schedule = new TestSchedule(user, secondRefNow, calendarIds: calendarIds);
             TimeSpan threeHourSpan = TimeSpan.FromHours(3);
             var procrartinateResult = schedule.ProcrastinateAll(threeHourSpan);
             DateTimeOffset procrastinationStart = schedule.Now.constNow.Add(threeHourSpan);

@@ -605,7 +605,7 @@ namespace My24HourTimerWPF
             {
                 ScheduleUpdated = new RigidCalendarEvent(
                     //EventID.GenerateCalendarEvent(), 
-                    eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, MyRepetition,  var0, UiData, NoteData, true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id),new TilerUserGroup(), "UTC" , null);
+                    eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, MyRepetition,  var0, UiData, NoteData, true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id),new TilerUserGroup(), "UTC" , null, new NowProfile());
             }
             else
             {
@@ -805,7 +805,7 @@ namespace My24HourTimerWPF
             {
                 ScheduleUpdated = new RigidCalendarEvent(
                     //EventID.GenerateCalendarEvent(), 
-                    eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, MyRepetition, var0, UiData, NoteData, true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), "UTC", null);
+                    eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, MyRepetition, var0, UiData, NoteData, true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), "UTC", null, new NowProfile());
             }
             else
             {
@@ -1369,7 +1369,7 @@ namespace My24HourTimerWPF
                 if (RigidFlag)
                 {
                     ScheduleUpdated = new RigidCalendarEvent(//EventID.GenerateCalendarEvent(), 
-                        eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, MyRepetition, var0, UiData, NoteData, true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), "UTC", null);
+                        eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, MyRepetition, var0, UiData, NoteData, true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), "UTC", null, new NowProfile());
                 }
                 else
                 {

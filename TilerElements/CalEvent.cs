@@ -36,5 +36,6 @@ namespace TilerElements
         public bool isThirdParty { get; set; }
         public bool isReadOnly { get; set; }
         public string Notes { get; set; }
+        public bool canDoNow { get; set; } = false;
     }
 }

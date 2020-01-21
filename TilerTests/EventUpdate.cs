@@ -1189,21 +1189,28 @@ namespace TilerTests
             DateTimeOffset previousStart = Utility.BeginningOfTime;
             DateTimeOffset previousEnd = Utility.BeginningOfTime;
             string previousNote = "";
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, refNow, startOfDay);
             foreach (SubCalendarEvent testSubEvent in allFirstActiveSubEvents)
             {
                 
                 DateTimeOffset newStart = testSubEvent.Start.AddDays(10);
                 DateTimeOffset newEnd = newStart.Add(duration);
                 TestUtility.reloadTilerUser(ref user, ref tilerUser);
-                schedule = new TestSchedule(user, refNow, startOfDay);
                 if (previousSubEvent != null)
                 {
+                    HashSet<string> calendarIds = new HashSet<string>() { previousSubEvent.getId, testSubEvent.getId };
+                    schedule = new TestSchedule(user, refNow, startOfDay, calendarIds: calendarIds);
                     SubCalendarEvent previousInMemory = schedule.getSubCalendarEvent(previousSubEvent.Id);
                     previousInMemory.isTestEquivalent(previousSubEvent);
                     Assert.AreEqual(previousInMemory.Notes.UserNote, previousNote);
                     Assert.AreEqual(previousInMemory.Start, previousStart);
                     Assert.AreEqual(previousInMemory.End, previousEnd);
 
+                } else
+                {
+                    HashSet<string> calendarIds = new HashSet<string>() { testSubEvent.getId };
+                    schedule = new TestSchedule(user, refNow, startOfDay, calendarIds: calendarIds);
                 }
 
                 CalendarEvent calEVent = testSubEvent.ParentCalendarEvent;

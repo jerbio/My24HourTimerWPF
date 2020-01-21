@@ -25,7 +25,7 @@ namespace TilerElements
             CalendarEvent nullEvent = CalendarEvent.getEmptyCalendarEvent(UniqueID, Start, End);
             _RigidSchedule = true;
             double halfDouble=Double.MaxValue/2;
-            _LocationInfo = Location.AverageGPSLocation(InterFerringEvents.Where(Obj => Obj.Location.Latitude < halfDouble).Select(obj => obj.Location));
+            _LocationInfo = Location.AverageGPSLocation(InterFerringEvents.Where(Obj => Obj.Location!=null && Obj.Location.Latitude < halfDouble).Select(obj => obj.Location));
             EventScore = 0;
             EventClumps = new HashSet<SubCalendarEvent>(InterFerringEvents);
             _EventDuration = TimeSpan.FromTicks( InterFerringEvents.Sum(obj => obj.getActiveDuration.Ticks));

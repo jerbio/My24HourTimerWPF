@@ -5645,7 +5645,7 @@ namespace TilerCore
         }
 
 
-        public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ProcrastinateJustAnEvent(string EventID, TimeSpan RangeOfPush)
+        public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ProcrastinateJustAnEvent(string EventID, TimeSpan RangeOfPush, bool force = false)
         {
             CalendarEvent ProcrastinateEvent = getCalendarEvent(EventID);
             SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
@@ -5658,13 +5658,14 @@ namespace TilerCore
                 ReferenceSubEvent.disableRepetitionLock();
                 if (ReferenceSubEvent.canExistWithinTimeLine(timeLineAfterProcrastination))
                 {
+                    ProcrastinateEvent.updateProcrastinate(procrastinateData);
                     DateTimeOffset StartTimeOfProcrastinate = ReferenceStart + RangeOfPush;
                     DateTimeOffset limitOfProcrastination = ReferenceSubEvent.getCalendarEventRange.End;
                     List<SubCalendarEvent> orderedByStartSubEvents = ProcrastinateEvent.ActiveSubEvents.OrderBy(o => o.Start).ToList();
                     orderedByStartSubEvents.ForEach(subEvent => subEvent.disableRepetitionLock());
 
                     ProcrastinateEvent.disableRepetitionLocks(timeLineAfterProcrastination.Start);
-                    if (!Utility.tryPinSubEventsToEnd(orderedByStartSubEvents, timeLineAfterProcrastination))
+                    if (!Utility.tryPinSubEventsToEnd(orderedByStartSubEvents, timeLineAfterProcrastination) && !force)
                     {
                         return new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(new CustomErrors(CustomErrors.Errors.procrastinationAllSubeventsCannotFitDeadline), null);
                     }
@@ -5676,34 +5677,20 @@ namespace TilerCore
                     }
                     Dictionary<string, CalendarEvent> AllEventDictionary_Cpy = getDeepCopyOfEventDictionary();
 
-                    List<SubCalendarEvent> AllValidSubCalEvents = ProcrastinateEvent.ActiveSubEvents.Where(obj => obj.End > ReferenceSubEvent.Start).ToList();
+                    List<SubCalendarEvent> AllValidSubCalEvents = ProcrastinateEvent.ActiveSubEvents.ToList();
                     foreach(SubCalendarEvent subevent in AllValidSubCalEvents)
                     {
                         subevent.disablePreschedulingLock();
                     }
-                    TimeSpan TotalActiveDuration = Utility.SumOfActiveDuration(AllValidSubCalEvents);
-                    //CalendarEvent(string NameEntry, string StartTime, DateTimeOffset StartDateEntry, string EndTime, DateTimeOffset EventEndDateEntry, string eventSplit, string PreDeadlineTime, string EventDuration, Repetition EventRepetitionEntry, bool DefaultPrepTimeflag, bool RigidScheduleFlag, string eventPrepTime, bool PreDeadlineFlag,Location EventLocation)
-                    CalendarEvent ScheduleUpdated = ProcrastinateEvent.getProcrastinationCopy(procrastinateData); // new CalendarEvent(ProcrastinateEvent.Name, StartTimeOfProcrastinate.ToString("hh:mm tt"), StartTimeOfProcrastinate, ProcrastinateEvent.End.ToString("hh:mm tt"), ProcrastinateEvent.End, AllValidSubCalEvents.Count.ToString(), ProcrastinateEvent.PreDeadline.ToString(), TotalActiveDuration.ToString(), new Repetition(), true, ProcrastinateEvent.Rigid, ProcrastinateEvent.Preparation.ToString(), true, ProcrastinateEvent.myLocation, true, new EventDisplay(), new MiscData(), false);
-                    ProcrastinateEvent.DisableSubEvents(AllValidSubCalEvents);
+
+                    CalendarEvent ScheduleUpdated = CalendarEvent.getEmptyCalendarEvent(new EventID());
                     HashSet<SubCalendarEvent> NotDoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
                     ScheduleUpdated = EvaluateTotalTimeLineAndAssignValidTimeSpots(ScheduleUpdated, NotDoneYet, null);
-
-                    SubCalendarEvent[] UpdatedSubCalevents = ScheduleUpdated.ActiveSubEvents;
-
-                    for (int i = 0; i < AllValidSubCalEvents.Count; i++)//updates the subcalevents
-                    {
-                        SubCalendarEvent updatedSubCal = new SubCalendarEvent(AllValidSubCalEvents[i].ParentCalendarEvent, AllValidSubCalEvents[i].getCreator, AllValidSubCalEvents[i].getAllUsers(), AllValidSubCalEvents[i].getTimeZone, AllValidSubCalEvents[i].Id, UpdatedSubCalevents[i].getName, UpdatedSubCalevents[i].Start, UpdatedSubCalevents[i].End, UpdatedSubCalevents[i].ActiveSlot, UpdatedSubCalevents[i].isRigid, AllValidSubCalEvents[i].isEnabled, AllValidSubCalEvents[i].getUIParam, AllValidSubCalEvents[i].Notes, AllValidSubCalEvents[i].getIsComplete, UpdatedSubCalevents[i].Location_DB, ProcrastinateEvent.StartToEnd);
-                        AllValidSubCalEvents[i].shiftEvent(updatedSubCal.Start - AllValidSubCalEvents[i].Start, true);///not using update this because of possible issues with subevent not being restricted
-                        //AllValidSubCalEvents[i].UpdateThis(updatedSubCal);
-                    }
 
                     foreach (SubCalendarEvent subevent in AllValidSubCalEvents)
                     {
                         subevent.enablePreschedulingLock();
                     }
-
-                    ProcrastinateEvent.EnableSubEvents(AllValidSubCalEvents);
-                    ProcrastinateEvent.updateProcrastinate(procrastinateData);
 
                     if (ScheduleUpdated.Error != null)
                     {

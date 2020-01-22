@@ -8,12 +8,18 @@ using NodaTime;
 
 namespace TilerElements
 {
-    public class TimeLine : IDefinedRange, IJson
+    public class TimeLine : IDefinedRange, IJson, IHasId
     {
         protected DateTimeOffset EndTime;
         protected DateTimeOffset StartTime;
         protected ConcurrentBag <BusyTimeLine> ActiveTimeSlots;
         protected bool isForever = false;
+
+        public virtual string Id
+        {
+            set;
+            get;
+        }
 
         #region constructor
         public TimeLine()
@@ -520,8 +526,8 @@ namespace TilerElements
         public JObject ToJson()
         {
             JObject retValue = new JObject();
-            retValue.Add("start", Start.toJSMilliseconds());
-            retValue.Add("end", End.toJSMilliseconds());
+            retValue.Add("start", Start.ToUnixTimeMilliseconds());
+            retValue.Add("end", End.ToUnixTimeMilliseconds());
             retValue.Add("duration", (ulong)this.TimelineSpan.TotalMilliseconds);
             return retValue;
         }
@@ -537,6 +543,17 @@ namespace TilerElements
             }
         }
 
+        public static TimeLine JobjectToTimeLine(JObject jObject)
+        {
+            string startTimeString = jObject.GetValue("start").ToString();
+            string endTimeString = jObject.GetValue("end").ToString();
+            DateTimeOffset start = DateTimeOffset.FromUnixTimeMilliseconds(Convert.ToInt64( startTimeString));
+            DateTimeOffset end = DateTimeOffset.FromUnixTimeMilliseconds(Convert.ToInt64( endTimeString));
+
+
+            TimeLine retValue = new TimeLine(start, end);
+            return retValue;
+        }
 
         #endregion
     }

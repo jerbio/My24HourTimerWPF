@@ -136,9 +136,9 @@
     <Compile Include="LogControlDump.cs" />
     <Compile Include="LogControlTest.cs" />
     <Compile Include="LogicTest.cs" />
-    <Compile Include="Migrations\201911101038245_TravelCacheRemovedLocationFromClocationCache.cs" />
-    <Compile Include="Migrations\201911101038245_TravelCacheRemovedLocationFromClocationCache.Designer.cs">
-      <DependentUpon>201911101038245_TravelCacheRemovedLocationFromClocationCache.cs</DependentUpon>
+    <Compile Include="Migrations\202001220626548_updateHistoryTweak.cs" />
+    <Compile Include="Migrations\202001220626548_updateHistoryTweak.Designer.cs">
+      <DependentUpon>202001220626548_updateHistoryTweak.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />

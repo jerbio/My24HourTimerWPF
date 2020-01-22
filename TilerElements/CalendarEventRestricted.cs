@@ -8,7 +8,6 @@ namespace TilerElements
     public class CalendarEventRestricted:CalendarEvent, IUndoable
     {
         protected RestrictionProfile _ProfileOfRestriction;
-        protected ReferenceNow _Now;
 
         public RestrictionProfile UndoProfileOfRestriction;
         protected CalendarEventRestricted ()
@@ -83,8 +82,10 @@ namespace TilerElements
                 _AverageTimePerSplit = new TimeSpan();
                 this._EventRepetition = RepetitionProfile;
             }
-            this._InitialStartTime = start;
-            this._InitialEndTime = end;
+            this._IniStartTime = start;
+            this._IniEndTime = end;
+            this._UpdatesHistory = new UpdateHistory();
+            addUpdatedTimeLine(this.StartToEnd);
             InstantiateSubEvents();
         }
 
@@ -133,8 +134,10 @@ namespace TilerElements
                 _AverageTimePerSplit = new TimeSpan();
                 this._EventRepetition = RepetitionProfile;
             }
-            this._IniStartDateTime = this.Start;
-            this._IniEndDateTime = this.End;
+            this._IniStartTime = this.Start;
+            this._IniEndTime = this.End;
+            this._UpdatesHistory = new UpdateHistory();
+            addUpdatedTimeLine(this.StartToEnd);
             InstantiateSubEvents();
         }
 
@@ -283,13 +286,6 @@ namespace TilerElements
 
         }
 
-        public ReferenceNow Now
-        {
-            get
-            {
-                return _Now;
-            }
-        }
         protected override CalendarEvent getCalculationCopy()
         {
             CalendarEventRestricted RetValue = new CalendarEventRestricted();

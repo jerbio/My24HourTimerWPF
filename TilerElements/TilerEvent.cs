@@ -19,8 +19,8 @@ namespace TilerElements
         public static TimeSpan ZeroTimeSpan = new TimeSpan(0);
         private DateTimeOffset StartDateTime;
         private DateTimeOffset EndDateTime;
-        protected DateTimeOffset _IniStartDateTime;
-        protected DateTimeOffset _IniEndDateTime;
+        protected DateTimeOffset _IniStartTime;
+        protected DateTimeOffset _IniEndTime;
         private DateTimeOffset TempStartDateTime;
         private DateTimeOffset TempEndDateTime;
         protected bool _Complete = false;
@@ -62,6 +62,7 @@ namespace TilerElements
         protected DateTimeOffset _TimeOfScheduleLoad;
         protected bool _ValidationIsRun = false;
         protected DateTimeOffset _CompletionTime;
+        protected ReferenceNow _Now;
 
         #region undoParameters
         public DateTimeOffset UndoStartDateTime;
@@ -536,10 +537,24 @@ namespace TilerElements
             }
         }
 
+        virtual public DateTimeOffset InitialStartTime
+        {
+            get
+            {
+                return _IniStartTime;
+            }
+        }
+
+        virtual public DateTimeOffset InitialEndTme
+        {
+            get
+            {
+                return _IniEndTime;
+            }
+        }
+
         #region dbProperties
-        [Index("EventIdAndCreation", IsClustered = true, IsUnique = true, Order = 1)]
         virtual public DateTimeOffset TimeCreated { get; set; } = DateTimeOffset.Parse(DateTimeOffset.UtcNow.ToLocalTime().ToString("MM/dd/yyyy hh:mm tt"));
-        [Index("EventIdAndCreation", IsClustered = true, IsUnique = true, Order = 0)]
         virtual public string Id
         {
             get
@@ -615,6 +630,19 @@ namespace TilerElements
             get
             {
                 return _LocationInfo;
+            }
+        }
+
+        [NotMapped]
+        public ReferenceNow Now
+        {
+            set
+            {
+                _Now = value;
+            }
+            get
+            {
+                return _Now;
             }
         }
 
@@ -718,45 +746,42 @@ namespace TilerElements
         }
 
         [Index("UserIdAndIniStart", Order = 1)]
-        virtual public DateTimeOffset Ini_StartTime_EventDB
+        virtual public long InitialStartTime_DB
         {
             get
             {
-                return this._IniStartDateTime;
+                return _IniStartTime.ToUnixTimeMilliseconds();
             }
-
             set
             {
-                this._IniStartDateTime = value;
+
+                _IniStartTime = DateTimeOffset.FromUnixTimeMilliseconds(value);
             }
         }
 
         [Index("UserIdAndIniEnd", Order = 1)]
-        virtual public DateTimeOffset Ini_EndTime_EventDB
+        virtual public long InitialEndTime_DB
         {
             get
             {
-                return this._IniEndDateTime;
+                return _IniEndTime.ToUnixTimeMilliseconds();
             }
             set
             {
-                this._IniEndDateTime = value;
+                this._IniEndTime = DateTimeOffset.FromUnixTimeMilliseconds(value);
             }
         }
 
-
-
-
         [Index("UserIdAndCompleteTime", Order = 1)]
-        virtual public DateTimeOffset CompletionTime_EventDB
+        virtual public long CompletionTime_EventDB
         {
             get
             {
-                return this._CompletionTime;
+                return this._CompletionTime.ToUnixTimeMilliseconds();
             }
             set
             {
-                this._CompletionTime = value;
+                this._CompletionTime = DateTimeOffset.FromUnixTimeMilliseconds(value);
             }
         }
 

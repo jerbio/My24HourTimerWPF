@@ -117,8 +117,8 @@ namespace TilerElements
             this._Enabled = Enabled;
             _LastReasonStartTimeChanged = this.Start;
             _calendarEvent = calendarEvent;
-            this._IniStartDateTime = this.Start;
-            this._IniEndDateTime = this.End;
+            this._IniStartTime = this.Start;
+            this._IniEndTime = this.End;
         }
         
         public SubCalendarEvent(CalendarEvent calendarEvent, TilerUser Creator, TilerUserGroup users, string timeZone, string MySubEventID, EventName name, DateTimeOffset EventStart, DateTimeOffset EventDeadline, BusyTimeLine SubEventBusy, bool Rigid, bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location EventLocation = null, TimeLine calendarEventRange = null, ConflictProfile conflicts = null)
@@ -150,8 +150,8 @@ namespace TilerElements
             _Complete = completeFlag;
             _LastReasonStartTimeChanged = this.Start;
             _calendarEvent = calendarEvent;
-            this._IniStartDateTime = this.Start;
-            this._IniEndDateTime = this.End;
+            this._IniStartTime = this.Start;
+            this._IniEndTime = this.End;
         }
         #endregion
 

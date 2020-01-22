@@ -511,6 +511,7 @@ namespace TilerCore
             {
                 AllEventDictionary.Add(eventId.getAllEventDictionaryLookup, NewEvent);
                 NewEvent.TimeOfScheduleLoad = Now.constNow;
+                NewEvent.Now = Now;
             } else
             {
                 if(NewEvent.isRepeatLoaded)
@@ -522,6 +523,7 @@ namespace TilerCore
                 }
                 AllEventDictionary.Add(eventId.getAllEventDictionaryLookup, NewEvent);
                 NewEvent.TimeOfScheduleLoad = Now.constNow;
+                NewEvent.Now = Now;
             }
             string calendarEventId = NewEvent.Calendar_EventID.getCalendarEventComponent();
             HashSet<CalendarEvent> calendarEvents;

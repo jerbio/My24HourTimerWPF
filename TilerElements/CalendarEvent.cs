@@ -2016,7 +2016,7 @@ namespace TilerElements
                 SubCalendarEvent subEvent = subEvents[i];
                 if(!subEvent.isRepetitionLocked)
                 {
-                    if (subEvent.Start >= currentTime)
+                    if (subEvent.End >= currentTime)
                     {
                         toBeRepeated = subEvent;
                         break;

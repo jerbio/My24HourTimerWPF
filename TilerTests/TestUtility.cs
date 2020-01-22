@@ -399,7 +399,7 @@ namespace TilerTests
                 if (rigidFlags)
                 {
                     RetValue = new RigidCalendarEvent(
-                        name, Start, End, duration, new TimeSpan(), new TimeSpan(), repetition, location, eventDisplay, note, true, false, testUser, new TilerUserGroup(), "UTC", null);
+                        name, Start, End, duration, new TimeSpan(), new TimeSpan(), repetition, location, eventDisplay, note, true, false, testUser, new TilerUserGroup(), "UTC", null, new NowProfile());
                 }
                 else
                 {
@@ -789,7 +789,8 @@ namespace TilerTests
 
             List<CalendarEvent> retValue = new List<CalendarEvent>()
             {
-                simpleCalEvent, dailyCalEvent, weeklyCalEvent, weekdayWeeklyCalEvent,monthlyCalEvent, weekDayMonthlyCalEvent, yearlyCalEvent, weekDayMYearlyCalEvent,
+                simpleCalEvent, dailyCalEvent
+                , weeklyCalEvent, weekdayWeeklyCalEvent,monthlyCalEvent, weekDayMonthlyCalEvent, yearlyCalEvent, weekDayMYearlyCalEvent,
                 restrictedCalEvent, restrictedDailyCalEvent, restrictedWeeklyCalEvent, restrictedWeekdayWeeklyCalEvent, restrictedMonthlyCalEvent, restrictedWeekdayMonthlyCalEvent,restrictedYearlyCalEvent, restrictedWeekdayYearlyCalEvent,
                 rigidCalEvent, rigidDailyCalEvent, rigidWeeklyCalEvent, rigidWeekdayWeeklyCalEvent, rigidMonthlyCalEvent, rigidWeekdayMonthlyCalEvent, rigidYearlyCalEvent, rigidWeekdayYearlyCalEvent
             };
@@ -877,7 +878,14 @@ namespace TilerTests
                             {
                                 if ((firstTilerEvent.getIsComplete == secondTilerEvent.getIsComplete) && (firstTilerEvent.isEnabled == secondTilerEvent.isEnabled))
                                 {
-                                    retValue = true;
+                                    if ((firstTilerEvent.InitialStartTime_DB == secondTilerEvent.InitialStartTime_DB) && (firstTilerEvent.InitialStartTime_DB == secondTilerEvent.InitialStartTime_DB))
+                                    {
+                                        retValue = true;
+                                    }
+                                    else
+                                    {
+                                        retValue = false;
+                                    }
                                 }
                                 else
                                 {
@@ -1021,7 +1029,7 @@ namespace TilerTests
                                 && subEvent.getUIParam.isTestEquivalent(secondSubEvent.getUIParam);
                             if (subEvent.getIsEventRestricted)
                             {
-                                retValue = retValue && (subEvent as SubCalendarEventRestricted).getRestrictionProfile().isTestEquivalent((secondSubEvent as SubCalendarEventRestricted).getRestrictionProfile());
+                                retValue = retValue && (subEvent as SubCalendarEventRestricted).RestrictionProfile.isTestEquivalent((secondSubEvent as SubCalendarEventRestricted).RestrictionProfile);
                             }
 
                             if (!retValue)
@@ -1040,7 +1048,7 @@ namespace TilerTests
                 {
                     retValue = false;
                 }
-
+                Assert.IsTrue(retValue);
                 retValue &= isTestEquivalent(firstCalEvent as TilerEvent, secondCalEvent as TilerEvent);
                 Assert.IsTrue(retValue);
                 retValue &= (firstCalEvent.IsFromRecurringAndNotChildRepeatCalEvent == secondCalEvent.IsFromRecurringAndNotChildRepeatCalEvent ?
@@ -1054,6 +1062,8 @@ namespace TilerTests
                 retValue &= (firstCalEvent.getUIParam.isTestEquivalent(secondCalEvent.getUIParam));
                 Assert.IsTrue(retValue);
                 retValue &= (firstCalEvent.DayPreference.isTestEquivalent(secondCalEvent.DayPreference));
+                Assert.IsTrue(retValue);
+                retValue &= (firstCalEvent.UpdateHistory.isTestEquivalent(secondCalEvent.UpdateHistory));
                 Assert.IsTrue(retValue);
 
 
@@ -1328,6 +1338,44 @@ namespace TilerTests
                 retValue = false;
             }
             Assert.IsTrue(retValue);
+            return retValue;
+        }
+
+        public static bool isTestEquivalent(this UpdateHistory firstUpdateHistory, UpdateHistory secondUpdateHistory)
+        {
+            bool retValue = false;
+            if (firstUpdateHistory != null && secondUpdateHistory != null)
+            {
+                retValue = firstUpdateHistory.TimeLines.Count == secondUpdateHistory.TimeLines.Count;
+                if(retValue)
+                {
+                    Dictionary<long, TimeLine> updateTimeToTImeLine = firstUpdateHistory.TimeLines.ToDictionary(updatedTimeLine => updatedTimeLine.UpdateTime.ToUnixTimeMilliseconds(), updatedTimeLine => updatedTimeLine.StartToEnd);
+                    foreach(var updateTimeLine in  secondUpdateHistory.TimeLines)
+                    {
+                        long updateTImeAsMS = updateTimeLine.UpdateTime.ToUnixTimeMilliseconds();
+                        if(updateTimeToTImeLine.ContainsKey(updateTImeAsMS))
+                        {
+                            TimeLine timeLine = updateTimeToTImeLine[updateTImeAsMS];
+                            retValue &= updateTimeLine.isEqualStartAndEnd(timeLine);
+                            Assert.IsTrue(retValue);
+                        } else
+                        {
+                            retValue = false;
+                            Assert.IsTrue(retValue);
+                            break;
+                        }
+
+                    }
+                } else
+                {
+                    Assert.IsTrue(retValue);
+                }
+            } else
+            {
+                retValue = firstUpdateHistory == secondUpdateHistory;
+                Assert.IsTrue(retValue);
+            }
+
             return retValue;
         }
 

@@ -8,7 +8,6 @@ namespace TilerElements
     public class CalendarEventRestricted:CalendarEvent, IUndoable
     {
         protected RestrictionProfile _ProfileOfRestriction;
-        protected ReferenceNow _Now;
 
         public RestrictionProfile UndoProfileOfRestriction;
         protected CalendarEventRestricted ()
@@ -83,8 +82,10 @@ namespace TilerElements
                 _AverageTimePerSplit = new TimeSpan();
                 this._EventRepetition = RepetitionProfile;
             }
-            this._InitialStartTime = start;
-            this._InitialEndTime = end;
+            this._IniStartTime = start;
+            this._IniEndTime = end;
+            this._UpdatesHistory = new UpdateHistory();
+            addUpdatedTimeLine(this.StartToEnd);
             InstantiateSubEvents();
         }
 
@@ -133,6 +134,10 @@ namespace TilerElements
                 _AverageTimePerSplit = new TimeSpan();
                 this._EventRepetition = RepetitionProfile;
             }
+            this._IniStartTime = this.Start;
+            this._IniEndTime = this.End;
+            this._UpdatesHistory = new UpdateHistory();
+            addUpdatedTimeLine(this.StartToEnd);
             InstantiateSubEvents();
         }
 
@@ -236,16 +241,24 @@ namespace TilerElements
             }
         }
 
+        public override RestrictionProfile RestrictionProfile_DB
+        {
+            set
+            {
+                _ProfileOfRestriction = value;
+            }
+
+            get
+            {
+                return _ProfileOfRestriction;
+            }
+        }
+
         public override RestrictionProfile RestrictionProfile
         {
             get
             {
                 return _ProfileOfRestriction;
-            }
-
-            set
-            {
-                _ProfileOfRestriction = value;
             }
         }
 
@@ -254,13 +267,16 @@ namespace TilerElements
             _Now = now;
             if (this.IsFromRecurringAndNotChildRepeatCalEvent)
             {
-                foreach(CalendarEventRestricted calRestricted in Repeat.RecurringCalendarEvents())
+                if (Repeat!=null)
                 {
-                    calRestricted.setNow(_Now, updateCalendarEventRange);
+                    foreach (CalendarEventRestricted calRestricted in Repeat.RecurringCalendarEvents())
+                    {
+                        calRestricted.setNow(_Now, updateCalendarEventRange);
+                    }
                 }
             } else
             {
-                foreach (SubCalendarEvent subEvent in ActiveSubEvents)
+                foreach (SubCalendarEvent subEvent in AllSubEvents)
                 {//only selecting Active Subevents for performance reasons
                     SubCalendarEventRestricted subEventAsRestricted = (subEvent as SubCalendarEventRestricted);
                     subEventAsRestricted?.setNow(now, updateCalendarEventRange);
@@ -270,13 +286,6 @@ namespace TilerElements
 
         }
 
-        public ReferenceNow Now
-        {
-            get
-            {
-                return _Now;
-            }
-        }
         protected override CalendarEvent getCalculationCopy()
         {
             CalendarEventRestricted RetValue = new CalendarEventRestricted();
@@ -408,6 +417,7 @@ namespace TilerElements
                     {
                         _EventDuration = End - Start;
                     }
+                    addUpdatedTimeLine(this.StartToEnd);
                     AllSubEvents.AsParallel().ForAll(obj =>
                     {
                         obj.changeCalendarEventRange(this.StartToEnd);

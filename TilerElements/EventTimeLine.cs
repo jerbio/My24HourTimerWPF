@@ -72,7 +72,7 @@ namespace TilerElements
                 return TimeLineEventID;
             }
         }
-        [NotMapped]
+        //[NotMapped]
         override public BusyTimeLine[] OccupiedSlots
         {
             set
@@ -86,7 +86,7 @@ namespace TilerElements
         }
 
         #region dbProperties
-        public string Id
+        public override string Id
         {
             set
             {

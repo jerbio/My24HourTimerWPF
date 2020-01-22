@@ -278,8 +278,10 @@ namespace TilerTests
             Schedule.persistToDB().Wait();
             user = TestUtility.getTestUser(true, userId: tilerUser.Id);
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow);
+            calendarIds = new HashSet<string>() { tilerUser.ClearAllId };
+            Schedule = new TestSchedule(user, refNow, calendarIds: calendarIds);
             TimeSpan procrastinationSpan = TimeSpan.FromHours(2);
+
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> procrastinateResult = Schedule.ProcrastinateAll(procrastinationSpan);
             Assert.IsNull(procrastinateResult.Item1);
             Schedule.persistToDB().Wait();
@@ -301,7 +303,8 @@ namespace TilerTests
 
             DateTimeOffset refNow0 = refNow.AddHours(1);
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow0);
+            calendarIds = new HashSet<string>() { tilerUser.ClearAllId };
+            Schedule = new TestSchedule(user, refNow0, calendarIds: calendarIds);
             TimeSpan additionalProcrastinationSpan = TimeSpan.FromHours(2);
             procrastinateResult = Schedule.ProcrastinateAll(additionalProcrastinationSpan);
             Assert.IsNull(procrastinateResult.Item1);
@@ -352,8 +355,9 @@ namespace TilerTests
             // Procrastinate all if there are no overlaps then we should have multiple active all events
             DateTimeOffset refNow1 = refNow.AddHours(4);
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow1);
-            
+            calendarIds = new HashSet<string>() { tilerUser.ClearAllId };
+            Schedule = new TestSchedule(user, refNow1, calendarIds: calendarIds);
+
             TimeSpan additionalProcrastinationSpan0 = TimeSpan.FromHours(1);
             procrastinateResult = Schedule.ProcrastinateAll(additionalProcrastinationSpan0);
          
@@ -441,7 +445,8 @@ namespace TilerTests
 
             DateTimeOffset thirdRefNow = subEvent.Start.Add(TimeSpan.FromMinutes(Math.Round(subEvent.getActiveDuration.TotalMinutes / 2)));
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, thirdRefNow);
+            calendarIds = new HashSet<string>() { tilerUser.ClearAllId };
+            Schedule = new TestSchedule(user, thirdRefNow, calendarIds: calendarIds);
             TimeSpan procrastinateSpan = TimeSpan.FromHours(3);
             Schedule.ProcrastinateAll(procrastinateSpan);
             Schedule.persistToDB().Wait();
@@ -476,7 +481,8 @@ namespace TilerTests
             var setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
             Schedule.persistToDB().Wait();
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow);
+            var calendarIds = new HashSet<string>() { tilerUser.ClearAllId };
+            Schedule = new TestSchedule(user, refNow, calendarIds: calendarIds);
             TimeSpan procrastinationSpan = TimeSpan.FromHours(4.5);
             var procrassinateResult = Schedule.ProcrastinateAll(procrastinationSpan);
             Assert.IsNull(procrassinateResult.Item1);
@@ -533,7 +539,8 @@ namespace TilerTests
 
             ///Test procrastination of subEvents
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow);
+            var calendarIds = new HashSet<string>() { tilerUser.ClearAllId };
+            Schedule = new TestSchedule(user, refNow, calendarIds: calendarIds);
             TimeSpan procrastinationSpan = TimeSpan.FromHours(3);
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> procrastinateResult = Schedule.ProcrastinateAll(procrastinationSpan);
             Schedule.persistToDB().Wait();
@@ -549,11 +556,15 @@ namespace TilerTests
             Schedule = new TestSchedule(user, oneYearLaterRefNow);
             TimeSpan oneYearInFutureProcrastinateSpan = TimeSpan.FromHours(3);
             var oneYearLaterProcrastinateAllCalendarEvent = Schedule.getProcrastinateAllEvent();
-            Assert.AreEqual(oneYearLaterProcrastinateAllCalendarEvent.AllSubEvents.Count(), 0);// None at all because we are a year into the future
+
+            Assert.IsNull(oneYearLaterProcrastinateAllCalendarEvent);//This should be null because we are a year into the future
+
+            calendarIds = new HashSet<string>() { tilerUser.ClearAllId };
+            Schedule = new TestSchedule(user, oneYearLaterRefNow, calendarIds: calendarIds);
             var OneYearFutureProcrastinateResult = Schedule.ProcrastinateAll(oneYearInFutureProcrastinateSpan);
             Assert.IsNull(OneYearFutureProcrastinateResult.Item1);
             Schedule.persistToDB().Wait();
-            var oneYearInFutureProcrastinateCaleventRetrieved = TestUtility.getCalendarEventById(oneYearLaterProcrastinateAllCalendarEvent.getTilerID, user);
+            var oneYearInFutureProcrastinateCaleventRetrieved = TestUtility.getCalendarEventById(Schedule.getProcrastinateAllEvent().getTilerID, user);
             Assert.AreEqual(oneYearInFutureProcrastinateCaleventRetrieved.AllSubEvents.Count(), 3);// Reading directly from DB we should get every subcalendar event
 
             // refNow going into the past should still work

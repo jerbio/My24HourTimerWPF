@@ -103,7 +103,7 @@ namespace TilerElements
 
         public override string ToString()
         {
-            string retValue = StartTimeOfDay + "-" + EndTimeOfDay + "||" + RangeTimeSpan;
+            string retValue = StartTimeOfDay.toTimeZoneTime() + "-" + EndTimeOfDay.toTimeZoneTime() + "||" + RangeTimeSpan;
             return retValue;
 
         }

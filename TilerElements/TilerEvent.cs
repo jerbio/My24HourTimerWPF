@@ -19,6 +19,8 @@ namespace TilerElements
         public static TimeSpan ZeroTimeSpan = new TimeSpan(0);
         private DateTimeOffset StartDateTime;
         private DateTimeOffset EndDateTime;
+        protected DateTimeOffset _IniStartTime;
+        protected DateTimeOffset _IniEndTime;
         private DateTimeOffset TempStartDateTime;
         private DateTimeOffset TempEndDateTime;
         protected bool _Complete = false;
@@ -59,6 +61,8 @@ namespace TilerElements
         protected CalendarEvent _RepeatParentEvent;
         protected DateTimeOffset _TimeOfScheduleLoad;
         protected bool _ValidationIsRun = false;
+        protected DateTimeOffset _CompletionTime;
+        protected ReferenceNow _Now;
 
         #region undoParameters
         public DateTimeOffset UndoStartDateTime;
@@ -533,12 +537,24 @@ namespace TilerElements
             }
         }
 
+        virtual public DateTimeOffset InitialStartTime
+        {
+            get
+            {
+                return _IniStartTime;
+            }
+        }
+
+        virtual public DateTimeOffset InitialEndTme
+        {
+            get
+            {
+                return _IniEndTime;
+            }
+        }
+
         #region dbProperties
         virtual public DateTimeOffset TimeCreated { get; set; } = DateTimeOffset.Parse(DateTimeOffset.UtcNow.ToLocalTime().ToString("MM/dd/yyyy hh:mm tt"));
-
-
-        [Index("UserIdAndStart", Order = 0)]
-        [Index("UserIdAndEnd", Order = 0)]
         virtual public string Id
         {
             get
@@ -576,11 +592,11 @@ namespace TilerElements
             }
             get
             {
-                if (_LocationInfo.IsVerified)
+                if (_LocationInfo != null && _LocationInfo.IsVerified)
                 {
                     return _LocationInfo;
                 }
-                if (_LocationInfo.IsAmbiguous)
+                if (_LocationInfo!=null && _LocationInfo.IsAmbiguous)
                 {
                     Location retValue = _LocationInfo.getLocationThroughValidation(_LocationValidationId, TimeOfScheduleLoad);
                     if (retValue != null && !retValue.isDefault)
@@ -614,6 +630,19 @@ namespace TilerElements
             get
             {
                 return _LocationInfo;
+            }
+        }
+
+        [NotMapped]
+        public ReferenceNow Now
+        {
+            set
+            {
+                _Now = value;
+            }
+            get
+            {
+                return _Now;
             }
         }
 
@@ -713,6 +742,46 @@ namespace TilerElements
             set
             {
                 this.EndDateTime = value;
+            }
+        }
+
+        [Index("UserIdAndIniStart", Order = 1)]
+        virtual public long InitialStartTime_DB
+        {
+            get
+            {
+                return _IniStartTime.ToUnixTimeMilliseconds();
+            }
+            set
+            {
+
+                _IniStartTime = DateTimeOffset.FromUnixTimeMilliseconds(value);
+            }
+        }
+
+        [Index("UserIdAndIniEnd", Order = 1)]
+        virtual public long InitialEndTime_DB
+        {
+            get
+            {
+                return _IniEndTime.ToUnixTimeMilliseconds();
+            }
+            set
+            {
+                this._IniEndTime = DateTimeOffset.FromUnixTimeMilliseconds(value);
+            }
+        }
+
+        [Index("UserIdAndCompleteTime", Order = 1)]
+        virtual public long CompletionTime_EventDB
+        {
+            get
+            {
+                return this._CompletionTime.ToUnixTimeMilliseconds();
+            }
+            set
+            {
+                this._CompletionTime = DateTimeOffset.FromUnixTimeMilliseconds(value);
             }
         }
 
@@ -1009,8 +1078,11 @@ namespace TilerElements
             }
         }
 
-
-
+        [Index("UserIdAndStart", Order = 0)]
+        [Index("UserIdAndEnd", Order = 0)]
+        [Index("UserIdAndIniStart", Order = 0)]
+        [Index("UserIdAndIniEnd", Order = 0)]
+        [Index("UserIdAndCompleteTime", Order = 0)]
         public string CreatorId { get; set; }
         [ForeignKey("CreatorId")]
         public TilerUser Creator_EventDB
@@ -1085,7 +1157,10 @@ namespace TilerElements
             }
         }
 
-        public virtual RestrictionProfile RestrictionProfile { get; set; } = null;
+
+        public virtual RestrictionProfile RestrictionProfile_DB { get; set; } = null;
+
+        public virtual RestrictionProfile RestrictionProfile { get; }
         #region undoProperties
         public virtual bool FirstInstantiation { get; set; } = true;
 

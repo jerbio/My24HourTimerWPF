@@ -99,7 +99,8 @@ namespace TilerTests
             }
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, secondRefnow);
+            HashSet<string> calendarIds = new HashSet<string>() { tilerUser.ClearAllId };
+            Schedule = new TestSchedule(user, secondRefnow, calendarIds: calendarIds);
             CalendarEvent testEvent2 = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 1, false, location: locationC);
             Schedule.CurrentLocation = currLocation;
             Schedule.AddToScheduleAndCommitAsync(testEvent2).Wait();
@@ -107,7 +108,7 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             DateTimeOffset thirdRefnow = refNow.AddHours(2.5);
             // Cache entries are only 30 minutes old
-            Schedule = new TestSchedule(user, thirdRefnow);
+            Schedule = new TestSchedule(user, thirdRefnow, calendarIds: calendarIds);
             Schedule.ProcrastinateAll(TimeSpan.FromMinutes(20));
             Schedule.persistToDB().Wait();
 

@@ -605,14 +605,14 @@ namespace My24HourTimerWPF
             {
                 ScheduleUpdated = new RigidCalendarEvent(
                     //EventID.GenerateCalendarEvent(), 
-                    eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, MyRepetition,  var0, UiData, NoteData, true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id),new TilerUserGroup(), "UTC" , null, new NowProfile());
+                    eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, MyRepetition,  var0, UiData, NoteData, true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id),new TilerUserGroup(), "UTC" , null, new NowProfile(), null);
             }
             else
             {
                 int splitCount = Convert.ToInt32(eventSplit);
                 ScheduleUpdated = new CalendarEvent(
                     //EventID.GenerateCalendarEvent(), 
-                    eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, splitCount, MyRepetition, var0, UiData, NoteData, null,new NowProfile(), true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), "UTC", null);
+                    eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, splitCount, MyRepetition, var0, UiData, NoteData, null,new NowProfile(), true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), "UTC", null, null);
             }
 
             eventName.Creator_EventDB = ScheduleUpdated.getCreator;
@@ -664,7 +664,7 @@ namespace My24HourTimerWPF
 
 
 
-                ScheduleUpdated = new CalendarEventRestricted(new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), eventName, StartDateTime, EndDateTime, myRestrictionProfile, TimeSpan.Parse(EventDuration), MyRepetition, false, true, Convert.ToInt32(eventSplit), RigidFlag, new NowProfile(), new Location(), TimeSpan.Parse(eventPrepTime), TimeSpan.Parse(PreDeadlineTime), null, MySchedule.Now, new Procrastination(Utility.BeginningOfTime, new TimeSpan()), UiData, NoteData);
+                ScheduleUpdated = new CalendarEventRestricted(new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), eventName, StartDateTime, EndDateTime, myRestrictionProfile, TimeSpan.Parse(EventDuration), MyRepetition, false, true, Convert.ToInt32(eventSplit), RigidFlag, new NowProfile(), new Location(), TimeSpan.Parse(eventPrepTime), TimeSpan.Parse(PreDeadlineTime), null, MySchedule.Now, new Procrastination(Utility.BeginningOfTime, new TimeSpan()), null, UiData, NoteData);
             }
             
             ScheduleUpdated.Repeat.PopulateRepetitionParameters(ScheduleUpdated);
@@ -805,13 +805,13 @@ namespace My24HourTimerWPF
             {
                 ScheduleUpdated = new RigidCalendarEvent(
                     //EventID.GenerateCalendarEvent(), 
-                    eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, MyRepetition, var0, UiData, NoteData, true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), "UTC", null, new NowProfile());
+                    eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, MyRepetition, var0, UiData, NoteData, true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), "UTC", null, new NowProfile(), null);
             }
             else
             {
                 int splitCount = Convert.ToInt32(eventSplit);
                 ScheduleUpdated = new CalendarEvent(//EventID.GenerateCalendarEvent(), 
-                    eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, splitCount, MyRepetition, var0, UiData, NoteData, null, new NowProfile(), true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), "UTC", null);
+                    eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, splitCount, MyRepetition, var0, UiData, NoteData, null, new NowProfile(), true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), "UTC", null, null);
             }
 
             eventName.Creator_EventDB = ScheduleUpdated.getCreator;
@@ -863,7 +863,7 @@ namespace My24HourTimerWPF
 
 
 
-                ScheduleUpdated = new CalendarEventRestricted(new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), eventName, StartDateTime, EndDateTime, myRestrictionProfile, TimeSpan.Parse(EventDuration), MyRepetition, false, true, Convert.ToInt32(eventSplit), RigidFlag, new NowProfile(), new Location(), TimeSpan.Parse(eventPrepTime), TimeSpan.Parse(PreDeadlineTime), null, MySchedule.Now, new Procrastination(Utility.BeginningOfTime, new TimeSpan()), UiData, NoteData);
+                ScheduleUpdated = new CalendarEventRestricted(new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), eventName, StartDateTime, EndDateTime, myRestrictionProfile, TimeSpan.Parse(EventDuration), MyRepetition, false, true, Convert.ToInt32(eventSplit), RigidFlag, new NowProfile(), new Location(), TimeSpan.Parse(eventPrepTime), TimeSpan.Parse(PreDeadlineTime), null, MySchedule.Now, new Procrastination(Utility.BeginningOfTime, new TimeSpan()), null, UiData, NoteData);
             }
 
             ScheduleUpdated.Repeat.PopulateRepetitionParameters(ScheduleUpdated);
@@ -1369,13 +1369,13 @@ namespace My24HourTimerWPF
                 if (RigidFlag)
                 {
                     ScheduleUpdated = new RigidCalendarEvent(//EventID.GenerateCalendarEvent(), 
-                        eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, MyRepetition, var0, UiData, NoteData, true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), "UTC", null, new NowProfile());
+                        eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, MyRepetition, var0, UiData, NoteData, true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), "UTC", null, new NowProfile(), null);
                 }
                 else
                 {
                     int splitCount = Convert.ToInt32(eventSplit);
                     ScheduleUpdated = new CalendarEvent(//EventID.GenerateCalendarEvent(), 
-                        eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, splitCount, MyRepetition, var0, UiData, NoteData, null, new NowProfile(),  true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), "UTC", null);
+                        eventName, StartData, EndData, activeDuration, prepTimeSpan, predeadlineSpan, splitCount, MyRepetition, var0, UiData, NoteData, null, new NowProfile(),  true, CompletedFlag, new TilerLogicUser(MySchedule.User.Id), new TilerUserGroup(), "UTC", null, null);
                 }
                 ScheduleUpdated.Repeat.PopulateRepetitionParameters(ScheduleUpdated);
                 eventName.Creator_EventDB = ScheduleUpdated.getCreator;

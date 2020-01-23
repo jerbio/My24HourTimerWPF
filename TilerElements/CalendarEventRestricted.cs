@@ -38,7 +38,7 @@ namespace TilerElements
             }
             base.redo(undoId);
         }
-        public CalendarEventRestricted(TilerUser creator, TilerUserGroup userGroup, EventName name, DateTimeOffset start, DateTimeOffset end, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, NowProfile profileOfNow,  Location Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventID eventId, ReferenceNow now, Procrastination procrastination, EventDisplay UiSettings = null, MiscData NoteData=null, string timeZone = null)
+        public CalendarEventRestricted(TilerUser creator, TilerUserGroup userGroup, EventName name, DateTimeOffset start, DateTimeOffset end, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, NowProfile profileOfNow,  Location Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventID eventId, ReferenceNow now, Procrastination procrastination, UpdateHistory updateHistory, EventDisplay UiSettings = null, MiscData NoteData=null, string timeZone = null)
         {
            _Name =  name;
             _RigidSchedule = isRigid;
@@ -84,14 +84,14 @@ namespace TilerElements
             }
             this._IniStartTime = start;
             this._IniEndTime = end;
-            this._UpdatesHistory = new UpdateHistory();
+            this._UpdatesHistory = updateHistory ?? new UpdateHistory();
             addUpdatedTimeLine(this.StartToEnd);
             InstantiateSubEvents();
         }
 
 
 
-        public CalendarEventRestricted(TilerUser creator, TilerUserGroup userGroup, string timeZone, EventName Name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, NowProfile profileOfNow, Location Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventID eventId, ReferenceNow now, Procrastination procrastination, EventDisplay UiSettings = null, MiscData NoteData = null)
+        public CalendarEventRestricted(TilerUser creator, TilerUserGroup userGroup, string timeZone, EventName Name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, NowProfile profileOfNow, Location Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventID eventId, ReferenceNow now, Procrastination procrastination, UpdateHistory updateHistory, EventDisplay UiSettings = null, MiscData NoteData = null)
         {
             _Name = Name;
             _RigidSchedule = isRigid;
@@ -136,7 +136,7 @@ namespace TilerElements
             }
             this._IniStartTime = this.Start;
             this._IniEndTime = this.End;
-            this._UpdatesHistory = new UpdateHistory();
+            this._UpdatesHistory = updateHistory ?? new UpdateHistory();
             addUpdatedTimeLine(this.StartToEnd);
             InstantiateSubEvents();
         }
@@ -205,6 +205,7 @@ namespace TilerElements
             MyCalendarEventCopy._EventDayPreference = this._EventDayPreference?.createCopy();
             MyCalendarEventCopy.updateStartTime(Start);
             MyCalendarEventCopy.updateEndTime(End);
+            MyCalendarEventCopy.UpdateHistory_DB = _UpdatesHistory;
             if (eventId != null)
             {
                 MyCalendarEventCopy.UniqueID = eventId;
@@ -417,7 +418,7 @@ namespace TilerElements
                     {
                         _EventDuration = End - Start;
                     }
-                    addUpdatedTimeLine(this.StartToEnd);
+                    addUpdatedTimeLine(oldTimeLine);
                     AllSubEvents.AsParallel().ForAll(obj =>
                     {
                         obj.changeCalendarEventRange(this.StartToEnd);

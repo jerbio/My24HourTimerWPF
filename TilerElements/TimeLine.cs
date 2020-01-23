@@ -5,21 +5,16 @@ using System.Text;
 using System.Collections.Concurrent;
 using Newtonsoft.Json.Linq;
 using NodaTime;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TilerElements
 {
-    public class TimeLine : IDefinedRange, IJson, IHasId
+    public class TimeLine : IDefinedRange, IJson
     {
         protected DateTimeOffset EndTime;
         protected DateTimeOffset StartTime;
         protected ConcurrentBag <BusyTimeLine> ActiveTimeSlots;
         protected bool isForever = false;
-
-        public virtual string Id
-        {
-            set;
-            get;
-        }
 
         #region constructor
         public TimeLine()
@@ -364,6 +359,7 @@ namespace TilerElements
         /// <summary>
         /// Gets all the occupied slots within the timeline. NOTE these busy slots are not ordered in anyway
         /// </summary>
+        [NotMapped]
         virtual public BusyTimeLine[] OccupiedSlots
         {
             set

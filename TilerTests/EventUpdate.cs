@@ -1297,7 +1297,7 @@ namespace TilerTests
                 CalendarEvent calEVent = testSubEvent.ParentCalendarEvent;
                 SubCalendarEvent subEventBeforeEdit = schedule.getSubCalendarEvent(testSubEvent.getId);
                 Assert.AreEqual(subEventBeforeEdit.ParentCalendarEvent.UpdateHistory.TimeLines.Count, 0);//this should be 1 because at the instantiation there should be one timeline update, in the list created at instantiation
-                var scheduleUpdated = schedule.BundleChangeUpdate(testSubEvent.getId, testSubEvent.getName, newStart, newEnd, calEVent.Start, calEVent.End, calEVent.NumberOfSplit, newNote);
+                var scheduleUpdated = schedule.BundleChangeUpdate(testSubEvent.getId, testSubEvent.getName, newStart, newEnd, calEVent.Start.AddHours(1), calEVent.End.AddHours(1), calEVent.NumberOfSplit, newNote);
                 previousSubEvent = schedule.getSubCalendarEvent(testSubEvent.getId);
                 
                 previousStart = newStart;

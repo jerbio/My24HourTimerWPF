@@ -118,7 +118,7 @@ namespace TilerElements
             Repetition repetition,
             EventDisplay displayData,
             MiscData miscData, bool isEnabled, bool completeflag, NowProfile nowProfile, Procrastination procrastinationProfile,
-            Location location, TilerUser creator, TilerUserGroup otherUsers, bool userDeleted, DateTimeOffset timeOfCreation, string timeZoneOrigin, Classification semantics)
+            Location location, TilerUser creator, TilerUserGroup otherUsers, bool userDeleted, DateTimeOffset timeOfCreation, string timeZoneOrigin, Classification semantics, UpdateHistory updateHistory)
         {
             if (end < start)
             {
@@ -153,7 +153,7 @@ namespace TilerElements
             _EventDayPreference = new EventPreference();
             this._IniStartTime = this.Start;
             this._IniEndTime = this.End;
-            this._UpdatesHistory = new UpdateHistory();
+            this._UpdatesHistory = updateHistory ?? new UpdateHistory();
             addUpdatedTimeLine(this.StartToEnd);
         }
 
@@ -177,10 +177,11 @@ namespace TilerElements
             TilerUserGroup users,
             string timeZone,
             EventID eventId,
+            UpdateHistory updateHistory,
             bool initializeSubCalendarEvents = true,
             Classification semantics = null)
             : this(
-                 NameEntry, StartData, EndData, eventDuration, eventPrepTimeSpan, preDeadlineTimeSpan, eventSplit, EventRepetitionEntry, UiData, NoteData, EnabledEventFlag, CompletionFlag, nowProfile, procrastination, EventLocation, creator, users, false, DateTimeOffset.UtcNow, timeZone, semantics)
+                 NameEntry, StartData, EndData, eventDuration, eventPrepTimeSpan, preDeadlineTimeSpan, eventSplit, EventRepetitionEntry, UiData, NoteData, EnabledEventFlag, CompletionFlag, nowProfile, procrastination, EventLocation, creator, users, false, DateTimeOffset.UtcNow, timeZone, semantics, updateHistory)
         {
             UniqueID = eventId ?? this.UniqueID; /// already initialized by parent initialization
             if (_Splits != 0)
@@ -608,6 +609,7 @@ namespace TilerElements
             //MyCalendarEventCopy.SchedulStatus = SchedulStatus;
             MyCalendarEventCopy._otherPartyID = _otherPartyID == null ? null : _otherPartyID.ToString();
             MyCalendarEventCopy._Users = this._Users;
+            MyCalendarEventCopy.UpdateHistory_DB = _UpdatesHistory;
             MyCalendarEventCopy._DaySectionPreference = this._DaySectionPreference;
             MyCalendarEventCopy._EventDayPreference = this.DayPreference?.createCopy();
             return MyCalendarEventCopy;
@@ -789,7 +791,9 @@ namespace TilerElements
             if (!newTimeLine.isEqualStartAndEnd(startToEnd))
             {
                 UpdateTimeLine updateTimeLine = new UpdateTimeLine(startToEnd.Start, startToEnd.End, this.Now.constNow);
-                this.UpdateHistory.TimeLines.Add(updateTimeLine);
+                updateTimeLine.CalendarId = this.Id;
+                updateTimeLine.RepeatCalendarId = this.Calendar_EventID.getAllEventDictionaryLookup;
+                this.UpdateHistory.addTimeLine(updateTimeLine);
             }
             
         }
@@ -1860,7 +1864,7 @@ namespace TilerElements
                 {
                     _EventDuration = End - Start;
                 }
-                addUpdatedTimeLine(this.StartToEnd);
+                addUpdatedTimeLine(oldTimeLine);
                 AllSubEvents.AsParallel().ForAll(obj =>
                 {
                     obj.changeCalendarEventRange(this.StartToEnd);
@@ -2470,10 +2474,6 @@ namespace TilerElements
                     if(repeatParent != null && repeatParent.UpdateHistory!=null)
                     {
                         _UpdatesHistory = (this.RepeatParentEvent as CalendarEvent).UpdateHistory;
-                    }
-                    else
-                    {
-                        this._UpdatesHistory = new UpdateHistory();
                     }
                 }
                 return _UpdatesHistory;

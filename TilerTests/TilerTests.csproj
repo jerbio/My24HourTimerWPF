@@ -136,9 +136,9 @@
     <Compile Include="LogControlDump.cs" />
     <Compile Include="LogControlTest.cs" />
     <Compile Include="LogicTest.cs" />
-    <Compile Include="Migrations\202001220626548_updateHistoryTweak.cs" />
-    <Compile Include="Migrations\202001220626548_updateHistoryTweak.Designer.cs">
-      <DependentUpon>202001220626548_updateHistoryTweak.cs</DependentUpon>
+    <Compile Include="Migrations\202001230103590_TimeLineCalendarId.cs" />
+    <Compile Include="Migrations\202001230103590_TimeLineCalendarId.Designer.cs">
+      <DependentUpon>202001230103590_TimeLineCalendarId.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
@@ -281,12 +281,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201911101038245_TravelCacheRemovedLocationFromClocationCache.resx">
-      <DependentUpon>201911101038245_TravelCacheRemovedLocationFromClocationCache.cs</DependentUpon>
-    </EmbeddedResource>
+    <Folder Include="WagTapCalLogs\69e9166b-6754-46cf-b384-66c5557048f8\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="WagTapCalLogs\69e9166b-6754-46cf-b384-66c5557048f8\" />
+    <EmbeddedResource Include="Migrations\202001230103590_TimeLineCalendarId.resx">
+      <DependentUpon>202001230103590_TimeLineCalendarId.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

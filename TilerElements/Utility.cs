@@ -1263,6 +1263,7 @@ namespace TilerElements
         /// <returns></returns>
         public static Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> subEventToMaxSpaceAvailable(TimeLine maxTImeLine, IEnumerable<SubCalendarEvent> subEvents)
         {
+            var dictOfSubEvents = subEvents.ToDictionary(sub => sub, sub => sub.Start);
             Dictionary<EventID, SubCalendarEvent> eventIdToSubEvent = subEvents.ToDictionary(subEvent => subEvent.SubEvent_ID, subEvent => subEvent);
             Dictionary<EventID, DateTimeOffset> startTimes = new Dictionary<EventID, DateTimeOffset>();
             Dictionary<EventID, DateTimeOffset> endTimes = new Dictionary<EventID, DateTimeOffset>();
@@ -1310,6 +1311,10 @@ namespace TilerElements
                 endBefore = ordedsubEvents[i].Start;
                 timeLineBefore = new TimeLine(startBefore, endBefore);
                 retValue.Add(eventIdToSubEvent[subEvent.SubEvent_ID], new mTuple<TimeLine, TimeLine>(timeLineBefore, timeLineAfter));
+                foreach(SubCalendarEvent subEVent in subEvents)
+                {
+                    subEVent.shiftEvent(dictOfSubEvents[subEVent], true);
+                }
             }
             else
             {

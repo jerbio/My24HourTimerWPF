@@ -860,6 +860,21 @@ namespace TilerElements
             }
         }
 
+
+        public virtual bool IsRecurring
+        {
+            get
+            {
+                bool retValue = _EventRepetition != null ? _EventRepetition.EnableRepeat : _IsRepeat;
+                return retValue;
+            }
+
+            set
+            {
+                _IsRepeat = value;
+            }
+        }
+
         public string EventRepetitionId { get; set; }
         [ForeignKey("EventRepetitionId")]
         public Repetition Repetition_EventDB
@@ -1177,21 +1192,6 @@ namespace TilerElements
         }
         #endregion
         #endregion
-
-
-        public virtual bool IsRecurring
-        {
-            get
-            {
-                bool retValue = _EventRepetition != null ? _EventRepetition.EnableRepeat : _IsRepeat;
-                return retValue;
-            }
-
-            set
-            {
-                _IsRepeat = value;
-            }
-        }
 
         
         /// <summary>

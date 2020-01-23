@@ -23,6 +23,7 @@ namespace TilerElements
         /// This is a list thaat just contains subevents that have only being optimized for the path. This does not take into consideration their ability to fit within a specific day
         /// </summary>
         List<SubCalendarEvent> PathStitchedSubEventsList;
+        List<SubCalendarEvent> OrderedAcknowledgedEvents;
         Location LeftStitch = new Location();
         Location RightStitch = new Location();
         Location DefaultLocation;
@@ -36,6 +37,7 @@ namespace TilerElements
             AcknowlegdedEvents = new HashSet<SubCalendarEvent>();
             PathStitchedSubEvents = new HashSet<SubCalendarEvent>();
             PathStitchedSubEventsList = new List<SubCalendarEvent>();
+            OrderedAcknowledgedEvents = new List<SubCalendarEvent>();
             TotalDuration = SubeventDurationSum;
             this.HomeLocation = HomeLocation;
             this.DefaultLocation = DefaultLocation;
@@ -53,6 +55,7 @@ namespace TilerElements
             }
 
             AverageOfStitched = new OptimizedAverage(AcknowlegdedEvents, _Section.Timeline);
+            orderAndStorePinnedEventsByStartTime();
         }
 
         public void movePathStitchedToAcknowledged()
@@ -168,6 +171,7 @@ namespace TilerElements
         public void ClearPinnedSubEvents()
         {
             AcknowlegdedEvents.Clear();
+            OrderedAcknowledgedEvents.Clear();
             AverageOfStitched = null;
         }
 
@@ -205,7 +209,25 @@ namespace TilerElements
         /// <returns></returns>
         public List<SubCalendarEvent> getPinnedEvents()
         {
-            return AcknowlegdedEvents.ToList();
+            return OrderedAcknowledgedEvents.ToList();
+        }
+
+        /// <summary>
+        /// This gets you all the subevents that have been acknwledged to work within setion. These are ordered whenever the collection of Pinned sub events gets modified. 
+        /// </summary>
+        /// <returns></returns>
+        public List<SubCalendarEvent> getOrderedPinnedEvents()
+        {
+            return OrderedAcknowledgedEvents.ToList();
+        }
+
+        /// <summary>
+        /// Function orders the pinned events by their start time and then locks them in order This way you can lock in the order of the pinned events
+        /// </summary>
+        public List<SubCalendarEvent> orderAndStorePinnedEventsByStartTime ()
+        {
+            OrderedAcknowledgedEvents = AcknowlegdedEvents.OrderBy(o => o.Start).ToList();
+            return OrderedAcknowledgedEvents;
         }
 
         public void AddToStitchedEvents(SubCalendarEvent SubEvent)
@@ -230,6 +252,7 @@ namespace TilerElements
             AcknowlegdedEvents.Remove(SubEvent);
             AverageOfStitched = new OptimizedAverage(AcknowlegdedEvents, _Section.Timeline);
             PathStitchedSubEventsList.Remove(SubEvent);
+            orderAndStorePinnedEventsByStartTime();
         }
 
         public void setPathStitchedEvents(IEnumerable<SubCalendarEvent> SubEvents)

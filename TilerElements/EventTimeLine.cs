@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 
 namespace TilerElements
 {
-    public class EventTimeLine : TimeLine, IUndoable
+    public class EventTimeLine : TimeLine, IUndoable, IHasId
     {
         protected string TimeLineEventID = "";
         protected string _UndoId = "";
@@ -86,7 +87,8 @@ namespace TilerElements
         }
 
         #region dbProperties
-        public override string Id
+        [Key]
+        public virtual string Id
         {
             set
             {

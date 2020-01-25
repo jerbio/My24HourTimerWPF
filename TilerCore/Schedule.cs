@@ -2721,14 +2721,18 @@ namespace TilerCore
                     {
                         subEvent.validateLocation(averageLocation);/// This might kill performance because of multiple calls to google for validation
                         int durationQutient = ((int)Math.Round(subEvent.getActiveDuration.TotalMinutes / Utility.QuarterHourTimeSpan.TotalMinutes));
-                        if (durationToTimeSpan.ContainsKey(subEvent.Location))
+                        if(subEvent.Location.isNotNullAndNotDefault)
                         {
-                            durationToTimeSpan[subEvent.Location] += durationQutient;
+                            if (durationToTimeSpan.ContainsKey(subEvent.Location))
+                            {
+                                durationToTimeSpan[subEvent.Location] += durationQutient;
+                            }
+                            else
+                            {
+                                durationToTimeSpan.Add(subEvent.Location, durationQutient);
+                            }
                         }
-                        else
-                        {
-                            durationToTimeSpan.Add(subEvent.Location, durationQutient);
-                        }
+                        
                     }
                 }
                 OptimizedPath dayPath = new OptimizedPath(EachDay, beginLocation, endLocation, home);

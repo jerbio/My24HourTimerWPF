@@ -400,6 +400,8 @@ namespace TilerElements
                 bool worksForAllSubevents = true;
                 SubCalendarEvent failingSubEvent = SubCalendarEvent.getEmptySubCalendarEvent(this.Calendar_EventID);
                 TimeLine newTimeLineUpdated = newTimeLine;
+                updateStartTime(newTimeLineUpdated.Start);
+                updateEndTime(newTimeLineUpdated.End);
                 foreach (var obj in AllSubEvents)
                 {
                     if (obj.isLocked)
@@ -415,8 +417,8 @@ namespace TilerElements
                 if (worksForAllSubevents)
                 {
                     TimeLine startAndEndTimeLine = newTimeLineUpdated.StartToEnd;
-                    updateStartTime( startAndEndTimeLine.Start);
-                    updateEndTime( startAndEndTimeLine.End);
+                    //updateStartTime( startAndEndTimeLine.Start);
+                    //updateEndTime( startAndEndTimeLine.End);
                     if (this.isLocked)
                     {
                         _EventDuration = End - Start;
@@ -430,6 +432,8 @@ namespace TilerElements
                 }
                 else
                 {
+                    updateStartTime(oldTimeLine.Start);
+                    updateEndTime(oldTimeLine.End);
                     AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(oldTimeLine));
                     CustomErrors customError = new CustomErrors("Cannot update the timeline for the calendar event with sub event " + failingSubEvent.getId + ". Most likely because the new time line won't fit the sub event", 40000001);
                     throw customError;

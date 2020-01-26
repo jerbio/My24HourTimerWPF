@@ -28,7 +28,7 @@ namespace TilerElements
         public TimeOfDayPreferrence(TimeLine timeLine, List<DaySection> preferredOrder = null,  DaySection userActivePreference = DaySection.Morning)
         {
             tImeLineStart = timeLine.Start;
-            fullDayTImeLine = timeLine.CreateCopy();
+            fullDayTImeLine = timeLine.StartToEnd;
             _PreferenceOrder = generateTimeFrames(timeLine, preferredOrder);
             _isDefaultOrdering = preferredOrder == null;
             _DefaultOrder = _PreferenceOrder.ToList();
@@ -115,7 +115,7 @@ namespace TilerElements
                     TimeLine timeLine = timeLines[i];
                     if (timeLine != null)
                     {
-                        _PreferenceOrder.Add(new Tuple<int, DaySection, bool, TimeLine>(i, preferenceOrderCopy[i].Item2, preferenceOrderCopy[i].Item3, preferenceOrderCopy[i].Item4.CreateCopy()));
+                        _PreferenceOrder.Add(new Tuple<int, DaySection, bool, TimeLine>(i, preferenceOrderCopy[i].Item2, preferenceOrderCopy[i].Item3, preferenceOrderCopy[i].Item4.StartToEnd));
                     }
                 }
             }

@@ -1224,7 +1224,9 @@ namespace TilerTests
             schedule2Outlook.WriteFullScheduleToOutlook();
         }
 
+#if RunSlowTest
         [TestMethod]
+#endif
         public void eventUpdateTimeLineChange()
         {
             var packet = TestUtility.CreatePacket();

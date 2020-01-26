@@ -2835,7 +2835,7 @@ namespace TilerCore
                 EarliestStart = LowestSubEventStart < EarliestStart ? LowestSubEventStart : EarliestStart;
                 LatestEnd = HighestSubEventStart > LatestEnd ? HighestSubEventStart : LatestEnd;
                 TimeLine RefTimeLine = new TimeLine(EarliestStart, LatestEnd);
-                TimeLine LastSuccessfull = RefTimeLine.CreateCopy();
+                TimeLine LastSuccessfull = RefTimeLine.StartToEnd;
                 RefTimeLine = new TimeLine(EarliestStart, LatestEnd);
 
                 Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> subEventssToTimelines = Utility.subEventToMaxSpaceAvailable(RefTimeLine, orderedByStartSubEvents);
@@ -4476,7 +4476,6 @@ namespace TilerCore
             {
                 SubCalendarEvent LatestDeadline = AllPossibleInterferringEvents.ToList().OrderByDescending(obj => obj.getCalculationRange.End).First();
                 BoundaryElements = new Tuple<SubCalendarEvent, SubCalendarEvent>(leftBoundary, BoundaryElements.Item2);
-                TimeLine pertinentFreeSpotDebugCopy = pertinentFreeSpot.CreateCopy();
                 pertinentFreeSpot = new TimeLine(pertinentFreeSpot.Start, LatestDeadline.getCalculationRange.End <= EndTime ? LatestDeadline.getCalculationRange.End : EndTime);
 
                 LowestOrderedElements = OptimizeArrangeOfSubCalEvent(pertinentFreeSpot, BoundaryElements, allPossbileEvents_Nonrestricted);

@@ -136,9 +136,9 @@
     <Compile Include="LogControlDump.cs" />
     <Compile Include="LogControlTest.cs" />
     <Compile Include="LogicTest.cs" />
-    <Compile Include="Migrations\202001230103590_TimeLineCalendarId.cs" />
-    <Compile Include="Migrations\202001230103590_TimeLineCalendarId.Designer.cs">
-      <DependentUpon>202001230103590_TimeLineCalendarId.cs</DependentUpon>
+    <Compile Include="Migrations\202001260404510_timelineHistoryRename.cs" />
+    <Compile Include="Migrations\202001260404510_timelineHistoryRename.Designer.cs">
+      <DependentUpon>202001260404510_timelineHistoryRename.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
@@ -284,8 +284,8 @@
     <Folder Include="WagTapCalLogs\69e9166b-6754-46cf-b384-66c5557048f8\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\202001230103590_TimeLineCalendarId.resx">
-      <DependentUpon>202001230103590_TimeLineCalendarId.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\202001260404510_timelineHistoryRename.resx">
+      <DependentUpon>202001260404510_timelineHistoryRename.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Choose>

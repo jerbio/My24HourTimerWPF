@@ -40,7 +40,7 @@ namespace TilerElements
         HashSet<long> completeDayIndexes = new HashSet<long>();
         protected TimeLine _CalculationStartToEnd;
         protected bool _RepeatIsLoaded = true;
-        protected UpdateHistory _UpdatesHistory = null;
+        protected TimeLineHistory _TimeLineHistory = null;
 
         #region undoMembers
         public int UndoSplits;
@@ -118,7 +118,7 @@ namespace TilerElements
             Repetition repetition,
             EventDisplay displayData,
             MiscData miscData, bool isEnabled, bool completeflag, NowProfile nowProfile, Procrastination procrastinationProfile,
-            Location location, TilerUser creator, TilerUserGroup otherUsers, bool userDeleted, DateTimeOffset timeOfCreation, string timeZoneOrigin, Classification semantics, UpdateHistory updateHistory)
+            Location location, TilerUser creator, TilerUserGroup otherUsers, bool userDeleted, DateTimeOffset timeOfCreation, string timeZoneOrigin, Classification semantics, TimeLineHistory timeLineHistory)
         {
             if (end < start)
             {
@@ -153,7 +153,7 @@ namespace TilerElements
             _EventDayPreference = new EventPreference();
             this._IniStartTime = this.Start;
             this._IniEndTime = this.End;
-            this._UpdatesHistory = updateHistory ?? new UpdateHistory();
+            this._TimeLineHistory = timeLineHistory;
             addUpdatedTimeLine(this.StartToEnd);
         }
 
@@ -177,11 +177,11 @@ namespace TilerElements
             TilerUserGroup users,
             string timeZone,
             EventID eventId,
-            UpdateHistory updateHistory,
+            TimeLineHistory timeLineHistory,
             bool initializeSubCalendarEvents = true,
             Classification semantics = null)
             : this(
-                 NameEntry, StartData, EndData, eventDuration, eventPrepTimeSpan, preDeadlineTimeSpan, eventSplit, EventRepetitionEntry, UiData, NoteData, EnabledEventFlag, CompletionFlag, nowProfile, procrastination, EventLocation, creator, users, false, DateTimeOffset.UtcNow, timeZone, semantics, updateHistory)
+                 NameEntry, StartData, EndData, eventDuration, eventPrepTimeSpan, preDeadlineTimeSpan, eventSplit, EventRepetitionEntry, UiData, NoteData, EnabledEventFlag, CompletionFlag, nowProfile, procrastination, EventLocation, creator, users, false, DateTimeOffset.UtcNow, timeZone, semantics, timeLineHistory)
         {
             UniqueID = eventId ?? this.UniqueID; /// already initialized by parent initialization
             if (_Splits != 0)
@@ -609,7 +609,7 @@ namespace TilerElements
             //MyCalendarEventCopy.SchedulStatus = SchedulStatus;
             MyCalendarEventCopy._otherPartyID = _otherPartyID == null ? null : _otherPartyID.ToString();
             MyCalendarEventCopy._Users = this._Users;
-            MyCalendarEventCopy.UpdateHistory_DB = _UpdatesHistory;
+            MyCalendarEventCopy.TimeLineHistory_DB = _TimeLineHistory;
             MyCalendarEventCopy._DaySectionPreference = this._DaySectionPreference;
             MyCalendarEventCopy._EventDayPreference = this.DayPreference?.createCopy();
             return MyCalendarEventCopy;
@@ -793,7 +793,7 @@ namespace TilerElements
                 UpdateTimeLine updateTimeLine = new UpdateTimeLine(startToEnd.Start, startToEnd.End, this.Now.constNow);
                 updateTimeLine.CalendarId = this.Id;
                 updateTimeLine.RepeatCalendarId = this.Calendar_EventID.getAllEventDictionaryLookup;
-                this.UpdateHistory.addTimeLine(updateTimeLine);
+                this.TimeLineHistory.addTimeLine(updateTimeLine);
             }
             
         }
@@ -842,7 +842,10 @@ namespace TilerElements
             this._EventDayPreference = dayPreference;
         }
 
-
+        virtual public void setTimeLineHistory(TimeLineHistory timeLineHistory)
+        {
+            this._TimeLineHistory = timeLineHistory;
+        }
 
         /// <summary>
         /// Pauses a sub event in the calendar event
@@ -2456,43 +2459,43 @@ namespace TilerElements
             }
         }
         [NotMapped]
-        virtual public UpdateHistory UpdateHistory
+        virtual public TimeLineHistory TimeLineHistory
         {
             get
             {
-                if(_UpdatesHistory== null)
+                if(_TimeLineHistory== null)
                 {
                     CalendarEvent repeatParent = (this.RepeatParentEvent as CalendarEvent);
-                    if (!UpdateHistoryId.isNot_NullEmptyOrWhiteSpace())
+                    if (!TimeLineHistoryId.isNot_NullEmptyOrWhiteSpace())
                     {
-                        if (repeatParent!=null && repeatParent.UpdateHistoryId.isNot_NullEmptyOrWhiteSpace())
+                        if (repeatParent!=null && repeatParent.TimeLineHistoryId.isNot_NullEmptyOrWhiteSpace())
                         {
-                            UpdateHistoryId = repeatParent.UpdateHistoryId;
+                            TimeLineHistoryId = repeatParent.TimeLineHistoryId;
                         }
                     }
 
-                    if(repeatParent != null && repeatParent.UpdateHistory!=null)
+                    if(repeatParent != null && repeatParent.TimeLineHistory!=null)
                     {
-                        _UpdatesHistory = (this.RepeatParentEvent as CalendarEvent).UpdateHistory;
+                        _TimeLineHistory = (this.RepeatParentEvent as CalendarEvent).TimeLineHistory;
                     }
                 }
-                return _UpdatesHistory;
+                return _TimeLineHistory;
             }
         }
 
 
         #region DB Properties
-        virtual public string UpdateHistoryId { get; set; }
-        [ForeignKey("UpdateHistoryId")]
-        virtual public UpdateHistory UpdateHistory_DB
+        virtual public string TimeLineHistoryId { get; set; }
+        [ForeignKey("TimeLineHistoryId")]
+        virtual public TimeLineHistory TimeLineHistory_DB
         {
             set
             {
-                _UpdatesHistory = value;
+                _TimeLineHistory = value;
             }
             get
             {
-                return _UpdatesHistory;
+                return _TimeLineHistory;
             }
         }
 

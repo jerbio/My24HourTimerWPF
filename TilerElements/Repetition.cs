@@ -216,7 +216,7 @@ namespace TilerElements
 
                 EachRepeatCalendarStart = _initializingRange.Start;
                 EachRepeatCalendarEnd = _initializingRange.End;
-                MyRepeatCalendarEvent = new RigidCalendarEvent(MyParentEvent.getName, _initializingRange.Start, _initializingRange.End, MyParentEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, new Repetition(), MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID, MyParentEvent.getNowInfo, MyParentEvent.UpdateHistory);
+                MyRepeatCalendarEvent = new RigidCalendarEvent(MyParentEvent.getName, _initializingRange.Start, _initializingRange.End, MyParentEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, new Repetition(), MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID, MyParentEvent.getNowInfo, MyParentEvent.TimeLineHistory);
             }
             else
             {
@@ -259,7 +259,7 @@ namespace TilerElements
                         return;
                     }
                 }
-                MyRepeatCalendarEvent = new CalendarEvent(MyParentEvent.getName, IniRepeatStart, repeatEnd, MyParentEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyParentEvent.NumberOfSplit, new Repetition(), MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.getProcrastinationInfo, MyParentEvent.getNowInfo, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID, MyParentEvent.UpdateHistory);
+                MyRepeatCalendarEvent = new CalendarEvent(MyParentEvent.getName, IniRepeatStart, repeatEnd, MyParentEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyParentEvent.NumberOfSplit, new Repetition(), MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.getProcrastinationInfo, MyParentEvent.getNowInfo, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID, MyParentEvent.TimeLineHistory);
                 int autoDisableCount = MyParentEvent.NumberOfSplit - splitCount;
                 var subEvents = MyRepeatCalendarEvent.ActiveSubEvents.OrderBy(o => o.Start).Take(autoDisableCount).ToList();
                 foreach (SubCalendarEvent subEvent in subEvents)
@@ -310,11 +310,11 @@ namespace TilerElements
                 MyEventCalendarID = EventID.GenerateRepeatCalendarEvent(MyParentEvent.getId);
                 if (MyRepeatCalendarEvent.isRigid)
                 {
-                    MyRepeatCalendarEvent = new RigidCalendarEvent(MyRepeatCalendarEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyRepeatCalendarEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyRepeatCalendarEvent.Repeat, MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID, MyParentEvent.getNowInfo, MyParentEvent.UpdateHistory);
+                    MyRepeatCalendarEvent = new RigidCalendarEvent(MyRepeatCalendarEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyRepeatCalendarEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyRepeatCalendarEvent.Repeat, MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID, MyParentEvent.getNowInfo, MyParentEvent.TimeLineHistory);
                 }
                 else
                 {
-                    MyRepeatCalendarEvent = new CalendarEvent(MyRepeatCalendarEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyRepeatCalendarEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyRepeatCalendarEvent.NumberOfSplit, MyRepeatCalendarEvent.Repeat, MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.getProcrastinationInfo, MyParentEvent.getNowInfo, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID, MyParentEvent.UpdateHistory);
+                    MyRepeatCalendarEvent = new CalendarEvent(MyRepeatCalendarEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyRepeatCalendarEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyRepeatCalendarEvent.NumberOfSplit, MyRepeatCalendarEvent.Repeat, MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.getProcrastinationInfo, MyParentEvent.getNowInfo, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID, MyParentEvent.TimeLineHistory);
                 }
                 MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
                 MyRepeatCalendarEvent.Location = MyParentEvent.LocationObj;
@@ -417,6 +417,7 @@ namespace TilerElements
                 }
                 MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
                 MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
+                MyRepeatCalendarEvent.setTimeLineHistory(ParentEvent.TimeLineHistory);
                 MyRepeatCalendarEvent.setRepeatParent(MyParentEvent);
                 MyRepeatCalendarEvent.Location = MyParentEvent.LocationObj;
                 EachRepeatCalendarStart = IncreaseByFrequency(EachRepeatCalendarStart, getFrequency);
@@ -442,6 +443,7 @@ namespace TilerElements
                     }
                     MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
                     MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
+                    MyRepeatCalendarEvent.setTimeLineHistory(ParentEvent.TimeLineHistory);
                     MyRepeatCalendarEvent.setRepeatParent(MyParentEvent);
                     MyRepeatCalendarEvent.Location = MyParentEvent.LocationObj;
                 }
@@ -491,11 +493,11 @@ namespace TilerElements
             CalendarEvent MyRepeatCalendarEvent;
             if (MyParentEvent.isRigid)
             {
-                MyRepeatCalendarEvent = new RigidCalendarEvent(MyParentEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, repetitionData, MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID, MyParentEvent.getNowInfo, MyParentEvent.UpdateHistory);
+                MyRepeatCalendarEvent = new RigidCalendarEvent(MyParentEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, repetitionData, MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID, MyParentEvent.getNowInfo, MyParentEvent.TimeLineHistory);
             }
             else
             {
-                MyRepeatCalendarEvent = new CalendarEvent(MyParentEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyParentEvent.NumberOfSplit, repetitionData, MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.getProcrastinationInfo, MyParentEvent.getNowInfo, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID, MyParentEvent.UpdateHistory);
+                MyRepeatCalendarEvent = new CalendarEvent(MyParentEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyParentEvent.NumberOfSplit, repetitionData, MyParentEvent.Location, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.getProcrastinationInfo, MyParentEvent.getNowInfo, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID, MyParentEvent.TimeLineHistory);
             }
             MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
             MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
@@ -529,7 +531,7 @@ namespace TilerElements
             this._initializingRange = ActiveTimeline;
             this._RepetitionRange = repetitionTimeline;
             EventID MyEventCalendarID = EventID.GenerateRepeatDayCalendarEvent(MyParentEvent.getId, WeekDay);
-            CalendarEventRestricted MyRepeatCalendarEvent = new CalendarEventRestricted(MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyParentEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.RestrictionProfile, MyParentEvent.getActiveDuration, repetitionData, MyParentEvent.getIsComplete, MyParentEvent.isEnabled, MyParentEvent.isLocked ? 1 : MyParentEvent.NumberOfSplit, MyParentEvent.isLocked, MyParentEvent.getNowInfo, MyParentEvent.LocationObj, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyEventCalendarID, MyParentEvent.Now, MyParentEvent.Procrastination_EventDB, MyParentEvent.UpdateHistory, MyParentEvent.getUIParam, MyParentEvent.Notes);
+            CalendarEventRestricted MyRepeatCalendarEvent = new CalendarEventRestricted(MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyParentEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyParentEvent.RestrictionProfile, MyParentEvent.getActiveDuration, repetitionData, MyParentEvent.getIsComplete, MyParentEvent.isEnabled, MyParentEvent.isLocked ? 1 : MyParentEvent.NumberOfSplit, MyParentEvent.isLocked, MyParentEvent.getNowInfo, MyParentEvent.LocationObj, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyEventCalendarID, MyParentEvent.Now, MyParentEvent.Procrastination_EventDB, MyParentEvent.TimeLineHistory, MyParentEvent.getUIParam, MyParentEvent.Notes);
             MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
             MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
             MyRepeatCalendarEvent.Location = MyParentEvent.LocationObj;

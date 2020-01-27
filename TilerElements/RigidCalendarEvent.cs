@@ -17,9 +17,9 @@ namespace TilerElements
             TimeSpan PreDeadlineTimeSpan, 
             Repetition EventRepetitionEntry, 
             Location EventLocation, 
-            EventDisplay UiData, MiscData NoteData, bool EnabledEventFlag, bool CompletionFlag, TilerUser creator, TilerUserGroup users, string timeZone, EventID eventId, NowProfile nowProfile, bool initializeSubCalendarEvents = true, Classification semantics = null, int split = 1)
+            EventDisplay UiData, MiscData NoteData, bool EnabledEventFlag, bool CompletionFlag, TilerUser creator, TilerUserGroup users, string timeZone, EventID eventId, NowProfile nowProfile, TimeLineHistory timeLineHistory, bool initializeSubCalendarEvents = true, Classification semantics = null, int split = 1)
             : base(
-                 NameEntry, StartData, EndData, EventDuration, eventPrepTime, PreDeadlineTimeSpan, split, EventRepetitionEntry, UiData, NoteData, EnabledEventFlag, CompletionFlag, nowProfile, null, EventLocation, creator, users, false, DateTimeOffset.UtcNow, timeZone, semantics)
+                 NameEntry, StartData, EndData, EventDuration, eventPrepTime, PreDeadlineTimeSpan, split, EventRepetitionEntry, UiData, NoteData, EnabledEventFlag, CompletionFlag, nowProfile, null, EventLocation, creator, users, false, DateTimeOffset.UtcNow, timeZone, semantics, timeLineHistory)
         {
             UniqueID = eventId ?? this.UniqueID; /// already initialized by parent initialization
             _RigidSchedule = true;

@@ -188,6 +188,8 @@
     <Compile Include="TimeSpanWithID.cs" />
     <Compile Include="TravelTime.cs" />
     <Compile Include="Undo.cs" />
+    <Compile Include="TimeLineHistory.cs" />
+    <Compile Include="UpdateTimeLine.cs" />
     <Compile Include="UserActivity.cs" />
     <Compile Include="Utility.cs" />
   </ItemGroup>

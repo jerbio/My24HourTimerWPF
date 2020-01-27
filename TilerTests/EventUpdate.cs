@@ -211,8 +211,6 @@ namespace TilerTests
             UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
             user.Login().Wait();
-            //DateTimeOffset refNow = DateTimeOffset.UtcNow;
-            //DateTimeOffset startOfDay = TestUtility.parseAsUTC("10:00 pm");
             DateTimeOffset refNow = TestUtility.parseAsUTC("4/9/2019 9:00:00 PM +00:00");
             DateTimeOffset startOfDay = TestUtility.parseAsUTC("4/9/2019 10:00:00 PM +00:00");
             TestSchedule schedule = new TestSchedule(user, refNow, startOfDay);
@@ -1171,7 +1169,7 @@ namespace TilerTests
             {
                 iniRefNow = DateTimeOffset.Parse(dateString);
             }
-             
+
             var packet = TestUtility.CreatePacket();
             TilerUser tilerUser = packet.User;
             UserAccount user = packet.Account;
@@ -1193,7 +1191,6 @@ namespace TilerTests
             schedule = new TestSchedule(user, refNow, startOfDay);
             foreach (SubCalendarEvent testSubEvent in allFirstActiveSubEvents)
             {
-                
                 DateTimeOffset newStart = testSubEvent.Start.AddDays(10);
                 DateTimeOffset newEnd = newStart.Add(duration);
                 TestUtility.reloadTilerUser(ref user, ref tilerUser);
@@ -1225,6 +1222,91 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             TestSchedule schedule2Outlook = new TestSchedule(user, iniRefNow);
             schedule2Outlook.WriteFullScheduleToOutlook();
+        }
+
+#if RunSlowTest
+        [TestMethod]
+#endif
+        public void eventUpdateTimeLineChange()
+        {
+            var packet = TestUtility.CreatePacket();
+            TilerUser tilerUser = packet.User;
+            UserAccount user = packet.Account;
+
+
+            string dateString = "";
+            DateTimeOffset iniRefNow;
+            if (string.IsNullOrEmpty(dateString))
+            {
+                iniRefNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
+            }
+            else
+            {
+                iniRefNow = DateTimeOffset.Parse(dateString);
+            }
+
+            DateTimeOffset start = iniRefNow;
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            TestSchedule schedule = new TestSchedule(user, iniRefNow);
+            TimeSpan duration = TimeSpan.FromHours(1);
+            List<CalendarEvent> calEvents = TestUtility.generateAllCalendarEvent(schedule, duration, start, tilerUser, user, 10);
+            foreach (CalendarEvent calEvent in calEvents)
+            {
+                Assert.AreEqual(calEvent.Start, start);
+                Assert.AreEqual(calEvent.InitialStartTime, start);
+            }
+            List<SubCalendarEvent> allFirstActiveSubEvents = calEvents.Select(obj => obj.ActiveSubEvents.First()).ToList();
+            Dictionary<string, TimeLine> calIdToInitialTimeLine = new Dictionary<string, TimeLine>();
+            allFirstActiveSubEvents.ForEach((subEvent) =>
+            {
+                string calId = subEvent.ParentCalendarEvent.Id;
+                TimeLine timeLine = subEvent.ParentCalendarEvent.StartToEnd;
+                calIdToInitialTimeLine.Add(calId, timeLine);
+            });
+            DateTimeOffset refNow = iniRefNow;
+            SubCalendarEvent previousSubEvent = null;
+            DateTimeOffset previousStart = Utility.BeginningOfTime;
+            DateTimeOffset previousEnd = Utility.BeginningOfTime;
+            DateTimeOffset startOfDay = iniRefNow.AddHours(1);
+            string previousNote = "";
+            string newNote = Guid.NewGuid().ToString();
+            foreach (SubCalendarEvent testSubEvent in allFirstActiveSubEvents)
+            {
+                DateTimeOffset newStart = testSubEvent.Start.AddDays(10);
+                DateTimeOffset newEnd = newStart.Add(duration);
+                TestUtility.reloadTilerUser(ref user, ref tilerUser);
+                if (previousSubEvent != null)
+                {
+                    HashSet<string> calendarIds = new HashSet<string>() { previousSubEvent.getId, testSubEvent.getId };
+                    schedule = new TestSchedule(user, refNow, startOfDay, calendarIds: calendarIds);
+                    SubCalendarEvent previousInMemory = schedule.getSubCalendarEvent(previousSubEvent.Id);
+                    previousInMemory.isTestEquivalent(previousSubEvent);
+                    Assert.AreEqual(previousInMemory.Notes.UserNote, previousNote);
+                    Assert.AreEqual(previousInMemory.Start, previousStart);
+                    Assert.AreEqual(previousInMemory.End, previousEnd);
+
+                    TimeLine initialTimeLine = previousInMemory.ParentCalendarEvent.InitialTimeLine;
+                    TimeLine beforeEdit_iniTimeLine = calIdToInitialTimeLine[previousInMemory.ParentCalendarEvent.Id];
+                    Assert.IsTrue(beforeEdit_iniTimeLine.isEqualStartAndEnd(initialTimeLine));
+                    Assert.AreEqual(previousInMemory.ParentCalendarEvent.TimeLineHistory.TimeLines.Count, 1);// Since there's being only one update there has to be two timelines for each update
+                }
+                else
+                {
+                    HashSet<string> calendarIds = new HashSet<string>() { testSubEvent.getId };
+                    schedule = new TestSchedule(user, refNow, startOfDay, calendarIds: calendarIds);
+                }
+
+                CalendarEvent calEVent = testSubEvent.ParentCalendarEvent;
+                SubCalendarEvent subEventBeforeEdit = schedule.getSubCalendarEvent(testSubEvent.getId);
+                Assert.AreEqual(subEventBeforeEdit.ParentCalendarEvent.TimeLineHistory.TimeLines.Count, 0);//this should be 1 because at the instantiation there should be one timeline update, in the list created at instantiation
+                var scheduleUpdated = schedule.BundleChangeUpdate(testSubEvent.getId, testSubEvent.getName, newStart, newEnd, calEVent.Start.AddHours(1), calEVent.End.AddHours(1), calEVent.NumberOfSplit, newNote);
+                previousSubEvent = schedule.getSubCalendarEvent(testSubEvent.getId);
+                
+                previousStart = newStart;
+                previousEnd = newEnd;
+                previousNote = newNote;
+                schedule.persistToDB().Wait();
+            }
         }
 
         [TestMethod]

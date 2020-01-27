@@ -835,17 +835,35 @@ namespace TilerCore
         void StitchAllGroupings()
         {
             List<OptimizedGrouping> OrderedOptimizedGroupings = AllGroupings.Where(obj => obj.Key != TimeOfDayPreferrence.DaySection.None).OrderBy(obj => obj.Key).Select(obj => obj.Value).ToList();
+            List<SubCalendarEvent> alreadyPinned = OrderedOptimizedGroupings.SelectMany(o => o.getOrderedPinnedEvents()).ToList();//.OrderBy(o=>o.Start).ToList();
             TimeLine myDayTimeLine = DayInfo.getJustTimeLine();
             HashSet<SubCalendarEvent> subEventSet = new HashSet<SubCalendarEvent>();
             List<SubCalendarEvent> SubEventsInrespectivepaths = new List<SubCalendarEvent>();
-
-            foreach (SubCalendarEvent subEvent in OrderedOptimizedGroupings.SelectMany(obj => obj.getEventsForStitichingWithOtherOptimizedGroupings()))
+            foreach (var SubEvent in alreadyPinned) /// This initial is need in a scenario where a sub event cuts across multiple day section grouping. e.g a rigid or locked event. In this scenario in the call to getEventsForStitichingWithOtherOptimizedGroupings this could cause a duplicate to occur. This ensures that the initial order of already pinned events with no duplicates is created
             {
+                if (!subEventSet.Contains(SubEvent)) {
+                    subEventSet.Add(SubEvent);
+                    SubEventsInrespectivepaths.Add(SubEvent);
+                }
+            }
+
+
+
+            List<SubCalendarEvent> orderedPathStiched = OrderedOptimizedGroupings.SelectMany(obj => obj.getEventsForStitichingWithOtherOptimizedGroupings()).ToList();
+            int insertionIndex = 0;
+            for(int i=0; i< orderedPathStiched.Count;i++ )// this loop inserts all the respective elements around the already pinned events 
+            {
+                if(insertionIndex > SubEventsInrespectivepaths.Count)
+                {
+                    insertionIndex = SubEventsInrespectivepaths.Count;
+                }
+                SubCalendarEvent subEvent = orderedPathStiched[i];
                 if (!subEventSet.Contains(subEvent))
                 {
                     subEventSet.Add(subEvent);
-                    SubEventsInrespectivepaths.Add(subEvent);
+                    SubEventsInrespectivepaths.Insert(insertionIndex, subEvent);//performance hit because of insert
                 }
+                insertionIndex = i + 1;
             }
 
             List<SubCalendarEvent> SubEventsWithNoLocationPreference = AllGroupings[TimeOfDayPreferrence.DaySection.None].getPathStitchedSubevents();
@@ -858,7 +876,7 @@ namespace TilerCore
 
 
             List<SubCalendarEvent> pinnedResults = tryPinningInCurrentDayTimeline(myDayTimeLine, splicedResults, OrderedOptimizedGroupings);
-
+            //OrderedOptimizedGroupings.ForEach((grouping) => grouping.orderAndStorePinnedEventsByStartTime());
             clearSubEventToReasonDictionary();
         }
 
@@ -890,7 +908,7 @@ namespace TilerCore
             {
                 Queue<mTuple<int, SubCalendarEvent>> Myqueue = PreferredLocations[i];
                 int insertionIndex = i + delta;
-                RetValue.InsertRange(insertionIndex, Myqueue.OrderBy(obj => obj.Item1).Select(obj => obj.Item2));
+                RetValue.InsertRange(insertionIndex, Myqueue.OrderBy(obj => obj.Item1).Select(obj => obj.Item2));//performance hit because of insert
                 delta += Myqueue.Count;
             }
 
@@ -958,7 +976,7 @@ namespace TilerCore
                 }
             };
 
-            if (Utility.PinSubEventsToStart(SubEvents, AllTimeLine))
+            if (Utility.tryPinSubEventsToStart(SubEvents, AllTimeLine))
             {
                 if (SubEvents.Count > 0)
                 {
@@ -1088,7 +1106,7 @@ namespace TilerCore
                 if (bestPositionIndex != -1)
                 {
                     AllGroupings[DaySection].AddToStitchedEvents(UnwantedEvent);
-                    subEventList.Insert(bestPositionIndex, UnwantedEvent);
+                    subEventList.Insert(bestPositionIndex, UnwantedEvent);// performance hit because of inserts
                     if (!Utility.tryPinSubEventsToEnd(subEventList, AllTimeLine))
                     {
                         throw new Exception("Something is wrong with best position");

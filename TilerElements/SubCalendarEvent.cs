@@ -117,6 +117,8 @@ namespace TilerElements
             this._Enabled = Enabled;
             _LastReasonStartTimeChanged = this.Start;
             _calendarEvent = calendarEvent;
+            this._IniStartTime = this.Start;
+            this._IniEndTime = this.End;
         }
         
         public SubCalendarEvent(CalendarEvent calendarEvent, TilerUser Creator, TilerUserGroup users, string timeZone, string MySubEventID, EventName name, DateTimeOffset EventStart, DateTimeOffset EventDeadline, BusyTimeLine SubEventBusy, bool Rigid, bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location EventLocation = null, TimeLine calendarEventRange = null, ConflictProfile conflicts = null)
@@ -148,6 +150,8 @@ namespace TilerElements
             _Complete = completeFlag;
             _LastReasonStartTimeChanged = this.Start;
             _calendarEvent = calendarEvent;
+            this._IniStartTime = this.Start;
+            this._IniEndTime = this.End;
         }
         #endregion
 
@@ -200,11 +204,12 @@ namespace TilerElements
             this._Enabled = false;
         }
 
-        public virtual void complete(CalendarEvent myCalEvent)
+        public virtual void complete(CalendarEvent myCalEvent, ReferenceNow now)
         {
             if (!this._Complete)
             {
                 this._Complete = true;
+                this._CompletionTime = now.constNow;
                 myCalEvent.addCompletionTimes(this.Start);
                 myCalEvent.incrementCompleteCount(this.RangeSpan);
             }
@@ -257,13 +262,13 @@ namespace TilerElements
             }
         }
 
-        public virtual void SetCompletionStatus(bool completeValue,CalendarEvent myCalendarEvent)
+        public virtual void SetCompletionStatus(bool completeValue,CalendarEvent myCalendarEvent, ReferenceNow now)
         {
             if (completeValue != _Complete)
             {
                 if (completeValue)
                 {
-                    complete(myCalendarEvent);
+                    complete(myCalendarEvent, now);
                 }
                 else
                 {

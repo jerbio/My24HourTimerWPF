@@ -956,7 +956,7 @@ namespace TilerElements
         {
             bool retValue = true;
             long length = arg1.LongLength;
-            TimeLine refTimeline = Arg2.CreateCopy();
+            TimeLine refTimeline = Arg2.StartToEnd;
             for (int i = 0; i < length; i++)
             {
                 if (arg1[i].PinToStart(refTimeline))
@@ -1034,7 +1034,7 @@ namespace TilerElements
         {
             bool retValue = true;
             long length = arg1.LongLength;
-            TimeLine refTimeline = Arg2.CreateCopy();
+            TimeLine refTimeline = Arg2.StartToEnd;
             SubCalendarEvent refEvent;
             for (long i = length - 1; i >= 0; i--)
             {//hack notice you need to ensure that each subcalevent can fit within the timeline. YOu need a way to resolve this if not possible
@@ -1263,6 +1263,7 @@ namespace TilerElements
         /// <returns></returns>
         public static Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> subEventToMaxSpaceAvailable(TimeLine maxTImeLine, IEnumerable<SubCalendarEvent> subEvents)
         {
+            var dictOfSubEvents = subEvents.ToDictionary(sub => sub, sub => sub.Start);
             Dictionary<EventID, SubCalendarEvent> eventIdToSubEvent = subEvents.ToDictionary(subEvent => subEvent.SubEvent_ID, subEvent => subEvent);
             Dictionary<EventID, DateTimeOffset> startTimes = new Dictionary<EventID, DateTimeOffset>();
             Dictionary<EventID, DateTimeOffset> endTimes = new Dictionary<EventID, DateTimeOffset>();
@@ -1310,6 +1311,10 @@ namespace TilerElements
                 endBefore = ordedsubEvents[i].Start;
                 timeLineBefore = new TimeLine(startBefore, endBefore);
                 retValue.Add(eventIdToSubEvent[subEvent.SubEvent_ID], new mTuple<TimeLine, TimeLine>(timeLineBefore, timeLineAfter));
+                foreach(SubCalendarEvent subEVent in subEvents)
+                {
+                    subEVent.shiftEvent(dictOfSubEvents[subEVent], true);
+                }
             }
             else
             {
@@ -1526,6 +1531,12 @@ namespace TilerElements
         {
             Int64 convertedOutput;
             bool retValue = Int64.TryParse(input, out convertedOutput);
+            return retValue;
+        }
+
+        public static bool isNot_NullEmptyOrWhiteSpace(this string input)
+        {
+            bool retValue = !(string.IsNullOrEmpty(input) || string.IsNullOrWhiteSpace(input));
             return retValue;
         }
     }

@@ -136,9 +136,9 @@
     <Compile Include="LogControlDump.cs" />
     <Compile Include="LogControlTest.cs" />
     <Compile Include="LogicTest.cs" />
-    <Compile Include="Migrations\201911101038245_TravelCacheRemovedLocationFromClocationCache.cs" />
-    <Compile Include="Migrations\201911101038245_TravelCacheRemovedLocationFromClocationCache.Designer.cs">
-      <DependentUpon>201911101038245_TravelCacheRemovedLocationFromClocationCache.cs</DependentUpon>
+    <Compile Include="Migrations\202001260404510_timelineHistoryRename.cs" />
+    <Compile Include="Migrations\202001260404510_timelineHistoryRename.Designer.cs">
+      <DependentUpon>202001260404510_timelineHistoryRename.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
@@ -165,6 +165,7 @@
     <Compile Include="PerformanceTest.cs" />
     <Compile Include="ScheduleQuality.cs" />
     <Compile Include="RepeatAnEvent.cs" />
+    <Compile Include="AutoSuggestDeadlineTest.cs" />
     <Compile Include="UserAccountDump.cs" />
     <Compile Include="UserAccountTest.cs" />
     <Compile Include="WhatIfTest.cs" />
@@ -280,12 +281,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201911101038245_TravelCacheRemovedLocationFromClocationCache.resx">
-      <DependentUpon>201911101038245_TravelCacheRemovedLocationFromClocationCache.cs</DependentUpon>
-    </EmbeddedResource>
+    <Folder Include="WagTapCalLogs\69e9166b-6754-46cf-b384-66c5557048f8\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="WagTapCalLogs\69e9166b-6754-46cf-b384-66c5557048f8\" />
+    <EmbeddedResource Include="Migrations\202001260404510_timelineHistoryRename.resx">
+      <DependentUpon>202001260404510_timelineHistoryRename.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

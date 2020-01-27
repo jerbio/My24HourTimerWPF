@@ -511,6 +511,7 @@ namespace TilerCore
             {
                 AllEventDictionary.Add(eventId.getAllEventDictionaryLookup, NewEvent);
                 NewEvent.TimeOfScheduleLoad = Now.constNow;
+                NewEvent.Now = Now;
             } else
             {
                 if(NewEvent.isRepeatLoaded)
@@ -522,6 +523,7 @@ namespace TilerCore
                 }
                 AllEventDictionary.Add(eventId.getAllEventDictionaryLookup, NewEvent);
                 NewEvent.TimeOfScheduleLoad = Now.constNow;
+                NewEvent.Now = Now;
             }
             string calendarEventId = NewEvent.Calendar_EventID.getCalendarEventComponent();
             HashSet<CalendarEvent> calendarEvents;
@@ -1036,14 +1038,12 @@ namespace TilerCore
             if (CalendarEventTOBeRemoved.isLocked)
             {
                 CalendarEventTOBeRemoved = new RigidCalendarEvent(
-                    //EventID.GenerateCalendarEvent(), 
-                    CalendarEventTOBeRemoved.getName, CalendarEventTOBeRemoved.Start, CalendarEventTOBeRemoved.End, CalendarEventTOBeRemoved.getActiveDuration, CalendarEventTOBeRemoved.getPreparation, CalendarEventTOBeRemoved.getPreDeadline, new Repetition(), CalendarEventTOBeRemoved.Location, new EventDisplay(), new MiscData(), false, false, CalendarEventTOBeRemoved.getCreator, CalendarEventTOBeRemoved.getAllUsers(), CalendarEventTOBeRemoved.getTimeZone, null, CalendarEventTOBeRemoved.getNowInfo);
+                    CalendarEventTOBeRemoved.getName, CalendarEventTOBeRemoved.Start, CalendarEventTOBeRemoved.End, CalendarEventTOBeRemoved.getActiveDuration, CalendarEventTOBeRemoved.getPreparation, CalendarEventTOBeRemoved.getPreDeadline, new Repetition(), CalendarEventTOBeRemoved.Location, new EventDisplay(), new MiscData(), false, false, CalendarEventTOBeRemoved.getCreator, CalendarEventTOBeRemoved.getAllUsers(), CalendarEventTOBeRemoved.getTimeZone, null, CalendarEventTOBeRemoved.getNowInfo, CalendarEventTOBeRemoved.TimeLineHistory);
             }
             else
             {
                 CalendarEventTOBeRemoved = new CalendarEvent(
-                    //EventID.GenerateCalendarEvent(), 
-                    CalendarEventTOBeRemoved.getName, CalendarEventTOBeRemoved.Start, CalendarEventTOBeRemoved.End, CalendarEventTOBeRemoved.getActiveDuration, CalendarEventTOBeRemoved.getPreparation, CalendarEventTOBeRemoved.getPreDeadline, 1, new Repetition(), CalendarEventTOBeRemoved.Location, new EventDisplay(), new MiscData(), null, new NowProfile(), false, false, CalendarEventTOBeRemoved.getCreator, CalendarEventTOBeRemoved.getAllUsers(), CalendarEventTOBeRemoved.getTimeZone, null);
+                    CalendarEventTOBeRemoved.getName, CalendarEventTOBeRemoved.Start, CalendarEventTOBeRemoved.End, CalendarEventTOBeRemoved.getActiveDuration, CalendarEventTOBeRemoved.getPreparation, CalendarEventTOBeRemoved.getPreDeadline, 1, new Repetition(), CalendarEventTOBeRemoved.Location, new EventDisplay(), new MiscData(), null, new NowProfile(), false, false, CalendarEventTOBeRemoved.getCreator, CalendarEventTOBeRemoved.getAllUsers(), CalendarEventTOBeRemoved.getTimeZone, null, CalendarEventTOBeRemoved.TimeLineHistory);
             }
             CalendarEventTOBeRemoved.DisableSubEvents(CalendarEventTOBeRemoved.ActiveSubEvents);
 
@@ -1069,14 +1069,12 @@ namespace TilerCore
             if (CalendarEventTOBeRemoved.isLocked)
             {
                 CalendarEventTOBeRemoved = new RigidCalendarEvent(
-                    //EventID.GenerateCalendarEvent(), 
-                    CalendarEventTOBeRemoved.getName, CalendarEventTOBeRemoved.Start, CalendarEventTOBeRemoved.End, CalendarEventTOBeRemoved.getActiveDuration, CalendarEventTOBeRemoved.getPreparation, CalendarEventTOBeRemoved.getPreDeadline, new Repetition(), CalendarEventTOBeRemoved.Location, new EventDisplay(), new MiscData(), true, true, CalendarEventTOBeRemoved.getCreator, CalendarEventTOBeRemoved.getAllUsers(), CalendarEventTOBeRemoved.getTimeZone, null, CalendarEventTOBeRemoved.getNowInfo);
+                    CalendarEventTOBeRemoved.getName, CalendarEventTOBeRemoved.Start, CalendarEventTOBeRemoved.End, CalendarEventTOBeRemoved.getActiveDuration, CalendarEventTOBeRemoved.getPreparation, CalendarEventTOBeRemoved.getPreDeadline, new Repetition(), CalendarEventTOBeRemoved.Location, new EventDisplay(), new MiscData(), true, true, CalendarEventTOBeRemoved.getCreator, CalendarEventTOBeRemoved.getAllUsers(), CalendarEventTOBeRemoved.getTimeZone, null, CalendarEventTOBeRemoved.getNowInfo, CalendarEventTOBeRemoved.TimeLineHistory);
             }
             else
             {
                 CalendarEventTOBeRemoved = new CalendarEvent(
-                    //EventID.GenerateCalendarEvent(), 
-                    CalendarEventTOBeRemoved.getName, CalendarEventTOBeRemoved.Start, CalendarEventTOBeRemoved.End, CalendarEventTOBeRemoved.getActiveDuration, CalendarEventTOBeRemoved.getPreparation, CalendarEventTOBeRemoved.getPreDeadline, 1, new Repetition(), CalendarEventTOBeRemoved.Location, new EventDisplay(), new MiscData(), null, new NowProfile(), true, true, CalendarEventTOBeRemoved.getCreator, CalendarEventTOBeRemoved.getAllUsers(), CalendarEventTOBeRemoved.getTimeZone, null);
+                    CalendarEventTOBeRemoved.getName, CalendarEventTOBeRemoved.Start, CalendarEventTOBeRemoved.End, CalendarEventTOBeRemoved.getActiveDuration, CalendarEventTOBeRemoved.getPreparation, CalendarEventTOBeRemoved.getPreDeadline, 1, new Repetition(), CalendarEventTOBeRemoved.Location, new EventDisplay(), new MiscData(), null, new NowProfile(), true, true, CalendarEventTOBeRemoved.getCreator, CalendarEventTOBeRemoved.getAllUsers(), CalendarEventTOBeRemoved.getTimeZone, null, CalendarEventTOBeRemoved.TimeLineHistory);
             }
             CalendarEventTOBeRemoved.DisableSubEvents(CalendarEventTOBeRemoved.ActiveSubEvents);
 
@@ -1115,7 +1113,7 @@ namespace TilerCore
                 List<SubCalendarEvent> AllValidSubCalEvents = new List<SubCalendarEvent>() { ReferenceSubEvent };// ProcrastinateEvent.AllActiveSubEvents.Where(obj => obj.End > ReferenceSubEvent.Start).ToList();
                 DateTimeOffset StartTime = Now.calculationNow;
                 DateTimeOffset EndTime = StartTime.Add(ReferenceSubEvent.getActiveDuration); ;
-                ReferenceSubEvent.SetCompletionStatus(true, referenceCalendarEventWithSubEvent);
+                ReferenceSubEvent.SetCompletionStatus(true, referenceCalendarEventWithSubEvent, this.Now);
 
 
                 TimeSpan TotalActiveDuration = Utility.SumOfActiveDuration(AllValidSubCalEvents);
@@ -1129,13 +1127,13 @@ namespace TilerCore
                 {
                     ScheduleUpdated = new RigidCalendarEvent(
                         //EventID.GenerateCalendarEvent(), 
-                        referenceCalendarEventWithSubEvent.getName, StartData, EndData, ReferenceSubEvent.getActiveDuration, referenceCalendarEventWithSubEvent.getPreDeadline, referenceCalendarEventWithSubEvent.getPreparation, new Repetition(), ReferenceSubEvent.Location, new EventDisplay(), new MiscData(), true, true, referenceCalendarEventWithSubEvent.getCreator, referenceCalendarEventWithSubEvent.getAllUsers(), ReferenceSubEvent.getTimeZone, null, referenceCalendarEventWithSubEvent.getNowInfo);
+                        referenceCalendarEventWithSubEvent.getName, StartData, EndData, ReferenceSubEvent.getActiveDuration, referenceCalendarEventWithSubEvent.getPreDeadline, referenceCalendarEventWithSubEvent.getPreparation, new Repetition(), ReferenceSubEvent.Location, new EventDisplay(), new MiscData(), true, true, referenceCalendarEventWithSubEvent.getCreator, referenceCalendarEventWithSubEvent.getAllUsers(), ReferenceSubEvent.getTimeZone, null, referenceCalendarEventWithSubEvent.getNowInfo, referenceCalendarEventWithSubEvent.TimeLineHistory);
                 }
                 else
                 {
                     ScheduleUpdated = new CalendarEvent(
                         //EventID.GenerateCalendarEvent(), 
-                        referenceCalendarEventWithSubEvent.getName, StartData, EndData, ReferenceSubEvent.getActiveDuration, referenceCalendarEventWithSubEvent.getPreparation, referenceCalendarEventWithSubEvent.getPreDeadline, 1, new Repetition(), ReferenceSubEvent.Location, new EventDisplay(), new MiscData(), null, new NowProfile(), true, true, referenceCalendarEventWithSubEvent.getCreator, referenceCalendarEventWithSubEvent.getAllUsers(), ReferenceSubEvent.getTimeZone, null);
+                        referenceCalendarEventWithSubEvent.getName, StartData, EndData, ReferenceSubEvent.getActiveDuration, referenceCalendarEventWithSubEvent.getPreparation, referenceCalendarEventWithSubEvent.getPreDeadline, 1, new Repetition(), ReferenceSubEvent.Location, new EventDisplay(), new MiscData(), null, new NowProfile(), true, true, referenceCalendarEventWithSubEvent.getCreator, referenceCalendarEventWithSubEvent.getAllUsers(), ReferenceSubEvent.getTimeZone, null, referenceCalendarEventWithSubEvent.TimeLineHistory);
                 }
                 ScheduleUpdated.DisableSubEvents(ScheduleUpdated.AllSubEvents);//hackalert
 
@@ -1158,7 +1156,7 @@ namespace TilerCore
             SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
             if (ReferenceSubEvent != null)
             {
-                ReferenceSubEvent.SetCompletionStatus(true, referenceCalendarEventWithSubEvent);
+                ReferenceSubEvent.SetCompletionStatus(true, referenceCalendarEventWithSubEvent, this.Now);
             }
         }
 
@@ -1174,9 +1172,8 @@ namespace TilerCore
                 SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
                 if(ReferenceSubEvent!=null)
                 {
-                    ReferenceSubEvent.SetCompletionStatus(true, referenceCalendarEventWithSubEvent);
+                    ReferenceSubEvent.SetCompletionStatus(true, referenceCalendarEventWithSubEvent, this.Now);
                 }
-                
             }
         }
 
@@ -1226,14 +1223,12 @@ namespace TilerCore
             if (ReferenceSubEvent.isLocked)
             {
                 ScheduleUpdated = new RigidCalendarEvent(
-                    //EventID.GenerateCalendarEvent(), 
-                    referenceCalendarEventWithSubEvent.getName, StartData, EndData, ReferenceSubEvent.getActiveDuration, referenceCalendarEventWithSubEvent.getPreparation, referenceCalendarEventWithSubEvent.getPreDeadline, new Repetition(), ReferenceSubEvent.Location, new EventDisplay(), new MiscData(), false, false, ReferenceSubEvent.getCreator, ReferenceSubEvent.getAllUsers(), ReferenceSubEvent.getTimeZone, null, referenceCalendarEventWithSubEvent.getNowInfo);
+                    referenceCalendarEventWithSubEvent.getName, StartData, EndData, ReferenceSubEvent.getActiveDuration, referenceCalendarEventWithSubEvent.getPreparation, referenceCalendarEventWithSubEvent.getPreDeadline, new Repetition(), ReferenceSubEvent.Location, new EventDisplay(), new MiscData(), false, false, ReferenceSubEvent.getCreator, ReferenceSubEvent.getAllUsers(), ReferenceSubEvent.getTimeZone, null, referenceCalendarEventWithSubEvent.getNowInfo, referenceCalendarEventWithSubEvent.TimeLineHistory);
             }
             else
             {
                 ScheduleUpdated = new CalendarEvent(
-                    //EventID.GenerateCalendarEvent(), 
-                    referenceCalendarEventWithSubEvent.getName, StartData, EndData, ReferenceSubEvent.getActiveDuration, referenceCalendarEventWithSubEvent.getPreparation, referenceCalendarEventWithSubEvent.getPreDeadline, 1, new Repetition(), ReferenceSubEvent.Location, new EventDisplay(), new MiscData(), null, new NowProfile(), false, false, ReferenceSubEvent.getCreator, ReferenceSubEvent.getAllUsers(), ReferenceSubEvent.getTimeZone, null);
+                    referenceCalendarEventWithSubEvent.getName, StartData, EndData, ReferenceSubEvent.getActiveDuration, referenceCalendarEventWithSubEvent.getPreparation, referenceCalendarEventWithSubEvent.getPreDeadline, 1, new Repetition(), ReferenceSubEvent.Location, new EventDisplay(), new MiscData(), null, new NowProfile(), false, false, ReferenceSubEvent.getCreator, ReferenceSubEvent.getAllUsers(), ReferenceSubEvent.getTimeZone, null, referenceCalendarEventWithSubEvent.TimeLineHistory);
             }
 
 
@@ -1473,8 +1468,7 @@ namespace TilerCore
             TimeSpan duration = TimeSpan.FromMinutes(1);
             EventName name = new EventName(null, null, "NothingToDo");
             CalendarEvent NewEvent = new RigidCalendarEvent(
-                //EventID.GenerateCalendarEvent(), 
-                name, Now.constNow, Now.constNow.Add(duration), duration, new TimeSpan(), new TimeSpan(), new Repetition(), currentLocation, null, null, false, false, TilerUser, new TilerUserGroup(), timeZone, null, new NowProfile());
+                name, Now.constNow, Now.constNow.Add(duration), duration, new TimeSpan(), new TimeSpan(), new Repetition(), currentLocation, null, null, false, false, TilerUser, new TilerUserGroup(), timeZone, null, new NowProfile(), null);
             name.Creator_EventDB = NewEvent.getCreator;
             name.AssociatedEvent = NewEvent;
             clearAllRepetitionLock();
@@ -2845,7 +2839,7 @@ namespace TilerCore
                 EarliestStart = LowestSubEventStart < EarliestStart ? LowestSubEventStart : EarliestStart;
                 LatestEnd = HighestSubEventStart > LatestEnd ? HighestSubEventStart : LatestEnd;
                 TimeLine RefTimeLine = new TimeLine(EarliestStart, LatestEnd);
-                TimeLine LastSuccessfull = RefTimeLine.CreateCopy();
+                TimeLine LastSuccessfull = RefTimeLine.StartToEnd;
                 RefTimeLine = new TimeLine(EarliestStart, LatestEnd);
 
                 Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> subEventssToTimelines = Utility.subEventToMaxSpaceAvailable(RefTimeLine, orderedByStartSubEvents);
@@ -4486,7 +4480,6 @@ namespace TilerCore
             {
                 SubCalendarEvent LatestDeadline = AllPossibleInterferringEvents.ToList().OrderByDescending(obj => obj.getCalculationRange.End).First();
                 BoundaryElements = new Tuple<SubCalendarEvent, SubCalendarEvent>(leftBoundary, BoundaryElements.Item2);
-                TimeLine pertinentFreeSpotDebugCopy = pertinentFreeSpot.CreateCopy();
                 pertinentFreeSpot = new TimeLine(pertinentFreeSpot.Start, LatestDeadline.getCalculationRange.End <= EndTime ? LatestDeadline.getCalculationRange.End : EndTime);
 
                 LowestOrderedElements = OptimizeArrangeOfSubCalEvent(pertinentFreeSpot, BoundaryElements, allPossbileEvents_Nonrestricted);
@@ -4949,7 +4942,6 @@ namespace TilerCore
             List<SubCalendarEvent> AllSubCalEvents = Arg1.Select(obj => obj.Item2).ToList();
             List<mTuple<TimeLine, SubCalendarEvent>> AvaialableTimeSpan = new List<mTuple<TimeLine, SubCalendarEvent>>();
 
-            TimeLine InterferringTimeLine = RestrictingTimeLine.CreateCopy();
             TimeSpan SmallestAssignedTimeSpan = new TimeSpan(3650, 0, 0, 0);//sets the smallest TimeSpan To 10 years
             DateTimeOffset SmallestDateTime = new DateTimeOffset(3000, 12, 31, 0, 0, 0, new TimeSpan());
 

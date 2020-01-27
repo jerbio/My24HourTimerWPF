@@ -1,4 +1,5 @@
 ﻿#define SetDefaultPreptimeToZero
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -39,6 +40,8 @@ namespace TilerElements
         HashSet<long> completeDayIndexes = new HashSet<long>();
         protected TimeLine _CalculationStartToEnd;
         protected bool _RepeatIsLoaded = true;
+        protected TimeLineHistory _TimeLineHistory = null;
+
         #region undoMembers
         public int UndoSplits;
         public TimeSpan UndoAverageTimePerSplit;
@@ -115,7 +118,7 @@ namespace TilerElements
             Repetition repetition,
             EventDisplay displayData,
             MiscData miscData, bool isEnabled, bool completeflag, NowProfile nowProfile, Procrastination procrastinationProfile,
-            Location location, TilerUser creator, TilerUserGroup otherUsers, bool userDeleted, DateTimeOffset timeOfCreation, string timeZoneOrigin, Classification semantics)
+            Location location, TilerUser creator, TilerUserGroup otherUsers, bool userDeleted, DateTimeOffset timeOfCreation, string timeZoneOrigin, Classification semantics, TimeLineHistory timeLineHistory)
         {
             if (end < start)
             {
@@ -123,7 +126,7 @@ namespace TilerElements
             }
 
             this.updateStartTime(start);
-            this.updateEndTime( end);
+            this.updateEndTime(end);
             this._Splits = split;
             this._Creator = creator;
             this._DataBlob = miscData;
@@ -144,11 +147,14 @@ namespace TilerElements
             this._TimeZone = timeZoneOrigin;
             this.TimeCreated = DateTimeOffset.UtcNow;
             this._Semantics = semantics ?? new Classification(this);
-            if(this.Location_DB!=null) {
+            if (this.Location_DB != null) {
                 _LocationInfo.User = this.getCreator;
             }
-            
             _EventDayPreference = new EventPreference();
+            this._IniStartTime = this.Start;
+            this._IniEndTime = this.End;
+            this._TimeLineHistory = timeLineHistory;
+            addUpdatedTimeLine(this.StartToEnd);
         }
 
         public CalendarEvent(
@@ -171,10 +177,11 @@ namespace TilerElements
             TilerUserGroup users,
             string timeZone,
             EventID eventId,
+            TimeLineHistory timeLineHistory,
             bool initializeSubCalendarEvents = true,
             Classification semantics = null)
             : this(
-                 NameEntry, StartData, EndData, eventDuration, eventPrepTimeSpan, preDeadlineTimeSpan, eventSplit, EventRepetitionEntry, UiData, NoteData, EnabledEventFlag, CompletionFlag, nowProfile, procrastination, EventLocation, creator, users, false, DateTimeOffset.UtcNow, timeZone, semantics)
+                 NameEntry, StartData, EndData, eventDuration, eventPrepTimeSpan, preDeadlineTimeSpan, eventSplit, EventRepetitionEntry, UiData, NoteData, EnabledEventFlag, CompletionFlag, nowProfile, procrastination, EventLocation, creator, users, false, DateTimeOffset.UtcNow, timeZone, semantics, timeLineHistory)
         {
             UniqueID = eventId ?? this.UniqueID; /// already initialized by parent initialization
             if (_Splits != 0)
@@ -211,7 +218,7 @@ namespace TilerElements
             _Name = MyUpdated._Name;
             UniqueID = MyUpdated.UniqueID;
             updateStartTime(MyUpdated.Start);
-            updateEndTime( MyUpdated.End);
+            updateEndTime(MyUpdated.End);
             EventSequence = new TimeLine(Start, End);
             _EventDuration = MyUpdated.getActiveDuration;
             _Splits = MyUpdated._Splits;
@@ -257,6 +264,9 @@ namespace TilerElements
             _isProcrastinateEvent = MyUpdated._isProcrastinateEvent;
             ThirdPartyTypeInfo = MyUpdated.ThirdPartyTypeInfo;
             _EventDayPreference = MyUpdated._EventDayPreference;
+            this._IniStartTime = this.Start;
+            this._IniEndTime = this.End;
+            addUpdatedTimeLine(this.StartToEnd);
         }
         #endregion
 
@@ -309,7 +319,7 @@ namespace TilerElements
             subEventCopy.UpdateThis(duplicateOfOriginal);
             //calEventCpy.SubEvents = new Dictionary<EventID, SubCalendarEvent>();
             calEventCpy.updateStartTime(timeLine.Start);
-            calEventCpy.updateEndTime( timeLine.End);
+            calEventCpy.updateEndTime(timeLine.End);
             subEventCopy.updateCalculationEventRange(timeLine);
             if (subEventCopy.isLocked)/// this is optimized for this use case
             {
@@ -366,7 +376,7 @@ namespace TilerElements
                 subEventCopy.UpdateThis(duplicateOfOriginal);
 
                 calEventCpy.updateStartTime(timeLine.Start);
-                calEventCpy.updateEndTime( timeLine.End);
+                calEventCpy.updateEndTime(timeLine.End);
                 subEventCopy.updateCalculationEventRange(timeLine);
                 if (subEventCopy.isLocked)/// this is optimized for this use case
                 {
@@ -436,7 +446,7 @@ namespace TilerElements
                 this.ProfileOfNow_EventDB = null;
                 //this.NowProfileId = nowProfile.Id;
                 this.ProfileOfNow_EventDB = nowProfile;
-                if (nowProfile.AssociatedEvent==null)
+                if (nowProfile.AssociatedEvent == null)
                 {
                     nowProfile.AssociatedEvent = this;
                 }
@@ -458,11 +468,11 @@ namespace TilerElements
 
         public void RepeatEvent(string subEventId)
         {
-            List<SubCalendarEvent>subEvents = OrderByStartActiveSubEvents.ToList();
+            List<SubCalendarEvent> subEvents = OrderByStartActiveSubEvents.ToList();
             int index = subEvents.FindIndex(obj => obj.Id == subEventId);
-            if(index >= subEvents.Count)
+            if (index >= subEvents.Count)
             {
-                 var newSubEvents = IncreaseSplitCount(1);
+                var newSubEvents = IncreaseSplitCount(1);
             } else
             {
 
@@ -474,7 +484,7 @@ namespace TilerElements
             _EventDuration = new TimeSpan();
 
             updateStartTime(new DateTimeOffset());
-            updateEndTime( new DateTimeOffset());
+            updateEndTime(new DateTimeOffset());
             _EventPreDeadline = new TimeSpan();
             _PrepTime = new TimeSpan();
             _Priority = 0;
@@ -537,11 +547,16 @@ namespace TilerElements
                 _ProfileOfProcrastination = ProcrastinationTime;
                 _ProfileOfProcrastination.Id = this.ProcrastinationId;
             }
-            if(getNowInfo != null)
+            if (getNowInfo != null)
             {
                 getNowInfo.reset();
             }
-            
+            updateCalculationStartToEnd();
+            AllSubEvents.AsParallel().ForAll(obj =>
+            {
+                obj.changeCalendarEventRange(this.StartToEnd);
+                obj.updateCalculationEventRange(this.CalculationStartToEnd);
+            });
         }
         //*/
 
@@ -556,7 +571,7 @@ namespace TilerElements
             MyCalendarEventCopy._EventDuration = new TimeSpan(_EventDuration.Ticks);
             MyCalendarEventCopy._Name = this._Name.createCopy();
             MyCalendarEventCopy.updateStartTime(this.Start);
-            MyCalendarEventCopy.updateEndTime( this.End);
+            MyCalendarEventCopy.updateEndTime(this.End);
             MyCalendarEventCopy._EventPreDeadline = new TimeSpan(_EventPreDeadline.Ticks);
             MyCalendarEventCopy._PrepTime = new TimeSpan(_PrepTime.Ticks);
             MyCalendarEventCopy._Priority = _Priority;
@@ -599,6 +614,7 @@ namespace TilerElements
             //MyCalendarEventCopy.SchedulStatus = SchedulStatus;
             MyCalendarEventCopy._otherPartyID = _otherPartyID == null ? null : _otherPartyID.ToString();
             MyCalendarEventCopy._Users = this._Users;
+            MyCalendarEventCopy.TimeLineHistory_DB = _TimeLineHistory;
             MyCalendarEventCopy._DaySectionPreference = this._DaySectionPreference;
             MyCalendarEventCopy._EventDayPreference = this.DayPreference?.createCopy();
             return MyCalendarEventCopy;
@@ -606,7 +622,7 @@ namespace TilerElements
 
         public virtual void UpdateNowProfile(NowProfile ProfileNowData)
         {
-            if(_ProfileOfNow!=null)
+            if (_ProfileOfNow != null)
             {
                 _ProfileOfNow.update(ProfileNowData);
             } else
@@ -618,8 +634,14 @@ namespace TilerElements
                     _ProfileOfNow.Id = nowProfileId;
                 }
             }
-            
+
             getProcrastinationInfo.reset();
+            updateCalculationStartToEnd();
+            AllSubEvents.AsParallel().ForAll(obj =>
+            {
+                obj.changeCalendarEventRange(this.StartToEnd);
+                obj.updateCalculationEventRange(this.CalculationStartToEnd);
+            });
         }
 
         /// <summary>
@@ -634,7 +656,7 @@ namespace TilerElements
             CalendarEvent retValue = new CalendarEvent(true);
             retValue.UniqueID = new EventID(myEventID.getCalendarEventID());
             retValue.updateStartTime(Start);
-            retValue.updateEndTime( End);
+            retValue.updateEndTime(End);
             retValue._EventDuration = new TimeSpan(0);
             SubCalendarEvent emptySubEvent = SubCalendarEvent.getEmptySubCalendarEvent(retValue.UniqueID);
             emptySubEvent.updateTimeLine(retValue.StartToEnd);
@@ -768,15 +790,31 @@ namespace TilerElements
 
         }
 
+
         internal void addCompletionTimes(DateTimeOffset time)
         {
-            _LastCompletionTime = (_LastCompletionTime ?? "")+ time.ToUnixTimeMilliseconds().ToString() + ",";
+            _LastCompletionTime = (_LastCompletionTime ?? "") + time.ToUnixTimeMilliseconds().ToString() + ",";
+        }
+
+        internal void addUpdatedTimeLine(TimeLine newTimeLine)
+        {
+            TimeLine startToEnd = this.StartToEnd;
+            if (!newTimeLine.isEqualStartAndEnd(startToEnd))
+            {
+                UpdateTimeLine updateTimeLine = new UpdateTimeLine(startToEnd.Start, startToEnd.End, this.Now.constNow);
+                updateTimeLine.CreatorId = this.CreatorId;
+                updateTimeLine.Creator_EventDB = this.Creator_EventDB;
+                updateTimeLine.CalendarId = this.Id;
+                updateTimeLine.RepeatCalendarId = this.Calendar_EventID.getAllEventDictionaryLookup;
+                this.TimeLineHistory.addTimeLine(updateTimeLine);
+            }
+            
         }
 
         internal void removeCompletionTimes(DateTimeOffset time)
         {
             _LastCompletionTime = (_LastCompletionTime ?? "");
-            string timeString = time.ToUnixTimeMilliseconds().ToString() +",";
+            string timeString = time.ToUnixTimeMilliseconds().ToString() + ",";
             int index = _LastCompletionTime.IndexOf(timeString);
             _LastCompletionTime.Remove(index, timeString.Count());
         }
@@ -817,7 +855,10 @@ namespace TilerElements
             this._EventDayPreference = dayPreference;
         }
 
-        
+        virtual public void setTimeLineHistory(TimeLineHistory timeLineHistory)
+        {
+            this._TimeLineHistory = timeLineHistory;
+        }
 
         /// <summary>
         /// Pauses a sub event in the calendar event
@@ -935,29 +976,29 @@ namespace TilerElements
         virtual public void ReassignTime(DateTimeOffset StartTime, DateTimeOffset EndTime)
         {
             updateStartTime(StartTime);
-            updateEndTime( EndTime);
+            updateEndTime(EndTime);
             _SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
         }
 
 
         public override NowProfile initializeNowProfile()
         {
-            if (this.RepeatParentEvent==null && (!string.IsNullOrEmpty(this.RepeatParentEventId) && string.IsNullOrWhiteSpace(this.RepeatParentEventId)) && (string.IsNullOrEmpty(this.NowProfileId) || string.IsNullOrWhiteSpace(this.NowProfileId)))
+            if (this.RepeatParentEvent == null && (!string.IsNullOrEmpty(this.RepeatParentEventId) && string.IsNullOrWhiteSpace(this.RepeatParentEventId)) && (string.IsNullOrEmpty(this.NowProfileId) || string.IsNullOrWhiteSpace(this.NowProfileId)))
             {
                 this._ProfileOfNow = new NowProfile(new DateTimeOffset(), true);
                 return this._ProfileOfNow;
-            } else if(this.RepeatParentEvent != null)
+            } else if (this.RepeatParentEvent != null)
             {
                 _ProfileOfNow = this.RepeatParentEvent.initializeNowProfile();
                 return _ProfileOfNow;
-            } else if(!(string.IsNullOrEmpty(this.NowProfileId) || string.IsNullOrWhiteSpace(this.NowProfileId)))
+            } else if (!(string.IsNullOrEmpty(this.NowProfileId) || string.IsNullOrWhiteSpace(this.NowProfileId)))
             {
                 throw new Exception("Now profile has already being initialize try loading it into memory");
             } else
             {
                 throw new Exception("Initialization issue, you haven't ninitialized repeatparent object");
             }
-            
+
         }
 
         /// <summary>
@@ -1149,7 +1190,7 @@ namespace TilerElements
             }).ToList();
             TimeSpan totalAvailableSpan = TimeSpan.FromTicks(timeLines.Sum(timeLine => timeLine.TimelineSpan.Ticks));
 
-            for (int i = 0; i< validTimeLine.Count;i++)
+            for (int i = 0; i < validTimeLine.Count; i++)
             {
                 TimelineWithSubcalendarEvents timeline = validTimeLine[i];
                 if (timeline != null)
@@ -1305,7 +1346,7 @@ namespace TilerElements
                 _EventDuration = CalendarEventEntry.getActiveDuration;
                 _Name = CalendarEventEntry._Name;
                 updateStartTime(CalendarEventEntry.Start);
-                updateEndTime( CalendarEventEntry.End);
+                updateEndTime(CalendarEventEntry.End);
                 _EventPreDeadline = CalendarEventEntry.getPreDeadline;
                 _PrepTime = CalendarEventEntry._PrepTime;
                 _Priority = CalendarEventEntry._Priority;
@@ -1372,7 +1413,7 @@ namespace TilerElements
 
 
             updateStartTime(Start + ChangeInTime);
-            updateEndTime( End + ChangeInTime);
+            updateEndTime(End + ChangeInTime);
 
             return retValue;
         }
@@ -1431,7 +1472,7 @@ namespace TilerElements
                 }
                 else return false;
             }).ToDictionary(obj => obj.UniversalIndex, obj => obj);
-            FreeDaysLimitation = CalculationLimitation.Where( obj => !DaysWithSubEvents.Contains(obj.Key)) .ToDictionary(obj => obj.Key, obj => obj.Value);
+            FreeDaysLimitation = CalculationLimitation.Where(obj => !DaysWithSubEvents.Contains(obj.Key)).ToDictionary(obj => obj.Key, obj => obj.Value);
             CalculationLimitationWithUnUsables = CalculationLimitation.ToDictionary(obj => obj.Key, obj => obj.Value);
         }
 
@@ -1631,7 +1672,7 @@ namespace TilerElements
             retValue.EventSequence = new TimeLine(retValue.Start, retValue.End);
             SubCalendarEvent ProcrastinatonCopy = this.ActiveSubEvents[0].getNowCopy(retValue.UniqueID, NowProfileData);
             ProcrastinatonCopy.ParentCalendarEvent = retValue;
-            retValue.updateEndTime( ProcrastinatonCopy.End);
+            retValue.updateEndTime(ProcrastinatonCopy.End);
             retValue._RigidSchedule = true;
             retValue._SubEvents.Add(ProcrastinatonCopy.Id, ProcrastinatonCopy);
             return retValue;
@@ -1764,7 +1805,7 @@ namespace TilerElements
         {
             foreach (DayTimeLine dayTimeLine in CalculationLimitation.Values.ToList())
             {
-                if(dayTimeLine.TotalFreeSpotAvailable < _AverageTimePerSplit)
+                if (dayTimeLine.TotalFreeSpotAvailable < _AverageTimePerSplit)
                 {
                     CalculationLimitation.Remove(dayTimeLine.UniversalIndex);
                     FreeDaysLimitation.Remove(dayTimeLine.UniversalIndex);
@@ -1812,17 +1853,20 @@ namespace TilerElements
         }
 
 
-        override public void updateTimeLine(TimeLine newTImeLine)
+        override public void updateTimeLine(TimeLine newTimeLine)
         {
             TimeLine oldTimeLine = new TimeLine(Start, End);
-            AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(newTImeLine));
+            AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(newTimeLine));
             bool worksForAllSubevents = true;
             SubCalendarEvent failingSubEvent = SubCalendarEvent.getEmptySubCalendarEvent(this.Calendar_EventID);
+            TimeLine startToEnd = newTimeLine.StartToEnd;
+            updateStartTime(startToEnd.Start);
+            updateEndTime(startToEnd.End);
             foreach (SubCalendarEvent subEvent in AllSubEvents)
             {
-                if(!(!this.isLocked && subEvent.isLocked)) // if the subevent is unlocked but the parent is locked then don't bother checking
+                if (!(!this.isLocked && subEvent.isLocked)) // if the subevent is unlocked but the parent is locked then don't bother checking
                 {
-                    bool canExistWithinNewTimeLine = subEvent.canExistWithinTimeLine(newTImeLine);
+                    bool canExistWithinNewTimeLine = subEvent.canExistWithinTimeLine(newTimeLine);
                     if (!canExistWithinNewTimeLine)
                     {
                         worksForAllSubevents = false;
@@ -1833,12 +1877,11 @@ namespace TilerElements
             }
             if (worksForAllSubevents)
             {
-                updateStartTime(newTImeLine.Start);
-                updateEndTime( newTImeLine.End);
                 if (this.isLocked)
                 {
                     _EventDuration = End - Start;
                 }
+                addUpdatedTimeLine(oldTimeLine);
                 AllSubEvents.AsParallel().ForAll(obj =>
                 {
                     obj.changeCalendarEventRange(this.StartToEnd);
@@ -1846,6 +1889,8 @@ namespace TilerElements
                 });
             } else
             {
+                updateStartTime(oldTimeLine.Start);
+                updateEndTime(oldTimeLine.End);
                 AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(oldTimeLine));
                 CustomErrors customError = new CustomErrors(CustomErrors.Errors.cannotFitWithinTimeline, "Cannot update the timeline for the calendar event with sub event " + failingSubEvent.getId + ". Most likely because the new time line won't fit the sub event");
                 throw customError;
@@ -1890,16 +1935,16 @@ namespace TilerElements
             UnDesignables.Remove(subEvent);
             subEvent.designate(now);
             DaysWithSubEvents.Add(subEvent.UniversalDayIndex);
-            if(FreeDaysLimitation!=null)
+            if (FreeDaysLimitation != null)
             {
                 this.removeDayTimeFromFreeUpdays(subEvent.UniversalDayIndex);
             }
-            
+
         }
 
         public virtual void deleteAllSubCalendarEventsFromRepeatParentCalendarEvent()
         {
-            foreach(var subEvent in this.SubEvents.Values)
+            foreach (var subEvent in this.SubEvents.Values)
             {
                 subEvent.RepeatParentEvent = null;
                 subEvent.RepeatParentEventId = null;
@@ -2011,10 +2056,10 @@ namespace TilerElements
             SubCalendarEvent toBeRepeated = null;
 
             List<SubCalendarEvent> subEvents = OrderByStartActiveSubEvents.ToList();
-            for (int i =0; i< subEvents.Count; i++)
+            for (int i = 0; i < subEvents.Count; i++)
             {
                 SubCalendarEvent subEvent = subEvents[i];
-                if(!subEvent.isRepetitionLocked)
+                if (!subEvent.isRepetitionLocked)
                 {
                     if (subEvent.End >= currentTime)
                     {
@@ -2029,10 +2074,10 @@ namespace TilerElements
                         currentTime = subEvent.End;// ensures we are applying repeting lock to an event after the last repetition locked subevent
                     }
                 }
-                
+
             }
 
-            
+
             if (toBeRepeated == null)
             {
                 List<SubCalendarEvent> repeatIncrease = IncreaseSplitCount(1);
@@ -2044,7 +2089,7 @@ namespace TilerElements
 
         public override void InitializeDayPreference(TimeLine timeLine)
         {
-            if(_DaySectionPreference == null)
+            if (_DaySectionPreference == null)
             {
                 _DaySectionPreference = _EventDayPreference.toTimeOfDayPreference(timeLine);
             }
@@ -2060,7 +2105,7 @@ namespace TilerElements
             }
             set {
                 base.TimeOfScheduleLoad = value;
-                foreach(SubCalendarEvent subEvent in AllSubEvents)
+                foreach (SubCalendarEvent subEvent in AllSubEvents)
                 {
                     subEvent.TimeOfScheduleLoad = TimeOfScheduleLoad;
                 }
@@ -2129,24 +2174,6 @@ namespace TilerElements
             }
         }
 
-        public int NumberOfSplit
-        {
-            set
-            {
-                _Splits = value;
-            }
-            get
-            {
-                return _Splits;
-            }
-        }
-
-
-        public bool IsRepeatsChildCalEvent
-        {
-            get; set;
-        }
-
         public TimeSpan AverageTimeSpanPerSubEvent
         {
             get
@@ -2186,7 +2213,7 @@ namespace TilerElements
                     return this.ActiveRepeatSubCalendarEvents.OrderBy(o => o.Start);
                 }
 
-                IEnumerable<SubCalendarEvent> retValue = _SubEvents.Values.Where(obj => obj != null).Where(obj => (obj.isActive)).OrderBy(o=>o.Start);
+                IEnumerable<SubCalendarEvent> retValue = _SubEvents.Values.Where(obj => obj != null).Where(obj => (obj.isActive)).OrderBy(o => o.Start);
                 return retValue;
             }
         }
@@ -2217,7 +2244,7 @@ namespace TilerElements
                 {
                     return this.Repeat.RecurringCalendarEvents().SelectMany(obj => obj.AllSubEvents).ToArray();
                 }
-                else if(IsFromRecurringAndNotChildRepeatCalEvent && !_RepeatIsLoaded)
+                else if (IsFromRecurringAndNotChildRepeatCalEvent && !_RepeatIsLoaded)
                 {
                     return new SubCalendarEvent[0];
                 }
@@ -2226,121 +2253,7 @@ namespace TilerElements
             }
         }
 
-        public virtual ICollection<SubCalendarEvent> AllSubEvents_DB
-        {
-            set
-            {
-                this._SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
-                if (value != null)
-                {
-                    this._SubEvents = new SubEventDictionary<string, SubCalendarEvent>(value);
-                }
-            }
-            get
-            {
-                return _SubEvents ?? (_SubEvents = new SubEventDictionary<string, SubCalendarEvent>());
-            }
-        }
 
-        [DefaultValue(0)]
-        virtual public int CompletionCount_DB
-        {
-            set
-            {
-                _CompletedCount = value;
-            }
-            get
-            {
-                return _CompletedCount;
-            }
-        }
-        [DefaultValue(0)]
-        virtual public int DeletionCount_DB
-        {
-            set
-            {
-                _DeletedCount = value;
-            }
-
-            get
-            {
-                return _DeletedCount;
-            }
-        }
-
-        override public int AutoDeletionCount_DB
-        {
-            set
-            {
-                _AutoDeletedCount = value;
-            }
-
-            get
-            {
-                return _AutoDeletedCount;
-            }
-        }
-
-
-        public string DayPreferenceId
-        {
-            get; set;
-        }
-        [ForeignKey("DayPreferenceId")]
-        virtual public EventPreference DayPreference_DB
-        {
-            get
-            {
-                if (_EventDayPreference == null)
-                {
-                    return null;
-                }
-                else
-                {
-                    return _EventDayPreference.isNull ? null : _EventDayPreference;
-                }
-            }
-            set
-            {
-                _EventDayPreference = value;
-            }
-        }
-
-        public string RepeatParentId
-        {
-            get {
-                return this.RepeatParentEventId;
-            }
-            set
-            {
-                this.RepeatParentEventId = value;
-            }
-        }
-        [ForeignKey("RepeatParentId")]
-        virtual public CalendarEvent RepeatParent_DB
-        {
-            get
-            {
-                return _RepeatParentEvent;
-            }
-            set
-            {
-                _RepeatParentEvent = value;
-            }
-        }
-
-
-        virtual public double AverageTimeSpanPerSubEvent_DB
-        {
-            set
-            {
-                _AverageTimePerSplit = TimeSpan.FromMilliseconds(value);
-            }
-            get
-            {
-                return _AverageTimePerSplit.TotalMilliseconds;
-            }
-        }
 
         public CustomErrors Error
         {
@@ -2406,9 +2319,9 @@ namespace TilerElements
         }
 
         protected SubEventDictionary<string, SubCalendarEvent> SubEvents
-        { 
+        {
             get {
-                return _SubEvents?? (_SubEvents = new SubEventDictionary<string, SubCalendarEvent>());
+                return _SubEvents ?? (_SubEvents = new SubEventDictionary<string, SubCalendarEvent>());
             }
         }
 
@@ -2419,10 +2332,10 @@ namespace TilerElements
                 return this.StartToEnd.TimelineSpan;
             }
         }
-        
+
         virtual public int CompletionCount
         {
-            get 
+            get
             {
                 return _CompletedCount;
             }
@@ -2443,19 +2356,7 @@ namespace TilerElements
                 return _AutoDeletedCount;
             }
         }
-
-        virtual public string LastCompletionTime_DB
-        {
-            set
-            {
-                _LastCompletionTime = value;
-            }
-            get
-            {
-                return _LastCompletionTime;
-            }
-        }
-
+           
         public virtual DateTimeOffset CalculationStart
         {
             get
@@ -2521,18 +2422,6 @@ namespace TilerElements
             }
         }
 
-        public override NowProfile ProfileOfNow_EventDB
-        {
-            get
-            {
-                return _ProfileOfNow ?? this.RepeatParentEvent?.getNowInfo;
-            }
-            set
-            {
-                _ProfileOfNow = value;
-            }
-        }
-
         virtual public IEnumerable<SubCalendarEvent> RemoveSubEventFromEntity
         {
             get
@@ -2548,18 +2437,10 @@ namespace TilerElements
             }
         }
 
-        public virtual TimeOfDayPreferrence DayPreferrence
-        {
-            get
-            {
-                return _DaySectionPreference;
-            }
-        }
-
         public EventPreference DayPreference
         {
-            get
-            {
+             get
+             {
                 if (string.IsNullOrEmpty(DayPreferenceId) && ((this._EventDayPreference == null)||(this._EventDayPreference.isNull)) && !this.isRigid)
                 {
                     _EventDayPreference = new EventPreference();
@@ -2584,6 +2465,231 @@ namespace TilerElements
                 return retValue;
             }
         }
+
+        public TimeLine InitialTimeLine
+        {
+            get
+            {
+                TimeLine retValue = new TimeLine(InitialStartTime, InitialEndTme);
+                return retValue;
+            }
+        }
+        [NotMapped]
+        virtual public TimeLineHistory TimeLineHistory
+        {
+            get
+            {
+                if(_TimeLineHistory== null)
+                {
+                    CalendarEvent repeatParent = (this.RepeatParentEvent as CalendarEvent);
+                    if (!TimeLineHistoryId.isNot_NullEmptyOrWhiteSpace())
+                    {
+                        if (repeatParent!=null && repeatParent.TimeLineHistoryId.isNot_NullEmptyOrWhiteSpace())
+                        {
+                            TimeLineHistoryId = repeatParent.TimeLineHistoryId;
+                        }
+                    }
+
+                    if(repeatParent != null && repeatParent.TimeLineHistory!=null)
+                    {
+                        _TimeLineHistory = (this.RepeatParentEvent as CalendarEvent).TimeLineHistory;
+                    }
+
+                    if(!TimeLineHistoryId.isNot_NullEmptyOrWhiteSpace() && (repeatParent == null || !repeatParent.TimeLineHistoryId.isNot_NullEmptyOrWhiteSpace()))
+                    {
+                        if(repeatParent != null)
+                        {
+                            repeatParent._TimeLineHistory = new TimeLineHistory();
+                        } else
+                        {
+                            _TimeLineHistory = new TimeLineHistory();
+                        }
+                        return this.TimeLineHistory;
+                        
+                    }
+                }
+                return _TimeLineHistory;
+            }
+        }
+
+
+        #region DB Properties
+        virtual public string TimeLineHistoryId { get; set; }
+        [ForeignKey("TimeLineHistoryId")]
+        virtual public TimeLineHistory TimeLineHistory_DB
+        {
+            set
+            {
+                _TimeLineHistory = value;
+            }
+            get
+            {
+                return _TimeLineHistory;
+            }
+        }
+
+        virtual public string LastCompletionTime_DB
+        {
+            set
+            {
+                _LastCompletionTime = value;
+            }
+            get
+            {
+                return _LastCompletionTime;
+            }
+        }
+
+        public override NowProfile ProfileOfNow_EventDB
+        {
+            get
+            {
+                return _ProfileOfNow ?? this.RepeatParentEvent?.getNowInfo;
+            }
+            set
+            {
+                _ProfileOfNow = value;
+            }
+        }
+
+        public string RepeatParentId
+        {
+            get
+            {
+                return this.RepeatParentEventId;
+            }
+            set
+            {
+                this.RepeatParentEventId = value;
+            }
+        }
+        [ForeignKey("RepeatParentId")]
+        virtual public CalendarEvent RepeatParent_DB
+        {
+            get
+            {
+                return _RepeatParentEvent;
+            }
+            set
+            {
+                _RepeatParentEvent = value;
+            }
+        }
+
+
+        virtual public double AverageTimeSpanPerSubEvent_DB
+        {
+            set
+            {
+                _AverageTimePerSplit = TimeSpan.FromMilliseconds(value);
+            }
+            get
+            {
+                return _AverageTimePerSplit.TotalMilliseconds;
+            }
+        }
+
+        public virtual ICollection<SubCalendarEvent> AllSubEvents_DB
+        {
+            set
+            {
+                this._SubEvents = new SubEventDictionary<string, SubCalendarEvent>();
+                if (value != null)
+                {
+                    this._SubEvents = new SubEventDictionary<string, SubCalendarEvent>(value);
+                }
+            }
+            get
+            {
+                return _SubEvents ?? (_SubEvents = new SubEventDictionary<string, SubCalendarEvent>());
+            }
+        }
+
+        [DefaultValue(0)]
+        virtual public int CompletionCount_DB
+        {
+            set
+            {
+                _CompletedCount = value;
+            }
+            get
+            {
+                return _CompletedCount;
+            }
+        }
+        [DefaultValue(0)]
+        virtual public int DeletionCount_DB
+        {
+            set
+            {
+                _DeletedCount = value;
+            }
+
+            get
+            {
+                return _DeletedCount;
+            }
+        }
+
+        override public int AutoDeletionCount_DB
+        {
+            set
+            {
+                _AutoDeletedCount = value;
+            }
+
+            get
+            {
+                return _AutoDeletedCount;
+            }
+        }
+
+        public string DayPreferenceId
+        {
+            get; set;
+        }
+
+        [ForeignKey("DayPreferenceId")]
+        virtual public EventPreference DayPreference_DB
+        {
+            get
+            {
+                if (_EventDayPreference == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return _EventDayPreference.isNull ? null : _EventDayPreference;
+                }
+            }
+            set
+            {
+                _EventDayPreference = value;
+            }
+        }
+
+
+        public int NumberOfSplit
+        {
+            set
+            {
+                _Splits = value;
+            }
+            get
+            {
+                return _Splits;
+            }
+        }
+
+
+        public bool IsRepeatsChildCalEvent
+        {
+            get; set;
+        }
+
+
+        #endregion
         #endregion
 
     }

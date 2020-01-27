@@ -5,6 +5,7 @@ using System.Text;
 using System.Collections.Concurrent;
 using Newtonsoft.Json.Linq;
 using NodaTime;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TilerElements
 {
@@ -358,6 +359,7 @@ namespace TilerElements
         /// <summary>
         /// Gets all the occupied slots within the timeline. NOTE these busy slots are not ordered in anyway
         /// </summary>
+        [NotMapped]
         virtual public BusyTimeLine[] OccupiedSlots
         {
             set
@@ -444,7 +446,7 @@ namespace TilerElements
             bool retValue = this.Start == timeLine.Start && this.End == timeLine.End;
             return retValue;
         }
-
+        [System.Xml.Serialization.XmlIgnore]
         public Dictionary<int, List<BusyTimeLine>> ClashingTimelines
         {
             get
@@ -520,8 +522,8 @@ namespace TilerElements
         public JObject ToJson()
         {
             JObject retValue = new JObject();
-            retValue.Add("start", Start.toJSMilliseconds());
-            retValue.Add("end", End.toJSMilliseconds());
+            retValue.Add("start", Start.ToUnixTimeMilliseconds());
+            retValue.Add("end", End.ToUnixTimeMilliseconds());
             retValue.Add("duration", (ulong)this.TimelineSpan.TotalMilliseconds);
             return retValue;
         }
@@ -537,6 +539,17 @@ namespace TilerElements
             }
         }
 
+        public static TimeLine JobjectToTimeLine(JObject jObject)
+        {
+            string startTimeString = jObject.GetValue("start").ToString();
+            string endTimeString = jObject.GetValue("end").ToString();
+            DateTimeOffset start = DateTimeOffset.FromUnixTimeMilliseconds(Convert.ToInt64( startTimeString));
+            DateTimeOffset end = DateTimeOffset.FromUnixTimeMilliseconds(Convert.ToInt64( endTimeString));
+
+
+            TimeLine retValue = new TimeLine(start, end);
+            return retValue;
+        }
 
         #endregion
     }

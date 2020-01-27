@@ -145,11 +145,7 @@ namespace TilerElements
         {
             get
             {
-                var retValue = _LocationCombo ?? (_LocationCombo = new SubEventDictionary<int, LocationCacheEntry>());
-                _LocationCombo = new SubEventDictionary<int, LocationCacheEntry>(retValue.Values.OrderByDescending(o => o.LastLookup).Take(cacheEntryLimit));
-
-
-                return _LocationCombo;
+                return _LocationCombo ?? (_LocationCombo = new SubEventDictionary<int, LocationCacheEntry>());
             }
 
             set

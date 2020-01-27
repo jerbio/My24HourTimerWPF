@@ -400,8 +400,9 @@ namespace TilerElements
                 bool worksForAllSubevents = true;
                 SubCalendarEvent failingSubEvent = SubCalendarEvent.getEmptySubCalendarEvent(this.Calendar_EventID);
                 TimeLine newTimeLineUpdated = newTimeLine;
-                updateStartTime(newTimeLineUpdated.Start);
-                updateEndTime(newTimeLineUpdated.End);
+                TimeLine startToEnd = newTimeLine.StartToEnd;
+                updateStartTime(startToEnd.Start);
+                updateEndTime(startToEnd.End);
                 foreach (var obj in AllSubEvents)
                 {
                     if (obj.isLocked)
@@ -423,7 +424,7 @@ namespace TilerElements
                     {
                         _EventDuration = End - Start;
                     }
-                    addUpdatedTimeLine(oldTimeLine);
+                    addUpdatedTimeLine(startToEnd);
                     AllSubEvents.AsParallel().ForAll(obj =>
                     {
                         obj.changeCalendarEventRange(this.StartToEnd);

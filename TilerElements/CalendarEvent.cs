@@ -551,7 +551,12 @@ namespace TilerElements
             {
                 getNowInfo.reset();
             }
-
+            updateCalculationStartToEnd();
+            AllSubEvents.AsParallel().ForAll(obj =>
+            {
+                obj.changeCalendarEventRange(this.StartToEnd);
+                obj.updateCalculationEventRange(this.CalculationStartToEnd);
+            });
         }
         //*/
 
@@ -631,6 +636,12 @@ namespace TilerElements
             }
 
             getProcrastinationInfo.reset();
+            updateCalculationStartToEnd();
+            AllSubEvents.AsParallel().ForAll(obj =>
+            {
+                obj.changeCalendarEventRange(this.StartToEnd);
+                obj.updateCalculationEventRange(this.CalculationStartToEnd);
+            });
         }
 
         /// <summary>
@@ -791,6 +802,8 @@ namespace TilerElements
             if (!newTimeLine.isEqualStartAndEnd(startToEnd))
             {
                 UpdateTimeLine updateTimeLine = new UpdateTimeLine(startToEnd.Start, startToEnd.End, this.Now.constNow);
+                updateTimeLine.CreatorId = this.CreatorId;
+                updateTimeLine.Creator_EventDB = this.Creator_EventDB;
                 updateTimeLine.CalendarId = this.Id;
                 updateTimeLine.RepeatCalendarId = this.Calendar_EventID.getAllEventDictionaryLookup;
                 this.TimeLineHistory.addTimeLine(updateTimeLine);
@@ -1840,19 +1853,20 @@ namespace TilerElements
         }
 
 
-        override public void updateTimeLine(TimeLine newTImeLine)
+        override public void updateTimeLine(TimeLine newTimeLine)
         {
             TimeLine oldTimeLine = new TimeLine(Start, End);
-            AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(newTImeLine));
+            AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(newTimeLine));
             bool worksForAllSubevents = true;
             SubCalendarEvent failingSubEvent = SubCalendarEvent.getEmptySubCalendarEvent(this.Calendar_EventID);
-            updateStartTime(newTImeLine.Start);
-            updateEndTime(newTImeLine.End);
+            TimeLine startToEnd = newTimeLine.StartToEnd;
+            updateStartTime(startToEnd.Start);
+            updateEndTime(startToEnd.End);
             foreach (SubCalendarEvent subEvent in AllSubEvents)
             {
                 if (!(!this.isLocked && subEvent.isLocked)) // if the subevent is unlocked but the parent is locked then don't bother checking
                 {
-                    bool canExistWithinNewTimeLine = subEvent.canExistWithinTimeLine(newTImeLine);
+                    bool canExistWithinNewTimeLine = subEvent.canExistWithinTimeLine(newTimeLine);
                     if (!canExistWithinNewTimeLine)
                     {
                         worksForAllSubevents = false;
@@ -2479,6 +2493,19 @@ namespace TilerElements
                     if(repeatParent != null && repeatParent.TimeLineHistory!=null)
                     {
                         _TimeLineHistory = (this.RepeatParentEvent as CalendarEvent).TimeLineHistory;
+                    }
+
+                    if(!TimeLineHistoryId.isNot_NullEmptyOrWhiteSpace() && (repeatParent == null || !repeatParent.TimeLineHistoryId.isNot_NullEmptyOrWhiteSpace()))
+                    {
+                        if(repeatParent != null)
+                        {
+                            repeatParent._TimeLineHistory = new TimeLineHistory();
+                        } else
+                        {
+                            _TimeLineHistory = new TimeLineHistory();
+                        }
+                        return this.TimeLineHistory;
+                        
                     }
                 }
                 return _TimeLineHistory;

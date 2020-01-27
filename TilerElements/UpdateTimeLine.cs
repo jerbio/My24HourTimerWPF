@@ -8,9 +8,11 @@ using System.Threading.Tasks;
 
 namespace TilerElements
 {
+    [Serializable]
+    [Table("UpdateTimeLine")]
     public class UpdateTimeLine:EventTimeLine
     {
-        //string _Id = Guid.NewGuid().ToString();
+        protected TilerUser _Creator;
         public UpdateTimeLine() {
             
         }
@@ -20,6 +22,21 @@ namespace TilerElements
             this.StartTime = end;
             this._UpdateTime = timeOfUpdate;
         }
+
+
+        public override TimeLine CreateCopy()
+        {
+            UpdateTimeLine retValue = new UpdateTimeLine(this.Start, this.End, this._UpdateTime);
+            retValue.Id = this.Id;
+            retValue._Creator = this._Creator;
+            retValue.OccupiedSlots = this.OccupiedSlots;
+            retValue.RepeatCalendarId = this.RepeatCalendarId;
+            retValue.CalendarId= this.CalendarId;
+            retValue.AddBusySlots(this.ActiveTimeSlots);
+            return retValue;
+        }
+
+
         protected DateTimeOffset _UpdateTime;
         public DateTimeOffset UpdateTime
         {
@@ -36,6 +53,23 @@ namespace TilerElements
                 _UpdateTime = DateTimeOffset.FromUnixTimeMilliseconds(value);
             }
         }
+
+        public string CreatorId { get; set; }
+        [Required, ForeignKey("CreatorId")]
+        [Index("UserToTimeLineId", Order = 0)]
+        [System.Xml.Serialization.XmlIgnore]
+        public TilerUser Creator_EventDB
+        {
+            get
+            {
+                return _Creator;
+            }
+            set
+            {
+                _Creator = value;
+            }
+        }
+
         [Index("TimeLineToCalendarId", Order = 0), StringLength(512)]
         public string CalendarId
         {

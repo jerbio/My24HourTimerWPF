@@ -446,7 +446,7 @@ namespace TilerElements
             bool retValue = this.Start == timeLine.Start && this.End == timeLine.End;
             return retValue;
         }
-
+        [System.Xml.Serialization.XmlIgnore]
         public Dictionary<int, List<BusyTimeLine>> ClashingTimelines
         {
             get

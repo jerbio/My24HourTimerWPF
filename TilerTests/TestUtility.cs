@@ -884,32 +884,33 @@ namespace TilerTests
                                     }
                                     else
                                     {
-                                        retValue = false;
+                                        retValue = false; Assert.IsTrue(retValue);
                                     }
                                 }
                                 else
                                 {
-                                    retValue = false;
+                                    retValue = false; Assert.IsTrue(retValue);
                                 }
                             }
                             else
                             {
-                                retValue = false;
+                                retValue = false; Assert.IsTrue(retValue);
                             }
                         }
                         else
                         {
-                            retValue = false;
+                            retValue = false; Assert.IsTrue(retValue);
                         }
                     }
                     else
                     {
-                        retValue = false;
+                        retValue = false; Assert.IsTrue(retValue);
                     }
                 }
                 else
                 {
                     retValue = false;
+                    Assert.IsTrue(retValue);
                 }
             }
             Assert.IsTrue(retValue);

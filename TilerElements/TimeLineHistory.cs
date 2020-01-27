@@ -15,6 +15,14 @@ namespace TilerElements
 
         public TimeLineHistory() { }
 
+        public TimeLineHistory CreateCopy ()
+        {
+            TimeLineHistory retValue = new TimeLineHistory();
+            retValue.Id = this.Id;
+            retValue.TimeLines_DB = this.TimeLines?.Select(o=>o.CreateCopy() as UpdateTimeLine) .ToList();
+            return retValue;
+        }
+
         public string Id
         {
             get
@@ -29,7 +37,7 @@ namespace TilerElements
 
         public void addTimeLine(UpdateTimeLine timeLine)
         {
-            _TimeLines.Add(timeLine);
+            (_TimeLines ?? (_TimeLines = new SubEventDictionary<string, UpdateTimeLine>())).Add(timeLine);
         }
 
         [NotMapped]
@@ -42,7 +50,24 @@ namespace TilerElements
             
         }
 
+        public virtual List<UpdateTimeLine> TimeLines_DB_XML
+        {
+            set
+            {
+                this._TimeLines = new SubEventDictionary<string, UpdateTimeLine>();
+                if (value != null)
+                {
+                    this._TimeLines = new SubEventDictionary<string, UpdateTimeLine>(value);
+                }
+            }
+            get
+            {
+                var retValue = (_TimeLines ?? (_TimeLines = new SubEventDictionary<string, UpdateTimeLine>())).Collection;
+                return retValue.Select(o=>o.Value).ToList();
+            }
+        }
 
+        [System.Xml.Serialization.XmlIgnore]
         public virtual ICollection<UpdateTimeLine> TimeLines_DB
         {
             set

@@ -11,7 +11,7 @@ namespace TilerElements
         protected ProcrastinateCalendarEvent(EventID eventId, 
             EventName NameEntry, DateTimeOffset StartData, DateTimeOffset EndData, TimeSpan EventDuration, TimeSpan eventPrepTime, TimeSpan PreDeadlineTimeSpan, Repetition EventRepetitionEntry, Location EventLocation, EventDisplay UiData, MiscData NoteData, bool EnabledEventFlag, bool CompletionFlag, TilerUser creator, TilerUserGroup users, string timeZone, int splitCount, NowProfile nowProfile) : base(
                 //eventId, 
-                NameEntry, StartData, EndData, EventDuration, eventPrepTime, PreDeadlineTimeSpan, EventRepetitionEntry, EventLocation, UiData, NoteData, EnabledEventFlag, CompletionFlag, creator, users, timeZone, eventId, nowProfile, null, false)
+                NameEntry, StartData, EndData, EventDuration, eventPrepTime, PreDeadlineTimeSpan, EventRepetitionEntry, EventLocation, UiData, NoteData, EnabledEventFlag, CompletionFlag, creator, users, timeZone, eventId, nowProfile, new TimeLineHistory(), false)
         {
             _isProcrastinateEvent = true;
             UniqueID = eventId;

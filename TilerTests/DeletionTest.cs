@@ -172,7 +172,7 @@ namespace TilerTests
             calendarIds = new HashSet<string>();
             calendarIds.Add(repeatTestEvent.Id);
             Schedule = new TestSchedule(user, refNow, calendarIds: calendarIds);
-            int afterRigidRepeatDeletionCount = Schedule.getAllCalendarEvents().ToLookup(o => o.getTilerID.getCalendarEventComponent()).Count();
+            int afterRigidRepeatDeletionCount = Schedule.getAllCalendarEvents().Where(o=>o.isActive).ToLookup(o => o.getTilerID.getCalendarEventComponent()).Count();
             Assert.AreEqual(beforeRigidRepeatDeletionCount, afterRigidRepeatDeletionCount + 1);
             EventID RigidRepeatEventId = new EventID(DeletedRigidRepeatSubEventId);
             CalendarEvent retrievedRigidRepeatCalendarEvent = TestUtility.getCalendarEventById(RigidRepeatEventId.getCalendarEventID(), user);

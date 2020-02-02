@@ -388,7 +388,7 @@ namespace TilerElements
             }
         }
 
-        public bool isActive
+        public virtual bool isActive
         {
             get
             {

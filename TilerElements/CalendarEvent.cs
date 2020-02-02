@@ -2325,6 +2325,18 @@ namespace TilerElements
             }
         }
 
+        public override bool isActive {
+            get
+            {
+                bool retValue = base.isActive
+                    && (!this.IsFromRecurringAndIsChildCalEvent || (
+                        this.RepeatParentEvent.isActive
+                    )); ;
+
+                return retValue;
+            }
+        }
+
         public TimeSpan RangeSpan
         {
             get

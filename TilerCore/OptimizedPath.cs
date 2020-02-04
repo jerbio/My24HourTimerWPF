@@ -274,14 +274,14 @@ namespace TilerCore
                 HashSet<int> validIndexes = new HashSet<int>();
                 if (correctlyAssignedeventsToIndex.Count > 0)
                 {
-                    Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> subEventToAvailableSpaces = Utility.subEventToMaxSpaceAvailable(timeLine, correctlyAssignedevents);
+                    var subEventToAvailableSpaces = Utility.subEventToMaxSpaceAvailable(timeLine, correctlyAssignedevents);
                     i = 0;
 
 
                     //for (i = 0; i < disabledSubEvents.Count; i++)
                     {
                         //disabledSubEvent = disabledSubEvents[i];
-                        foreach (KeyValuePair<SubCalendarEvent, mTuple<TimeLine, TimeLine>> keyValuePair in subEventToAvailableSpaces)
+                        foreach (KeyValuePair<SubCalendarEvent, nTuple<TimeLine, TimeLine, TimeLine>> keyValuePair in subEventToAvailableSpaces)
                         {
                             if (disabledSubEvent.canExistWithinTimeLine(keyValuePair.Value.Item1))
                             {
@@ -531,12 +531,12 @@ namespace TilerCore
                 if (Utility.tryPinSubEventsToStart(Stitched_Revised_Chopped_ToFitTimeLine, pintimeLine))
                 {
                     totalEventSpan = TimeSpan.FromSeconds(Stitched_Revised_Chopped_ToFitTimeLine.Sum(subEvent => subEvent.ActiveSlot.InterferringTimeLine(pintimeLine).TimelineSpan.TotalSeconds));
-                    Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> subEventToAvailableSpaces = Utility.subEventToMaxSpaceAvailable(pintimeLine, Stitched_Revised_Chopped_ToFitTimeLine);
+                    var subEventToAvailableSpaces = Utility.subEventToMaxSpaceAvailable(pintimeLine, Stitched_Revised_Chopped_ToFitTimeLine);
                     bool NoTimeLineAvailable = true;//flag holds signal for if a viable space has been found. If no viable timeline is found then this this daysector is removed
                     for (i = 0; i < AllEvents.Count; i++)
                     {
                         SubCalendarEvent subEvent = AllEvents[i];//unacknowledged subevent for this grouping
-                        foreach (KeyValuePair<SubCalendarEvent, mTuple<TimeLine, TimeLine>> keyValuePair in subEventToAvailableSpaces)//Loop checkss each timeline before and after an aknowledged subevent to see subEvent can exist
+                        foreach (var keyValuePair in subEventToAvailableSpaces)//Loop checkss each timeline before and after an aknowledged subevent to see subEvent can exist
                         {
                             if (subEvent.canExistWithinTimeLine(keyValuePair.Value.Item1))
                             {
@@ -939,9 +939,9 @@ namespace TilerCore
             return retTuple.Item1;
         }
 
-        Tuple<List<SubCalendarEvent>, Dictionary<DaySection, int[]>, Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>>> recursivelyPinnOrderedSubEventsInDayTimeline(TimeLine AllTimeLine, List<SubCalendarEvent> SubEvents)
+        Tuple<List<SubCalendarEvent>, Dictionary<DaySection, int[]>, Dictionary<SubCalendarEvent, nTuple<TimeLine, TimeLine, TimeLine>>> recursivelyPinnOrderedSubEventsInDayTimeline(TimeLine AllTimeLine, List<SubCalendarEvent> SubEvents)
         {
-            Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> subEventToAvailableSpaces = new Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>>();// holds the latest spacing of each acknowledged sub event to the spacing before and after the sub event
+            Dictionary<SubCalendarEvent, nTuple<TimeLine, TimeLine, TimeLine>> subEventToAvailableSpaces = new Dictionary<SubCalendarEvent, nTuple<TimeLine, TimeLine, TimeLine>>();// holds the latest spacing of each acknowledged sub event to the spacing before and after the sub event
             List<SubCalendarEvent> subEventList = new List<SubCalendarEvent>();//holds and ordered list of pinned sub events
             Dictionary<DaySection, int[]> daySectionToIndexes = new Dictionary<DaySection, int[]>();// holds the the lowest index and highest index of subevents in the daysection which is the key
             NoReason Noreason = NoReason.getNoReasonInstanceFactory();
@@ -1137,7 +1137,7 @@ namespace TilerCore
 
 
             }
-            var retValue = new Tuple<List<SubCalendarEvent>, Dictionary<DaySection, int[]>, Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>>>(subEventList, daySectionToIndexes, subEventToAvailableSpaces);
+            var retValue = new Tuple<List<SubCalendarEvent>, Dictionary<DaySection, int[]>, Dictionary<SubCalendarEvent, nTuple<TimeLine, TimeLine, TimeLine>>>(subEventList, daySectionToIndexes, subEventToAvailableSpaces);
             return retValue;
         }
 

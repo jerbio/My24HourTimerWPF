@@ -2842,13 +2842,13 @@ namespace TilerCore
                 TimeLine LastSuccessfull = RefTimeLine.StartToEnd;
                 RefTimeLine = new TimeLine(EarliestStart, LatestEnd);
 
-                Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> subEventssToTimelines = Utility.subEventToMaxSpaceAvailable(RefTimeLine, orderedByStartSubEvents);
-                List<KeyValuePair<SubCalendarEvent, mTuple<TimeLine, TimeLine>>> kvpSubEventssToTimelines = subEventssToTimelines.ToList();
+                var subEventssToTimelines = Utility.subEventToMaxSpaceAvailable(RefTimeLine, orderedByStartSubEvents);
+                List<KeyValuePair<SubCalendarEvent, nTuple<TimeLine, TimeLine, TimeLine>>> kvpSubEventssToTimelines = subEventssToTimelines.ToList();
                 Dictionary<SubCalendarEvent, List<double>> subEventToDimensions = kvpSubEventssToTimelines.ToDictionary(kvp => kvp.Key, kvp => getTimeLineSpaceAndTimeLineStart(RefTimeLine.End, kvp.Value.Item1));
                 List<KeyValuePair<SubCalendarEvent, List<double>>> kvpSubEventToDimensions = subEventToDimensions.ToList();
                 List<double> result = Utility.multiDimensionCalculation((kvpSubEventToDimensions.Select(obj => (IList<double>)obj.Value).ToList()));
                 int maxIndex = result.MaxIndex();
-                KeyValuePair<SubCalendarEvent, mTuple<TimeLine, TimeLine>> sleepKvp = kvpSubEventssToTimelines[maxIndex];
+                var sleepKvp = kvpSubEventssToTimelines[maxIndex];
                 TimeLine afterSleepTimeLine = new TimeLine(sleepKvp.Value.Item1.Start, RefTimeLine.End);
 
                 Dictionary<SubCalendarEvent, mTuple<TimeSpan, TimeSpan>> subEventToBuffer = new Dictionary<SubCalendarEvent, mTuple<TimeSpan, TimeSpan>>();
@@ -3142,7 +3142,7 @@ namespace TilerCore
                         daySection = subEvent.getCurrentDaySection();
                     }
                     
-                    mTuple<TimeLine, TimeLine> beforeAndAfter = subEventssToTimelines[subEvent];
+                    var beforeAndAfter = subEventssToTimelines[subEvent];
                     DateTimeOffset start = beforeAndAfter.Item1.Start > subEvent.Start ? beforeAndAfter.Item1.Start : subEvent.Start;
                     TimeLine BoundTimeLine = new TimeLine(start, beforeAndAfter.Item2.End);
                     if (daySection != DaySection.None && daySection != DaySection.Disabled)
@@ -3347,7 +3347,6 @@ namespace TilerCore
                                             DaysToUse = CurrDaysToUse;
                                         }
                                     }
-
                                 }
                             }
 
@@ -3428,12 +3427,14 @@ namespace TilerCore
 
             List<SubCalendarEvent> orderedByStart = TotalActiveEvents.OrderBy(obj => obj.Start).ToList();
             List<BlobSubCalendarEvent> beforePathOptimizationConflictingEvetns = Utility.getConflictingEvents(orderedByStart);
+            List<SubCalendarEvent> conflictingSubEvents = new List<SubCalendarEvent>();
+
+            resolvePotentialConflicts(AllDayTImeLine, conflictingSubEvents);
 
 
-            
+
             IDictionary<DayTimeLine, OptimizedPath> dayToOptimization = null;
             List<DayTimeLine> OptimizedDays = new List<DayTimeLine>();
-            
             var OptimizationWatch = new Stopwatch();
             OptimizationWatch.Start();
             if (Optimize)
@@ -3488,11 +3489,63 @@ namespace TilerCore
 
 
             });
-
-            //tryToRemoveConflicts(ordereByStartTime, AllDayTImeLine, callLocation);
-
-
             return totalNumberOfEvents;
+        }
+
+        void resolvePotentialConflicts (IEnumerable<DayTimeLine> orderedDayTimeLines, List<SubCalendarEvent> conflictingSubEvents)
+        {
+            int conflictCount = 100;
+            if(conflictingSubEvents.Count > 0 && orderedDayTimeLines.Count() > 0)
+            {
+                List<SubCalendarEvent> conflicting_OrderedByScore = conflictingSubEvents.OrderBy(o => o.Score).Take(conflictCount).ToList();
+                var dayTimeLineToMaxSpaceAvailable = orderedDayTimeLines.ToDictionary(obj => obj, obj =>new mTuple<TimeLine, Dictionary<SubCalendarEvent, nTuple<TimeLine, TimeLine, TimeLine>>>( null, null));
+                foreach(DayTimeLine dayTimeline in orderedDayTimeLines.AsParallel())
+                {
+                    var subEventsInTimeline = dayTimeline.getSubEventsInTimeLine().OrderBy(o=>o.Start).ThenBy(o => o.End).ToList();
+                    if(subEventsInTimeline.Count > 0)
+                    {
+                        SubCalendarEvent firstSubevent = subEventsInTimeline.First();
+                        SubCalendarEvent lastSubevent = subEventsInTimeline.Last();
+                        DateTimeOffset timeLineStart = firstSubevent.Start <= dayTimeline.Start ? firstSubevent.Start : dayTimeline.Start;
+                        DateTimeOffset timeLineEnd= lastSubevent.End >= dayTimeline.End ? lastSubevent.End : dayTimeline.End;
+                        TimeLine revisedTimeLineUpdatedForOverlappingEvents = new TimeLine(timeLineStart, timeLineEnd);// this ensures the subEvents are verified to fit within the timeline. This handles cases where an event might cross over say a rigid whih belongs to multiple days
+                        var subEventToTimeLine = Utility.subEventToMaxSpaceAvailable(revisedTimeLineUpdatedForOverlappingEvents, subEventsInTimeline);
+
+                        var TimeLineAndMaxSpaceCombination = dayTimeLineToMaxSpaceAvailable[dayTimeline];
+                        TimeLineAndMaxSpaceCombination.Item1 = revisedTimeLineUpdatedForOverlappingEvents;
+                        TimeLineAndMaxSpaceCombination.Item2 = subEventToTimeLine;
+                    }    
+                }
+
+                var conflictSubEventToViableDays = conflicting_OrderedByScore.ToDictionary(subEvent => subEvent, subEvent => orderedDayTimeLines.Where(dayTimeline => subEvent.canExistWithinTimeLine(dayTimeline)).ToList());
+
+
+
+                dayTimeLineToMaxSpaceAvailable.SelectMany(kvp => kvp.Value.Item2.Select(o => new List<TimeLine> { o.Value.Item1, o.Value.Item2 }));
+
+            }
+        }
+
+        /// <summary>
+        /// Function looks through the daytimeline collection of <paramref name="viableDays"/> and reposition a subevent or group of subevents to ensure there is enough time to contain the interferring subevent
+        /// Function returns the 
+        /// </summary>
+        /// <param name="conflictingSubEvent"></param>
+        /// <param name="viableDays"></param>
+        /// <returns></returns>
+        List<SubCalendarEvent> repositionALreadyAssignedEvents(SubCalendarEvent conflictingSubEvent, List<DayTimeLine> viableDays, List<DayTimeLine> repositionDays)
+        {
+            List<SubCalendarEvent> retValue = new List<SubCalendarEvent>();
+            List<SubCalendarEvent> subEventsCanbeMoved = viableDays.SelectMany(dayTimeline => dayTimeline.getSubEventsInTimeLine()).ToList();
+            List<SubCalendarEvent> worseScoredSubevents = subEventsCanbeMoved.Where(subEvent => subEvent.Score > conflictingSubEvent.Score).ToList();
+            if(worseScoredSubevents.Count > 0)
+            {
+                
+            }
+            else
+            {
+                return retValue;
+            }
         }
 
         void tryToCentralizeSubEvents(DayTimeLine dayTimeLine)

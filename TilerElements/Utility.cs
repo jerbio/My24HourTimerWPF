@@ -1261,14 +1261,13 @@ namespace TilerElements
         /// <param name="maxTImeLine"> The restricting timeline for which to evealutate the maximum timeline for pinning.</param>
         /// <param name="subEvents"></param>
         /// <returns></returns>
-        public static Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> subEventToMaxSpaceAvailable(TimeLine maxTImeLine, IEnumerable<SubCalendarEvent> subEvents)
+        public static Dictionary<SubCalendarEvent, nTuple<TimeLine, TimeLine, TimeLine>> subEventToMaxSpaceAvailable(TimeLine maxTImeLine, IEnumerable<SubCalendarEvent> subEvents)
         {
-            var dictOfSubEvents = subEvents.ToDictionary(sub => sub, sub => sub.Start);
             Dictionary<EventID, SubCalendarEvent> eventIdToSubEvent = subEvents.ToDictionary(subEvent => subEvent.SubEvent_ID, subEvent => subEvent);
             Dictionary<EventID, DateTimeOffset> startTimes = new Dictionary<EventID, DateTimeOffset>();
             Dictionary<EventID, DateTimeOffset> endTimes = new Dictionary<EventID, DateTimeOffset>();
             List<SubCalendarEvent> ordedsubEvents = subEvents.Select(subEvent => subEvent.CreateCopy(subEvent.SubEvent_ID, subEvent.ParentCalendarEvent)).ToList();// the ordered passed in is preserved. We don't care about the time frame
-            Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> retValue = new Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>>();
+            Dictionary<SubCalendarEvent, nTuple<TimeLine, TimeLine, TimeLine>> retValue = new Dictionary<SubCalendarEvent, nTuple<TimeLine, TimeLine, TimeLine>>();
             TimeLine timeLine = new TimeLine();
             DateTimeOffset start = maxTImeLine.Start;
             DateTimeOffset end = maxTImeLine.End;
@@ -1282,6 +1281,7 @@ namespace TilerElements
             TimeLine iterationTImeLine = new TimeLine(start, end);
             TimeLine timeLineBefore = new TimeLine();
             TimeLine timeLineAfter = new TimeLine();
+            TimeLine timeLineWithoutSubEvent = new TimeLine();
             if (Utility.tryPinSubEventsToStart(ordedsubEvents, maxTImeLine))
             {
                 SubCalendarEvent subEvent;
@@ -1298,7 +1298,8 @@ namespace TilerElements
                     endAfter = subEvent.Start;
                     endBefore = ordedsubEvents[i].Start;
                     timeLineBefore = new TimeLine(startBefore, endBefore);
-                    retValue.Add(eventIdToSubEvent[subEvent.SubEvent_ID], new mTuple<TimeLine, TimeLine>(timeLineBefore, timeLineAfter));
+                    timeLineWithoutSubEvent = new TimeLine(timeLineBefore.Start, timeLineAfter.End);
+                    retValue.Add(eventIdToSubEvent[subEvent.SubEvent_ID], new nTuple<TimeLine, TimeLine, TimeLine>(timeLineBefore, timeLineAfter, timeLineWithoutSubEvent));
                 }
 
                 subEvent = ordedsubEvents[i];
@@ -1310,11 +1311,8 @@ namespace TilerElements
                 endAfter = subEvent.Start;
                 endBefore = ordedsubEvents[i].Start;
                 timeLineBefore = new TimeLine(startBefore, endBefore);
-                retValue.Add(eventIdToSubEvent[subEvent.SubEvent_ID], new mTuple<TimeLine, TimeLine>(timeLineBefore, timeLineAfter));
-                foreach(SubCalendarEvent subEVent in subEvents)
-                {
-                    subEVent.shiftEvent(dictOfSubEvents[subEVent], true);
-                }
+                timeLineWithoutSubEvent = new TimeLine(timeLineBefore.Start, timeLineAfter.End);
+                retValue.Add(eventIdToSubEvent[subEvent.SubEvent_ID], new nTuple<TimeLine, TimeLine, TimeLine>(timeLineBefore, timeLineAfter, timeLineWithoutSubEvent));
             }
             else
             {
@@ -1323,6 +1321,8 @@ namespace TilerElements
 
             return retValue;
         }
+    
+        
         /// <summary>
         /// Removes the seconds and milliseconds of the datetimeoffset account. It returns a new datetimeoffset struct object.
         /// </summary>

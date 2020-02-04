@@ -273,6 +273,7 @@ namespace TilerElements
             copy._RigidSchedule = this._RigidSchedule;
             copy.updateStartTime( this.Start);
             copy._UiParams = this._UiParams?.createCopy();
+            copy._AutoDeleted = this._AutoDeleted;
             if (eventId != null)
             {
                 copy.UniqueID = eventId;

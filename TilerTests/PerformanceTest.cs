@@ -96,7 +96,7 @@ namespace TilerTests
                 
                 watch.Reset();
                 watch.Start();
-                var taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, Schedule.Now, retrievalOption: DataRetrivalOption.Ui);
+                var taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, Schedule.Now, true, retrievalOption: DataRetrivalOption.Ui);
                 taskCal.Wait();
                 var allCals = taskCal.Result.ToList();
                 watch.Stop();

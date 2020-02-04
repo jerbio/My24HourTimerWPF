@@ -552,7 +552,7 @@ namespace TilerTests
             task.Wait();
             var allSubs = task.Result.ToList();
 
-            var taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, now, retrievalOption: DataRetrivalOption.Ui);
+            var taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, now, true, retrievalOption: DataRetrivalOption.Ui);
             taskCal.Wait();
             var allCals = taskCal.Result.ToList();
             var calSubEVents = allCals.Select(obj => obj.Value).SelectMany(obj => obj.ActiveSubEvents).ToList();

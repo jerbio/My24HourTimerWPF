@@ -13,7 +13,7 @@ namespace TilerTests
     internal class TestSchedule : DB_Schedule
     {
         protected DateTimeOffset StartOfDay;
-        public TestSchedule(UserAccount AccountEntry, DateTimeOffset referenceNow, DateTimeOffset startOfDay, uint LatestId = 0, DataRetrivalOption retrievalOption = DataRetrivalOption.Evaluation, TimeLine rangeOfLookup = null, HashSet<string> calendarIds = null) : base(AccountEntry, referenceNow, startOfDay, retrievalOption, rangeOfLookup, calendarIds: calendarIds)
+        public TestSchedule(UserAccount AccountEntry, DateTimeOffset referenceNow, DateTimeOffset startOfDay, uint LatestId = 0, DataRetrivalOption retrievalOption = DataRetrivalOption.Evaluation, bool includeUpdateHistory = false, TimeLine rangeOfLookup = null, HashSet<string> calendarIds = null) : base(AccountEntry, referenceNow, startOfDay, includeUpdateHistory, retrievalOption, rangeOfLookup, calendarIds: calendarIds)
         {
             StartOfDay = startOfDay;
             this.retrievalOption = retrievalOption;
@@ -23,7 +23,7 @@ namespace TilerTests
                 EventID.Initialize(LatestId);
             }
         }
-        public TestSchedule(UserAccount AccountEntry, DateTimeOffset referenceNow, uint LatestId = 0, DataRetrivalOption retrievalOption = DataRetrivalOption.Evaluation, TimeLine rangeOfLookup = null, HashSet<string> calendarIds = null) : base(AccountEntry, referenceNow, retrievalOption, rangeOfLookup, calendarIds: calendarIds)
+        public TestSchedule(UserAccount AccountEntry, DateTimeOffset referenceNow, uint LatestId = 0, DataRetrivalOption retrievalOption = DataRetrivalOption.Evaluation, bool includeUpdateHistory = false, TimeLine rangeOfLookup = null, HashSet<string> calendarIds = null) : base(AccountEntry, referenceNow, includeUpdateHistory, retrievalOption, rangeOfLookup, calendarIds: calendarIds)
         {
             if (LatestId != 0)
             {
@@ -35,7 +35,7 @@ namespace TilerTests
         {
             _Now = new ReferenceNow(referenceNow, StartOfDay, myAccount.getTilerUser().TimeZoneDifference);
             this.RangeOfLookup = this.RangeOfLookup ?? new TimeLine(_Now.constNow.AddDays(DB_Schedule.TimeLookUpDayStart), _Now.constNow.AddDays(DB_Schedule.TimeLookUpDayEnd));
-            Tuple<Dictionary<string, CalendarEvent>, DateTimeOffset, Dictionary<string, Location>> profileData = await myAccount.ScheduleData.getProfileInfo(RangeOfLookup, _Now, retrievalOption, calendarIds: calendarIds).ConfigureAwait(false);
+            Tuple<Dictionary<string, CalendarEvent>, DateTimeOffset, Dictionary<string, Location>> profileData = await myAccount.ScheduleData.getProfileInfo(RangeOfLookup, _Now, this._IncludeUpdateHistory, retrievalOption, calendarIds: calendarIds).ConfigureAwait(false);
             TravelCache travelCache = await myAccount.ScheduleData.getTravelCache(myAccount.UserID).ConfigureAwait(false);
             updateTravelCache(travelCache);
             myAccount.Now = _Now;
@@ -62,7 +62,7 @@ namespace TilerTests
             await Initialize(referenceNow, StartOfDay, calendarIds).ConfigureAwait(false);
         }
 
-        public TestSchedule(IEnumerable<CalendarEvent> calendarEvents ,UserAccount AccountEntry, DateTimeOffset referenceNow, IEnumerable<Location> Locations, uint LatestId = 0) : base(AccountEntry, referenceNow)
+        public TestSchedule(IEnumerable<CalendarEvent> calendarEvents ,UserAccount AccountEntry, DateTimeOffset referenceNow, IEnumerable<Location> Locations, uint LatestId = 0) : base(AccountEntry, referenceNow, false)
         {
             initializeAllEventDictionary(calendarEvents);
             this.Locations = Locations.ToDictionary(obj => obj.Description, obj => obj);

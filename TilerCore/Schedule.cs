@@ -551,18 +551,6 @@ namespace TilerCore
             return retVallue;
         }
 
-        public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> UpdateCalEventTimeLine(CalendarEvent myCalendarEvent, TimeLine NewTimeLine)
-        {
-            myCalendarEvent.updateTimeLine(NewTimeLine);
-            HashSet<SubCalendarEvent> NoDoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
-
-            Dictionary<string, CalendarEvent> AllEventDictionary_Cpy = getDeepCopyOfEventDictionary();
-            myCalendarEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(myCalendarEvent, NoDoneYet, null);
-            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(myCalendarEvent.Error, AllEventDictionary);
-            AllEventDictionary = AllEventDictionary_Cpy;
-            return retValue;
-        }
-
         public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> BundleChangeUpdate(string SubEventID,
             EventName NewName,
             DateTimeOffset SubeventStart,

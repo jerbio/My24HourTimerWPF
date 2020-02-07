@@ -2099,6 +2099,23 @@ namespace TilerElements
         #endregion
 
         #region Properties
+        /// <summary>
+        /// This checks if the repeatparent of a calendarevent is complete.
+        /// </summary>
+        public override bool isParentComplete
+        {
+            get
+            {
+                bool retValue = false;
+                if(IsFromRecurringAndIsChildCalEvent)
+                {
+                    retValue = this.RepeatParentEvent.getIsComplete || this.RepeatParentEvent.isParentComplete;
+                }
+
+                return retValue;
+            }
+        }
+
         public override DateTimeOffset TimeOfScheduleLoad {
             get {
                 return base.TimeOfScheduleLoad;

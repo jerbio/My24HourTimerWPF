@@ -372,6 +372,11 @@ namespace TilerElements
             this._DataBlob.UserNote = Notes;
         }
 
+        /// <summary>
+        /// This checks if the parent Calendarevent for a subcalendarevent or if the repeatparent of a calendarevent is complete.
+        /// </summary>
+        abstract public bool isParentComplete { get; }
+
         public bool getIsComplete
         {
             get
@@ -393,6 +398,14 @@ namespace TilerElements
             get
             {
                 return ((!getIsComplete) && (isEnabled));
+            }
+        }
+
+        public DateTimeOffset CompletionTime
+        {
+            get
+            {
+                return this._CompletionTime;
             }
         }
 

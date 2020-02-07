@@ -30,6 +30,7 @@ namespace TilerElements
         public readonly static TimeSpan OneMinuteTimeSpan = TimeSpan.FromMinutes(1);
         public readonly static TimeSpan NegativeTimeSpan = TimeSpan.FromTicks(-1);
         public readonly static TimeSpan SixHourTimeSpan = TimeSpan.FromHours(6);
+        public readonly static TimeSpan OneWeekTimeSpan = TimeSpan.FromDays(7);
         public readonly static TimeSpan SleepSpan = Utility.SixHourTimeSpan;//careful about changing this from six hours because this is used to recalculate the post sleep timeline
         public readonly static string timeZoneString = "America/Denver";
 

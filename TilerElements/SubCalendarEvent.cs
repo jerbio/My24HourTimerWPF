@@ -540,7 +540,6 @@ namespace TilerElements
                 return true;
         }
 
-
         public override void updateDayPreference(List<OptimizedGrouping> groupings)
         {
             Dictionary<TimeOfDayPreferrence.DaySection, OptimizedGrouping> sectionTOGrouping = groupings.ToDictionary(group => group.DaySector, group => group);
@@ -1027,6 +1026,19 @@ namespace TilerElements
         public virtual void disableRepetitionLock()
         {
             _RepetitionLock = false;
+        }
+
+
+        /// <summary>
+        /// This checks if the parent Calendarevent for a subcalendarevent is complete.
+        /// </summary>
+        public override bool isParentComplete
+        {
+            get
+            {
+                bool retValue = this.ParentCalendarEvent.getIsComplete || this.ParentCalendarEvent.isParentComplete;
+                return retValue;
+            }
         }
 
         public override bool isLocked => base.isLocked || this.tempLock || this.lockedPrecedingHours || this.isRepetitionLocked;

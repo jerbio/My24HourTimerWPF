@@ -3477,27 +3477,49 @@ namespace TilerCore
             });
             return totalNumberOfEvents;
         }
-        
+
+
+        void resolveConflicts(List<SubCalendarEvent> conflictingSubEvents, List<DayTimeLine> allDayTimeLines)
+        {
+            if (allDayTimeLines != null && allDayTimeLines.Count > 0 && conflictingSubEvents != null && conflictingSubEvents.Count > 0)
+            {
+                List<SubCalendarEvent> orderedConflictingSubevent = conflictingSubEvents.OrderBy(subEvent => subEvent.Score).ToList();
+                foreach(SubCalendarEvent conflctingSubEvent in orderedConflictingSubevent)
+                {
+                    var conflictResult = repositionAlreadyAssignedEvents(conflctingSubEvent, allDayTimeLines);
+                    if(conflictResult.Count > 0)
+                    {
+                        foreach(SubCalendarEvent movableSubEvent in conflictResult.Keys)
+                        {
+                            Now.getDayTimeLineByDayIndex(movableSubEvent.UniversalDayIndex).RemoveSubEvent(movableSubEvent.Id);
+
+
+                        }
+                    }
+                }
+                
+            }
+        }
 
         /// <summary>
-        /// Function looks through the daytimeline collection of <paramref name="viableDays"/> and reposition a subevent or group of subevents to ensure there is enough time to contain the interferring subevent
-        /// Function returns the 
+        /// Function looks through <paramref name="allDayTimeLinesDays"/> and provides different timelines for already assigned subevents
+        /// Function returns a dictionary of movable subevents to their viable time slots.
         /// </summary>
-        /// <param name="conflictingSubEvent"></param>
-        /// <param name="viableDays"></param>
+        /// <param name="allDayTimeLinesDays"></param>
         /// <returns></returns>
-        void repositionAlreadyAssignedEvents(SubCalendarEvent conflictingSubEvent, List<DayTimeLine> viableDays, List<DayTimeLine> allDayTimeLinesDays)
+        Dictionary<SubCalendarEvent, Dictionary<DayTimeLine, Dictionary<DateTimeOffset, TimeLine>>> repositionAlreadyAssignedEvents(SubCalendarEvent conflictingSubEvent, List<DayTimeLine> allDayTimeLinesDays)
         {
-            List<SubCalendarEvent> retValue = new List<SubCalendarEvent>();
-            List<SubCalendarEvent> subEventsCanbeMoved = viableDays.SelectMany(dayTimeline => dayTimeline.getSubEventsInTimeLine()).ToList();
+            List<DayTimeLine>  conflictingSubEventDays = allDayTimeLinesDays.Where(dayTimeLine => conflictingSubEvent.canExistWithinTimeLine(dayTimeLine)).ToList();
+            List<SubCalendarEvent> subEventsCanbeMoved = conflictingSubEventDays.SelectMany(dayTimeline => dayTimeline.getSubEventsInTimeLine()).ToList();
             List<SubCalendarEvent> worseScoredSubevents = subEventsCanbeMoved.Where(subEvent => subEvent.Score > conflictingSubEvent.Score).ToList();
             TimeSpan totalRepositioned = Utility.ZeroTimeSpan;
             TimeSpan maxTimeSpan = conflictingSubEvent.RangeSpan >= Utility.SixHourTimeSpan ? conflictingSubEvent.RangeSpan : TimeSpan.FromHours(conflictingSubEvent.RangeSpan.TotalHours * 1.5);
             maxTimeSpan = maxTimeSpan.removeSecondsAndMilliseconds();
-            Dictionary<SubCalendarEvent, Dictionary<DayTimeLine, Dictionary<DateTimeOffset, TimeLine>>> worseSubEventToPossibleTImeLine = new Dictionary<SubCalendarEvent, Dictionary<DayTimeLine, Dictionary<DateTimeOffset, TimeLine>>>();
-
+            Dictionary<SubCalendarEvent, Dictionary<DayTimeLine, Dictionary<DateTimeOffset, TimeLine>>> retValue = new Dictionary<SubCalendarEvent, Dictionary<DayTimeLine, Dictionary<DateTimeOffset, TimeLine>>>();
+            Dictionary<DayTimeLine, HashSet<SubCalendarEvent>> dayTimeLineToPossibleNewSubEVents = new Dictionary<DayTimeLine, HashSet<SubCalendarEvent>>();// This holds a mapping of a daytimeline to subevents that can possibly be added to it. These subevents will get moved from other days and daytimeline(the key of the dictionary) will be the new destination
 
             Func<Dictionary<DateTimeOffset, TimeLine>, TimeLine, SubCalendarEvent, bool> addTimeLineToviableList = (dictOfTimeLine, possibleTimeLine, subEvent) => {
+
                 if ((!dictOfTimeLine.ContainsKey(possibleTimeLine.Start)) && subEvent.canExistWithinTimeLine(possibleTimeLine))
                 {
                     dictOfTimeLine.Add(possibleTimeLine.Start, possibleTimeLine);
@@ -3518,7 +3540,7 @@ namespace TilerCore
                     if(totalRepositioned <= maxTimeSpan)
                     {
                         Dictionary<DayTimeLine, Dictionary<DateTimeOffset, TimeLine>> dayTimeLineTOFreeSpaces = new Dictionary<DayTimeLine, Dictionary<DateTimeOffset, TimeLine>>();
-                        List<DayTimeLine> repositionableDays = allDayTimeLinesDays.Except(viableDays).ToList();
+                        List<DayTimeLine> repositionableDays = allDayTimeLinesDays.Except(conflictingSubEventDays).ToList();
                         foreach (var dayTimeline in repositionableDays)
                         {
                             var subEventsInTimeline = dayTimeline.getSubEventsInTimeLine().OrderBy(o => o.Start).ThenBy(o => o.End).ToList();
@@ -3557,7 +3579,7 @@ namespace TilerCore
                         if (dayTimeLineTOFreeSpaces.Count > 0)
                         {
                             totalRepositioned += lessPrioritySubEVent.RangeSpan;
-                            worseSubEventToPossibleTImeLine.Add(lessPrioritySubEVent, dayTimeLineTOFreeSpaces);
+                            retValue.Add(lessPrioritySubEVent, dayTimeLineTOFreeSpaces);
                         }
                     }
                     else
@@ -3568,6 +3590,8 @@ namespace TilerCore
                 }
                 
             }
+
+            return retValue;
         }
 
         void tryToCentralizeSubEvents(DayTimeLine dayTimeLine)

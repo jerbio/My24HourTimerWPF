@@ -252,7 +252,7 @@ namespace TilerElements
                                 if (!useThis)
                                 {
                                     retValue._Id = result.PlaceId;
-                                    _LocationValidation.addLocation(retValue as LocationJson);
+                                    _LocationValidation.addLocation(retValue as LocationJson, currentTime);
                                 }
                                 
                             }

@@ -40,7 +40,7 @@ namespace TilerElements
             }
         }
 
-        internal void addLocation (LocationJson location)
+        internal void addLocation (LocationJson location, DateTimeOffset currentTime)
         {
             if(!dictionary_location.ContainsKey(location.Id))
             {
@@ -54,36 +54,39 @@ namespace TilerElements
             {
                 while(locations.Count > maxLocationCount)
                 {
-                    removeHighestVaryingLocation();
+                    removeHighestVaryingLocation(currentTime);
                 }
             }
         }
 
-        void removeHighestVaryingLocation()
+        void removeHighestVaryingLocation(DateTimeOffset currentTime)
         {
-            Location avgLocation = getAverageLocation;
-            LocationJson maxLocation = null;
-            double maxDist = 0;
-            foreach (LocationJson loc in locations)
-            {
-                double distance = Location.calculateDistance(avgLocation, loc, -1);
-                if (distance >= 0)
+            if(locations.Count > 0) {
+                Location avgLocation = getAverageLocation;
+                LocationJson leastLiekelyLocation = null;
+                double maxDist = 0;
+                List<IList<double>> multiArgs = new List<IList<double>>();
+                var locationList = locations.ToList();
+                foreach (LocationJson loc in locationList)
                 {
-                    double distAbs = Math.Abs(distance - AverageDistanceFromAverageLocation);
-                    if(distAbs >= maxDist)
-                    {
-                        maxLocation = loc;
-                    }
+                    double distance = Location.calculateDistance(avgLocation, loc, -1);
+                    double timeDiff = (currentTime - loc.LastUsed).TotalMinutes;
+
+                    multiArgs.Add(new List<double>() { distance, timeDiff });
                 }
-            }
 
-            if(maxLocation == null)
-            {
-                maxLocation = locations.First();
-            }
+                var multiResult = Utility.multiDimensionCalculationNormalize(multiArgs);
+                int leastLikelyIndex = multiResult.MaxIndex();
+                leastLiekelyLocation = locationList[leastLikelyIndex];
 
-            locations.Remove(maxLocation);
-            dictionary_location.Remove(maxLocation.Id);
+                if (leastLiekelyLocation == null)
+                {
+                    leastLiekelyLocation = locations.OrderBy(o=>o.LastUsed).First();
+                }
+
+                locations.Remove(leastLiekelyLocation);
+                dictionary_location.Remove(leastLiekelyLocation.Id);
+            }
         }
 
         internal void updateAverageLocation()

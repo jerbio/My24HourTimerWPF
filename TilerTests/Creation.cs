@@ -164,7 +164,7 @@ namespace TilerTests
             Assert.IsTrue(testEvent.isTestEquivalent(verificationEventPulled));
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow);
+            Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(verificationEventPulled.isTestEquivalent(loadedFromSchedule));
@@ -433,7 +433,7 @@ namespace TilerTests
             Assert.IsTrue(testEvent.isTestEquivalent(verificationEventPulled));
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow);
+            Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(verificationEventPulled.isTestEquivalent(loadedFromSchedule));
@@ -505,7 +505,7 @@ namespace TilerTests
             Assert.IsTrue(testEvent.isTestEquivalent(verificationEventPulled));
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow);
+            Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(verificationEventPulled.isTestEquivalent(loadedFromSchedule));
@@ -540,7 +540,7 @@ namespace TilerTests
             Assert.IsTrue(testEvent.isTestEquivalent(verificationEventPulled));
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow);
+            Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(verificationEventPulled.isTestEquivalent(loadedFromSchedule));
@@ -603,7 +603,7 @@ namespace TilerTests
             Assert.IsTrue(testEvent.isTestEquivalent(newlyaddedevent));
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow);
+            Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(newlyaddedevent.isTestEquivalent(loadedFromSchedule));
@@ -637,7 +637,7 @@ namespace TilerTests
             Assert.IsTrue(testEvent.isTestEquivalent(newlyaddedevent));
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow);
+            Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(newlyaddedevent.isTestEquivalent(loadedFromSchedule));
@@ -767,7 +767,7 @@ namespace TilerTests
             task.Wait();
             var allSubs = task.Result.ToList();
 
-            var taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, Schedule.Now, retrievalOption: DataRetrivalOption.Ui);
+            var taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, Schedule.Now, true, retrievalOption: DataRetrivalOption.Ui);
             taskCal.Wait();
             var allCals = taskCal.Result.ToList();
             var calSubEVents = allCals.Select(obj => obj.Value).SelectMany(obj => obj.AllSubEvents).ToList();
@@ -792,7 +792,7 @@ namespace TilerTests
             task.Wait();
             allSubs = task.Result.ToList();
 
-            taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, Schedule.Now, retrievalOption: DataRetrivalOption.Ui);
+            taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, Schedule.Now, true, retrievalOption: DataRetrivalOption.Ui);
             taskCal.Wait();
             allCals = taskCal.Result.ToList();
             calSubEVents = allCals.Select(obj => obj.Value).SelectMany(obj => obj.AllSubEvents).ToList();
@@ -817,7 +817,7 @@ namespace TilerTests
             task.Wait();
             allSubs = task.Result.ToList();
 
-            taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, Schedule.Now, retrievalOption: DataRetrivalOption.Ui);
+            taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, Schedule.Now, true, retrievalOption: DataRetrivalOption.Ui);
             taskCal.Wait();
             allCals = taskCal.Result.ToList();
             calSubEVents = allCals.Select(obj => obj.Value).SelectMany(obj => obj.AllSubEvents).ToList();
@@ -1076,7 +1076,7 @@ namespace TilerTests
             Assert.IsTrue(newlyaddedevent.isTestEquivalent(testEvent));
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            TestSchedule Schedule = new TestSchedule(user, refNow);
+            TestSchedule Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(newlyaddedevent.isTestEquivalent(loadedFromSchedule));
@@ -1111,7 +1111,7 @@ namespace TilerTests
             Assert.IsTrue(newlyaddedevent.isTestEquivalent(testEvent));
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            TestSchedule Schedule = new TestSchedule(user, refNow);
+            TestSchedule Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(newlyaddedevent.isTestEquivalent(loadedFromSchedule));
@@ -1161,7 +1161,7 @@ namespace TilerTests
             Assert.AreEqual(renamedEvent.getName.NameId, testEvent.getName.NameId);
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            TestSchedule Schedule = new TestSchedule(user, refNow);
+            TestSchedule Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(renamedEvent.isTestEquivalent(loadedFromSchedule));
@@ -1206,7 +1206,7 @@ namespace TilerTests
             Assert.AreEqual(renamedEvent.Notes.UserNote, newNoteName);
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            TestSchedule Schedule = new TestSchedule(user, refNow);
+            TestSchedule Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(renamedEvent.isTestEquivalent(loadedFromSchedule));
@@ -1338,10 +1338,10 @@ namespace TilerTests
 
             lookupWindow = new TimeLine(refNow, repeatTimeLine.End);
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, rangeOfLookup: lookupWindow);
-            
+            Schedule = new TestSchedule(user, refNow, rangeOfLookup: lookupWindow, includeUpdateHistory: true);
 
-            foreach(CalendarEvent calEvent in verificationEventPulled.RecurringCalendarEvents)
+
+            foreach (CalendarEvent calEvent in verificationEventPulled.RecurringCalendarEvents)
             {
                 CalendarEvent repeatFromSchedule = Schedule.getCalendarEvent(calEvent.Id);
                 Assert.IsTrue(repeatFromSchedule.isTestEquivalent(calEvent));
@@ -1469,7 +1469,7 @@ namespace TilerTests
 
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow);
+            Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
             Task<ScheduleDump> taskScheduleDump = Schedule.CreateScheduleDump(Schedule.Now);
             taskScheduleDump.Wait();
             ScheduleDump scheduleDump = taskScheduleDump.Result;

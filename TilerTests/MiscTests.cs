@@ -120,7 +120,7 @@ namespace TilerTests
             CalendarEvent increaseSplitCountTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 2, false, location, restrictionProfile, now: schedule.Now);
             schedule.AddToScheduleAndCommitAsync(increaseSplitCountTestEvent).Wait();
             user = TestUtility.getTestUser(userId: tilerUser.Id);
-            TestSchedule scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
+            TestSchedule scheduleReloaded = new TestSchedule(user, refNow, startOfDay, includeUpdateHistory: true);
             int newSplitCount = increaseSplitCountTestEvent.NumberOfSplit + 2;
             var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(increaseSplitCountTestEvent.getId, increaseSplitCountTestEvent.getName, increaseSplitCountTestEvent.Start, increaseSplitCountTestEvent.End, newSplitCount, increaseSplitCountTestEvent.Notes.UserNote);
             increaseSplitCountTestEvent = scheduleReloaded.getCalendarEvent(increaseSplitCountTestEvent.Id);//Using this instead of TestUtility.getCalendarEventById because we need the calemdarevent in memory, not in storage for the future assert

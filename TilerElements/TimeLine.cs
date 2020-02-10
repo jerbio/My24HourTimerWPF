@@ -110,16 +110,16 @@ namespace TilerElements
             return null;
         }
 
-        virtual public bool doesTimeLineInterfere(TimeLine TimeLine0)
+        virtual public bool doesTimeLineInterfere(TimeLine timeLine)
         {
             bool retValue = false;
-            if((this.Start < TimeLine0.End) && (this.End > TimeLine0.Start)){
+            if((this.Start < timeLine.End) && (this.End > timeLine.Start)){
                 retValue = true;
             }
 
-            if (TimeLine0.TimelineSpan.Ticks == 0)
+            if (timeLine.TimelineSpan.Ticks == 0)
             {
-                if (this.Start == TimeLine0.Start || this.End == TimeLine0.Start)
+                if (this.Start == timeLine.Start || this.End == timeLine.Start)
                 {
                     retValue = true;
                 }

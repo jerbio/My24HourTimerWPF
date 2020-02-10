@@ -367,11 +367,22 @@ namespace TilerElements
         public override List<TimeLine> getInterferringWithTimeLine(TimeLine timeLine)
         {
             List<TimeLine> nonPartialFrames = _ProfileOfRestriction.getAllNonPartialTimeFrames(timeLine);
+            var startToTimeLine = nonPartialFrames.ToDictionary(o => o.Start, o => o);
+            var endToTimeLine = nonPartialFrames.ToDictionary(o => o.End, o => o);
             TimeLine earliestFrame = _ProfileOfRestriction.getEarliestActiveFrameAfterBeginning(timeLine).Item1;
             TimeLine latestFrame = _ProfileOfRestriction.getLatestActiveTimeFrameBeforeEnd(timeLine).Item1;
-            nonPartialFrames = nonPartialFrames.Where(objTimeLine => objTimeLine.Start != earliestFrame.Start && objTimeLine.End != latestFrame.End ).ToList();
-            nonPartialFrames.Insert(0, earliestFrame);
-            nonPartialFrames.Add(latestFrame);
+            if(!startToTimeLine.ContainsKey(earliestFrame.Start))
+            {
+                nonPartialFrames.Insert(0, earliestFrame);
+            }
+
+            if (!endToTimeLine.ContainsKey(latestFrame.End))
+            {
+                nonPartialFrames.Add(latestFrame);
+            }
+            //nonPartialFrames = nonPartialFrames.Where(objTimeLine => objTimeLine.Start != earliestFrame.Start && objTimeLine.End != latestFrame.End ).ToList();
+            
+            
             return nonPartialFrames;
         }
 

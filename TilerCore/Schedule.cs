@@ -3418,7 +3418,7 @@ namespace TilerCore
             List<SubCalendarEvent> orderedByStart = TotalActiveEvents.OrderBy(obj => obj.Start).ToList();
             //List<BlobSubCalendarEvent> beforePathOptimizationConflictingEvetns = Utility.getConflictingEvents(orderedByStart);
 
-            HashSet<SubCalendarEvent> designatedSubEvents = new HashSet<SubCalendarEvent>(AllDayTimeLine.SelectMany(day => day.getSubEventsInTimeLine()));
+            HashSet<SubCalendarEvent> designatedSubEvents = new HashSet<SubCalendarEvent>(TotalActiveEvents.Where(o=>o.isDesignated));
             this.ConflictingSubEvents.RemoveWhere(subEvent => designatedSubEvents.Contains(subEvent));
             List<SubCalendarEvent> conflictingSubEvents = this.ConflictingSubEvents.ToList();
 
@@ -3435,6 +3435,7 @@ namespace TilerCore
             List<DayTimeLine> OptimizedDays = new List<DayTimeLine>();
             var OptimizationWatch = new Stopwatch();
             OptimizationWatch.Start();
+            Optimize = false;
             if (Optimize)
             {
                 OptimizedDays = AllDayTimeLine.Take(OptimizedDayLimit).ToList();
@@ -3726,16 +3727,53 @@ namespace TilerCore
             {
                 ///This lookup hold all the subevents grouped by day. Generally you want to have multiple sub events within the same day to get moved so the chance of a huge time chunk being available is high. With the look up we try to maximize the space available based on the duration and the score of the subevents
                 //var lookupForSubEventsByDay = worseScoredSubevents.ToLookup(o => o.UniversalDayIndex);
+                var subEventGrouping = worseScoredSubevents.ToLookup(subEvent => subEvent.UniversalDayIndex);
+                List<long> keys = new List<long>();
+                List<IList<double>> multiDimesionalVars = new List<IList<double>>();
+                foreach (var gropingKey in subEventGrouping) {
+                    List<double> paramList = new List<double>();
+                    keys.Add(gropingKey.Key);
+                    TimeSpan TotalTime = TimeSpan.FromMilliseconds(gropingKey.Sum(subEvent => subEvent.RangeSpan.TotalMilliseconds));
+                    double totalTimeDim = Math.Pow(TotalTime.TotalHours, -1);
+                    if (totalTimeDim == 0)
+                    {
+                        totalTimeDim = double.MaxValue / 2;
+                    }
+
+                    paramList.Add(totalTimeDim);
+                    paramList.Add(totalTimeDim);//adding a second time for more emphasis
+                    double subEventCount = 1.0/(double)gropingKey.Count();
+                    paramList.Add(subEventCount);
+                    
+
+
+                    multiDimesionalVars.Add(paramList);
+                }
+
+                var multiVarResult = Utility.multiDimensionCalculationNormalize(multiDimesionalVars);
+
+                List<Tuple<double, int>> multivarEvaluationToIndex = new List<Tuple<double, int>>();
+                for (int i = 0; i < multiVarResult.Count; i++)
+                {
+                    double evaluatedResult = multiVarResult[i];
+                    var tuple = new Tuple<double, int>(evaluatedResult, i);
+                    multivarEvaluationToIndex.Add(tuple);
+                }
+
+                List<SubCalendarEvent> orderedWorseSubEVents = multivarEvaluationToIndex.OrderBy(o => o.Item1).SelectMany(o => subEventGrouping[keys[o.Item2]]).ToList();
+
 
 
                 HashSet<DayTimeLine> repostionedBeforeDays = new HashSet<DayTimeLine>();
-                foreach (SubCalendarEvent lessPrioritySubEvent in worseScoredSubevents)
+                foreach (SubCalendarEvent lessPrioritySubEvent in orderedWorseSubEVents)
                 {
                     if(totalRepositioned <= maxTimeSpan && !resolvedConflict)
                     {
                         //Dictionary<DayTimeLine, Dictionary<DateTimeOffset, TimeLine>> dayTimeLineToFreeSpaces = new Dictionary<DayTimeLine, Dictionary<DateTimeOffset, TimeLine>>();
                         repostionedBeforeDays = new HashSet<DayTimeLine>();
-                        List<DayTimeLine> plausibleRepositionableDays = allDayTimeLinesDays.Where(dayTimeLine => conflictingSubEvent.canExistWithinTimeLine( dayTimeLine)).Except(conflictingSubEventDays).ToList();
+                        List<DayTimeLine> plausibleRepositionableDays = allDayTimeLinesDays.Where(dayTimeLine => conflictingSubEvent.canExistWithinTimeLine( dayTimeLine))
+                            //.Except(conflictingSubEventDays)
+                            .ToList();
                         foreach (var dayTimeline in plausibleRepositionableDays)
                         {
                             var subEventsInTimeline = dayTimeline.getSubEventsInTimeLine().OrderBy(o => o.Start).ThenBy(o => o.End).ToList();

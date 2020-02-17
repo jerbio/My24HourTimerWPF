@@ -224,7 +224,9 @@
     <Content Include="WagTapCalLogs\6439fc14-ad0d-419f-acc8-86b17cc100c2\6439fc14-ad0d-419f-acc8-86b17cc100c2.xml" />
     <Content Include="WagTapCalLogs\696e65bf-3b61-47bb-ac95-b1661e364552\696e65bf-3b61-47bb-ac95-b1661e364552.xml" />
     <Content Include="WagTapCalLogs\6bc6992f-3222-4fd8-9e2b-b94eba2fb717\6bc6992f-3222-4fd8-9e2b-b94eba2fb717.xml" />
-    <Content Include="WagTapCalLogs\712dd797-8991-4f79-90c1-7b51c744c4bd\712dd797-8991-4f79-90c1-7b51c744c4bd.xml" />
+    <Content Include="WagTapCalLogs\712dd797-8991-4f79-90c1-7b51c744c4bd\712dd797-8991-4f79-90c1-7b51c744c4bd.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="WagTapCalLogs\7e65ea64-7a35-4895-b97f-f2d748773a8e\7e65ea64-7a35-4895-b97f-f2d748773a8e.xml" />
     <Content Include="WagTapCalLogs\7f453aa2-c1d4-4a5e-9121-b33b4176e98c\7f453aa2-c1d4-4a5e-9121-b33b4176e98c.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -237,15 +239,21 @@
     <Content Include="WagTapCalLogs\982935bc-f5bc-4d5e-a372-7a5d5e40cfa0.xml" />
     <Content Include="WagTapCalLogs\982935bc-f5bc-4d5e-a372-7a5d5e40cfa0\982935bc-f5bc-4d5e-a372-7a5d5e40cfa0.xml" />
     <Content Include="WagTapCalLogs\982935bc-f5bc-4d5e-a372-7a5d5e40cfa0\Copy_982935bc-f5bc-4d5e-a372-7a5d5e40cfa0.xml" />
-    <Content Include="WagTapCalLogs\a56a5ac5-b474-4d4e-b878-bbb593a0d5b1\a56a5ac5-b474-4d4e-b878-bbb593a0d5b1.xml" />
+    <Content Include="WagTapCalLogs\a56a5ac5-b474-4d4e-b878-bbb593a0d5b1\a56a5ac5-b474-4d4e-b878-bbb593a0d5b1.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="WagTapCalLogs\a56a5ac5-b474-4d4e-b878-bbb593a0d5b1\Copy_a56a5ac5-b474-4d4e-b878-bbb593a0d5b1.xml" />
     <Content Include="WagTapCalLogs\aad38888-ed1d-435f-a814-0152c0fe8128\aad38888-ed1d-435f-a814-0152c0fe8128.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="WagTapCalLogs\b10cdae0-64e1-498f-82a2-8601da577255\b10cdae0-64e1-498f-82a2-8601da577255.xml" />
+    <Content Include="WagTapCalLogs\b10cdae0-64e1-498f-82a2-8601da577255\b10cdae0-64e1-498f-82a2-8601da577255.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="WagTapCalLogs\bcb917eb-1192-46e4-b8cb-df3d24798520\bcb917eb-1192-46e4-b8cb-df3d24798520.xml" />
     <Content Include="WagTapCalLogs\bee315a3-14fd-448a-83e4-d1caff27bdab\bee315a3-14fd-448a-83e4-d1caff27bdab.xml" />
-    <Content Include="WagTapCalLogs\c1fbe98f-cb7e-4b21-9d99-b4c3acaf670c\c1fbe98f-cb7e-4b21-9d99-b4c3acaf670c.xml" />
+    <Content Include="WagTapCalLogs\c1fbe98f-cb7e-4b21-9d99-b4c3acaf670c\c1fbe98f-cb7e-4b21-9d99-b4c3acaf670c.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="WagTapCalLogs\ca59fa51-c3ca-4c2c-b0bc-1828ded546f5.xml" />
     <Content Include="WagTapCalLogs\cd62d710-1ba0-4515-8a42-66653934936d\cd62d710-1ba0-4515-8a42-66653934936d.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

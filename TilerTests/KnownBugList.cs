@@ -37,29 +37,6 @@ namespace TilerTests
  * This test tries to see that there is sufficent diversity. Read notes scheule dump nodes
  * The 
 */
-        /// <summary>
-        /// Template for running test environment through log files.
-        /// You need to run this in UTC TimeZone
-        /// </summary>
-
-        [TestMethod]
-        public void file_conflict_cd62d710_resolution()
-        {
-            string scheduleId = "cd62d710-1ba0-4515-8a42-66653934936d";
-            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
-            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
-            Schedule schedule = scheduleAndDump.Item1;
-            schedule.disableDayOptimization();
-            schedule.FindMeSomethingToDo(currentLocation).Wait();
-
-            List<SubCalendarEvent> evaluatedSubevents = schedule.EvaluatedSubEvents.ToList();
-            List<SubCalendarEvent> conflictingSubevents = schedule.ConflictingSubEvents.ToList();
-            
-            HashSet<SubCalendarEvent> designatedubevents = new HashSet<SubCalendarEvent>( schedule.Now.getAllDaysForCalc().SelectMany(o => o.getSubEventsInTimeLine()));
-            Assert.IsTrue((evaluatedSubevents.Count - designatedubevents.Count) <= 1);// so far cannot solve last function
-            ((TestSchedule)schedule).WriteFullScheduleToOutlook();
-        }
-
         [TestMethod]
         public void file_unnecessary_shifiting_back_and_forth_of_workout_7f453aa2()
         {

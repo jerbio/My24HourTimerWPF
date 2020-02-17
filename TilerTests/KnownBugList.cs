@@ -49,7 +49,14 @@ namespace TilerTests
             Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
             var scheduleAndDump = TestUtility.getSchedule(scheduleId);
             Schedule schedule = scheduleAndDump.Item1;
+            schedule.disableDayOptimization();
             schedule.FindMeSomethingToDo(currentLocation).Wait();
+
+            List<SubCalendarEvent> evaluatedSubevents = schedule.EvaluatedSubEvents.ToList();
+            List<SubCalendarEvent> conflictingSubevents = schedule.ConflictingSubEvents.ToList();
+            
+            HashSet<SubCalendarEvent> designatedubevents = new HashSet<SubCalendarEvent>( schedule.Now.getAllDaysForCalc().SelectMany(o => o.getSubEventsInTimeLine()));
+            Assert.IsTrue((evaluatedSubevents.Count - designatedubevents.Count) <= 1);// so far cannot solve last function
             ((TestSchedule)schedule).WriteFullScheduleToOutlook();
         }
 

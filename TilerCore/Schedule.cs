@@ -135,8 +135,10 @@ namespace TilerCore
         protected double PercentageOccupancy = 0;
         protected ReferenceNow _Now;
         protected TimeSpan _MorningPreparationTime = TimeSpan.FromMinutes(45);// trying to get 45 minutes
-        protected HashSet<SubCalendarEvent> ConflictingSubEvents = new HashSet<SubCalendarEvent>();
+        protected HashSet<SubCalendarEvent> _ConflictingSubEvents = new HashSet<SubCalendarEvent>();
+        protected HashSet<SubCalendarEvent> _EvaluatedSubevents = new HashSet<SubCalendarEvent>(); // Subevents that were used to for schedule evaluation
         protected DataRetrivalOption retrievalOption = DataRetrivalOption.Evaluation;
+        protected bool _OptimizationEnabled;
         public ReferenceNow Now
         {
             get
@@ -159,6 +161,14 @@ namespace TilerCore
                 {
                     return Location.getDefaultLocation();
                 }
+            }
+        }
+
+        public bool OptimizationEnabled
+        {
+            get
+            {
+                return _OptimizationEnabled;
             }
         }
 
@@ -204,6 +214,22 @@ namespace TilerCore
             get
             {
                 return _TravelCache;
+            }
+        }
+
+        public virtual IEnumerable<SubCalendarEvent> ConflictingSubEvents
+        {
+            get
+            {
+                return _ConflictingSubEvents;
+            }
+        }
+
+        public virtual IEnumerable<SubCalendarEvent> EvaluatedSubEvents
+        {
+            get
+            {
+                return _EvaluatedSubevents;
             }
         }
         int DebugCounter = 0;
@@ -269,6 +295,11 @@ namespace TilerCore
 
 
         #endregion
+        public virtual void disableDayOptimization()
+        {
+            _OptimizationEnabled = false;
+        }
+
 
         public virtual void updateTravelCache(TravelCache travelCache)
         {
@@ -2594,7 +2625,7 @@ namespace TilerCore
                 myDays.Add(SubCalFirstIndex);
                 OrderedyAscendingAllDays[BoundedIndex].AddToSubEventList(eachSubCalendarEvent);
                 eachSubCalendarEvent.ParentCalendarEvent.designateSubEvent(eachSubCalendarEvent, Now);
-                ConflictingSubEvents.Remove(eachSubCalendarEvent);
+                _ConflictingSubEvents.Remove(eachSubCalendarEvent);
                 //eachSubCalendarEvent.updateDayIndex(SubCalFirstIndex, eachSubCalendarEvent.ParentCalendarEvent);
                 eachSubCalendarEvent.ParentCalendarEvent.removeDayTimesFromFreeUpdays(SubCalFirstIndex);
                 for (long i = SubCalFirstIndex + 1, j = 0; j < DayDiff; j++, i++)
@@ -3220,7 +3251,8 @@ namespace TilerCore
                 subEvent.isWake = false; subEvent.isSleep = false;
                 subEvent.resetTardy();
             });
-            TotalActiveEvents.ForEach((subEvent) => ConflictingSubEvents.Add(subEvent));
+            TotalActiveEvents.ForEach((subEvent) => _ConflictingSubEvents.Add(subEvent));
+            _EvaluatedSubevents = new HashSet<SubCalendarEvent>(TotalActiveEvents);
             AllCalEvents.ForEach
                 //.AsParallel().ForAll
                 (obj => {
@@ -3256,7 +3288,7 @@ namespace TilerCore
                 var SetForFirstDay = PrepFirstTwentyFourHours(TotalActiveEvents, dayTimeLine.StartToEnd);
                 SetForFirstDay.ForEach(subEvent => {
                     subEvent.ParentCalendarEvent.designateSubEvent(subEvent, Now);
-                    this.ConflictingSubEvents.Remove(subEvent);
+                    this._ConflictingSubEvents.Remove(subEvent);
                     TimeLine timeLine = subEvent.ActiveSlot.InterferringTimeLine(dayTimeLine);
                     if (timeLine != null)
                     {
@@ -3416,11 +3448,10 @@ namespace TilerCore
 
 
             List<SubCalendarEvent> orderedByStart = TotalActiveEvents.OrderBy(obj => obj.Start).ToList();
-            //List<BlobSubCalendarEvent> beforePathOptimizationConflictingEvetns = Utility.getConflictingEvents(orderedByStart);
 
             HashSet<SubCalendarEvent> designatedSubEvents = new HashSet<SubCalendarEvent>(TotalActiveEvents.Where(o=>o.isDesignated));
-            this.ConflictingSubEvents.RemoveWhere(subEvent => designatedSubEvents.Contains(subEvent));
-            List<SubCalendarEvent> conflictingSubEvents = this.ConflictingSubEvents.ToList();
+            this._ConflictingSubEvents.RemoveWhere(subEvent => designatedSubEvents.Contains(subEvent));
+            List<SubCalendarEvent> conflictingSubEvents = this._ConflictingSubEvents.OrderBy(o=>o.Score).ToList();
 
             var conflictResolutionResult = resolveConflicts(conflictingSubEvents, AllDayTimeLine);
 
@@ -3429,15 +3460,19 @@ namespace TilerCore
             {
                 DayTimeLine dayTimeLine = Now.getDayTimeLineByTime(subEvent.Start);
                 bool conflictResolve = singleDayConflictResolution(subEvent, dayTimeLine);
+                if(conflictResolve)
+                {
+                    _ConflictingSubEvents.Remove(subEvent);
+                }
             });
 
-            IDictionary<DayTimeLine, OptimizedPath> dayToOptimization = null;
+            
             List<DayTimeLine> OptimizedDays = new List<DayTimeLine>();
             var OptimizationWatch = new Stopwatch();
             OptimizationWatch.Start();
-            Optimize = false;
-            if (Optimize)
+            if (Optimize && this.OptimizationEnabled)
             {
+                HashSet<SubCalendarEvent> undesignatedAfterSubeventsOptimization = new HashSet<SubCalendarEvent>();
                 OptimizedDays = AllDayTimeLine.Take(OptimizedDayLimit).ToList();
                 long FirstIndex = AllDayTimeLine[0].UniversalIndex;
                 try
@@ -3448,17 +3483,26 @@ namespace TilerCore
                         IEnumerable<SubCalendarEvent> subEvents = DayToSubEvent[eachGrouping.Key];
                         foreach (SubCalendarEvent subEvent in subEvents)
                         {
-                            ConflictingSubEvents.Remove(subEvent);
+                            _ConflictingSubEvents.Remove(subEvent);
                         }
                         int currentIndex = (int)(eachGrouping.Key - FirstIndex);
                         AllDayTimeLine[currentIndex].AddToSubEventList(DayToSubEvent[eachGrouping.Key]);
                     }
 
-                    dayToOptimization = optimizeDays(OptimizedDays, callLocation);
+                    var dayToOptimization = optimizeDays(OptimizedDays, callLocation);
+                    foreach(var optimizedPath in dayToOptimization.Values)
+                    {
+                        foreach(SubCalendarEvent subEvent in optimizedPath.UnassignedSubEvents)
+                        {
+                            undesignatedAfterSubeventsOptimization.Add(subEvent);
+                        }
+                    }
                     foreach (SubCalendarEvent subEvent in OptimizedDays.SelectMany(day => day.getSubEventsInTimeLine()))
                     {
-                        ConflictingSubEvents.Remove(subEvent);
+                        _ConflictingSubEvents.Remove(subEvent);
                     }
+
+                    var optimizationConflictResolutionResult = resolveConflicts(undesignatedAfterSubeventsOptimization.ToList(), AllDayTimeLine);
                 }
                 catch (Exception E)
                 {
@@ -3475,19 +3519,6 @@ namespace TilerCore
 
             List<BlobSubCalendarEvent> afterPathOptimizationConflictingEvetns = Utility.getConflictingEvents(TotalActiveEvents.OrderBy(obj => obj.Start).ToList());
             List<SubCalendarEvent> ordereByStartTime = TotalActiveEvents.OrderBy(SubEvent => SubEvent.Start).ToList();
-            List<BlobSubCalendarEvent> blobSubEvents = Utility.getConflictingEvents(ordereByStartTime);
-            List<SubCalendarEvent> subEventsUnOptimized = blobSubEvents.SelectMany(blobEvent => blobEvent.getSubCalendarEventsInBlob()).Where(subEvent => !subEvent.isOptimized).ToList();
-            subEventsUnOptimized.ForEach(subEvent =>
-            {
-                if (subEvent.isDesignated)
-                {
-                    DayTimeLine dayTimeLine = Now.getDayTimeLineByDayIndex(subEvent.UniversalDayIndex);
-                    subEvent.ParentCalendarEvent.undesignateSubEvent(subEvent);
-                    dayTimeLine.RemoveSubEvent(subEvent.Id);
-                }
-
-
-            });
             return totalNumberOfEvents;
         }
 
@@ -3505,6 +3536,7 @@ namespace TilerCore
             List<SubCalendarEvent> subEventsInTimeline = new HashSet<SubCalendarEvent>(dayTimeline.getSubEventsInTimeLine()).OrderBy(o=>o.Start).ToList();
             HashSet<SubCalendarEvent> subEventsInConflictingTimeLine = new HashSet<SubCalendarEvent>();
             HashSet<SubCalendarEvent> preservedSubEventWithinTimeLine = new HashSet<SubCalendarEvent>(subEventsInTimeline);// THis will be the subevents in which their order need to be stuck in place since they are either not conflicting with timeframe for the conflicting subevent or they are rigid subevent
+            int expectedSubEventCountAfterConflictResolution = preservedSubEventWithinTimeLine.Count + 1;
             int indexOfDaytimeline = 0;
             int nextIndex = indexOfDaytimeline;
             
@@ -3565,11 +3597,19 @@ namespace TilerCore
             {
                 if (subEventsInConflictingTimeLine.Contains(subEvent) && !subEvent.isLocked)//  
                 {
-                    preservedSubEventWithinTimeLine.Remove(subEvent);
-                } else
-                {
                     toBeReorganizedForConflictSubevents.Add(subEvent);
+                    preservedSubEventWithinTimeLine.Remove(subEvent);
                 }
+
+
+
+                //if (subEventsInConflictingTimeLine.Contains(subEvent) && !subEvent.isLocked)//  
+                //{
+                //    preservedSubEventWithinTimeLine.Remove(subEvent);
+                //} else
+                //{
+                //    toBeReorganizedForConflictSubevents.Add(subEvent);
+                //}
             });
 
             var preservedTimeLineSubevents = Utility.getTilerEventTimeline(subEventsInTimeline);
@@ -3593,11 +3633,12 @@ namespace TilerCore
                     List<SubCalendarEvent> allSubevents = new HashSet<SubCalendarEvent>(reoptimizedSubEvent.Concat(toBeReorganizedForConflictSubevents)).ToList();
 
                     List<SubCalendarEvent> stitchResult = stitchUnRestrictedSubCalendarEvent(timeline, reoptimizedSubEvent, toBeReorganizedForConflictSubevents);
-                    if (stitchResult.Count == allSubevents.Count)
+                    
+                    if (stitchResult.Count == expectedSubEventCountAfterConflictResolution)
                     {
                         conflictResolved = true;
                         conflictingSubEvent.ParentCalendarEvent.designateSubEvent(conflictingSubEvent, Now);
-                        this.ConflictingSubEvents.Remove(conflictingSubEvent);
+                        this._ConflictingSubEvents.Remove(conflictingSubEvent);
                         dayTimeline.AddToSubEventList(conflictingSubEvent);
                     }
                 }
@@ -3693,7 +3734,8 @@ namespace TilerCore
         /// <returns></returns>
         bool repositionAlreadyAssignedEvents(SubCalendarEvent conflictingSubEvent, IList<DayTimeLine> allDayTimeLinesDays)
         {
-            List<DayTimeLine>  conflictingSubEventDays = allDayTimeLinesDays.Where(dayTimeLine => conflictingSubEvent.canExistWithinTimeLine(dayTimeLine)).ToList();
+            TimeLine subEventTimeLine = conflictingSubEvent.StartToEnd;
+            List<DayTimeLine>  conflictingSubEventDays = allDayTimeLinesDays.Where(dayTimeLine => subEventTimeLine.doesTimeLineInterfere(dayTimeLine)).ToList();
             Dictionary<SubCalendarEvent, HashSet<DayTimeLine>> subEventsCanbeMoved = new Dictionary<SubCalendarEvent, HashSet<DayTimeLine>>();
             foreach(DayTimeLine dayTimeLine in conflictingSubEventDays)
             {
@@ -3730,10 +3772,10 @@ namespace TilerCore
                 var subEventGrouping = worseScoredSubevents.ToLookup(subEvent => subEvent.UniversalDayIndex);
                 List<long> keys = new List<long>();
                 List<IList<double>> multiDimesionalVars = new List<IList<double>>();
-                foreach (var gropingKey in subEventGrouping) {
+                foreach (var groupingKey in subEventGrouping) {
                     List<double> paramList = new List<double>();
-                    keys.Add(gropingKey.Key);
-                    TimeSpan TotalTime = TimeSpan.FromMilliseconds(gropingKey.Sum(subEvent => subEvent.RangeSpan.TotalMilliseconds));
+                    keys.Add(groupingKey.Key);
+                    TimeSpan TotalTime = TimeSpan.FromMilliseconds(groupingKey.Sum(subEvent => subEvent.RangeSpan.TotalMilliseconds));
                     double totalTimeDim = Math.Pow(TotalTime.TotalHours, -1);
                     if (totalTimeDim == 0)
                     {
@@ -3742,7 +3784,7 @@ namespace TilerCore
 
                     paramList.Add(totalTimeDim);
                     paramList.Add(totalTimeDim);//adding a second time for more emphasis
-                    double subEventCount = 1.0/(double)gropingKey.Count();
+                    double subEventCount = 1.0/(double)groupingKey.Count();
                     paramList.Add(subEventCount);
                     
 
@@ -3760,7 +3802,7 @@ namespace TilerCore
                     multivarEvaluationToIndex.Add(tuple);
                 }
 
-                List<SubCalendarEvent> orderedWorseSubEVents = multivarEvaluationToIndex.OrderBy(o => o.Item1).SelectMany(o => subEventGrouping[keys[o.Item2]]).ToList();
+                List<SubCalendarEvent> orderedWorseSubEVents = multivarEvaluationToIndex.OrderByDescending(o => o.Item1).SelectMany(o => subEventGrouping[keys[o.Item2]]).ToList();
 
 
 
@@ -3774,51 +3816,62 @@ namespace TilerCore
                         List<DayTimeLine> plausibleRepositionableDays = allDayTimeLinesDays.Where(dayTimeLine => conflictingSubEvent.canExistWithinTimeLine( dayTimeLine))
                             //.Except(conflictingSubEventDays)
                             .ToList();
+                        bool isAlternateDayFoundForWorseSubevent = false;
                         foreach (var dayTimeline in plausibleRepositionableDays)
                         {
-                            var subEventsInTimeline = dayTimeline.getSubEventsInTimeLine().OrderBy(o => o.Start).ThenBy(o => o.End).ToList();
-                            var positionEvaluationResult = getPositionInDaytimeline(dayTimeline, conflictingSubEvent, subEventsInTimeline);
-                            int preferredIndex = positionEvaluationResult.Item1;
-                            var revisedTimeLineUpdatedForOverlappingEvents = positionEvaluationResult.Item2;
-
-                            if (preferredIndex>-1)
+                            if(!isAlternateDayFoundForWorseSubevent)
                             {
-                                subEventsInTimeline.Insert(preferredIndex, lessPrioritySubEvent);
-                                if (!Utility.PinSubEventsToStart(subEventsInTimeline, revisedTimeLineUpdatedForOverlappingEvents))
-                                {
-                                    throw new Exception("There is a flaw in your logic for conflict resoution");
-                                }
+                                var subEventsInTimeline = dayTimeline.getSubEventsInTimeLine().OrderBy(o => o.Start).ThenBy(o => o.End).ToList();
+                                var positionEvaluationResult = getPositionInDaytimeline(dayTimeline, lessPrioritySubEvent, subEventsInTimeline);
+                                int preferredIndex = positionEvaluationResult.Item1;
+                                var revisedTimeLineUpdatedForOverlappingEvents = positionEvaluationResult.Item2;
 
-                                var currentDayTimelines = subEventsCanbeMoved[lessPrioritySubEvent];
-                                foreach(DayTimeLine currentTimeLineForSubevent in currentDayTimelines)
+                                if (preferredIndex > -1)
                                 {
-                                    currentTimeLineForSubevent.RemoveSubEvent(lessPrioritySubEvent.Id);
+                                    subEventsInTimeline.Insert(preferredIndex, lessPrioritySubEvent);
+                                    if (!Utility.PinSubEventsToStart(subEventsInTimeline, revisedTimeLineUpdatedForOverlappingEvents))
+                                    {
+                                        throw new Exception("There is a flaw in your logic for conflict resoution");
+                                    }
+
+                                    var currentDayTimelines = subEventsCanbeMoved[lessPrioritySubEvent];
+                                    foreach (DayTimeLine currentTimeLineForSubevent in currentDayTimelines)
+                                    {
+                                        currentTimeLineForSubevent.RemoveSubEvent(lessPrioritySubEvent.Id);
+                                    }
+                                    dayTimeline.AddToSubEventList(lessPrioritySubEvent);
+                                    repostionedBeforeDays.Add(dayTimeline);
+                                    totalRepositioned += lessPrioritySubEvent.RangeSpan;
+                                    isAlternateDayFoundForWorseSubevent = true;
                                 }
-                                dayTimeline.AddToSubEventList(lessPrioritySubEvent);
-                                repostionedBeforeDays.Add(dayTimeline);
-                                totalRepositioned += lessPrioritySubEvent.RangeSpan;
+                            } else
+                            {
+                                break;
                             }
                         }
                         if(totalRepositioned >= conflictingSubEventSpan)
                         {
                             foreach(DayTimeLine dayTimeline in repostionedBeforeDays)
                             {
-                                var subEventsInTimeline = dayTimeline.getSubEventsInTimeLine().OrderBy(o => o.Start).ThenBy(o => o.End).ToList();
-                                var positionEvaluationResult = getPositionInDaytimeline(dayTimeline, conflictingSubEvent, subEventsInTimeline);
-                                int preferredIndex = positionEvaluationResult.Item1;
-                                var revisedTimeLineUpdatedForOverlappingEvents = positionEvaluationResult.Item2;
-                                if (preferredIndex > -1)
+                                if(!resolvedConflict)
                                 {
-                                    var subEventsWithConflicts = subEventsInTimeline.ToList();
-                                    subEventsWithConflicts.Insert(preferredIndex, conflictingSubEvent);
-                                    if(!Utility.PinSubEventsToEnd(subEventsInTimeline, revisedTimeLineUpdatedForOverlappingEvents))
+                                    var subEventsInTimeline = dayTimeline.getSubEventsInTimeLine().OrderBy(o => o.Start).ThenBy(o => o.End).ToList();
+                                    var positionEvaluationResult = getPositionInDaytimeline(dayTimeline, conflictingSubEvent, subEventsInTimeline);
+                                    int preferredIndex = positionEvaluationResult.Item1;
+                                    var revisedTimeLineUpdatedForOverlappingEvents = positionEvaluationResult.Item2;
+                                    if (preferredIndex > -1)
                                     {
-                                        throw new Exception("There is a flaw in your logic for conflict resoution after finding slot for conflict");
+                                        var subEventsWithConflicts = subEventsInTimeline.ToList();
+                                        subEventsWithConflicts.Insert(preferredIndex, conflictingSubEvent);
+                                        if (!Utility.PinSubEventsToEnd(subEventsWithConflicts, revisedTimeLineUpdatedForOverlappingEvents))
+                                        {
+                                            throw new Exception("There is a flaw in your logic for conflict resoution after finding slot for conflict");
+                                        }
+                                        resolvedConflict = true;
+                                        dayTimeline.AddToSubEventList(conflictingSubEvent);
+                                        conflictingSubEvent.ParentCalendarEvent.designateSubEvent(conflictingSubEvent, Now);
+                                        this._ConflictingSubEvents.Remove(conflictingSubEvent);
                                     }
-                                    resolvedConflict = true;
-                                    dayTimeline.AddToSubEventList(conflictingSubEvent);
-                                    conflictingSubEvent.ParentCalendarEvent.designateSubEvent(conflictingSubEvent, Now);
-                                    this.ConflictingSubEvents.Remove(conflictingSubEvent);
                                 }
                             }
                         }
@@ -3966,7 +4019,7 @@ namespace TilerCore
             foreach(SubCalendarEvent subEvent in Reassigned.Concat(AllRigids))
             {
                 subEvent.ParentCalendarEvent.designateSubEvent(subEvent, Now);
-                ConflictingSubEvents.Remove(subEvent);
+                _ConflictingSubEvents.Remove(subEvent);
             }
             return Reassigned;
         }

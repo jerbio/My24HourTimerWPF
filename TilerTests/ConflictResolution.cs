@@ -12,6 +12,69 @@ namespace TilerTests
     [TestClass]
     public class ConflictResolution
     {
+
+        [TestMethod]
+        public void file_1edc6fe0()
+        {
+            Location homeLocation = TestUtility.getAdHocLocations()[0];
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("2:00am");
+            string scheduleId = "1edc6fe0-0bd1-453e-a77f-7014814ee9ef";
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+            TestSchedule schedule = (TestSchedule)scheduleAndDump.Item1;
+            schedule.FindMeSomethingToDo(homeLocation).Wait();
+            string timeInString = "11/21/2019 12:00:00 PM +00:00";
+            DateTimeOffset timeWithinDayWithConflict = DateTimeOffset.Parse(timeInString);
+            DayTimeLine dayTimeLineWithConflict = schedule.Now.getDayTimeLineByTime(timeWithinDayWithConflict);
+            TimeLine dayTimeLineWithConflict_StartToEnd = dayTimeLineWithConflict.StartToEnd;
+            HashSet<SubCalendarEvent> subEventsWithinDayOfCOnflict = new HashSet<SubCalendarEvent>(schedule.getAllActiveSubEvents().Where(suEvent => suEvent.StartToEnd.doesTimeLineInterfere(dayTimeLineWithConflict_StartToEnd)));
+
+            schedule.WriteFullScheduleToOutlook();
+
+            var conflict = Utility.getConflictingEvents(subEventsWithinDayOfCOnflict);
+            Assert.AreEqual(conflict.Count, 1);
+        }
+
+
+        [TestMethod]
+        public void file_c44f70d1()
+        {
+            Location homeLocation = TestUtility.getAdHocLocations()[0];
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("2:00am");
+            string scheduleId = "c44f70d1-8c65-4c57-8d47-80b9186c2e44";
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+            TestSchedule schedule = (TestSchedule)scheduleAndDump.Item1;
+            schedule.SetCalendarEventAsNow("3bb2c573-fa4e-425f-bd2b-a99d4dd1d354_7_0_8be8d64f-dbe8-4989-85a6-1e889ea26b69");
+            string timeInString = "2/10/2020 12:00:00 PM +00:00";
+            DateTimeOffset timeWithinDayWithConflict = DateTimeOffset.Parse(timeInString);
+            DayTimeLine dayTimeLineWithConflict = schedule.Now.getDayTimeLineByTime(timeWithinDayWithConflict);
+            TimeLine dayTimeLineWithConflict_StartToEnd = dayTimeLineWithConflict.StartToEnd;
+            HashSet<SubCalendarEvent> subEventsWithinDayOfCOnflict = new HashSet<SubCalendarEvent>(schedule.getAllActiveSubEvents().Where(suEvent => suEvent.StartToEnd.doesTimeLineInterfere(dayTimeLineWithConflict_StartToEnd)));
+
+            var conflict =  Utility.getConflictingEvents(subEventsWithinDayOfCOnflict);
+            Assert.AreEqual(conflict.Count, 1);
+        }
+
+        [TestMethod]
+        public void file_1deb0ae5()
+        {
+            Location homeLocation = TestUtility.getAdHocLocations()[0];
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("2:00am");
+            string scheduleId = "1deb0ae5-d271-44a3-83ab-9dca3484af9a";
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+            TestSchedule schedule = (TestSchedule)scheduleAndDump.Item1;
+            var resultOfShuffle = schedule.FindMeSomethingToDo(homeLocation);
+            string timeInString = "12/16/2019 12:00:00 PM +00:00";
+            DateTimeOffset timeWithinDayWithConflict = DateTimeOffset.Parse(timeInString);
+            DayTimeLine dayTimeLineWithConflict = schedule.Now.getDayTimeLineByTime(timeWithinDayWithConflict);
+            TimeLine dayTimeLineWithConflict_StartToEnd = dayTimeLineWithConflict.StartToEnd;
+            HashSet<SubCalendarEvent> subEventsWithinDayOfCOnflict = new HashSet<SubCalendarEvent>(schedule.getAllActiveSubEvents().Where(suEvent => suEvent.StartToEnd.doesTimeLineInterfere(dayTimeLineWithConflict_StartToEnd)));
+            resultOfShuffle.Wait();
+            schedule.WriteFullScheduleToOutlook();
+
+            var conflict = Utility.getConflictingEvents(subEventsWithinDayOfCOnflict);
+            Assert.AreEqual(conflict.Count, 0);
+        }
+
         /*
          *current utc time is April 18, 2017 10:40:59 pm +/- 5 mins current end of day 10:00pm
         When I shuffle for some reason there is an unnecessary conflict with 7170280_7_0_7170281 and 7156969_7_0_7156970.(Work on test bug ibm steez & Workout) Event though there is enough time in the day to let both time frames.
@@ -45,14 +108,13 @@ namespace TilerTests
             Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
             var scheduleAndDump = TestUtility.getSchedule(scheduleId);
             Schedule schedule = scheduleAndDump.Item1;
-            schedule.disableDayOptimization();
             schedule.FindMeSomethingToDo(currentLocation).Wait();
 
             List<SubCalendarEvent> evaluatedSubevents = schedule.EvaluatedSubEvents.ToList();
             List<SubCalendarEvent> conflictingSubevents = schedule.ConflictingSubEvents.ToList();
 
             HashSet<SubCalendarEvent> designatedubevents = new HashSet<SubCalendarEvent>(schedule.Now.getAllDaysForCalc().SelectMany(o => o.getSubEventsInTimeLine()));
-            Assert.IsTrue((evaluatedSubevents.Count - designatedubevents.Count) <= 1);// so far cannot solve last function
+            Assert.IsTrue(evaluatedSubevents.Count == designatedubevents.Count);// so far cannot solve last function
             ((TestSchedule)schedule).WriteFullScheduleToOutlook();
         }
 

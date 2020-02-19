@@ -825,7 +825,7 @@ namespace TilerCore
         {
             IEnumerable<CalendarEvent> retValue = AllEventDictionary.Values
                 .Where(calEvent => (
-                                    (calEvent.isActive && calEvent.IsFromRecurringAndIsChildCalEvent && calEvent.RepeatParentEvent.isActive) ||
+                                    (calEvent.isActive && calEvent.IsFromRecurringAndIsChildCalEvent && (calEvent.RepeatParentEvent == null || calEvent.RepeatParentEvent.isActive)) ||
                                     (!calEvent.IsFromRecurring && calEvent.isActive))); 
 
 
@@ -3460,13 +3460,13 @@ namespace TilerCore
             {
                 DayTimeLine dayTimeLine = Now.getDayTimeLineByTime(subEvent.Start);
                 bool conflictResolve = singleDayConflictResolution(subEvent, dayTimeLine);
-                if(conflictResolve)
+                if (conflictResolve)
                 {
                     _ConflictingSubEvents.Remove(subEvent);
                 }
             });
 
-            
+
             List<DayTimeLine> OptimizedDays = new List<DayTimeLine>();
             var OptimizationWatch = new Stopwatch();
             OptimizationWatch.Start();
@@ -3503,6 +3503,11 @@ namespace TilerCore
                     }
 
                     var optimizationConflictResolutionResult = resolveConflicts(undesignatedAfterSubeventsOptimization.ToList(), AllDayTimeLine);
+                    foreach(SubCalendarEvent subEvent in optimizationConflictResolutionResult.Item2)
+                    {
+                        _ConflictingSubEvents.Add(subEvent);
+                    }
+                    
                 }
                 catch (Exception E)
                 {
@@ -3754,8 +3759,16 @@ namespace TilerCore
                     dayTimeLines.Add(dayTimeLine);
                 }
             }
-            conflictingSubEventDays.SelectMany(dayTimeline => dayTimeline.getSubEventsInTimeLine()).ToList();
+            List<SubCalendarEvent> allPossibleSubeventsThatCanBeMoved = subEventsCanbeMoved.Keys.ToList();
             List<SubCalendarEvent> worseScoredSubevents = subEventsCanbeMoved.Keys.Where(subEvent => subEvent.Score > conflictingSubEvent.Score).ToList();
+            List<SubCalendarEvent> possibleRepositionableSubEvents = null;
+            if (worseScoredSubevents.Count< 1)// If there are no worse scored subevents then try all possible events :(
+            {
+                possibleRepositionableSubEvents = allPossibleSubeventsThatCanBeMoved.ToList();
+            } else
+            {
+                possibleRepositionableSubEvents = worseScoredSubevents;
+            }
             TimeSpan totalRepositioned = Utility.ZeroTimeSpan;
             TimeSpan conflictingSubEventSpan = conflictingSubEvent.RangeSpan;
             TimeSpan maxTimeSpan = conflictingSubEventSpan >= Utility.SixHourTimeSpan ? conflictingSubEventSpan : TimeSpan.FromHours(conflictingSubEventSpan.TotalHours * 1.5);
@@ -3765,11 +3778,11 @@ namespace TilerCore
             bool resolvedConflict = false;
 
 
-            if (worseScoredSubevents.Count > 0)
+            if (possibleRepositionableSubEvents.Count > 0)
             {
                 ///This lookup hold all the subevents grouped by day. Generally you want to have multiple sub events within the same day to get moved so the chance of a huge time chunk being available is high. With the look up we try to maximize the space available based on the duration and the score of the subevents
                 //var lookupForSubEventsByDay = worseScoredSubevents.ToLookup(o => o.UniversalDayIndex);
-                var subEventGrouping = worseScoredSubevents.ToLookup(subEvent => subEvent.UniversalDayIndex);
+                var subEventGrouping = possibleRepositionableSubEvents.ToLookup(subEvent => subEvent.UniversalDayIndex);
                 List<long> keys = new List<long>();
                 List<IList<double>> multiDimesionalVars = new List<IList<double>>();
                 foreach (var groupingKey in subEventGrouping) {
@@ -3811,10 +3824,10 @@ namespace TilerCore
                 {
                     if(totalRepositioned <= maxTimeSpan && !resolvedConflict)
                     {
-                        //Dictionary<DayTimeLine, Dictionary<DateTimeOffset, TimeLine>> dayTimeLineToFreeSpaces = new Dictionary<DayTimeLine, Dictionary<DateTimeOffset, TimeLine>>();
                         repostionedBeforeDays = new HashSet<DayTimeLine>();
-                        List<DayTimeLine> plausibleRepositionableDays = allDayTimeLinesDays.Where(dayTimeLine => conflictingSubEvent.canExistWithinTimeLine( dayTimeLine))
-                            //.Except(conflictingSubEventDays)
+                        HashSet<DayTimeLine> dayTimeLinesOfCOnflictingSubEvent = subEventsCanbeMoved[lessPrioritySubEvent];
+                        List<DayTimeLine> plausibleRepositionableDays = allDayTimeLinesDays.Where(dayTimeLine => (!dayTimeLinesOfCOnflictingSubEvent.Contains(dayTimeLine)) && lessPrioritySubEvent.canExistWithinTimeLine( dayTimeLine))
+                            .OrderByDescending(dayTimeLine => dayTimeLine.Occupancy)
                             .ToList();
                         bool isAlternateDayFoundForWorseSubevent = false;
                         foreach (var dayTimeline in plausibleRepositionableDays)

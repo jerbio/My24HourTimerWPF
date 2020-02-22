@@ -371,12 +371,12 @@ namespace TilerElements
             var endToTimeLine = nonPartialFrames.ToDictionary(o => o.End, o => o);
             TimeLine earliestFrame = _ProfileOfRestriction.getEarliestActiveFrameAfterBeginning(timeLine).Item1;
             TimeLine latestFrame = _ProfileOfRestriction.getLatestActiveTimeFrameBeforeEnd(timeLine).Item1;
-            if(!startToTimeLine.ContainsKey(earliestFrame.Start))
+            if(!startToTimeLine.ContainsKey(earliestFrame.Start) && earliestFrame.TimelineSpan > Utility.ZeroTimeSpan)
             {
                 nonPartialFrames.Insert(0, earliestFrame);
             }
 
-            if (!endToTimeLine.ContainsKey(latestFrame.End))
+            if (!endToTimeLine.ContainsKey(latestFrame.End) && latestFrame.TimelineSpan > Utility.ZeroTimeSpan)
             {
                 nonPartialFrames.Add(latestFrame);
             }

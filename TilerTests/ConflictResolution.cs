@@ -17,7 +17,6 @@ namespace TilerTests
         public void file_1edc6fe0()
         {
             Location homeLocation = TestUtility.getAdHocLocations()[0];
-            DateTimeOffset startOfDay = TestUtility.parseAsUTC("2:00am");
             string scheduleId = "1edc6fe0-0bd1-453e-a77f-7014814ee9ef";
             var scheduleAndDump = TestUtility.getSchedule(scheduleId);
             TestSchedule schedule = (TestSchedule)scheduleAndDump.Item1;
@@ -33,6 +32,117 @@ namespace TilerTests
             var conflict = Utility.getConflictingEvents(subEventsWithinDayOfCOnflict);
             Assert.AreEqual(conflict.Count, 1);
         }
+
+        [TestMethod]
+        public void file_b1b1ed4c()
+        {
+            Location homeLocation = TestUtility.getAdHocLocations()[0];
+            string scheduleId = "b1b1ed4c-433b-4691-9a4d-76740d9a8f6a";
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+            TestSchedule schedule = (TestSchedule)scheduleAndDump.Item1;
+            schedule.FindMeSomethingToDo(homeLocation).Wait();
+            string timeInString = "10/9/2019 12:00:00 PM +00:00";
+            DateTimeOffset timeWithinDayWithConflict = DateTimeOffset.Parse(timeInString);
+            DayTimeLine dayTimeLineWithConflict = schedule.Now.getDayTimeLineByTime(timeWithinDayWithConflict);
+            TimeLine dayTimeLineWithConflict_StartToEnd = dayTimeLineWithConflict.StartToEnd;
+            HashSet<SubCalendarEvent> subEventsWithinDayOfCOnflict = new HashSet<SubCalendarEvent>(schedule.getAllActiveSubEvents().Where(suEvent => suEvent.StartToEnd.doesTimeLineInterfere(dayTimeLineWithConflict_StartToEnd)));
+            
+            var conflict = Utility.getConflictingEvents(subEventsWithinDayOfCOnflict);
+            Assert.AreEqual(conflict.Count, 1);
+        }
+
+        [TestMethod]
+        public void file_d3c1c7a2()
+        {
+            Location homeLocation = TestUtility.getAdHocLocations()[0];
+            string scheduleId = "d3c1c7a2-9e36-4200-a411-f068c25bb2a4";
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+            TestSchedule schedule = (TestSchedule)scheduleAndDump.Item1;
+            schedule.FindMeSomethingToDo(homeLocation).Wait();
+            string timeInString = "11/26/2019 12:00:00 PM +00:00";
+            DateTimeOffset timeWithinDayWithConflict = DateTimeOffset.Parse(timeInString);
+            DayTimeLine dayTimeLineWithConflict = schedule.Now.getDayTimeLineByTime(timeWithinDayWithConflict);
+            TimeLine dayTimeLineWithConflict_StartToEnd = dayTimeLineWithConflict.StartToEnd;
+            HashSet<SubCalendarEvent> subEventsWithinDayOfCOnflict = new HashSet<SubCalendarEvent>(schedule.getAllActiveSubEvents().Where(suEvent => suEvent.StartToEnd.doesTimeLineInterfere(dayTimeLineWithConflict_StartToEnd)));
+
+            schedule.WriteFullScheduleToOutlook();
+
+            var conflict = Utility.getConflictingEvents(subEventsWithinDayOfCOnflict);
+            Assert.AreEqual(conflict.Count, 0);
+        }
+
+        [TestMethod]
+        public void file_9af810bf()
+        {
+            Location homeLocation = TestUtility.getAdHocLocations()[0];
+            string scheduleId = "9af810bf-c610-4de7-adf1-2ac6d46feef4";
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+            TestSchedule schedule = (TestSchedule)scheduleAndDump.Item1;
+            schedule.FindMeSomethingToDo(homeLocation).Wait();
+            string timeInString = "10/24/2019 12:00:00 PM +00:00";
+            DateTimeOffset timeWithinDayWithConflict = DateTimeOffset.Parse(timeInString);
+            DayTimeLine dayTimeLineWithConflict = schedule.Now.getDayTimeLineByTime(timeWithinDayWithConflict);
+            TimeLine dayTimeLineWithConflict_StartToEnd = dayTimeLineWithConflict.StartToEnd;
+            HashSet<SubCalendarEvent> subEventsWithinDayOfCOnflict = new HashSet<SubCalendarEvent>(schedule.getAllActiveSubEvents().Where(suEvent => suEvent.StartToEnd.doesTimeLineInterfere(dayTimeLineWithConflict_StartToEnd)));
+
+            schedule.WriteFullScheduleToOutlook();
+
+            var conflict = Utility.getConflictingEvents(subEventsWithinDayOfCOnflict).OrderByDescending(o=>o.End).ToList();
+            Assert.AreEqual(conflict.Count, 3);
+            var firstSubEvent = conflict.First();
+            Assert.AreEqual(firstSubEvent.getSubCalendarEventsInBlob().Count, 2);
+        }
+        
+        [TestMethod]
+        public void file_b0142c4c()
+        {
+            Location homeLocation = TestUtility.getAdHocLocations()[0];
+            string scheduleId = "b0142c4c-696e-4de4-81b9-7d788074a69d";
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+            TestSchedule schedule = (TestSchedule)scheduleAndDump.Item1;
+            schedule.FindMeSomethingToDo(homeLocation).Wait();
+            string timeInString_02_05 = "02/05/2020 12:00:00 PM +00:00";
+            DateTimeOffset timeWithinDayWithConflict_02_05 = DateTimeOffset.Parse(timeInString_02_05);
+            DayTimeLine dayTimeLineWithConflict_02_05 = schedule.Now.getDayTimeLineByTime(timeWithinDayWithConflict_02_05);
+            TimeLine dayTimeLineWithConflict_StartToEnd_02_05 = dayTimeLineWithConflict_02_05.StartToEnd;
+            HashSet<SubCalendarEvent> subEventsWithinDayOfCOnflict_02_05 = new HashSet<SubCalendarEvent>(schedule.getAllActiveSubEvents().Where(suEvent => suEvent.StartToEnd.doesTimeLineInterfere(dayTimeLineWithConflict_StartToEnd_02_05)));
+
+            schedule.WriteFullScheduleToOutlook();
+
+            var conflict_02_05 = Utility.getConflictingEvents(subEventsWithinDayOfCOnflict_02_05).OrderByDescending(o => o.End).ToList();
+            Assert.AreEqual(conflict_02_05.Count, 0);
+
+        }
+
+        [TestMethod]
+        public void file_4ff9a1ea()
+        {
+            Location homeLocation = TestUtility.getAdHocLocations()[0];
+            string scheduleId = "4ff9a1ea-0b03-4d35-9bca-7d029f1bd8bf";
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+            TestSchedule schedule = (TestSchedule)scheduleAndDump.Item1;
+            schedule.FindMeSomethingToDo(homeLocation).Wait();
+            string timeInString = "10/3/2019 12:00:00 PM +00:00";            
+            schedule.WriteFullScheduleToOutlook();
+
+            DateTimeOffset timeWithinDayWithConflict = DateTimeOffset.Parse(timeInString);
+            DayTimeLine dayTimeLineWithConflict = schedule.Now.getDayTimeLineByTime(timeWithinDayWithConflict);
+            TimeLine dayTimeLineWithConflict_StartToEnd = dayTimeLineWithConflict.StartToEnd;
+            HashSet<SubCalendarEvent> subEventsWithinDayOfCOnflict = new HashSet<SubCalendarEvent>(schedule.getAllActiveSubEvents().Where(suEvent => suEvent.StartToEnd.doesTimeLineInterfere(dayTimeLineWithConflict_StartToEnd)));
+
+            var conflict = Utility.getConflictingEvents(subEventsWithinDayOfCOnflict);
+            Assert.IsTrue(conflict.Count == 1);
+
+            string timeInString_oct_10 = "10/10/2019 12:00:00 PM +00:00";
+            DateTimeOffset timeWithinDayWithConflict_oct_10 = DateTimeOffset.Parse(timeInString_oct_10);
+            DayTimeLine dayTimeLineWithConflict_oct_10 = schedule.Now.getDayTimeLineByTime(timeWithinDayWithConflict_oct_10);
+            TimeLine dayTimeLineWithConflict_StartToEnd_oct_10 = dayTimeLineWithConflict_oct_10.StartToEnd;
+            HashSet<SubCalendarEvent> subEventsWithinDayOfCOnflict_oct_10 = new HashSet<SubCalendarEvent>(schedule.getAllActiveSubEvents().Where(suEvent => suEvent.StartToEnd.doesTimeLineInterfere(dayTimeLineWithConflict_StartToEnd_oct_10)));
+
+            var conflict_oct_10 = Utility.getConflictingEvents(subEventsWithinDayOfCOnflict_oct_10);
+            Assert.IsTrue(conflict_oct_10.Count == 1);
+        }
+
 
 
         [TestMethod]

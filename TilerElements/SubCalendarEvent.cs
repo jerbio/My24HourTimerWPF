@@ -952,7 +952,7 @@ namespace TilerElements
              return retValue;
          }
          /// <summary>
-         /// Function returns the largest Timeline interferes with its calendar event range. If restricted subcalevent you can use the orderbystart to make a preference for selection. Essentiall select the largest time line with earliest start time
+         /// Function returns the largest Timeline that interferes with its calendar event range. If this is a restricted subcalevent you can use the orderbystart to make a preference for selection. Essentially select the largest time line with earliest start time
          /// </summary>
          /// <param name="TimeLineData"></param>
          /// <returns></returns>

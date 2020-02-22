@@ -370,7 +370,9 @@ namespace TilerElements
         public override List<TimeLine> getTimeLineInterferringWithCalEvent(TimeLine TimeLineData, bool orderByStart = true)
         {
             List<TimeLine> retValue = null;
-            List<TimeLine> possibleTimeLines = orderByStart ? this.ParentCalendarEvent.getInterferringWithTimeLine(TimeLineData).OrderByDescending(obj => obj.TimelineSpan).ThenBy(obj => obj.Start).ToList() : this.ParentCalendarEvent.getInterferringWithTimeLine(TimeLineData).OrderByDescending(obj => obj.TimelineSpan).ThenBy(obj => obj.Start).ToList();
+            List<TimeLine> possibleTimeLines = (orderByStart ? this.ParentCalendarEvent.getInterferringWithTimeLine(TimeLineData).OrderBy(obj => obj.Start).ThenBy(obj => obj.TimelineSpan)
+                                                             : this.ParentCalendarEvent.getInterferringWithTimeLine(TimeLineData).OrderByDescending(obj => obj.Start).ThenBy(obj => obj.TimelineSpan)
+                                                ).ToList();
             if (possibleTimeLines.Count > 0)
             {
                 retValue = possibleTimeLines;

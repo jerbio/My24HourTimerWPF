@@ -3503,11 +3503,11 @@ namespace TilerCore
                     }
 
                     var optimizationConflictResolutionResult = resolveConflicts(undesignatedAfterSubeventsOptimization.ToList(), AllDayTimeLine);
-                    foreach(SubCalendarEvent subEvent in optimizationConflictResolutionResult.Item2)
+                    foreach (SubCalendarEvent subEvent in optimizationConflictResolutionResult.Item2)
                     {
                         _ConflictingSubEvents.Add(subEvent);
                     }
-                    
+
                 }
                 catch (Exception E)
                 {
@@ -3714,15 +3714,15 @@ namespace TilerCore
             if (allDayTimeLines != null && allDayTimeLines.Count > 0 && conflictingSubEvents != null && conflictingSubEvents.Count > 0)
             {
                 List<SubCalendarEvent> orderedConflictingSubevent = conflictingSubEvents.OrderBy(subEvent => subEvent.Score).ToList();
-                foreach(SubCalendarEvent conflctingSubEvent in orderedConflictingSubevent)
+                foreach(SubCalendarEvent conflictingSubEvent in orderedConflictingSubevent)
                 {
-                    var conflictResult = repositionAlreadyAssignedEvents(conflctingSubEvent, allDayTimeLines);
+                    var conflictResult = repositionAlreadyAssignedEvents(conflictingSubEvent, allDayTimeLines);
                     if(conflictResult)
                     {
-                        resolvedConflicts.Add(conflctingSubEvent);
+                        resolvedConflicts.Add(conflictingSubEvent);
                     } else
                     {
-                        unResolvedConflicts.Add(conflctingSubEvent);
+                        unResolvedConflicts.Add(conflictingSubEvent);
                     }
                 }
             }
@@ -3764,7 +3764,31 @@ namespace TilerCore
             List<SubCalendarEvent> possibleRepositionableSubEvents = null;
             if (worseScoredSubevents.Count< 1)// If there are no worse scored subevents then try all possible events :(
             {
-                possibleRepositionableSubEvents = allPossibleSubeventsThatCanBeMoved.ToList();
+                //List<SubCalendarEvent> subEventsWithinCalEventRange = allPossibleSubeventsThatCanBeMoved
+                //    .OrderByDescending(subEvent => {
+                //        var interferringResult = conflictingSubEvent.getTimeLineInterferringWithCalEvent(subEvent.StartToEnd);
+                //        bool isInterferringWithSubevent = interferringResult!=null;
+                //        if(isInterferringWithSubevent)
+                //        {
+                //            return interferringResult.Count > 0;
+                //        }
+                //        return isInterferringWithSubevent;
+
+                //    }).ToList();
+                //possibleRepositionableSubEvents = allPossibleSubeventsThatCanBeMoved.OrderByDescending(subEvent => conflictingSubEvent.getTimeLineInterferringWithCalEvent(subEvent.StartToEnd).Count > 0).ThenByDescending(o=>o.getActiveDuration).ToList();
+                possibleRepositionableSubEvents = allPossibleSubeventsThatCanBeMoved
+                    .OrderByDescending(subEvent => {
+                        var interferringResult = conflictingSubEvent.getTimeLineInterferringWithCalEvent(subEvent.StartToEnd);
+                        bool isInterferringWithSubevent = interferringResult != null;
+                        if (isInterferringWithSubevent)
+                        {
+                            return interferringResult.Count > 0;
+                        }
+                        return isInterferringWithSubevent;
+
+                    })
+                    .ThenByDescending(o => o.getActiveDuration)
+                    .ToList();
             } else
             {
                 possibleRepositionableSubEvents = worseScoredSubevents;
@@ -3827,7 +3851,7 @@ namespace TilerCore
                         repostionedBeforeDays = new HashSet<DayTimeLine>();
                         HashSet<DayTimeLine> dayTimeLinesOfCOnflictingSubEvent = subEventsCanbeMoved[lessPrioritySubEvent];
                         List<DayTimeLine> plausibleRepositionableDays = allDayTimeLinesDays.Where(dayTimeLine => (!dayTimeLinesOfCOnflictingSubEvent.Contains(dayTimeLine)) && lessPrioritySubEvent.canExistWithinTimeLine( dayTimeLine))
-                            .OrderByDescending(dayTimeLine => dayTimeLine.Occupancy)
+                            .OrderBy(dayTimeLine => dayTimeLine.Occupancy)
                             .ToList();
                         bool isAlternateDayFoundForWorseSubevent = false;
                         foreach (var dayTimeline in plausibleRepositionableDays)
@@ -3851,9 +3875,9 @@ namespace TilerCore
                                     foreach (DayTimeLine currentTimeLineForSubevent in currentDayTimelines)
                                     {
                                         currentTimeLineForSubevent.RemoveSubEvent(lessPrioritySubEvent.Id);
+                                        repostionedBeforeDays.Add(currentTimeLineForSubevent);
                                     }
                                     dayTimeline.AddToSubEventList(lessPrioritySubEvent);
-                                    repostionedBeforeDays.Add(dayTimeline);
                                     totalRepositioned += lessPrioritySubEvent.RangeSpan;
                                     isAlternateDayFoundForWorseSubevent = true;
                                 }

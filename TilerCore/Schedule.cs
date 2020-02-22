@@ -640,7 +640,7 @@ namespace TilerCore
                     new TimeSpan(), new TimeSpan(),
                     mySubCalEvent.LocationObj, mySubCalEvent.getUIParam, mySubCalEvent.Notes, Now, mySubCalEvent.ParentCalendarEvent.getNowInfo, mySubCalEvent.Priority_EventDB, mySubCalEvent.ThirdPartyID, subEventID: mySubCalEvent.Id);
             }
-            ChangedSubCal.LocationValidationId_DB = mySubCalEvent.LocationValidationId_DB;
+            ChangedSubCal.updateLocationValidationId(mySubCalEvent.LocationValidationId);
 
 
 
@@ -2694,7 +2694,7 @@ namespace TilerCore
 
                 Dictionary<Location, int> durationToTimeSpan = new Dictionary<Location, int>();
 
-                foreach(SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => sub.Location.IsVerified || sub.IsValidationRun))
+                foreach(SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => sub.LocationObj.IsVerified || (sub.isLocationAmbiguous && sub.IsValidationRun)))
                 {
                     int durationQutient = ((int)Math.Round(subEvent.getActiveDuration.TotalMinutes / Utility.QuarterHourTimeSpan.TotalMinutes));
                     if (durationToTimeSpan.ContainsKey(subEvent.Location))

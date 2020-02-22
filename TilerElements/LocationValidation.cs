@@ -14,7 +14,7 @@ namespace TilerElements
         public double AverageLatitude { get; set; } = 0;
         public double AverageDistanceFromAverageLocation { get; set; } = 0;
         public double AverageVariance { get; set; } = 0;
-        public static readonly TimeSpan CacheExpirationTimeSpan = TimeSpan.FromDays(30);
+        public static readonly TimeSpan CacheExpirationTimeSpan = TimeSpan.FromDays(5);
         [NonSerialized]
         bool isInstantiated = false;
         [NonSerialized]

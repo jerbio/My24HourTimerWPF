@@ -47,7 +47,7 @@ namespace TilerTests
             CalendarEventRestricted testEvent1 = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 4, false, restrictionProfile: new RestrictionProfile(start, duration + duration), now: Schedule.Now, location: homeLocation) as CalendarEventRestricted;
             Schedule.CurrentLocation = currLocation;
             Schedule.AddToScheduleAndCommitAsync(testEvent1).Wait();
-            Assert.IsFalse(testEvent1.ActiveSubEvents.First().isLocationAmbiguous);
+            Assert.IsTrue(testEvent1.ActiveSubEvents.First().isLocationAmbiguous);
             Assert.IsTrue(testEvent1.ActiveSubEvents.First().Location.IsVerified);
         }
 
@@ -115,7 +115,7 @@ namespace TilerTests
             DateTimeOffset fourthRefnow = refNow.AddHours(3);
             Schedule = new TestSchedule(user, fourthRefnow);
             TravelCache secondTravelCache = Schedule.TravelCache;
-            Assert.IsTrue(secondTravelCache.LocationCombo.Count == 3);
+            Assert.IsTrue(secondTravelCache.LocationCombo.Count == 2);
             int lastActiveSchedulingLookupCount = 0;
             int lastActiveSchedulingUpdateCount = 0;
             foreach (LocationCacheEntry locationCacheEntry in secondTravelCache.LocationCombo)
@@ -131,7 +131,7 @@ namespace TilerTests
                 }
             }
 
-            Assert.AreEqual(lastActiveSchedulingLookupCount, 3);
+            Assert.AreEqual(lastActiveSchedulingLookupCount, 2);
             Assert.AreEqual(lastActiveSchedulingUpdateCount, 0);
 
 
@@ -142,7 +142,7 @@ namespace TilerTests
             Schedule.persistToDB().Wait();
             Schedule = new TestSchedule(user, fourthRefnow);
             TravelCache thirdTravelCache = Schedule.TravelCache;
-            Assert.IsTrue(thirdTravelCache.LocationCombo.Count == 3);
+            Assert.IsTrue(thirdTravelCache.LocationCombo.Count == 2);
             lastActiveSchedulingLookupCount = 0;
             lastActiveSchedulingUpdateCount = 0;
             foreach (LocationCacheEntry locationCacheEntry in thirdTravelCache.LocationCombo)
@@ -249,19 +249,19 @@ namespace TilerTests
 
             Location twentyHourFitnessAmbiguous = schedule.getAllLocations().First();
 
-            Assert.AreEqual(twentyHourFitnessAmbiguous.LocationValidation.locations.Count(), 3);
+            Assert.AreEqual(twentyHourFitnessAmbiguous.LocationValidation.locations.Count(), 2);
             bool boulderCheck = false, coloradoSpringCheck = false, broomfieldCheck = false;
 
             foreach (Location locations in twentyHourFitnessAmbiguous.LocationValidation.locations)
             {
                 boulderCheck |= locations.Address.ToLower().Contains(boulderString);
-                broomfieldCheck |= locations.Address.ToLower().Contains(broomfieldString);
+                broomfieldCheck |= locations.Address.ToLower().Contains(broomfieldString);// brommfield should be false because it got purged during the bpulder inclusion
                 coloradoSpringCheck |= locations.Address.ToLower().Contains(coSpringsString);
             }
 
             Assert.IsTrue(boulderCheck);
             Assert.IsTrue(coloradoSpringCheck);
-            Assert.IsTrue(broomfieldCheck);
+            Assert.IsFalse(broomfieldCheck);
 
             ///Running a schedule update around colorado springs should have all gym locations around colorado springs. The old broomfield is going to be used one more time(this around parallelcallstotwentyfourhours) before a refresh when optimization
             DateTimeOffset sixtyDayAfterRefNow = refNow.AddDays(45);
@@ -278,7 +278,7 @@ namespace TilerTests
             Assert.AreEqual(schedule.getAllLocations().Count(), 1);
 
             twentyHourFitnessAmbiguous = schedule.getAllLocations().First();
-            Assert.AreEqual(twentyHourFitnessAmbiguous.LocationValidation.locations.Count(), 2);
+            Assert.AreEqual(twentyHourFitnessAmbiguous.LocationValidation.locations.Count(), 1);
 
             boulderCheck = false;
             coloradoSpringCheck = false;
@@ -291,7 +291,7 @@ namespace TilerTests
                 coloradoSpringCheck |= locations.Address.ToLower().Contains(coSpringsString);
             }
 
-            Assert.IsTrue(boulderCheck);
+            Assert.IsFalse(boulderCheck);
             Assert.IsTrue(coloradoSpringCheck);
             Assert.IsFalse(broomfieldCheck);
 

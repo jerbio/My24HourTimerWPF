@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TilerElements;
 
 namespace ScheduleAnalysis
 {
@@ -24,6 +25,12 @@ namespace ScheduleAnalysis
         }
 
         /// <summary>
+        /// This function compares two Health objects based on the various scores of a schedule. Note this does not use Health.getScore function. 
+        /// This compares the different scores of both health and tries to evaluate the better of the two.
+        /// It returns a 
+        /// -1 if firstHealth is better
+        /// 0 if both are equal
+        /// 1 if secondHealth is better
         /// This function is to be used with a comparator function
         /// </summary>
         public int Compare
@@ -31,53 +38,14 @@ namespace ScheduleAnalysis
             get
             {
                 double retValue = 0;
-                double DistanceTravelTimeSpanDifferenceCriteria = 0;
-                double DistanceTravelDifferenceCriteria = 0;
-                double SleepDifferenceCriteria = 0;
 
-                TravelTime firstTravelTime = FirsstEvaluation.TravelTimeAnalysis;
-                firstTravelTime.evaluate().Wait();
-                TimeSpan firstTravelTImeSpanDiff = TimeSpan.FromTicks(firstTravelTime.result().Sum(kvp => kvp.Value.Ticks));
+                List<double> FirstParams = new List<double>() { FirstHealth.evaluateConflicts().Item1, FirstHealth.TotalDistance, FirstHealth.SleepEvaluation.ScoreTimeLine(), FirstHealth.evaluatePositioning() };
+                List<double> SecondParams = new List<double>() { SecondHealth.evaluateConflicts().Item1, SecondHealth.TotalDistance, SecondHealth.SleepEvaluation.ScoreTimeLine(), SecondHealth.evaluatePositioning() };
+                IList<IList<double>> multiParams = new List<IList<double>>() { FirstParams, SecondParams };
+                var multiVarCalResult = Utility.multiDimensionCalculationNormalize(multiParams);
+                
 
-                TravelTime secondTravelTime = SecondEvaluation.TravelTimeAnalysis;
-                secondTravelTime.evaluate().Wait();
-                TimeSpan secondTravelTimeSpanDiff = TimeSpan.FromTicks(secondTravelTime.result().Sum(kvp => kvp.Value.Ticks));
-
-                if (firstTravelTImeSpanDiff > secondTravelTimeSpanDiff)
-                {
-                    DistanceTravelTimeSpanDifferenceCriteria = -1;
-                }
-                else if (firstTravelTImeSpanDiff < secondTravelTimeSpanDiff)
-                {
-                    DistanceTravelTimeSpanDifferenceCriteria = 1;
-                }
-
-                if (FirsstEvaluation.TotalDistance > SecondEvaluation.TotalDistance)
-                {
-                    DistanceTravelDifferenceCriteria = 1;
-                }
-                else if (FirsstEvaluation.TotalDistance > SecondEvaluation.TotalDistance)
-                {
-                    DistanceTravelDifferenceCriteria = -1;
-                }
-
-
-                TimeSpan firstSleep = TimeSpan.FromTicks(FirsstEvaluation.SleepSchedule.Sum(sleepSpans => sleepSpans.Ticks));
-                TimeSpan secondSleep = TimeSpan.FromTicks(SecondEvaluation.SleepSchedule.Sum(sleepSpans => sleepSpans.Ticks));
-
-                if (firstSleep > secondSleep)
-                {
-                    SleepDifferenceCriteria = -1;
-                }
-                else if (firstSleep < secondSleep)
-                {
-                    SleepDifferenceCriteria = 1;
-                }
-
-
-
-
-                retValue = DistanceTravelTimeSpanDifferenceCriteria + DistanceTravelDifferenceCriteria + SleepDifferenceCriteria;
+                retValue = multiVarCalResult[0] - multiVarCalResult[1];
 
                 if (retValue > 0)
                 {

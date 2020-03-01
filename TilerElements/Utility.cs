@@ -205,7 +205,15 @@ namespace TilerElements
             return retValue;
         }
 
-
+        /// <summary>
+        /// Function takes the provided collection and generates the resultant of the provided elements after running a self normalization or using the origin.
+        /// Use this function over multiDimensionCalculation if you want to avoid a var of mulitvar calculation dominating the calculation
+        /// NOTE: collection will get modified, just to reduce memory complexity
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="origin"></param>
+        /// <param name="normalizedFields"></param>
+        /// <returns></returns>
         static public List<double> multiDimensionCalculationNormalize(IList<IList<double>> collection, List<double> origin = null, IList<double> normalizedFields = null)
         {
             int counter = collection.Count;
@@ -1551,13 +1559,14 @@ namespace TilerElements
         {
             Dictionary<SubCalendarEvent, mTuple<SubCalendarEvent, int>> subeventToIndex = orderedAscendingByTimeCurrentSubEvents.Select((obj, index) => new mTuple<SubCalendarEvent, int>(obj, index)).ToDictionary(obj => obj.Item1, obj => obj);
             List<SubCalendarEvent> allSubEvents = orderedAscendingByTimeCurrentSubEvents.ToList();
-
             List<TimeLine> timeLineWorks = new List<TimeLine>();
             if (unusableIndexes == null)
             {
                 unusableIndexes = new HashSet<int>();
             }
-            
+
+            HashSet<int> int_unusableIndex = new HashSet<int>(unusableIndexes);
+
             bool foundViableTimeLine = false;
             if (allSubEvents.Count > 0)
             {
@@ -1645,7 +1654,7 @@ namespace TilerElements
                 int countLimit = TotalDistances.Count();
                 foreach (int index in unusableIndexes)
                 {
-                    if (index < countLimit)
+                    if (index < countLimit && index >= 0)
                     {
                         TotalDistances[index] = double.MaxValue;
                     }

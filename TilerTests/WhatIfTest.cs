@@ -95,7 +95,7 @@ namespace TilerTests
         }
 
         /// <summary>
-        /// Test creates a subeevents tries pushing a sub event and pushing the sub event should result in a worse optimized schedule and thus generate an assesss value with a lesser score.
+        /// Test creates subeevents tries pushing a sub event and pushing the sub event should result in a worse optimized schedule and thus generate an assesss value with a lesser score.
         /// </summary>
         /// <returns></returns>
         [TestMethod]
@@ -162,6 +162,8 @@ namespace TilerTests
             DateTimeOffset start = findSomethingTodSchedule.Now.constNow > procrastinateSubevent.Start ? findSomethingTodSchedule.Now.constNow : procrastinateSubevent.Start;
             var Procrastinationpan = limitOfProcrastination - start;
             var beforAfteranalysis = await pushSchedule.TimeStone.PushSingleEvent(Procrastinationpan, subEventId, null);
+            HealthComparison scheduleCompare = new HealthComparison(beforAfteranalysis.Item1, beforAfteranalysis.Item2);
+            Assert.AreEqual(-1, scheduleCompare.Compare);// this is a simple test to verify that compare function works.
             Assert.IsTrue(beforAfteranalysis.Item1.getScore() < beforAfteranalysis.Item2.getScore());
         }
 

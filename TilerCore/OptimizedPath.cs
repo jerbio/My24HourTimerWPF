@@ -888,7 +888,10 @@ namespace TilerCore
 
                 int lowerUndesiredIndexes = lowerBound - 1;
                 int upperUndesiredIndexes = upperBound + 1;
-                avoidIndexes.Add(lowerUndesiredIndexes);
+                if(lowerUndesiredIndexes >= 0 )
+                {
+                    avoidIndexes.Add(lowerUndesiredIndexes);
+                }
                 avoidIndexes.Add(upperUndesiredIndexes);
                 while (lowerUndesiredIndexes > 0)
                 {

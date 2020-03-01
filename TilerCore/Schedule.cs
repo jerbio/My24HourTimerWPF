@@ -138,7 +138,7 @@ namespace TilerCore
         protected HashSet<SubCalendarEvent> _ConflictingSubEvents = new HashSet<SubCalendarEvent>();
         protected HashSet<SubCalendarEvent> _EvaluatedSubevents = new HashSet<SubCalendarEvent>(); // Subevents that were used to for schedule evaluation
         protected DataRetrivalOption retrievalOption = DataRetrivalOption.Evaluation;
-        protected bool _OptimizationEnabled;
+        protected bool _OptimizationEnabled = true;
         public ReferenceNow Now
         {
             get
@@ -3739,7 +3739,7 @@ namespace TilerCore
         /// <returns></returns>
         bool repositionAlreadyAssignedEvents(SubCalendarEvent conflictingSubEvent, IList<DayTimeLine> allDayTimeLinesDays)
         {
-            TimeLine subEventTimeLine = conflictingSubEvent.StartToEnd;
+            TimeLine subEventTimeLine = conflictingSubEvent.StartToEnd;// I'm going with 'conflictingSubEvent.StartToEnd' because for some reason my tests do better with this than 'conflictingSubEvent.getCalculationRange'. It'll be interesting to do some statistical tests to see why
             List<DayTimeLine>  conflictingSubEventDays = allDayTimeLinesDays.Where(dayTimeLine => subEventTimeLine.doesTimeLineInterfere(dayTimeLine)).ToList();
             Dictionary<SubCalendarEvent, HashSet<DayTimeLine>> subEventsCanbeMoved = new Dictionary<SubCalendarEvent, HashSet<DayTimeLine>>();
             foreach(DayTimeLine dayTimeLine in conflictingSubEventDays)
@@ -3764,18 +3764,6 @@ namespace TilerCore
             List<SubCalendarEvent> possibleRepositionableSubEvents = null;
             if (worseScoredSubevents.Count< 1)// If there are no worse scored subevents then try all possible events :(
             {
-                //List<SubCalendarEvent> subEventsWithinCalEventRange = allPossibleSubeventsThatCanBeMoved
-                //    .OrderByDescending(subEvent => {
-                //        var interferringResult = conflictingSubEvent.getTimeLineInterferringWithCalEvent(subEvent.StartToEnd);
-                //        bool isInterferringWithSubevent = interferringResult!=null;
-                //        if(isInterferringWithSubevent)
-                //        {
-                //            return interferringResult.Count > 0;
-                //        }
-                //        return isInterferringWithSubevent;
-
-                //    }).ToList();
-                //possibleRepositionableSubEvents = allPossibleSubeventsThatCanBeMoved.OrderByDescending(subEvent => conflictingSubEvent.getTimeLineInterferringWithCalEvent(subEvent.StartToEnd).Count > 0).ThenByDescending(o=>o.getActiveDuration).ToList();
                 possibleRepositionableSubEvents = allPossibleSubeventsThatCanBeMoved
                     .OrderByDescending(subEvent => {
                         var interferringResult = conflictingSubEvent.getTimeLineInterferringWithCalEvent(subEvent.StartToEnd);

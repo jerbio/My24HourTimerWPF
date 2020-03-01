@@ -952,11 +952,11 @@ namespace TilerElements
              return retValue;
          }
          /// <summary>
-         /// Function returns the largest Timeline that interferes with its calendar event range. If this is a restricted subcalevent you can use the orderbystart to make a preference for selection. Essentially select the largest time line with earliest start time
+         /// Function returns the largest Timeline that interferes with the calculation range. If this is a restricted subcalevent you can use the orderbystart to make a preference for selection. Essentially select the largest time line with earliest start time
          /// </summary>
          /// <param name="TimeLineData"></param>
          /// <returns></returns>
-         virtual public List<TimeLine> getTimeLineInterferringWithCalEvent(TimeLine TimeLineData, bool orderByStart = true)
+         virtual public List<TimeLine> getTimeLinesInterferringWithCalculationRange(TimeLine TimeLineData, bool orderByStart = true)
          {
              TimeLine retValuTimeLine= getCalculationRange.InterferringTimeLine(TimeLineData);;
              List<TimeLine> retValue = null;
@@ -966,6 +966,22 @@ namespace TilerElements
              }
              return retValue;
          }
+
+        /// <summary>
+        /// Function returns the largest Timeline that interferes with its calendar event range(If you want only calculation range use). If this is a restricted subcalevent you can use the orderbystart to make a preference for selection. Essentially select the largest time line with earliest start time
+        /// </summary>
+        /// <param name="TimeLineData"></param>
+        /// <returns></returns>
+        virtual public List<TimeLine> getTimeLineInterferringWithCalEvent(TimeLine TimeLineData, bool orderByStart = true)
+        {
+            TimeLine retValuTimeLine = getCalendarEventRange.InterferringTimeLine(TimeLineData); ;
+            List<TimeLine> retValue = null;
+            if (retValuTimeLine != null)
+            {
+                retValue = new List<TimeLine>() { retValuTimeLine };
+            }
+            return retValue;
+        }
 
         virtual public DateTimeOffset getPauseTime()
         {

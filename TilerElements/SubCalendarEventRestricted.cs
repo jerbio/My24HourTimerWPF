@@ -367,7 +367,7 @@ namespace TilerElements
         /// </summary>
         /// <param name="TimeLineData"></param>
         /// <returns></returns>
-        public override List<TimeLine> getTimeLineInterferringWithCalEvent(TimeLine TimeLineData, bool orderByStart = true)
+        public override List<TimeLine> getTimeLinesInterferringWithCalculationRange(TimeLine TimeLineData, bool orderByStart = true)
         {
             List<TimeLine> retValue = null;
             List<TimeLine> possibleTimeLines = (orderByStart ? this.ParentCalendarEvent.getInterferringWithTimeLine(TimeLineData).OrderBy(obj => obj.Start).ThenBy(obj => obj.TimelineSpan)

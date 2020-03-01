@@ -1578,13 +1578,13 @@ namespace TilerElements
                     var beforeAfterTimeLines = subEventToViableTimeLine[currentActiveSubEvent];
                     if (!foundViableFromPreceding)
                     {
-                        var possibleBeforeTimeLine = subEvent.getTimeLineInterferringWithCalEvent(beforeAfterTimeLines.Item1) ?? new List<TimeLine>();
+                        var possibleBeforeTimeLine = subEvent.getTimeLinesInterferringWithCalculationRange(beforeAfterTimeLines.Item1) ?? new List<TimeLine>();
                         List<TimeLine> viableBeforeTImeLines = new List<TimeLine>();
                         foreach (var viableTimeLine in possibleBeforeTimeLine.Where(subTimeLine => subEvent.canExistWithinTimeLine(subTimeLine)))
                         {
                             foundViableFromPreceding = true;
                             foundViableTimeLine = true;
-                            viableBeforeTImeLines.AddRange(subEvent.getTimeLineInterferringWithCalEvent(viableTimeLine));
+                            viableBeforeTImeLines.AddRange(subEvent.getTimeLinesInterferringWithCalculationRange(viableTimeLine));
                         }
                         if (viableBeforeTImeLines.Count < 1)
                         {
@@ -1593,11 +1593,11 @@ namespace TilerElements
                     }
 
 
-                    var possibleAfterTimeLine = subEvent.getTimeLineInterferringWithCalEvent(beforeAfterTimeLines.Item2) ?? new List<TimeLine>();
+                    var possibleAfterTimeLine = subEvent.getTimeLinesInterferringWithCalculationRange(beforeAfterTimeLines.Item2) ?? new List<TimeLine>();
                     List<TimeLine> viableAterTImeLines = new List<TimeLine>();
                     foreach (var viableTimeLine in possibleAfterTimeLine.Where(subTimeLine => subEvent.canExistWithinTimeLine(subTimeLine)))
                     {
-                        viableAterTImeLines.AddRange(subEvent.getTimeLineInterferringWithCalEvent(viableTimeLine));
+                        viableAterTImeLines.AddRange(subEvent.getTimeLinesInterferringWithCalculationRange(viableTimeLine));
                         foundViableFromPreceding = true;
                         foundViableTimeLine = true;
                     }
@@ -1608,14 +1608,14 @@ namespace TilerElements
                     }
                 }
                 
-                timeLineWorks = subEvent.getTimeLineInterferringWithCalEvent(timeLine);
+                timeLineWorks = subEvent.getTimeLinesInterferringWithCalculationRange(timeLine);
             }
             else
             {
                 if(subEvent.canExistWithinTimeLine(timeLine))
                 {
                     foundViableTimeLine = true;
-                    timeLineWorks = subEvent.getTimeLineInterferringWithCalEvent(timeLine);
+                    timeLineWorks = subEvent.getTimeLinesInterferringWithCalculationRange(timeLine);
                 }
             }
 

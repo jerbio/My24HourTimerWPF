@@ -3778,7 +3778,7 @@ namespace TilerCore
             {
                 possibleRepositionableSubEvents = allPossibleSubeventsThatCanBeMoved
                     .OrderByDescending(subEvent => {
-                        var interferringResult = conflictingSubEvent.getTimeLineInterferringWithCalEvent(subEvent.StartToEnd);
+                        var interferringResult = conflictingSubEvent.getTimeLinesInterferringWithCalculationRange(subEvent.StartToEnd);
                         bool isInterferringWithSubevent = interferringResult != null;
                         if (isInterferringWithSubevent)
                         {
@@ -3850,8 +3850,20 @@ namespace TilerCore
                     {
                         repostionedBeforeDays = new HashSet<DayTimeLine>();
                         HashSet<DayTimeLine> dayTimeLinesOfCOnflictingSubEvent = subEventsCanbeMoved[lessPrioritySubEvent];
-                        List<DayTimeLine> plausibleRepositionableDays = allDayTimeLinesDays.Where(dayTimeLine => (!dayTimeLinesOfCOnflictingSubEvent.Contains(dayTimeLine)) && lessPrioritySubEvent.canExistWithinTimeLine( dayTimeLine))
-                            .OrderBy(dayTimeLine => dayTimeLine.Occupancy)
+                        List<DayTimeLine> plausibleRepositionableDays = allDayTimeLinesDays.Where(dayTimeLine =>
+                            {
+                                bool predicateBool = false;
+                                if (!dayTimeLinesOfCOnflictingSubEvent.Contains(dayTimeLine))
+                                {
+                                    List<TimeLine> viableTImelines = lessPrioritySubEvent.getTimeLinesInterferringWithCalculationRange(dayTimeLine);
+                                    if(viableTImelines!=null)
+                                    {
+                                        predicateBool = viableTImelines.Any(timeline => lessPrioritySubEvent.canExistWithinTimeLine(timeline));
+                                    }
+                                }
+                                return predicateBool;
+                            })
+                            .OrderByDescending(dayTimeLine => dayTimeLine.Occupancy)
                             .ToList();
                         bool isAlternateDayFoundForWorseSubevent = false;
                         foreach (var dayTimeline in plausibleRepositionableDays)
@@ -5383,7 +5395,7 @@ namespace TilerCore
 
             Arg1 = Arg1.Select(obj => //using Linq to update timeline
             {
-                List<TimeLine> AllTimeLines = obj.Item2.getTimeLineInterferringWithCalEvent(RestrictingTimeLine);
+                List<TimeLine> AllTimeLines = obj.Item2.getTimeLinesInterferringWithCalculationRange(RestrictingTimeLine);
                 TimeLine relevantTimeLine = AllTimeLines != null ? AllTimeLines[0] : null;
                 obj.Item1 = relevantTimeLine;//gets interferring TImeLine
                 return obj;

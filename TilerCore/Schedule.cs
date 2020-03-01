@@ -139,6 +139,7 @@ namespace TilerCore
         protected HashSet<SubCalendarEvent> _EvaluatedSubevents = new HashSet<SubCalendarEvent>(); // Subevents that were used to for schedule evaluation
         protected DataRetrivalOption retrievalOption = DataRetrivalOption.Evaluation;
         protected bool _OptimizationEnabled = true;
+        protected bool _isConflictResolveEnabled = true;
         public ReferenceNow Now
         {
             get
@@ -169,6 +170,14 @@ namespace TilerCore
             get
             {
                 return _OptimizationEnabled;
+            }
+        }
+
+        public bool isConflictResolveEnabled
+        {
+            get
+            {
+                return _isConflictResolveEnabled;
             }
         }
 
@@ -298,6 +307,11 @@ namespace TilerCore
         public virtual void disableDayOptimization()
         {
             _OptimizationEnabled = false;
+        }
+
+        public virtual void disableConflictResolution()
+        {
+            _isConflictResolveEnabled = false;
         }
 
 
@@ -3453,18 +3467,21 @@ namespace TilerCore
             this._ConflictingSubEvents.RemoveWhere(subEvent => designatedSubEvents.Contains(subEvent));
             List<SubCalendarEvent> conflictingSubEvents = this._ConflictingSubEvents.OrderBy(o=>o.Score).ToList();
 
-            var conflictResolutionResult = resolveConflicts(conflictingSubEvents, AllDayTimeLine);
-
-            List<SubCalendarEvent> unresolvedConflicts = conflictResolutionResult.Item2;
-            unresolvedConflicts.ForEach((subEvent) =>
+            if (isConflictResolveEnabled)
             {
-                DayTimeLine dayTimeLine = Now.getDayTimeLineByTime(subEvent.Start);
-                bool conflictResolve = singleDayConflictResolution(subEvent, dayTimeLine);
-                if (conflictResolve)
+                var conflictResolutionResult = resolveConflicts(conflictingSubEvents, AllDayTimeLine);
+
+                List<SubCalendarEvent> unresolvedConflicts = conflictResolutionResult.Item2;
+                unresolvedConflicts.ForEach((subEvent) =>
                 {
-                    _ConflictingSubEvents.Remove(subEvent);
-                }
-            });
+                    DayTimeLine dayTimeLine = Now.getDayTimeLineByTime(subEvent.Start);
+                    bool conflictResolve = singleDayConflictResolution(subEvent, dayTimeLine);
+                    if (conflictResolve)
+                    {
+                        _ConflictingSubEvents.Remove(subEvent);
+                    }
+                });
+            }
 
 
             List<DayTimeLine> OptimizedDays = new List<DayTimeLine>();
@@ -3502,10 +3519,15 @@ namespace TilerCore
                         _ConflictingSubEvents.Remove(subEvent);
                     }
 
-                    var optimizationConflictResolutionResult = resolveConflicts(undesignatedAfterSubeventsOptimization.ToList(), AllDayTimeLine);
-                    foreach (SubCalendarEvent subEvent in optimizationConflictResolutionResult.Item2)
+
+                    if(isConflictResolveEnabled)
                     {
-                        _ConflictingSubEvents.Add(subEvent);
+                        var optimizationConflictResolutionResult = resolveConflicts(undesignatedAfterSubeventsOptimization.ToList(), AllDayTimeLine);
+                        foreach (SubCalendarEvent subEvent in optimizationConflictResolutionResult.Item2)
+                        {
+                            _ConflictingSubEvents.Add(subEvent);
+                        }
+
                     }
 
                 }
@@ -3605,16 +3627,6 @@ namespace TilerCore
                     toBeReorganizedForConflictSubevents.Add(subEvent);
                     preservedSubEventWithinTimeLine.Remove(subEvent);
                 }
-
-
-
-                //if (subEventsInConflictingTimeLine.Contains(subEvent) && !subEvent.isLocked)//  
-                //{
-                //    preservedSubEventWithinTimeLine.Remove(subEvent);
-                //} else
-                //{
-                //    toBeReorganizedForConflictSubevents.Add(subEvent);
-                //}
             });
 
             var preservedTimeLineSubevents = Utility.getTilerEventTimeline(subEventsInTimeline);

@@ -496,22 +496,26 @@ namespace TilerElements
             return TotalTimeSpan;
         }
 
-        
-        virtual public bool PinToStart(TimeLine MyTimeLine)
+        /// <summary>
+        /// This pins this subevent to the earliest possible start time of either <paramref name="limitingTimeLine"/> or the getCalculationRange.
+        /// </summary>
+        /// <param name="limitingTimeLine"></param>
+        /// <returns></returns>
+        virtual public bool PinToStart(TimeLine limitingTimeLine)
         {
             DateTimeOffset ReferenceStartTime = new DateTimeOffset();
             DateTimeOffset ReferenceEndTime = new DateTimeOffset();
 
-            ReferenceStartTime = MyTimeLine.Start;
-            if (this.getCalculationRange.Start > MyTimeLine.Start)
+            ReferenceStartTime = limitingTimeLine.Start;
+            if (this.getCalculationRange.Start > limitingTimeLine.Start)
             {
                 ReferenceStartTime = this.getCalculationRange.Start;
             }
 
             ReferenceEndTime = this.getCalculationRange.End;
-            if (this.getCalculationRange.End > MyTimeLine.End)
+            if (this.getCalculationRange.End > limitingTimeLine.End)
             {
-                ReferenceEndTime = MyTimeLine.End;
+                ReferenceEndTime = limitingTimeLine.End;
             }
 
             /*foreach (SubCalendarEvent MySubCalendarEvent in MySubCalendarEventList)
@@ -522,7 +526,7 @@ namespace TilerElements
 
             if (this.isLocked)
             {
-                return (MyTimeLine.IsTimeLineWithin( this.StartToEnd));
+                return (limitingTimeLine.IsTimeLineWithin( this.StartToEnd));
             }
 
             if (this._EventDuration > TimeDifference)
@@ -728,6 +732,11 @@ namespace TilerElements
             }
         }
 
+        /// <summary>
+        /// This pins the sub event to the latest possible time based on either the endtime of <paramref name="LimitingTimeLine"/> or the calculationRangeTimeLine
+        /// </summary>
+        /// <param name="LimitingTimeLine"></param>
+        /// <returns></returns>
         virtual public bool PinToEnd(TimeLine LimitingTimeLine)
         {
             if (this.isLocked)

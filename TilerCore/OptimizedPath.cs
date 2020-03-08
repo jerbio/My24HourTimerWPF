@@ -20,6 +20,8 @@ namespace TilerCore
         Dictionary<SubCalendarEvent, Dictionary<TimeOfDayPreferrence.DaySection, HashSet<string>>> subEvent_Dict_To_DaySecion = new Dictionary<SubCalendarEvent, Dictionary<TimeOfDayPreferrence.DaySection, HashSet<string>>>();
         protected List<SubCalendarEvent> UnassignedSubevents = new List<SubCalendarEvent>();// These are disabled events, events that could not find a slot
         protected List<SubCalendarEvent> ReassignedDisabledSubevents = new List<SubCalendarEvent>();
+        Dictionary<string, SubCalendarEvent> slicedSubEvents = new Dictionary<string, SubCalendarEvent>();
+
         /// <summary>
         /// This holds the subevents that cannot fit anywhere within this and also have no partial timefram that works
         /// </summary>
@@ -98,6 +100,7 @@ namespace TilerCore
                     {
                         SubCalendarEvent slicedValidSubEvent = new SubCalendarEvent(subEvent.ParentCalendarEvent, TilerUser.autoUser, new TilerUserGroup(), subEvent.getTimeZone, subEvent.Id, subEvent.getName, interferringTimeline.Start, interferringTimeline.End, new BusyTimeLine(subEvent.Id, interferringTimeline.Start, interferringTimeline.End), subEvent.isRigid, subEvent.isEnabled, subEvent.getUIParam, subEvent.Notes, subEvent.getIsComplete, subEvent.Location, subEvent.getCalendarEventRange, subEvent.Conflicts);
                         tempSubEvents.Add(slicedValidSubEvent);
+                        slicedSubEvents.Add(slicedValidSubEvent.Id, subEvent);
                     }
                     else
                     {
@@ -239,15 +242,20 @@ namespace TilerCore
         }
 
         /// <summary>
-        /// Returns all the pinned subevents and the reassigned disabled sub events
+        /// Returns all the pinned subevents and the reassigned disabled sub events.
         /// </summary>
         /// <returns></returns>
         public List<SubCalendarEvent> getOptimizedSubevents()
         {
             List<SubCalendarEvent> retValue = new List<SubCalendarEvent>();
             HashSet<SubCalendarEvent> subEventSet = new HashSet<SubCalendarEvent>();
-            foreach (SubCalendarEvent subEvent in AllGroupings.SelectMany(group => group.Value.getPinnedEvents()).ToList())
+            foreach (SubCalendarEvent eachSubevent in AllGroupings.SelectMany(group => group.Value.getPinnedEvents()).ToList())
             {
+                SubCalendarEvent subEvent = eachSubevent;
+                if (slicedSubEvents.ContainsKey(subEvent.Id))
+                {
+                    subEvent = slicedSubEvents[subEvent.Id];
+                }
                 if (!subEventSet.Contains(subEvent))
                 {
                     subEventSet.Add(subEvent);

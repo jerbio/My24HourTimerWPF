@@ -106,8 +106,8 @@ namespace TilerTests
             Schedule schedule = scheduleAndDump.Item1;
             schedule.FindMeSomethingToDo(currentLocation).Wait();
             (schedule as TestSchedule).WriteFullScheduleToOutlook();
-            DateTimeOffset oct25 = new DateTimeOffset(2019, 10, 25, 14, 0, 0, new TimeSpan());
-            DateTimeOffset oct26 = new DateTimeOffset(2019, 10, 26, 14, 0, 0, new TimeSpan());
+            DateTimeOffset oct25 = new DateTimeOffset(2019, 10, 25, 12, 0, 0, new TimeSpan());
+            DateTimeOffset oct26 = new DateTimeOffset(2019, 10, 26, 12, 0, 0, new TimeSpan());
 
             DayTimeLine oct25DayTimeLine = schedule.Now.getDayTimeLineByTime(oct25);
             DayTimeLine oct26DayTimeLine = schedule.Now.getDayTimeLineByTime(oct26);
@@ -122,10 +122,9 @@ namespace TilerTests
 
             foreach (SubCalendarEvent subEvent in oct26subEvents)
             {
-                Assert.IsTrue(subEvent.Start >= oct26);// this is KnownBugList to fail
+                Assert.IsTrue(subEvent.Start >= oct26);
             }
 
-            ((TestSchedule)schedule).WriteFullScheduleToOutlook();
         }
 
         /// <summary>

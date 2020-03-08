@@ -2771,35 +2771,6 @@ namespace TilerCore
                 {
                     EachDay.RemoveSubEvent(subEvent.Id);
                 }
-
-
-                List<SubCalendarEvent> spaceSubEvents = dayPath.getOptimizedSubevents();
-                
-                Tuple<SubCalendarEvent, SubCalendarEvent, SubCalendarEvent> wakeAndSleepEvents = spaceEventsByTravelTime(EachDay, spaceSubEvents);
-
-                if (wakeAndSleepEvents.Item1!=null)
-                {
-                    EachDay.WakeSubEvent = wakeAndSleepEvents.Item1;
-                }
-
-                if (wakeAndSleepEvents.Item2 != null)
-                {
-                    EachDay.SleepSubEvent = wakeAndSleepEvents.Item2;
-                }
-
-                if (wakeAndSleepEvents.Item3 != null)
-                {
-                    EachDay.PrecedingDaySleepSubEvent = wakeAndSleepEvents.Item3;
-                }
-
-
-                if (i > 0 && EachDay.PrecedingDaySleepSubEvent != null)
-                {
-                    DayTimeLine previousDay = AllDayTimeLine[i - 1];
-                    previousDay.SleepSubEvent = EachDay.PrecedingDaySleepSubEvent;
-                }
-
-                List<SubCalendarEvent> optimizedForDay = EachDay.getSubEventsInTimeLine().OrderBy(obj => obj.Start).ToList();
             }
             return dayToOPtimization;
         }
@@ -3482,10 +3453,13 @@ namespace TilerCore
                     }
                 });
             }
+            
+
 
 
             List<DayTimeLine> OptimizedDays = new List<DayTimeLine>();
             var OptimizationWatch = new Stopwatch();
+            IDictionary<DayTimeLine, OptimizedPath> dayToOptimization = null;
             OptimizationWatch.Start();
             if (Optimize && this.OptimizationEnabled)
             {
@@ -3506,12 +3480,16 @@ namespace TilerCore
                         AllDayTimeLine[currentIndex].AddToSubEventList(DayToSubEvent[eachGrouping.Key]);
                     }
 
-                    var dayToOptimization = optimizeDays(OptimizedDays, callLocation);
-                    foreach(var optimizedPath in dayToOptimization.Values)
+                    dayToOptimization = optimizeDays(OptimizedDays, callLocation);
+
+                    foreach(var kvp in dayToOptimization)
                     {
-                        foreach(SubCalendarEvent subEvent in optimizedPath.UnassignedSubEvents)
+                        var optimizedPath = kvp.Value;
+                        DayTimeLine EachDay = kvp.Key;
+                        foreach (SubCalendarEvent subEvent in optimizedPath.UnassignedSubEvents)
                         {
                             undesignatedAfterSubeventsOptimization.Add(subEvent);
+                            subEvent.ParentCalendarEvent.undesignateSubEvent(subEvent);
                         }
                     }
                     foreach (SubCalendarEvent subEvent in OptimizedDays.SelectMany(day => day.getSubEventsInTimeLine()))
@@ -3527,13 +3505,79 @@ namespace TilerCore
                         {
                             _ConflictingSubEvents.Add(subEvent);
                         }
-
+                        foreach (SubCalendarEvent subEvent in optimizationConflictResolutionResult.Item1)
+                        {
+                            subEvent.setAsOptimized();
+                        }
                     }
-
                 }
                 catch (Exception E)
                 {
                     throw E;
+                }
+            }
+
+            
+            readjustSleepSchedule(AllDayTimeLine);
+            if(dayToOptimization!=null)
+            {
+                var dayToOptimizationAsList = dayToOptimization.OrderBy(o => o.Key.UniversalIndex).ToList();
+
+                for (int i = 0; i< dayToOptimizationAsList.Count; i++)
+                {
+                    var kvp = dayToOptimizationAsList[i];
+                    var dayPath = kvp.Value;
+                    var EachDay = kvp.Key;
+                    Dictionary<string, SubCalendarEvent> slicedSubEvents = new Dictionary<string, SubCalendarEvent>();
+                    List<SubCalendarEvent> subEvents = EachDay.getSubEventsInTimeLine();
+                    List<SubCalendarEvent> spaceSubEvents = new List<SubCalendarEvent>();
+                    foreach(SubCalendarEvent eachSubEvent in subEvents)// loop handles scenario where a rigid event cuts across multiple days
+                    {
+                        SubCalendarEvent subEvent = eachSubEvent;
+                        if (subEvent.isLocked && !subEvent.canExistWithinTimeLine(EachDay))
+                        {
+                            TimeLine interferringTimeline = subEvent.StartToEnd.InterferringTimeLine(EachDay);
+                            if(interferringTimeline != null)
+                            {
+                                SubCalendarEvent slicedValidSubEvent = new SubCalendarEvent(subEvent.ParentCalendarEvent, TilerUser.autoUser, new TilerUserGroup(), subEvent.getTimeZone, subEvent.Id, subEvent.getName, interferringTimeline.Start, interferringTimeline.End, new BusyTimeLine(subEvent.Id, interferringTimeline.Start, interferringTimeline.End), subEvent.isRigid, subEvent.isEnabled, subEvent.getUIParam, subEvent.Notes, subEvent.getIsComplete, subEvent.Location, subEvent.getCalendarEventRange, subEvent.Conflicts);
+                                subEvent = slicedValidSubEvent;
+                                slicedSubEvents.Add(slicedValidSubEvent.Id, subEvent);
+                                spaceSubEvents.Add(subEvent);
+                            }
+                            
+                        } else
+                        {
+                            spaceSubEvents.Add(subEvent);
+                        }
+                        
+                    }
+                    
+                    Tuple<SubCalendarEvent, SubCalendarEvent, SubCalendarEvent> wakeAndSleepEvents = spaceEventsByTravelTime(EachDay, spaceSubEvents);
+
+                    if (wakeAndSleepEvents.Item1 != null)
+                    {
+                        SubCalendarEvent subEvent = slicedSubEvents.ContainsKey(wakeAndSleepEvents.Item1.Id) ? slicedSubEvents[wakeAndSleepEvents.Item1.Id] : wakeAndSleepEvents.Item1;
+                        EachDay.WakeSubEvent = subEvent;
+                    }
+
+                    if (wakeAndSleepEvents.Item2 != null)
+                    {
+                        SubCalendarEvent subEvent = slicedSubEvents.ContainsKey(wakeAndSleepEvents.Item2.Id) ? slicedSubEvents[wakeAndSleepEvents.Item2.Id] : wakeAndSleepEvents.Item2;
+                        EachDay.SleepSubEvent = subEvent;
+                    }
+
+                    if (wakeAndSleepEvents.Item3 != null)
+                    {
+                        SubCalendarEvent subEvent = slicedSubEvents.ContainsKey(wakeAndSleepEvents.Item3.Id) ? slicedSubEvents[wakeAndSleepEvents.Item3.Id] : wakeAndSleepEvents.Item3;
+                        EachDay.PrecedingDaySleepSubEvent = subEvent;
+                    }
+
+
+                    if (i > 0 && EachDay.PrecedingDaySleepSubEvent != null)
+                    {
+                        DayTimeLine previousDay = AllDayTimeLine[i - 1];
+                        previousDay.SleepSubEvent = EachDay.PrecedingDaySleepSubEvent;
+                    }
                 }
             }
 
@@ -3547,6 +3591,157 @@ namespace TilerCore
             List<BlobSubCalendarEvent> afterPathOptimizationConflictingEvetns = Utility.getConflictingEvents(TotalActiveEvents.OrderBy(obj => obj.Start).ToList());
             List<SubCalendarEvent> ordereByStartTime = TotalActiveEvents.OrderBy(SubEvent => SubEvent.Start).ToList();
             return totalNumberOfEvents;
+        }
+
+        /// <summary>
+        /// This function tries to ensure the subevents are reorganized to be within the active time frame of timeline. The active time frame is defined as the latter 2/3rds of <paramref name="timeline"/>
+        /// </summary>
+        /// <param name="timeline"></param>
+        /// <param name="subEvents"></param>
+        void readjustSleepSchedule(TimeLine timeline, IEnumerable<SubCalendarEvent> subEvents)
+        {
+            List<SubCalendarEvent> orderedsubEventsInTimeline = subEvents.OrderBy(o => o.Start).ThenBy(o => o.End).ToList();
+
+            if (orderedsubEventsInTimeline.Count > 0)
+            {
+                if (orderedsubEventsInTimeline == null)
+                {
+                    orderedsubEventsInTimeline = new List<SubCalendarEvent>();
+                }
+
+                SubCalendarEvent firstSubevent = orderedsubEventsInTimeline.FirstOrDefault();
+                SubCalendarEvent lastSubevent = orderedsubEventsInTimeline.LastOrDefault();
+                DateTimeOffset timeLineStart = timeline.Start;
+                if (firstSubevent != null)
+                {
+                    timeLineStart = firstSubevent.Start <= timeline.Start ? firstSubevent.Start : timeline.Start;
+                }
+
+                DateTimeOffset timeLineEnd = timeline.End;
+                if (lastSubevent != null)
+                {
+                    timeLineEnd = lastSubevent.End >= timeline.End ? lastSubevent.End : timeline.End;
+                }
+                TimeLine revisedTimeLineUpdatedForOverlappingEvents = new TimeLine(timeLineStart, timeLineEnd);// this ensures the subEvents are verified to fit within the timeline. This handles cases where an event might cross over say a rigid whih belongs to multiple days
+
+
+                if(!Utility.PinSubEventsToEnd(orderedsubEventsInTimeline, revisedTimeLineUpdatedForOverlappingEvents))
+                {
+                    throw new Exception("Bug in optimize days and conflict resolution");
+                }
+                TimeSpan activeTimeSpan = revisedTimeLineUpdatedForOverlappingEvents.TimelineSpan - TimeSpan.FromTicks(revisedTimeLineUpdatedForOverlappingEvents.TimelineSpan.Ticks / 3);
+                if (revisedTimeLineUpdatedForOverlappingEvents.TimelineSpan >= activeTimeSpan)
+                {
+                    TimeLine activeTimeline = new TimeLine(revisedTimeLineUpdatedForOverlappingEvents.End.Subtract(activeTimeSpan), revisedTimeLineUpdatedForOverlappingEvents.End);
+                    TimeLine sleepTimeline = new TimeLine(revisedTimeLineUpdatedForOverlappingEvents.Start, activeTimeline.Start);
+                    List<SubCalendarEvent> sleepSubevents = new List<SubCalendarEvent>();
+                    List<SubCalendarEvent> activeTimeframeSubevents = new List<SubCalendarEvent>();
+                    foreach (SubCalendarEvent subevent in orderedsubEventsInTimeline)
+                    {
+                        if (!subevent.isLocked && subevent.StartToEnd.doesTimeLineInterfere(sleepTimeline))// we want locked events to be part of the active time frame events because they cannot be moved
+                        {
+                            sleepSubevents.Add(subevent);
+                        }
+                        else
+                        {
+                            activeTimeframeSubevents.Add(subevent);
+                        }
+                    }
+
+                    SubCalendarEvent activeFirstSubevent = activeTimeframeSubevents.FirstOrDefault();
+                    SubCalendarEvent activeLastSubevent = activeTimeframeSubevents.LastOrDefault();
+                    DateTimeOffset activeTimeLineStart = activeTimeline.Start;
+                    if (activeFirstSubevent != null)
+                    {
+                        activeTimeLineStart = activeFirstSubevent.Start <= activeTimeline.Start ? activeFirstSubevent.Start : activeTimeline.Start;
+                    }
+
+                    DateTimeOffset activeTimeLineEnd = activeTimeline.End;
+                    if (activeLastSubevent != null)
+                    {
+                        activeTimeLineEnd = activeLastSubevent.End >= activeTimeline.End ? activeLastSubevent.End : activeTimeline.End;
+                    }
+
+
+                    TimeLine revisedActivetimeline = new TimeLine(activeTimeLineStart, activeTimeLineEnd);
+                    if (sleepSubevents.Count > 0)
+                    {
+                        var newlyaddedMovedSleepevents = adjustEachSleepDay(revisedActivetimeline, sleepSubevents, activeTimeframeSubevents);
+                        if(newlyaddedMovedSleepevents!=null)
+                        {
+                            HashSet<SubCalendarEvent> noLongerSleep = newlyaddedMovedSleepevents.Item1;
+                            List<SubCalendarEvent> currentSleep = sleepSubevents.Where(o => !noLongerSleep.Contains(o)).ToList();
+                            List<SubCalendarEvent> newOrderOfSubEvents = currentSleep.Concat(newlyaddedMovedSleepevents.Item2).ToList();
+                            if(!Utility.PinSubEventsToEnd(newOrderOfSubEvents, revisedTimeLineUpdatedForOverlappingEvents))
+                            {
+                                throw new Exception("There's an issue with optimization for sleep schedule");
+                            }
+                        }
+                        
+                    }
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Funtion readjst each day and moves subevents withing the sleep time frame towards the active timeframe
+        /// </summary>
+        /// <param name="daytimeLines"></param>
+        void readjustSleepSchedule(IEnumerable<DayTimeLine> daytimeLines)
+        {
+            foreach(DayTimeLine dayTimeline in daytimeLines)
+            {
+                List<SubCalendarEvent> orderedsubEventsInTimeline = dayTimeline.getSubEventsInTimeLine().OrderBy(o => o.Start).ThenBy(o => o.End).ToList();
+                readjustSleepSchedule(dayTimeline, orderedsubEventsInTimeline);
+            }
+        }
+
+        /// <summary>
+        /// funtion tries to find a spot for sleepsubevents within the active timeline. Note all the acive time framesubevents must all fit within active timeline
+        /// Function returns a tuple
+        /// Item1 is a HashSet of newly ressigned from the sleep time frame 
+        /// Item2 is a list of new ordered activeTimeFrame events
+        /// </summary>
+        /// <param name="activeTimeline"></param>
+        /// <param name="sleepTimeFrameSubevents"></param>
+        /// <param name="activeTimeframeSubevents"></param>
+        Tuple<HashSet<SubCalendarEvent>, List<SubCalendarEvent>> adjustEachSleepDay(TimeLine activeTimeline, IEnumerable<SubCalendarEvent> sleepTimeFrameSubevents, IEnumerable<SubCalendarEvent> activeTimeframeSubevents)
+        {
+            Tuple<HashSet<SubCalendarEvent>, List<SubCalendarEvent>> retValue = null;
+            HashSet<SubCalendarEvent> reorderedFromSleep = new HashSet<SubCalendarEvent>();
+            HashSet<SubCalendarEvent> activeSubevents = new HashSet<SubCalendarEvent>( activeTimeframeSubevents);
+            List<SubCalendarEvent> repositionableSleepSubEvents = sleepTimeFrameSubevents.Where(o => !o.isLocked).ToList();
+            const int maxBruteforceCount = 5;
+            if(repositionableSleepSubEvents.Count>0)
+            {
+                if(repositionableSleepSubEvents.Count > maxBruteforceCount)
+                {
+                    List<SubCalendarEvent> reoptimizedSubevents = BuildAllPossibleSnugLists(repositionableSleepSubEvents, activeTimeline, 1, activeSubevents);
+                    reorderedFromSleep = new HashSet<SubCalendarEvent>( reoptimizedSubevents.Where(o => !activeSubevents.Contains(o)));
+                    retValue = new Tuple<HashSet<SubCalendarEvent>, List<SubCalendarEvent>>(reorderedFromSleep, reoptimizedSubevents);
+                }
+                else
+                {
+                    List<SubCalendarEvent> alreadyAssigned = activeSubevents.OrderBy(o => o.Start).ToList();
+                    List<SubCalendarEvent> sortedByScore = sleepTimeFrameSubevents.OrderBy(sub => sub.Score).ToList();
+                    foreach(SubCalendarEvent subEvent in sortedByScore)
+                    {
+                        int index = Utility.getBestPosition(activeTimeline, subEvent, alreadyAssigned);
+                        if(index != -1 )
+                        {
+                            alreadyAssigned.Insert(index, subEvent);
+                            if(!Utility.PinSubEventsToEnd(alreadyAssigned, activeTimeline))
+                            {
+                                throw new Exception("There is a bug in sleep evaluation");
+                            }
+                            reorderedFromSleep.Add(subEvent);
+                        }
+                    }
+                    retValue = new Tuple<HashSet<SubCalendarEvent>, List<SubCalendarEvent>>(reorderedFromSleep, alreadyAssigned);
+                }
+            }
+            return retValue;
         }
 
         /// <summary>
@@ -3863,7 +4058,7 @@ namespace TilerCore
                                 }
                                 return predicateBool;
                             })
-                            .OrderByDescending(dayTimeLine => dayTimeLine.Occupancy)
+                            .OrderBy(dayTimeLine => dayTimeLine.Occupancy)
                             .ToList();
                         bool isAlternateDayFoundForWorseSubevent = false;
                         foreach (var dayTimeline in plausibleRepositionableDays)

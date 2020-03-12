@@ -273,6 +273,7 @@ namespace TilerElements
             copy._RigidSchedule = this._RigidSchedule;
             copy.updateStartTime( this.Start);
             copy._UiParams = this._UiParams?.createCopy();
+            copy._AutoDeleted = this._AutoDeleted;
             if (eventId != null)
             {
                 copy.UniqueID = eventId;
@@ -366,10 +367,12 @@ namespace TilerElements
         /// </summary>
         /// <param name="TimeLineData"></param>
         /// <returns></returns>
-        public override List<TimeLine> getTimeLineInterferringWithCalEvent(TimeLine TimeLineData, bool orderByStart = true)
+        public override List<TimeLine> getTimeLinesInterferringWithCalculationRange(TimeLine TimeLineData, bool orderByStart = true)
         {
             List<TimeLine> retValue = null;
-            List<TimeLine> possibleTimeLines = orderByStart ? _ProfileOfRestriction.getAllNonPartialTimeFrames(TimeLineData).OrderByDescending(obj => obj.TimelineSpan).ThenBy(obj => obj.Start).ToList() : _ProfileOfRestriction.getAllNonPartialTimeFrames(TimeLineData).OrderByDescending(obj => obj.TimelineSpan).ThenBy(obj => obj.Start).ToList();
+            List<TimeLine> possibleTimeLines = (orderByStart ? this.ParentCalendarEvent.getInterferringWithTimeLine(TimeLineData).OrderBy(obj => obj.Start).ThenBy(obj => obj.TimelineSpan)
+                                                             : this.ParentCalendarEvent.getInterferringWithTimeLine(TimeLineData).OrderByDescending(obj => obj.Start).ThenBy(obj => obj.TimelineSpan)
+                                                ).ToList();
             if (possibleTimeLines.Count > 0)
             {
                 retValue = possibleTimeLines;

@@ -418,36 +418,43 @@ namespace TilerElements
             {
                 Id = this.getId;
             }
-            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(parentCalendarEvent, getCreator, _Users, this._TimeZone, Id, this.getName?.createCopy(), Start, End, BusyFrame?.CreateCopy() as BusyTimeLine, this._RigidSchedule, this.isEnabled, this._UiParams?.createCopy(), this.Notes?.createCopy(), this._Complete, this._LocationInfo, new TimeLine(getCalendarEventRange.Start, getCalendarEventRange.End), _ConflictingEvents?.CreateCopy());
-            MySubCalendarEventCopy.ThirdPartyID = this.ThirdPartyID;
-            MySubCalendarEventCopy._AutoDeleted = this._AutoDeleted;
-            MySubCalendarEventCopy.isRestricted = this.isRestricted;
-            MySubCalendarEventCopy.preferredDayIndex = this.preferredDayIndex;
-            MySubCalendarEventCopy._Creator = this._Creator;
-            MySubCalendarEventCopy._Semantics = this._Semantics !=null ?this._Semantics.createCopy() : null;
-            MySubCalendarEventCopy._UsedTime = this._UsedTime;
-            MySubCalendarEventCopy.OptimizationFlag = this.OptimizationFlag;
-            MySubCalendarEventCopy._LastReasonStartTimeChanged = this._LastReasonStartTimeChanged;
-            MySubCalendarEventCopy._DaySectionPreference = this._DaySectionPreference;
-            MySubCalendarEventCopy._calendarEvent = this._calendarEvent;
-            MySubCalendarEventCopy.TravelTimeAfter = this.TravelTimeAfter;
-            MySubCalendarEventCopy.TravelTimeBefore= this.TravelTimeBefore;
-            MySubCalendarEventCopy.isSleep = this.isSleep;
-            MySubCalendarEventCopy.isWake = this.isWake;
-            MySubCalendarEventCopy.userLocked = this._userLocked;
-            MySubCalendarEventCopy.tempLock = this.tempLock;
-            MySubCalendarEventCopy.LocationValidationId_DB = this.LocationValidationId_DB;
-            MySubCalendarEventCopy.lockedPrecedingHours = this.lockedPrecedingHours;
-            MySubCalendarEventCopy._enablePre_reschedulingTimelineLockDown = this._enablePre_reschedulingTimelineLockDown;
-            MySubCalendarEventCopy._RepetitionLock= this._RepetitionLock;
-            MySubCalendarEventCopy.ParentCalendarEvent = parentCalendarEvent;
-            MySubCalendarEventCopy._isTardy = this._isTardy;
+            SubCalendarEvent copy = new SubCalendarEvent(parentCalendarEvent, getCreator, _Users, this._TimeZone, Id, this.getName?.createCopy(), Start, End, BusyFrame?.CreateCopy() as BusyTimeLine, this._RigidSchedule, this.isEnabled, this._UiParams?.createCopy(), this.Notes?.createCopy(), this._Complete, this._LocationInfo, new TimeLine(getCalendarEventRange.Start, getCalendarEventRange.End), _ConflictingEvents?.CreateCopy());
+            copy.ThirdPartyID = this.ThirdPartyID;
+            copy._AutoDeleted = this._AutoDeleted;
+            copy.isRestricted = this.isRestricted;
+            copy.preferredDayIndex = this.preferredDayIndex;
+            copy._Creator = this._Creator;
+            copy._Semantics = this._Semantics !=null ?this._Semantics.createCopy() : null;
+            copy._UsedTime = this._UsedTime;
+            copy.OptimizationFlag = this.OptimizationFlag;
+            copy._LastReasonStartTimeChanged = this._LastReasonStartTimeChanged;
+            copy._DaySectionPreference = this._DaySectionPreference;
+            copy._calendarEvent = this._calendarEvent;
+            copy.TravelTimeAfter = this.TravelTimeAfter;
+            copy.TravelTimeBefore= this.TravelTimeBefore;
+            copy.isSleep = this.isSleep;
+            copy.isWake = this.isWake;
+            copy.userLocked = this._userLocked;
+            copy.tempLock = this.tempLock;
+            copy.LocationValidationId_DB = this.LocationValidationId_DB;
+            copy.lockedPrecedingHours = this.lockedPrecedingHours;
+            copy._enablePre_reschedulingTimelineLockDown = this._enablePre_reschedulingTimelineLockDown;
+            copy._RepetitionLock= this._RepetitionLock;
+            copy.ParentCalendarEvent = parentCalendarEvent;
+            copy._isTardy = this._isTardy;
+            copy._Priority = this._Priority;
+            copy.EventScore = this.EventScore;
+            copy.UnUsableIndex = this.UnUsableIndex;
+            copy._UsedTime = this._UsedTime;
+            copy.OptimizationFlag = this.OptimizationFlag;
+            copy._PrepTime = this._PrepTime;
+            copy.MiscIntData = this.MiscIntData;
             if (this.CalculationTimeLine != null)
             {
-                MySubCalendarEventCopy.CalculationTimeLine = this.CalculationTimeLine.CreateCopy();
+                copy.CalculationTimeLine = this.CalculationTimeLine.CreateCopy();
             }
             
-            return MySubCalendarEventCopy;
+            return copy;
         }
 
         internal void designate(ReferenceNow now)
@@ -489,22 +496,26 @@ namespace TilerElements
             return TotalTimeSpan;
         }
 
-        
-        virtual public bool PinToStart(TimeLine MyTimeLine)
+        /// <summary>
+        /// This pins this subevent to the earliest possible start time of either <paramref name="limitingTimeLine"/> or the getCalculationRange.
+        /// </summary>
+        /// <param name="limitingTimeLine"></param>
+        /// <returns></returns>
+        virtual public bool PinToStart(TimeLine limitingTimeLine)
         {
             DateTimeOffset ReferenceStartTime = new DateTimeOffset();
             DateTimeOffset ReferenceEndTime = new DateTimeOffset();
 
-            ReferenceStartTime = MyTimeLine.Start;
-            if (this.getCalculationRange.Start > MyTimeLine.Start)
+            ReferenceStartTime = limitingTimeLine.Start;
+            if (this.getCalculationRange.Start > limitingTimeLine.Start)
             {
                 ReferenceStartTime = this.getCalculationRange.Start;
             }
 
             ReferenceEndTime = this.getCalculationRange.End;
-            if (this.getCalculationRange.End > MyTimeLine.End)
+            if (this.getCalculationRange.End > limitingTimeLine.End)
             {
-                ReferenceEndTime = MyTimeLine.End;
+                ReferenceEndTime = limitingTimeLine.End;
             }
 
             /*foreach (SubCalendarEvent MySubCalendarEvent in MySubCalendarEventList)
@@ -515,7 +526,7 @@ namespace TilerElements
 
             if (this.isLocked)
             {
-                return (MyTimeLine.IsTimeLineWithin( this.StartToEnd));
+                return (limitingTimeLine.IsTimeLineWithin( this.StartToEnd));
             }
 
             if (this._EventDuration > TimeDifference)
@@ -720,6 +731,11 @@ namespace TilerElements
             }
         }
 
+        /// <summary>
+        /// This pins the sub event to the latest possible time based on either the endtime of <paramref name="LimitingTimeLine"/> or the calculationRangeTimeLine
+        /// </summary>
+        /// <param name="LimitingTimeLine"></param>
+        /// <returns></returns>
         virtual public bool PinToEnd(TimeLine LimitingTimeLine)
         {
             if (this.isLocked)
@@ -944,11 +960,11 @@ namespace TilerElements
              return retValue;
          }
          /// <summary>
-         /// Function returns the largest Timeline interferes with its calendar event range. If restricted subcalevent you can use the orderbystart to make a preference for selection. Essentiall select the largest time line with earliest start time
+         /// Function returns the largest Timeline that interferes with the calculation range. If this is a restricted subcalevent you can use the orderbystart to make a preference for selection. Essentially select the largest time line with earliest start time
          /// </summary>
          /// <param name="TimeLineData"></param>
          /// <returns></returns>
-         virtual public List<TimeLine> getTimeLineInterferringWithCalEvent(TimeLine TimeLineData, bool orderByStart = true)
+         virtual public List<TimeLine> getTimeLinesInterferringWithCalculationRange(TimeLine TimeLineData, bool orderByStart = true)
          {
              TimeLine retValuTimeLine= getCalculationRange.InterferringTimeLine(TimeLineData);;
              List<TimeLine> retValue = null;
@@ -958,6 +974,22 @@ namespace TilerElements
              }
              return retValue;
          }
+
+        /// <summary>
+        /// Function returns the largest Timeline that interferes with its calendar event range(If you want only calculation range use). If this is a restricted subcalevent you can use the orderbystart to make a preference for selection. Essentially select the largest time line with earliest start time
+        /// </summary>
+        /// <param name="TimeLineData"></param>
+        /// <returns></returns>
+        virtual public List<TimeLine> getTimeLineInterferringWithCalEvent(TimeLine TimeLineData, bool orderByStart = true)
+        {
+            TimeLine retValuTimeLine = getCalendarEventRange.InterferringTimeLine(TimeLineData); ;
+            List<TimeLine> retValue = null;
+            if (retValuTimeLine != null)
+            {
+                retValue = new List<TimeLine>() { retValuTimeLine };
+            }
+            return retValue;
+        }
 
         virtual public DateTimeOffset getPauseTime()
         {

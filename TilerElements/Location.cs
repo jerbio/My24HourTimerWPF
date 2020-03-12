@@ -222,7 +222,7 @@ namespace TilerElements
                             {
                                 var result = candidate;
                                 string address = result.FormattedAddress.Trim().ToLower();
-                                bool useThis = IsLoookUpVerified(_TaggedAddress, address);
+                                bool useThis = IsLookUpAddressSameAsGoogleMapsAddress(_TaggedAddress, address);
                                 retValue = useThis ? this : retValue;
                                 retValue._TaggedAddress = address;
                                 if (string.IsNullOrEmpty(retValue._TaggedDescription))
@@ -252,7 +252,7 @@ namespace TilerElements
                                 if (!useThis)
                                 {
                                     retValue._Id = result.PlaceId;
-                                    _LocationValidation.addLocation(retValue as LocationJson);
+                                    _LocationValidation.addLocation(retValue as LocationJson, currentTime);
                                 }
                                 
                             }
@@ -285,8 +285,9 @@ namespace TilerElements
             return retValue;
         }
 
-        public bool IsLoookUpVerified(string inputAddress, string lookUpAddress)
+        public bool IsLookUpAddressSameAsGoogleMapsAddress(string inputAddress, string lookUpAddress)
         {
+            return false;
             string inputAddressNoPunctuation = new string(inputAddress.Where(c => !char.IsPunctuation(c) && !char.IsWhiteSpace(c)).ToArray());
             string lookUpAddressNoPunctuation = new string(lookUpAddress.Where(c => !char.IsPunctuation(c) && !char.IsWhiteSpace(c)).ToArray());
 

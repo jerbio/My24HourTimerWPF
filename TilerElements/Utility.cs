@@ -206,7 +206,15 @@ namespace TilerElements
             return retValue;
         }
 
-
+        /// <summary>
+        /// Function takes the provided collection and generates the resultant of the provided elements after running a self normalization or using the origin.
+        /// Use this function over multiDimensionCalculation if you want to avoid a var of mulitvar calculation dominating the calculation
+        /// NOTE: collection will get modified, just to reduce memory complexity
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="origin"></param>
+        /// <param name="normalizedFields"></param>
+        /// <returns></returns>
         static public List<double> multiDimensionCalculationNormalize(IList<IList<double>> collection, List<double> origin = null, IList<double> normalizedFields = null)
         {
             int counter = collection.Count;
@@ -933,9 +941,15 @@ namespace TilerElements
             return new Tuple<int, List<List<Dictionary<T, mTuple<int, U>>>>>(HighstSum, retValue);
         }
 
+        public static Dictionary<T, TimeLine> getTilerEventTimeline<T>(IEnumerable<T> tilerEvents) where T : TilerEvent
+        {
+            Dictionary<T, TimeLine> retValue = tilerEvents.ToDictionary(tilerEvent => tilerEvent, tilerEvent => tilerEvent.StartToEnd);
+            return retValue;
+        }
+
         static public bool tryPinSubEventsToStart(IEnumerable<SubCalendarEvent> arg1, TimeLine Arg2)
         {
-            var dictOfSubEvents = arg1.ToDictionary(sub => sub, sub => sub.ActiveSlot.CreateCopy());
+            var dictOfSubEvents = getTilerEventTimeline(arg1);
             var retValue = PinSubEventsToStart(arg1.ToArray(), Arg2);
 
             if(!retValue)
@@ -1262,14 +1276,13 @@ namespace TilerElements
         /// <param name="maxTImeLine"> The restricting timeline for which to evealutate the maximum timeline for pinning.</param>
         /// <param name="subEvents"></param>
         /// <returns></returns>
-        public static Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> subEventToMaxSpaceAvailable(TimeLine maxTImeLine, IEnumerable<SubCalendarEvent> subEvents)
+        public static Dictionary<SubCalendarEvent, nTuple<TimeLine, TimeLine, TimeLine>> subEventToMaxSpaceAvailable(TimeLine maxTImeLine, IEnumerable<SubCalendarEvent> subEvents)
         {
-            var dictOfSubEvents = subEvents.ToDictionary(sub => sub, sub => sub.Start);
             Dictionary<EventID, SubCalendarEvent> eventIdToSubEvent = subEvents.ToDictionary(subEvent => subEvent.SubEvent_ID, subEvent => subEvent);
             Dictionary<EventID, DateTimeOffset> startTimes = new Dictionary<EventID, DateTimeOffset>();
             Dictionary<EventID, DateTimeOffset> endTimes = new Dictionary<EventID, DateTimeOffset>();
             List<SubCalendarEvent> ordedsubEvents = subEvents.Select(subEvent => subEvent.CreateCopy(subEvent.SubEvent_ID, subEvent.ParentCalendarEvent)).ToList();// the ordered passed in is preserved. We don't care about the time frame
-            Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>> retValue = new Dictionary<SubCalendarEvent, mTuple<TimeLine, TimeLine>>();
+            Dictionary<SubCalendarEvent, nTuple<TimeLine, TimeLine, TimeLine>> retValue = new Dictionary<SubCalendarEvent, nTuple<TimeLine, TimeLine, TimeLine>>();
             TimeLine timeLine = new TimeLine();
             DateTimeOffset start = maxTImeLine.Start;
             DateTimeOffset end = maxTImeLine.End;
@@ -1283,6 +1296,7 @@ namespace TilerElements
             TimeLine iterationTImeLine = new TimeLine(start, end);
             TimeLine timeLineBefore = new TimeLine();
             TimeLine timeLineAfter = new TimeLine();
+            TimeLine timeLineWithoutSubEvent = new TimeLine();
             if (Utility.tryPinSubEventsToStart(ordedsubEvents, maxTImeLine))
             {
                 SubCalendarEvent subEvent;
@@ -1299,7 +1313,8 @@ namespace TilerElements
                     endAfter = subEvent.Start;
                     endBefore = ordedsubEvents[i].Start;
                     timeLineBefore = new TimeLine(startBefore, endBefore);
-                    retValue.Add(eventIdToSubEvent[subEvent.SubEvent_ID], new mTuple<TimeLine, TimeLine>(timeLineBefore, timeLineAfter));
+                    timeLineWithoutSubEvent = new TimeLine(timeLineBefore.Start, timeLineAfter.End);
+                    retValue.Add(eventIdToSubEvent[subEvent.SubEvent_ID], new nTuple<TimeLine, TimeLine, TimeLine>(timeLineBefore, timeLineAfter, timeLineWithoutSubEvent));
                 }
 
                 subEvent = ordedsubEvents[i];
@@ -1311,11 +1326,8 @@ namespace TilerElements
                 endAfter = subEvent.Start;
                 endBefore = ordedsubEvents[i].Start;
                 timeLineBefore = new TimeLine(startBefore, endBefore);
-                retValue.Add(eventIdToSubEvent[subEvent.SubEvent_ID], new mTuple<TimeLine, TimeLine>(timeLineBefore, timeLineAfter));
-                foreach(SubCalendarEvent subEVent in subEvents)
-                {
-                    subEVent.shiftEvent(dictOfSubEvents[subEVent], true);
-                }
+                timeLineWithoutSubEvent = new TimeLine(timeLineBefore.Start, timeLineAfter.End);
+                retValue.Add(eventIdToSubEvent[subEvent.SubEvent_ID], new nTuple<TimeLine, TimeLine, TimeLine>(timeLineBefore, timeLineAfter, timeLineWithoutSubEvent));
             }
             else
             {
@@ -1324,6 +1336,8 @@ namespace TilerElements
 
             return retValue;
         }
+    
+        
         /// <summary>
         /// Removes the seconds and milliseconds of the datetimeoffset account. It returns a new datetimeoffset struct object.
         /// </summary>
@@ -1540,5 +1554,147 @@ namespace TilerElements
             bool retValue = !(string.IsNullOrEmpty(input) || string.IsNullOrWhiteSpace(input));
             return retValue;
         }
+
+
+        public static int getBestPosition(TimeLine timeLine, SubCalendarEvent subEvent, IEnumerable<SubCalendarEvent> orderedAscendingByTimeCurrentSubEvents, HashSet<int> unusableIndexes = null, Tuple<Location, Location> BorderElements = null)
+        {
+            Dictionary<SubCalendarEvent, mTuple<SubCalendarEvent, int>> subeventToIndex = orderedAscendingByTimeCurrentSubEvents.Select((obj, index) => new mTuple<SubCalendarEvent, int>(obj, index)).ToDictionary(obj => obj.Item1, obj => obj);
+            List<SubCalendarEvent> allSubEvents = orderedAscendingByTimeCurrentSubEvents.ToList();
+            List<TimeLine> timeLineWorks = new List<TimeLine>();
+            if (unusableIndexes == null)
+            {
+                unusableIndexes = new HashSet<int>();
+            }
+
+            HashSet<int> int_unusableIndex = new HashSet<int>(unusableIndexes);
+
+            bool foundViableTimeLine = false;
+            if (allSubEvents.Count > 0)
+            {
+                bool foundViableFromPreceding = false;
+                var subEventToViableTimeLine = Utility.subEventToMaxSpaceAvailable(timeLine, allSubEvents);
+                for (int i = 0; i < allSubEvents.Count; i++)
+                {
+                    var currentActiveSubEvent = allSubEvents[i];
+                    var beforeAfterTimeLines = subEventToViableTimeLine[currentActiveSubEvent];
+                    if (!foundViableFromPreceding)
+                    {
+                        var possibleBeforeTimeLine = subEvent.getTimeLinesInterferringWithCalculationRange(beforeAfterTimeLines.Item1) ?? new List<TimeLine>();
+                        List<TimeLine> viableBeforeTImeLines = new List<TimeLine>();
+                        foreach (var viableTimeLine in possibleBeforeTimeLine.Where(subTimeLine => subEvent.canExistWithinTimeLine(subTimeLine)))
+                        {
+                            foundViableFromPreceding = true;
+                            foundViableTimeLine = true;
+                            viableBeforeTImeLines.AddRange(subEvent.getTimeLinesInterferringWithCalculationRange(viableTimeLine));
+                        }
+                        if (viableBeforeTImeLines.Count < 1)
+                        {
+                            unusableIndexes.Add(i);
+                        }
+                    }
+
+
+                    var possibleAfterTimeLine = subEvent.getTimeLinesInterferringWithCalculationRange(beforeAfterTimeLines.Item2) ?? new List<TimeLine>();
+                    List<TimeLine> viableAterTImeLines = new List<TimeLine>();
+                    foreach (var viableTimeLine in possibleAfterTimeLine.Where(subTimeLine => subEvent.canExistWithinTimeLine(subTimeLine)))
+                    {
+                        viableAterTImeLines.AddRange(subEvent.getTimeLinesInterferringWithCalculationRange(viableTimeLine));
+                        foundViableFromPreceding = true;
+                        foundViableTimeLine = true;
+                    }
+                    if (viableAterTImeLines.Count < 1)
+                    {
+                        unusableIndexes.Add(i + 1);
+                        foundViableFromPreceding = false;
+                    }
+                }
+                
+                timeLineWorks = subEvent.getTimeLinesInterferringWithCalculationRange(timeLine);
+            }
+            else
+            {
+                if(subEvent.canExistWithinTimeLine(timeLine))
+                {
+                    foundViableTimeLine = true;
+                    timeLineWorks = subEvent.getTimeLinesInterferringWithCalculationRange(timeLine);
+                }
+            }
+
+            if (!foundViableTimeLine)
+            {
+                return -1;
+            }
+            List<SubCalendarEvent> fullSublist = allSubEvents.ToList();
+            int retValue = -1;
+            if (fullSublist.Count > 0)
+            {
+                retValue = getBestPosition(subEvent, fullSublist, unusableIndexes, BorderElements);
+            }
+            else if (fullSublist.Count == 0 && (unusableIndexes == null || !unusableIndexes.Contains(0)))
+            {
+                retValue = 0;
+            }
+
+            return retValue;
+        }
+
+
+        public static int getBestPosition(SubCalendarEvent SubEvent, IEnumerable<SubCalendarEvent> orderedAscendingCurrentSubEvents, HashSet<int> unusableIndexes = null, Tuple<Location, Location> BorderElements = null)
+        {
+            int i = 0;
+            int RetValue = -1;
+            if (unusableIndexes == null)
+            {
+                unusableIndexes = new HashSet<int>();
+            }
+            if (unusableIndexes.Count < orderedAscendingCurrentSubEvents.Count() + 1)
+            {
+                int currentCount = orderedAscendingCurrentSubEvents.Count();
+                List<SubCalendarEvent> FullList = orderedAscendingCurrentSubEvents.ToList();
+                double[] TotalDistances = new double[currentCount + 1];
+                int countLimit = TotalDistances.Count();
+                foreach (int index in unusableIndexes)
+                {
+                    if (index < countLimit && index >= 0)
+                    {
+                        TotalDistances[index] = double.MaxValue;
+                    }
+
+                }
+
+                double worstValue = double.MaxValue / (orderedAscendingCurrentSubEvents.Count() + 2);
+                for (; i <= currentCount; i++)
+                {
+                    if (!unusableIndexes.Contains(i))
+                    {
+                        List<SubCalendarEvent> FullList_Copy = FullList.ToList();
+                        FullList_Copy.Insert(i, SubEvent);
+                        Location firstBorderLocation = BorderElements?.Item1;
+                        Location secondBorderLocation = BorderElements?.Item2;
+                        double TotalDistance = SubCalendarEvent.CalculateDistance(FullList_Copy, 0, useFibonnacci: false);
+                        if (firstBorderLocation != null)
+                        {
+                            TotalDistance += Location.calculateDistance(FullList_Copy.First().Location, firstBorderLocation, worstValue);
+                        }
+
+                        if (secondBorderLocation != null)
+                        {
+                            TotalDistance += Location.calculateDistance(FullList_Copy.Last().Location, secondBorderLocation, worstValue);
+                        }
+                        TotalDistances[i] = TotalDistance;
+                    }
+
+                }
+
+                RetValue = TotalDistances.MinIndex();
+                if (unusableIndexes.Contains(RetValue))
+                {
+                    RetValue = -1;
+                }
+
+            }
+            return RetValue;
+        }
+
     }
 }

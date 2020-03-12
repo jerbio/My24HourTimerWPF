@@ -51,13 +51,19 @@ namespace ScheduleAnalysis
         {
         }
 
+
+        /// <summary>
+        /// This calculates a score for the current schedule quality. Thats based on the positionscore, conflictscore, and congestion of subevents. Generally the lower the score, the better the schedule quality.
+        /// This simply gets you the resultant of the positionscore, distance and conflict score. So be careful the distance can dominate the values
+        /// </summary>
+        /// <returns></returns>
         public double getScore()
         {
-            Tuple<double, Dictionary<long, List<double>>> distanceEvaluation = evaluateTotalDistance();
+            Tuple<double, Dictionary<long, List<double>>, double> distanceEvaluation = evaluateTotalDistance();
             double positioningScore = evaluatePositioning();
             double conflictScore = evaluateConflicts().Item1;
             double eventPerDayScore = eventsPerDay();
-            double retValue = Utility.CalcuateResultant(distanceEvaluation.Item1, positioningScore, conflictScore, SleepEvaluation.ScoreTimeLine(), eventPerDayScore);
+            double retValue = Utility.CalcuateResultant(distanceEvaluation.Item3, positioningScore, conflictScore, SleepEvaluation.ScoreTimeLine(), eventPerDayScore);
             return retValue;
         }
 
@@ -92,14 +98,17 @@ namespace ScheduleAnalysis
         }
 
         /// <summary>
-        /// Function evaluates the distance travelled by user at crow flies.  The result returns a tuple with two Items. Item 1 is total distance travelled. Item 2 is a dictionary of day index to distance travelled subevent
+        /// Function evaluates the distance travelled by user at crow flies.  The result returns a tuple with three Items. 
+        /// Item 1 is total distance travelled. 
+        /// Item 2 is a dictionary of day index to distance travelled for the specific day index
+        /// Item 3 is the score of the distance travelled. 
         /// </summary>
         /// <param name="includeReturnHome"></param>
         /// <returns></returns>
-        public Tuple<double, Dictionary<long, List<double>>> evaluateTotalDistance(bool includeReturnHome = true)
+        public Tuple<double, Dictionary<long, List<double>>, double> evaluateTotalDistance(bool includeReturnHome = true)
         {
             Dictionary<long, List<double>> combinedResult = new Dictionary<long, List<double>>();
-            double retValue = 0;
+            double totalDistanceTravelled = 0;
             
             List<SubCalendarEvent> relevantSubCalendarEventList = _orderedByStartThenEndSubEvents.Where(obj => !obj.getIsProcrastinateCalendarEvent).ToList();
             if(relevantSubCalendarEventList.Count > 0)
@@ -133,12 +142,12 @@ namespace ScheduleAnalysis
                             distances.Add(distance);
                             distances = new List<double>();
                             combinedResult.Add(subEventDayIndex, distances);
-                            retValue += distance;
+                            totalDistanceTravelled += distance;
                             if (index != 1)
                             {
                                 distance = Location.calculateDistance(_HomeLocation, currentSubEvent.Location);
                                 distances.Add(distance);
-                                retValue += distance;
+                                totalDistanceTravelled += distance;
                             }
                             dayIndex = subEventDayIndex;// currentSubEvent.UniversalDayIndex;
                         }
@@ -153,15 +162,34 @@ namespace ScheduleAnalysis
                     else
                     {
                         double distance = Location.calculateDistance(previousSubCalendarEvent.Location, currentSubEvent.Location);
-                        retValue += distance;
+                        totalDistanceTravelled += distance;
                         distances.Add(distance);
                     }
                     previousSubCalendarEvent = currentSubEvent;
                 }
             }
 
+            double score = 0;
+            if(relevantSubCalendarEventList.Count > 1)
+            {
+                double totalAverageDistanceTravelled = ((double)totalDistanceTravelled / (double)(relevantSubCalendarEventList.Count - 1));// relevantSubCalendarEventList.Count - 1 because the travel count is always subevent count - 1
+                IList<IList<double>> distancesPerDay = combinedResult.Select(o => (IList<double>)o.Value).ToList();
+                if (distancesPerDay.Count > 1)
+                {
+                    double averageOfAverage = distancesPerDay.Select(obj => obj.Average()).Average();// average travel of each ay  and average of each days average gives of a statistical representation of te travel of the whole schedule
 
-            Tuple<double, Dictionary<long, List<double>>> retValueTuple = new Tuple<double, Dictionary<long, List<double>>>(retValue, combinedResult);
+                    score = averageOfAverage / totalAverageDistanceTravelled;
+                }
+                else
+                {
+                    Location averageLocation = Location.AverageGPSLocation(relevantSubCalendarEventList.Select(o => o.Location));
+                    double averageOfaverageByHomeAverage =  Location.calculateDistance(averageLocation, _HomeLocation);
+                    score = totalAverageDistanceTravelled / averageOfaverageByHomeAverage;
+                }
+            }
+            
+
+            Tuple<double, Dictionary<long, List<double>>, double> retValueTuple = new Tuple<double, Dictionary<long, List<double>>, double>(totalDistanceTravelled, combinedResult, score);
             return retValueTuple;
         }
 

@@ -2347,7 +2347,7 @@ namespace TilerElements
             {
                 bool retValue = base.isActive
                     && (!this.IsFromRecurringAndIsChildCalEvent || (
-                        this.RepeatParentEvent.isActive
+                    this.RepeatParentEvent == null || this.RepeatParentEvent.isActive
                     )); ;
 
                 return retValue;
@@ -2479,7 +2479,7 @@ namespace TilerElements
                         {
                             if ((calEvent._EventDayPreference == null || calEvent.DayPreference != _EventDayPreference)
                                 && (string.IsNullOrEmpty(calEvent.DayPreferenceId) || calEvent.DayPreferenceId != this.DayPreferenceId)
-                                && calEvent.DayPreference.isNull)
+                                && (calEvent.DayPreference == null ||  calEvent.DayPreference.isNull))
                             {
                                 calEvent._EventDayPreference = _EventDayPreference;
                             }

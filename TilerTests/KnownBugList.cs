@@ -136,6 +136,7 @@ namespace TilerTests
         {
             string scheduleId = "61651f57-0cc3-4da1-bbca-c655013d0642";
             Location currentLocation = new TilerElements.Location(39.710835, -104.812500, "", "", false, false);
+            currentLocation.IsVerified = true;
             var scheduleAndDump = TestUtility.getSchedule(scheduleId);
             Schedule schedule = scheduleAndDump.Item1;
             List<SubCalendarEvent> subEvents = schedule.getAllActiveSubEvents().OrderBy(o => o.Start).ToList();

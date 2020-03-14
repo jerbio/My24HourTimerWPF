@@ -243,6 +243,7 @@ namespace TilerTests
 
             string scheduleId = "712dd797-8991-4f79-90c1-7b51c744c4bd";
             Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+            currentLocation.IsVerified = true;
             var scheduleAndDump = TestUtility.getSchedule(scheduleId, refNow);
             Schedule schedule = scheduleAndDump.Item1;
             TilerUser tilerUser = schedule.User;

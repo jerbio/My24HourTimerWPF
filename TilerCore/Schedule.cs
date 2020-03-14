@@ -2711,7 +2711,7 @@ namespace TilerCore
                     EachDay.BeginLocation.verify();
                 }
 
-                    Dictionary<Location, int> durationToTimeSpan = new Dictionary<Location, int>();
+                Dictionary<Location, int> durationToTimeSpan = new Dictionary<Location, int>();
                 if(EachDay.BeginLocation != null && EachDay.BeginLocation.IsVerified)
                 {
 

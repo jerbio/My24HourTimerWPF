@@ -2706,10 +2706,22 @@ namespace TilerCore
 
                 EachDay.BeginLocation = beginLocation;
 
-                Dictionary<Location, int> durationToTimeSpan = new Dictionary<Location, int>();
+                if(!EachDay.BeginLocation.IsVerified)
+                {
+                    EachDay.BeginLocation.verify();
+                }
+
+                    Dictionary<Location, int> durationToTimeSpan = new Dictionary<Location, int>();
                 if(EachDay.BeginLocation != null && EachDay.BeginLocation.IsVerified)
                 {
-                    int durationQutient = ((int)Math.Round(Utility.SixHourTimeSpan.TotalMinutes / Utility.QuarterHourTimeSpan.TotalMinutes));
+
+                    TimeSpan sleepSpan = Utility.SixHourTimeSpan;
+                    TimeSpan minFullDaySpanNeededForFullSleep = TimeSpan.FromHours(1);
+                    if (EachDay.TimelineSpan < minFullDaySpanNeededForFullSleep)
+                    {
+                        sleepSpan = Utility.OneHourTimeSpan;
+                    }
+                    int durationQutient = ((int)Math.Round(sleepSpan.TotalMinutes / Utility.QuarterHourTimeSpan.TotalMinutes));
                     if (durationToTimeSpan.ContainsKey(EachDay.BeginLocation))
                     {
                         durationToTimeSpan[EachDay.BeginLocation] += durationQutient;
@@ -2760,11 +2772,7 @@ namespace TilerCore
                             }
                         }
                     }
-                    if (beginLocation != null)
-                    {
-                        otherSubEventLocation.Add(beginLocation);//To ensure the begin location can infkuence the average
-                    }
-                        
+
                     Location averageLocation = Location.AverageGPSLocation(otherSubEventLocation);
                     if (averageLocation != null && (averageLocation.isNull || averageLocation.isDefault))
                     {

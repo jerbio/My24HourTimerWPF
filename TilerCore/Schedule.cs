@@ -2707,8 +2707,34 @@ namespace TilerCore
                 EachDay.BeginLocation = beginLocation;
 
                 Dictionary<Location, int> durationToTimeSpan = new Dictionary<Location, int>();
+                if(EachDay.BeginLocation != null && EachDay.BeginLocation.IsVerified)
+                {
+                    int durationQutient = ((int)Math.Round(Utility.SixHourTimeSpan.TotalMinutes / Utility.QuarterHourTimeSpan.TotalMinutes));
+                    if (durationToTimeSpan.ContainsKey(EachDay.BeginLocation))
+                    {
+                        durationToTimeSpan[EachDay.BeginLocation] += durationQutient;
+                    }
+                    else
+                    {
+                        durationToTimeSpan.Add(EachDay.BeginLocation, durationQutient);
+                    }
+                }
 
-                foreach(SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => sub.LocationObj.IsVerified || (sub.isLocationAmbiguous && sub.IsValidationRun)))
+                if (EachDay.EndLocation!=null && EachDay.EndLocation.IsVerified)
+                {
+                    int durationQutient = ((int)Math.Round(Utility.OneHourTimeSpan.TotalMinutes / Utility.QuarterHourTimeSpan.TotalMinutes));//Choosing one hour span so we have a total of Seven hours (Six hours from the preceding EachDay.BeginLocation)  dedicated to border locations. 
+                    if (durationToTimeSpan.ContainsKey(EachDay.EndLocation))
+                    {
+                        durationToTimeSpan[EachDay.EndLocation] += durationQutient;
+                    }
+                    else
+                    {
+                        durationToTimeSpan.Add(EachDay.EndLocation, durationQutient);
+                    }
+                }
+
+
+                foreach (SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => sub.LocationObj.IsVerified || (sub.isLocationAmbiguous && sub.IsValidationRun)))
                 {
                     int durationQutient = ((int)Math.Round(subEvent.getActiveDuration.TotalMinutes / Utility.QuarterHourTimeSpan.TotalMinutes));
                     if (durationToTimeSpan.ContainsKey(subEvent.Location))

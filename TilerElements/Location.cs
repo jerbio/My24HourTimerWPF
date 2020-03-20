@@ -48,7 +48,7 @@ namespace TilerElements
             reverseGeocode,
             batchGeocode,
             route
-        };
+        };  
 
         static protected double defaultXValue = 105.2705;
         static protected double defaultYValue = 40.0150;

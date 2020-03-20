@@ -28,15 +28,16 @@ namespace TilerTests
         {
             //string scheduleId = "24fe78f8-b9a9-4ca3-b4a1-cf5d458fe385";
             //Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+            //currentLocation.IsVerified = true;
             //var scheduleAndDump = TestUtility.getSchedule(scheduleId);
             //Schedule schedule = scheduleAndDump.Item1;
             //((TestSchedule)schedule).WriteFullScheduleToOutlook();
         }
 
         /*
- * This test tries to see that there is sufficent diversity. Read notes scheule dump nodes
- * The 
-*/
+         * This test tries to see that there is sufficent diversity. Read notes scheule dump nodes
+         * The 
+        */
         [TestMethod]
         public void file_unnecessary_shifiting_back_and_forth_of_workout_7f453aa2()
         {

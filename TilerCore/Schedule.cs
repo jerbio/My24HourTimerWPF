@@ -2761,40 +2761,46 @@ namespace TilerCore
 
                 foreach (SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => sub.isLocationAmbiguous && !sub.IsValidationRun).OrderBy(o=>o.Score))
                 {
-                    List<Location> otherSubEventLocation = new List<Location>();
-                    foreach (var kvp in durationToTimeSpan)
+                    if(
+                        subEvent.LocationObj.Address.isNot_NullEmptyOrWhiteSpace() || 
+                        subEvent.LocationObj.Description.isNot_NullEmptyOrWhiteSpace() || 
+                        subEvent.LocationObj.SearchdDescription.isNot_NullEmptyOrWhiteSpace())// checks if the provided location object actually includes strings to be looked up
                     {
-                        if(kvp.Key != subEvent.Location)
+                        List<Location> otherSubEventLocation = new List<Location>();
+                        foreach (var kvp in durationToTimeSpan)
                         {
-                            for(int locationCount =0; locationCount < durationToTimeSpan[kvp.Key]; locationCount++)
+                            if (kvp.Key != subEvent.Location)
                             {
-                                otherSubEventLocation.Add(kvp.Key);
+                                for (int locationCount = 0; locationCount < durationToTimeSpan[kvp.Key]; locationCount++)
+                                {
+                                    otherSubEventLocation.Add(kvp.Key);
+                                }
                             }
                         }
-                    }
 
-                    Location averageLocation = Location.AverageGPSLocation(otherSubEventLocation);
-                    if (averageLocation != null && (averageLocation.isNull || averageLocation.isDefault))
-                    {
-                        averageLocation = home != null && !home.isDefault && !home.isNull ? home : CurrentLocation;
-                    }
-
-                    if(averageLocation!=null && !averageLocation.isDefault && !averageLocation.isNull)
-                    {
-                        subEvent.validateLocation(averageLocation);/// This might kill performance because of multiple calls to google for validation
-                        int durationQutient = ((int)Math.Round(subEvent.getActiveDuration.TotalMinutes / Utility.QuarterHourTimeSpan.TotalMinutes));
-                        if(subEvent.Location.isNotNullAndNotDefault)
+                        Location averageLocation = Location.AverageGPSLocation(otherSubEventLocation);
+                        if (averageLocation != null && (averageLocation.isNull || averageLocation.isDefault))
                         {
-                            if (durationToTimeSpan.ContainsKey(subEvent.Location))
-                            {
-                                durationToTimeSpan[subEvent.Location] += durationQutient;
-                            }
-                            else
-                            {
-                                durationToTimeSpan.Add(subEvent.Location, durationQutient);
-                            }
+                            averageLocation = home != null && !home.isDefault && !home.isNull ? home : CurrentLocation;
                         }
-                        
+
+                        if (averageLocation != null && !averageLocation.isDefault && !averageLocation.isNull)
+                        {
+                            subEvent.validateLocation(averageLocation);/// This might kill performance because of multiple calls to google for validation
+                            int durationQutient = ((int)Math.Round(subEvent.getActiveDuration.TotalMinutes / Utility.QuarterHourTimeSpan.TotalMinutes));
+                            if (subEvent.Location.isNotNullAndNotDefault)
+                            {
+                                if (durationToTimeSpan.ContainsKey(subEvent.Location))
+                                {
+                                    durationToTimeSpan[subEvent.Location] += durationQutient;
+                                }
+                                else
+                                {
+                                    durationToTimeSpan.Add(subEvent.Location, durationQutient);
+                                }
+                            }
+
+                        }
                     }
                 }
                 OptimizedPath dayPath = new OptimizedPath(EachDay, beginLocation, endLocation, home);
@@ -3476,7 +3482,7 @@ namespace TilerCore
             {
                 var conflictResolutionResult = resolveConflicts(conflictingSubEvents, AllDayTimeLine);
 
-                List<SubCalendarEvent> unresolvedConflicts = conflictResolutionResult.Item2;
+                List<SubCalendarEvent> unresolvedConflicts = conflictResolutionResult.Item2.Where(subEvent => subEvent.Start >= Now.calculationNow).ToList();
                 unresolvedConflicts.ForEach((subEvent) =>
                 {
                     DayTimeLine dayTimeLine = Now.getDayTimeLineByTime(subEvent.Start);
@@ -3672,7 +3678,7 @@ namespace TilerCore
                     List<SubCalendarEvent> activeTimeframeSubevents = new List<SubCalendarEvent>();
                     foreach (SubCalendarEvent subevent in orderedsubEventsInTimeline)
                     {
-                        if (!subevent.isLocked && subevent.StartToEnd.doesTimeLineInterfere(sleepTimeline))// we want locked events to be part of the active time frame events because they cannot be moved
+                        if (!subevent.isLocked && subevent.StartToEnd.IsTimeLineWithin(sleepTimeline))// we want locked events to be part of the active time frame events because they cannot be moved
                         {
                             sleepSubevents.Add(subevent);
                         }

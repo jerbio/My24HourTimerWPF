@@ -161,9 +161,14 @@ namespace TilerElements
             return CopyTimeLine;
         }
 
-        virtual public bool IsTimeLineWithin(TimeLine MyTimeLine)
+        /// <summary>
+        /// Function checks if <paramref name="entryTimeLine"/> can fit within the Current (this) TimeLine
+        /// </summary>
+        /// <param name="entryTimeLine"></param>
+        /// <returns></returns>
+        virtual public bool IsTimeLineWithin(TimeLine entryTimeLine)
         {
-            if ((MyTimeLine.Start >= StartTime) && (MyTimeLine.End <= EndTime))
+            if ((entryTimeLine.Start >= StartTime) && (entryTimeLine.End <= EndTime))
             {
                 return true;
             }

@@ -313,7 +313,7 @@ namespace TilerElements
             try
             {
 
-                if (!String.IsNullOrEmpty(_TaggedAddress))
+                if (!String.IsNullOrEmpty(_TaggedAddress) && Location.ApiKey.isNot_NullEmptyOrWhiteSpace())
                 {
                     GeocodingRequest request = new GeocodingRequest();
                     request.Address = _TaggedAddress;

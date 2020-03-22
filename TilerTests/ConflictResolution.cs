@@ -37,6 +37,7 @@ namespace TilerTests
         public void file_b1b1ed4c()
         {
             Location homeLocation = TestUtility.getAdHocLocations()[0];
+            homeLocation.IsVerified = true;
             string scheduleId = "b1b1ed4c-433b-4691-9a4d-76740d9a8f6a";
             var scheduleAndDump = TestUtility.getSchedule(scheduleId);
             TestSchedule schedule = (TestSchedule)scheduleAndDump.Item1;

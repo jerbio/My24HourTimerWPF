@@ -144,7 +144,7 @@ namespace TilerElements
             Tuple<DayOfWeek, TimeLine> retValue;
             DateTimeOffset currentTime = new DateTimeOffset(time.Year, time.Month, time.Day, 0, 0, 0, new TimeSpan());
             DayOfWeek currentDayOfWeek = currentTime.DayOfWeek;
-            DateTimeOffset startTimeForDayOfweek = currentTime.Add(this.TimeZoneDiff);
+            DateTimeOffset startTimeForDayOfweek = new DateTimeOffset(time.Year, time.Month, time.Day, 0, 0, 0, this.TimeZoneDiff);
             TimeLine fullDayTime = new TimeLine(startTimeForDayOfweek, startTimeForDayOfweek.AddDays(1));
             if (fullDayTime.IsDateTimeWithin(time))
             {

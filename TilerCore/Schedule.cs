@@ -3446,7 +3446,6 @@ namespace TilerCore
                         {
                             UnUsableCalEvents.Add(eachCal);
                         }
-                        //++dayCounterSpreadout;
                     }
                     AllCalEvents = AllCalEvents.Except(UnUsableCalEvents).ToList();
 
@@ -3678,7 +3677,7 @@ namespace TilerCore
                     List<SubCalendarEvent> activeTimeframeSubevents = new List<SubCalendarEvent>();
                     foreach (SubCalendarEvent subevent in orderedsubEventsInTimeline)
                     {
-                        if (!subevent.isLocked && subevent.StartToEnd.IsTimeLineWithin(sleepTimeline))// we want locked events to be part of the active time frame events because they cannot be moved
+                        if (!subevent.isLocked && sleepTimeline.IsTimeLineWithin(subevent.StartToEnd))// we want locked events to be part of the active time frame events because they cannot be moved
                         {
                             sleepSubevents.Add(subevent);
                         }
@@ -4442,8 +4441,7 @@ namespace TilerCore
                     PreferrdDayIndex = balancingStartingindex;
                 }
 
-                //List<mTuple<int, DayTimeLine>> OptimizedDayTimeLine = new List<mTuple<int, DayTimeLine>>();// AllDays.Select(obj => new mTuple<bool, DayTimeLine>(((long)(obj.UniversalIndex - PreferrdDayIndex) >= 0), obj)).ToList();//this line orders Daytimeline by  if they are after the procrastination day.
-                List<mTuple<bool, DayTimeLine>> OptimizedDayTimeLine = AllDays.Select(obj => new mTuple<bool, DayTimeLine>(((long)(obj.UniversalIndex - PreferrdDayIndex) >= 0), obj)).ToList();//this line orders Daytimeline by  if they are after the procrastination day.
+                List <mTuple<bool, DayTimeLine>> OptimizedDayTimeLine = AllDays.Select(obj => new mTuple<bool, DayTimeLine>(((long)(obj.UniversalIndex - PreferrdDayIndex) >= 0), obj)).ToList();//this line orders Daytimeline by  if they are after the procrastination day.
 
                 List<mTuple<bool, DayTimeLine>> beforeProcrastination = OptimizedDayTimeLine.Where(obj => !obj.Item1).ToList();
                 OptimizedDayTimeLine = OptimizedDayTimeLine.GetRange(beforeProcrastination.Count, OptimizedDayTimeLine.Count - beforeProcrastination.Count);// this reorders all the days with before or on procrastination to the back of list
@@ -4453,14 +4451,14 @@ namespace TilerCore
                 List<double> timeLineScores = calEvent.EvaluateTimeLines(OptimizedDayTimeLine.Select(timeLine => (TimelineWithSubcalendarEvents)timeLine.Item2).ToList(), Now);
 
                 List<IList<double>> combinedDOubles = timeLineScores.Select((score, i) => {
-                    IList<double> comValue = new List<double> { score, dayBags[i].Score };
+                    IList<double> comValue = new List<double> { score, dayBags[i].Score, calEvent.getSubeventsInDay(OptimizedDayTimeLine[i].Item2.UniversalIndex).Count() };
                     return comValue;
                 }).ToList();
 
                 timeLineScores = Utility.multiDimensionCalculationNormalize(combinedDOubles);
+                double subEventPerDay = ((double)AllSubEvents.Count) / (double)timeLineScores.Count; // this holds the ideal sub event per day 
 
-
-                List<Tuple<int, double, DayTimeLine>> dayIndexToTImeLine = timeLineScores.Select((score, index) => { return new Tuple<int, double, DayTimeLine>(index, score, OptimizedDayTimeLine[index].Item2); }).ToList();
+                List <Tuple<int, double, DayTimeLine>> dayIndexToTImeLine = timeLineScores.Select((score, index) => { return new Tuple<int, double, DayTimeLine>(index, score, OptimizedDayTimeLine[index].Item2); }).ToList();
 
                 //DayTimeLineCurrentProperties holds the propeties of all the daytimeline elements. The tuple has the folloiwng Left, Right, Difference, score
                 Dictionary<DayTimeLine, DayTempEvaluation> DayTimeLineCurrentProperties = new Dictionary<DayTimeLine, DayTempEvaluation>();
@@ -4492,22 +4490,24 @@ namespace TilerCore
                                 long right = finalIndex- (long)dayTuple.Item2.UniversalIndex;
                                 long diff = (long)left - (long)right;
                                 long uDiff = (long)Math.Abs(diff);
-                                return new DayTempEvaluation()
+                                return new DayTempEvaluation(subEventPerDay)
                                 {
                                     Diff = uDiff,
                                     Left = left,
                                     Right = right,
                                     Score = dayTuple.Item1,
                                     TimeLineScore = dayTuple.Item1,
+                                    InitialTimeLineScore = dayTuple.Item1,
+                                    AssignedSubEventsInDay = calEvent.getSubeventsInDay(dayTuple.Item2.UniversalIndex).Count(),
                                     DayIndex = (long)dayTuple.Item2.UniversalIndex
                                 };
                             }
                         );
-                        orderedOnEvaluation.RemoveAt(0);
+                        DayTimeLineCurrentProperties[lastDaySelected.Item2].incrementDayElectionCount();
                         for (int i = 1; i < AllSubEvents.Count; i++)
                         {
                             subEvent = AllSubEvents[i];
-                            if (useUpOrder.Count != dayIndexes.Count)
+                            //if (useUpOrder.Count != dayIndexes.Count)
                             {
                                 List<IList<double>> data = orderedOnEvaluation.Select(obj => (IList<double>)DayTimeLineCurrentProperties[obj.Item2].toMultiArrayDict()).ToList();
                                 List<double> values = Utility.multiDimensionCalculationNormalize(data);
@@ -4516,22 +4516,23 @@ namespace TilerCore
                                 DayTimeLine minDayTimeLine = lastDaySelected.Item2;
                                 daysSelected.Add(lastDaySelected.Item2);
                                 retValue.Add(new Tuple<long, SubCalendarEvent>(minDayTimeLine.UniversalIndex, subEvent));
-                                orderedOnEvaluation.RemoveAt(lowestIndex);
                                 selectedDayIndex = lastDaySelected.Item2.UniversalIndex;
+                                DayTimeLineCurrentProperties[minDayTimeLine].incrementDayElectionCount();
                                 useUpOrder.Add(minDayTimeLine);
                             }
-                            else
-                            {
-                                int j = 0;
-                                int usedUPLength = useUpOrder.Count;
-                                for (; i < AllSubEvents.Count; i++, j++)
-                                {
-                                    SubCalendarEvent excessSubEvent = AllSubEvents[i];
-                                    int dayIndex = j % usedUPLength;
-                                    DayTimeLine dayTimeLine = useUpOrder[dayIndex];
-                                    retValue.Add(new Tuple<long, SubCalendarEvent>(dayTimeLine.UniversalIndex, excessSubEvent));
-                                }
-                            }
+                            //else
+                            //{
+                            //    int j = 0;
+                            //    int usedUPLength = useUpOrder.Count;
+                            //    for (; i < AllSubEvents.Count; i++, j++)
+                            //    {
+                            //        SubCalendarEvent excessSubEvent = AllSubEvents[i];
+                            //        int dayIndex = j % usedUPLength;
+                            //        DayTimeLine dayTimeLine = useUpOrder[dayIndex];
+                            //        DayTimeLineCurrentProperties[dayTimeLine].incrementDayElectionCount();
+                            //        retValue.Add(new Tuple<long, SubCalendarEvent>(dayTimeLine.UniversalIndex, excessSubEvent));
+                            //    }
+                            //}
                         }
                     }
                 }

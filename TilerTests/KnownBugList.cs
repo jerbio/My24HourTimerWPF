@@ -103,28 +103,27 @@ namespace TilerTests
         {
             string scheduleId = "0a0e2ca8-62b7-4336-93ee-49a0d1039073";
             Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+            currentLocation.IsVerified = true;
             var scheduleAndDump = TestUtility.getSchedule(scheduleId);
             Schedule schedule = scheduleAndDump.Item1;
             schedule.FindMeSomethingToDo(currentLocation).Wait();
             (schedule as TestSchedule).WriteFullScheduleToOutlook();
+            DateTimeOffset oct24 = new DateTimeOffset(2019, 10, 24, 12, 0, 0, new TimeSpan());
             DateTimeOffset oct25 = new DateTimeOffset(2019, 10, 25, 12, 0, 0, new TimeSpan());
             DateTimeOffset oct26 = new DateTimeOffset(2019, 10, 26, 12, 0, 0, new TimeSpan());
 
+            DayTimeLine oct24DayTimeLine = schedule.Now.getDayTimeLineByTime(oct24);
             DayTimeLine oct25DayTimeLine = schedule.Now.getDayTimeLineByTime(oct25);
             DayTimeLine oct26DayTimeLine = schedule.Now.getDayTimeLineByTime(oct26);
 
             List<SubCalendarEvent> oct25subEvents = oct25DayTimeLine.getSubEventsInTimeLine().OrderBy(o => o.Start).ToList();
             List<SubCalendarEvent> oct26subEvents = oct26DayTimeLine.getSubEventsInTimeLine().OrderBy(o => o.Start).ToList();
 
-            foreach(SubCalendarEvent subEvent in oct25subEvents)
-            {
-                Assert.IsTrue(subEvent.Start >= oct25);
-            }
+            var Oct25SleepSpan = oct25DayTimeLine.WakeSubEvent.Start - oct24DayTimeLine.SleepSubEvent.End;
+            var Oct26SleepSpan = oct26DayTimeLine.WakeSubEvent.Start - oct25DayTimeLine.SleepSubEvent.End;
 
-            foreach (SubCalendarEvent subEvent in oct26subEvents)
-            {
-                Assert.IsTrue(subEvent.Start >= oct26);
-            }
+            Assert.IsTrue(Oct25SleepSpan >= Utility.SixHourTimeSpan);
+            Assert.IsTrue(Oct26SleepSpan >= Utility.SixHourTimeSpan);
 
         }
 
@@ -137,6 +136,7 @@ namespace TilerTests
         {
             string scheduleId = "61651f57-0cc3-4da1-bbca-c655013d0642";
             Location currentLocation = new TilerElements.Location(39.710835, -104.812500, "", "", false, false);
+            currentLocation.IsVerified = true;
             var scheduleAndDump = TestUtility.getSchedule(scheduleId);
             Schedule schedule = scheduleAndDump.Item1;
             List<SubCalendarEvent> subEvents = schedule.getAllActiveSubEvents().OrderBy(o => o.Start).ToList();

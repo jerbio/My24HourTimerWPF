@@ -184,6 +184,7 @@ namespace TilerTests
             string coSpringsString = "colorado springs";
             string boulderString = "boulder";
             string broomfieldString = "broomfield";
+            string lafayetteString = "lafayette";
 
             var packet = TestUtility.CreatePacket();
             TilerUser tilerUser = packet.User;
@@ -217,7 +218,7 @@ namespace TilerTests
             Assert.AreEqual(schedule.getAllLocations().Count(), 1);
             foreach (Location location in schedule.getAllCalendarEvents().SelectMany(o => o.ActiveSubEvents.Select(sub => sub.Location)).ToList())
             {
-                Assert.IsTrue(location.Address.ToLower().Contains(broomfieldString));// this can sometime use lafayette. This happened in my case when I ran this test with a VPN location in london. If this fails verify your PCs location
+                Assert.IsTrue(location.Address.ToLower().Contains(broomfieldString) || location.Address.ToLower().Contains(lafayetteString));// this can sometime use lafayette. This happened in my case when I ran this test with a VPN location in london. If this fails verify your PCs location
                 (location as LocationJson).LastUsed = schedule.Now.constNow;
             }
 

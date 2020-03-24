@@ -6,15 +6,18 @@ using System.Linq;
 
 namespace ScheduleAnalysis
 {
-    public class DeadlineForeCast
+    public class ScheduleSuggestionsAnalysis
     {
         List<SubCalendarEvent> OrderedSubEvents;
+        Dictionary<string, SubCalendarEvent> subEventId_to_Subevents;
+        ILookup<string, SubCalendarEvent> calEventId_to_Subevents;
         ReferenceNow Now;
         TilerUser TilerUser;
-        public DeadlineForeCast(IEnumerable<SubCalendarEvent> subEvents, ReferenceNow now, TilerUser tilerUser)
+        public ScheduleSuggestionsAnalysis(IEnumerable<SubCalendarEvent> subEvents, ReferenceNow now, TilerUser tilerUser)
         {
-            
-            OrderedSubEvents = subEvents.OrderBy(o=>o.Start).ThenBy(o=>o.End).ToList();
+            OrderedSubEvents = new HashSet<SubCalendarEvent>(subEvents).OrderBy(o=>o.Start).ThenBy(o=>o.End).ToList();
+            subEventId_to_Subevents = OrderedSubEvents.ToDictionary(subEvent => subEvent.Id, subEvent => subEvent);
+            calEventId_to_Subevents = OrderedSubEvents.ToLookup(obj => obj.SubEvent_ID.getAllEventDictionaryLookup.ToString());
             Now = now;
             TilerUser = tilerUser;
         }
@@ -49,7 +52,6 @@ namespace ScheduleAnalysis
                     }
                 }
             }
-            
         }
 
         /// <summary>
@@ -86,11 +88,10 @@ namespace ScheduleAnalysis
                 TimeLine weekTimeline = timeline.StartToEnd;
                 TimeLine compoundTimeline = weekTimeline.StartToEnd;
                 eachWeekTimeline.Add(weekTimeline);
-                
                 compoundedWeekTimelines.Add(weekTimeline);
-                List<SubCalendarEvent> subeEVentsForProcessing = this.OrderedSubEvents.Where(o => o.Start > weekTimeline.Start).ToList();
+                List<SubCalendarEvent> subeEventsForProcessing = this.OrderedSubEvents.Where(o => o.Start > weekTimeline.Start).ToList();
 
-                for (int i = 0; i>=0 && i< subeEVentsForProcessing.Count;i++)
+                for (int i = 0; i>=0 && i< subeEventsForProcessing.Count;i++)
                 {
                     SubCalendarEvent subEvent = this.OrderedSubEvents[i];
                     TimeLine subevent_startToEnd = subEvent.StartToEnd;
@@ -108,14 +109,16 @@ namespace ScheduleAnalysis
                             timeLineStart = weekTimeline.End;
                             timeLineEnd = timeLineStart.AddDays(7);
                             weekTimeline = new TimeLine(timeLineStart, timeLineEnd);
+                            TimeLine previousTimeline = compoundTimeline;
                             compoundTimeline = new TimeLine(currentNow, weekTimeline.End);
+                            compoundTimeline.AddBusySlots(previousTimeline.OccupiedSlots);
                             eachWeekTimeline.Add(weekTimeline);
                             compoundedWeekTimelines.Add(compoundTimeline);
                             if (weekTimeline.doesTimeLineInterfere(subevent_startToEnd))
                             {
                                 weekTimeline.AddBusySlots(subEvent.ActiveSlot);
                                 compoundTimeline.AddBusySlots(subEvent.ActiveSlot);
-                                compoundTimeline.AddBusySlots(subeEVentsForProcessing.Take(i).Select(o => o.ActiveSlot));
+                                compoundTimeline.AddBusySlots(subeEventsForProcessing.Take(i).Select(o => o.ActiveSlot));
                             } else
                             {
                                 --i;
@@ -125,14 +128,19 @@ namespace ScheduleAnalysis
                             break;
                         }
                     }
-                    
                 }
 
-                double activeRatio = weekTimeline.ActiveRatio;
-                if (activeRatio >= activeRatioBound)
+                List<TimeLine> overOccupied = new List<TimeLine>();
+                foreach(TimeLine eachCopoundTimeline in compoundedWeekTimelines)
                 {
+                    double activeRatio = eachCopoundTimeline.ActiveRatio;
+                    if (activeRatio >= activeRatioBound)
+                    {
+                        overOccupied.Add(eachCopoundTimeline);
 
+                    }
                 }
+                
             }
             
 

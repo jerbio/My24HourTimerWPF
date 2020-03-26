@@ -2580,7 +2580,7 @@ namespace TilerCore
             List<SubCalendarEvent> ConflictingEvents = new List<SubCalendarEvent>();
             foreach (SubCalendarEvent eachSubCalendarEvent in ArrayOfInterferringSubEvents)
             {
-                int index = (int)(eachSubCalendarEvent.UniversalDayIndex - Now.consttDayIndex);
+                int index = (int)(eachSubCalendarEvent.UniversalDayIndex - Now.firstDay.UniversalIndex);
 
                 if ((index < NumberOfDays) && (index >= 0))
                 {
@@ -2706,9 +2706,47 @@ namespace TilerCore
 
                 EachDay.BeginLocation = beginLocation;
 
-                Dictionary<Location, int> durationToTimeSpan = new Dictionary<Location, int>();
+                if(!EachDay.BeginLocation.IsVerified)
+                {
+                    EachDay.BeginLocation.verify();
+                }
 
-                foreach(SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => sub.LocationObj.IsVerified || (sub.isLocationAmbiguous && sub.IsValidationRun)))
+                    Dictionary<Location, int> durationToTimeSpan = new Dictionary<Location, int>();
+                if(EachDay.BeginLocation != null && EachDay.BeginLocation.IsVerified)
+                {
+
+                    TimeSpan sleepSpan = Utility.SixHourTimeSpan;
+                    TimeSpan minFullDaySpanNeededForFullSleep = TimeSpan.FromHours(1);
+                    if (EachDay.TimelineSpan < minFullDaySpanNeededForFullSleep)
+                    {
+                        sleepSpan = Utility.OneHourTimeSpan;
+                    }
+                    int durationQutient = ((int)Math.Round(sleepSpan.TotalMinutes / Utility.QuarterHourTimeSpan.TotalMinutes));
+                    if (durationToTimeSpan.ContainsKey(EachDay.BeginLocation))
+                    {
+                        durationToTimeSpan[EachDay.BeginLocation] += durationQutient;
+                    }
+                    else
+                    {
+                        durationToTimeSpan.Add(EachDay.BeginLocation, durationQutient);
+                    }
+                }
+
+                if (EachDay.EndLocation!=null && EachDay.EndLocation.IsVerified)
+                {
+                    int durationQutient = ((int)Math.Round(Utility.OneHourTimeSpan.TotalMinutes / Utility.QuarterHourTimeSpan.TotalMinutes));//Choosing one hour span so we have a total of Seven hours (Six hours from the preceding EachDay.BeginLocation)  dedicated to border locations. 
+                    if (durationToTimeSpan.ContainsKey(EachDay.EndLocation))
+                    {
+                        durationToTimeSpan[EachDay.EndLocation] += durationQutient;
+                    }
+                    else
+                    {
+                        durationToTimeSpan.Add(EachDay.EndLocation, durationQutient);
+                    }
+                }
+
+
+                foreach (SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => sub.LocationObj.IsVerified || (sub.isLocationAmbiguous && sub.IsValidationRun)))
                 {
                     int durationQutient = ((int)Math.Round(subEvent.getActiveDuration.TotalMinutes / Utility.QuarterHourTimeSpan.TotalMinutes));
                     if (durationToTimeSpan.ContainsKey(subEvent.Location))
@@ -2723,44 +2761,46 @@ namespace TilerCore
 
                 foreach (SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => sub.isLocationAmbiguous && !sub.IsValidationRun).OrderBy(o=>o.Score))
                 {
-                    List<Location> otherSubEventLocation = new List<Location>();
-                    foreach (var kvp in durationToTimeSpan)
+                    if(
+                        subEvent.LocationObj.Address.isNot_NullEmptyOrWhiteSpace() || 
+                        subEvent.LocationObj.Description.isNot_NullEmptyOrWhiteSpace() || 
+                        subEvent.LocationObj.SearchdDescription.isNot_NullEmptyOrWhiteSpace())// checks if the provided location object actually includes strings to be looked up
                     {
-                        if(kvp.Key != subEvent.Location)
+                        List<Location> otherSubEventLocation = new List<Location>();
+                        foreach (var kvp in durationToTimeSpan)
                         {
-                            for(int locationCount =0; locationCount < durationToTimeSpan[kvp.Key]; locationCount++)
+                            if (kvp.Key != subEvent.Location)
                             {
-                                otherSubEventLocation.Add(kvp.Key);
+                                for (int locationCount = 0; locationCount < durationToTimeSpan[kvp.Key]; locationCount++)
+                                {
+                                    otherSubEventLocation.Add(kvp.Key);
+                                }
                             }
                         }
-                    }
-                    if (beginLocation != null)
-                    {
-                        otherSubEventLocation.Add(beginLocation);//To ensure the begin location can infkuence the average
-                    }
-                        
-                    Location averageLocation = Location.AverageGPSLocation(otherSubEventLocation);
-                    if (averageLocation != null && (averageLocation.isNull || averageLocation.isDefault))
-                    {
-                        averageLocation = home != null && !home.isDefault && !home.isNull ? home : CurrentLocation;
-                    }
 
-                    if(averageLocation!=null && !averageLocation.isDefault && !averageLocation.isNull)
-                    {
-                        subEvent.validateLocation(averageLocation);/// This might kill performance because of multiple calls to google for validation
-                        int durationQutient = ((int)Math.Round(subEvent.getActiveDuration.TotalMinutes / Utility.QuarterHourTimeSpan.TotalMinutes));
-                        if(subEvent.Location.isNotNullAndNotDefault)
+                        Location averageLocation = Location.AverageGPSLocation(otherSubEventLocation);
+                        if (averageLocation != null && (averageLocation.isNull || averageLocation.isDefault))
                         {
-                            if (durationToTimeSpan.ContainsKey(subEvent.Location))
-                            {
-                                durationToTimeSpan[subEvent.Location] += durationQutient;
-                            }
-                            else
-                            {
-                                durationToTimeSpan.Add(subEvent.Location, durationQutient);
-                            }
+                            averageLocation = home != null && !home.isDefault && !home.isNull ? home : CurrentLocation;
                         }
-                        
+
+                        if (averageLocation != null && !averageLocation.isDefault && !averageLocation.isNull)
+                        {
+                            subEvent.validateLocation(averageLocation);/// This might kill performance because of multiple calls to google for validation
+                            int durationQutient = ((int)Math.Round(subEvent.getActiveDuration.TotalMinutes / Utility.QuarterHourTimeSpan.TotalMinutes));
+                            if (subEvent.Location.isNotNullAndNotDefault)
+                            {
+                                if (durationToTimeSpan.ContainsKey(subEvent.Location))
+                                {
+                                    durationToTimeSpan[subEvent.Location] += durationQutient;
+                                }
+                                else
+                                {
+                                    durationToTimeSpan.Add(subEvent.Location, durationQutient);
+                                }
+                            }
+
+                        }
                     }
                 }
                 OptimizedPath dayPath = new OptimizedPath(EachDay, beginLocation, endLocation, home);
@@ -3229,7 +3269,7 @@ namespace TilerCore
         {
             _isScheduleModified = true;
             uint TotalDays = (uint)AllDayTimeLine.Length;
-            long DayIndex = Now.consttDayIndex;
+            long DayIndex = AllDayTimeLine.First().UniversalIndex;
             double occupancyThreshold = 0.67;// this placies a soft threshold for the occupancy that different cal events would use to determine if they should continue
             EventDayBags bagsPerDay = new EventDayBags(TotalDays);
             TotalActiveEvents.AsParallel().ForAll(subEvent => {
@@ -3406,7 +3446,6 @@ namespace TilerCore
                         {
                             UnUsableCalEvents.Add(eachCal);
                         }
-                        //++dayCounterSpreadout;
                     }
                     AllCalEvents = AllCalEvents.Except(UnUsableCalEvents).ToList();
 
@@ -3442,7 +3481,7 @@ namespace TilerCore
             {
                 var conflictResolutionResult = resolveConflicts(conflictingSubEvents, AllDayTimeLine);
 
-                List<SubCalendarEvent> unresolvedConflicts = conflictResolutionResult.Item2;
+                List<SubCalendarEvent> unresolvedConflicts = conflictResolutionResult.Item2.Where(subEvent => subEvent.Start >= Now.calculationNow).ToList();
                 unresolvedConflicts.ForEach((subEvent) =>
                 {
                     DayTimeLine dayTimeLine = Now.getDayTimeLineByTime(subEvent.Start);
@@ -3638,7 +3677,7 @@ namespace TilerCore
                     List<SubCalendarEvent> activeTimeframeSubevents = new List<SubCalendarEvent>();
                     foreach (SubCalendarEvent subevent in orderedsubEventsInTimeline)
                     {
-                        if (!subevent.isLocked && subevent.StartToEnd.doesTimeLineInterfere(sleepTimeline))// we want locked events to be part of the active time frame events because they cannot be moved
+                        if (!subevent.isLocked && sleepTimeline.IsTimeLineWithin(subevent.StartToEnd))// we want locked events to be part of the active time frame events because they cannot be moved
                         {
                             sleepSubevents.Add(subevent);
                         }
@@ -4402,8 +4441,7 @@ namespace TilerCore
                     PreferrdDayIndex = balancingStartingindex;
                 }
 
-                //List<mTuple<int, DayTimeLine>> OptimizedDayTimeLine = new List<mTuple<int, DayTimeLine>>();// AllDays.Select(obj => new mTuple<bool, DayTimeLine>(((long)(obj.UniversalIndex - PreferrdDayIndex) >= 0), obj)).ToList();//this line orders Daytimeline by  if they are after the procrastination day.
-                List<mTuple<bool, DayTimeLine>> OptimizedDayTimeLine = AllDays.Select(obj => new mTuple<bool, DayTimeLine>(((long)(obj.UniversalIndex - PreferrdDayIndex) >= 0), obj)).ToList();//this line orders Daytimeline by  if they are after the procrastination day.
+                List <mTuple<bool, DayTimeLine>> OptimizedDayTimeLine = AllDays.Select(obj => new mTuple<bool, DayTimeLine>(((long)(obj.UniversalIndex - PreferrdDayIndex) >= 0), obj)).ToList();//this line orders Daytimeline by  if they are after the procrastination day.
 
                 List<mTuple<bool, DayTimeLine>> beforeProcrastination = OptimizedDayTimeLine.Where(obj => !obj.Item1).ToList();
                 OptimizedDayTimeLine = OptimizedDayTimeLine.GetRange(beforeProcrastination.Count, OptimizedDayTimeLine.Count - beforeProcrastination.Count);// this reorders all the days with before or on procrastination to the back of list
@@ -4413,14 +4451,14 @@ namespace TilerCore
                 List<double> timeLineScores = calEvent.EvaluateTimeLines(OptimizedDayTimeLine.Select(timeLine => (TimelineWithSubcalendarEvents)timeLine.Item2).ToList(), Now);
 
                 List<IList<double>> combinedDOubles = timeLineScores.Select((score, i) => {
-                    IList<double> comValue = new List<double> { score, dayBags[i].Score };
+                    IList<double> comValue = new List<double> { score, dayBags[i].Score, calEvent.getSubeventsInDay(OptimizedDayTimeLine[i].Item2.UniversalIndex).Count() };
                     return comValue;
                 }).ToList();
 
                 timeLineScores = Utility.multiDimensionCalculationNormalize(combinedDOubles);
+                double subEventPerDay = ((double)AllSubEvents.Count) / (double)timeLineScores.Count; // this holds the ideal sub event per day 
 
-
-                List<Tuple<int, double, DayTimeLine>> dayIndexToTImeLine = timeLineScores.Select((score, index) => { return new Tuple<int, double, DayTimeLine>(index, score, OptimizedDayTimeLine[index].Item2); }).ToList();
+                List <Tuple<int, double, DayTimeLine>> dayIndexToTImeLine = timeLineScores.Select((score, index) => { return new Tuple<int, double, DayTimeLine>(index, score, OptimizedDayTimeLine[index].Item2); }).ToList();
 
                 //DayTimeLineCurrentProperties holds the propeties of all the daytimeline elements. The tuple has the folloiwng Left, Right, Difference, score
                 Dictionary<DayTimeLine, DayTempEvaluation> DayTimeLineCurrentProperties = new Dictionary<DayTimeLine, DayTempEvaluation>();
@@ -4452,22 +4490,24 @@ namespace TilerCore
                                 long right = finalIndex- (long)dayTuple.Item2.UniversalIndex;
                                 long diff = (long)left - (long)right;
                                 long uDiff = (long)Math.Abs(diff);
-                                return new DayTempEvaluation()
+                                return new DayTempEvaluation(subEventPerDay)
                                 {
                                     Diff = uDiff,
                                     Left = left,
                                     Right = right,
                                     Score = dayTuple.Item1,
                                     TimeLineScore = dayTuple.Item1,
+                                    InitialTimeLineScore = dayTuple.Item1,
+                                    AssignedSubEventsInDay = calEvent.getSubeventsInDay(dayTuple.Item2.UniversalIndex).Count(),
                                     DayIndex = (long)dayTuple.Item2.UniversalIndex
                                 };
                             }
                         );
-                        orderedOnEvaluation.RemoveAt(0);
+                        DayTimeLineCurrentProperties[lastDaySelected.Item2].incrementDayElectionCount();
                         for (int i = 1; i < AllSubEvents.Count; i++)
                         {
                             subEvent = AllSubEvents[i];
-                            if (useUpOrder.Count != dayIndexes.Count)
+                            //if (useUpOrder.Count != dayIndexes.Count)
                             {
                                 List<IList<double>> data = orderedOnEvaluation.Select(obj => (IList<double>)DayTimeLineCurrentProperties[obj.Item2].toMultiArrayDict()).ToList();
                                 List<double> values = Utility.multiDimensionCalculationNormalize(data);
@@ -4476,22 +4516,23 @@ namespace TilerCore
                                 DayTimeLine minDayTimeLine = lastDaySelected.Item2;
                                 daysSelected.Add(lastDaySelected.Item2);
                                 retValue.Add(new Tuple<long, SubCalendarEvent>(minDayTimeLine.UniversalIndex, subEvent));
-                                orderedOnEvaluation.RemoveAt(lowestIndex);
                                 selectedDayIndex = lastDaySelected.Item2.UniversalIndex;
+                                DayTimeLineCurrentProperties[minDayTimeLine].incrementDayElectionCount();
                                 useUpOrder.Add(minDayTimeLine);
                             }
-                            else
-                            {
-                                int j = 0;
-                                int usedUPLength = useUpOrder.Count;
-                                for (; i < AllSubEvents.Count; i++, j++)
-                                {
-                                    SubCalendarEvent excessSubEvent = AllSubEvents[i];
-                                    int dayIndex = j % usedUPLength;
-                                    DayTimeLine dayTimeLine = useUpOrder[dayIndex];
-                                    retValue.Add(new Tuple<long, SubCalendarEvent>(dayTimeLine.UniversalIndex, excessSubEvent));
-                                }
-                            }
+                            //else
+                            //{
+                            //    int j = 0;
+                            //    int usedUPLength = useUpOrder.Count;
+                            //    for (; i < AllSubEvents.Count; i++, j++)
+                            //    {
+                            //        SubCalendarEvent excessSubEvent = AllSubEvents[i];
+                            //        int dayIndex = j % usedUPLength;
+                            //        DayTimeLine dayTimeLine = useUpOrder[dayIndex];
+                            //        DayTimeLineCurrentProperties[dayTimeLine].incrementDayElectionCount();
+                            //        retValue.Add(new Tuple<long, SubCalendarEvent>(dayTimeLine.UniversalIndex, excessSubEvent));
+                            //    }
+                            //}
                         }
                     }
                 }

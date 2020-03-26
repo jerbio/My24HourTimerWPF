@@ -48,7 +48,7 @@ namespace TilerElements
             reverseGeocode,
             batchGeocode,
             route
-        };
+        };  
 
         static protected double defaultXValue = 105.2705;
         static protected double defaultYValue = 40.0150;
@@ -313,7 +313,7 @@ namespace TilerElements
             try
             {
 
-                if (!String.IsNullOrEmpty(_TaggedAddress))
+                if (!String.IsNullOrEmpty(_TaggedAddress) && Location.ApiKey.isNot_NullEmptyOrWhiteSpace())
                 {
                     GeocodingRequest request = new GeocodingRequest();
                     request.Address = _TaggedAddress;

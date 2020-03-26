@@ -115,7 +115,7 @@ namespace TilerTests
             DateTimeOffset fourthRefnow = refNow.AddHours(3);
             Schedule = new TestSchedule(user, fourthRefnow);
             TravelCache secondTravelCache = Schedule.TravelCache;
-            Assert.IsTrue(secondTravelCache.LocationCombo.Count == 2);
+            Assert.IsTrue(secondTravelCache.LocationCombo.Count == 3);
             int lastActiveSchedulingLookupCount = 0;
             int lastActiveSchedulingUpdateCount = 0;
             foreach (LocationCacheEntry locationCacheEntry in secondTravelCache.LocationCombo)
@@ -131,8 +131,8 @@ namespace TilerTests
                 }
             }
 
-            Assert.AreEqual(lastActiveSchedulingLookupCount, 2);
-            Assert.AreEqual(lastActiveSchedulingUpdateCount, 0);
+            Assert.AreEqual(3, lastActiveSchedulingLookupCount);
+            Assert.AreEqual(0, lastActiveSchedulingUpdateCount);
 
 
             //cache should be 1.5 hours old so should be updated
@@ -142,7 +142,7 @@ namespace TilerTests
             Schedule.persistToDB().Wait();
             Schedule = new TestSchedule(user, fourthRefnow);
             TravelCache thirdTravelCache = Schedule.TravelCache;
-            Assert.IsTrue(thirdTravelCache.LocationCombo.Count == 2);
+            Assert.IsTrue(thirdTravelCache.LocationCombo.Count == 3);
             lastActiveSchedulingLookupCount = 0;
             lastActiveSchedulingUpdateCount = 0;
             foreach (LocationCacheEntry locationCacheEntry in thirdTravelCache.LocationCombo)
@@ -171,14 +171,20 @@ namespace TilerTests
         {
             string gymName = "24 hour fitness";
             Location coloadoSpringLocation = new Location(38.8659815, -104.7189151);
+            coloadoSpringLocation.IsVerified = true;
             Location broomfieldLocation = new Location(39.9456167, -105.1376022);
+            broomfieldLocation.IsVerified = true;
             Location boulderLocation = new Location(40.0293704, -105.2749966);
+            boulderLocation.IsVerified = true;
             Location homeLocation = new Location(39.9257505, -105.1480946);
+            homeLocation.IsVerified = true;
             Location workLocation = new Location(40.0202094, -105.2511518);
+            workLocation.IsVerified = true;
             Location gymLocation = new Location(gymName);
             string coSpringsString = "colorado springs";
             string boulderString = "boulder";
             string broomfieldString = "broomfield";
+            string lafayetteString = "lafayette";
 
             var packet = TestUtility.CreatePacket();
             TilerUser tilerUser = packet.User;
@@ -212,7 +218,7 @@ namespace TilerTests
             Assert.AreEqual(schedule.getAllLocations().Count(), 1);
             foreach (Location location in schedule.getAllCalendarEvents().SelectMany(o => o.ActiveSubEvents.Select(sub => sub.Location)).ToList())
             {
-                Assert.IsTrue(location.Address.ToLower().Contains(broomfieldString));// this can sometime use lafayette. This happened in my case when I ran this test with a VPN location in london. If this fails verify your PCs location
+                Assert.IsTrue(location.Address.ToLower().Contains(broomfieldString) || location.Address.ToLower().Contains(lafayetteString));// this can sometime use lafayette. This happened in my case when I ran this test with a VPN location in london. If this fails verify your PCs location
                 (location as LocationJson).LastUsed = schedule.Now.constNow;
             }
 

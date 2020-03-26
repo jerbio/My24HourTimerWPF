@@ -2580,7 +2580,7 @@ namespace TilerCore
             List<SubCalendarEvent> ConflictingEvents = new List<SubCalendarEvent>();
             foreach (SubCalendarEvent eachSubCalendarEvent in ArrayOfInterferringSubEvents)
             {
-                int index = (int)(eachSubCalendarEvent.UniversalDayIndex - Now.consttDayIndex);
+                int index = (int)(eachSubCalendarEvent.UniversalDayIndex - Now.firstDay.UniversalIndex);
 
                 if ((index < NumberOfDays) && (index >= 0))
                 {
@@ -3269,7 +3269,7 @@ namespace TilerCore
         {
             _isScheduleModified = true;
             uint TotalDays = (uint)AllDayTimeLine.Length;
-            long DayIndex = Now.consttDayIndex;
+            long DayIndex = AllDayTimeLine.First().UniversalIndex;
             double occupancyThreshold = 0.67;// this placies a soft threshold for the occupancy that different cal events would use to determine if they should continue
             EventDayBags bagsPerDay = new EventDayBags(TotalDays);
             TotalActiveEvents.AsParallel().ForAll(subEvent => {

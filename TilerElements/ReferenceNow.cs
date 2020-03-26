@@ -426,7 +426,9 @@ namespace TilerElements
         }
 
 
-
+        /// <summary>
+        /// Day index of the constNow time. Note this isn't necessarily the same day as the firstDay.universalIndex. Const now can be on a next day which means constDay inxdex will be different
+        /// </summary>
         public long consttDayIndex
         {
             get

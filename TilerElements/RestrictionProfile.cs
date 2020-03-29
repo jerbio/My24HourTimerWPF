@@ -447,7 +447,7 @@ namespace TilerElements
                     preceedingCycleFrame = currentFrame;
                 }
             }
-            preceedingCycleFrame = new TimeLine(preceedingCycleFrame.Start.AddDays(-7), preceedingCycleFrame.End.AddDays(-7));
+            preceedingCycleFrame = new TimeLine(preceedingCycleFrame.Start.AddDays(7), preceedingCycleFrame.End.AddDays(7));
             return preceedingCycleFrame;
         }
         

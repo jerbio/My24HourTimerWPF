@@ -209,6 +209,7 @@ namespace TilerElements
             MyCalendarEventCopy.updateStartTime(Start);
             MyCalendarEventCopy.updateEndTime(End);
             MyCalendarEventCopy.TimeLineHistory_DB = _TimeLineHistory;
+            MyCalendarEventCopy._EventScore = this._EventScore;
             if (eventId != null)
             {
                 MyCalendarEventCopy.UniqueID = eventId;

@@ -4329,7 +4329,6 @@ namespace TilerCore
                 }
             }
 
-
             KeyValuePair<SubCalendarEvent, double> LongestDistance = Distances.First();
             foreach (KeyValuePair<SubCalendarEvent, double> eachKeyValuePair in Distances)
             {

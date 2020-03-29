@@ -611,12 +611,12 @@ namespace TilerElements
                 MyCalendarEventCopy._SubEvents.Add(eachSubCalendarEvent.Id, subEventCopy);
             }
 
-            //MyCalendarEventCopy.SchedulStatus = SchedulStatus;
             MyCalendarEventCopy._otherPartyID = _otherPartyID == null ? null : _otherPartyID.ToString();
             MyCalendarEventCopy._Users = this._Users;
             MyCalendarEventCopy.TimeLineHistory_DB = _TimeLineHistory;
             MyCalendarEventCopy._DaySectionPreference = this._DaySectionPreference;
             MyCalendarEventCopy._EventDayPreference = this.DayPreference?.createCopy();
+            MyCalendarEventCopy._EventScore = this._EventScore;
             return MyCalendarEventCopy;
         }
 
@@ -1642,6 +1642,7 @@ namespace TilerElements
             RetValue._otherPartyID = this.ThirdPartyID;// == this.null ? null : otherPartyID.ToString();
             RetValue._Users = this._Users;
             RetValue._EventDayPreference = this._EventDayPreference?.createCopy();
+            RetValue._EventScore = this._EventScore;
             RetValue.updateStartTime(this.Start);
             RetValue.updateEndTime(this.End);
             //RetValue.UpdateLocationMatrix(RetValue.LocationInfo);

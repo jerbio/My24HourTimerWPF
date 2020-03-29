@@ -27,7 +27,7 @@ namespace TilerElements
 
         public void PopulateBusyTimeSlot(string MyEventID, BusyTimeLine[] myActiveTimeSlots)
         {
-            ActiveTimeSlots = new System.Collections.Concurrent.ConcurrentBag<BusyTimeLine>( myActiveTimeSlots);
+            ActiveTimeSlots = myActiveTimeSlots.ToDictionary(o => o.Id, o => o);
             TimeLineEventID = MyEventID;
         }
 
@@ -78,11 +78,11 @@ namespace TilerElements
         {
             set
             {
-                ActiveTimeSlots = new System.Collections.Concurrent.ConcurrentBag<BusyTimeLine>( value);
+                ActiveTimeSlots = value.ToDictionary(o => o.Id, o => o);
             }
             get
             {
-                return ActiveTimeSlots.ToArray();
+                return ActiveTimeSlots.Values.ToArray();
             }
         }
 

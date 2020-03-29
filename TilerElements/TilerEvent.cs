@@ -63,6 +63,7 @@ namespace TilerElements
         protected bool _ValidationIsRun = false;
         protected DateTimeOffset _CompletionTime;
         protected ReferenceNow _Now;
+        protected double _EventScore = double.NaN;
 
         #region undoParameters
         public DateTimeOffset UndoStartDateTime;
@@ -228,6 +229,11 @@ namespace TilerElements
         {
             updateStartTime(TempStartDateTime);
             updateEndTime(TempEndDateTime);
+        }
+
+        public void setScore(double score)
+        {
+            _EventScore = score;
         }
 
         /// <summary>
@@ -1412,6 +1418,14 @@ namespace TilerElements
             get
             {
                 return _TimeZone;
+            }
+        }
+
+        virtual public double EventScore
+        {
+            get
+            {
+                return _EventScore;
             }
         }
 

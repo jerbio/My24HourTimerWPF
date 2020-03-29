@@ -60,7 +60,7 @@ namespace TilerElements
         {
             StartTime = BusyTimeLineEntry.StartTime;
             EndTime = BusyTimeLineEntry.EndTime;
-            TimeLineEventID = BusyTimeLineEntry.ID;
+            TimeLineEventID = BusyTimeLineEntry.Id;
             return this;
         }
 
@@ -72,14 +72,6 @@ namespace TilerElements
             get
             {
                 return _BusySpan;
-            }
-        }
-
-        public string ID
-        {
-            get
-            {
-                return this.TimeLineEventID;
             }
         }
 

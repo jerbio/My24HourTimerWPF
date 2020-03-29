@@ -15,7 +15,6 @@ namespace TilerElements
         protected TimeLine _CalendarEventRange;
         protected DateTimeOffset _CalendarEventRangeStart;
         protected DateTimeOffset _CalendarEventRangeEnd;
-        protected double EventScore;
         protected ConflictProfile _ConflictingEvents = new ConflictProfile();
         protected long preferredDayIndex=0;
         protected int MiscIntData;
@@ -443,7 +442,7 @@ namespace TilerElements
             copy.ParentCalendarEvent = parentCalendarEvent;
             copy._isTardy = this._isTardy;
             copy._Priority = this._Priority;
-            copy.EventScore = this.EventScore;
+            copy._EventScore = this._EventScore;
             copy.UnUsableIndex = this.UnUsableIndex;
             copy._UsedTime = this._UsedTime;
             copy.OptimizationFlag = this.OptimizationFlag;
@@ -469,19 +468,14 @@ namespace TilerElements
             this.preferredDayIndex = ReferenceNow.UndesignatedDayIndex;
         }
 
-        public void setScore(double score)
-        {
-            EventScore = score;
-        }
-
         public void incrementScore(double score)
         {
-            EventScore += score;
+            _EventScore += score;
         }
 
         public static void resetScores(IEnumerable<SubCalendarEvent> AllSUbevents)
         {
-            AllSUbevents.AsParallel().ForAll(obj => obj.EventScore = 0);
+            AllSUbevents.AsParallel().ForAll(obj => obj._EventScore = 0);
         }
 
         public static TimeSpan TotalActiveDuration(IEnumerable<SubCalendarEvent> ListOfSubCalendarEvent)
@@ -604,7 +598,7 @@ namespace TilerElements
                 this._Enabled = SubEventEntry.isEnabled;
                 this.updateEndTime( SubEventEntry.End);
                 this._EventPreDeadline = SubEventEntry.getPreDeadline;
-                this.EventScore = SubEventEntry.Score;
+                this._EventScore = SubEventEntry.Score;
                 this.isRestricted = SubEventEntry.getIsEventRestricted;
                 this._LocationInfo = SubEventEntry._LocationInfo;
                 this.OldPreferredIndex = SubEventEntry.OldUniversalIndex;
@@ -669,7 +663,7 @@ namespace TilerElements
             retValue._Enabled = this.isEnabled;
             retValue.updateEndTime( this.End);
             retValue._EventPreDeadline = this.getPreDeadline;
-            retValue.EventScore = this.Score;
+            retValue._EventScore = this.Score;
             retValue.isRestricted = this.getIsEventRestricted;
             retValue._LocationInfo = (this._LocationInfo == null) ? Location.getNullLocation() : this._LocationInfo.CreateCopy();
             retValue.OldPreferredIndex = this.OldUniversalIndex;
@@ -1260,7 +1254,7 @@ namespace TilerElements
         {
             get 
             {
-                return EventScore;
+                return _EventScore;
             }
         }
 

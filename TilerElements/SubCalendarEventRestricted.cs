@@ -258,7 +258,7 @@ namespace TilerElements
             copy._EventDuration = this._EventDuration;
             copy._Name = this.getName.createCopy();
             copy._EventPreDeadline = this._EventPreDeadline;
-            copy.EventScore = this.EventScore;
+            copy._EventScore = this._EventScore;
             copy.HardCalendarEventRange = this.HardCalendarEventRange?.CreateCopy();
             copy.isRestricted = this.isRestricted;
             copy.Vestige = this.Vestige;
@@ -274,6 +274,7 @@ namespace TilerElements
             copy.updateStartTime( this.Start);
             copy._UiParams = this._UiParams?.createCopy();
             copy._AutoDeleted = this._AutoDeleted;
+            copy._EventScore = this._EventScore;
             if (eventId != null)
             {
                 copy.UniqueID = eventId;
@@ -395,7 +396,7 @@ namespace TilerElements
                 this._Enabled = SubEventEntry.isEnabled;
                 updateEndTime( SubEventEntry.End);
                 this._EventPreDeadline = SubEventEntry.getPreDeadline;
-                this.EventScore = SubEventEntry.Score;
+                this._EventScore = SubEventEntry.Score;
                 this._LocationInfo = SubEventEntry.Location;
                 this.OldPreferredIndex = SubEventEntry.OldUniversalIndex;
                 this._otherPartyID = SubEventEntry.ThirdPartyID;
@@ -435,7 +436,7 @@ namespace TilerElements
             retValue._Enabled = this.isEnabled;
             retValue.updateEndTime( this.End);
             retValue._EventPreDeadline = this.getPreDeadline;
-            retValue.EventScore = this.Score;
+            retValue._EventScore = this.Score;
             retValue.isRestricted = this.getIsEventRestricted;
             retValue._LocationInfo = this.Location;
             retValue.OldPreferredIndex = this.OldUniversalIndex;

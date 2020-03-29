@@ -32,7 +32,7 @@ namespace TilerElements
             retValue.OccupiedSlots = this.OccupiedSlots;
             retValue.RepeatCalendarId = this.RepeatCalendarId;
             retValue.CalendarId= this.CalendarId;
-            retValue.AddBusySlots(this.ActiveTimeSlots);
+            retValue.AddBusySlots(this.ActiveTimeSlots.Values);
             return retValue;
         }
 

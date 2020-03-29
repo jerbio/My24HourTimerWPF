@@ -150,7 +150,7 @@ namespace TilerElements
         public override void Empty()
         {
             AllocatedSubEvents = new ConcurrentDictionary<string, SubCalendarEvent>();
-            ActiveTimeSlots = new ConcurrentBag<BusyTimeLine>();
+            ActiveTimeSlots = new Dictionary<string, BusyTimeLine>();
             updateOccupancyOfTimeLine();
             updateAverageLocation();
         }

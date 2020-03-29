@@ -13,7 +13,7 @@ namespace TilerElements
     {
         protected DateTimeOffset EndTime;
         protected DateTimeOffset StartTime;
-        protected ConcurrentBag <BusyTimeLine> ActiveTimeSlots;
+        protected Dictionary<string, BusyTimeLine> ActiveTimeSlots;
         protected bool isForever = false;
 
         #region constructor
@@ -21,7 +21,7 @@ namespace TilerElements
         {
             StartTime = new DateTimeOffset();
             EndTime = StartTime;
-            ActiveTimeSlots = new ConcurrentBag<BusyTimeLine>();
+            ActiveTimeSlots = new Dictionary<string, BusyTimeLine>();
             
         }
 
@@ -30,7 +30,7 @@ namespace TilerElements
         {
             StartTime = MyStartTime;
             EndTime = MyEndTime;
-            ActiveTimeSlots = new ConcurrentBag<BusyTimeLine>();
+            ActiveTimeSlots = new Dictionary<string, BusyTimeLine>();
             //MessageBox.Show("Error In TimeLine Arguments End Time is less than Start Time");
             if (MyEndTime <= MyStartTime)
             {
@@ -152,12 +152,12 @@ namespace TilerElements
             CopyTimeLine.EndTime = EndTime; 
             CopyTimeLine.StartTime = StartTime;
             List<BusyTimeLine> TempActiveSlotsHolder = new List<BusyTimeLine>();
-            foreach (BusyTimeLine MyBusyTimeLine in ActiveTimeSlots)
+            foreach (BusyTimeLine MyBusyTimeLine in ActiveTimeSlots.Values)
             {
                 TempActiveSlotsHolder.Add(MyBusyTimeLine.CreateCopy() as BusyTimeLine);
             }
 
-            CopyTimeLine.ActiveTimeSlots =  new ConcurrentBag<BusyTimeLine>( TempActiveSlotsHolder);//.ToArray();
+            CopyTimeLine.ActiveTimeSlots = TempActiveSlotsHolder.ToDictionary(o => o.Id, o => o);
             return CopyTimeLine;
         }
 
@@ -186,7 +186,8 @@ namespace TilerElements
             if (doesTimeLineInterfere(busyTimeLine))
             {
                 TimeLine interferringFrame = InterferringTimeLine(busyTimeLine);
-                ActiveTimeSlots.Add(new BusyTimeLine(busyTimeLine.ID, interferringFrame));
+                var busytimeLine = new BusyTimeLine(busyTimeLine.Id, interferringFrame);
+                ActiveTimeSlots.Add(busytimeLine.Id, busytimeLine);
             }
         }
 
@@ -196,20 +197,24 @@ namespace TilerElements
         /// <param name="busyTimeLine"></param>
         virtual public void RemoveBusySlots(BusyTimeLine busyTimeLine)//Hack Alert further update will be to check if it interferes
         {
-            ActiveTimeSlots = new ConcurrentBag<BusyTimeLine>(ActiveTimeSlots.Where(timeLine => busyTimeLine != timeLine));
+            ActiveTimeSlots.Remove(busyTimeLine.Id);
         }
 
         virtual public void AddBusySlots(IEnumerable<BusyTimeLine> MyBusySlot)//Hack Alert further update will be to check if it busy slots fall within range of the timeLine
         {
             IEnumerable<BusyTimeLine> AllBusyTImeLine = MyBusySlot.Where(obj => obj.doesTimeLineInterfere(this));
-            //var MyNewArray = ActiveTimeSlots.Concat(AllBusyTImeLine);
-            //ActiveTimeSlots = MyNewArray.ToArray();
-            AllBusyTImeLine.AsParallel().ForAll(
-                obj => {
-                    TimeLine interferringFrame = InterferringTimeLine(obj);
-                    ActiveTimeSlots.Add(new BusyTimeLine(obj.ID, interferringFrame));
+            foreach (var obj in AllBusyTImeLine) {
+                TimeLine interferringFrame = InterferringTimeLine(obj);
+                var busytimeLine = new BusyTimeLine(obj.Id, interferringFrame);
+                if(ActiveTimeSlots.ContainsKey(busytimeLine.Id))
+                {
+                    ActiveTimeSlots[busytimeLine.Id] = busytimeLine;
+                } else
+                {
+                    ActiveTimeSlots.Add(busytimeLine.Id, busytimeLine);
                 }
-            );
+                
+            };
         }
 
 
@@ -226,7 +231,7 @@ namespace TilerElements
         {
             TimeLine TempTimeLine = new TimeLine(StartTime, EndTime);
             List<BusyTimeLine> ActiveSlots = new List<BusyTimeLine>();
-            foreach (BusyTimeLine MyBusyTimeline in ActiveTimeSlots)
+            foreach (BusyTimeLine MyBusyTimeline in ActiveTimeSlots.Values)
             {
                 if (TempTimeLine.IsTimeLineWithin(MyBusyTimeline))
                 {
@@ -244,7 +249,7 @@ namespace TilerElements
         virtual public TimeLine[] getAllFreeSlots()
         {
             List<TimeLine> ListOfFreeSpots = new List<TimeLine>();
-            BusyTimeLine[] ActiveTimeSlots = this.ActiveTimeSlots.ToArray();
+            BusyTimeLine[] ActiveTimeSlots = this.ActiveTimeSlots.Values.ToArray();
             if (ActiveTimeSlots.Length < 1)
             {
                 //List<TimeLine> SingleTimeline= new List<TimeLine>();
@@ -278,7 +283,7 @@ namespace TilerElements
         virtual public TimeLineWithEdgeElements[] getAllFreeSlotsWithEdges()
         {
             List<TimeLineWithEdgeElements> ListOfFreeSpots = new List<TimeLineWithEdgeElements>();
-            BusyTimeLine[] ActiveTimeSlots = this.ActiveTimeSlots.OrderBy(busyTimeLine => busyTimeLine.Start).ToArray();
+            BusyTimeLine[] ActiveTimeSlots = this.ActiveTimeSlots.Values.OrderBy(busyTimeLine => busyTimeLine.Start).ToArray();
             if (ActiveTimeSlots.Length< 1)
             {
                 //List<TimeLine> SingleTimeline= new List<TimeLine>();
@@ -291,7 +296,7 @@ namespace TilerElements
 
             foreach (BusyTimeLine MyActiveSlot in ActiveTimeSlots)
             {
-                TimeLineWithEdgeElements FreeSpot = new TimeLineWithEdgeElements(PreceedingDateTime, MyActiveSlot.Start, startEdgeElement, MyActiveSlot.ID);
+                TimeLineWithEdgeElements FreeSpot = new TimeLineWithEdgeElements(PreceedingDateTime, MyActiveSlot.Start, startEdgeElement, MyActiveSlot.Id);
                 if (FreeSpot.TimelineSpan.Ticks > 0)
                 {
                     ListOfFreeSpots.Add(FreeSpot);
@@ -300,7 +305,7 @@ namespace TilerElements
                 PreceedingDateTime = MyActiveSlot.End;
             }
             BusyTimeLine lastElement = ActiveTimeSlots[ActiveTimeSlots.Length - 1];
-            ListOfFreeSpots.Add(new TimeLineWithEdgeElements(lastElement.End, EndTime, lastElement.ID,null));
+            ListOfFreeSpots.Add(new TimeLineWithEdgeElements(lastElement.End, EndTime, lastElement.Id,null));
 
             return ListOfFreeSpots.ToArray();
         }
@@ -308,7 +313,7 @@ namespace TilerElements
         virtual public List<BusyTimeLine> getBusyTimeLineWithinSlots(TimeLine MyTimeLineRange)
         {
             List<BusyTimeLine> ActiveSlots = new List<BusyTimeLine>();
-            foreach (BusyTimeLine MyBusyTimeline in ActiveTimeSlots)
+            foreach (BusyTimeLine MyBusyTimeline in ActiveTimeSlots.Values)
             {
                 if (MyTimeLineRange.IsTimeLineWithin(MyBusyTimeline))
                 {
@@ -369,11 +374,11 @@ namespace TilerElements
         {
             set
             {
-                ActiveTimeSlots = new ConcurrentBag<BusyTimeLine>(value);
+                ActiveTimeSlots = value.ToDictionary(o => o.Id, o => o);
             }
             get
             {
-                return ActiveTimeSlots.ToArray();
+                return ActiveTimeSlots.Select(o => o.Value).ToArray();
             }
         }
 
@@ -384,11 +389,11 @@ namespace TilerElements
         {
             set
             {
-                ActiveTimeSlots = new ConcurrentBag<BusyTimeLine>(value);
+                ActiveTimeSlots = value.ToDictionary(o=>o.Id, o=>o);
             }
             get
             {
-                return ActiveTimeSlots.OrderBy(busyTimeLine => busyTimeLine.Start).ThenByDescending(busyTimeLine => busyTimeLine.Start).ToArray();
+                return ActiveTimeSlots.OrderBy(busyTimeLine => busyTimeLine.Value.Start).ThenByDescending(busyTimeLine => busyTimeLine.Value.Start).Select(o=>o.Value).ToArray();
             }
         }
 
@@ -521,7 +526,7 @@ namespace TilerElements
 
         public virtual void Empty()
         {
-            ActiveTimeSlots = new ConcurrentBag<BusyTimeLine>();
+            ActiveTimeSlots = new Dictionary<string, BusyTimeLine>();
         }
 
         public JObject ToJson()

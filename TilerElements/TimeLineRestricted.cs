@@ -200,12 +200,12 @@ namespace TilerElements
         {
             TimeLineRestricted CopyTimeLine = new TimeLineRestricted(StartTime, EndTime, RestrictionInfo.createCopy(), Now);
             List<BusyTimeLine> TempActiveSlotsHolder = new List<BusyTimeLine>();
-            foreach (BusyTimeLine MyBusyTimeLine in ActiveTimeSlots)
+            foreach (BusyTimeLine MyBusyTimeLine in ActiveTimeSlots.Values)
             {
                 TempActiveSlotsHolder.Add(MyBusyTimeLine.CreateCopy() as BusyTimeLine);
             }
 
-            CopyTimeLine.ActiveTimeSlots = new ConcurrentBag<BusyTimeLine>(TempActiveSlotsHolder);//.ToArray();
+            CopyTimeLine.ActiveTimeSlots = new Dictionary<string, BusyTimeLine>();
             return CopyTimeLine;
         }
 

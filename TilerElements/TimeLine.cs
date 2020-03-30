@@ -187,7 +187,15 @@ namespace TilerElements
             {
                 TimeLine interferringFrame = InterferringTimeLine(busyTimeLine);
                 var busytimeLine = new BusyTimeLine(busyTimeLine.Id, interferringFrame);
-                ActiveTimeSlots.Add(busytimeLine.Id, busytimeLine);
+                if(!ActiveTimeSlots.ContainsKey(busytimeLine.Id))
+                {
+                    ActiveTimeSlots.Add(busytimeLine.Id, busytimeLine);
+                }
+                else
+                {
+                    ActiveTimeSlots[busytimeLine.Id] = busytimeLine;
+                }
+                
             }
         }
 

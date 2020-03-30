@@ -12,12 +12,12 @@ namespace ScheduleAnalysis
         HashSet<CalendarEvent> MovableCalEvents = new HashSet<CalendarEvent>();
         HashSet<CalendarEvent> ReduceableCalEvents = new HashSet<CalendarEvent>();
         HashSet<CalendarEvent> RigidCalEvents = new HashSet<CalendarEvent>();
-        Dictionary<string, SubCalendarEvent> subEventId_to_Subevents;
-        Dictionary<string, CalendarEvent> calEventId_to_CalEvents;
+        Dictionary<string, SubCalendarEvent> subEventId_to_Subevents = new Dictionary<string, SubCalendarEvent>();
+        Dictionary<string, CalendarEvent> calEventId_to_CalEvents = new Dictionary<string, CalendarEvent>();
         ILookup<string, SubCalendarEvent> calEventId_to_Subevents;
         ReferenceNow Now;
         TilerUser TilerUser;
-        const double activeRatioBound = 0.65;
+        const double activeRatioBound = 0.30;
         public ScheduleSuggestionsAnalysis(IEnumerable<SubCalendarEvent> subEvents, ReferenceNow now, TilerUser tilerUser)
         {
             HashSet<SubCalendarEvent> subEventSet = new HashSet<SubCalendarEvent>(subEvents);
@@ -29,20 +29,23 @@ namespace ScheduleAnalysis
                 subEventId_to_Subevents.Add(subEvent.Id, subEvent);
                 if(!calEventId_to_CalEvents.ContainsKey(subEvent.SubEvent_ID.getAllEventDictionaryLookup))
                 {
-                    if(subEvent.ParentCalendarEvent.isRigid)
+                    subEvent.ParentCalendarEvent.resetAllSuggestions();
+                    calEventId_to_CalEvents.Add(subEvent.SubEvent_ID.getAllEventDictionaryLookup, subEvent.ParentCalendarEvent);
+                }
+
+                if (subEvent.ParentCalendarEvent.isRigid)
+                {
+                    RigidCalEvents.Add(subEvent.ParentCalendarEvent);
+                }
+                else
+                {
+                    if (subEvent.IsFromRecurring)
                     {
-                        RigidCalEvents.Add(subEvent.ParentCalendarEvent);
+                        ReduceableCalEvents.Add(subEvent.ParentCalendarEvent);
                     }
-                    else
+                    else if (!subEvent.isRigid)
                     {
-                        if (subEvent.IsFromRecurring)
-                        {
-                            ReduceableCalEvents.Add(subEvent.ParentCalendarEvent);
-                        }
-                        else if (!subEvent.isRigid)
-                        {
-                            MovableCalEvents.Add(subEvent.ParentCalendarEvent);
-                        }
+                        MovableCalEvents.Add(subEvent.ParentCalendarEvent);
                     }
                 }
             }
@@ -58,24 +61,25 @@ namespace ScheduleAnalysis
                 IList<IList<double>> multiDimensionalVar = new List<IList<double>>();
                 foreach(CalendarEvent calEvent in calendarEventsForAnalysis)
                 {
+                    calEvent.resetScore();
                     double ratio = ((double)calEvent.CompletionCount) / (calEvent.NumberOfSplit);
                     TimeLineHistory timeLineHistory = calEvent.TimeLineHistory;
-                    int timelineChangeCount = timeLineHistory.TimeLines.Count;
-                    if(timelineChangeCount == 0)
+                    int timelineChangeCount = timeLineHistory.TimeLines.Count+1;
+                    List<double> featureArgs = new List<double>() { ratio, timelineChangeCount };
+                    if (timeLineHistory.TimeLines.Count > 0)
                     {
-                        timelineChangeCount = 1;
+                        TimeSpan averageTimeSpanHistoryChange = TimeSpan.FromMilliseconds(timeLineHistory.TimeLines.Average(o => o.TimelineSpan.TotalMilliseconds));
+                        TimeLine timeLine = calEvent.InitialTimeLine;
+                        double totalDays = Math.Round(averageTimeSpanHistoryChange.TotalDays)+1;
+                        double eventsPerDay = calEvent.NumberOfSplit / totalDays;
+                        featureArgs.Add(eventsPerDay);
                     }
-
-                    TimeSpan averageTimeSpanHistoryChange = TimeSpan.FromMilliseconds(timeLineHistory.TimeLines.Average(o => o.TimelineSpan.TotalMilliseconds));
-                    TimeLine timeLine = calEvent.InitialTimeLine;
-                    double totalDays = Math.Round(averageTimeSpanHistoryChange.TotalDays);
-                    if(totalDays < 1)
+                    else
                     {
-                        totalDays = 1;
+                        featureArgs.Add(0);
                     }
-                    double eventsPerDay = calEvent.NumberOfSplit / totalDays;
-                    List<double> featureArgs = new List<double>() { ratio, timelineChangeCount, eventsPerDay };
                     multiDimensionalVar.Add(featureArgs);
+                    
                 }
                 List<double> scores  = Utility.multiDimensionCalculationNormalize(multiDimensionalVar);
 
@@ -120,34 +124,13 @@ namespace ScheduleAnalysis
             }
         }
 
-        public TimeLine updateCalTimeLine(List<TimeLine> timeLines, CalendarEvent calEvent, double occupancyLimit = activeRatioBound)
-        {
-            TimeLine retValue = null;
-            List<TimeLine> orderedTimeLines = timeLines.OrderBy(o => o.End).ToList();
-            foreach (TimeLine timeLine in orderedTimeLines)
-            {
-                if(timeLine.ActiveRatio < occupancyLimit)
-                {
-                    TimeSpan totalSpan = TimeSpan.FromTicks(calEvent.ActiveSubEvents.Sum(o => o.RangeSpan.Ticks));
-                    double additional = timeLine.ActiveRatio + (((double)totalSpan.Ticks) / ((double)timeLine.TimelineSpan.Ticks));
-                    double ratioAfterAdd = additional + timeLine.ActiveRatio;
-                    if(ratioAfterAdd <= occupancyLimit)
-                    {
-                        retValue = timeLine;
-                        break;
-                    }
-                }
-            }
-
-            return retValue;
-        }
-
         /// <summary>
         /// Function simply tries to detect if there is an over scheduling and then matches each subevent to the week where they are currently overscheduled
         /// </summary>
         /// <param name="currentNow"></param>
-        public void temp_fix(DateTimeOffset currentNow)
+        public List<TimeLine> temp_fix(DateTimeOffset currentNow)
         {
+            List<TimeLine> retValue = new List<TimeLine>();
             if(this.OrderedSubEvents.Count >0)
             {
                 DateTimeOffset lastSubEventDate = this.OrderedSubEvents.Last().End;
@@ -180,7 +163,7 @@ namespace ScheduleAnalysis
 
                 for (int i = 0; i>=0 && i< subeEventsForProcessing.Count;i++)
                 {
-                    SubCalendarEvent subEvent = this.OrderedSubEvents[i];
+                    SubCalendarEvent subEvent = subeEventsForProcessing[i];
                     TimeLine subevent_startToEnd = subEvent.StartToEnd;
                     if (subEvent.Start < weekTimeline.End)
                     {
@@ -227,13 +210,19 @@ namespace ScheduleAnalysis
 
                     }
                 }
+                if(overOccupied.Count > 0)
+                {
+                    retValue = overOccupied;
+                }
             }
+
+            return retValue;
         }
 
 
-        public Suggestion suggestScheduleChange(List<TimeLine> timelines )
+        public ScheduleSuggestion suggestScheduleChange(List<TimeLine> timelines )
         {
-            Suggestion suggestion = new Suggestion();
+            ScheduleSuggestion suggestion = new ScheduleSuggestion();
             List<TimeLine> orderedTimelines = timelines.OrderBy(o => o.End).ToList();
             for (int i=0; i< orderedTimelines.Count;i++)
             {
@@ -260,7 +249,7 @@ namespace ScheduleAnalysis
                 {
                     if(timeLine.ActiveRatio > activeRatioBound)
                     {
-                        TimeLine updatedTimeLine = updateCalTimeLine(possibleTimeLines, calEvent);
+                        TimeLine updatedTimeLine = possibleTimeLines.FirstOrDefault(possibletimeline => possibletimeline.ActiveRatio <= activeRatioBound);
                         if (updatedTimeLine != null)
                         {
                             foreach (BusyTimeLine busyTimeLine in calEvent.ActiveSubEvents.Select(o => o.ActiveSlot))
@@ -275,20 +264,30 @@ namespace ScheduleAnalysis
                             TimeSpan updatedTimeLineTimeSpan = TimeSpan.FromTicks((long)(((double)totalActiveSpan.Ticks) / activeRatioBound));
 
                             updatedTimeLine = new TimeLine(finalTimeLine.Start, finalTimeLine.Start.Add(updatedTimeLineTimeSpan));
+
+                            long dayIndex = Now.getDayIndexFromStartOfTime(updatedTimeLine.End);
+                            DateTimeOffset dayBeginningOfEndTime = Now.getClientBeginningOfDay(dayIndex);// This  extra logic is to ensure we get an 11:59pm time frame
+                            updatedTimeLine = new TimeLine(updatedTimeLine.Start, dayBeginningOfEndTime.AddDays(1).AddMinutes(-1));
                             updatedTimeLine.AddBusySlots(finalTimeLine.OccupiedSlots);
                             var totalTicks = (calEvent.ActiveSubEvents.Sum(o => o.RangeSpan.Ticks));
                             orderedTimelines.Add(updatedTimeLine);
+                            possibleTimeLines.Add(updatedTimeLine);
                             foreach (BusyTimeLine busyTimeLine in calEvent.ActiveSubEvents.Select(o => o.ActiveSlot))
                             {
                                 timeLine.RemoveBusySlots(busyTimeLine);
                             }
                         }
-                        updatedTimeLine.AddBusySlots(calEvent.ActiveSubEvents.Select(o => o.ActiveSlot));
-                        suggestion.addCalendarEventAndTimeline(calEvent, updatedTimeLine);
+
+                        if(updatedTimeLine.End > calEvent.End)
+                        {
+                            updatedTimeLine.AddBusySlots(calEvent.ActiveSubEvents.Select(o => o.ActiveSlot));
+                            suggestion.addCalendarEventAndTimeline(calEvent, updatedTimeLine);
+                        }
+                        
                     }
                 }
             }
-
+            suggestion.updateDeadlineSuggestions();
             return suggestion;
         }
     }

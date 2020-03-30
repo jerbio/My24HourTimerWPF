@@ -324,7 +324,6 @@ namespace TilerElements
         /// <returns></returns
         public long getDayIndexFromStartOfTime(DateTimeOffset myDay)
         {
-
             double totalDays = (myDay - EndOfDayStartOfTime).TotalDays;
             long retValue = totalDays >= 0 ? (long)totalDays : ((long)totalDays - 1);
             return retValue;

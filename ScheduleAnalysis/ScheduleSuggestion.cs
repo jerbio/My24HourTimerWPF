@@ -5,7 +5,7 @@ using TilerElements;
 
 namespace ScheduleAnalysis
 {
-    public class Suggestion
+    public class ScheduleSuggestion
     {
         public Dictionary<CalendarEvent, TimeLine> DeadlineUpdates { get; set; } = new Dictionary<CalendarEvent, TimeLine>();
         public Dictionary<CalendarEvent, int> CountDelta { get; set; } = new Dictionary<CalendarEvent, int>();
@@ -19,6 +19,14 @@ namespace ScheduleAnalysis
             else
             {
                 DeadlineUpdates.Add(calEvent, timeline);
+            }
+        }
+
+        public void updateDeadlineSuggestions()
+        {
+            foreach(KeyValuePair<CalendarEvent, TimeLine> kvp in DeadlineUpdates)
+            {
+                kvp.Key.updateDeadlineSuggestion(kvp.Value.End);
             }
         }
     }

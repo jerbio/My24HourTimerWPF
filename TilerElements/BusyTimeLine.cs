@@ -75,6 +75,8 @@ namespace TilerElements
             }
         }
 
+        public override TimeSpan TotalActiveSpan => this.BusyTimeSpan;
+
         public TimeSpan BusyTimeSpan_DB
         {
             get

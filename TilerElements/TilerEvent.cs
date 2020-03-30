@@ -64,6 +64,8 @@ namespace TilerElements
         protected DateTimeOffset _CompletionTime;
         protected ReferenceNow _Now;
         protected double _EventScore = double.NaN;
+        protected DateTimeOffset _DeadlineSuggestion;
+
 
         #region undoParameters
         public DateTimeOffset UndoStartDateTime;
@@ -231,9 +233,29 @@ namespace TilerElements
             updateEndTime(TempEndDateTime);
         }
 
+        public void resetScore()
+        {
+            _EventScore = double.NaN;
+        }
+
         public void setScore(double score)
         {
             _EventScore = score;
+        }
+
+        virtual public void updateDeadlineSuggestion(DateTimeOffset deadline)
+        {
+            _DeadlineSuggestion = deadline;
+        }
+
+        virtual public void resetAllSuggestions()
+        {
+            resetDeadlineSuggestion();
+        }
+
+        virtual public void resetDeadlineSuggestion()
+        {
+            _DeadlineSuggestion = DateTimeOffset.FromUnixTimeMilliseconds(0);
         }
 
         /// <summary>
@@ -572,31 +594,6 @@ namespace TilerElements
             }
         }
 
-        #region dbProperties
-        virtual public DateTimeOffset TimeCreated { get; set; } = DateTimeOffset.Parse(DateTimeOffset.UtcNow.ToLocalTime().ToString("MM/dd/yyyy hh:mm tt"));
-        virtual public string Id
-        {
-            get
-            {
-                return this.UniqueID.ToString();
-            }
-            set
-            {
-                this.UniqueID = new EventID(value);
-            }
-        }
-
-        public string LocationValidationId_DB
-        {
-            get {
-                return _LocationValidationId;
-            }
-            set {
-                _LocationValidationId = value;
-            }
-        }
-
-        public string LocationId { get; set; }
 
         /// <summary>
         /// This is the location of the tiler event and is inferred from the initialization.
@@ -615,7 +612,7 @@ namespace TilerElements
                 {
                     return _LocationInfo;
                 }
-                if (_LocationInfo!=null && _LocationInfo.IsAmbiguous)
+                if (_LocationInfo != null && _LocationInfo.IsAmbiguous)
                 {
                     Location retValue = _LocationInfo.getLocationThroughValidation(_LocationValidationId, TimeOfScheduleLoad);
                     if (retValue != null && !retValue.isDefault)
@@ -640,6 +637,7 @@ namespace TilerElements
                 }
             }
         }
+
         /// <summary>
         /// Gets the direct object as it is in the object without any internal lookups and verifications.
         /// Get the tiler event object. Retunrns null if it isnt set.
@@ -649,6 +647,14 @@ namespace TilerElements
             get
             {
                 return _LocationInfo;
+            }
+        }
+
+        virtual public DateTimeOffset DeadlineSuggestion
+        {
+            get
+            {
+                return _DeadlineSuggestion;
             }
         }
 
@@ -664,6 +670,46 @@ namespace TilerElements
                 return _Now;
             }
         }
+
+
+        #region dbProperties
+        virtual public DateTimeOffset TimeCreated { get; set; } = DateTimeOffset.Parse(DateTimeOffset.UtcNow.ToLocalTime().ToString("MM/dd/yyyy hh:mm tt"));
+        virtual public string Id
+        {
+            get
+            {
+                return this.UniqueID.ToString();
+            }
+            set
+            {
+                this.UniqueID = new EventID(value);
+            }
+        }
+
+        public string LocationValidationId_DB
+        {
+            get {
+                return _LocationValidationId;
+            }
+            set {
+                _LocationValidationId = value;
+            }
+        }
+
+        public long DeadlineSuggestion_DB
+        {
+            get
+            {
+                return _DeadlineSuggestion.ToUnixTimeMilliseconds();
+            }
+
+            set
+            {
+                _DeadlineSuggestion = DateTimeOffset.FromUnixTimeMilliseconds(value);
+            }
+        }
+
+        public string LocationId { get; set; }
 
         [ForeignKey("LocationId")]
         virtual public Location Location_DB

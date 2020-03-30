@@ -48,6 +48,7 @@ using TilerElements;
 using System.IO;
 using static TilerElements.TimeOfDayPreferrence;
 using static TilerElements.LocationCacheEntry;
+using util = TilerElements.Utility;
 
 namespace TilerCore
 {
@@ -3192,20 +3193,24 @@ namespace TilerCore
                     TimeLine BoundTimeLine = new TimeLine(start, beforeAndAfter.Item2.End);
                     if (daySection != DaySection.None && daySection != DaySection.Disabled)
                     {
-                        TimeLine DaySectionTimeLine = splitIntoDaySection[daySection];
-                        DateTimeOffset timeLineStart = DaySectionTimeLine.Start - (subEvent.getActiveDuration - Utility.OneMinuteTimeSpan);// we want the lowest start that still encompasses the time Day section. So think if day section starts from 12:00pm -4:00pm and the subevent has duration of we want a time 2 hours we want the start time for the subevent to be possibly 10:01Am - 12:01pm  since it still part of the afternoon timeframe
-                        DateTimeOffset timeLineEnd = DaySectionTimeLine.End + (subEvent.getActiveDuration - Utility.OneMinuteTimeSpan); // See comment for "timeLineStart" this only applies to the end
-
-                        TimeLine timeLine = new TimeLine(timeLineStart, timeLineEnd)
-                            .InterferringTimeLine(BoundTimeLine)?
-                            .InterferringTimeLine(postSleepTimeline);
-                        if (timeLine != null)
+                        if(splitIntoDaySection.ContainsKey(daySection))
                         {
-                            if (subEvent.canExistWithinTimeLine(timeLine))
+                            TimeLine DaySectionTimeLine = splitIntoDaySection[daySection];
+                            DateTimeOffset timeLineStart = DaySectionTimeLine.Start - (subEvent.getActiveDuration - Utility.OneMinuteTimeSpan);// we want the lowest start that still encompasses the time Day section. So think if day section starts from 12:00pm -4:00pm and the subevent has duration of we want a time 2 hours we want the start time for the subevent to be possibly 10:01Am - 12:01pm  since it still part of the afternoon timeframe
+                            DateTimeOffset timeLineEnd = DaySectionTimeLine.End + (subEvent.getActiveDuration - Utility.OneMinuteTimeSpan); // See comment for "timeLineStart" this only applies to the end
+
+                            TimeLine timeLine = new TimeLine(timeLineStart, timeLineEnd)
+                                .InterferringTimeLine(BoundTimeLine)?
+                                .InterferringTimeLine(postSleepTimeline);
+                            if (timeLine != null)
                             {
-                                BoundTimeLine = timeLine;
+                                if (subEvent.canExistWithinTimeLine(timeLine))
+                                {
+                                    BoundTimeLine = timeLine;
+                                }
                             }
                         }
+                        
                     }
 
                     int index = subEventToIndex[subEvent]; 
@@ -4951,7 +4956,7 @@ namespace TilerCore
             List<SubCalendarEvent> WillFitSubEvents = OtherSubeventsToBeScheduledAroundPinnedToStartRestrictedEvents.Where(subEvent => subEvent.canExistWithinTimeLine(freeTimeLine)).ToList();
 
             Dictionary<string, SubCalendarEvent> ID_To_SubEvent_Nonrestricted = new Dictionary<string, SubCalendarEvent>();
-            Dictionary<string, SubCalendarEvent> ID_To_SubEvent_Restricted = new Dictionary<string, SubCalendarEvent>();
+            Dictionary<string, SubCalendarEvent> ID_To_SubEvent_Restricted = new Dictionary<string, SubCalendarEvent>();// holds a dictionary of the id of a subevent to subevents(same subevent) that must exist within the timeline
             HashSet<SubCalendarEvent> DistinctSubEvents = new HashSet<SubCalendarEvent>();
             HashSet<SubCalendarEvent> DistinctSubEvents_Restricted = new HashSet<SubCalendarEvent>();
             HashSet<SubCalendarEvent> DistincEvents_NoRestricted = new HashSet<SubCalendarEvent>();
@@ -5025,9 +5030,8 @@ namespace TilerCore
 
 
             List<SubCalendarEvent> restricted_EventsOrderedBasedOnDeadline = PinnedToStartRestrictedEvents.OrderByDescending(obj => obj.End).ToList();// be care full of pin to start in the system in reverse restricted
-            List<DateTimeOffset> DeadLinesWithinFreeTimeLine = DeadLineWithinFreeTime.Keys.ToList();
+            List<DateTimeOffset> DeadLinesWithinFreeTimeLine = DeadLineWithinFreeTime.Keys.OrderByDescending(obj => obj).ToList();
             List<DateTimeOffset> DeadLinesWithinFreeTimeLine_cpy;
-            DeadLinesWithinFreeTimeLine = DeadLinesWithinFreeTimeLine.OrderByDescending(obj => obj).ToList();
             List<SubCalendarEvent> ID_To_SubEvent_Restricted_List = ID_To_SubEvent_Restricted.OrderByDescending(obj => obj.Value.End).Select(obj => obj.Value).ToList();
 
             DateTimeOffset restrictedStopper;
@@ -5241,10 +5245,10 @@ namespace TilerCore
             return retavlue;
         }
 
-        List<SubCalendarEvent> OptimizeArrangeOfSubCalEvent(TimeLine PertinentFreeSpot, Tuple<SubCalendarEvent, SubCalendarEvent> BoundaryCalendarEvent, Dictionary<TimeSpan, Dictionary<string, SubCalendarEvent>> PossibleEntries_Cpy, double occupancy = 0, bool Aggressive = true)
+        List<SubCalendarEvent> OptimizeArrangeOfSubCalEvent(TimeLine PertinentFreeSpot, Tuple<SubCalendarEvent, SubCalendarEvent> BoundaryCalendarEvent, Dictionary<TimeSpan, Dictionary<string, SubCalendarEvent>> PossibleEntries_Cpy, double occupancy = 0)
         {
             List<mTuple<int, TimeSpanWithStringID>> CompatibleWithList = new List<mTuple<int, TimeSpanWithStringID>>();
-            Dictionary<TimeSpan, Dictionary<string, SubCalendarEvent>> PossibleSubCalEvents = removeSubCalEventsThatCantWorkWithTimeLine(PertinentFreeSpot, PossibleEntries_Cpy, true);
+            Dictionary<TimeSpan, Dictionary<string, SubCalendarEvent>> PossibleSubCalEvents = removeSubCalEventsThatCantWorkWithTimeLine(PertinentFreeSpot, PossibleEntries_Cpy);
             Dictionary<DateTimeOffset, Dictionary<TimeSpan, int>> DeadLineTODuration = new Dictionary<DateTimeOffset, Dictionary<TimeSpan, int>>();
             foreach (KeyValuePair<TimeSpan, Dictionary<string, SubCalendarEvent>> eachKeyValuePair in PossibleSubCalEvents)//populates PossibleEntries_Cpy. I need a copy to maintain all references to PossibleEntries
             {
@@ -5288,23 +5292,11 @@ namespace TilerCore
             {
                 var3_beforeBreak.Add(AllPossibleBestFit_beforeBreak);
                 List<Dictionary<TimeSpan, mTuple<int, TimeSpanWithStringID>>> AveragedBestFit = OptimizeForDeadLine(DeadLineTODuration, PertinentFreeSpot.TimelineSpan);
-                //Dictionary<TimeSpan, Dictionary<string, SubCalendarEvent>> removedImpossibleValue = removeSubCalEventsThatCantWorkWithTimeLine(PertinentFreeSpot, PossibleSubCalEvents, true);
                 Dictionary<TimeSpan, Dictionary<string, SubCalendarEvent>> removedImpossibleValue = removeSubCalEventsThatCantWorkWithTimeLine(PertinentFreeSpot, PossibleSubCalEvents);
-                List<List<SubCalendarEvent>> PossibleSubCaleventsCobination = generateCombinationForDifferentEntries_NoMtuple(AveragedBestFit[0], removedImpossibleValue);
-
-                if (Aggressive)
+                LowestCostArrangement = generateCombinationForDifferentEntries_NoMtuple(AveragedBestFit[0], removedImpossibleValue).FirstOrDefault(subEventOrder => Utility.PinSubEventsToEnd(subEventOrder, PertinentFreeSpot));
+                if (LowestCostArrangement == null)
                 {
-                    if (PossibleSubCaleventsCobination.Count > 1)
-                    {
-                        PossibleSubCaleventsCobination.OrderByDescending(obj => obj.Count);
-
-                        PossibleSubCaleventsCobination = PossibleSubCaleventsCobination.GetRange(0, 1);
-                    }
-                }
-
-                if (PossibleSubCaleventsCobination.Count >= 1)
-                {
-                    LowestCostArrangement = getArrangementWithLowestDistanceCost(PossibleSubCaleventsCobination, BoundaryCalendarEvent);
+                    LowestCostArrangement = new List<SubCalendarEvent>();
                 }
             }
 

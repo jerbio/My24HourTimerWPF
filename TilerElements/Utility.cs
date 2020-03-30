@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using NodaTime;
 
+
 namespace TilerElements
 {
     public static class Utility
@@ -1695,5 +1696,14 @@ namespace TilerElements
             return RetValue;
         }
 
+        public static List<TilerEvent>order(IEnumerable<TilerEvent> tilerEvents)
+        {
+            return tilerEvents.OrderBy(o => o.Start).ToList();
+        }
+
+        public static List<EventName>names(IEnumerable<TilerEvent> tilerEvents)
+        {
+            return tilerEvents.Select(o => o.getName).ToList();
+        }
     }
 }

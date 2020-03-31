@@ -26,7 +26,7 @@ namespace TilerElements
         public readonly static TimeSpan OneDayTimeSpan = TimeSpan.FromDays(1);
         public readonly static TimeSpan QuarterHourTimeSpan = TimeSpan.FromMinutes(15);
         public readonly static TimeSpan OneHourTimeSpan = TimeSpan.FromHours(1);
-        public readonly static TimeSpan TwentyFourHoursAlmostTImeSpan = TimeSpan.FromDays(1).Subtract(TimeSpan.FromMinutes(1));
+        public readonly static TimeSpan TwentyFourHoursAlmostTimeSpan = TimeSpan.FromDays(1).Subtract(TimeSpan.FromMinutes(1));
         public readonly static TimeSpan ZeroTimeSpan = TimeSpan.FromTicks(0);
         public readonly static TimeSpan OneMinuteTimeSpan = TimeSpan.FromMinutes(1);
         public readonly static TimeSpan NegativeTimeSpan = TimeSpan.FromTicks(-1);

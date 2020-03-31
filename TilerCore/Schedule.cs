@@ -3668,21 +3668,21 @@ namespace TilerCore
                 }
                 TimeLine revisedTimeLineUpdatedForOverlappingEvents = new TimeLine(timeLineStart, timeLineEnd);// this ensures the subEvents are verified to fit within the timeline. This handles cases where an event might cross over say a rigid whih belongs to multiple days
 
-
-                if(!Utility.PinSubEventsToEnd(orderedsubEventsInTimeline, revisedTimeLineUpdatedForOverlappingEvents))
-                {
-                    throw new Exception("Bug in optimize days and conflict resolution");
-                }
-                TimeSpan activeTimeSpan = revisedTimeLineUpdatedForOverlappingEvents.TimelineSpan - TimeSpan.FromTicks(revisedTimeLineUpdatedForOverlappingEvents.TimelineSpan.Ticks / 3);
+                TimeSpan activeTimeSpan = Utility.TwentyFourHoursAlmostTimeSpan - TimeSpan.FromTicks(Utility.TwentyFourHoursAlmostTimeSpan.Ticks / 3);
                 if (revisedTimeLineUpdatedForOverlappingEvents.TimelineSpan >= activeTimeSpan)
                 {
+                    if (!Utility.PinSubEventsToEnd(orderedsubEventsInTimeline, revisedTimeLineUpdatedForOverlappingEvents))
+                    {
+                        throw new Exception("Bug in optimize days and conflict resolution");
+                    }
+
                     TimeLine activeTimeline = new TimeLine(revisedTimeLineUpdatedForOverlappingEvents.End.Subtract(activeTimeSpan), revisedTimeLineUpdatedForOverlappingEvents.End);
                     TimeLine sleepTimeline = new TimeLine(revisedTimeLineUpdatedForOverlappingEvents.Start, activeTimeline.Start);
                     List<SubCalendarEvent> sleepSubevents = new List<SubCalendarEvent>();
                     List<SubCalendarEvent> activeTimeframeSubevents = new List<SubCalendarEvent>();
                     foreach (SubCalendarEvent subevent in orderedsubEventsInTimeline)
                     {
-                        if (!subevent.isLocked && sleepTimeline.IsTimeLineWithin(subevent.StartToEnd))// we want locked events to be part of the active time frame events because they cannot be moved
+                        if (sleepTimeline.IsTimeLineWithin(subevent.StartToEnd))// we want locked events to be part of the active time frame events because they cannot be moved
                         {
                             sleepSubevents.Add(subevent);
                         }

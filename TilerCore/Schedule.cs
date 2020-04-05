@@ -2692,6 +2692,8 @@ namespace TilerCore
             }
             for (int i = 0; i < AllDayTimeLine.Count; i++)
             {
+                Stopwatch eachLoop = new Stopwatch();
+                eachLoop.Start();
                 DayTimeLine EachDay = AllDayTimeLine[i];
                 HashSet<string> ids = new HashSet<string>(EachDay.getSubEventsInTimeLine().Select(subEvent => subEvent.getId));
                 Location beginLocation, endLocation = home;
@@ -2758,8 +2760,9 @@ namespace TilerCore
                         durationToTimeSpan.Add(subEvent.Location, durationQutient);
                     }
                 }
-                
 
+                Stopwatch locationValidation = new Stopwatch();
+                locationValidation.Start();
                 foreach (SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => sub.isLocationAmbiguous && !sub.IsValidationRun).OrderBy(o=>o.Score))
                 {
                     if(
@@ -2804,14 +2807,23 @@ namespace TilerCore
                         }
                     }
                 }
+                locationValidation.Stop();
+                Debug.WriteLine("validation Loop" + locationValidation.Elapsed.ToString());
                 OptimizedPath dayPath = new OptimizedPath(EachDay, beginLocation, endLocation, home);
 
+                Stopwatch eachDayOPtimization = new Stopwatch();
+                eachDayOPtimization.Start();
                 dayToOPtimization.AddOrUpdate(EachDay, dayPath, ((key, oldValue) => { return dayPath; }));
                 dayPath.OptimizePath();
+                eachDayOPtimization.Stop();
+                //Debug.WriteLine("each day optimization" + eachDayOPtimization.Elapsed.ToString());
                 foreach (SubCalendarEvent subEvent in dayPath.UnassignedSubEvents)
                 {
                     EachDay.RemoveSubEvent(subEvent.Id);
                 }
+                eachLoop.Stop();
+                //Debug.WriteLine("each day Loop" + eachLoop.Elapsed.ToString());
+                
             }
             return dayToOPtimization;
         }
@@ -3355,7 +3367,8 @@ namespace TilerCore
                 ).ToList();
 
             AllCalEvents = scoreAndCalEvent.OrderBy(calEvent => calEvent.Item1).Select(calEvent => calEvent.Item2).ToList();
-
+            var allCalEventCall  = new Stopwatch();
+            allCalEventCall.Start();
             while ((totalDaysAvailable > 0) && (totalNumberOfEvents > 0))
             {
                 long OldNumberOfAssignedElements = -1;
@@ -3474,6 +3487,8 @@ namespace TilerCore
                 totalDaysAvailable = (ulong)CalendarEvent.getUsableDaysTotal(AllCalEvents);
                 totalNumberOfEvents = (ulong)CalendarEvent.getTotalUndesignatedEvents(AllCalEvents);
             }
+            allCalEventCall.Stop();
+            Debug.WriteLine("allCalEventCall pull took" + allCalEventCall.Elapsed.ToString());
 
 
             List<SubCalendarEvent> orderedByStart = TotalActiveEvents.OrderBy(obj => obj.Start).ToList();
@@ -3502,9 +3517,9 @@ namespace TilerCore
 
 
             List<DayTimeLine> OptimizedDays = new List<DayTimeLine>();
-            var OptimizationWatch = new Stopwatch();
+            var allOptimizationWatch = new Stopwatch();
             IDictionary<DayTimeLine, OptimizedPath> dayToOptimization = null;
-            OptimizationWatch.Start();
+            allOptimizationWatch.Start();
             if (Optimize && this.OptimizationEnabled)
             {
                 HashSet<SubCalendarEvent> undesignatedAfterSubeventsOptimization = new HashSet<SubCalendarEvent>();
@@ -3595,8 +3610,12 @@ namespace TilerCore
                         }
                         
                     }
-                    
+
+                    var spaceByTime = new Stopwatch();
+                    spaceByTime.Start();
                     Tuple<SubCalendarEvent, SubCalendarEvent, SubCalendarEvent> wakeAndSleepEvents = spaceEventsByTravelTime(EachDay, spaceSubEvents);
+                    spaceByTime.Stop();
+                    Debug.WriteLine("each space by time" + spaceByTime.Elapsed.ToString());
 
                     if (wakeAndSleepEvents.Item1 != null)
                     {
@@ -3626,7 +3645,7 @@ namespace TilerCore
             }
 
             List<DayTimeLine> moveToMiddleDays = AllDayTimeLine.Skip(OptimizedDayLimit).ToList();
-            Debug.WriteLine("Optimization took" + OptimizationWatch.Elapsed.ToString());
+            Debug.WriteLine("Total optimization took" + allOptimizationWatch.Elapsed.ToString());
             foreach (DayTimeLine dayTimeLine in moveToMiddleDays)
             {
                 tryToCentralizeSubEvents(dayTimeLine);

@@ -27,6 +27,7 @@ using GoogleApi;
 using GoogleApi.Entities.Places.Search.Find.Response;
 using Newtonsoft.Json;
 using GoogleMaps = GoogleMapsApi.GoogleMaps;
+using System.Diagnostics;
 
 namespace TilerElements
 {
@@ -181,6 +182,7 @@ namespace TilerElements
         /// </summary>
         /// <param name="anchorLocation"></param>
         /// <returns></returns>
+
         internal Location validate(Location anchorLocation, DateTimeOffset currentTime)
         {
             Location retValue = null;
@@ -194,6 +196,8 @@ namespace TilerElements
                         _LocationValidation = new LocationValidation();
                     }
                     _LocationValidation.instantiate();
+                    Stopwatch googleRemoteWatch = new Stopwatch();
+                    googleRemoteWatch.Start();
                     double distance = Location.calculateDistance(anchorLocation, _LocationValidation.getAverageLocation, -1);
                     double distaceVariance = Math.Abs(_LocationValidation.AverageDistanceFromAverageLocation - distance);
                     double varianceLocationValidation = _LocationValidation.AverageVariance;
@@ -214,8 +218,13 @@ namespace TilerElements
 
                         var response = GooglePlaces.FindSearch.Query(placesFindSearchRequest);
                         GoogleApi.Entities.Places.Search.Find.Response.Candidate candidate = null;
+
+                        Debug.WriteLine("Google remote request to -> " + _TaggedAddress);
+
                         if (response.Status == GoogleApi.Entities.Common.Enums.Status.Ok)
                         {
+                            googleRemoteWatch.Stop();
+                            Debug.WriteLine("Google remote request took " + googleRemoteWatch.Elapsed.ToString());
                             candidate = response.Candidates.FirstOrDefault();
                             retValue = new LocationJson();
                             if (candidate != null)
@@ -263,6 +272,7 @@ namespace TilerElements
                         }
                         else
                         {
+                            googleRemoteWatch.Stop();
                             Console.WriteLine(response.Status);
                             retValue = new Location();
                             retValue.initializeWithNull();
@@ -287,7 +297,7 @@ namespace TilerElements
 
         public bool IsLookUpAddressSameAsGoogleMapsAddress(string inputAddress, string lookUpAddress)
         {
-            return false;
+            return inputAddress.ToLower() == lookUpAddress.ToLower();
             string inputAddressNoPunctuation = new string(inputAddress.Where(c => !char.IsPunctuation(c) && !char.IsWhiteSpace(c)).ToArray());
             string lookUpAddressNoPunctuation = new string(lookUpAddress.Where(c => !char.IsPunctuation(c) && !char.IsWhiteSpace(c)).ToArray());
 

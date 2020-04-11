@@ -2046,7 +2046,14 @@ namespace TilerElements
 
         virtual protected void updateCalculationStartToEnd()
         {
-            _CalculationStartToEnd = new TimeLine(this.CalculationStart, this.End);
+            DateTimeOffset start = this.CalculationStart;
+            DateTimeOffset end = this.End;
+            if (this.CalculationStart > this.End)
+            {
+                end = this.CalculationStart;
+            }
+
+            _CalculationStartToEnd = new TimeLine(start, end);
         }
 
         protected override void updateStartTime(DateTimeOffset time)

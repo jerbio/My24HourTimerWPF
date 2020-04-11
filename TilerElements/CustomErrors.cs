@@ -28,6 +28,8 @@ namespace TilerElements
             Repeated_Tile_Is_Not_Current_Tile = 40000012,
             TilerConfig_Repeat_Third_Party = 400000013,
             TilerConfig_Repeat_Procrastinate_All = 400000014,
+            Creation_Config_RepeatEnd_Earlier_Than_RepeatStart = 400000015,
+            Creation_Config_End_Earlier_Than_Start = 400000016,
             Preview_Calendar_Type_Not_Supported = 50000001,
             Preview_Calendar_Not_Enough_Data_For_Preview = 50000002
         };
@@ -50,6 +52,8 @@ namespace TilerElements
             {Errors.Repeated_Tile_Is_Not_Current_Tile, "Cannot repeat Tile that is not current active tile" },
             {Errors.TilerConfig_Repeat_Third_Party, "Cannot repeat Third party event" },
             {Errors.TilerConfig_Repeat_Procrastinate_All, "Cannot repeat Procrastinate All Tile" },
+            {Errors.Creation_Config_RepeatEnd_Earlier_Than_RepeatStart, "Repetition end time has to be later than repetition start " },
+            {Errors.Creation_Config_End_Earlier_Than_Start, "End time has to be later than start " },
             {Errors.Preview_Calendar_Type_Not_Supported, "Selected Calendar is not supported for manipulation" },
             {Errors.Preview_Calendar_Not_Enough_Data_For_Preview, "Tiler cannot confidently make prediction" },
             {Errors.UserEmailNotMatchingSubEvent, "Event ids do not match the event assosciated emails. Check if there is an email for each event id" }

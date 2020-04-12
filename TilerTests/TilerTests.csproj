@@ -137,14 +137,6 @@
     <Compile Include="LogControlDump.cs" />
     <Compile Include="LogControlTest.cs" />
     <Compile Include="LogicTest.cs" />
-    <Compile Include="Migrations\202004120006171_autoDeadlineSuggestion.cs" />
-    <Compile Include="Migrations\202004120006171_autoDeadlineSuggestion.Designer.cs">
-      <DependentUpon>202004120006171_autoDeadlineSuggestion.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202004121144572_implemntedFullDeadlineSuggestion.cs" />
-    <Compile Include="Migrations\202004121144572_implemntedFullDeadlineSuggestion.Designer.cs">
-      <DependentUpon>202004121144572_implemntedFullDeadlineSuggestion.cs</DependentUpon>
-    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
     <Compile Include="Models\TestGoogleEvent.cs" />
@@ -322,14 +314,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="WagTapCalLogs\69e9166b-6754-46cf-b384-66c5557048f8\" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\202004120006171_autoDeadlineSuggestion.resx">
-      <DependentUpon>202004120006171_autoDeadlineSuggestion.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202004121144572_implemntedFullDeadlineSuggestion.resx">
-      <DependentUpon>202004121144572_implemntedFullDeadlineSuggestion.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

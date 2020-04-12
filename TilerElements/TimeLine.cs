@@ -382,7 +382,18 @@ namespace TilerElements
         {
             set
             {
-                ActiveTimeSlots = value.ToDictionary(o => o.Id, o => o);
+                ActiveTimeSlots = new Dictionary<string, BusyTimeLine>();
+                foreach(var busyTimeLine in value)
+                {
+                    if(!ActiveTimeSlots.ContainsKey(busyTimeLine.Id))
+                    {
+                        ActiveTimeSlots.Add(busyTimeLine.Id, busyTimeLine);
+                    }
+                    else
+                    {
+                        ActiveTimeSlots[busyTimeLine.Id] = busyTimeLine;
+                    }
+                }
             }
             get
             {

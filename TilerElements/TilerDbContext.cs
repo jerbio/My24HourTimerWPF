@@ -53,6 +53,7 @@ namespace TilerElements
         virtual public System.Data.Entity.DbSet<ScheduleDump> ScheduleDumps{ get; set; }
         virtual public System.Data.Entity.DbSet<EventPreference> EventPreferences { get; set; }
         virtual public System.Data.Entity.DbSet<TravelCache> TravelCaches { get; set; }
+        virtual public System.Data.Entity.DbSet<Analysis> Analysis { get; set; }
 
         public static TilerDbContext Create()
         {

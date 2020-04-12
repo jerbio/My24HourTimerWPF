@@ -118,6 +118,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Analysis.cs" />
     <Compile Include="BlobSubCalendarEvent.cs" />
     <Compile Include="BusyTimeLine.cs" />
     <Compile Include="CalendarEvent.cs" />

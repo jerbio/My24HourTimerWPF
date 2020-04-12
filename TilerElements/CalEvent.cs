@@ -37,5 +37,6 @@ namespace TilerElements
         public bool isReadOnly { get; set; }
         public string Notes { get; set; }
         public bool canDoNow { get; set; } = false;
+        public long SuggestedDeadline { get; set; }
     }
 }

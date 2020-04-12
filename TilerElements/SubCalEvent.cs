@@ -22,6 +22,7 @@ namespace TilerElements
         public string SubCalAddress { get; set; }
         public long SubCalCalEventStart { get; set; }
         public long SubCalCalEventEnd { get; set; }
+        public long SuggestedDeadline { get; set; }
         public double SubCalEventLong { get; set; }
         public double SubCalEventLat { get; set; }
 

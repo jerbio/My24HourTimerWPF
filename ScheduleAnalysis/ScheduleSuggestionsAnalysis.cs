@@ -8,7 +8,8 @@ namespace ScheduleAnalysis
 {
     public class ScheduleSuggestionsAnalysis
     {
-        List<SubCalendarEvent> OrderedSubEvents;
+        List<SubCalendarEvent> OrderedActiveSubEvents;
+        List<SubCalendarEvent> AllSubEvent;
         HashSet<CalendarEvent> MovableCalEvents = new HashSet<CalendarEvent>();
         HashSet<CalendarEvent> ReduceableCalEvents = new HashSet<CalendarEvent>();
         HashSet<CalendarEvent> RigidCalEvents = new HashSet<CalendarEvent>();
@@ -17,14 +18,17 @@ namespace ScheduleAnalysis
         ILookup<string, SubCalendarEvent> calEventId_to_Subevents;
         ReferenceNow Now;
         TilerUser TilerUser;
-        const double activeRatioBound = 0.30;
-        public ScheduleSuggestionsAnalysis(IEnumerable<SubCalendarEvent> subEvents, ReferenceNow now, TilerUser tilerUser)
+        static readonly double DefaultActivationRatio = 0.30;
+        double activeRatioBound;// The active ratio limit for when over scheduling is assumed to occur
+        public ScheduleSuggestionsAnalysis(IEnumerable<SubCalendarEvent> subEvents, ReferenceNow now, TilerUser tilerUser, Analysis analysis = null)
         {
-            HashSet<SubCalendarEvent> subEventSet = new HashSet<SubCalendarEvent>(subEvents);
-            OrderedSubEvents = subEventSet.OrderBy(o=>o.Start).ThenBy(o=>o.End).ToList();
+            HashSet<SubCalendarEvent> allSubEvent = new HashSet<SubCalendarEvent>(subEvents);
+            HashSet<SubCalendarEvent> subEventsForEvaluation = new HashSet<SubCalendarEvent>(allSubEvent.Where(subEvent => subEvent.isActive && subEvent.getActiveDuration <= Utility.LeastAllDaySybeventDuration));
+            OrderedActiveSubEvents = subEventsForEvaluation.OrderBy(o=>o.Start).ThenBy(o=>o.End).ToList();
             subEventId_to_Subevents = new Dictionary<string, SubCalendarEvent>();
-            calEventId_to_Subevents = OrderedSubEvents.ToLookup(obj => obj.SubEvent_ID.getAllEventDictionaryLookup.ToString());
-            foreach (SubCalendarEvent subEvent in subEventSet)
+            activeRatioBound = analysis?.CompletionRate ?? DefaultActivationRatio;
+            calEventId_to_Subevents = OrderedActiveSubEvents.ToLookup(obj => obj.SubEvent_ID.getAllEventDictionaryLookup.ToString());
+            foreach (SubCalendarEvent subEvent in subEventsForEvaluation)
             {
                 subEventId_to_Subevents.Add(subEvent.Id, subEvent);
                 if(!calEventId_to_CalEvents.ContainsKey(subEvent.SubEvent_ID.getAllEventDictionaryLookup))
@@ -49,6 +53,7 @@ namespace ScheduleAnalysis
                     }
                 }
             }
+            this.AllSubEvent = allSubEvent.ToList();
             Now = now;
             TilerUser = tilerUser;
         }
@@ -94,9 +99,9 @@ namespace ScheduleAnalysis
 
         public void Analyze()
         {
-            if(this.OrderedSubEvents!=null && this.OrderedSubEvents.Count > 0)
+            if(this.OrderedActiveSubEvents!=null && this.OrderedActiveSubEvents.Count > 0)
             {
-                List<SubCalendarEvent> allCompletedSubevents = OrderedSubEvents.Where(o => o.getIsComplete && o.isParentComplete).ToList();
+                List<SubCalendarEvent> allCompletedSubevents = OrderedActiveSubEvents.Where(o => o.getIsComplete && o.isParentComplete).ToList();
                 List<SubCalendarEvent> completedSubeventsOrderedByStart = allCompletedSubevents.OrderBy(sub => sub.CompletionTime).ToList();
                 SubCalendarEvent firstCompletedSubevent = completedSubeventsOrderedByStart.First();
                 TimeSpan oneWeekSpan = Utility.OneWeekTimeSpan;
@@ -128,12 +133,12 @@ namespace ScheduleAnalysis
         /// Function simply tries to detect if there is an over scheduling and then matches each subevent to the week where they are currently overscheduled
         /// </summary>
         /// <param name="currentNow"></param>
-        public List<TimeLine> temp_fix(DateTimeOffset currentNow)
+        public List<TimeLine> getOverLoadedWeeklyTimelines(DateTimeOffset currentNow)
         {
             List<TimeLine> retValue = new List<TimeLine>();
-            if(this.OrderedSubEvents.Count >0)
+            if(this.OrderedActiveSubEvents.Count >0)
             {
-                DateTimeOffset lastSubEventDate = this.OrderedSubEvents.Last().End;
+                DateTimeOffset lastSubEventDate = this.OrderedActiveSubEvents.Last().End;
                 const int numberOfDaysInWeek = 7;
                 var dayOfWeek_timeline = Now.getDayOfTheWeek(currentNow);
                 DayOfWeek dayOfWeek = dayOfWeek_timeline.Item1;
@@ -159,7 +164,7 @@ namespace ScheduleAnalysis
                 TimeLine compoundTimeline = weekTimeline.StartToEnd;
                 eachWeekTimeline.Add(weekTimeline);
                 compoundedWeekTimelines.Add(weekTimeline);
-                List<SubCalendarEvent> subeEventsForProcessing = this.OrderedSubEvents.Where(o => o.Start > weekTimeline.Start).ToList();
+                List<SubCalendarEvent> subeEventsForProcessing = this.OrderedActiveSubEvents.Where(o => o.Start > weekTimeline.Start).ToList();
 
                 for (int i = 0; i>=0 && i< subeEventsForProcessing.Count;i++)
                 {
@@ -224,6 +229,7 @@ namespace ScheduleAnalysis
         {
             ScheduleSuggestion suggestion = new ScheduleSuggestion();
             List<TimeLine> orderedTimelines = timelines.OrderBy(o => o.End).ToList();
+            List<TimeLine> allTimelines = timelines.OrderBy(o => o.End).ToList();
             for (int i=0; i< orderedTimelines.Count;i++)
             {
                 TimeLine timeLine = orderedTimelines[i];
@@ -244,7 +250,7 @@ namespace ScheduleAnalysis
                 }
                 evaluateCalendarEvents(calEvents);
                 List<CalendarEvent> calEventOrderedByScore = calEvents.OrderByDescending(calEvent => calEvent.EventScore).ToList();
-                List<TimeLine> possibleTimeLines = orderedTimelines.Skip(i + 1).ToList();
+                List<TimeLine> possibleTimeLines = allTimelines.Skip(i + 1).ToList();
                 foreach (CalendarEvent calEvent in calEventOrderedByScore)
                 {
                     if(timeLine.ActiveRatio > activeRatioBound)
@@ -259,23 +265,28 @@ namespace ScheduleAnalysis
                         }
                         else
                         {
-                            TimeLine finalTimeLine = orderedTimelines.Last();
+                            TimeLine finalTimeLine = allTimelines.Last();
                             TimeSpan totalActiveSpan = TimeSpan.FromTicks(finalTimeLine.OccupiedSlots.Sum(timeLineObj => timeLineObj.TotalActiveSpan.Ticks));// I chose not to use TimeLine.TotalActiveSpan because it conflict timeslots are merged intoone
                             TimeSpan updatedTimeLineTimeSpan = TimeSpan.FromTicks((long)(((double)totalActiveSpan.Ticks) / activeRatioBound));
 
                             updatedTimeLine = new TimeLine(finalTimeLine.Start, finalTimeLine.Start.Add(updatedTimeLineTimeSpan));
 
                             long dayIndex = Now.getDayIndexFromStartOfTime(updatedTimeLine.End);
-                            DateTimeOffset dayBeginningOfEndTime = Now.getClientBeginningOfDay(dayIndex);// This  extra logic is to ensure we get an 11:59pm time frame
+                            // The  extra logic below is to ensure we get an 11:59pm time frame. The extra + 1 is to ensure the situation where a an event has a sleep time of 10:00Am 
+                            // This would mean for the day (4/12/2020) the dayTimeline will be from 4/12/2020 10:00Am - 4/12/2020 9:59AM.
+                            // Using the above daytimeline and a UTC timezone a call for Now.getClientBeginningOfDay will return 4/12/2020 12:00AM 
+                            // This is because given a start time of 4/12/2020 the client which is in UTC will have the same start time 4/12/2020 12:00AM  which is not within the dayTimeline
+                            DateTimeOffset dayBeginningOfEndTime = Now.getClientBeginningOfDay(dayIndex + 1);
                             updatedTimeLine = new TimeLine(updatedTimeLine.Start, dayBeginningOfEndTime.AddDays(1).AddMinutes(-1));
                             updatedTimeLine.AddBusySlots(finalTimeLine.OccupiedSlots);
                             var totalTicks = (calEvent.ActiveSubEvents.Sum(o => o.RangeSpan.Ticks));
-                            orderedTimelines.Add(updatedTimeLine);
-                            possibleTimeLines.Add(updatedTimeLine);
                             foreach (BusyTimeLine busyTimeLine in calEvent.ActiveSubEvents.Select(o => o.ActiveSlot))
                             {
                                 timeLine.RemoveBusySlots(busyTimeLine);
                             }
+                            allTimelines.Add(updatedTimeLine);
+                            possibleTimeLines.Add(updatedTimeLine);
+                            
                         }
 
                         if(updatedTimeLine.End > calEvent.End)

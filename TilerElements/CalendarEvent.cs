@@ -1456,12 +1456,15 @@ namespace TilerElements
             return retValue;
         }
 
-
-
         virtual public void resetDesignationAllActiveEventsInCalculables()
         {
             CalculableSubEvents.AsParallel().ForAll(obj => obj.undesignate());
             return;
+        }
+
+        virtual public void resetAutoDeadlineSuggestion()
+        {
+            _DeadlineSuggestion = new DateTimeOffset();
         }
 
         public virtual void InitialCalculationLookupDays(IEnumerable<DayTimeLine> RelevantDays, ReferenceNow now = null)

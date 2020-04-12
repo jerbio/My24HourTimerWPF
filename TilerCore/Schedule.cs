@@ -2072,7 +2072,7 @@ namespace TilerCore
                 .SelectMany(calEvent => calEvent.ActiveSubEvents).AsParallel().
                 Where(subEvent => subEvent.getCalculationRange.End > NowTIme).
                 Where(subEvent => (subEvent.isRigid && subEvent.ActiveSlot.IsDateTimeWithin(NowTIme)) || subEvent.ActiveSlot.doesTimeLineInterfere(CalculationTImeLine) || subEvent.canExistWithinTimeLine(CalculationTImeLine) || subEvent.getIsProcrastinateCalendarEvent));
-            TimeSpan maxSubeventSpan = Utility.OneDayTimeSpan.Add(-Utility.OneMinuteTimeSpan);
+            TimeSpan maxSubeventSpan = Utility.LeastAllDaySybeventDuration;
             ConcurrentBag<SubCalendarEvent> subEvents = new ConcurrentBag<SubCalendarEvent>();
             subEventsInSet.AsParallel().ForAll((subEvent) =>
             {
@@ -3301,6 +3301,7 @@ namespace TilerCore
                     obj.resetDesignationAllActiveEventsInCalculables();
                     obj.InitialCalculationLookupDays(AllDayTimeLine, this.Now);
                     obj.updateCompletionTimeArray(Now);
+                    obj.resetAutoDeadlineSuggestion();
                 });
             TotalActiveEvents.AsParallel().ForAll(obj => obj.enableCalculationMode());
             #region presetupAllRigids_Ensures_They_Are_All_Assigned

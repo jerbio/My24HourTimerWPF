@@ -45,7 +45,7 @@ namespace TilerElements
         {
             get
             {
-                return _TimeLines?.Values.Where(obj => obj != null).ToArray();
+                return (_TimeLines ?? (_TimeLines = new SubEventDictionary<string, UpdateTimeLine>()))?.Values.Where(obj => obj != null).ToArray();
             }
             
         }

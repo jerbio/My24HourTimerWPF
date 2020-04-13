@@ -71,18 +71,6 @@ namespace ScheduleAnalysis
                     TimeLineHistory timeLineHistory = calEvent.TimeLineHistory;
                     int timelineChangeCount = timeLineHistory.TimeLines.Count+1;
                     List<double> featureArgs = new List<double>() { ratio, timelineChangeCount };
-                    if (timeLineHistory.TimeLines.Count > 0)
-                    {
-                        TimeSpan averageTimeSpanHistoryChange = TimeSpan.FromMilliseconds(timeLineHistory.TimeLines.Average(o => o.TimelineSpan.TotalMilliseconds));
-                        TimeLine timeLine = calEvent.InitialTimeLine;
-                        double totalDays = Math.Round(averageTimeSpanHistoryChange.TotalDays)+1;
-                        double eventsPerDay = calEvent.NumberOfSplit / totalDays;
-                        featureArgs.Add(eventsPerDay);
-                    }
-                    else
-                    {
-                        featureArgs.Add(0);
-                    }
                     multiDimensionalVar.Add(featureArgs);
                     
                 }
@@ -282,7 +270,10 @@ namespace ScheduleAnalysis
                             var totalTicks = (calEvent.ActiveSubEvents.Sum(o => o.RangeSpan.Ticks));
                             foreach (BusyTimeLine busyTimeLine in calEvent.ActiveSubEvents.Select(o => o.ActiveSlot))
                             {
-                                timeLine.RemoveBusySlots(busyTimeLine);
+                                foreach(var OtherTimelines in orderedTimelines.Skip(i))// updates each timeline busy content
+                                {
+                                    OtherTimelines.RemoveBusySlots(busyTimeLine);
+                                }
                             }
                             allTimelines.Add(updatedTimeLine);
                             possibleTimeLines.Add(updatedTimeLine);

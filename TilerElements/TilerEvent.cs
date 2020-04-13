@@ -255,7 +255,7 @@ namespace TilerElements
 
         virtual public void resetDeadlineSuggestion()
         {
-            _DeadlineSuggestion = DateTimeOffset.FromUnixTimeMilliseconds(0);
+            _DeadlineSuggestion = Utility.JSStartTime;
         }
 
         /// <summary>

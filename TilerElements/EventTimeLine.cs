@@ -99,7 +99,7 @@ namespace TilerElements
                 return TimeLineEventID;
             }
         }
-        public DateTimeOffset StartOfTimeLine
+        public virtual DateTimeOffset StartOfTimeLine
         {
             get
             {
@@ -110,7 +110,7 @@ namespace TilerElements
                 this.StartTime = value;
             }
         }
-        public DateTimeOffset EndOfTimeLine
+        public virtual DateTimeOffset EndOfTimeLine
         {
             get
             {

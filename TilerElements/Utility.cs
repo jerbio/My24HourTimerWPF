@@ -16,7 +16,7 @@ namespace TilerElements
 
         const uint fibonnaciLimit = 150;
         static uint[] fibonacciValues = new uint[fibonnaciLimit];
-        public static DateTimeOffset JSStartTime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, new TimeSpan());
+        public static DateTimeOffset JSStartTime = DateTimeOffset.FromUnixTimeMilliseconds(0);
         public static TimeSpan StartOfTimeTimeSpan = JSStartTime - new DateTimeOffset(0, new TimeSpan());
         public readonly static DateTimeOffset BeginningOfTime = new DateTimeOffset();
         public readonly static DateTimeOffset ProcrastinateStartTime = BeginningOfTime.AddDays(1);
@@ -1404,6 +1404,11 @@ namespace TilerElements
         public static bool isBeginningOfTime(this DateTimeOffset time)
         {
             return time == BeginningOfTime;
+        }
+
+        public static bool isBeginningOfJsTime(this DateTimeOffset time)
+        {
+            return time == JSStartTime;
         }
 
         public static List<double> EvaluateTimeLines(IEnumerable<TimelineWithSubcalendarEvents> timeLines, TilerEvent tilerEvent)

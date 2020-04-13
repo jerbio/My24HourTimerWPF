@@ -1267,6 +1267,14 @@ namespace TilerElements
         }
 
 
+        public override bool IsFromRecurring
+        {
+            get
+            {
+                return this.ParentCalendarEvent?.IsFromRecurring ?? base.IsFromRecurring;
+            }
+        }
+
         public double fittability
         {
             get

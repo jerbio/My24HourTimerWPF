@@ -163,6 +163,12 @@ namespace TilerElements
 
         public void assignSectorBasedOnTIme(DateTimeOffset time, TimeLine daytimeLine)
         {
+            var daySector = getDaySectorByTime(time, daytimeLine);
+            setCurrentdayPreference(daySector);
+        }
+
+        public DaySection getDaySectorByTime(DateTimeOffset time, TimeLine daytimeLine)
+        {
             _PreferenceOrder = _DefaultOrder.ToList();
             daytimeLine = daytimeLine ?? fullDayTImeLine;
             if (daytimeLine.IsDateTimeWithin(time))
@@ -174,7 +180,7 @@ namespace TilerElements
                 Tuple<int, DaySection, bool, TimeLine> daySection = _PreferenceOrder.Where(obj => obj.Item2 != DaySection.None).Where(obj => obj.Item4.IsDateTimeWithin(time)).First();
                 if (daySection != null)
                 {
-                    setCurrentdayPreference(daySection.Item2);
+                    return daySection.Item2;
                 }
                 else
                 {
@@ -185,7 +191,6 @@ namespace TilerElements
             {
                 throw new Exception("Cannot work with a datetimeoffset that is outside the deay preference for this object");
             }
-
         }
 
         public void rejectCurrentPreference()

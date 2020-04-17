@@ -689,7 +689,7 @@ namespace TilerCore
             }
 
 
-
+            //SubEventsInrespectivepaths = SubEventsInrespectivepaths.OrderBy(o => o.Start).ToList();
             List<SubCalendarEvent> orderedPathStiched = OrderedOptimizedGroupings.SelectMany(obj => obj.getEventsForStitichingWithOtherOptimizedGroupings()).ToList();
             int insertionIndex = 0;
             for(int i=0; i< orderedPathStiched.Count;i++ )// this loop inserts all the respective elements around the already pinned events 
@@ -825,11 +825,9 @@ namespace TilerCore
                     {
                         SubCalendarEvent eachSubCalendarEvent = SubEvents[i];
                         TimeOfDayPreferrence.DaySection DaySection = eachSubCalendarEvent.getDayPreference().getCurrentDayPreference();
-                        if (DaySection == TimeOfDayPreferrence.DaySection.None)
-                        {
-                            eachSubCalendarEvent.getDayPreference().assignSectorBasedOnTIme(eachSubCalendarEvent.Start, AllTimeLine);
-                            DaySection = eachSubCalendarEvent.getDayPreference().getCurrentDayPreference();
-                        }
+                        AllGroupings[DaySection].removeFromStitched(eachSubCalendarEvent);
+                        eachSubCalendarEvent.getDayPreference().assignSectorBasedOnTIme(eachSubCalendarEvent.Start, AllTimeLine);
+                        DaySection = eachSubCalendarEvent.getDayPreference().getCurrentDayPreference();
                         if (DaySection != TimeOfDayPreferrence.DaySection.Disabled)
                         {
                             AllGroupings[DaySection].AddToStitchedEvents(eachSubCalendarEvent);

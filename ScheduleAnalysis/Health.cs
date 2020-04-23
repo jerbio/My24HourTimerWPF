@@ -41,7 +41,7 @@ namespace ScheduleAnalysis
             EvaluationSpan = evaluationSpan;
             CalculationTimeline = new TimeLine(startTime, startTime.Add(EvaluationSpan));
             _orderedByStartThenEndSubEvents = SubEvents.Where(SubEvent => SubEvent.StartToEnd.InterferringTimeLine(CalculationTimeline) != null).OrderBy(obj => obj.Start).ThenByDescending(tilerEvent => tilerEvent.End).ToList();
-            _conflictingEvents = Utility.getConflictingEvents(_orderedByStartThenEndSubEvents);
+            _conflictingEvents = Utility.getConflictingEvents(_orderedByStartThenEndSubEvents).Item1;
             Now = now;
             this._TravelMode = travelmode;
         }
@@ -251,7 +251,7 @@ namespace ScheduleAnalysis
 
         public Tuple<double, ILookup<long, BlobSubCalendarEvent>> evaluateConflicts()
         {
-            List<BlobSubCalendarEvent> conflictingEvents = Utility.getConflictingEvents(_orderedByStartThenEndSubEvents);
+            List<BlobSubCalendarEvent> conflictingEvents = Utility.getConflictingEvents(_orderedByStartThenEndSubEvents).Item1;
             double conflictTotal = conflictingEvents.Sum(blob => blob.getSubCalendarEventsInBlob().Count());
             ILookup<long, BlobSubCalendarEvent> subEventLookup = conflictingEvents.ToLookup(obj => Now.getClientBeginningOfDay( Now.getDayIndexFromStartOfTime(obj.Start)).ToUnixTimeMilliseconds(), obj => obj);
             Tuple<double, ILookup<long, BlobSubCalendarEvent>> retValue = new Tuple<double, ILookup<long, BlobSubCalendarEvent>>(conflictTotal, subEventLookup);

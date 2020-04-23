@@ -57,7 +57,7 @@ namespace TilerTests
             schedule.AddToScheduleAndCommit(testHomeRigidCalEvent);
             schedule.WriteFullScheduleToOutlook();
             IEnumerable<SubCalendarEvent> allSubEvents = schedule.getAllActiveSubEvents();
-            List<BlobSubCalendarEvent> conflicts = Utility.getConflictingEvents(allSubEvents);
+            List<BlobSubCalendarEvent> conflicts = Utility.getConflictingEvents(allSubEvents).Item1;
             Assert.AreEqual(0, conflicts.Count);
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
@@ -69,7 +69,7 @@ namespace TilerTests
             testHomeNonRigidCalEvent.AllSubEvents.AsParallel().ForAll((eachSubEvent) => eachSubEvent.LocationId = homeLocation.Id);
             schedule.AddToScheduleAndCommit(testHomeNonRigidCalEvent);
             allSubEvents = schedule.getAllActiveSubEvents();
-            conflicts = Utility.getConflictingEvents(allSubEvents);
+            conflicts = Utility.getConflictingEvents(allSubEvents).Item1;
             Assert.AreEqual(0, conflicts.Count);
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
@@ -77,7 +77,7 @@ namespace TilerTests
             CalendarEvent testWorkNonRigidCalEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(nonRigidHoursSpan), new TilerElements.Repetition(), encompassingTimeline.Start, encompassingTimeline.End, 1, false, workLocation);
             schedule.AddToScheduleAndCommit(testWorkNonRigidCalEvent);
             allSubEvents = schedule.getAllActiveSubEvents();
-            conflicts = Utility.getConflictingEvents(allSubEvents);
+            conflicts = Utility.getConflictingEvents(allSubEvents).Item1;
             Assert.AreEqual(0, conflicts.Count);
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
@@ -86,7 +86,7 @@ namespace TilerTests
             CalendarEvent testGymNonRigidCalEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(nonRigidTwoHoursSpan), new TilerElements.Repetition(), encompassingTimeline.Start, encompassingTimeline.End, 1, false, gymLocation);
             schedule.AddToSchedule(testGymNonRigidCalEvent);
             allSubEvents = schedule.getAllActiveSubEvents();
-            conflicts = Utility.getConflictingEvents(allSubEvents);
+            conflicts = Utility.getConflictingEvents(allSubEvents).Item1;
             Assert.AreEqual(0, conflicts.Count);
         }
 

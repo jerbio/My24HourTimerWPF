@@ -1062,7 +1062,37 @@ namespace TilerElements
         {
             get
             {
-                bool retValue = this.ParentCalendarEvent.getIsComplete || this.ParentCalendarEvent.isParentComplete;
+                bool retValue = false;
+                if(this.ParentCalendarEvent!=null)
+                {
+                    retValue = this.ParentCalendarEvent.getIsComplete;
+                }
+                if(!retValue && this.ParentCalendarEvent != null)
+                {
+                    if (!retValue && this.ParentCalendarEvent.RepeatParentEvent != null)
+                    {
+                        retValue |= this.ParentCalendarEvent.isParentComplete;
+                        if (!retValue && this.ParentCalendarEvent.RepeatParentEvent != null)
+                        {
+                            retValue |= this.ParentCalendarEvent.RepeatParentEvent.getIsComplete;
+                            retValue |= this.ParentCalendarEvent.RepeatParentEvent.isParentComplete;
+                        }
+                    }
+                }
+
+                if (!retValue && this.RepeatParentEvent != null)
+                {
+                    retValue |= this.RepeatParentEvent.isParentComplete;
+                }
+                return retValue;
+            }
+        }
+
+        public override bool getIsComplete
+        {
+            get
+            {
+                bool retValue = base.getIsComplete || this.isParentComplete;
                 return retValue;
             }
         }

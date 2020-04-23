@@ -819,9 +819,10 @@ namespace TilerElements
             _LastCompletionTime.Remove(index, timeString.Count());
         }
 
-        virtual public void SetCompletion(bool CompletionStatus, bool goDeep = false)
+        virtual public void SetCompletion(bool CompletionStatus, ReferenceNow now, bool goDeep = false)
         {
             _Complete = CompletionStatus;
+            _CompletionTime = now.constNow;
             if (IsFromRecurringAndNotChildRepeatCalEvent)
             {
                 if (goDeep)
@@ -829,7 +830,7 @@ namespace TilerElements
                     IEnumerable<CalendarEvent> AllrepeatingCalEvents = _EventRepetition.RecurringCalendarEvents();
                     foreach (CalendarEvent eachCalendarEvent in AllrepeatingCalEvents)
                     {
-                        eachCalendarEvent.SetCompletion(CompletionStatus, goDeep);
+                        eachCalendarEvent.SetCompletion(CompletionStatus, now, goDeep);
                     }
                 }
             }

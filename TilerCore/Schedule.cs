@@ -1098,7 +1098,7 @@ namespace TilerCore
         public async Task<CustomErrors> markAsCompleteCalendarEventAndReadjust(string EventId)
         {
             CalendarEvent CalendarEventTOBeRemoved = getCalendarEvent(EventId);
-            CalendarEventTOBeRemoved.SetCompletion(true);
+            CalendarEventTOBeRemoved.SetCompletion(true, this.Now);
 
             if (CalendarEventTOBeRemoved.isLocked)
             {
@@ -2072,7 +2072,7 @@ namespace TilerCore
                 .SelectMany(calEvent => calEvent.ActiveSubEvents).AsParallel().
                 Where(subEvent => subEvent.getCalculationRange.End > NowTIme).
                 Where(subEvent => (subEvent.isRigid && subEvent.ActiveSlot.IsDateTimeWithin(NowTIme)) || subEvent.ActiveSlot.doesTimeLineInterfere(CalculationTImeLine) || subEvent.canExistWithinTimeLine(CalculationTImeLine) || subEvent.getIsProcrastinateCalendarEvent));
-            TimeSpan maxSubeventSpan = Utility.LeastAllDaySybeventDuration;
+            TimeSpan maxSubeventSpan = Utility.LeastAllDaySubeventDuration;
             ConcurrentBag<SubCalendarEvent> subEvents = new ConcurrentBag<SubCalendarEvent>();
             subEventsInSet.AsParallel().ForAll((subEvent) =>
             {
@@ -2181,7 +2181,7 @@ namespace TilerCore
             willNotFit = NoFreeSpaceToConflictingSpaces.Keys;
 #endif
 
-            List<BlobSubCalendarEvent> AllConflictingEvents = Utility.getConflictingEvents(AllRigidEvents.Concat(willNotFit));
+            List<BlobSubCalendarEvent> AllConflictingEvents = Utility.getConflictingEvents(AllRigidEvents.Concat(willNotFit)).Item1;
             retValue = retValue.Except(AllConflictingEvents.SelectMany(obj => obj.getSubCalendarEventsInBlob())).ToList();
             retValue = retValue.Concat(AllConflictingEvents).ToList();
 
@@ -2554,7 +2554,7 @@ namespace TilerCore
             DictionaryWithBothCalendarEventIDAndListOfInterferringSubEvents = generateDictionaryWithBothCalendarEventIDAndListOfInterferringSubEvents(ArrayOfInterferringSubEvents.ToList(), NoneCommitedCalendarEventsEvents);//generates a dictionary of a Calendar Event and the interferring events in the respective Calendar event
 
 
-            List<BlobSubCalendarEvent> interFerringBlob = Utility.getConflictingEvents(RigidSubCalendarEvents);
+            List<BlobSubCalendarEvent> interFerringBlob = Utility.getConflictingEvents(RigidSubCalendarEvents).Item1;
 
             List<CalendarEvent> SortedInterFerringCalendarEvents_Deadline = DictionaryWithBothCalendarEventIDAndListOfInterferringSubEvents.Keys.ToList();
             SortedInterFerringCalendarEvents_Deadline = SortedInterFerringCalendarEvents_Deadline.OrderBy(obj => obj.End).ToList();
@@ -3652,7 +3652,7 @@ namespace TilerCore
                 tryToCentralizeSubEvents(dayTimeLine);
             }
 
-            List<BlobSubCalendarEvent> afterPathOptimizationConflictingEvetns = Utility.getConflictingEvents(TotalActiveEvents.OrderBy(obj => obj.Start).ToList());
+            List<BlobSubCalendarEvent> afterPathOptimizationConflictingEvetns = Utility.getConflictingEvents(TotalActiveEvents.OrderBy(obj => obj.Start).ToList()).Item1;
             List<SubCalendarEvent> ordereByStartTime = TotalActiveEvents.OrderBy(SubEvent => SubEvent.Start).ToList();
             return totalNumberOfEvents;
         }

@@ -30,7 +30,7 @@ namespace TilerTests
             schedule.WriteFullScheduleToOutlook();
 
             var conflict = Utility.getConflictingEvents(subEventsWithinDayOfCOnflict);
-            Assert.AreEqual(conflict.Count, 1);
+            Assert.AreEqual(conflict.Item1.Count, 1);
         }
 
         [TestMethod]
@@ -49,7 +49,7 @@ namespace TilerTests
             HashSet<SubCalendarEvent> subEventsWithinDayOfCOnflict = new HashSet<SubCalendarEvent>(schedule.getAllActiveSubEvents().Where(suEvent => suEvent.StartToEnd.doesTimeLineInterfere(dayTimeLineWithConflict_StartToEnd)));
             
             var conflict = Utility.getConflictingEvents(subEventsWithinDayOfCOnflict);
-            Assert.AreEqual(conflict.Count, 1);
+            Assert.AreEqual(conflict.Item1.Count, 1);
         }
 
         [TestMethod]
@@ -69,7 +69,7 @@ namespace TilerTests
             schedule.WriteFullScheduleToOutlook();
 
             var conflict = Utility.getConflictingEvents(subEventsWithinDayOfCOnflict);
-            Assert.AreEqual(conflict.Count, 0);
+            Assert.AreEqual(conflict.Item1.Count, 0);
         }
 
         [TestMethod]
@@ -88,7 +88,7 @@ namespace TilerTests
 
             schedule.WriteFullScheduleToOutlook();
 
-            var conflict = Utility.getConflictingEvents(subEventsWithinDayOfCOnflict).OrderByDescending(o=>o.End).ToList();
+            var conflict = Utility.getConflictingEvents(subEventsWithinDayOfCOnflict).Item1.OrderByDescending(o=>o.End).ToList();
             Assert.AreEqual(3, conflict.Count);
             var conflictingBlob = conflict.First();
             Assert.IsTrue(3 >= conflictingBlob.getSubCalendarEventsInBlob().Count);
@@ -110,7 +110,7 @@ namespace TilerTests
 
             schedule.WriteFullScheduleToOutlook();
 
-            var conflict_02_05 = Utility.getConflictingEvents(subEventsWithinDayOfCOnflict_02_05).OrderByDescending(o => o.End).ToList();
+            var conflict_02_05 = Utility.getConflictingEvents(subEventsWithinDayOfCOnflict_02_05).Item1.OrderByDescending(o => o.End).ToList();
             Assert.AreEqual(0, conflict_02_05.Count);
 
         }
@@ -132,7 +132,7 @@ namespace TilerTests
             HashSet<SubCalendarEvent> subEventsWithinDayOfCOnflict = new HashSet<SubCalendarEvent>(schedule.getAllActiveSubEvents().Where(suEvent => suEvent.StartToEnd.doesTimeLineInterfere(dayTimeLineWithConflict_StartToEnd)));
 
             var conflict = Utility.getConflictingEvents(subEventsWithinDayOfCOnflict);
-            Assert.IsTrue(conflict.Count == 1);
+            Assert.IsTrue(conflict.Item1.Count == 1);
 
             string timeInString_oct_10 = "10/10/2019 12:00:00 PM +00:00";
             DateTimeOffset timeWithinDayWithConflict_oct_10 = DateTimeOffset.Parse(timeInString_oct_10);
@@ -141,7 +141,7 @@ namespace TilerTests
             HashSet<SubCalendarEvent> subEventsWithinDayOfCOnflict_oct_10 = new HashSet<SubCalendarEvent>(schedule.getAllActiveSubEvents().Where(suEvent => suEvent.StartToEnd.doesTimeLineInterfere(dayTimeLineWithConflict_StartToEnd_oct_10)));
 
             var conflict_oct_10 = Utility.getConflictingEvents(subEventsWithinDayOfCOnflict_oct_10);
-            Assert.AreEqual(1, conflict_oct_10.Count);
+            Assert.AreEqual(1, conflict_oct_10.Item1.Count);
         }
 
 
@@ -162,7 +162,7 @@ namespace TilerTests
             HashSet<SubCalendarEvent> subEventsWithinDayOfCOnflict = new HashSet<SubCalendarEvent>(schedule.getAllActiveSubEvents().Where(suEvent => suEvent.StartToEnd.doesTimeLineInterfere(dayTimeLineWithConflict_StartToEnd)));
 
             var conflict =  Utility.getConflictingEvents(subEventsWithinDayOfCOnflict);
-            Assert.AreEqual(conflict.Count, 1);
+            Assert.AreEqual(conflict.Item1.Count, 1);
         }
 
         [TestMethod]
@@ -183,7 +183,7 @@ namespace TilerTests
             schedule.WriteFullScheduleToOutlook();
 
             var conflict = Utility.getConflictingEvents(subEventsWithinDayOfCOnflict);
-            Assert.AreEqual(conflict.Count, 0);
+            Assert.AreEqual(conflict.Item1.Count, 0);
         }
 
         /*
@@ -382,8 +382,8 @@ namespace TilerTests
             SubCalendarEvent subEventB = schedule.getSubCalendarEvent(conflictingSubEventId);
             SubCalendarEvent subEventC = schedule.getSubCalendarEvent(subEventCId);
             List<SubCalendarEvent> conflictingSubEvents = new List<SubCalendarEvent>() { subEventA, subEventB, subEventC };
-            List<BlobSubCalendarEvent> conflictingBlob = Utility.getConflictingEvents(conflictingSubEvents);
-            List<BlobSubCalendarEvent> firstDayConflict = Utility.getConflictingEvents(firstDaySUbevents);
+            List<BlobSubCalendarEvent> conflictingBlob = Utility.getConflictingEvents(conflictingSubEvents).Item1;
+            List<BlobSubCalendarEvent> firstDayConflict = Utility.getConflictingEvents(firstDaySUbevents).Item1;
             Assert.AreEqual(conflictingBlob.Count, 0);
             Assert.AreEqual(firstDayConflict.Count, 0);
 

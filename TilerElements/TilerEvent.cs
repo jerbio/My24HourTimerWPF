@@ -405,7 +405,7 @@ namespace TilerElements
         /// </summary>
         abstract public bool isParentComplete { get; }
 
-        public bool getIsComplete
+        public virtual bool getIsComplete
         {
             get
             {

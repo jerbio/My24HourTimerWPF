@@ -103,7 +103,7 @@ namespace TilerElements
             base.AddBusySlots(MyBusySlot);
         }
 
-        public override bool doesTimeLineInterfere(TimeLine TimeLineData)
+        public override bool doesTimeLineInterfere(IDefinedRange TimeLineData)
         {
             long StartIndex = Now.getDayIndexFromStartOfTime(TimeLineData.Start);
             long EndIndex = Now.getDayIndexFromStartOfTime(TimeLineData.End);
@@ -126,15 +126,6 @@ namespace TilerElements
                             breakOuter = true;
                             break;
                         }
-                        else
-                        {
-                            if (TimeLineData.doesTimeLineInterfere(eachTimeLine))
-                            {
-                                retValue = true;
-                                breakOuter = true;
-                                break;
-                            }
-                        }
                     }
                 }
                 else 
@@ -147,8 +138,7 @@ namespace TilerElements
                             retValue = true;
                             breakOuter = true;
                             break;
-                        }
-                        ;
+                        };
                     }
                 }
 
@@ -229,9 +219,9 @@ namespace TilerElements
         /// </summary>
         /// <param name="MyTimeLine"></param>
         /// <returns></returns>
-        public override bool IsTimeLineWithin(TimeLine MyTimeLine)
+        public override bool IsTimeLineWithin(IDefinedRange MyTimeLine)
         {
-            List<TimeLine> timeFrames = RestrictionInfo.getAllNonPartialTimeFrames(new TimeLine (this.StartTime,this.EndTime)).Where(obj=>obj.TimelineSpan >= MyTimeLine.TimelineSpan).ToList();
+            List<TimeLine> timeFrames = RestrictionInfo.getAllNonPartialTimeFrames(new TimeLine (this.StartTime,this.EndTime)).Where(obj=>obj.TimelineSpan >= MyTimeLine.StartToEnd.TimelineSpan).ToList();
 
             foreach (TimeLine eachTimeLine in timeFrames)
             { 

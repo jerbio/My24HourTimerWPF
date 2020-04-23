@@ -110,14 +110,14 @@ namespace TilerElements
             return null;
         }
 
-        virtual public bool doesTimeLineInterfere(TimeLine timeLine)
+        virtual public bool doesTimeLineInterfere(IDefinedRange timeLine)
         {
             bool retValue = false;
             if((this.Start < timeLine.End) && (this.End > timeLine.Start)){
                 retValue = true;
             }
 
-            if (timeLine.TimelineSpan.Ticks == 0)
+            if (timeLine.Start == timeLine.End)
             {
                 if (this.Start == timeLine.Start || this.End == timeLine.Start)
                 {
@@ -166,7 +166,7 @@ namespace TilerElements
         /// </summary>
         /// <param name="entryTimeLine"></param>
         /// <returns></returns>
-        virtual public bool IsTimeLineWithin(TimeLine entryTimeLine)
+        virtual public bool IsTimeLineWithin(IDefinedRange entryTimeLine)
         {
             if ((entryTimeLine.Start >= StartTime) && (entryTimeLine.End <= EndTime))
             {

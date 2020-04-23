@@ -32,7 +32,7 @@ namespace TilerElements
         public readonly static TimeSpan NegativeTimeSpan = TimeSpan.FromTicks(-1);
         public readonly static TimeSpan SixHourTimeSpan = TimeSpan.FromHours(6);
         public readonly static TimeSpan OneWeekTimeSpan = TimeSpan.FromDays(7);
-        public readonly static TimeSpan LeastAllDaySybeventDuration = Utility.OneDayTimeSpan.Add(-Utility.QuarterHourTimeSpan);
+        public readonly static TimeSpan LeastAllDaySubeventDuration = Utility.OneDayTimeSpan.Add(-Utility.QuarterHourTimeSpan);
         public readonly static TimeSpan SleepSpan = Utility.SixHourTimeSpan;//careful about changing this from six hours because this is used to recalculate the post sleep timeline
         public readonly static string timeZoneString = "America/Denver";
 
@@ -328,11 +328,20 @@ namespace TilerElements
             return InListElements;
         }
 
-
-        public static List<BlobSubCalendarEvent> getConflictingEvents(IEnumerable<SubCalendarEvent> AllSubEvents)
+        /// <summary>
+        /// Function gets all the conflicting subbevents.
+        /// It returns a tuple, 
+        /// Item1 is a list of blobsubcalendarevents. Each blob is a group of subevents conflicting with each other
+        /// Item2 is the none conflicting events in <paramref name="AllSubEvents"/>
+        /// </summary>
+        /// <param name="AllSubEvents"></param>
+        /// <returns></returns>
+        public static Tuple<List<BlobSubCalendarEvent>, HashSet<SubCalendarEvent>> getConflictingEvents(IEnumerable<SubCalendarEvent> AllSubEvents)
         {
-            List<BlobSubCalendarEvent> retValue = new List<BlobSubCalendarEvent>();
-            IEnumerable<SubCalendarEvent> orderedByStart = AllSubEvents.OrderBy(obj => obj.Start).ToList();
+            HashSet<SubCalendarEvent> dedupedSubEvents = new HashSet<SubCalendarEvent>(AllSubEvents);
+            HashSet<SubCalendarEvent> nonConflict = new HashSet<SubCalendarEvent>(dedupedSubEvents);
+            List<BlobSubCalendarEvent> conflictingBlob = new List<BlobSubCalendarEvent>();
+            IEnumerable<SubCalendarEvent> orderedByStart = dedupedSubEvents.OrderBy(obj => obj.Start).ToList();
             List<SubCalendarEvent> AllSubEvents_List = orderedByStart.ToList();
 
 
@@ -346,24 +355,34 @@ namespace TilerElements
                 List<SubCalendarEvent> InterferringEvents = possibleInterferring.AsParallel().Where(obj => obj.StartToEnd.doesTimeLineInterfere(refSubCalendarEvent.StartToEnd)).ToList();
                 if (InterferringEvents.Count() > 0)//this tries to select the rest of 
                 {
-                    List<SubCalendarEvent> ExtraInterferringEVents = new List<SubCalendarEvent>();
+                    bool conflictFound = false;
                     do
                     {
+                        conflictFound = false;
                         AllSubEvents_List = AllSubEvents_List.Except(InterferringEvents).ToList();
                         DateTimeOffset LatestEndTime = InterferringEvents.Max(obj => obj.End);
                         TimeLine possibleInterferringTimeLine = new TimeLine(refSubCalendarEvent.Start, LatestEndTime);
-                        ExtraInterferringEVents = AllSubEvents_List.AsParallel().Where(obj => obj.StartToEnd.doesTimeLineInterfere(possibleInterferringTimeLine)).ToList();
-                        InterferringEvents = InterferringEvents.Concat(ExtraInterferringEVents).ToList();
+                        foreach(SubCalendarEvent subEvent in AllSubEvents_List)
+                        {
+                            if(subEvent.StartToEnd.doesTimeLineInterfere(possibleInterferringTimeLine))
+                            {
+                                nonConflict.Remove(subEvent);
+                                InterferringEvents.Add(subEvent);
+                                conflictFound = true;
+                            }
+                        }
                     }
-                    while (ExtraInterferringEVents.Count > 0);
+                    while (conflictFound);
                     --i;
                 }
                 if (InterferringEvents.Count > 0)
                 {
-                    retValue.Add(new BlobSubCalendarEvent(InterferringEvents));
+                    conflictingBlob.Add(new BlobSubCalendarEvent(InterferringEvents));
                 }
             }
 
+
+            Tuple<List<BlobSubCalendarEvent>, HashSet<SubCalendarEvent>> retValue = new Tuple<List<BlobSubCalendarEvent>, HashSet<SubCalendarEvent>>(conflictingBlob, nonConflict);
             return retValue;
             //Continue from here Jerome you need to write the function for detecting conflicting events and then creating the interferring list.
         }

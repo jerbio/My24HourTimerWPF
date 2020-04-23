@@ -366,7 +366,7 @@ namespace TilerCore
         List<SubCalendarEvent> ConvertInterFerringEventsToBlobAndsubEvent(List<SubCalendarEvent> possiblyConflictingSubEvent)
         {
             HashSet<SubCalendarEvent> allSubEvents = new HashSet<SubCalendarEvent>(possiblyConflictingSubEvent);
-            List<BlobSubCalendarEvent> conflictingSubevent = Utility.getConflictingEvents(allSubEvents);
+            List<BlobSubCalendarEvent> conflictingSubevent = Utility.getConflictingEvents(allSubEvents).Item1;
             foreach (SubCalendarEvent subEvent in conflictingSubevent.SelectMany(blob => blob.getSubCalendarEventsInBlob()))
             {
                 allSubEvents.Remove(subEvent);

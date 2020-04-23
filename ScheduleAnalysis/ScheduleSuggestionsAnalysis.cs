@@ -9,7 +9,7 @@ namespace ScheduleAnalysis
     public class ScheduleSuggestionsAnalysis
     {
         List<SubCalendarEvent> OrderedActiveSubEvents;
-        List<SubCalendarEvent> AllSubEvent;
+        List<SubCalendarEvent> AllSubEvents;
         HashSet<CalendarEvent> MovableCalEvents = new HashSet<CalendarEvent>();
         HashSet<CalendarEvent> ReduceableCalEvents = new HashSet<CalendarEvent>();
         HashSet<CalendarEvent> RigidCalEvents = new HashSet<CalendarEvent>();
@@ -19,11 +19,12 @@ namespace ScheduleAnalysis
         ReferenceNow Now;
         TilerUser TilerUser;
         static readonly double DefaultActivationRatio = 0.30;
+        static readonly double MaxActivationRatio = 0.75;
         double activeRatioBound;// The active ratio limit for when over scheduling is assumed to occur
         public ScheduleSuggestionsAnalysis(IEnumerable<SubCalendarEvent> subEvents, ReferenceNow now, TilerUser tilerUser, Analysis analysis = null)
         {
             HashSet<SubCalendarEvent> allSubEvent = new HashSet<SubCalendarEvent>(subEvents);
-            HashSet<SubCalendarEvent> subEventsForEvaluation = new HashSet<SubCalendarEvent>(allSubEvent.Where(subEvent => subEvent.isActive && subEvent.getActiveDuration <= Utility.LeastAllDaySybeventDuration));
+            HashSet<SubCalendarEvent> subEventsForEvaluation = new HashSet<SubCalendarEvent>(allSubEvent.Where(subEvent => subEvent.isActive && subEvent.getActiveDuration <= Utility.LeastAllDaySubeventDuration));
             OrderedActiveSubEvents = subEventsForEvaluation.OrderBy(o=>o.Start).ThenBy(o=>o.End).ToList();
             subEventId_to_Subevents = new Dictionary<string, SubCalendarEvent>();
             activeRatioBound = analysis?.CompletionRate ?? DefaultActivationRatio;
@@ -53,9 +54,80 @@ namespace ScheduleAnalysis
                     }
                 }
             }
-            this.AllSubEvent = allSubEvent.ToList();
+            this.AllSubEvents = allSubEvent.ToList();
             Now = now;
             TilerUser = tilerUser;
+            updateCompletionRate(this.AllSubEvents);
+
+        }
+
+        public void updateCompletionRate(IEnumerable<SubCalendarEvent> subEvents)
+        {
+            DateTimeOffset timelineStart = Now.getClientBeginningOfDay(Now.getDayIndexFromStartOfTime(Now.constNow.AddDays(-28)));
+            DateTimeOffset timelineEnd = Now.getClientBeginningOfDay(Now.getDayIndexFromStartOfTime(Now.constNow));
+            TimeLine lastFourWeekTimeLine = new TimeLine(timelineStart, timelineEnd);
+            IEnumerable<SubCalendarEvent> completedOrRigidSubEvents = subEvents.Where(subEvent =>
+                (lastFourWeekTimeLine.IsTimeLineWithin(subEvent.StartToEnd) && subEvent.isRigid) ||
+                ((subEvent.getIsComplete && (lastFourWeekTimeLine.IsDateTimeWithin(subEvent.CompletionTime) || lastFourWeekTimeLine.IsTimeLineWithin(subEvent))))).OrderBy(o=>o.Start).ToList();
+
+            List<SubCalendarEvent> completeSubevents = new List<SubCalendarEvent>();
+            List<SubCalendarEvent> rigidSubevents = new List<SubCalendarEvent>();
+
+            List<TimeLine> allWeeks = new List<TimeLine>();
+            DateTimeOffset timelineLimit = timelineStart;
+            while (timelineLimit < timelineEnd)
+            {
+                DateTimeOffset eachTimeLineEnd = timelineLimit.AddDays(7);
+                TimeLine timeline = new TimeLine(timelineLimit, eachTimeLineEnd);
+                allWeeks.Add(timeline);
+                timelineLimit = eachTimeLineEnd;
+            }
+
+            foreach (SubCalendarEvent subEvent in completedOrRigidSubEvents)
+            {
+                if(subEvent.isRigid)
+                {
+                    rigidSubevents.Add(subEvent);
+                }
+                else if (subEvent.getIsComplete)
+                {
+                    completeSubevents.Add(subEvent);
+                }
+            }
+
+            var conflictingAndNonConflictingRigids = Utility.getConflictingEvents(rigidSubevents);
+            List<SubCalendarEvent> nonConflictingRigidSubevents = conflictingAndNonConflictingRigids.Item1.Concat(conflictingAndNonConflictingRigids.Item2).OrderBy(o=>o.Start).ToList();
+
+            HashSet<TimeLine> validWeeks = new HashSet<TimeLine>();// holds the weeks in which non rigid events were actually found. This is crucial because if it's common to have google calendar events that are scheduled in the past
+
+            foreach(SubCalendarEvent subEvent in completeSubevents)
+            {
+                foreach(TimeLine timeline in allWeeks.Where(timeLine => timeLine.doesTimeLineInterfere(subEvent)))
+                {
+                    validWeeks.Add(timeline);
+                    timeline.AddBusySlots(subEvent.ActiveSlot);
+                }
+            }
+
+            foreach (SubCalendarEvent subEvent in nonConflictingRigidSubevents)
+            {
+                foreach (TimeLine timeline in allWeeks.Where(timeLine => timeLine.doesTimeLineInterfere(subEvent)))
+                {
+                    timeline.AddBusySlots(subEvent.ActiveSlot);
+                }
+            }
+
+            if(validWeeks.Count > 0)
+            {
+                TimeSpan totalCompletedSpan = TimeSpan.FromTicks(validWeeks.Sum(o => o.OccupiedSlots.Sum(activeSlot => activeSlot.TimelineSpan.Ticks)));
+                TimeSpan totalWeekSpan= TimeSpan.FromTicks(validWeeks.Sum(o => o.TimelineSpan.Ticks));
+
+                activeRatioBound = totalCompletedSpan.TotalHours / totalWeekSpan.TotalHours;
+                if(activeRatioBound> MaxActivationRatio)
+                {
+                    activeRatioBound = MaxActivationRatio;
+                }
+            }
         }
 
         public void evaluateCalendarEvents(IEnumerable<CalendarEvent>calEvents)

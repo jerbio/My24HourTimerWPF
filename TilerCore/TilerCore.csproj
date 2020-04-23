@@ -74,7 +74,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ScheduleAnalysis\ScheduleAnalysis.csproj">
-      <Project>{bcb7ff8a-4b37-4ce2-9a41-4ccb7d616afd}</Project>
+      <Project>{f948eba6-4b87-4162-b240-a5c19829f889}</Project>
       <Name>ScheduleAnalysis</Name>
     </ProjectReference>
     <ProjectReference Include="..\TilerElements\TilerElements.csproj">

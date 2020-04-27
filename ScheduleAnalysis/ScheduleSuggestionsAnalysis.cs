@@ -201,22 +201,13 @@ namespace ScheduleAnalysis
                 DateTimeOffset lastSubEventDate = this.OrderedActiveSubEvents.Last().End;
                 const int numberOfDaysInWeek = 7;
                 var dayOfWeek_timeline = Now.getDayOfTheWeek(currentNow);
-                DayOfWeek dayOfWeek = dayOfWeek_timeline.Item1;
-                int currentDayOfWeekIndex = (int)dayOfWeek;
-                int beginningOfWeekIndex = (int)TilerUser.BeginningOfWeek;
-                int endOfWeekIndex = ((beginningOfWeekIndex - 1) + numberOfDaysInWeek) % numberOfDaysInWeek;
 
-                int dayDiff = (endOfWeekIndex - currentDayOfWeekIndex);
-                if (dayDiff <= 0)
-                {
-                    dayDiff += numberOfDaysInWeek;
-                }
-
+                int dayDiff = 1;
                 List<TimeLine> eachWeekTimeline = new List<TimeLine>();
                 List<TimeLine> compoundedWeekTimelines = new List<TimeLine>();
 
                 DateTimeOffset timeLineStart = currentNow;
-                DateTimeOffset timeLineEnd = timeLineStart.AddDays(dayDiff);
+                DateTimeOffset timeLineEnd = Now.getDayTimeLineByTime(currentNow).End;
 
                 TimeLine timeline = new TimeLine(timeLineStart, timeLineEnd);
 
@@ -242,7 +233,7 @@ namespace ScheduleAnalysis
                         if(subEvent.End >= weekTimeline.Start)
                         {
                             timeLineStart = weekTimeline.End;
-                            timeLineEnd = timeLineStart.AddDays(7);
+                            timeLineEnd = timeLineStart.AddDays(dayDiff);
                             weekTimeline = new TimeLine(timeLineStart, timeLineEnd);
                             TimeLine previousTimeline = compoundTimeline;
                             compoundTimeline = new TimeLine(currentNow, weekTimeline.End);

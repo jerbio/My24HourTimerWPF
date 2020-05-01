@@ -719,6 +719,146 @@ namespace TilerTests
             Assert.AreEqual(dayBeforeCurrentDayBeforeUpdate.Count(), dayBeforeCurrentDayAfterUpdate.Count());
         }
 
+        /// <summary>
+        /// With any schedule modfication, subevents that have not been marked or deleted within the first twenty four hours should not get updated because user might need to interact with them.
+        /// Schedule modifications should leave them in place
+        /// </summary>
+        [TestMethod]
+        public void eventsWithinCurrentDayTimeLineShouldNotBeReScheduled()
+        {
+            var packet = TestUtility.CreatePacket();
+            UserAccount user = packet.Account;
+            TilerUser tilerUser = packet.User;
+
+            DateTimeOffset iniRefNow = DateTimeOffset.Parse("4/26/2020 12:00:00 AM");
+            DateTimeOffset refNow = iniRefNow;
+
+
+            TimeLine repeatTimeLine = new TimeLine(refNow, refNow.AddDays(28));
+            TimeSpan duration = TimeSpan.FromHours(2);
+            
+            TimeLine calTimeLine = repeatTimeLine.CreateCopy();
+            Repetition repetition = new Repetition(repeatTimeLine, Repetition.Frequency.WEEKLY, calTimeLine);
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            int splitCount = 7;
+            CalendarEvent testEvent0 = TestUtility
+                .generateCalendarEvent(tilerUser, duration, repetition, repeatTimeLine.Start, repeatTimeLine.End, splitCount, false);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
+            Schedule.AddToScheduleAndCommitAsync(testEvent0).Wait();
+
+
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Repetition repetition1 = new Repetition(repeatTimeLine, Repetition.Frequency.WEEKLY, calTimeLine);
+            CalendarEvent testEvent1 = TestUtility
+                .generateCalendarEvent(tilerUser, duration, repetition1, repeatTimeLine.Start, repeatTimeLine.End, splitCount, false);
+
+            
+
+            
+
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.AddToScheduleAndCommitAsync(testEvent1).Wait();
+            Schedule.populateDayTimeLinesWithSubcalendarEvents();
+
+            long dayIndex = Schedule.Now.getDayIndexFromStartOfTime(refNow.AddDays(4));
+            DayTimeLine dayTimeline = Schedule.Now.getDayTimeLineByDayIndex(dayIndex);
+
+            DateTimeOffset dayTimeLineStart = dayTimeline.Start;
+            DateTimeOffset secondRefnow = Utility.MiddleTime(dayTimeline);
+            List<SubCalendarEvent> AllSubeventsInDay = dayTimeline.getSubEventsInTimeLine();
+            Assert.IsTrue(AllSubeventsInDay.Count >= 1);
+            List<SubCalendarEvent> subEventsBeforeNow = Schedule.getAllActiveSubEvents().Where(o => o.Start < dayTimeLineStart).ToList();
+            Assert.IsTrue(subEventsBeforeNow.Count >= 1);
+            List<SubCalendarEvent> subEventsInSameDayTimeLineButBeforeNow = AllSubeventsInDay.Where(subEvent => subEvent.Start < secondRefnow).ToList();
+            Assert.IsTrue(subEventsInSameDayTimeLineButBeforeNow.Count >= 1);
+
+            Assert.IsTrue(subEventsInSameDayTimeLineButBeforeNow.All(o => dayTimeline.doesTimeLineInterfere(o)));
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            
+            
+            Repetition repetition2 = new Repetition(repeatTimeLine, Repetition.Frequency.WEEKLY, calTimeLine);
+            CalendarEvent testEvent2 = TestUtility
+                .generateCalendarEvent(tilerUser, duration, repetition2, repeatTimeLine.Start, repeatTimeLine.End, splitCount, false);
+            Schedule = new TestSchedule(user, secondRefnow);
+            Schedule.AddToScheduleAndCommitAsync(testEvent2).Wait();
+
+            
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, secondRefnow);
+            var subEventsInDayTimeline =  Schedule.getAllActiveSubEvents().Where(subEvent => dayTimeline.doesTimeLineInterfere(subEvent)).ToDictionary(subEvent => subEvent.Start, subEvent => subEvent);
+            foreach(SubCalendarEvent subEvent in subEventsInSameDayTimeLineButBeforeNow)
+            {
+                Assert.IsTrue(subEventsInDayTimeline.ContainsKey(subEvent.Start));
+            }
+
+
+            List<SubCalendarEvent> subEventsBeforeNowAfterUpdate = Schedule.getAllActiveSubEvents().Where(o => o.Start < dayTimeLineStart).ToList();
+            Assert.IsTrue(subEventsBeforeNowAfterUpdate.Count == 0);
+        }
+
+        [TestMethod]
+        public void eventsOutsideScheduleBoundsShouldNotBeReScheduled()
+        {
+            var packet = TestUtility.CreatePacket();
+            UserAccount user = packet.Account;
+            TilerUser tilerUser = packet.User;
+
+            DateTimeOffset iniRefNow = DateTimeOffset.Parse("4/26/2020 12:00:00 AM");
+            DateTimeOffset refNow = iniRefNow;
+
+            int durationCount = 100;
+            TimeLine repeatTimeLine = new TimeLine(refNow, refNow.AddDays(durationCount));
+            TimeSpan duration = TimeSpan.FromHours(durationCount);
+
+            TimeLine calTimeLine = repeatTimeLine.CreateCopy();
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            int splitCount = durationCount;
+            CalendarEvent testEvent0 = TestUtility
+                .generateCalendarEvent(tilerUser, duration, new Repetition(), repeatTimeLine.Start, repeatTimeLine.End, splitCount, false);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
+            Schedule.AddToScheduleAndCommitAsync(testEvent0).Wait();
+
+
+            Schedule.populateDayTimeLinesWithSubcalendarEvents();
+
+            long dayIndex = Schedule.Now.getDayIndexFromStartOfTime(refNow.AddDays(25));
+            DayTimeLine dayTimeline = Schedule.Now.getDayTimeLineByDayIndex(dayIndex);
+
+            DateTimeOffset dayTimeLineStart = dayTimeline.Start;
+            DateTimeOffset secondRefnow = Utility.MiddleTime(dayTimeline);
+            TimeLine ignoreTimeLine = new TimeLine(refNow, secondRefnow.AddDays(Utility.defaultBeginDay));
+            List<SubCalendarEvent> IgnoreSubevents = Schedule.getAllActiveSubEvents().Where(o=>ignoreTimeLine.doesTimeLineInterfere(o)).ToList();
+
+
+            Repetition repetition2 = new Repetition(repeatTimeLine, Repetition.Frequency.WEEKLY, calTimeLine);
+            CalendarEvent testEvent2 = TestUtility
+                .generateCalendarEvent(tilerUser, duration, repetition2, repeatTimeLine.Start, repeatTimeLine.End, splitCount, false);
+            Schedule = new TestSchedule(user, secondRefnow);
+            Schedule.AddToScheduleAndCommitAsync(testEvent2).Wait();
+
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, secondRefnow);
+            var subEventsInDayTimeline = Schedule.getAllActiveSubEvents().Where(subEvent => ignoreTimeLine.doesTimeLineInterfere(subEvent)).ToDictionary(subEvent => subEvent.Start, subEvent => subEvent);
+            Assert.AreEqual(0, subEventsInDayTimeline.Count);//The default DB logcontrol retrieval uses the Utility.defaultBeginDay, with respect to Now.constNow, as its start in the timeline from the DB. So anything earlier should not be pulled from the DB
+
+            foreach (SubCalendarEvent subEvent in IgnoreSubevents)
+            {
+                SubCalendarEvent retrievedSubEvent = TestUtility.getSubEventById(subEvent.Id, user);
+                Assert.IsTrue(retrievedSubEvent.StartToEnd.isEqualStartAndEnd(subEvent.StartToEnd));
+            }
+            
+            
+        }
+
         public List<DateTimeOffset> getCorrespondingWeekdays(TimeLine timeLine, DayOfWeek dayOfWeek)
         {
             List<DateTimeOffset> retValue = new List<DateTimeOffset>();

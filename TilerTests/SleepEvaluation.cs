@@ -42,6 +42,7 @@ namespace TilerTests
             DayTimeLine dayForCalculaition = allValidDays[1];
             CalendarEvent newCalEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), dayForCalculaition.Start, dayForCalculaition.End, 1, false, location: location);
             Schedule.AddToScheduleAndCommit(newCalEvent);
+            Schedule.populateDayTimeLinesWithSubcalendarEvents();
             dayForCalculaition = now.getAllDaysForCalc().ToList()[1];
             TimeSpan atLeastSleepSpan = TimeSpan.FromHours(6);
             SubCalendarEvent subEvent = dayForCalculaition.getSubEventsInTimeLine().OrderBy(sub => sub.End).First();

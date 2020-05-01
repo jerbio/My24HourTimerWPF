@@ -468,6 +468,21 @@ namespace TilerElements
             }
         }
 
+
+        /// <summary>
+        /// Getter returns a timeline in which the start is the FirstDaytimeline Start and LastDaytimeline End
+        /// </summary>
+        public TimeLine StartToEnd
+        {
+            get
+            {
+                DateTimeOffset start = AllDays[0].Start;
+                DateTimeOffset end = AllDays.Last().End;
+                TimeLine retValue = new TimeLine(start, end);
+                return retValue;
+            }
+        }
+
     }
 
 }

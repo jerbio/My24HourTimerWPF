@@ -108,30 +108,5 @@ namespace TilerTests
         {
             return base.AddToScheduleAndCommitAsync(NewEvent, optimizeSchedule);
         }
-
-
-        //public Health getScheduleQuality(TimeLine timeLine)
-        //{
-        //    Health retValue = this.getScheduleQuality(timeLine, this.Now);
-        //    return retValue;
-        //}
-
-        //public Health getScheduleQuality(TimeLine timeLine, ReferenceNow refNow)
-        //{
-        //    Health retValue = new Health(this.getAllCalendarEvents(), timeLine.Start, timeLine.TimelineSpan, refNow, this.getHomeLocation);
-        //    return retValue;
-        //}
-
-        public void populateDayTimeLinesWithSubcalendarEvents()
-        {
-            IEnumerable<CalendarEvent> calendarEvents = getAllCalendarEvents().Where(calEvent => calEvent.isActive);
-            foreach(SubCalendarEvent subevent in  calendarEvents.SelectMany(calEvent => calEvent.ActiveSubEvents))
-            {
-                DayTimeLine dayTimeLineStart  = Now.getDayTimeLineByTime(subevent.Start);
-                DayTimeLine dayTimeLineAfter = Now.getDayTimeLineByTime(subevent.Start);
-                dayTimeLineStart.AddToSubEventList(subevent);
-                dayTimeLineAfter.AddToSubEventList(subevent);
-            }
-        }
     }
 }

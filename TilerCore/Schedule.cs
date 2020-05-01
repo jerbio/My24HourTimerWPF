@@ -2232,7 +2232,9 @@ namespace TilerCore
                     SubEvent.Location = CurrentLocation;
                 }
             }
-            Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluation(MyCalendarEvent, NoneCommitedCalendarEventsEvents, InterferringWithNowFlag, NotDoneYet, new TimeLine(Now.constNow.AddDays(-90), Now.ComputationRange.End));
+
+            TimeLine timeline = new TimeLine(Now.constNow.AddDays(util.defaultBeginDay), Now.ComputationRange.End);
+            Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluation(MyCalendarEvent, NoneCommitedCalendarEventsEvents, InterferringWithNowFlag, new HashSet<SubCalendarEvent>(), timeline);
             List<SubCalendarEvent> collectionOfInterferringSubCalEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToList();
             List<SubCalendarEvent> ArrayOfInterferringSubEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToList();
             foreach(var subEvent in ArrayOfInterferringSubEvents.Concat(allInterferringSubCalEventsAndTimeLine.Item4))
@@ -2368,6 +2370,24 @@ namespace TilerCore
 
         }
 
+        public void populateDayTimeLinesWithSubcalendarEvents()
+        {
+            IEnumerable<CalendarEvent> calendarEvents = getAllCalendarEvents().Where(calEvent => calEvent.isActive);
+            TimeLine startToEnd = Now.StartToEnd;
+            foreach (SubCalendarEvent subevent in calendarEvents.SelectMany(calEvent => calEvent.ActiveSubEvents))
+            {
+                
+                if (startToEnd.doesTimeLineInterfere( subevent))
+                {
+                    DayTimeLine dayTimeLineStart = Now.getDayTimeLineByTime(subevent.Start);
+                    DayTimeLine dayTimeLineAfter = Now.getDayTimeLineByTime(subevent.Start);
+                    dayTimeLineStart.AddToSubEventList(subevent);
+                    dayTimeLineAfter.AddToSubEventList(subevent);
+                }
+                
+            }
+        }
+
         string BuildStringIndexForMatch(BusyTimeLine PrecedingTimeLineEvent, BusyTimeLine NextTimeLineEvent)
         {
             EventID MyEventID = new EventID(PrecedingTimeLineEvent.TimeLineID);
@@ -2462,7 +2482,8 @@ namespace TilerCore
                 }
             }
 
-            Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluation(MyCalendarEvent, NoneCommitedCalendarEventsEvents, InterferringWithNowFlag, NotDoneYet, new TimeLine(Now.constNow.AddDays(-90), Now.getAllDaysCount((uint)NumberOfDays).Last().End));
+            TimeLine timeline = new TimeLine(Now.constNow.AddDays(util.defaultBeginDay), Now.getAllDaysCount((uint)NumberOfDays).Last().End);
+            Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluation(MyCalendarEvent, NoneCommitedCalendarEventsEvents, InterferringWithNowFlag, new HashSet<SubCalendarEvent>(), timeline);
             //Tuple<TimeLine, IEnumerable<SubCalendarEvent>, CustomErrors, IEnumerable<SubCalendarEvent>> allInterferringSubCalEventsAndTimeLine = getAllInterferringEventsAndTimeLineInCurrentEvaluationOldDesign(MyCalendarEvent, NoneCommitedCalendarEventsEvents, InterferringWithNowFlag, ExemptFromCalculation, new TimeLine(Now.constNow.AddDays(-90), Now.ComputationRange.End));
             List<SubCalendarEvent> collectionOfInterferringSubCalEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToList();
             List<SubCalendarEvent> ArrayOfInterferringSubEvents = allInterferringSubCalEventsAndTimeLine.Item2.ToList();

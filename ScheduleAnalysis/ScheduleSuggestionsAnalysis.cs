@@ -216,7 +216,15 @@ namespace ScheduleAnalysis
                 eachWeekTimeline.Add(weekTimeline);
                 compoundedWeekTimelines.Add(weekTimeline);
                 List<SubCalendarEvent> subeEventsForProcessing = this.OrderedActiveSubEvents.Where(o => o.Start > weekTimeline.Start).ToList();
+                TimeLine testTimeline = null;
+                if(testTimeline!=null)
+                {
+                    var testActiveSubEvents = this.OrderedActiveSubEvents.Where(o => testTimeline.doesTimeLineInterfere(o)).ToList();
+                    testTimeline.AddBusySlots(testActiveSubEvents.Select(o=>o.ActiveSlot));
 
+
+
+                }
                 for (int i = 0; i>=0 && i< subeEventsForProcessing.Count;i++)
                 {
                     SubCalendarEvent subEvent = subeEventsForProcessing[i];

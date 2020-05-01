@@ -57,16 +57,23 @@ namespace TilerTests
             DateTimeOffset secondRefNow = middleOfSubevent;
             schedule = new TestSchedule(user, secondRefNow);
             Location location = TestUtility.getAdHocLocations()[0];
+            TimeLine secondSubEventStartAndEnd = secondSubevent.StartToEnd;
             schedule.RepeatEvent(secondSubevent.Id, location);
             schedule.persistToDB().Wait();
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             repetitionInstance_DB = TestUtility.getCalendarEventById(firstSubEvent.Id, user);
-            List<SubCalendarEvent> subEventsAfterRepetition = repetitionInstance_DB.ActiveSubEvents.OrderBy(o => o.Start).ToList();
-            thirdSubCalendarEvent = subEventsAfterRepetition[2];
+            secondSubevent = repetitionInstance_DB.getSubEvent(secondSubevent.Id);
+            Assert.IsTrue(secondSubevent.isRepetitionLocked);
+
+            secondSubEventStartAndEnd.isEqualStartAndEnd(secondSubevent.StartToEnd);
+
+            List<SubCalendarEvent> subEventsAfterRepetition = repetitionInstance_DB.ActiveSubEvents.Where(o=>o.Start >= secondSubevent.End).OrderBy(o => o.Start).ToList();// need to get subevents after the recently repetion locked event
+            thirdSubCalendarEvent = subEventsAfterRepetition.First();
             Assert.IsTrue(thirdSubCalendarEvent.isRepetitionLocked);
             Assert.IsTrue(secondSubevent.End == thirdSubCalendarEvent.Start);
             Assert.AreEqual(repetitionInstance_DB.NumberOfSplit, splitCount);
+            TimeLine thirdSubEventStartAndEnd = thirdSubCalendarEvent.StartToEnd;
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             schedule = new TestSchedule(user, secondRefNow);
@@ -77,9 +84,10 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             repetitionInstance_DB = TestUtility.getCalendarEventById(firstSubEvent.Id, user);
             Assert.AreEqual(repetitionInstance_DB.NumberOfSplit, splitCount);
-            List <SubCalendarEvent> subEventsAfterRepetitionSecond = repetitionInstance_DB.ActiveSubEvents.OrderBy(o => o.Start).ToList();
-            thirdSubCalendarEvent = subEventsAfterRepetitionSecond[2];
-            SubCalendarEvent fourtSubCalendarEvent = subEventsAfterRepetitionSecond[3];
+            List <SubCalendarEvent> subEventsAfterRepetitionSecond = repetitionInstance_DB.ActiveSubEvents.Where(o => o.Start >= secondSubevent.End).OrderBy(o => o.Start).ToList();
+            thirdSubCalendarEvent = subEventsAfterRepetitionSecond[0];
+            thirdSubEventStartAndEnd.isEqualStartAndEnd(thirdSubCalendarEvent.StartToEnd);
+            SubCalendarEvent fourtSubCalendarEvent = subEventsAfterRepetitionSecond[1];
             Assert.IsTrue(thirdSubCalendarEvent.isRepetitionLocked);
             Assert.IsTrue(fourtSubCalendarEvent.isRepetitionLocked);
             Assert.IsTrue(secondSubevent.End == thirdSubCalendarEvent.Start);
@@ -213,8 +221,8 @@ namespace TilerTests
             #region second repeat press on second subevent(by time) and verififcation
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             repetitionInstance_DB = TestUtility.getCalendarEventById(firstSubEvent.Id, user);
-            List<SubCalendarEvent> subEventsAfterRepetition = repetitionInstance_DB.OrderByStartActiveSubEvents.ToList();
-            thirdSubCalendarEvent = subEventsAfterRepetition[2];
+            List<SubCalendarEvent> subEventsAfterRepetition = repetitionInstance_DB.OrderByStartActiveSubEvents.Where(o => o.Start >= secondSubevent.End).ToList();
+            thirdSubCalendarEvent = subEventsAfterRepetition[0];
             Assert.IsTrue(thirdSubCalendarEvent.isRepetitionLocked);
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
@@ -249,7 +257,7 @@ namespace TilerTests
             CalendarEvent afterProcrastinataionInstance_DB = TestUtility.getCalendarEventById(firstSubEvent.Id, user);
             List<SubCalendarEvent> subEventsAfterProcrastinateAll = afterProcrastinataionInstance_DB.OrderByStartActiveSubEvents.Where(subEvent => subEvent.End >= procrastinationStart).ToList();
 
-            Assert.IsTrue(subEventsAfterProcrastinateAll.Count == 4);// there should be only four events rescheduled since the first event happened earlier
+            Assert.IsTrue(subEventsAfterProcrastinateAll.Count == 5);
             foreach (SubCalendarEvent eachSubEvent in subEventsAfterProcrastinateAll)
             {
                 Assert.IsFalse(eachSubEvent.isRepetitionLocked);
@@ -314,8 +322,8 @@ namespace TilerTests
             #region second repeat press on second subevent(by time) and verififcation
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             repetitionInstance_DB = TestUtility.getCalendarEventById(firstSubEvent.Id, user);
-            List<SubCalendarEvent> subEventsAfterRepetition = repetitionInstance_DB.OrderByStartActiveSubEvents.ToList();
-            thirdSubCalendarEvent = subEventsAfterRepetition[2];
+            List<SubCalendarEvent> subEventsAfterRepetition = repetitionInstance_DB.OrderByStartActiveSubEvents.Where(o => o.Start >= secondSubevent.End).ToList();
+            thirdSubCalendarEvent = subEventsAfterRepetition[0];
             Assert.IsTrue(thirdSubCalendarEvent.isRepetitionLocked);
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
@@ -335,7 +343,7 @@ namespace TilerTests
             var procrastinateResult = schedule.ProcrastinateJustAnEvent(subEvent.Id, TimeSpan.FromHours(2));
             Assert.IsNull(procrastinateResult.Item1);
 
-            Assert.IsTrue(subEventsAfterSecondRepetition.Count == 4);// there should be only four events rescheduled since the first event happened earlier
+            Assert.IsTrue(subEventsAfterSecondRepetition.Count == 5);// there should be only four events rescheduled since the first event happened earlier
             foreach (SubCalendarEvent eachSubEvent in subEventsAfterSecondRepetition)
             {
                 Assert.IsFalse(eachSubEvent.isRepetitionLocked);
@@ -400,8 +408,8 @@ namespace TilerTests
             #region second repeat press on second subevent(by time) and verififcation
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             repetitionInstance_DB = TestUtility.getCalendarEventById(firstSubEvent.Id, user);
-            List<SubCalendarEvent> subEventsAfterRepetition = repetitionInstance_DB.OrderByStartActiveSubEvents.ToList();
-            thirdSubCalendarEvent = subEventsAfterRepetition[2];
+            List<SubCalendarEvent> subEventsAfterRepetition = repetitionInstance_DB.OrderByStartActiveSubEvents.Where(o => o.Start >= secondSubevent.End).ToList();
+            thirdSubCalendarEvent = subEventsAfterRepetition[0];
             Assert.IsTrue(thirdSubCalendarEvent.isRepetitionLocked);
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
@@ -418,7 +426,7 @@ namespace TilerTests
             schedule.persistToDB().Wait();
             CalendarEvent repetitionInstance= TestUtility.getCalendarEventById(firstSubEvent.Id, user);
             List<SubCalendarEvent> subEventsAfterRepetitionSecond = repetitionInstance.ActiveSubEvents.Where(subEvent => subEvent.End >= thirdRefNow).OrderBy(o => o.Start).ToList();
-            Assert.IsTrue(subEventsAfterRepetitionSecond.Count == 5);// there should be only four events rescheduled since the first event happened earlier
+            Assert.IsTrue(subEventsAfterRepetitionSecond.Count == 5);
             foreach (SubCalendarEvent subEvent in subEventsAfterRepetitionSecond)
             {
                 Assert.IsFalse(subEvent.isRepetitionLocked);

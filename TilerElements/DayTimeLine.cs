@@ -57,7 +57,14 @@ namespace TilerElements
             }
         }
 
-
+        public void ClearAllSubEvents()
+        {
+            List<SubCalendarEvent> subEvents = AllocatedSubEvents.Values.ToList();
+            foreach(SubCalendarEvent subEvent in subEvents)
+            {
+                RemoveSubEvent(subEvent.Id);
+            }
+        }
         /// <summary>
         /// This is the subevent for the current day after which sleep is expected. Note this is always towards the end of the day
         /// </summary>

@@ -801,6 +801,11 @@ namespace TilerTests
             Assert.IsTrue(subEventsBeforeNowAfterUpdate.Count == 0);
         }
 
+
+        /// <summary>
+        /// Test creates a calendar event at current time. THen at some point in the future adds an event. Thhe ref now in the future is at a point farther outh the range than can be pulled from DB.
+        /// THis test verifies that the refnow is out side the range of some of the subevents of the aforementioned create calendar event. And these sub events are not movable .
+        /// </summary>
         [TestMethod]
         public void eventsOutsideScheduleBoundsShouldNotBeReScheduled()
         {

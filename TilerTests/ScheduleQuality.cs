@@ -860,8 +860,6 @@ namespace TilerTests
                 SubCalendarEvent retrievedSubEvent = TestUtility.getSubEventById(subEvent.Id, user);
                 Assert.IsTrue(retrievedSubEvent.StartToEnd.isEqualStartAndEnd(subEvent.StartToEnd));
             }
-            
-            
         }
 
         public List<DateTimeOffset> getCorrespondingWeekdays(TimeLine timeLine, DayOfWeek dayOfWeek)

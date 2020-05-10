@@ -61,6 +61,47 @@ namespace ScheduleAnalysis
 
         }
 
+
+        public DeadlineSuggestionsAnalysis(CalendarEvent calEvent, ReferenceNow now, TilerUser tilerUser, Analysis analysis = null)
+        {
+            HashSet<SubCalendarEvent> allSubEvent = new HashSet<SubCalendarEvent>(subEvents);
+            HashSet<SubCalendarEvent> subEventsForEvaluation = new HashSet<SubCalendarEvent>(allSubEvent.Where(subEvent => subEvent.isActive && subEvent.getActiveDuration <= Utility.LeastAllDaySubeventDuration));
+            OrderedActiveSubEvents = subEventsForEvaluation.OrderBy(o => o.Start).ThenBy(o => o.End).ToList();
+            subEventId_to_Subevents = new Dictionary<string, SubCalendarEvent>();
+            activeRatioBound = analysis?.CompletionRate ?? DefaultActivationRatio;
+            calEventId_to_Subevents = OrderedActiveSubEvents.ToLookup(obj => obj.SubEvent_ID.getAllEventDictionaryLookup.ToString());
+            foreach (SubCalendarEvent subEvent in subEventsForEvaluation)
+            {
+                subEventId_to_Subevents.Add(subEvent.Id, subEvent);
+                if (!calEventId_to_CalEvents.ContainsKey(subEvent.SubEvent_ID.getAllEventDictionaryLookup))
+                {
+                    subEvent.ParentCalendarEvent.resetAllSuggestions();
+                    calEventId_to_CalEvents.Add(subEvent.SubEvent_ID.getAllEventDictionaryLookup, subEvent.ParentCalendarEvent);
+                }
+
+                if (subEvent.ParentCalendarEvent.isRigid)
+                {
+                    RigidCalEvents.Add(subEvent.ParentCalendarEvent);
+                }
+                else
+                {
+                    if (subEvent.IsFromRecurring)
+                    {
+                        ReduceableCalEvents.Add(subEvent.ParentCalendarEvent);
+                    }
+                    else if (!subEvent.isRigid)
+                    {
+                        MovableCalEvents.Add(subEvent.ParentCalendarEvent);
+                    }
+                }
+            }
+            this.AllSubEvents = allSubEvent.ToList();
+            Now = now;
+            TilerUser = tilerUser;
+            updateCompletionRate(this.AllSubEvents);
+
+        }
+
         public void updateCompletionRate(IEnumerable<SubCalendarEvent> subEvents)
         {
             DateTimeOffset timelineStart = Now.getClientBeginningOfDay(Now.getDayIndexFromStartOfTime(Now.constNow.AddDays(-28)));

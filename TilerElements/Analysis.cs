@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,10 +12,26 @@ namespace TilerElements
     {
         protected string _Id = Guid.NewGuid().ToString();
         double _CompletionRate = -1;
+        double _AverageSubEventDuration = -1;
         DateTimeOffset _LastUpdate = new DateTimeOffset();
+
         TilerUser _User { get; set; }
-        TilerUser User
+        virtual public string UserId { get; set; }
+        public TilerUser User
         {
+            get
+            {
+                return _User;
+            }
+        }
+        [ForeignKey("UserId")]
+        public TilerUser User_DB
+        {
+            set
+            {
+                _User = value;
+            }
+
             get
             {
                 return _User;
@@ -68,6 +86,21 @@ namespace TilerElements
             }
         }
 
+        public double AverageSubeventDuration_DB
+        {
+            get
+            {
+                return _AverageSubEventDuration;
+            }
+
+            set
+            {
+                _AverageSubEventDuration = value;
+            }
+        }
+
+
+        [Key]
         public string Id
         {
             get

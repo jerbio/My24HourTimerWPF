@@ -59,6 +59,22 @@ namespace ScheduleAnalysis
                 return (int)retValue;
             }
         }
+
+        /// <summary>
+        /// Function returns the delta on the difference in conflict count and difference in number of late events
+        /// </summary>
+        /// <returns></returns>
+        public Tuple<double, double> delta()
+        {
+            var firstConflictEvaluation = FirstHealth.evaluateConflicts();
+            var secondConflictEvaluation = SecondHealth.evaluateConflicts();
+            double conflictDelta = secondConflictEvaluation.Item1 - firstConflictEvaluation.Item1;
+            List<SubCalendarEvent> firstTardyEvaluation = FirstHealth.TardyEvaluation();
+            List<SubCalendarEvent> secondTardyEvaluation = SecondHealth.TardyEvaluation();
+            double tardyCountDelta = secondTardyEvaluation.Count - firstTardyEvaluation.Count;
+            Tuple<double, double> retValue = new Tuple<double, double>(conflictDelta, tardyCountDelta);
+            return retValue;
+        }
         
     }
 }

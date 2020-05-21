@@ -251,7 +251,7 @@ namespace ScheduleAnalysis
 
         public Tuple<double, ILookup<long, BlobSubCalendarEvent>> evaluateConflicts()
         {
-            List<BlobSubCalendarEvent> conflictingEvents = Utility.getConflictingEvents(_orderedByStartThenEndSubEvents).Item1;
+            List<BlobSubCalendarEvent> conflictingEvents = Utility.getConflictingEvents(_orderedByStartThenEndSubEvents.Where(o => o.getActiveDuration < Utility.LeastAllDaySubeventDuration)).Item1;
             double conflictTotal = conflictingEvents.Sum(blob => blob.getSubCalendarEventsInBlob().Count());
             ILookup<long, BlobSubCalendarEvent> subEventLookup = conflictingEvents.ToLookup(obj => Now.getClientBeginningOfDay( Now.getDayIndexFromStartOfTime(obj.Start)).ToUnixTimeMilliseconds(), obj => obj);
             Tuple<double, ILookup<long, BlobSubCalendarEvent>> retValue = new Tuple<double, ILookup<long, BlobSubCalendarEvent>>(conflictTotal, subEventLookup);

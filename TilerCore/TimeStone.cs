@@ -52,9 +52,17 @@ namespace TilerCore
                 schedule.CurrentLocation = Location.getDefaultLocation();
             }
             var procrastinateResult = schedule.ProcrastinateJustAnEvent(eventId.ToString(), pushSpan);
-            Health afterChange = new Health(procrastinateResult.Item2.Values.Where(obj => obj.isActive), schedule.Now.constNow, assessmentWindow.TimelineSpan, schedule.Now, schedule.getHomeLocation);
-            var retValue = new Tuple<Health, Health>(beforeChange, afterChange);
-            return retValue;
+            if (procrastinateResult.Item1 == null || procrastinateResult.Item1.Code == (int)CustomErrors.Errors.success)
+            {
+                Health afterChange = new Health(procrastinateResult.Item2.Values.Where(obj => obj.isActive), schedule.Now.constNow, assessmentWindow.TimelineSpan, schedule.Now, schedule.getHomeLocation);
+                var retValue = new Tuple<Health, Health>(beforeChange, afterChange);
+                return retValue;
+            }
+            else
+            {
+                throw procrastinateResult.Item1;
+            }
+            
         }
 
         /// <summary>

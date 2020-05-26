@@ -369,15 +369,19 @@ namespace TilerElements
         }
 
         /// <summary>
-        /// Function gets you the beginning of the day based on the time zone difference. Note this is not based on end or start of day. 
-        /// So if End of day is 10:00pm(MST) and the user is in denver time which is -6 from UTC. if you tried to get the value for <paramref name="dayIndex"/> being 0
-        /// This will return December 31, 1969, 6:00AM because this return UTC time. Notice it is Dec 31 1969 because 
+        /// Function gets you the 12:00 am of the day on which a user wakes up. Note this is wake up and based on Utility.SleepSpan
+        /// So if End of day is 10:00pm(MST) and the user is in denver time which is -6 from UTC. if you tried to get the value for <paramref name="dayIndex"/> being 0.
+        /// Based on dayIndex 0. The daytimeline is from 10:00PM Jan 1 1970 MST - 9:59PM Jan 2 1970 MST. Since the user goes to sleep at 10:00PM the wake up time will be 4:00AM the next day(Plus six hours of sleep).
+        /// So sleep timeline is 10:00PM Jan 1 1970 MST - 4:00AM Jan 2 1970 MST.
+        /// This function returns the 12:00 Am of the wake up time day.
+        /// This will return January 2, 1970, 6:00AM because this returns UTC time.
+        /// TODO: As opposed to using the wake time may be the duration of active time should be used to select the clienet beginning of day.
         /// </summary>
         /// <param name="dayIndex"></param>
         /// <returns></returns>
         public DateTimeOffset getClientBeginningOfDay(long dayIndex)
         {
-            DateTimeOffset retValue = EndOfDayStartOfTime.AddDays(dayIndex).ToOffset(TimeZoneDiff);
+            DateTimeOffset retValue = EndOfDayStartOfTime.AddDays(dayIndex).Add(Utility.SleepSpan).ToOffset(TimeZoneDiff);
             retValue = new DateTimeOffset(retValue.Year, retValue.Month, retValue.Day, 0, 0, 0, TimeZoneDiff).ToUniversalTime();
             return retValue;
         }

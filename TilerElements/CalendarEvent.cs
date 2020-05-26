@@ -358,7 +358,7 @@ namespace TilerElements
             SubCalendarEvent subEvent = getSubEvent(eventId);
             subEvent.TempChanges.allChanges.Add(subEvent);
             TimeLine timeLine = new TimeLine(startTime, calEvent.StartToEnd.End);
-            if (timeLine.TimelineSpan >= subEvent.RangeSpan)
+            if (timeLine.TimelineSpan >= subEvent.getActiveDuration)
             {
                 TimeLine subEventActiveTime = subEvent.StartToEnd;
                 TimeLine subEvenRangeReadjustedToexpectedTimeLine = new TimeLine(
@@ -892,7 +892,7 @@ namespace TilerElements
             if (!mySubEvent.getIsComplete)
             {
                 mySubEvent.completeWithoutUpdatingCalEvent();
-                incrementCompleteCount(mySubEvent.RangeSpan);
+                incrementCompleteCount(mySubEvent.getActiveDuration);
             }
         }
 
@@ -902,7 +902,7 @@ namespace TilerElements
             if (mySubEvent.isEnabled)
             {
                 mySubEvent.disableWithoutUpdatingCalEvent();
-                incrementDeleteCount(mySubEvent.RangeSpan);
+                incrementDeleteCount(mySubEvent.getActiveDuration);
             }
         }
         public void nonCompleteSubEvents(IEnumerable<SubCalendarEvent> mySubEvents)
@@ -1740,10 +1740,10 @@ namespace TilerElements
                     SubCalendarEvent SubEvent = orderedByActive.First();
                     if (SubEvent.getIsComplete)
                     {
-                        decrementCompleteCount(SubEvent.RangeSpan);
+                        decrementCompleteCount(SubEvent.getActiveDuration);
                     } else if (SubEvent.getIsDeleted)
                     {
-                        decrementDeleteCount(SubEvent.RangeSpan);
+                        decrementDeleteCount(SubEvent.getActiveDuration);
                     }
                     _SubEvents.Remove(SubEvent.Id);
                     _RemovedSubEvents.Add(SubEvent);

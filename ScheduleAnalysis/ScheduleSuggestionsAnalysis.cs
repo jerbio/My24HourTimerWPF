@@ -338,7 +338,7 @@ namespace ScheduleAnalysis
                             DateTimeOffset dayBeginningOfEndTime = Now.getClientBeginningOfDay(dayIndex + 1);
                             updatedTimeLine = new TimeLine(updatedTimeLine.Start, dayBeginningOfEndTime.AddDays(1).AddMinutes(-1));
                             updatedTimeLine.AddBusySlots(finalTimeLine.OccupiedSlots);
-                            var totalTicks = (calEvent.ActiveSubEvents.Sum(o => o.RangeSpan.Ticks));
+                            var totalTicks = (calEvent.ActiveSubEvents.Sum(o => o.getActiveDuration.Ticks));
                             foreach (BusyTimeLine busyTimeLine in calEvent.ActiveSubEvents.Select(o => o.ActiveSlot))
                             {
                                 foreach(var OtherTimelines in orderedTimelines.Skip(i))// updates each timeline busy content

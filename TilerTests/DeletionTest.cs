@@ -92,7 +92,7 @@ namespace TilerTests
             TimeLine RepetitionTImeLine = new TimeLine(start, start.AddDays(21));
             TimeLine RepetitionActualTImeLine = new TimeLine(start, end);
             Repetition repetition = new Repetition(RepetitionTImeLine, Repetition.Frequency.WEEKLY, RepetitionActualTImeLine, weekDaysAsInt.ToArray());
-            CalendarEvent repeatTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 2, false);
+            CalendarEvent repeatTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, RepetitionTImeLine.Start, RepetitionTImeLine.End, 2, false);
             Schedule = new TestSchedule(user, refNow);
             Schedule.AddToScheduleAndCommitAsync(repeatTestEvent).Wait();
             int beforeRepeatDeletionCount = Schedule.getAllCalendarEvents().ToLookup(o=>o.getTilerID.getCalendarEventComponent()).Count();

@@ -184,7 +184,7 @@ namespace TilerElements
             {
                 this._Enabled = false;
                 this._AutoDeleted = false;
-                myCalEvent.incrementDeleteCount(this.RangeSpan);
+                myCalEvent.incrementDeleteCount(this.getActiveDuration);
             }
         }
 
@@ -193,7 +193,7 @@ namespace TilerElements
             if (this._Enabled)
             {
                 this._Enabled = false;
-                myCalEvent.incrementAutoDeleteCount(this.RangeSpan);
+                myCalEvent.incrementAutoDeleteCount(this.getActiveDuration);
             }
             this._AutoDeleted = true;
         }
@@ -210,7 +210,7 @@ namespace TilerElements
                 this._Complete = true;
                 this._CompletionTime = now.constNow;
                 myCalEvent.addCompletionTimes(this.Start);
-                myCalEvent.incrementCompleteCount(this.RangeSpan);
+                myCalEvent.incrementCompleteCount(this.getActiveDuration);
             }
         }
 
@@ -220,7 +220,7 @@ namespace TilerElements
             {
                 this._Complete = false;
                 myCalEvent.removeCompletionTimes(this.Start);
-                myCalEvent.decrementCompleteCount(this.RangeSpan);
+                myCalEvent.decrementCompleteCount(this.getActiveDuration);
             }
             
         }
@@ -240,7 +240,7 @@ namespace TilerElements
             if (!this._Enabled)
             {
                 this._Enabled = true;
-                myCalEvent.decrementDeleteCount(this.RangeSpan);
+                myCalEvent.decrementDeleteCount(this.getActiveDuration);
             }
         }
 
@@ -633,7 +633,7 @@ namespace TilerElements
             TimeSpan SpanShift = ProcrastinationData.PreferredStartTime - retValue.Start;
             */
             retValue._CalendarEventRange = new TimeLine(ProcrastinationData.PreferredStartTime, retValue.getCalendarEventRange.End);
-            TimeSpan SpanShift = (retValue.getCalendarEventRange.End - retValue.RangeSpan) - retValue.Start;
+            TimeSpan SpanShift = (retValue.getCalendarEventRange.End - retValue.getActiveDuration) - retValue.Start;
             retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventData.getId);
             retValue.shiftEvent(ProcrastinationData.PreferredStartTime,true);
             return retValue;
@@ -1309,7 +1309,7 @@ namespace TilerElements
         {
             get
             {
-                double retValue = ((double)getCalculationRange.TimelineSpan.Ticks )/ ((double)RangeSpan.Ticks);
+                double retValue = ((double)getCalculationRange.TimelineSpan.Ticks )/ ((double)getActiveDuration.Ticks);
                 return retValue;
             }
         }
@@ -1469,13 +1469,13 @@ namespace TilerElements
         }
 
 
-        public TimeSpan RangeSpan
-        {
-            get
-            {
-                return this.StartToEnd.TimelineSpan;
-            }
-        }
+        //public TimeSpan getActiveDuration
+        //{
+        //    get
+        //    {
+        //        return this.StartToEnd.TimelineSpan;
+        //    }
+        //}
 
         virtual public bool isBlobEvent
         {

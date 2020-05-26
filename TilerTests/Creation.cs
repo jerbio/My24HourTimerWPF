@@ -35,7 +35,7 @@ namespace TilerTests
             DateTimeOffset dayTimeOffset = now.getClientBeginningOfDay(0);
             Assert.AreEqual(dayTimeOffset.Hour, 6);
             Assert.AreEqual(dayTimeOffset.Year, 1970);
-            Assert.AreEqual(dayTimeOffset.Day, 1);
+            Assert.AreEqual(dayTimeOffset.Day, 2);
         }
 
         [TestMethod]

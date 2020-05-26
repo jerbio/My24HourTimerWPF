@@ -110,7 +110,7 @@ namespace ScheduleAnalysis
             Dictionary<long, List<double>> combinedResult = new Dictionary<long, List<double>>();
             double totalDistanceTravelled = 0;
             
-            List<SubCalendarEvent> relevantSubCalendarEventList = _orderedByStartThenEndSubEvents.Where(obj => !obj.getIsProcrastinateCalendarEvent).ToList();
+            List<SubCalendarEvent> relevantSubCalendarEventList = _orderedByStartThenEndSubEvents.Where(obj => !obj.getIsProcrastinateCalendarEvent && obj.getActiveDuration < Utility.LeastAllDaySubeventDuration).ToList();
             if(relevantSubCalendarEventList.Count > 0)
             {
                 relevantSubCalendarEventList.AsParallel().ForAll((Action<SubCalendarEvent>)(subEvent =>

@@ -2379,8 +2379,9 @@ namespace TilerCore
                 
                 if (startToEnd.doesTimeLineInterfere( subevent))
                 {
-                    DayTimeLine dayTimeLineStart = Now.getDayTimeLineByTime(subevent.Start);
-                    DayTimeLine dayTimeLineAfter = Now.getDayTimeLineByTime(subevent.Start);
+                    TimeLine interFerringTimeline = startToEnd.InterferringTimeLine(subevent.StartToEnd);
+                    DayTimeLine dayTimeLineStart = Now.getDayTimeLineByTime(interFerringTimeline.Start);
+                    DayTimeLine dayTimeLineAfter = Now.getDayTimeLineByTime(interFerringTimeline.Start);
                     dayTimeLineStart.AddToSubEventList(subevent);
                     dayTimeLineAfter.AddToSubEventList(subevent);
                 }

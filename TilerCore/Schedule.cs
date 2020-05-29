@@ -2963,15 +2963,19 @@ namespace TilerCore
                     int sleepSubEventindex = subEventToIndex[sleepKvp.Key];
                     TimeLine sleepSectionTimeLine = splitIntoDaySection[DaySection.Sleep];
                     TimeLine beforeTimeLine = sleepSectionTimeLine.InterferringTimeLine(sleepKvp.Value.Item1);
-                    if(beforeTimeLine!=null && beforeTimeLine.TimelineSpan <= Utility.SleepSpan && sleepKvp.Value.Item1.TimelineSpan >= Utility.SleepSpan)// this ensures we try to get at six hours of sleep. If the timeframe interferring with the sleep section is less than six hours but the timeline available to the "free space " before the sleep subeent is more than six hours then there might be some lee way
+                    if(beforeTimeLine!=null && beforeTimeLine.TimelineSpan <= Utility.SleepSpan)// this ensures we try to get at six hours of sleep. If the timeframe interferring with the sleep section is less than six hours but the timeline available to the "free space " before the sleep subeent is more than six hours then there might be some lee way
+                        //&& sleepKvp.Value.Item1.TimelineSpan >= Utility.SleepSpan
                     {
-                        TimeSpan leftOverpan = Utility.SleepSpan - beforeTimeLine.TimelineSpan;
+                        TimeSpan sleepTimeSpanBound = sleepKvp.Value.Item1.TimelineSpan < Utility.SleepSpan ? sleepKvp.Value.Item1.TimelineSpan : Utility.SleepSpan;
+                        TimeSpan leftOverpan = sleepTimeSpanBound - beforeTimeLine.TimelineSpan;
                         beforeTimeLine = new TimeLine(beforeTimeLine.Start, beforeTimeLine.End.Add(leftOverpan));
                     }
                     TimeLine afterTimeLine = sleepSectionTimeLine.InterferringTimeLine(sleepKvp.Value.Item2);
-                    if (afterTimeLine != null && afterTimeLine.TimelineSpan <= Utility.SleepSpan && sleepKvp.Value.Item2.TimelineSpan >= Utility.SleepSpan)// this ensures we try to get at six hours of sleep. If the timeframe interferring with the sleep section is less than six hours but the timeline available to the "free space " before the sleep subeent is more than six hours then there might be some lee way
+                    if (afterTimeLine != null && afterTimeLine.TimelineSpan <= Utility.SleepSpan)// this ensures we try to get at six hours of sleep. If the timeframe interferring with the sleep section is less than six hours but the timeline available to the "free space " before the sleep subeent is more than six hours then there might be some lee way
+                        //&& sleepKvp.Value.Item2.TimelineSpan >= Utility.SleepSpan
                     {
-                        TimeSpan leftOverpan = Utility.SleepSpan - afterTimeLine.TimelineSpan;
+                        TimeSpan sleepTimeSpanBound = sleepKvp.Value.Item2.TimelineSpan < Utility.SleepSpan ? sleepKvp.Value.Item2.TimelineSpan : Utility.SleepSpan;
+                        TimeSpan leftOverpan = sleepTimeSpanBound - afterTimeLine.TimelineSpan;
                         afterTimeLine = new TimeLine(afterTimeLine.Start, afterTimeLine.End.Add(leftOverpan));
                     }
 

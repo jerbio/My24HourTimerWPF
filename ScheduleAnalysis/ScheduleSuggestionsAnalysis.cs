@@ -24,7 +24,7 @@ namespace ScheduleAnalysis
         public ScheduleSuggestionsAnalysis(IEnumerable<SubCalendarEvent> subEvents, ReferenceNow now, TilerUser tilerUser, Analysis analysis = null)
         {
             HashSet<SubCalendarEvent> allSubEvent = new HashSet<SubCalendarEvent>(subEvents);
-            HashSet<SubCalendarEvent> subEventsForEvaluation = new HashSet<SubCalendarEvent>(allSubEvent.Where(subEvent => subEvent.isActive && subEvent.getActiveDuration <= Utility.LeastAllDaySubeventDuration));
+            HashSet<SubCalendarEvent> subEventsForEvaluation = new HashSet<SubCalendarEvent>(allSubEvent.Where(subEvent => subEvent.isActive && !subEvent.isProcrastinateEvent && subEvent.getActiveDuration <= Utility.LeastAllDaySubeventDuration));
             OrderedActiveSubEvents = subEventsForEvaluation.OrderBy(o=>o.Start).ThenBy(o=>o.End).ToList();
             subEventId_to_Subevents = new Dictionary<string, SubCalendarEvent>();
             activeRatioBound = analysis?.CompletionRate ?? DefaultActivationRatio;

@@ -172,7 +172,7 @@ namespace TilerTests
             }
         }
 
-        public static void reloadTilerUser( ref UserAccount userAccount, ref TilerUser tilerUser)
+        public static void reloadTilerUser(ref UserAccount userAccount, ref TilerUser tilerUser)
         {
             userAccount = getTestUser(userId: tilerUser.Id);
             tilerUser = userAccount.getTilerUser();

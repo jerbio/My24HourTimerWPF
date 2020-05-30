@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using TilerElements;
 using System.Linq;
+using GoogleMapsApi.Entities.DistanceMatrix.Request;
 
 namespace ScheduleAnalysis
 {
@@ -67,8 +68,13 @@ namespace ScheduleAnalysis
             DateTimeOffset timelineEnd = Now.getClientBeginningOfDay(Now.getDayIndexFromStartOfTime(Now.constNow));
             TimeLine lastFourWeekTimeLine = new TimeLine(timelineStart, timelineEnd);
             IEnumerable<SubCalendarEvent> completedOrRigidSubEvents = subEvents.Where(subEvent =>
-                (lastFourWeekTimeLine.IsTimeLineWithin(subEvent.StartToEnd) && subEvent.isRigid) ||
-                ((subEvent.getIsComplete && (lastFourWeekTimeLine.IsDateTimeWithin(subEvent.CompletionTime) || lastFourWeekTimeLine.IsTimeLineWithin(subEvent))))).OrderBy(o=>o.Start).ToList();
+                    (!subEvent.isProcrastinateEvent && subEvent.getActiveDuration <= Utility.LeastAllDaySubeventDuration) &&
+                    ((lastFourWeekTimeLine.IsTimeLineWithin(subEvent.StartToEnd) && subEvent.isRigid) ||
+                    ((subEvent.getIsComplete && 
+                        (lastFourWeekTimeLine.IsDateTimeWithin(subEvent.CompletionTime) || 
+                        lastFourWeekTimeLine.IsTimeLineWithin(subEvent))
+                    )))
+                ).OrderBy(o=>o.Start).ToList();
 
             List<SubCalendarEvent> completeSubevents = new List<SubCalendarEvent>();
             List<SubCalendarEvent> rigidSubevents = new List<SubCalendarEvent>();
@@ -120,9 +126,13 @@ namespace ScheduleAnalysis
             if(validWeeks.Count > 0)
             {
                 TimeSpan totalCompletedSpan = TimeSpan.FromTicks(validWeeks.Sum(o => o.OccupiedSlots.Sum(activeSlot => activeSlot.TimelineSpan.Ticks)));
-                TimeSpan totalWeekSpan= TimeSpan.FromTicks(validWeeks.Sum(o => o.TimelineSpan.Ticks));
+                TimeSpan totalWeekSpan = TimeSpan.FromHours(validWeeks.Sum(o => (o.TimelineSpan.TotalHours)));
 
-                activeRatioBound = totalCompletedSpan.TotalHours / totalWeekSpan.TotalHours;
+                TimeSpan additionalArbitraryUsedUpHoursPerDay =TimeSpan.FromHours( (totalWeekSpan.TotalHours / Utility.TwentyFourHoursAlmostTimeSpan.TotalHours) * Utility.ArbitraryDayUseUpTimeSpan.TotalHours);
+
+                TimeSpan readjustedWeekSpan = totalWeekSpan + additionalArbitraryUsedUpHoursPerDay;
+
+                activeRatioBound = totalCompletedSpan.TotalHours / readjustedWeekSpan.TotalHours;
                 if(activeRatioBound> MaxActivationRatio)
                 {
                     activeRatioBound = MaxActivationRatio;

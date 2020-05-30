@@ -32,6 +32,7 @@ namespace TilerElements
         public readonly static TimeSpan NegativeTimeSpan = TimeSpan.FromTicks(-1);
         public readonly static TimeSpan SixHourTimeSpan = TimeSpan.FromHours(6);
         public readonly static TimeSpan OneWeekTimeSpan = TimeSpan.FromDays(7);
+        public readonly static TimeSpan ArbitraryDayUseUpTimeSpan = TimeSpan.FromHours(1.5);// THis is to ensure things like showering, getting to bus station and random daily events that are not scheduled still get some aportioning
         public readonly static TimeSpan LeastAllDaySubeventDuration = Utility.OneDayTimeSpan.Add(-Utility.QuarterHourTimeSpan);
         public readonly static TimeSpan SleepSpan = Utility.SixHourTimeSpan;//careful about changing this from six hours because this is used to recalculate the post sleep timeline
         public readonly static string timeZoneString = "America/Denver";

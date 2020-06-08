@@ -113,14 +113,13 @@ namespace ScheduleAnalysis
             List<SubCalendarEvent> relevantSubCalendarEventList = _orderedByStartThenEndSubEvents.Where(obj => !obj.getIsProcrastinateCalendarEvent && obj.getActiveDuration < Utility.LeastAllDaySubeventDuration).ToList();
             if(relevantSubCalendarEventList.Count > 0)
             {
-                relevantSubCalendarEventList.AsParallel().ForAll((Action<SubCalendarEvent>)(subEvent =>
+                foreach (SubCalendarEvent subEvent in relevantSubCalendarEventList)
+                {
+                    if (subEvent.Location.isNull)
                     {
-                        if (subEvent.Location.isNull)
-                        {
-                            subEvent.Location.verify();
-                        }
-                    })
-                );
+                        subEvent.Location.verify();
+                    }
+                }
                 SubCalendarEvent firstSUbEvent = relevantSubCalendarEventList[0];
                 DateTimeOffset refTIme = CalculationTimeline.IsDateTimeWithin(firstSUbEvent.Start) ? firstSUbEvent.Start : firstSUbEvent.End;
                 long dayIndex = Now.getDayIndexFromStartOfTime(refTIme);

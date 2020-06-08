@@ -552,11 +552,11 @@ namespace TilerElements
                 getNowInfo.reset();
             }
             updateCalculationStartToEnd();
-            AllSubEvents.AsParallel().ForAll(obj =>
+            foreach(SubCalendarEvent subEvent in  AllSubEvents)
             {
-                obj.changeCalendarEventRange(this.StartToEnd);
-                obj.updateCalculationEventRange(this.CalculationStartToEnd);
-            });
+                subEvent.changeCalendarEventRange(this.StartToEnd);
+                subEvent.updateCalculationEventRange(this.CalculationStartToEnd);
+            }
         }
         //*/
 
@@ -569,7 +569,7 @@ namespace TilerElements
         {
             CalendarEvent MyCalendarEventCopy = new CalendarEvent(true);
             MyCalendarEventCopy._EventDuration = new TimeSpan(_EventDuration.Ticks);
-            MyCalendarEventCopy._Name = this._Name.createCopy();
+            MyCalendarEventCopy._Name = this._Name?.createCopy();
             MyCalendarEventCopy.updateStartTime(this.Start);
             MyCalendarEventCopy.updateEndTime(this.End);
             MyCalendarEventCopy._EventPreDeadline = new TimeSpan(_EventPreDeadline.Ticks);
@@ -1622,7 +1622,7 @@ namespace TilerElements
         {
             CalendarEvent RetValue = new CalendarEvent(true);
             RetValue._EventDuration = this.getActiveDuration;
-            RetValue._Name = this._Name.createCopy();
+            RetValue._Name = this._Name?.createCopy();
             RetValue._EventPreDeadline = this.getPreDeadline;
             RetValue._PrepTime = this.getPreparation;
             RetValue._Priority = this.getEventPriority;

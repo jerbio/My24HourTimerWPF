@@ -687,7 +687,7 @@ namespace TilerCore
         {
             CalendarEvent myCalendarEvent = getCalendarEvent(EventId);
             TimeLine initialTimeLine = myCalendarEvent.StartToEnd;
-            bool isNameChange = NewName.NameValue != myCalendarEvent.getName.NameValue;
+            bool isNameChange = NewName.NameValue != myCalendarEvent.getName?.NameValue;
             bool isDeadlineChange = (newEnd) != myCalendarEvent.End;
             bool isStartChange = newStart != myCalendarEvent.Start;
             bool isSplitDiff = myCalendarEvent.NumberOfSplit != newSplitCount;
@@ -2069,14 +2069,14 @@ namespace TilerCore
              * */
             DateTimeOffset NowTIme = Now.constNow;
             HashSet<SubCalendarEvent> subEventsInSet = new HashSet<SubCalendarEvent>(getAllActiveCalendarEvents().Concat(InitializingCalEvents).Where(calEvent => calEvent.isActive)
-                .SelectMany(calEvent => calEvent.ActiveSubEvents).AsParallel().
+                .SelectMany(calEvent => calEvent.ActiveSubEvents).
                 Where(subEvent => subEvent.getCalculationRange.End > NowTIme).
                 Where(subEvent => (subEvent.isRigid && subEvent.ActiveSlot.IsDateTimeWithin(NowTIme)) || subEvent.ActiveSlot.doesTimeLineInterfere(CalculationTImeLine) || subEvent.canExistWithinTimeLine(CalculationTImeLine) || subEvent.getIsProcrastinateCalendarEvent));
             TimeSpan maxSubeventSpan = Utility.LeastAllDaySubeventDuration;
             ConcurrentBag<SubCalendarEvent> subEvents = new ConcurrentBag<SubCalendarEvent>();
-            subEventsInSet.AsParallel().ForAll((Action<SubCalendarEvent>)((subEvent) =>
+            foreach (SubCalendarEvent subEvent in subEventsInSet)
             {
-                if(subEvent.getActiveDuration <= maxSubeventSpan)
+                if (subEvent.getActiveDuration <= maxSubeventSpan)
                 {
                     if (subEvent.isLocked)
                     {
@@ -2100,7 +2100,7 @@ namespace TilerCore
                         }
                     }
                 }
-            }));
+            }
 
             List<SubCalendarEvent> retValue = subEvents.ToList();
             return retValue;
@@ -3315,10 +3315,11 @@ namespace TilerCore
             long DayIndex = AllDayTimeLine.First().UniversalIndex;
             double occupancyThreshold = 0.67;// this placies a soft threshold for the occupancy that different cal events would use to determine if they should continue
             EventDayBags bagsPerDay = new EventDayBags(TotalDays);
-            TotalActiveEvents.AsParallel().ForAll(subEvent => {
+            foreach (SubCalendarEvent subEvent in TotalActiveEvents)
+            {
                 subEvent.isWake = false; subEvent.isSleep = false;
                 subEvent.resetTardy();
-            });
+            }
             TotalActiveEvents.ForEach((subEvent) => _ConflictingSubEvents.Add(subEvent));
             _EvaluatedSubevents = new HashSet<SubCalendarEvent>(TotalActiveEvents);
             AllCalEvents.ForEach
@@ -3329,7 +3330,10 @@ namespace TilerCore
                     obj.updateCompletionTimeArray(Now);
                     obj.resetAutoDeadlineSuggestion();
                 });
-            TotalActiveEvents.AsParallel().ForAll(obj => obj.enableCalculationMode());
+            foreach (SubCalendarEvent subEvent in TotalActiveEvents)
+            {
+                subEvent.enableCalculationMode();
+            }
             #region presetupAllRigids_Ensures_They_Are_All_Assigned
             List<SubCalendarEvent> AllRigids = TotalActiveEvents.Where(obj => obj.isLocked).ToList();// you need to call this after PrepFirstTwentyFOurHours to prevent resetting of indexes
             var rigidToDayMapping = DesignateSubEventsToDayTimeLine(AllDayTimeLine, AllRigids);
@@ -3370,9 +3374,8 @@ namespace TilerCore
 
 
             int numberOfDays = AllDayTimeLine.Count();
-
-            AllCalEvents.AsParallel().ForAll(obj => obj.initializeCalculablesAndUndesignables());
-            AllCalEvents.AsParallel().ForAll(obj => obj.DayPreference?.init());
+            AllCalEvents.ForEach(obj => obj.initializeCalculablesAndUndesignables());
+            AllCalEvents.ForEach(obj => obj.DayPreference?.init());
             Dictionary<string, CalendarEvent> DictOfCalEvents = AllCalEvents.ToDictionary(obj => obj.getId, obj => obj);
             Dictionary<string, SubCalendarEvent> DictOfSubEvents = TotalActiveEvents.ToDictionary(obj => obj.getId, obj => obj);
 
@@ -3505,7 +3508,10 @@ namespace TilerCore
                         }
                     }
 
-                    AllDayTimeLine.AsParallel().ForAll(obj => obj.updateOccupancyOfTimeLine());
+                    foreach(DayTimeLine dayTimeline in AllDayTimeLine)
+                    {
+                        dayTimeline.updateOccupancyOfTimeLine();
+                    }
                     DesignatedAndAssignedSubEventCount = AllCalEvents.Sum(obj => obj.getNumberOfDesignatedAndActiveSubEventsFromCalculables());
                     AllCalEvents = CalendarEvent.removeCalEventsWitNoUndesignablesFromCalculables(AllCalEvents);
                 }
@@ -4946,27 +4952,8 @@ namespace TilerCore
             return occupancy.Max();
 
         }
+        
 
-        void ScoreEvents(IEnumerable<SubCalendarEvent> EventsToBeScored, IEnumerable<SubCalendarEvent> referenceScoringEvents)
-        {
-            EventsToBeScored.AsParallel().ForAll(obj => obj.setScore(EvaluateScore(referenceScoringEvents, obj, Now.calculationNow)));
-        }
-
-        double EvaluateScore(IEnumerable<SubCalendarEvent> CurrentEvents, SubCalendarEvent refEvents, DateTimeOffset refTIme)
-        {
-            double score = 500;
-            score += CurrentEvents.AsParallel().Sum(obj1 => SubCalendarEvent.CalculateDistance(obj1, refEvents, 100));
-            TimeSpan spanBeforeDeadline = refEvents.getCalculationRange.End - refTIme;
-            if (spanBeforeDeadline < TwentyFourHourTimeSpan)
-            {
-                spanBeforeDeadline = TwentyFourHourTimeSpan;
-            }
-
-            long NumberOfhours = spanBeforeDeadline.Ticks / TwentyFourHourTimeSpan.Ticks;
-            score -= (double)100 / NumberOfhours;
-            return score;
-
-        }
 
         List<SubCalendarEvent> stitchUnRestrictedSubCalendarEvent(
             TimeLine freeTimeLine, 
@@ -6352,13 +6339,13 @@ namespace TilerCore
         void clearAllRepetitionLock()
         {
             IEnumerable<SubCalendarEvent> subEvents = getAllActiveSubEvents();
-            subEvents.AsParallel().ForAll((eachSubEvent) =>
+            foreach(SubCalendarEvent eachSubEvent in subEvents)
             {
                 if (eachSubEvent.End > Now.constNow && eachSubEvent.isRepetitionLocked)
                 {
                     eachSubEvent.disableRepetitionLock();
                 }
-            });
+            };
         }
 
 

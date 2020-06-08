@@ -180,7 +180,7 @@ namespace TilerElements
         {
             CalendarEventRestricted MyCalendarEventCopy = new CalendarEventRestricted();
             MyCalendarEventCopy._EventDuration = new TimeSpan(_EventDuration.Ticks);
-            MyCalendarEventCopy._Name = this._Name.createCopy();
+            MyCalendarEventCopy._Name = this._Name?.createCopy();
             MyCalendarEventCopy._EventPreDeadline = new TimeSpan(_EventPreDeadline.Ticks);
             MyCalendarEventCopy._PrepTime = new TimeSpan(_PrepTime.Ticks);
             MyCalendarEventCopy._Priority = _Priority;
@@ -295,7 +295,7 @@ namespace TilerElements
         {
             CalendarEventRestricted RetValue = new CalendarEventRestricted();
             RetValue._EventDuration = this.getActiveDuration;
-            RetValue._Name = this.getName.createCopy();
+            RetValue._Name = this.getName?.createCopy();
             RetValue._EventPreDeadline = this.getPreDeadline;
             RetValue._PrepTime = this.getPreparation;
             RetValue._Priority = this.getEventPriority;

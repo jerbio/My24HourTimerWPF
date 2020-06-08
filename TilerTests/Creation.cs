@@ -1188,7 +1188,7 @@ namespace TilerTests
             CalendarEvent copyOfTestEvent = schedule.getCalendarEvent(testEvent.getId);
             
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> tupleResult = schedule.BundleChangeUpdate(testEvent.ActiveSubEvents.First().getId,
-                testEvent.getName.createCopy(),
+                testEvent.getName?.createCopy(),
                 testEvent.ActiveSubEvents.First().Start,
                 testEvent.ActiveSubEvents.First().End,
                 testEvent.ActiveSubEvents.First().Start,

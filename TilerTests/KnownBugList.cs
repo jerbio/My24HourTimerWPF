@@ -201,7 +201,7 @@ namespace TilerTests
             SubCalendarEvent subEvent = calendarEvent.ActiveSubEvents.First();
             DateTimeOffset end = calendarEvent.End;
             DateTimeOffset updatedEndTIme = new DateTimeOffset(end.Year, 9, 1, end.Hour, end.Minute, end.Second, new TimeSpan());
-            EventName eventName = calendarEvent.Name.createCopy();
+            EventName eventName = calendarEvent.Name?.createCopy();
             schedule.BundleChangeUpdate(subEvent.Id, eventName, subEvent.Start, subEvent.End, calendarEvent.Start, updatedEndTIme, calendarEvent.NumberOfSplit, calendarEvent.Notes.UserNote);
             ((TestSchedule)schedule).WriteFullScheduleToOutlook();
         }

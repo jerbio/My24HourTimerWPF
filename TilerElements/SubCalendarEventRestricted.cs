@@ -256,7 +256,7 @@ namespace TilerElements
             copy._Enabled = this._Enabled;
             copy.updateEndTime( this.End);
             copy._EventDuration = this._EventDuration;
-            copy._Name = this.getName.createCopy();
+            copy._Name = this.getName?.createCopy();
             copy._EventPreDeadline = this._EventPreDeadline;
             copy._EventScore = this._EventScore;
             copy.HardCalendarEventRange = this.HardCalendarEventRange?.CreateCopy();
@@ -428,7 +428,7 @@ namespace TilerElements
             SubCalendarEventRestricted retValue = new SubCalendarEventRestricted();
             retValue.BusyFrame = this.ActiveSlot;
             retValue._CalendarEventRange = this.getCalendarEventRange.CreateCopy();
-            retValue._Name = this.getName.createCopy();
+            retValue._Name = this.getName?.createCopy();
             retValue._EventDuration = this.getActiveDuration;
             retValue._Complete = this.getIsComplete;
             retValue._ConflictingEvents = this.Conflicts;

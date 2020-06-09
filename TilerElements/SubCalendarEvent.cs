@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace TilerElements
@@ -50,6 +51,7 @@ namespace TilerElements
         /// Will hold the reasons that were collated from the last time the schedule was modified. This is to be only loaded from storage and not to be updated
         /// </summary>
         protected Dictionary<TimeSpan, List<Reason>> HistoricalReasonsCurrentPosition = new Dictionary<TimeSpan, List<Reason>>();
+        protected List<TimeLine> _pausedTimeSlot = null;
 
         #region undoMembers
 
@@ -1390,6 +1392,20 @@ namespace TilerElements
             set
             {
                 _RepetitionLock = value;
+            }
+            get
+            {
+                return _RepetitionLock;
+            }
+        }
+
+
+        virtual public string PausedTimeSlots_DB
+        {
+            set
+            {
+                JArray pauseSlots = JsonConvert.
+                _pausedTimeSlot = JSo;
             }
             get
             {

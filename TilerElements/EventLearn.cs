@@ -46,7 +46,7 @@ namespace TilerElements
 
             Dictionary<SubCalendarEvent, TimeLine> SubCalendarEvent_TimeSapn;
 
-            SubCalendarEvent_TimeSapn = AllSubCalendarEvents.ToDictionary(obj => obj, obj => obj.getCalendarEventRange.InterferringTimeLine(referenceTimeLines));
+            SubCalendarEvent_TimeSapn = AllSubCalendarEvents.ToDictionary(obj => obj, obj => obj.getCalculationRange.InterferringTimeLine(referenceTimeLines));
             Dictionary<SubCalendarEvent, TimeLine> notNull = SubCalendarEvent_TimeSapn.Where(obj => obj.Value != null).ToDictionary(obj => obj.Key, obj => obj.Value);
             if (notNull.Count > 0)
             {
@@ -77,7 +77,7 @@ namespace TilerElements
 
             Dictionary<TimeLineWithEdgeElements, TimeLine> Timeline_TimeSapn;
 
-            Timeline_TimeSapn = AllTimeLines.ToDictionary(obj => obj, obj => obj.InterferringTimeLine(referenceSubCalendarEvent.getCalendarEventRange));
+            Timeline_TimeSapn = AllTimeLines.ToDictionary(obj => obj, obj => obj.InterferringTimeLine(referenceSubCalendarEvent.getCalculationRange));
             Dictionary<TimeLineWithEdgeElements, TimeLine>  notNull = Timeline_TimeSapn.Where(obj => obj.Value != null).ToDictionary(obj=>obj.Key, obj=>obj.Value);
             if (notNull.Count > 0)
             {

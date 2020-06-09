@@ -3,21 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Collections.Concurrent;
+using Newtonsoft.Json.Linq;
+using NodaTime;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TilerElements
 {
-    public class TimeLine : IDefinedRange
+    public class TimeLine : IDefinedRange, IJson
     {
         protected DateTimeOffset EndTime;
         protected DateTimeOffset StartTime;
-        protected ConcurrentBag <BusyTimeLine> ActiveTimeSlots;
+        protected Dictionary<string, BusyTimeLine> ActiveTimeSlots;
+        protected bool isForever = false;
 
         #region constructor
         public TimeLine()
         {
             StartTime = new DateTimeOffset();
             EndTime = StartTime;
-            ActiveTimeSlots = new ConcurrentBag<BusyTimeLine>();
+            ActiveTimeSlots = new Dictionary<string, BusyTimeLine>();
             
         }
 
@@ -26,7 +30,7 @@ namespace TilerElements
         {
             StartTime = MyStartTime;
             EndTime = MyEndTime;
-            ActiveTimeSlots = new ConcurrentBag<BusyTimeLine>();
+            ActiveTimeSlots = new Dictionary<string, BusyTimeLine>();
             //MessageBox.Show("Error In TimeLine Arguments End Time is less than Start Time");
             if (MyEndTime <= MyStartTime)
             {
@@ -38,7 +42,8 @@ namespace TilerElements
 
         public override string ToString()
         {
-            return this.Start.ToString() + " - " + this.End.ToString() +"::"+this.TimelineSpan.ToString();
+            //return this.Start.LocalDateTime.ToString() + " - " + this.End.LocalDateTime.ToString() +"::"+this.TimelineSpan.ToString();
+            return this.Start.toTimeZoneTime().ToString() + " - " + this.End.toTimeZoneTime().ToString() + "::" + this.TimelineSpan.ToString();
         }
 
         virtual public BusyTimeLine toBusyTimeLine(string ID)
@@ -51,7 +56,7 @@ namespace TilerElements
 
         virtual public bool IsDateTimeWithin(DateTimeOffset MyDateTime)
         {
-            if ((MyDateTime > StartTime) && (MyDateTime < EndTime))//you might need to review semantics
+            if ((MyDateTime >= StartTime) && (MyDateTime < EndTime))//you might need to review semantics
             {
                 return true;
             }
@@ -87,21 +92,40 @@ namespace TilerElements
             else
             {
                 if (PossibleTimeLine.doesTimeLineInterfere(this))
-                return PossibleTimeLine.InterferringTimeLine(this);//checks if PossibleTimeLine is the same as or bigger than "this" timeline
+                {
+                    return PossibleTimeLine.InterferringTimeLine(this);//checks if PossibleTimeLine is the same as or bigger than "this" timeline
+                }
+                else
+                {
+                    if(PossibleTimeLine.TimelineSpan.Ticks == 0)
+                    {
+                        if(this.Start == PossibleTimeLine.Start || this.End== PossibleTimeLine.Start)
+                        {
+                            return new TimeLine(PossibleTimeLine.Start, PossibleTimeLine.End);
+                        }
+                    }
+                }
             }
 
             return null;
         }
 
-        virtual public bool doesTimeLineInterfere(TimeLine TimeLine0)
+        virtual public bool doesTimeLineInterfere(IDefinedRange timeLine)
         {
-
-            if (IsDateTimeWithin(TimeLine0.End) || IsDateTimeWithin(TimeLine0.Start) || ((this.Start == TimeLine0.Start) && (this.End == TimeLine0.End)))
-            {
-                return true;
+            bool retValue = false;
+            if((this.Start < timeLine.End) && (this.End > timeLine.Start)){
+                retValue = true;
             }
 
-            return false;
+            if (timeLine.Start == timeLine.End)
+            {
+                if (this.Start == timeLine.Start || this.End == timeLine.Start)
+                {
+                    retValue = true;
+                }
+            }
+
+            return retValue;
         }
 
 
@@ -128,18 +152,23 @@ namespace TilerElements
             CopyTimeLine.EndTime = EndTime; 
             CopyTimeLine.StartTime = StartTime;
             List<BusyTimeLine> TempActiveSlotsHolder = new List<BusyTimeLine>();
-            foreach (BusyTimeLine MyBusyTimeLine in ActiveTimeSlots)
+            foreach (BusyTimeLine MyBusyTimeLine in ActiveTimeSlots.Values)
             {
-                TempActiveSlotsHolder.Add(MyBusyTimeLine.CreateCopy());
+                TempActiveSlotsHolder.Add(MyBusyTimeLine.CreateCopy() as BusyTimeLine);
             }
 
-            CopyTimeLine.ActiveTimeSlots =  new ConcurrentBag<BusyTimeLine>( TempActiveSlotsHolder);//.ToArray();
+            CopyTimeLine.ActiveTimeSlots = TempActiveSlotsHolder.ToDictionary(o => o.Id, o => o);
             return CopyTimeLine;
         }
 
-        virtual public bool IsTimeLineWithin(TimeLine MyTimeLine)
+        /// <summary>
+        /// Function checks if <paramref name="entryTimeLine"/> can fit within the Current (this) TimeLine
+        /// </summary>
+        /// <param name="entryTimeLine"></param>
+        /// <returns></returns>
+        virtual public bool IsTimeLineWithin(IDefinedRange entryTimeLine)
         {
-            if ((MyTimeLine.Start >= StartTime) && (MyTimeLine.End <= EndTime))
+            if ((entryTimeLine.Start >= StartTime) && (entryTimeLine.End <= EndTime))
             {
                 return true;
             }
@@ -147,21 +176,53 @@ namespace TilerElements
             return false;
         }
 
-        virtual public void AddBusySlots(BusyTimeLine MyBusySlot)//Hack Alert further update will be to check if it interferes
+
+        /// <summary>
+        /// function adds a busytimeline to the active time slot of a timeline. It checks if the busyTImeLine will interfer. It only adds the section or frame that interfers. Any excess is cut out
+        /// </summary>
+        /// <param name="busyTimeLine"></param>
+        virtual public void AddBusySlots(BusyTimeLine busyTimeLine)//Hack Alert further update will be to check if it interferes
         {
-            //List<BusyTimeLine> MyListOfActiveSlots = ActiveTimeSlots.ToList();//;
-            //MyListOfActiveSlots.Add(MyBusySlot);
-            //ActiveTimeSlots = MyListOfActiveSlots.ToArray();
-            ActiveTimeSlots.Add(MyBusySlot);
+            if (doesTimeLineInterfere(busyTimeLine))
+            {
+                TimeLine interferringFrame = InterferringTimeLine(busyTimeLine);
+                var busytimeLine = new BusyTimeLine(busyTimeLine.Id, interferringFrame);
+                if(!ActiveTimeSlots.ContainsKey(busytimeLine.Id))
+                {
+                    ActiveTimeSlots.Add(busytimeLine.Id, busytimeLine);
+                }
+                else
+                {
+                    ActiveTimeSlots[busytimeLine.Id] = busytimeLine;
+                }
+                
+            }
+        }
+
+        /// <summary>
+        /// function removes a busytimeline to the active time slot of a timeline. It checks if the busyTImeLine will interfer. It only adds the section or frame that interfers. Any excess is cut out
+        /// </summary>
+        /// <param name="busyTimeLine"></param>
+        virtual public void RemoveBusySlots(BusyTimeLine busyTimeLine)//Hack Alert further update will be to check if it interferes
+        {
+            ActiveTimeSlots.Remove(busyTimeLine.Id);
         }
 
         virtual public void AddBusySlots(IEnumerable<BusyTimeLine> MyBusySlot)//Hack Alert further update will be to check if it busy slots fall within range of the timeLine
         {
-            IEnumerable<BusyTimeLine> AllBusyTImeLine = MyBusySlot.Where(obj => obj.Start <= this.End);
-            AllBusyTImeLine = AllBusyTImeLine.Where(obj => obj.End >= this.Start);
-            //var MyNewArray = ActiveTimeSlots.Concat(AllBusyTImeLine);
-            //ActiveTimeSlots = MyNewArray.ToArray();
-            AllBusyTImeLine.AsParallel().ForAll(obj => ActiveTimeSlots.Add(obj));
+            IEnumerable<BusyTimeLine> AllBusyTImeLine = MyBusySlot.Where(obj => obj.doesTimeLineInterfere(this));
+            foreach (var obj in AllBusyTImeLine) {
+                TimeLine interferringFrame = InterferringTimeLine(obj);
+                var busytimeLine = new BusyTimeLine(obj.Id, interferringFrame);
+                if(ActiveTimeSlots.ContainsKey(busytimeLine.Id))
+                {
+                    ActiveTimeSlots[busytimeLine.Id] = busytimeLine;
+                } else
+                {
+                    ActiveTimeSlots.Add(busytimeLine.Id, busytimeLine);
+                }
+                
+            };
         }
 
 
@@ -178,7 +239,7 @@ namespace TilerElements
         {
             TimeLine TempTimeLine = new TimeLine(StartTime, EndTime);
             List<BusyTimeLine> ActiveSlots = new List<BusyTimeLine>();
-            foreach (BusyTimeLine MyBusyTimeline in ActiveTimeSlots)
+            foreach (BusyTimeLine MyBusyTimeline in ActiveTimeSlots.Values)
             {
                 if (TempTimeLine.IsTimeLineWithin(MyBusyTimeline))
                 {
@@ -188,24 +249,28 @@ namespace TilerElements
             return ActiveSlots;
         }
 
+
+        /// <summary>
+        /// Evaluates all the free spot in a timeline. Overlapping timelines are collapsed into the same time line to avoid duplicated calculation. So this gets only timeline with not designated busy frames
+        /// </summary>
+        /// <returns></returns>
         virtual public TimeLine[] getAllFreeSlots()
         {
             List<TimeLine> ListOfFreeSpots = new List<TimeLine>();
-            BusyTimeLine[] ActiveTimeSlots = this.ActiveTimeSlots.ToArray();
+            BusyTimeLine[] ActiveTimeSlots = this.ActiveTimeSlots.Values.ToArray();
             if (ActiveTimeSlots.Length < 1)
             {
                 //List<TimeLine> SingleTimeline= new List<TimeLine>();
-                ListOfFreeSpots.Add(this);
+                ListOfFreeSpots.Add(new TimeLine(this.Start, this.End));
 
                 return ListOfFreeSpots.ToArray();
             }
 
             DateTimeOffset PreceedingDateTime = StartTime;
 
+            Utility.ConflictEvaluation conflictEvaluation = new Utility.ConflictEvaluation(ActiveTimeSlots);
 
-            Tuple<IEnumerable<IDefinedRange>, IEnumerable<IDefinedRange>> BusySlotsAndSeparateActiveSlots = Utility.getConflictingRangeElements(ActiveTimeSlots);
-
-            IEnumerable<IDefinedRange> AllActiveSlots = BusySlotsAndSeparateActiveSlots.Item1.Concat(BusySlotsAndSeparateActiveSlots.Item2).OrderBy(obj => obj.End);
+            IEnumerable<IDefinedRange> AllActiveSlots = conflictEvaluation.NonConflictingTimeRange.Concat(conflictEvaluation.ConflictingTimeRange).OrderBy(obj => obj.End);
 
             foreach (TimeLine MyActiveSlot in AllActiveSlots)
             {
@@ -217,7 +282,7 @@ namespace TilerElements
 
                 PreceedingDateTime = MyActiveSlot.End;
             }
-            ListOfFreeSpots.Add(new TimeLine(AllActiveSlots.Last().End, EndTime));
+            ListOfFreeSpots.Add(new TimeLine(PreceedingDateTime, EndTime));
 
             return ListOfFreeSpots.ToArray();
         }
@@ -226,7 +291,7 @@ namespace TilerElements
         virtual public TimeLineWithEdgeElements[] getAllFreeSlotsWithEdges()
         {
             List<TimeLineWithEdgeElements> ListOfFreeSpots = new List<TimeLineWithEdgeElements>();
-            BusyTimeLine[] ActiveTimeSlots = this.ActiveTimeSlots.ToArray();
+            BusyTimeLine[] ActiveTimeSlots = this.ActiveTimeSlots.Values.OrderBy(busyTimeLine => busyTimeLine.Start).ToArray();
             if (ActiveTimeSlots.Length< 1)
             {
                 //List<TimeLine> SingleTimeline= new List<TimeLine>();
@@ -239,7 +304,7 @@ namespace TilerElements
 
             foreach (BusyTimeLine MyActiveSlot in ActiveTimeSlots)
             {
-                TimeLineWithEdgeElements FreeSpot = new TimeLineWithEdgeElements(PreceedingDateTime, MyActiveSlot.Start, startEdgeElement, MyActiveSlot.ID);
+                TimeLineWithEdgeElements FreeSpot = new TimeLineWithEdgeElements(PreceedingDateTime, MyActiveSlot.Start, startEdgeElement, MyActiveSlot.Id);
                 if (FreeSpot.TimelineSpan.Ticks > 0)
                 {
                     ListOfFreeSpots.Add(FreeSpot);
@@ -248,7 +313,7 @@ namespace TilerElements
                 PreceedingDateTime = MyActiveSlot.End;
             }
             BusyTimeLine lastElement = ActiveTimeSlots[ActiveTimeSlots.Length - 1];
-            ListOfFreeSpots.Add(new TimeLineWithEdgeElements(lastElement.End, EndTime, lastElement.ID,null));
+            ListOfFreeSpots.Add(new TimeLineWithEdgeElements(lastElement.End, EndTime, lastElement.Id,null));
 
             return ListOfFreeSpots.ToArray();
         }
@@ -256,7 +321,7 @@ namespace TilerElements
         virtual public List<BusyTimeLine> getBusyTimeLineWithinSlots(TimeLine MyTimeLineRange)
         {
             List<BusyTimeLine> ActiveSlots = new List<BusyTimeLine>();
-            foreach (BusyTimeLine MyBusyTimeline in ActiveTimeSlots)
+            foreach (BusyTimeLine MyBusyTimeline in ActiveTimeSlots.Values)
             {
                 if (MyTimeLineRange.IsTimeLineWithin(MyBusyTimeline))
                 {
@@ -293,23 +358,9 @@ namespace TilerElements
                 return EndTime - StartTime;
             }
         }
+        
 
-        public TimeSpan TimeTillEnd
-        {
-            get
-            {
-                return EndTime - DateTimeOffset.Now;
-            }
-        }
-        public TimeSpan TimeTillStart
-        {
-            get
-            {
-                return StartTime - DateTimeOffset.Now;
-            }
-        }
-
-        public TimeSpan TotalFreeSpotAvailable
+        public virtual TimeSpan TotalFreeSpotAvailable
         {
             get
             {
@@ -323,92 +374,80 @@ namespace TilerElements
             }
         }
 
-
+        /// <summary>
+        /// Gets all the occupied slots within the timeline. NOTE these busy slots are not ordered in anyway
+        /// </summary>
+        [NotMapped]
         virtual public BusyTimeLine[] OccupiedSlots
         {
             set
             {
-                ActiveTimeSlots = new ConcurrentBag<BusyTimeLine>(value);
-            }
-            get
-            {
-                return ActiveTimeSlots.ToArray();
-            }
-        }
-
-        public TimeSpan TotalActiveSpan//yet to debug
-        {
-            get
-            {
-                //TimeLine[] AllFreeSlots=Schedule.getAllFreeSpots_NoCompleteSchedule(this);
-                //AllFreeSlots = AllFreeSlots.OrderBy(obj => obj.Start).ToArray();
-                TimeSpan SumOfNoneClashing = new TimeSpan(0);
-                TimeSpan SumOfClashing = new TimeSpan(0);
-                DateTimeOffset LatestDeadlineOfClashing = new DateTimeOffset();;
-                BusyTimeLine busyTimeSlotWithLatestEnd = new BusyTimeLine();
-                BusyTimeLine[] ActiveTimeSlots = this.ActiveTimeSlots.ToArray();
-
-                Dictionary<int, List<BusyTimeLine>> myClashingTimelines = this.ClashingTimelines;
-                int[] ArrayOfIndex = myClashingTimelines.Keys.ToArray();
-                if (ActiveTimeSlots.Length < 1)
+                ActiveTimeSlots = new Dictionary<string, BusyTimeLine>();
+                foreach(var busyTimeLine in value)
                 {
-                    return new TimeSpan(0);
-                }
-
-                DateTimeOffset ReferenceStartTime = ActiveTimeSlots[0].Start;
-                busyTimeSlotWithLatestEnd = ActiveTimeSlots[0];
-
-                foreach (int Index in ArrayOfIndex)
-                {
-                    if (myClashingTimelines[Index].Count < 1)//Detects if BusyTimeLine has non clashing BusyTimeLine after it
+                    if(!ActiveTimeSlots.ContainsKey(busyTimeLine.Id))
                     {
-                        if (ActiveTimeSlots[Index].Start < busyTimeSlotWithLatestEnd.End)//checks if the non clashing BusyTimeLine clashes with preceeding events
-                        {
-                            if (!ActiveTimeSlots[Index].End.Equals(busyTimeSlotWithLatestEnd.End))
-                            {
-                                //this part of code should never run because, The only time a possible clashing index active slot from  the myClashingTimelines has value with a List count of zero, it means it is an isolated TimeLine. It might clash with a preceding index list however it can only clash if it has the same latest endtime with an element in its list or itself
-                                throw new Exception("invalid matching Detected in Total Active Span logic. Need to debug ClashingTimelines logic to generate right matchup");
-                            }
-                        }
-                        else
-                        {
-                            SumOfNoneClashing.Add(ActiveTimeSlots[Index].TimelineSpan);
-                            SumOfClashing.Add(busyTimeSlotWithLatestEnd.End - ReferenceStartTime);
-                        }
+                        ActiveTimeSlots.Add(busyTimeLine.Id, busyTimeLine);
                     }
                     else
                     {
-                        if (ActiveTimeSlots[Index].Start < busyTimeSlotWithLatestEnd.End)
-                        {
-                            busyTimeSlotWithLatestEnd = getLatestEndBusyTime(myClashingTimelines[Index], busyTimeSlotWithLatestEnd);
-                        }
-                        else
-                        {
-                            SumOfClashing.Add(busyTimeSlotWithLatestEnd.End - ReferenceStartTime);
-                            ReferenceStartTime = ActiveTimeSlots[Index].Start;
-                        }
+                        ActiveTimeSlots[busyTimeLine.Id] = busyTimeLine;
                     }
                 }
+            }
+            get
+            {
+                return ActiveTimeSlots.Select(o => o.Value).ToArray();
+            }
+        }
 
-                if (ActiveTimeSlots[ActiveTimeSlots.Length - 1].Start < busyTimeSlotWithLatestEnd.End)//checks if the last ActiveTimeSlot BusyTimeLine clashes with preceeding events
-                {
-                    if (!ActiveTimeSlots[ActiveTimeSlots.Length - 1].End.Equals(busyTimeSlotWithLatestEnd.End))
-                    {
-                        //this part of code should never run because, The only time a possible clashing index active slot from  the myClashingTimelines has value with a List count of zero, it means it is an isolated TimeLine. It might clash with a preceding index list however it can only clash if it has the same latest endtime with an element in its list or itself
-                        throw new Exception("invalid matching Detected in Total Active Span logic. Need to debug ClashingTimelines logic to generate right matchup");
-                    }
-                }
-                else
-                {
-                    SumOfNoneClashing.Add(ActiveTimeSlots[ActiveTimeSlots.Length - 1].TimelineSpan);
-                }
+        /// <summary>
+        /// Gets all the occupied slots within the timeline. They are ordered in ascending order by start and then,in a descending order by the end time
+        /// </summary>
+        virtual public BusyTimeLine[] OrderedOcupiedSlots
+        {
+            set
+            {
+                ActiveTimeSlots = value.ToDictionary(o=>o.Id, o=>o);
+            }
+            get
+            {
+                return ActiveTimeSlots.OrderBy(busyTimeLine => busyTimeLine.Value.Start).ThenByDescending(busyTimeLine => busyTimeLine.Value.Start).Select(o=>o.Value).ToArray();
+            }
+        }
 
+        public virtual double FreeRatio
+        {
+            get
+            {
+                TimeSpan completeSpan = EndTime - StartTime;
+                TimeSpan freeSpan = TotalFreeSpotAvailable;
+                double retValue = (double)freeSpan.Ticks / completeSpan.Ticks;
+                return retValue;
+            }
+        }
 
-                return SumOfClashing.Add(SumOfNoneClashing);
+        public virtual double ActiveRatio
+        {
+            get
+            {
+                TimeSpan completeSpan = EndTime - StartTime;
+                TimeSpan activeSpan = TotalActiveSpan;
+                double retValue = (double)activeSpan.Ticks / completeSpan.Ticks;
+                return retValue;
+            }
+        }
 
-                //After Call to Clashing TimeLines ActiveTimeSlot gets rearranged according to startime and then endtime
-
-
+        /// <summary>
+        /// Property gets you the total active span within timespan. Note that overlapping timespans are evaluated as one.
+        /// </summary>
+        virtual public TimeSpan TotalActiveSpan
+        {
+            get
+            {
+                Utility.ConflictEvaluation ConflictEvaluation = new Utility.ConflictEvaluation(this.OccupiedSlots);
+                TimeSpan totalSpan = TimeSpan.FromTicks(ConflictEvaluation.ConflictingTimeRange.Concat(ConflictEvaluation.NonConflictingTimeRange).Select(timeRange => timeRange.StartToEnd.TimelineSpan).Sum(timeSpan => timeSpan.Ticks));
+                return totalSpan;
             }
         }
 
@@ -426,7 +465,18 @@ namespace TilerElements
             return LatestEndBusyTime;
         }
         #region Properties
-        public Dictionary<int, List<BusyTimeLine>> ClashingTimelines//yet to debug
+        /// <summary>
+        /// Function returns true if the start time and the end time equals the respective start time and end time 'timeLine'
+        /// </summary>
+        /// <param name="timeLine"></param>
+        /// <returns></returns>
+        public virtual bool isEqualStartAndEnd(TimeLine timeLine)
+        {
+            bool retValue = this.Start == timeLine.Start && this.End == timeLine.End;
+            return retValue;
+        }
+        [System.Xml.Serialization.XmlIgnore]
+        public Dictionary<int, List<BusyTimeLine>> ClashingTimelines
         {
             get
             {
@@ -435,23 +485,23 @@ namespace TilerElements
                 TimeSpan ExpectedSum = new TimeSpan(0);
                 TimeSpan CalculatedSum = new TimeSpan(0);
 
-                BusyTimeLine[] ActiveTimeSlots = this.ActiveTimeSlots.OrderBy(obj => obj.Start).ToArray();//crucial to correct execution
+                BusyTimeLine[] ActiveTimeSlots = this.OrderedOcupiedSlots;//crucial to correct execution
 
 
                 if (ActiveTimeSlots.Length < 2)
                 {
-                    try
+                    if (ActiveTimeSlots.Length == 1)
                     {
-                        if (this.IsTimeLineWithin(ActiveTimeSlots[0]))
+                        if (this.doesTimeLineInterfere(ActiveTimeSlots[0]))
                         {
+                            DictionaryOfClashingTimelines.Add(1, new List<BusyTimeLine>() {
+                                ActiveTimeSlots[0]
+                            });
                             return DictionaryOfClashingTimelines;
                         }
-                        else
-                        {
-                            throw new Exception("invalid TimeLine detected");
-                        }
+                        return DictionaryOfClashingTimelines;
                     }
-                    catch (IndexOutOfRangeException e)
+                    else
                     {
                         return DictionaryOfClashingTimelines;
                     }
@@ -469,83 +519,66 @@ namespace TilerElements
                 {
                     BusyTimeLine MyBustTimeLine = ActiveTimeSlots[i];
                     InterferringBusyTimeLines = new System.Collections.Generic.List<BusyTimeLine>();
-
-                    if ((MyBustTimeLine.Start == ActiveTimeSlots[i + 1].Start))
-                    {
-                        if (MyBustTimeLine.End < ActiveTimeSlots[i + 1].End)
-                        {
-                            ActiveTimeSlots[i] = ActiveTimeSlots[i + 1];
-                            ActiveTimeSlots[i + 1] = MyBustTimeLine;
-                            MyBustTimeLine = ActiveTimeSlots[i];
-                            InterferringBusyTimeLines.Add(ActiveTimeSlots[i + 1]);
-                            i = 0;//this can be optimized
-                            DictionaryOfClashingTimelines = new System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<BusyTimeLine>>();
-
-                            flip = true;
-                        }
-                        else
-                        {
-                            if (MyBustTimeLine.End == ActiveTimeSlots[i + 1].End)
-                            {
-                                InterferringBusyTimeLines.Add(ActiveTimeSlots[i + 1]);
-                            }
-                        }
-                    }
-
-
                     int j = i + 1;
                     for (j = i + 1; j < ActiveTimeSlots.Length; j++)
                     {
-                        if (flip)
-                        {
-                            flip = false;
-                            break;
-                        }
-
-                        if (MyBustTimeLine.IsDateTimeWithin(ActiveTimeSlots[j].Start))
+                        if (MyBustTimeLine.doesTimeLineInterfere(ActiveTimeSlots[j]))
                         {
                             InterferringBusyTimeLines.Add(ActiveTimeSlots[j]);
                         }
 
                     }
 
-                    //if (InterferringBusyTimeLines.Count > 0)
+                    if (DictionaryOfClashingTimelines.ContainsKey(i))
                     {
-                        if (DictionaryOfClashingTimelines.ContainsKey(i))
-                        {
-                            DictionaryOfClashingTimelines[i] = InterferringBusyTimeLines;
-                        }
-                        else
-                        {
-                            DictionaryOfClashingTimelines.Add(i, InterferringBusyTimeLines);
-                        }
+                        DictionaryOfClashingTimelines[i] = InterferringBusyTimeLines;
                     }
-
-
-
+                    else
+                    {
+                        DictionaryOfClashingTimelines.Add(i, InterferringBusyTimeLines);
+                    }
                 }
 
                 return DictionaryOfClashingTimelines;
             }
         }
 
-        public void Empty()
+        public virtual void Empty()
         {
-            
-            {
-                ActiveTimeSlots = new ConcurrentBag<BusyTimeLine>();
-            }
+            ActiveTimeSlots = new Dictionary<string, BusyTimeLine>();
         }
 
+        public JObject ToJson()
+        {
+            JObject retValue = new JObject();
+            retValue.Add("start", Start.ToUnixTimeMilliseconds());
+            retValue.Add("end", End.ToUnixTimeMilliseconds());
+            retValue.Add("duration", (ulong)this.TimelineSpan.TotalMilliseconds);
+            return retValue;
+        }
 
-        public TimeLine RangeTimeLine
+        /// <summary>
+        /// Returns just the start and end time timeline, no busy slots, just the beginning and end
+        /// </summary>
+        public virtual TimeLine StartToEnd
         {
             get 
             {
-                return this;
+                return new TimeLine(this.Start, this.End);
             }
         }
 
+        public static TimeLine JobjectToTimeLine(JObject jObject)
+        {
+            string startTimeString = jObject.GetValue("start").ToString();
+            string endTimeString = jObject.GetValue("end").ToString();
+            DateTimeOffset start = DateTimeOffset.FromUnixTimeMilliseconds(Convert.ToInt64( startTimeString));
+            DateTimeOffset end = DateTimeOffset.FromUnixTimeMilliseconds(Convert.ToInt64( endTimeString));
+
+
+            TimeLine retValue = new TimeLine(start, end);
+            return retValue;
+        }
 
         #endregion
     }

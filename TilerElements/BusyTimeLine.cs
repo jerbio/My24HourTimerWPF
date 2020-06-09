@@ -7,7 +7,7 @@ namespace TilerElements
 {
     public class BusyTimeLine : EventTimeLine
     {
-        TimeSpan BusySpan;
+        TimeSpan _BusySpan;
 
         public BusyTimeLine()
             : base()
@@ -16,19 +16,35 @@ namespace TilerElements
         }
         public BusyTimeLine(TimeSpan MyBusySpan)
         {
-            BusySpan = MyBusySpan;
+            _BusySpan = MyBusySpan;
             TimeLineEventID = null;
         }
         public BusyTimeLine(string MyEventID, DateTimeOffset MyStartTime, DateTimeOffset MyEndTime)
         {
-            StartTime = MyStartTime;
-            EndTime = MyEndTime;
-            BusySpan = EndTime - StartTime;
-            TimeLineEventID = MyEventID;
+            if(!String.IsNullOrEmpty(MyEventID))
+            {
+                StartTime = MyStartTime;
+                EndTime = MyEndTime;
+                _BusySpan = EndTime - StartTime;
+                TimeLineEventID = MyEventID;
+            }
+            else
+            {
+                throw new ArgumentNullException("MyEventID");
+            }
+            
+        }
+
+        public BusyTimeLine(string eventID, TimeLine timeLine)
+        {
+            StartTime = timeLine.Start;
+            EndTime = timeLine.End;
+            _BusySpan = EndTime - StartTime;
+            TimeLineEventID = eventID;
         }
 
         #region functions
-        public BusyTimeLine CreateCopy()
+        public override TimeLine CreateCopy()
         {
             BusyTimeLine MyBusyTimlineCopy = new BusyTimeLine(this.TimeLineID, StartTime, EndTime);
             return MyBusyTimlineCopy;
@@ -44,7 +60,7 @@ namespace TilerElements
         {
             StartTime = BusyTimeLineEntry.StartTime;
             EndTime = BusyTimeLineEntry.EndTime;
-            TimeLineEventID = BusyTimeLineEntry.ID;
+            TimeLineEventID = BusyTimeLineEntry.Id;
             return this;
         }
 
@@ -55,33 +71,44 @@ namespace TilerElements
         {
             get
             {
-                return BusySpan;
+                return _BusySpan;
             }
         }
 
-        public string ID
+        public override TimeSpan TotalActiveSpan => this.BusyTimeSpan;
+
+        public TimeSpan BusyTimeSpan_DB
         {
             get
             {
-                return this.TimeLineEventID;
+                return _BusySpan;
+            }
+            set
+            {
+                _BusySpan = value;
             }
         }
 
+        public TimeSpan UndoBusyTimeSpan_DB;
 
-        public DateTimeOffset Start
+        public override void undo(string undoId)
         {
-            get
+            if(this._UndoId == undoId)
             {
-                return StartTime;
+                base.undo(undoId);
+                Utility.Swap(ref UndoBusyTimeSpan_DB, ref _BusySpan);
             }
         }
-        public DateTimeOffset End
+
+        public override void redo(string undoId)
         {
-            get
+            if (this._UndoId == undoId)
             {
-                return EndTime;
+                base.undo(undoId);
+                Utility.Swap(ref UndoBusyTimeSpan_DB, ref _BusySpan);
             }
         }
+
         #endregion
     }
 }

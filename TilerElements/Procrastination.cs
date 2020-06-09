@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 
@@ -8,37 +9,146 @@ namespace TilerElements
     /// <summary>
     /// Reperesents the Procrastination parameters
     /// </summary>
-    public class Procrastination
+    public class Procrastination : IUndoable
     {
-        protected DateTimeOffset FromTime;//Time from which an event was procrastinated
-        //TimeSpan Duration;//Span of procrastination
-        protected DateTimeOffset BeginTIme;//Next time for a possible calculation of a new schedule
-        protected int SectionOfDay;// stores the section of day from which it was procrastinated
-
-        protected Procrastination()
-        { 
+        static Procrastination defaultProcrastination;
+        protected string _Id;
+        protected DateTimeOffset _FromTime = Utility.BeginningOfTime; //Time from which an event was procrastinated
+        protected DateTimeOffset _BeginTIme = Utility.BeginningOfTime;//Next time for a possible calculation of a new schedule
+        protected int _SectionOfDay;// stores the section of day from which it was procrastinated
         
+        protected TilerEvent _UndoAssociatedEvent;
+        protected DateTimeOffset _UndoFromTime;//Time from which an event was procrastinated
+        protected DateTimeOffset _UndoBeginTime;//Next time for a possible calculation of a new schedule
+        protected int _UndoSectionOfDay;// stores the section of day from which it was procrastinated
+        protected bool _isNull = false;
+        protected string _UndoId = "";
+        protected Procrastination()
+        {
+
         }
 
         public Procrastination(DateTimeOffset From, TimeSpan Span)
         {
-            FromTime = From;
-            //Duration = Span;
-            BeginTIme = FromTime.Add(Span);
+            _FromTime = From;
+            _BeginTIme = _FromTime.Add(Span);
+            _isNull = _BeginTIme.isBeginningOfTime();
         }
 
 
-        public void reset()
+        internal void reset()
         {
-            FromTime = new DateTimeOffset();
-            BeginTIme = new DateTimeOffset();
+            _FromTime = Utility.BeginningOfTime;
+            _BeginTIme = Utility.BeginningOfTime;
         }
 
+
+        public Procrastination CreateCopy(string id = "")
+        {
+            Procrastination retValue = new Procrastination(this._FromTime, _BeginTIme - _FromTime);
+            if (string.IsNullOrEmpty(id))
+            {
+                retValue._Id = this.Id;
+            }
+            else
+            {
+                retValue._Id = id;
+            }
+
+            return retValue;
+        }
+
+        public static Procrastination getDefaultProcrastination ()
+        {
+            if(defaultProcrastination == null)
+            {
+                defaultProcrastination = new Procrastination();
+                defaultProcrastination._isNull = true;
+            }
+
+            return defaultProcrastination;
+        }
+
+        [NotMapped]
+        public TilerEvent UndoAssociatedEvent
+        {
+            get
+            {
+                return _UndoAssociatedEvent;
+            }
+            set
+            {
+                _UndoAssociatedEvent = value;
+            }
+        }
+        public DateTimeOffset UndoFromTime
+        {
+            get
+            {
+                return _UndoFromTime;
+            }
+            set
+            {
+                _UndoFromTime = value;
+            }
+        }
+        public DateTimeOffset UndoBeginTime
+        {
+            get
+            {
+                return _UndoBeginTime;
+            }
+            set
+            {
+                _UndoBeginTime = value;
+            }
+        }
+        public int UndoSectionOfDay
+        {
+            get
+            {
+                return _UndoSectionOfDay;
+            }
+            set
+            {
+                _UndoSectionOfDay = value;
+            }
+        }
+
+        public void undoUpdate(Undo undo)
+        {
+            _UndoFromTime = _FromTime;
+            _UndoBeginTime = _BeginTIme;
+            _UndoSectionOfDay = _SectionOfDay;
+            FirstInstantiation = false;
+            this._UndoId = undo.id;
+        }
+
+        public void undo(string undoId)
+        {
+            if (undoId == this.UndoId)
+            {
+                Utility.Swap(ref _UndoFromTime, ref _FromTime);
+                Utility.Swap(ref _UndoBeginTime, ref _BeginTIme);
+                Utility.Swap(ref _UndoSectionOfDay, ref _SectionOfDay);
+            }
+        }
+
+        public void redo(string undoId)
+        {
+            if (undoId == this.UndoId)
+            {
+                Utility.Swap(ref _UndoFromTime, ref _FromTime);
+                Utility.Swap(ref _UndoBeginTime, ref _BeginTIme);
+                Utility.Swap(ref _UndoSectionOfDay, ref _SectionOfDay);
+            }
+        }
+        #region properties
         public DateTimeOffset PreferredStartTime
         {
             get
             {
-                return BeginTIme;
+                return _BeginTIme;
             }
         }
 
@@ -46,15 +156,15 @@ namespace TilerElements
         {
             get
             {
-                return FromTime;
+                return _FromTime;
             }
         }
 
         public DayOfWeek DislikedDayOfWeek
-        { 
+        {
             get
             {
-                return FromTime.DayOfWeek;
+                return _FromTime.DayOfWeek;
             }
         }
 
@@ -62,31 +172,104 @@ namespace TilerElements
         {
             get
             {
-                return SectionOfDay;
+                return _SectionOfDay;
             }
         }
 
-        public ulong DislikedDayIndex
+        public long DislikedDayIndex(ReferenceNow now)
         {
-            get 
-            {
-                return ReferenceNow.getDayIndexFromStartOfTime(FromTime);
-            }
+            return now.getDayIndexFromStartOfTime(FromTime);
         }
 
-        public ulong PreferredDayIndex
+        public long PreferredDayIndex(ReferenceNow now)
+        {
+            return now.getDayIndexFromStartOfTime(BeginTIme);
+        }
+
+        public void Update (Procrastination procrastination)
+        {
+            this._BeginTIme = procrastination._BeginTIme;
+            this._FromTime = procrastination._FromTime;
+            this._isNull = procrastination._isNull;
+            this._SectionOfDay= procrastination._SectionOfDay;
+        }
+
+        #region dbProperties
+        public string Id
         {
             get
             {
-                return ReferenceNow.getDayIndexFromStartOfTime(BeginTIme);
+                return _Id ?? (_Id = Guid.NewGuid().ToString());
+            }
+            set
+            {
+                _Id = value;
             }
         }
 
-        public Procrastination CreateCopy()
+        public DateTimeOffset FromTime
         {
-            Procrastination retValue = new Procrastination(this.FromTime,BeginTIme-FromTime);
-            return retValue ;
+            set
+            {
+                _FromTime = value;
+            }
+            get
+            {
+                return _FromTime;
+            }
+        }
+        public DateTimeOffset BeginTIme
+        {
+            set
+            {
+                _BeginTIme = value;
+            }
+            get
+            {
+                return _BeginTIme;
+            }
+        }
+        public int SectionOfDay
+        {
+            set
+            {
+                _SectionOfDay = value;
+            }
+            get
+            {
+                return _SectionOfDay;
+            }
         }
 
+        public bool FirstInstantiation { get; set; } = true;
+
+        public string UndoId
+        {
+            get
+            {
+                return _UndoId;
+            }
+            set
+            {
+                _UndoId = value;
+            }
+        }
+
+        public bool isNull {
+            get
+            {
+                return this._isNull;
+            }
+            set
+            {
+                this._isNull = value;
+            }
+        }
+        #endregion
+        public override string ToString()
+        {
+            return this._FromTime.ToString() + " - " + this.BeginTIme.ToString() + "::" + this.Id + "\t\t::" + this.SectionOfDay.ToString();
+        }
+        #endregion
     }
 }

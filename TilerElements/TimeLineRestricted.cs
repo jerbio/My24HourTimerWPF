@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,43 +9,51 @@ namespace TilerElements
     public class TimeLineRestricted:TimeLine
     {
         RestrictionProfile RestrictionInfo;
-        Dictionary<ulong, HashSet<TimeLine>> DayOfYearToTimeLine;
+        Dictionary<long, HashSet<TimeLine>> DayOfYearToTimeLine;
         DateTimeOffset NonViableStart;
         DateTimeOffset NonViableEnd;
         TimeSpan RangeSpanInfo;
-        bool isPlausible = false;
-        ulong EarliestDayIndex;
-        ulong LatestDayIndex;
-
-        public TimeLineRestricted(DateTimeOffset StartData, DateTimeOffset EndData, RestrictionProfile RestrictionData)
+        /// <summary>
+        /// _isViableis true if the noViableStart - noViableEnd has a timeframe that can include the restrictionDay. So for example nonvialbleStart - nonviableEnd is 9:00a of July 1 2019- 10:00a of July 1 2019 but the Restriction Profile has 12:00p - 10:001  of any day. There is no scenario where the restricted schedule will be viable
+        /// </summary>
+        bool _isViable= false;
+        long EarliestDayIndex;
+        long LatestDayIndex;
+        ReferenceNow Now;
+        public TimeLineRestricted(DateTimeOffset StartData, DateTimeOffset EndData, RestrictionProfile RestrictionData, ReferenceNow now)
         {
             RestrictionInfo = RestrictionData;
             NonViableStart = StartData;
             NonViableEnd = EndData;
+            Now = now;
             initialize();
+        }
+
+        public TimeLineRestricted(TimeLine timeLine, RestrictionProfile RestrictionData, ReferenceNow now):this(timeLine.Start, timeLine.End, RestrictionData, now)
+        {
         }
 
         void initialize()
         {
-            isPlausible = false;
-            DayOfYearToTimeLine = new Dictionary<ulong, HashSet<TimeLine>>();
-            List<TimeLine> AllTImeLines = RestrictionInfo.getAllTimePossibleTimeFrames(new TimeLine(NonViableStart, NonViableEnd)).OrderBy(obj => obj.Start).ToList();
+            _isViable= false;
+            DayOfYearToTimeLine = new Dictionary<long, HashSet<TimeLine>>();
+            List<TimeLine> AllTImeLines = RestrictionInfo.getAllNonPartialTimeFrames(new TimeLine(NonViableStart, NonViableEnd)).OrderBy(obj => obj.Start).ToList();
 
-            ILookup<ulong, TimeLine> lookUpData0 = AllTImeLines.ToLookup(obj => ReferenceNow.getDayIndexFromStartOfTime(obj.Start), obj => obj);
-            ILookup<ulong, TimeLine> lookUpData1 = AllTImeLines.ToLookup(obj => ReferenceNow.getDayIndexFromStartOfTime(obj.End), obj => obj);
+            ILookup<long, TimeLine> lookUpData0 = AllTImeLines.ToLookup(obj => Now.getDayIndexFromStartOfTime(obj.Start), obj => obj);
+            ILookup<long, TimeLine> lookUpData1 = AllTImeLines.ToLookup(obj => Now.getDayIndexFromStartOfTime(obj.End), obj => obj);
 
 
             //ILookup<ulong,TimeLine>lookUpData =.ToLookup(obj=>ReferenceNow.getDayIndexFromStartOfTime(obj.Start),obj=>obj);
             RangeSpanInfo=new TimeSpan(0);
             long TotalTicks =0;
-            foreach (IGrouping<ulong,TimeLine> eachIGrouping in lookUpData0)
+            foreach (IGrouping<long,TimeLine> eachIGrouping in lookUpData0)
             {
                 DayOfYearToTimeLine.Add(eachIGrouping.Key, new HashSet<TimeLine>(lookUpData0[eachIGrouping.Key]));
 
                 TotalTicks += lookUpData0[eachIGrouping.Key].Sum(obj => obj.TimelineSpan.Ticks);
             }
 
-            foreach (IGrouping<ulong, TimeLine> eachIGrouping in lookUpData1)
+            foreach (IGrouping<long, TimeLine> eachIGrouping in lookUpData1)
             {
                 if (DayOfYearToTimeLine.ContainsKey(eachIGrouping.Key))
                 { 
@@ -70,9 +79,9 @@ namespace TilerElements
                 TimeLine LAstTimeLine = DayOfYearToTimeLine.Last().Value.Last();
                 StartTime = FirstTImeLine.Start;
                 EndTime = LAstTimeLine.End;
-                EarliestDayIndex = ReferenceNow.getDayIndexFromStartOfTime(StartTime);
-                LatestDayIndex = ReferenceNow.getDayIndexFromStartOfTime(LAstTimeLine.End);
-                isPlausible = true;
+                EarliestDayIndex = Now.getDayIndexFromStartOfTime(StartTime);
+                LatestDayIndex = Now.getDayIndexFromStartOfTime(LAstTimeLine.End);
+                _isViable= true;
             }
 
             
@@ -94,10 +103,10 @@ namespace TilerElements
             base.AddBusySlots(MyBusySlot);
         }
 
-        public override bool doesTimeLineInterfere(TimeLine TimeLineData)
+        public override bool doesTimeLineInterfere(IDefinedRange TimeLineData)
         {
-            ulong StartIndex = ReferenceNow.getDayIndexFromStartOfTime(TimeLineData.Start);
-            ulong EndIndex = ReferenceNow.getDayIndexFromStartOfTime(TimeLineData.End);
+            long StartIndex = Now.getDayIndexFromStartOfTime(TimeLineData.Start);
+            long EndIndex = Now.getDayIndexFromStartOfTime(TimeLineData.End);
 
             StartIndex = EarliestDayIndex > StartIndex ? EarliestDayIndex : StartIndex;
             EndIndex = LatestDayIndex < EndIndex ? LatestDayIndex : EndIndex;
@@ -105,7 +114,7 @@ namespace TilerElements
             bool retValue = false;
 
             bool breakOuter = false;
-            for (ulong i = StartIndex; i <= EndIndex; i++)
+            for (long i = StartIndex; i <= EndIndex; i++)
             {
                 if (DayOfYearToTimeLine.ContainsKey(i))
                 {
@@ -116,15 +125,6 @@ namespace TilerElements
                             retValue = true;
                             breakOuter = true;
                             break;
-                        }
-                        else
-                        {
-                            if (TimeLineData.doesTimeLineInterfere(eachTimeLine))
-                            {
-                                retValue = true;
-                                breakOuter = true;
-                                break;
-                            }
                         }
                     }
                 }
@@ -138,8 +138,7 @@ namespace TilerElements
                             retValue = true;
                             breakOuter = true;
                             break;
-                        }
-                        ;
+                        };
                     }
                 }
 
@@ -174,7 +173,7 @@ namespace TilerElements
 
             if (retValue != null)
             {
-                TimeLineRestricted retValueRestricted = new TimeLineRestricted(retValue.Start, retValue.End, RestrictionInfo);
+                TimeLineRestricted retValueRestricted = new TimeLineRestricted(retValue.Start, retValue.End, RestrictionInfo, Now);
                 if (retValueRestricted.RangeSpanInfo.Ticks == 0)
                 {
                     return null;
@@ -185,6 +184,19 @@ namespace TilerElements
             {
                 return retValue;
             }
+        }
+
+        public override TimeLine CreateCopy()
+        {
+            TimeLineRestricted CopyTimeLine = new TimeLineRestricted(StartTime, EndTime, RestrictionInfo.createCopy(), Now);
+            List<BusyTimeLine> TempActiveSlotsHolder = new List<BusyTimeLine>();
+            foreach (BusyTimeLine MyBusyTimeLine in ActiveTimeSlots.Values)
+            {
+                TempActiveSlotsHolder.Add(MyBusyTimeLine.CreateCopy() as BusyTimeLine);
+            }
+
+            CopyTimeLine.ActiveTimeSlots = new Dictionary<string, BusyTimeLine>();
+            return CopyTimeLine;
         }
 
         public override List<BusyTimeLine> getBusyTimeLineWithinSlots(TimeLine MyTimeLineRange)
@@ -207,9 +219,9 @@ namespace TilerElements
         /// </summary>
         /// <param name="MyTimeLine"></param>
         /// <returns></returns>
-        public override bool IsTimeLineWithin(TimeLine MyTimeLine)
+        public override bool IsTimeLineWithin(IDefinedRange MyTimeLine)
         {
-            List<TimeLine> timeFrames = RestrictionInfo.getAllTimePossibleTimeFrames(new TimeLine (this.StartTime,this.EndTime)).Where(obj=>obj.TimelineSpan >= MyTimeLine.TimelineSpan).ToList();
+            List<TimeLine> timeFrames = RestrictionInfo.getAllNonPartialTimeFrames(new TimeLine (this.StartTime,this.EndTime)).Where(obj=>obj.TimelineSpan >= MyTimeLine.StartToEnd.TimelineSpan).ToList();
 
             foreach (TimeLine eachTimeLine in timeFrames)
             { 
@@ -232,7 +244,7 @@ namespace TilerElements
         /// <returns></returns>
         public override bool IsDateTimeWithin(DateTimeOffset MyDateTime)
         {
-            TimeLine timeFrame = RestrictionInfo.getEarliestStartTimeWithinAFrameAfterRefTime(MyDateTime);
+            TimeLine timeFrame = RestrictionInfo.getEarliestStartTimeWithinAFrameAfterRefTime(MyDateTime).Item1;
             TimeLine tempFrame = new TimeLine(this.Start, this.EndTime);
             tempFrame = tempFrame.InterferringTimeLine(timeFrame);
             if (tempFrame!=null)
@@ -251,6 +263,26 @@ namespace TilerElements
         {
             List<TimeLine> retValue= DayOfYearToTimeLine.SelectMany(obj => obj.Value).ToList();
             return retValue;
+        }
+
+        public override TimeLine StartToEnd
+        {
+            get
+            {
+                return new TimeLine(this.NonViableStart, this.NonViableEnd);
+            }
+        }
+
+        public bool IsViable
+        {
+            set
+            {
+                _isViable= value;
+            }
+            get
+            {
+                return _isViable;
+            }
         }
     }
 }

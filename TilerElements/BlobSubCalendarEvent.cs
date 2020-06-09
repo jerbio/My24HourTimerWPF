@@ -2,32 +2,40 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json.Linq;
 
 namespace TilerElements
 {
     public class BlobSubCalendarEvent:SubCalendarEvent
     {
-        SubCalendarEvent[] EventClumps;
+        protected BlobSubCalendarEvent():base()
+        {
+            BlobEvent = true;
+            _RigidSchedule = true;
+        }
+        HashSet<SubCalendarEvent> EventClumps;
 
         public BlobSubCalendarEvent(IEnumerable<SubCalendarEvent> InterFerringEvents)
         {
-            StartDateTime= InterFerringEvents.OrderBy(obj => obj.Start).First().Start;
-            EndDateTime = InterFerringEvents.OrderByDescending(obj => obj.End).First().End;
+            updateStartTime( InterFerringEvents.OrderBy(obj => obj.Start).First().Start);
+            updateEndTime( InterFerringEvents.OrderByDescending(obj => obj.End).First().End);
             UniqueID=EventID.GenerateSubCalendarEvent(EventID.GenerateCalendarEvent().ToString());
-            BusyFrame = new BusyTimeLine(UniqueID.ToString(), StartDateTime, EndDateTime);
-            CalendarEventRange = new TimeLine(StartDateTime,EndDateTime);
-            CalendarEvent nullEvent = CalendarEvent.getEmptyCalendarEvent(UniqueID, StartDateTime, EndDateTime);
-            RigidSchedule = true;
+            BusyFrame = new BusyTimeLine(UniqueID.ToString(), Start, End);
+            _CalendarEventRange = new TimeLine(Start,End);
+            CalendarEvent nullEvent = CalendarEvent.getEmptyCalendarEvent(UniqueID, Start, End);
+            _RigidSchedule = true;
             double halfDouble=Double.MaxValue/2;
-            LocationInfo = Location_Elements.AverageGPSLocation(InterFerringEvents.Where(Obj => Obj.myLocation.XCoordinate < halfDouble).Select(obj => obj.myLocation));
-            EventScore = 0;
-            EventClumps = InterFerringEvents.ToArray();
-            EventDuration = TimeSpan.FromTicks( InterFerringEvents.Sum(obj => obj.ActiveDuration.Ticks));
-            ConflictingEvents = new ConflictProfile();
+            _LocationInfo = Location.AverageGPSLocation(InterFerringEvents.Where(Obj => Obj.Location!=null && Obj.Location.Latitude < halfDouble).Select(obj => obj.Location));
+            _EventScore = 0;
+            EventClumps = new HashSet<SubCalendarEvent>(InterFerringEvents);
+            _EventDuration = TimeSpan.FromTicks( InterFerringEvents.Sum(obj => obj.getActiveDuration.Ticks));
+            
+            _ConflictingEvents = new ConflictProfile();
             BlobEvent = true;
+            _Name = new EventName(null, this);
         }
 
-        public IEnumerable<SubCalendarEvent> getSubCalendarEventsInBlob()
+        public HashSet<SubCalendarEvent> getSubCalendarEventsInBlob()
         {
             return EventClumps;
         }
@@ -41,11 +49,15 @@ namespace TilerElements
             }
         }
 
-        public ConflictProfile Conflicts
+        public override JObject Json
         {
             get
             {
-                return ConflictingEvents;
+                JObject retvalue = base.Json;
+                JArray subEventsInBlob = new JArray(this.getSubCalendarEventsInBlob().Select(sub => sub.Json));
+
+                retvalue.Add("subEventsInBlob", subEventsInBlob);
+                return retvalue;
             }
         }
         #endregion

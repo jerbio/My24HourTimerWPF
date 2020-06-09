@@ -1,85 +1,167 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 
 namespace TilerElements
 {
     
-    public class EventDisplay
+    public class EventDisplay: IUndoable
     {
-        bool Visible;
+        bool _Visible;
         TilerColor eventColor;
-        int Default = 0;//0->Default Calendar Colors,1->Set As Complete,2->subCalendar Event Specific colors,3->Calendar Event Specific colors
-        bool CompleteUI;
-        public EventDisplay()
+        int _Default = 0;//0->Default Calendar Colors,1->Set As Complete,2->subCalendar Event Specific colors,3->Calendar Event Specific colors
+        string _Id = Guid.NewGuid().ToString();
+        string _colorId = Guid.NewGuid().ToString();
+        string _UndoId;
+
+        #region undoMembers
+        public bool UndoVisible;
+        public TilerColor UndoEventColor;
+        public int UndoDefault = 0;//0->Default Calendar Colors,1->Set As Complete,2->subCalendar Event Specific colors,3->Calendar Event Specific colors
+        
+        #endregion
+        public string Id
         {
-            Visible = true;
-            eventColor = new TilerColor(127, 127, 127, 1);
-            Default = 0;
+            get
+            {
+                return _Id;
+            }
+            set
+            {
+                _Id = value;
+            }
+        }
+        protected EventDisplay()
+        {
+            _Default = 0;
+        }
+
+        public EventDisplay(bool initialize = true)
+        {
+            if(initialize)
+            {
+                _Visible = true;
+                eventColor = new TilerColor(127, 127, 127, 1);
+                _Default = 0;
+            }
+            
         }
         public EventDisplay(bool VisibleFlag, TilerColor EventColor,int TypeOfDisplay=0,bool CompleteFlag=false)
         {
-            Visible = VisibleFlag;
+            _Visible = VisibleFlag;
             eventColor = EventColor;
-            Default = TypeOfDisplay;
-            CompleteUI = CompleteFlag;
+            _Default = TypeOfDisplay;
         }
 
         public EventDisplay createCopy()
         {
-            EventDisplay retValue = new EventDisplay();
-            retValue .Visible =Visible;
+            EventDisplay retValue = new EventDisplay(true);
+            retValue ._Visible =_Visible;
             retValue.eventColor = eventColor;
-            retValue.Default = Default;//0->Default Calendar Colors,1->Set As Complete,2->subCalendar Event Specific colors,3->Calendar Event Specific colors
-            retValue.CompleteUI = CompleteUI;
+            retValue._Default = _Default;//0->Default Calendar Colors,1->Set As Complete,2->subCalendar Event Specific colors,3->Calendar Event Specific colors
             return retValue;
         }
 
-        public void setCompleteUI(bool completeFlag)
+        public void undoUpdate(Undo undo)
         {
-            CompleteUI = completeFlag;
+            UndoDefault = _Default;
+            UndoVisible = _Visible;
+            eventColor.undoUpdate(undo);
+            FirstInstantiation = false;
+            this._UndoId = undo.id;
         }
 
-
-
-        #region Properties
-        public bool isVisible
+        public void undo(string undoId)
         {
-            get
+            if(UndoId == undoId)
             {
-                return Visible;
+                this.UndoVisible = _Visible;
+                eventColor.undo(undoId);
             }
         }
 
+        public void redo(string undoId)
+        {
+            if (UndoId == undoId)
+            {
+                this.UndoVisible = _Visible;
+                eventColor.undo(undoId);
+            }
+        }
+
+
+        #region Properties
+        public string ColorId
+        {
+            get
+            {
+                return _colorId;
+            }
+            set
+            {
+                _colorId = value;
+            }
+        }
+
+        [ForeignKey("ColorId")]
         public TilerColor UIColor
         {
+            set
+            {
+                eventColor = value;
+            }
             get
             {
                 return eventColor;
             }
         }
 
-
-        public int isDefault
-        {
-            get 
-            {
-                return Default;
-            }
-        }
-
-        public bool isCompleteUI
+        public int Default
         {
             get
             {
-                return CompleteUI;
+                return _Default;
             }
         }
 
-        
+        public bool isDefault
+        {
+            get 
+            {
+                return _Default == 0;
+            }
+        }
 
-        
+        public virtual bool FirstInstantiation { get; set; } = true;
+
+        public string UndoId
+        {
+            set
+            {
+                _UndoId = value;
+            }
+            get
+            {
+                return _UndoId;
+            }
+        }
+
+        public bool Visible
+        {
+            get
+            {
+                return _Visible;
+            }
+            set
+            {
+                _Visible = value;
+            }
+        }
+
+
+
 
         #endregion
     }

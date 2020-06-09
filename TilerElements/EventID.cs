@@ -7,10 +7,8 @@ namespace TilerElements
 {
     public class EventID
     {
-        private static int CalendarEvenntLimitIndex = 2;
         string[] LayerID = new string[4] { "0", "7", "0", "0"};
         string s_FullID="";
-        int FullID;
         static string delimiter = "_";
         static char delimiter_char ='_';
         public EventID(string stringId)
@@ -31,20 +29,7 @@ namespace TilerElements
         }
         private EventID(string[] myLayerID)
         {
-
             Initializer(myLayerID);
-
-            /*//string currConcat=sb.ToString();
-            string currConcat = myId;
-            if (string.IsNullOrEmpty(currConcat))
-            {
-                FullID = 0;
-            }
-            else
-            {
-                FullID = Convert.ToInt32(currConcat);
-            }*/
-
         }
 
         void Initializer(string[] myLayerID)
@@ -64,12 +49,12 @@ namespace TilerElements
                     break;
                 case 2:
                     {
-                        LayerID = new string[4] { myLayerID[0], "7", myLayerID[1], "0" };
+                        LayerID = new string[4] { myLayerID[0], myLayerID[1],"0", "0" };
                     }
                     break;
                 case 3:
                     {
-                        LayerID = new string[4] { myLayerID[0], "7", myLayerID[1], myLayerID[2] };
+                        LayerID = new string[4] { myLayerID[0], myLayerID[1], myLayerID[2], "0" };
                     }
                     break;
                 case 4:
@@ -141,8 +126,8 @@ namespace TilerElements
 
 
         private void AddNewComponentID(int index)
-        { 
-            string id= EventIDGenerator.generate().ToString();
+        {
+            string id = Guid.NewGuid().ToString();
             LayerID[index] = id;
             s_FullID = string.Join(delimiter, LayerID);
         }
@@ -157,13 +142,13 @@ namespace TilerElements
 
         public static EventID generateGoogleAuthenticationID(uint CurrentIndex)
         {
-            EventID retValue = new EventID((int)ThirdPartyControl.CalendarTool.Google + "_" + CurrentIndex + "_0_0");
+            EventID retValue = new EventID((int)ThirdPartyControl.CalendarTool.google + "_" + CurrentIndex + "_0_0");
             return retValue;
         }
 
         public static EventID generateGoogleCalendarEventID(uint CurrentIndex)
         {
-            EventID retValue = new EventID((int)ThirdPartyControl.CalendarTool.Google + "_0_" + CurrentIndex + "_0");
+            EventID retValue = new EventID((int)ThirdPartyControl.CalendarTool.google + "_0_" + CurrentIndex + "_0");
             return retValue;
         }
 
@@ -181,13 +166,13 @@ namespace TilerElements
 
         public static EventID generateFacebookCalendarEventID()
         {
-            EventID retValue = new EventID((int)ThirdPartyControl.CalendarTool.Facebook + "_7_0_0");
+            EventID retValue = new EventID((int)ThirdPartyControl.CalendarTool.facebook + "_7_0_0");
             return retValue;
         }
 
         public static EventID generateOutlookCalendarEventID()
         {
-            EventID retValue = new EventID((int)ThirdPartyControl.CalendarTool.Facebook + "_7_0_0");
+            EventID retValue = new EventID((int)ThirdPartyControl.CalendarTool.facebook + "_7_0_0");
             return retValue;
         }
 
@@ -283,12 +268,12 @@ namespace TilerElements
 
         public string getRepeatCalendarEventComponent()
         {
-            return getLevelID(1);
+            return getLevelID(2); 
         }
 
         public string getRepeatDayCalendarEventComponent()
         {
-            return getLevelID(2);
+            return getLevelID(1);
         }
 
         public string getSubCalendarEventComponent()
@@ -326,8 +311,21 @@ namespace TilerElements
         }
 
 
-        
+        public static bool isLikeTilerId(string id)
+        {
+            EventID eventId = new EventID(id);
+            string calComponent = eventId.getCalendarEventComponent();
+            string dayComponent = eventId.getRepeatDayCalendarEventComponent();
+            string repeatComponent = eventId.getRepeatCalendarEventComponent();
+            string subCalendarComponent = eventId.getRepeatCalendarEventComponent();
 
+            bool calComponentIsValid = calComponent.isGuid() || calComponent.isInt();
+            bool dayComponentIsValid = dayComponent.isGuid() || dayComponent.isInt();
+            bool repeatComponentIsValid = repeatComponent.isGuid() || repeatComponent.isInt();
+            bool subCalendarComponentIsValid = subCalendarComponent.isGuid() || subCalendarComponent.isInt();
+
+            return calComponentIsValid && dayComponentIsValid && repeatComponentIsValid && subCalendarComponentIsValid;
+        }
 
         public override string ToString()
         {
@@ -374,13 +372,19 @@ namespace TilerElements
             EventIDGenerator.Initialize(LastID);
         }
 
-        
+        public string getAllEventDictionaryLookup
+        {
+            get
+            {
+                string retValue = this.getRepeatCalendarEventID();
+                return retValue;
+            }
+        }
 
         private static class EventIDGenerator
         {
             static uint idcounter = 0;
 
-            static bool AlreadyInitialized = false;
             public static void Initialize(uint LastID)
             {
                 idcounter = LastID;

@@ -1,246 +1,412 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json.Linq;
+
 namespace TilerElements
 {
     public class SubCalendarEvent : TilerEvent,IDefinedRange
     {
         public static DateTimeOffset InitialPauseTime  = new DateTimeOffset();
         protected BusyTimeLine BusyFrame;
-        protected BusyTimeLine NonHumaneTimeLine= new BusyTimeLine();
-        protected BusyTimeLine HumaneTimeLine = new BusyTimeLine();
-        TimeSpan AvailablePreceedingFreeSpace;
-        protected TimeLine CalendarEventRange;
-        protected double EventScore;
-        protected ConflictProfile ConflictingEvents = new ConflictProfile();
-        protected ulong preferredDayIndex=0;
+        protected BusyTimeLine TempBusyFrame;
+        protected TimeLine _CalendarEventRange;
+        protected DateTimeOffset _CalendarEventRangeStart;
+        protected DateTimeOffset _CalendarEventRangeEnd;
+        protected ConflictProfile _ConflictingEvents = new ConflictProfile();
+        protected long preferredDayIndex=0;
         protected int MiscIntData;
         protected bool Vestige = false;
-        protected ulong UnUsableIndex;
-        protected ulong OldPreferredIndex;
+        protected long UnUsableIndex;
+        protected long OldPreferredIndex;
         protected bool CalculationMode = false;
         protected DateTimeOffset _PauseTime = InitialPauseTime;
         protected bool BlobEvent = false;
+        protected bool OptimizationFlag = false;
+        protected List<Reason> TimePositionReasons = new List<Reason>();
+        protected DateTimeOffset _LastReasonStartTimeChanged;
+        protected TimeLine CalculationTimeLine = null;
+        protected CalendarEvent _calendarEvent;
+        protected bool _LockToId = false;
+        [NotMapped]
+        public TimeSpan TravelTimeBefore { get; set; } = new TimeSpan(1);
+        [NotMapped]
+        public TimeSpan TravelTimeAfter { get; set; } = new TimeSpan(1);
+        public bool isWake { get; set; } = false;
+        public bool isSleep { get; set; } = false;
+        [NotMapped]
+        protected bool _RepetitionLock { get; set; } = false; // this is the lock for an event when repeat is clicked
+        protected bool tempLock { get; set; } = false;// This should never get persisted
+        protected bool lockedPrecedingHours { get; set; } = false;// This should never get persisted
+        protected bool _enablePre_reschedulingTimelineLockDown { get; set; } = true;// This prevent locking for preceding twentyFour or for interferring with now
+        protected bool _isTardy { get; set; } = false;//Named tardy 'cause we fancy like that
+        /// <summary>
+        /// This holds the current session reasons. It will updated based on data and calculation optimizations from HistoricalCurrentPosition
+        /// </summary>
+        protected Dictionary<TimeSpan, List<Reason>> ReasonsForCurrentPosition = new Dictionary<TimeSpan, List<Reason>>();
+        /// <summary>
+        /// Will hold the reasons that were collated from the last time the schedule was modified. This is to be only loaded from storage and not to be updated
+        /// </summary>
+        protected Dictionary<TimeSpan, List<Reason>> HistoricalReasonsCurrentPosition = new Dictionary<TimeSpan, List<Reason>>();
+
+        #region undoMembers
+
+        #endregion
+
+        public void updateprocrastinationtree(Procrastination procrastination)
+        {
+            if (procrastination != null && !procrastination.isNull && string.IsNullOrEmpty(this.ProcrastinationId))
+            {
+                //this.ProcrastinationId = null;
+                this.Procrastination_EventDB = null;
+                //this.ProcrastinationId = procrastination.Id;
+                this.Procrastination_EventDB = procrastination;
+            }
+        }
+
+        public void updatenowprofiletree(NowProfile nowProfile)
+        {
+            if (nowProfile != null && string.IsNullOrEmpty(this.NowProfileId))
+            {
+                this.ProfileOfNow_EventDB = null;
+                //this.NowProfileId = null;
+                this.ProfileOfNow_EventDB = nowProfile;
+                //this.NowProfileId = nowProfile.Id;
+            }
+        }
 
         #region Classs Constructor
-        public SubCalendarEvent()
+        protected SubCalendarEvent()
         { }
 
-        public SubCalendarEvent(TimeSpan Event_Duration, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, bool Enabled, EventDisplay UiParam,MiscData Notes,bool completeFlag, Location_Elements EventLocation =null, TimeLine RangeOfSubCalEvent = null, ConflictProfile conflicts=null, string Creator="")
+        public SubCalendarEvent(CalendarEvent calendarEvent, TilerUser Creator, TilerUserGroup users, string timeZone, TimeSpan Event_Duration, EventName name, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, bool Enabled, EventDisplay UiParam,MiscData Notes,bool completeFlag, Location EventLocation =null, TimeLine calendarEventRange = null, ConflictProfile conflicts=null)
         {
-            CreatorIDInfo = Creator;
+            if (EventDeadline < EventStart)
+            {
+                throw new Exception("SubCalendar Event cannot have an end time earlier than the start time");
+            }
+            _Name = name;
+            _Creator = Creator;
+            _Users = users;
+            _TimeZone = timeZone;
             if (conflicts == null)
             {
                 conflicts = new ConflictProfile();
             }
-            ConflictingEvents = conflicts;
-            CalendarEventRange = RangeOfSubCalEvent;
-            StartDateTime = EventStart;
-            EndDateTime = EventDeadline;
-            EventDuration = Event_Duration;
-            PrepTime = EventPrepTime;
+            _ConflictingEvents = conflicts;
+            _CalendarEventRange = calendarEventRange;
+            updateStartTime(EventStart);
+            updateEndTime( EventDeadline);
+            _EventDuration = Event_Duration;
+            _PrepTime = EventPrepTime;
             if (myParentID == "16")
             {
                 ;
             }
-            UiParams=UiParam;
-            DataBlob = Notes;
-            Complete=completeFlag;
+            _UiParams=UiParam;
+            _DataBlob = Notes;
+            _Complete=completeFlag;
             UniqueID = EventID.GenerateSubCalendarEvent(myParentID);
-            BusyFrame = new BusyTimeLine(this.ID, StartDateTime, EndDateTime);//this is because in current implementation busy frame is the same as CalEvent frame
-            this.LocationInfo = EventLocation;
+            BusyFrame = new BusyTimeLine(this.getId, Start, End);//this is because in current implementation busy frame is the same as CalEvent frame
+            this._LocationInfo = EventLocation;
 //            EventSequence = new EventTimeLine(UniqueID.ToString(), StartDateTime, EndDateTime);
-            RigidSchedule = Rigid;
-            this.Enabled = Enabled;
+            _RigidSchedule = Rigid;
+            this._Enabled = Enabled;
+            _LastReasonStartTimeChanged = this.Start;
+            _calendarEvent = calendarEvent;
+            this._IniStartTime = this.Start;
+            this._IniEndTime = this.End;
         }
-
-
-        public SubCalendarEvent(string MySubEventID, BusyTimeLine MyBusylot, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, string myParentID, bool Rigid, bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location_Elements EventLocation = null, TimeLine RangeOfSubCalEvent = null, ConflictProfile conflicts = null, string Creator = "")
+        
+        public SubCalendarEvent(CalendarEvent calendarEvent, TilerUser Creator, TilerUserGroup users, string timeZone, string MySubEventID, EventName name, DateTimeOffset EventStart, DateTimeOffset EventDeadline, BusyTimeLine SubEventBusy, bool Rigid, bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location EventLocation = null, TimeLine calendarEventRange = null, ConflictProfile conflicts = null)
         {
-            CreatorIDInfo = Creator;
+            if (EventDeadline < EventStart)
+            {
+                throw new Exception("SubCalendar Event cannot have an end time earlier than the start time");
+            }
+            _TimeZone = timeZone;
+            _Name = name;
+            _Creator = Creator;
+            _Users = users;
             if (conflicts == null)
             {
                 conflicts = new ConflictProfile();
             }
-            ConflictingEvents = conflicts;
-            CalendarEventRange = RangeOfSubCalEvent;
-            //string eventName, TimeSpan EventDuration, DateTimeOffset EventStart, DateTimeOffset EventDeadline, TimeSpan EventPrepTime, TimeSpan PreDeadline, bool EventRigidFlag, bool EventRepetition, int EventSplit
-            StartDateTime = EventStart;
-            EndDateTime = EventDeadline;
-            EventDuration = MyBusylot.End - MyBusylot.Start;
-            BusyFrame = MyBusylot;
-            PrepTime = EventPrepTime;
+            _ConflictingEvents = conflicts;
+            _CalendarEventRange = calendarEventRange;
             UniqueID = new EventID(MySubEventID);
-            this.LocationInfo = EventLocation;
-            
-            UiParams=UiParam;
-            DataBlob= Notes;
-            Complete = completeFlag;
-
-            this.Enabled = Enabled;
-            //EventSequence = new EventTimeLine(UniqueID.ToString(), StartDateTime, EndDateTime);
-            RigidSchedule = Rigid;
-        }
-
-        public SubCalendarEvent(string MySubEventID, DateTimeOffset EventStart, DateTimeOffset EventDeadline, BusyTimeLine SubEventBusy, bool Rigid, bool Enabled, EventDisplay UiParam, MiscData Notes, bool completeFlag, Location_Elements EventLocation = null, TimeLine RangeOfSubCalEvent = null, ConflictProfile conflicts = null, string Creator = "")
-        {
-            CreatorIDInfo = Creator;
-            if (conflicts == null)
-            {
-                conflicts = new ConflictProfile();
-            }
-            ConflictingEvents = conflicts;
-            CalendarEventRange = RangeOfSubCalEvent;
-            UniqueID = new EventID(MySubEventID);
-            StartDateTime = EventStart;
-            EndDateTime = EventDeadline;
-            EventDuration = SubEventBusy.TimelineSpan;
+            updateStartTime(EventStart);
+            updateEndTime(EventDeadline);
+            _EventDuration = SubEventBusy.TimelineSpan;
             BusyFrame = SubEventBusy;
-            RigidSchedule = Rigid;
-            this.Enabled = Enabled;
-            this.LocationInfo = EventLocation;
-            UiParams = UiParam;
-            DataBlob = Notes;
-            Complete = completeFlag;
+            _RigidSchedule = Rigid;
+            this._Enabled = Enabled;
+            this._LocationInfo = EventLocation;
+            _UiParams = UiParam;
+            _DataBlob = Notes;
+            _Complete = completeFlag;
+            _LastReasonStartTimeChanged = this.Start;
+            _calendarEvent = calendarEvent;
+            this._IniStartTime = this.Start;
+            this._IniEndTime = this.End;
         }
         #endregion
 
-
         #region Class functions
 
-        public virtual string ToString()
+        public void resetTardy()
         {
-            return this.Start.ToString() + " - " + this.End.ToString() + "::" + this.ID + "\t\t::" + this.ActiveDuration.ToString();
+            _isTardy = false;
         }
 
-
-        public void disable(CalendarEvent myCalEvent)
+        public void setAsTardy()
         {
-            this.Enabled = false;
-            myCalEvent.incrementDeleteCount(this.RangeSpan);
+            _isTardy = true;
+        }
+        public virtual void updateCalculationEventRange(TimeLine timeLine)
+        {
+            TimeLine interferringTimeLine = this.getCalendarEventRange.InterferringTimeLine(timeLine);
+            if(interferringTimeLine == null)
+            {
+                this.CalculationTimeLine = timeLine;
+            }
+            else
+            {
+                this.CalculationTimeLine = interferringTimeLine;
+            }
+        }
+
+        public virtual void disable(CalendarEvent myCalEvent)
+        {
+            if (this._Enabled)
+            {
+                this._Enabled = false;
+                this._AutoDeleted = false;
+                myCalEvent.incrementDeleteCount(this.getActiveDuration);
+            }
+        }
+
+        public virtual void autoDisable(CalendarEvent myCalEvent, TilerElements.Reason.AutoDeletion reason)
+        {
+            if (this._Enabled)
+            {
+                this._Enabled = false;
+                myCalEvent.incrementAutoDeleteCount(this.getActiveDuration);
+            }
+            this._AutoDeleted = true;
         }
 
         internal void disableWithoutUpdatingCalEvent()
         {
-            this.Enabled = false;
+            this._Enabled = false;
         }
 
-        public void complete(CalendarEvent myCalEvent)
+        public virtual void complete(CalendarEvent myCalEvent, ReferenceNow now)
         {
-            this.Complete= true;
-            myCalEvent.incrementCompleteCount(this.RangeSpan);
+            if (!this._Complete)
+            {
+                this._Complete = true;
+                this._CompletionTime = now.constNow;
+                myCalEvent.addCompletionTimes(this.Start);
+                myCalEvent.incrementCompleteCount(this.getActiveDuration);
+            }
         }
 
         public void nonComplete(CalendarEvent myCalEvent)
         {
-            this.Complete = false;
-            myCalEvent.decrementCompleteCount(this.RangeSpan);
+            if (this._Complete)
+            {
+                this._Complete = false;
+                myCalEvent.removeCompletionTimes(this.Start);
+                myCalEvent.decrementCompleteCount(this.getActiveDuration);
+            }
+            
         }
 
         internal void completeWithoutUpdatingCalEvent()
         {
-            this.Complete = true;
+            this._Complete = true;
         }
 
         internal void nonCompleteWithoutUpdatingCalEvent()
         {
-            this.Complete = false;
+            this._Complete = false;
         }
 
         public void Enable(CalendarEvent myCalEvent)
         {
-            this.Enabled = true;
-            myCalEvent.decrementDeleteCount(this.RangeSpan);
+            if (!this._Enabled)
+            {
+                this._Enabled = true;
+                myCalEvent.decrementDeleteCount(this.getActiveDuration);
+            }
         }
 
         internal void enableWithouUpdatingCalEvent()
         {
-            this.Enabled = true;
+            this._Enabled = true;
         }
 
-        public void resetPreferredDayIndex()
+        protected void updateDayIndex(long dayIndex)
         {
-            preferredDayIndex = 0;
-        }
-
-        public void updateDayIndex(CalendarEvent myCalEvent)
-        {
-            preferredDayIndex = ReferenceNow.getDayIndexFromStartOfTime(StartDateTime);
-            myCalEvent.removeDayTimeFromFreeUpdays(preferredDayIndex);
-        }
-
-        public void SetCompletionStatus(bool CompletionStatus,CalendarEvent myCalendarEvent)
-        {
-            Complete = CompletionStatus;
-            UiParams.setCompleteUI(Complete);
-            if (CompletionStatus)
+            if (dayIndex == ReferenceNow.UndesignatedDayIndex)
             {
-                complete(myCalendarEvent);
+                undesignate();
             }
-            else 
+            else
             {
-                nonComplete(myCalendarEvent);
+                this.preferredDayIndex = dayIndex;
             }
         }
 
-
-        public void SetAsRigid()
+        public virtual void SetCompletionStatus(bool completeValue,CalendarEvent myCalendarEvent, ReferenceNow now)
         {
-            RigidSchedule = true;
-        }
-
-        public void SetAsNonRigid()
-        {
-            RigidSchedule = false;
-        }
-
-        /*
-        virtual public void DisableIfDeadlineHasPassed(DateTimeOffset CurrNow)
-        {
-            if (CalendarEventRange.End < CurrNow)
+            if (completeValue != _Complete)
             {
-                Disable();
-                DeadlineElapsed = true;
+                if (completeValue)
+                {
+                    complete(myCalendarEvent, now);
+                }
+                else
+                {
+                    nonComplete(myCalendarEvent);
+                }
             }
         }
-        */
+
+        public override void storeTimeLine()
+        {
+            base.storeTimeLine();
+            TempBusyFrame = BusyFrame;
+        }
+
+        public override void restoreTimeLine()
+        {
+            base.restoreTimeLine();
+            BusyFrame = TempBusyFrame;
+        }
+
+        public void tempLockSubEvent()
+        {
+            tempLock = true;
+        }
+
+        public void resetTempUnlock()
+        {
+            tempLock = false;
+        }
+
+        public void lockPrecedingHours()
+        {
+            if (_enablePre_reschedulingTimelineLockDown)
+            {
+                lockedPrecedingHours = true;
+            }
+        }
+
+        public void unLockPrecedingHours()
+        {
+            if (_enablePre_reschedulingTimelineLockDown)
+            {
+                lockedPrecedingHours = false;
+            }
+        }
+
+        public void disablePreschedulingLock()
+        {
+            _enablePre_reschedulingTimelineLockDown = false;
+        }
+
+        public void enablePreschedulingLock()
+        {
+            _enablePre_reschedulingTimelineLockDown = true;
+        }
+
+        virtual public void addReasons(Reason eventReason)
+        {
+            TimeSpan TimeDelta = this.Start - _LastReasonStartTimeChanged;
+            if (!ReasonsForCurrentPosition.ContainsKey(TimeDelta))
+            {
+                ReasonsForCurrentPosition.Add(TimeDelta, new List<Reason>());
+            }
+
+            ReasonsForCurrentPosition[TimeDelta].Add(eventReason);
+            TimePositionReasons.Add(eventReason);
+            _LastReasonStartTimeChanged = this.Start;
+        }
+
+        public override NowProfile initializeNowProfile()
+        {
+            if(string.IsNullOrEmpty(this.NowProfileId) || string.IsNullOrWhiteSpace(this.NowProfileId))
+            {
+                _ProfileOfNow = ParentCalendarEvent.initializeNowProfile();
+                return _ProfileOfNow;
+            }
+            throw new Exception("Now profile has already being initialized, try loading profile object to memory");
+        }
+
+        virtual public void clearAllReasons()
+        {
+            ReasonsForCurrentPosition = new Dictionary<TimeSpan, List<Reason>>();
+        }
+        override public IWhy Because()
+        {
+            throw new NotImplementedException("Yet to implement a because functionality for subcalendar event");
+        }
+
+        override public IWhy OtherWise()
+        {
+            throw new NotImplementedException("Yet to implement a OtherWise functionality for subcalendar event");
+        }
+
+        virtual public IWhy WhatIfDeadline(DateTimeOffset AssumedTime)
+        {
+            throw new NotImplementedException("Yet to implement a WhatIf functionality for subcalendar event");
+        }
+
+        virtual public IWhy WhatIfStartTime(DateTimeOffset AssumedTime)
+        {
+            throw new NotImplementedException("Yet to implement a WhatIf functionality for subcalendar event");
+        }
+
+        override public IWhy WhatIf(params Reason[] reasons)
+        {
+            throw new NotImplementedException("Yet to implement a WhatIf functionality for subcalendar event");
+        }
+
         virtual public bool IsDateTimeWithin(DateTimeOffset DateTimeEntry)
         {
-            return RangeTimeLine.IsDateTimeWithin(DateTimeEntry);
-        }
-        /// <summary>
-        /// Function Subcalendarevent evaluates itself against the given parameters
-        /// </summary>
-        /// <param name="refLocation"></param>
-        /// <param name="DayReference"></param>
-        /// <returns></returns>
-        virtual public Tuple<TimeLine,Double> evaluateAgainstOptimizationParameters(Location_Elements refLocation, TimeLine DayTimeLine)
-        {
-            
-            double distance = Location_Elements.calculateDistance(refLocation,this.myLocation);
-            TimeLine refTimeLine = new TimeLine(DayTimeLine.Start, CalendarEventRange.End);
-            Tuple<TimeLine, double> retValue = new Tuple<TimeLine, double>(refTimeLine,distance);
-            return retValue;
+            return StartToEnd.IsDateTimeWithin(DateTimeEntry);
         }
 
         public static SubCalendarEvent getEmptySubCalendarEvent(EventID CalendarEventId)
         {
             SubCalendarEvent retValue = new SubCalendarEvent();
             retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventId.ToString());
-            retValue.StartDateTime = DateTimeOffset.Now;
-            retValue.EndDateTime = DateTimeOffset.Now;
-            retValue.EventDuration = new TimeSpan(0);
+            retValue.updateStartTime( DateTimeOffset.UtcNow.removeSecondsAndMilliseconds());
+            retValue.updateEndTime( retValue.Start);
+            retValue._EventDuration = new TimeSpan(0);
             
-            retValue.RigidSchedule= true;
-            retValue.Complete = true;
-            retValue.Enabled = false;
+            retValue._RigidSchedule= true;
+            retValue._Complete = true;
+            retValue._Enabled = false;
             return retValue;
         }
 
+        virtual public void setAsOptimized()
+        {
+            OptimizationFlag = true;
+        }
+
+        virtual public void setAsUnOptimized()
+        {
+            OptimizationFlag = false;
+        }
 
 
-        virtual public SubCalendarEvent createCopy(EventID eventId)
+        virtual public SubCalendarEvent CreateCopy(EventID eventId, CalendarEvent parentCalendarEvent)
         {
             string Id;
             if (eventId != null)
@@ -249,54 +415,67 @@ namespace TilerElements
             }
             else
             {
-                Id = this.ID;
+                Id = this.getId;
             }
-            SubCalendarEvent MySubCalendarEventCopy = new SubCalendarEvent(Id, Start, End, BusyFrame.CreateCopy(), this.RigidSchedule, this.isEnabled, this.UiParams.createCopy(), this.Notes.createCopy(), this.Complete, this.LocationInfo, new TimeLine(CalendarEventRange.Start, CalendarEventRange.End), ConflictingEvents.CreateCopy());
-            MySubCalendarEventCopy.ThirdPartyID = this.ThirdPartyID;
-            MySubCalendarEventCopy.DeadlineElapsed = this.DeadlineElapsed;
-            MySubCalendarEventCopy.UserDeleted = this.UserDeleted;
-            MySubCalendarEventCopy.isRestricted = this.isRestricted;
-            MySubCalendarEventCopy.preferredDayIndex = this.preferredDayIndex;
-            MySubCalendarEventCopy.CreatorIDInfo = this.CreatorIDInfo;
-            MySubCalendarEventCopy.Semantics = this.Semantics.createCopy();
-            MySubCalendarEventCopy._UsedTime = this._UsedTime;
-            return MySubCalendarEventCopy;
-        }
-
-        /*
-        virtual public void updateEventSequence()
-        {
-            EventSequence = new TimeLine(this.Start, this.End);
-            EventSequence.AddBusySlots(BusyFrame);
-        }
-        */
-
-        public void updateDayIndex(ulong DayIndex)
-        {
-            this.preferredDayIndex = DayIndex;
-        }
-
-        public static void updateDayIndex(ulong DayIndex, IEnumerable<SubCalendarEvent> AllSUbevents)
-        {
-            foreach (SubCalendarEvent eachSubCalendarEvent in AllSUbevents)
+            SubCalendarEvent copy = new SubCalendarEvent(parentCalendarEvent, getCreator, _Users, this._TimeZone, Id, this.getName?.createCopy(), Start, End, BusyFrame?.CreateCopy() as BusyTimeLine, this._RigidSchedule, this.isEnabled, this._UiParams?.createCopy(), this.Notes?.createCopy(), this._Complete, this._LocationInfo, new TimeLine(getCalendarEventRange.Start, getCalendarEventRange.End), _ConflictingEvents?.CreateCopy());
+            copy.ThirdPartyID = this.ThirdPartyID;
+            copy._AutoDeleted = this._AutoDeleted;
+            copy.isRestricted = this.isRestricted;
+            copy.preferredDayIndex = this.preferredDayIndex;
+            copy._Creator = this._Creator;
+            copy._Semantics = this._Semantics !=null ?this._Semantics.createCopy() : null;
+            copy._UsedTime = this._UsedTime;
+            copy.OptimizationFlag = this.OptimizationFlag;
+            copy._LastReasonStartTimeChanged = this._LastReasonStartTimeChanged;
+            copy._DaySectionPreference = this._DaySectionPreference;
+            copy._calendarEvent = this._calendarEvent;
+            copy.TravelTimeAfter = this.TravelTimeAfter;
+            copy.TravelTimeBefore= this.TravelTimeBefore;
+            copy.isSleep = this.isSleep;
+            copy.isWake = this.isWake;
+            copy.userLocked = this._userLocked;
+            copy.tempLock = this.tempLock;
+            copy.LocationValidationId_DB = this.LocationValidationId_DB;
+            copy.lockedPrecedingHours = this.lockedPrecedingHours;
+            copy._enablePre_reschedulingTimelineLockDown = this._enablePre_reschedulingTimelineLockDown;
+            copy._RepetitionLock= this._RepetitionLock;
+            copy.ParentCalendarEvent = parentCalendarEvent;
+            copy._isTardy = this._isTardy;
+            copy._Priority = this._Priority;
+            copy._EventScore = this._EventScore;
+            copy.UnUsableIndex = this.UnUsableIndex;
+            copy._UsedTime = this._UsedTime;
+            copy.OptimizationFlag = this.OptimizationFlag;
+            copy._PrepTime = this._PrepTime;
+            copy.MiscIntData = this.MiscIntData;
+            if (this.CalculationTimeLine != null)
             {
-                eachSubCalendarEvent.preferredDayIndex = DayIndex;
+                copy.CalculationTimeLine = this.CalculationTimeLine.CreateCopy();
             }
+            
+            return copy;
         }
 
-        public void setScore(double score)
+        internal void designate(ReferenceNow now)
         {
-            EventScore = score;
+            long dayIndex = now.getDayIndexFromStartOfTime(this.Start);
+            updateDayIndex(dayIndex);
+        }
+
+
+        internal virtual void undesignate()
+        {
+            this.preferredDayIndex = ReferenceNow.UndesignatedDayIndex;
         }
 
         public void incrementScore(double score)
         {
-            EventScore += score;
+            _EventScore += score;
         }
 
         public static void resetScores(IEnumerable<SubCalendarEvent> AllSUbevents)
         {
-            AllSUbevents.AsParallel().ForAll(obj => obj.EventScore = 0);
+            AllSUbevents.AsParallel().ForAll(obj => obj._EventScore = 0);
         }
 
         public static TimeSpan TotalActiveDuration(IEnumerable<SubCalendarEvent> ListOfSubCalendarEvent)
@@ -305,28 +484,32 @@ namespace TilerElements
             
             foreach (SubCalendarEvent mySubCalendarEvent in ListOfSubCalendarEvent)
             {
-                TotalTimeSpan=TotalTimeSpan.Add(mySubCalendarEvent.ActiveDuration);
+                TotalTimeSpan=TotalTimeSpan.Add(mySubCalendarEvent.getActiveDuration);
             }
 
             return TotalTimeSpan;
         }
 
-        
-        virtual public bool PinToStart(TimeLine MyTimeLine)
+        /// <summary>
+        /// This pins this subevent to the earliest possible start time of either <paramref name="limitingTimeLine"/> or the getCalculationRange.
+        /// </summary>
+        /// <param name="limitingTimeLine"></param>
+        /// <returns></returns>
+        virtual public bool PinToStart(TimeLine limitingTimeLine)
         {
             DateTimeOffset ReferenceStartTime = new DateTimeOffset();
             DateTimeOffset ReferenceEndTime = new DateTimeOffset();
 
-            ReferenceStartTime = MyTimeLine.Start;
-            if (this.getCalendarEventRange.Start > MyTimeLine.Start)
+            ReferenceStartTime = limitingTimeLine.Start;
+            if (this.getCalculationRange.Start > limitingTimeLine.Start)
             {
-                ReferenceStartTime = this.getCalendarEventRange.Start;
+                ReferenceStartTime = this.getCalculationRange.Start;
             }
 
-            ReferenceEndTime = this.getCalendarEventRange.End;
-            if (this.getCalendarEventRange.End > MyTimeLine.End)
+            ReferenceEndTime = this.getCalculationRange.End;
+            if (this.getCalculationRange.End > limitingTimeLine.End)
             {
-                ReferenceEndTime = MyTimeLine.End;
+                ReferenceEndTime = limitingTimeLine.End;
             }
 
             /*foreach (SubCalendarEvent MySubCalendarEvent in MySubCalendarEventList)
@@ -335,17 +518,17 @@ namespace TilerElements
             }*/
             TimeSpan TimeDifference = (ReferenceEndTime - ReferenceStartTime);
 
-            if (this.Rigid)
+            if (this.isLocked)
             {
-                return (MyTimeLine.IsTimeLineWithin( this.RangeTimeLine));
+                return (limitingTimeLine.IsTimeLineWithin( this.StartToEnd));
             }
 
-            if (this.EventDuration > TimeDifference)
+            if (this._EventDuration > TimeDifference)
             {
                 return false;
                 //throw new Exception("Oh oh check PinSubEventsToStart Subcalendar is longer than available timeline");
             }
-            if ((ReferenceStartTime > this.getCalendarEventRange.End) || (ReferenceEndTime < this.getCalendarEventRange.Start))
+            if ((ReferenceStartTime > this.getCalculationRange.End) || (ReferenceEndTime < this.getCalculationRange.Start))
             {
                 return false;
                 //throw new Exception("Oh oh Calendar event isn't Timeline range. Check PinSubEventsToEnd :(");
@@ -354,39 +537,47 @@ namespace TilerElements
             List<BusyTimeLine> MyActiveSlot = new List<BusyTimeLine>();
             //foreach (SubCalendarEvent MySubCalendarEvent in MySubCalendarEventList)
             
-                this.StartDateTime= ReferenceStartTime;
-                this.EndDateTime = this.StartDateTime + this.ActiveDuration;
+                this.updateStartTime( ReferenceStartTime);
+                this.updateEndTime( this.Start + this.getActiveDuration);
                 //this.ActiveSlot = new BusyTimeLine(this.ID, (this.StartDateTime), this.EndDateTime);
-                TimeSpan BusyTimeLineShift = this.StartDateTime - ActiveSlot.Start;
+                TimeSpan BusyTimeLineShift = this.Start - ActiveSlot.Start;
                 ActiveSlot.shiftTimeline(BusyTimeLineShift);
                 return true;
         }
 
-        virtual public bool PinToPossibleLimit(TimeLine referenceTimeLine)
-        { 
-            TimeLine interferringTImeLine=CalendarEventRange.InterferringTimeLine( referenceTimeLine );
-            if (interferringTImeLine == null)
+        public override void updateDayPreference(List<OptimizedGrouping> groupings)
+        {
+            Dictionary<TimeOfDayPreferrence.DaySection, OptimizedGrouping> sectionTOGrouping = groupings.ToDictionary(group => group.DaySector, group => group);
+            List<TimeOfDayPreferrence.DaySection> daySections = _DaySectionPreference.getPreferenceOrder();
+            List<OptimizedGrouping> validGroupings = new List<OptimizedGrouping>();
+            foreach (TimeOfDayPreferrence.DaySection section in daySections)
             {
-                return false;
+                if (sectionTOGrouping.ContainsKey(section))
+                {
+                    OptimizedGrouping group = sectionTOGrouping[section];
+                    var interferringTimeLine = this.getCalculationRange.InterferringTimeLine(group.TimeLine);
+                    if (interferringTimeLine!=null)
+                    {
+                        if (this.canExistWithinTimeLine(group.TimeLine))
+                        {
+                            validGroupings.Add(sectionTOGrouping[section]);
+                        } else
+                        {
+                            if(interferringTimeLine.TimelineSpan <= this.getActiveDuration)
+                            {
+                                validGroupings.Add(sectionTOGrouping[section]);
+                            }
+                        }
+                    }
+                    
+                }
             }
-            DateTimeOffset EarliestEndTime = CalendarEventRange.Start + ActiveDuration;
-            DateTimeOffset LatestEndTime = CalendarEventRange.End;
-
-            DateTimeOffset DesiredEndtime = interferringTImeLine.End + (TimeSpan.FromTicks(((long)(ActiveDuration - interferringTImeLine.TimelineSpan).Ticks) / 2));
-
-            if (DesiredEndtime < EarliestEndTime)
+            if (validGroupings.Count > 0)
             {
-                DesiredEndtime = EarliestEndTime;
+                List<OptimizedGrouping> updatedGroupingOrder = evaluateDayPreference(validGroupings);
+                _DaySectionPreference.setPreferenceOrder(updatedGroupingOrder.Select(group => group.DaySector).ToList());
             }
-
-            if (DesiredEndtime > LatestEndTime)
-            {
-                DesiredEndtime = LatestEndTime;
-            }
-            TimeSpan shiftInEvent = DesiredEndtime-End;
-            return shiftEvent(shiftInEvent);
         }
-
 
         /// <summary>
         /// function updates the parameters of the current sub calevent using SubEventEntry. However it doesnt change some datamemebres such as rigid, and isrestricted. You 
@@ -395,103 +586,101 @@ namespace TilerElements
         /// <returns></returns>
         virtual public bool UpdateThis(SubCalendarEvent SubEventEntry)
         {
-            if ((this.ID == SubEventEntry.ID)&&canExistWithinTimeLine(SubEventEntry.getCalendarEventRange))
+            if (this.getId == SubEventEntry.getId)
             {
                 this.BusyFrame = SubEventEntry.ActiveSlot;
-                this.CalendarEventRange = SubEventEntry.getCalendarEventRange;
-                this.FromRepeatEvent = SubEventEntry.FromRepeat;
-                this.EventName = SubEventEntry.Name;
-                this.EventDuration = SubEventEntry.ActiveDuration;
-                this.Complete = SubEventEntry.isComplete;
-                this.ConflictingEvents = SubEventEntry.Conflicts;
-                this.DataBlob = SubEventEntry.Notes;
-                this.DeadlineElapsed = SubEventEntry.isDeadlineElapsed;
-                this.Enabled = SubEventEntry.isEnabled;
-                this.EndDateTime = SubEventEntry.End;
-                this.EventPreDeadline = SubEventEntry.PreDeadline;
-                this.EventScore = SubEventEntry.Score;
-                this.isRestricted = SubEventEntry.isEventRestricted;
-                this.LocationInfo = SubEventEntry.myLocation;
+                this._CalendarEventRange = SubEventEntry.getCalendarEventRange;
+                this._Name = SubEventEntry.getName;
+                this._EventDuration = SubEventEntry.getActiveDuration;
+                this._Complete = SubEventEntry.getIsComplete;
+                this._ConflictingEvents = SubEventEntry.Conflicts;
+                this._DataBlob = SubEventEntry.Notes;
+                this._Enabled = SubEventEntry.isEnabled;
+                this.updateEndTime( SubEventEntry.End);
+                this._EventPreDeadline = SubEventEntry.getPreDeadline;
+                this._EventScore = SubEventEntry.Score;
+                this.isRestricted = SubEventEntry.getIsEventRestricted;
+                this._LocationInfo = SubEventEntry._LocationInfo;
                 this.OldPreferredIndex = SubEventEntry.OldUniversalIndex;
-                this.otherPartyID = SubEventEntry.ThirdPartyID;
+                this._otherPartyID = SubEventEntry.ThirdPartyID;
                 this.preferredDayIndex = SubEventEntry.UniversalDayIndex;
-                this.PrepTime = SubEventEntry.Preparation;
-                this.Priority = SubEventEntry.EventPriority;
-                this.ProfileOfNow = SubEventEntry.ProfileOfNow;
-                this.ProfileOfProcrastination = SubEventEntry.ProfileOfProcrastination;
-                this.RepetitionFlag = SubEventEntry.FromRepeat;
+                this._PrepTime = SubEventEntry.getPreparation;
+                this._Priority = SubEventEntry.getEventPriority;
+                this._ProfileOfNow = SubEventEntry._ProfileOfNow;
                 //this.RigidSchedule = SubEventEntry.Rigid;
-                this.StartDateTime = SubEventEntry.Start;
-                this.UiParams = SubEventEntry.UIParam;
+                this.updateStartTime( SubEventEntry.Start);
+                this._UiParams = SubEventEntry.getUIParam;
                 this.UniqueID = SubEventEntry.SubEvent_ID;
-                this.UserDeleted = SubEventEntry.isUserDeleted;
-                this.UserIDs = SubEventEntry.getAllUserIDs();
+                this._AutoDeleted = SubEventEntry.getIsUserDeleted;
+                this._Users = SubEventEntry.getAllUsers();
                 this.Vestige = SubEventEntry.isVestige;
-                this.otherPartyID = SubEventEntry.otherPartyID;
+                this._otherPartyID = SubEventEntry._otherPartyID;
+                this._Creator = SubEventEntry._Creator;
+                this._Semantics = SubEventEntry._Semantics;
+                this._UsedTime = SubEventEntry._UsedTime;
+                this._LocationValidationId = this._LocationValidationId;
                 return true;
             }
 
             throw new Exception("Error Detected: Trying to update SubCalendar Event with non matching ID");
         }
 
-        virtual public SubCalendarEvent getProcrastinationCopy(CalendarEvent CalendarEventData,Procrastination ProcrastinationData )
+        virtual public SubCalendarEvent getProcrastinationCopy(CalendarEvent CalendarEventData,Procrastination ProcrastinationData)
         {
             SubCalendarEvent retValue = getCalulationCopy();
             /*
             retValue.CalendarEventRange = CalendarEventData.RangeTimeLine;
             TimeSpan SpanShift = ProcrastinationData.PreferredStartTime - retValue.Start;
             */
-            retValue.CalendarEventRange = new TimeLine(ProcrastinationData.PreferredStartTime, retValue.CalendarEventRange.End);
-            TimeSpan SpanShift = (retValue.CalendarEventRange.End - retValue.RangeSpan) - retValue.Start;
-            retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventData.ID);
-            retValue.shiftEvent(SpanShift,true);
+            retValue._CalendarEventRange = new TimeLine(ProcrastinationData.PreferredStartTime, retValue.getCalendarEventRange.End);
+            TimeSpan SpanShift = (retValue.getCalendarEventRange.End - retValue.getActiveDuration) - retValue.Start;
+            retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventData.getId);
+            retValue.shiftEvent(ProcrastinationData.PreferredStartTime,true);
             return retValue;
         }
 
         virtual public SubCalendarEvent getNowCopy(EventID CalendarEventID, NowProfile NowData)
         {
             SubCalendarEvent retValue = getCalulationCopy();
-            retValue.RigidSchedule = true;
+            retValue._RigidSchedule = true;
             TimeSpan SpanShift = NowData.PreferredTime - retValue.Start;
             retValue.UniqueID = EventID.GenerateSubCalendarEvent(CalendarEventID.ToString());
             retValue.shiftEvent(SpanShift, true);
+
             return retValue;
         }
 
         virtual protected SubCalendarEvent getCalulationCopy()
         {
             SubCalendarEvent retValue = new SubCalendarEvent();
-            retValue.BusyFrame = this.ActiveSlot.CreateCopy();
-            retValue.CalendarEventRange = this.getCalendarEventRange.CreateCopy();
-            retValue.FromRepeatEvent = this.FromRepeat;
-            retValue.EventName = this.Name;
-            retValue.EventDuration = this.ActiveDuration;
-            retValue.Complete = this.isComplete;
-            retValue.ConflictingEvents = this.Conflicts;
-            retValue.DataBlob = this.Notes;
-            retValue.DeadlineElapsed = this.isDeadlineElapsed;
-            retValue.Enabled = this.isEnabled;
-            retValue.EndDateTime = this.End;
-            retValue.EventPreDeadline = this.PreDeadline;
-            retValue.EventScore = this.Score;
-            retValue.isRestricted = this.isEventRestricted;
-            retValue.LocationInfo = this.myLocation.CreateCopy();
+            retValue.BusyFrame = this.ActiveSlot.CreateCopy() as BusyTimeLine;
+            retValue._CalendarEventRange = this.getCalendarEventRange.CreateCopy();
+            retValue._Name = this.getName;
+            retValue._EventDuration = this.getActiveDuration;
+            retValue._Complete = this.getIsComplete;
+            retValue._ConflictingEvents = this.Conflicts;
+            retValue._DataBlob = this.Notes;
+            retValue._Enabled = this.isEnabled;
+            retValue.updateEndTime( this.End);
+            retValue._EventPreDeadline = this.getPreDeadline;
+            retValue._EventScore = this.Score;
+            retValue.isRestricted = this.getIsEventRestricted;
+            retValue._LocationInfo = (this._LocationInfo == null) ? Location.getNullLocation() : this._LocationInfo.CreateCopy();
             retValue.OldPreferredIndex = this.OldUniversalIndex;
-            retValue.otherPartyID = this.ThirdPartyID;
             retValue.preferredDayIndex = this.UniversalDayIndex;
-            retValue.PrepTime = this.Preparation;
-            retValue.Priority = this.EventPriority;
-            retValue.ProfileOfNow = this.ProfileOfNow;
-            retValue.ProfileOfProcrastination = this.ProfileOfProcrastination.CreateCopy();
-            retValue.RepetitionFlag = this.FromRepeat;
-            retValue.RigidSchedule = this.Rigid;
-            retValue.StartDateTime = this.Start;
-            retValue.UiParams = this.UIParam;
+            retValue._PrepTime = this.getPreparation;
+            retValue._Priority = this.getEventPriority;
+            retValue._ProfileOfNow = this._ProfileOfNow;
+            retValue._RigidSchedule = this._RigidSchedule;
+            retValue.updateStartTime( this.Start);
+            retValue._UiParams = this.getUIParam;
             retValue.UniqueID = this.SubEvent_ID;
-            retValue.UserDeleted = this.isUserDeleted;
-            retValue.UserIDs = this.getAllUserIDs();
+            retValue._AutoDeleted = this.getIsUserDeleted;
+            retValue._Users = this.getAllUsers();
             retValue.Vestige = this.isVestige;
-            retValue.otherPartyID = this.otherPartyID;
+            retValue._otherPartyID = this._otherPartyID;
+            retValue._LocationValidationId = this._LocationValidationId;
+            retValue._RepetitionLock = this._RepetitionLock;
             return retValue;
         }
 
@@ -536,153 +725,96 @@ namespace TilerElements
             }
         }
 
-
-
-
-        /*
-        virtual public bool PinToEndAndIncludeInTimeLine(TimeLine LimitingTimeLine)
-        {
-            DateTimeOffset ReferenceTime = new DateTimeOffset();
-            EndDateTime = this.getCalendarEventRange.End;
-            ReferenceTime = EndDateTime;
-            if (EndDateTime > LimitingTimeLine.End)
-            {
-                ReferenceTime = LimitingTimeLine.End;
-            }
-            DateTimeOffset MyStartTime = ReferenceTime - this.EventDuration;
-            if(this.getCalendarEventRange.IsTimeLineWithin(new TimeLine(MyStartTime,ReferenceTime)))
-            {
-
-                StartDateTime = MyStartTime;
-                //ActiveSlot = new BusyTimeLine(this.ID, (MyStartTime), ReferenceTime);
-                TimeSpan BusyTimeLineShift = MyStartTime - ActiveSlot.Start;
-                ActiveSlot.shiftTimeline(BusyTimeLineShift);
-                EndDateTime = ReferenceTime;
-                LimitingTimeLine.AddBusySlots(ActiveSlot);
-                return true;
-            }
-            return false;
-        }
-        */
-
-
-        virtual public  bool PinToEndAndIncludeInTimeLine(TimeLine LimitingTimeLine, CalendarEvent RestrctingCalendarEvent)
-        {
-            if (new EventID(RestrctingCalendarEvent.ID).getCalendarEventComponent() != UniqueID.getCalendarEventComponent())
-            {
-                throw new Exception("Oh oh Sub calendar event Trying to pin to end of invalid calendar event. Check that you have matchin IDs");
-            }
-            DateTimeOffset ReferenceTime = new DateTimeOffset();
-            EndDateTime=RestrctingCalendarEvent.End;
-            if (EndDateTime > LimitingTimeLine.End)
-            {
-                ReferenceTime = LimitingTimeLine.End;
-            }
-            /*else
-            {
-                ReferenceTime = End;
-            }*/
-            
-            DateTimeOffset MyStartTime = ReferenceTime - this.EventDuration;
-
-            if (this.getCalendarEventRange.IsTimeLineWithin(new TimeLine(MyStartTime, ReferenceTime)))
-            {
-                StartDateTime = MyStartTime;
-                //ActiveSlot = new BusyTimeLine(this.ID, (MyStartTime), ReferenceTime);
-                TimeSpan BusyTimeLineShift = MyStartTime - ActiveSlot.Start;
-                ActiveSlot.shiftTimeline(BusyTimeLineShift);
-                EndDateTime = ReferenceTime;
-                LimitingTimeLine.AddBusySlots(ActiveSlot);
-                return true;
-            }
-
-            return false;
-        }
-
+        /// <summary>
+        /// This pins the sub event to the latest possible time based on either the endtime of <paramref name="LimitingTimeLine"/> or the calculationRangeTimeLine
+        /// </summary>
+        /// <param name="LimitingTimeLine"></param>
+        /// <returns></returns>
         virtual public bool PinToEnd(TimeLine LimitingTimeLine)
         {
-            DateTimeOffset ReferenceTime = this.getCalendarEventRange.End;
+            if (this.isLocked)
+            {
+                return (LimitingTimeLine.IsTimeLineWithin(this.StartToEnd));
+            }
+
+            DateTimeOffset ReferenceTime = this.getCalculationRange.End;
             if (ReferenceTime > LimitingTimeLine.End)
             {
                 ReferenceTime = LimitingTimeLine.End;
             }
 
-            if (this.Rigid)
-            {
-                return (LimitingTimeLine.IsTimeLineWithin(this.RangeTimeLine));
-            }
+            DateTimeOffset MyStartTime = ReferenceTime - this._EventDuration;
 
 
-            DateTimeOffset MyStartTime = ReferenceTime - this.EventDuration;
-
-
-            if ((MyStartTime>=LimitingTimeLine.Start )&&(MyStartTime>=getCalendarEventRange.Start))
+            if ((MyStartTime>=LimitingTimeLine.Start )&&(MyStartTime>=getCalculationRange.Start))
             {
 
-                StartDateTime = MyStartTime;
+                updateStartTime( MyStartTime);
                 //ActiveSlot = new BusyTimeLine(this.ID, (MyStartTime), ReferenceTime);
                 TimeSpan BusyTimeLineShift = MyStartTime - ActiveSlot.Start;
                 ActiveSlot.shiftTimeline(BusyTimeLineShift);
-                EndDateTime = ReferenceTime;
+                updateEndTime( ReferenceTime);
                 return true;
             }
 
-            StartDateTime= ActiveSlot.Start;
-            EndDateTime = ActiveSlot.End;
+            updateStartTime(ActiveSlot.Start);
+            updateEndTime( ActiveSlot.End);
             return false;
         }
-
-
-        /*
-        virtual public void PinToEnd(CalendarEvent RestrctingCalendarEvent)
-        {
-            if (new EventID(RestrctingCalendarEvent.ID).getCalendarEventComponent() != UniqueID.getCalendarEventComponent())
-            {
-                throw new Exception("Oh oh Sub calendar event Trying to pin to end of invalid calendar event. Check that you have matchin IDs");
-            }
-            DateTimeOffset ReferenceTime = new DateTimeOffset();
-            EndDateTime = RestrctingCalendarEvent.End;
-            ReferenceTime = EndDateTime;
-            DateTimeOffset MyStartTime = ReferenceTime - this.EventDuration;
-            StartDateTime = MyStartTime;
-
-            
-            //ActiveSlot = new BusyTimeLine(this.ID, (MyStartTime), ReferenceTime);
-            TimeSpan BusyTimeLineShift = MyStartTime - ActiveSlot.Start;
-            ActiveSlot.shiftTimeline(BusyTimeLineShift);
-            EndDateTime = ReferenceTime;
-        }
-        */
 
         /// <summary>
         /// Shifts a subcalendar event by the specified "ChangeInTime". Function returns a false if the change in time will not fall within calendarevent range. It returns true if successful. The force variable makes the subcalendareventignore the check for fitting in the calendarevent range
         /// </summary>
         /// <param name="ChangeInTime"></param>
-        /// <param name="force"></param>
+        /// <param name="force">Sift the sub event even though it outside the subevent timeline</param>
+        /// <param name="lockToId">the subevent won't get shifted when the UI clean up runs</param>
         /// <returns></returns>
-        virtual public bool shiftEvent(TimeSpan ChangeInTime, bool force=false)
+        virtual public bool shiftEvent(TimeSpan ChangeInTime, bool force=false, bool lockToId = false)
         {
             if (force)
             {
-                StartDateTime += ChangeInTime;
-                EndDateTime += ChangeInTime;
+                updateStartTime( Start + ChangeInTime);
+                updateEndTime( End + ChangeInTime);
                 ActiveSlot.shiftTimeline(ChangeInTime);
+                _LockToId = lockToId;
                 return true;
             }
             TimeLine UpdatedTimeLine = new TimeLine(this.Start + ChangeInTime, this.End + ChangeInTime);
-            if (!(this.getCalendarEventRange.IsTimeLineWithin(UpdatedTimeLine)))
+            if (!(this.getCalculationRange.IsTimeLineWithin(UpdatedTimeLine)))
             {
                 return false;
             }
             else
             {
-                StartDateTime += ChangeInTime;
-                EndDateTime += ChangeInTime;
+                updateStartTime( Start + ChangeInTime);
+                updateEndTime(End + ChangeInTime);
                 ActiveSlot.shiftTimeline(ChangeInTime);
+                _LockToId = lockToId;
                 return true;
             }
         }
-        
+
+        virtual public bool shiftEvent(DateTimeOffset newStartTime, bool force = false)
+        {
+            return shiftEvent(newStartTime - this.Start, force);
+        }
+
+        public static double CalculateDistanceOfSubEventsWithSameCalendarEvent(IList<SubCalendarEvent> Allevents, double distanceMultiplier)
+        {
+            double retValue = 0;
+            HashSet<string> allIds = new HashSet<string>(Allevents.Select(obj => obj.UniqueID.getCalendarEventComponent()));
+            if (allIds.Count != 1)
+            {
+                throw new Exception("Calculation of distance with subeevnts with different calendart event ids");
+            }
+            if (Allevents.Count > 0)
+            {
+                retValue = Utility.getFibonacciSumToIndex((uint)Allevents.Count - 2);
+                retValue*= distanceMultiplier;
+            }
+            return retValue;
+        }
+
 
         public static double CalculateDistance(SubCalendarEvent Arg1,SubCalendarEvent Arg2, double worstDistance=double.MaxValue)
         {
@@ -692,59 +824,143 @@ namespace TilerElements
             }
             else
             {
-                return Location_Elements.calculateDistance(Arg1.myLocation, Arg2.myLocation, worstDistance);
+                return Location.calculateDistance(Arg1.Location, Arg2.Location, worstDistance);
             }
         }
 
-
-         public static double CalculateDistance(IList<SubCalendarEvent> Allevents, double worstDistance=double.MaxValue)
+        /// <summary>
+        /// Function calculates the total distance  by multiple sub calendar events. When SubEvents withtin the same Calendar event are ordered consecutively the distance between them is assigned the worst value. Note calculation uses double.minvalue to determine if this is a defaultentry;
+        /// </summary>
+        /// <param name="Allevents"></param>
+        /// <param name="worstDistance"></param>
+        /// <returns></returns>
+         public static double CalculateDistance(IList<SubCalendarEvent> Allevents, double worstDistance=double.MinValue, bool useFibonnacci = true)
          {
-             int j=0;
-             double retValue = 0;
-             for (int i = 0; i < Allevents.Count - 1; i++)
-             { 
-                 j=i+1;
-                 retValue+=CalculateDistance(Allevents[i], Allevents[j], worstDistance);
-             }
-             return retValue;
+            double retValue = 0;
+            double distance = 0;
+            double distanceMultiplier = 0;
+            double multiplierCounter = 0;
+            if (Allevents.Count >= 2)
+            {
+                if (worstDistance == double.MinValue)
+                {
+                    worstDistance = double.MaxValue / (Allevents.Count - 1);
+                }
+                if (useFibonnacci)
+                {
+                    bool reInitempList = false;
+                    List<List<SubCalendarEvent>> subEventGroups = new List<List<SubCalendarEvent>>();
+                    List<SubCalendarEvent> tempList = new List<SubCalendarEvent>();
+                    SubCalendarEvent previousSubEvent = Allevents.First();
+                    for (int i = 1; i < Allevents.Count - 1; i++)
+                    {
+                        SubCalendarEvent currentSubEvent = Allevents[i];
+                        if (previousSubEvent.UniqueID.getCalendarEventComponent() == currentSubEvent.UniqueID.getCalendarEventComponent())
+                        {
+                            tempList.Add(previousSubEvent);
+                            tempList.Add(currentSubEvent);
+                            reInitempList = true;
+                        }
+                        else
+                        {
+                            if (reInitempList)
+                            {
+                                subEventGroups.Add(tempList);
+                                tempList = new List<SubCalendarEvent>();
+                                reInitempList = false;
+                            }
+                            //else
+                            {
+                                ++multiplierCounter;
+                                distance = CalculateDistance(currentSubEvent, previousSubEvent, worstDistance);
+                                if(distance == worstDistance)
+                                {
+                                    distanceMultiplier += 1;
+                                }
+                                else
+                                {
+                                    distanceMultiplier += distance;
+                                }
+                                retValue += distance;
+                            }
+                        }
+                        previousSubEvent = currentSubEvent;
+                    }
+
+                    distanceMultiplier /= multiplierCounter;
+                    subEventGroups.ForEach(listOfSubEvents => {
+                        double fibboDIstance = CalculateDistanceOfSubEventsWithSameCalendarEvent(listOfSubEvents, distanceMultiplier);
+                        retValue += fibboDIstance;
+                    });
+                    
+                }
+                else
+                {
+                    int j = 0;
+                    for (int i = 0; i < Allevents.Count - 1; i++)
+                    {
+                        j = i + 1;
+                        retValue += CalculateDistance(Allevents[i], Allevents[j], worstDistance);
+                    }
+                }
+                return retValue;
+            }
+            return retValue;
          }
+
+        override public void updateTimeLine(TimeLine timeLine)
+        {
+            updateStartTime( timeLine.Start);
+            updateEndTime( timeLine.End);
+            BusyFrame = new BusyTimeLine(this.Id, timeLine.CreateCopy());
+        }
 
          virtual public bool canExistWithinTimeLine(TimeLine PossibleTimeLine)
          {
-             SubCalendarEvent thisCopy = this.createCopy(this.UniqueID);
-             bool retValue= (thisCopy.PinToStart(PossibleTimeLine) && thisCopy.PinToEnd(PossibleTimeLine));
-             return retValue;
-         }
+            bool retValue = false;
+            if (!this.isLocked)
+            {
+                DateTimeOffset start = this.Start;
+                DateTimeOffset end = this.End;
+                retValue = (this.PinToStart(PossibleTimeLine) && this.PinToEnd(PossibleTimeLine));
+                updateStartTime( start);
+                updateEndTime( end);
+                BusyFrame = new BusyTimeLine(this.Id, start, end);
+            }
+            else
+            {
+                retValue = PossibleTimeLine.IsTimeLineWithin(this.StartToEnd);
+            }
+            return retValue;
+        }
 
-         virtual public bool canExistTowardsEndWithoutSpace(TimeLine PossibleTimeLine)
+        virtual public bool canExistTowardsEndWithoutSpace(TimeLine PossibleTimeLine)
          {
-             TimeLine ParentCalRange = getCalendarEventRange;
-             bool retValue = (ParentCalRange.Start <= (PossibleTimeLine.End - ActiveDuration)) && (ParentCalRange.End>=PossibleTimeLine.End)&&(canExistWithinTimeLine(PossibleTimeLine));
-
+             TimeLine ParentCalRange = getCalculationRange;
+             bool retValue = (ParentCalRange.Start <= (PossibleTimeLine.End - getActiveDuration)) && (ParentCalRange.End>=PossibleTimeLine.End)&&(canExistWithinTimeLine(PossibleTimeLine));
              return retValue;
          }
 
         static public bool isConflicting(SubCalendarEvent firstEvent, SubCalendarEvent secondEvent)
         {
-            bool retValue = firstEvent.RangeTimeLine.InterferringTimeLine(secondEvent.RangeTimeLine) != null;
+            bool retValue = firstEvent.StartToEnd.InterferringTimeLine(secondEvent.StartToEnd) != null;
             return retValue;
         }
 
          virtual public bool canExistTowardsStartWithoutSpace(TimeLine PossibleTimeLine)
          {
-             TimeLine ParentCalRange = getCalendarEventRange;
-             bool retValue = ((PossibleTimeLine.Start + ActiveDuration) <= ParentCalRange.End) && (ParentCalRange.Start <= PossibleTimeLine.Start) && (canExistWithinTimeLine(PossibleTimeLine));
-
+             TimeLine ParentCalRange = getCalculationRange;
+             bool retValue = ((PossibleTimeLine.Start + getActiveDuration) <= ParentCalRange.End) && (ParentCalRange.Start <= PossibleTimeLine.Start) && (canExistWithinTimeLine(PossibleTimeLine));
              return retValue;
          }
          /// <summary>
-         /// Function returns the largest Timeline interferes with its calendar event range. If restricted subcalevent you can use the orderbystart to make a preference for selection. Essentiall select the largest time line with earliest start time
+         /// Function returns the largest Timeline that interferes with the calculation range. If this is a restricted subcalevent you can use the orderbystart to make a preference for selection. Essentially select the largest time line with earliest start time
          /// </summary>
          /// <param name="TimeLineData"></param>
          /// <returns></returns>
-         virtual public List<TimeLine> getTimeLineInterferringWithCalEvent(TimeLine TimeLineData, bool orderByStart = true)
+         virtual public List<TimeLine> getTimeLinesInterferringWithCalculationRange(TimeLine TimeLineData, bool orderByStart = true)
          {
-             TimeLine retValuTimeLine= CalendarEventRange.InterferringTimeLine(TimeLineData);;
+             TimeLine retValuTimeLine= getCalculationRange.InterferringTimeLine(TimeLineData);;
              List<TimeLine> retValue = null;
              if (retValuTimeLine!=null)
              {
@@ -752,6 +968,22 @@ namespace TilerElements
              }
              return retValue;
          }
+
+        /// <summary>
+        /// Function returns the largest Timeline that interferes with its calendar event range(If you want only calculation range use). If this is a restricted subcalevent you can use the orderbystart to make a preference for selection. Essentially select the largest time line with earliest start time
+        /// </summary>
+        /// <param name="TimeLineData"></param>
+        /// <returns></returns>
+        virtual public List<TimeLine> getTimeLineInterferringWithCalEvent(TimeLine TimeLineData, bool orderByStart = true)
+        {
+            TimeLine retValuTimeLine = getCalendarEventRange.InterferringTimeLine(TimeLineData); ;
+            List<TimeLine> retValue = null;
+            if (retValuTimeLine != null)
+            {
+                retValue = new List<TimeLine>() { retValuTimeLine };
+            }
+            return retValue;
+        }
 
         virtual public DateTimeOffset getPauseTime()
         {
@@ -785,79 +1017,229 @@ namespace TilerElements
             return RetValue;
         }
 
-        public void UpdateInHumaneTimeLine()
-         {
-             NonHumaneTimeLine = ActiveSlot.CreateCopy();
-         }
+        public long UniversalDayIndex
+        {
+            get
+            {
+                return preferredDayIndex;
+            }
+        }
 
-         public void UpdateHumaneTimeLine()
-         {
-             HumaneTimeLine = ActiveSlot.CreateCopy();
-         }
-
-         public ulong UniversalDayIndex
-         {
-             get
-             {
-                 return preferredDayIndex;
-             }
-         }
+        public override void InitializeDayPreference(TimeLine timeLine)
+        {
+            if (_DaySectionPreference == null && !ParentCalendarEvent.isRigid)
+            {
+                _DaySectionPreference = ParentCalendarEvent.DayPreference.toTimeOfDayPreference(timeLine);
+            }
+            base.InitializeDayPreference(timeLine);
+        }
 
         public void enableCalculationMode()
         {
             CalculationMode = true;
         }
 
+        public void disableCalculationMode()
+        {
+            CalculationMode = false;
+        }
+
+        public virtual void enableRepetitionLock()
+        {
+            _RepetitionLock = true;
+        }
+
+        public virtual void disableRepetitionLock()
+        {
+            _RepetitionLock = false;
+        }
+
+
         /// <summary>
-        /// This changes the duration of the subevent. It requires the change in duration
+        /// This checks if the parent Calendarevent for a subcalendarevent is complete.
+        /// </summary>
+        public override bool isParentComplete
+        {
+            get
+            {
+                bool retValue = false;
+                if(this.ParentCalendarEvent!=null)
+                {
+                    retValue = this.ParentCalendarEvent.getIsComplete;
+                }
+                if(!retValue && this.ParentCalendarEvent != null)
+                {
+                    if (!retValue && this.ParentCalendarEvent.RepeatParentEvent != null)
+                    {
+                        retValue |= this.ParentCalendarEvent.isParentComplete;
+                        if (!retValue && this.ParentCalendarEvent.RepeatParentEvent != null)
+                        {
+                            retValue |= this.ParentCalendarEvent.RepeatParentEvent.getIsComplete;
+                            retValue |= this.ParentCalendarEvent.RepeatParentEvent.isParentComplete;
+                        }
+                    }
+                }
+
+                if (!retValue && this.RepeatParentEvent != null)
+                {
+                    retValue |= this.RepeatParentEvent.isParentComplete;
+                }
+                return retValue;
+            }
+        }
+
+        public override bool getIsComplete
+        {
+            get
+            {
+                bool retValue = base.getIsComplete || this.isParentComplete;
+                return retValue;
+            }
+        }
+
+        public override bool isLocked => base.isLocked || this.tempLock || this.lockedPrecedingHours || this.isRepetitionLocked;
+
+        /// <summary>
+        /// This changes the duration of the subevent. It requires the change in duration. This just adds/subtracts the delta to the end time
         /// </summary>
         /// <param name="Delta"></param>
-         public void changeDurartion(TimeSpan Delta)
+        public virtual void addDurartion(TimeSpan Delta)
          {
-             TimeSpan NewEventDuration = EventDuration.Add(Delta);
+             TimeSpan NewEventDuration = _EventDuration.Add(Delta);
              if (NewEventDuration > new TimeSpan(0))
              {
-                 EventDuration = NewEventDuration;
-                 EndDateTime = StartDateTime.Add(EventDuration);
-                 BusyFrame.updateBusyTimeLine(new BusyTimeLine(ID, ActiveSlot.Start, ActiveSlot.Start.Add(EventDuration)));
+                 _EventDuration = NewEventDuration;
+                 updateEndTime( Start.Add(_EventDuration));
+                 BusyFrame.updateBusyTimeLine(new BusyTimeLine(getId, ActiveSlot.Start, ActiveSlot.Start.Add(_EventDuration)));
                  return;
              }
              throw new Exception("You are trying to reduce the Duration length to Less than zero");
 
          }
 
-         internal void changeTimeLineRange(TimeLine newTimeLine)
-         {
-             CalendarEventRange = newTimeLine.CreateCopy();
-         }
+        internal virtual void changeCalendarEventRange(TimeLine newTimeLine, bool resetCalculationTimeLine = true)
+        {
+            _CalendarEventRange = newTimeLine.CreateCopy();
+            if(resetCalculationTimeLine)
+            {
+                CalculationTimeLine = null;
+            }
+        }
 
-         public void updateUnusables(ulong unwantedIndex)
+         public void updateUnusables(long unwantedIndex)
          {
              UnUsableIndex = unwantedIndex;
          }
 
-         public ulong getUnUsableIndex()
+         public long getUnUsableIndex()
          {
              return UnUsableIndex;
          }
 
-         public ulong resetAndgetUnUsableIndex()
+         public long resetAndgetUnUsableIndex()
          {
-             ulong retValue = UnUsableIndex;
+             long retValue = UnUsableIndex;
              UnUsableIndex = 0;
              return retValue;
          }
         
 
-        public static void updateUnUsable(IEnumerable<SubCalendarEvent>SubEVents,ulong UnwantedIndex)
+        public static void updateUnUsable(IEnumerable<SubCalendarEvent>SubEVents,long UnwantedIndex)
         {
             SubEVents.AsParallel().ForAll(obj=>{obj.UnUsableIndex=UnwantedIndex;});
         }
+
+        /// <summary>
+        /// Function sets the subevent as Rigid. Note: this can be different from locked
+        /// </summary>
+        /// <param name="calEvent"></param>
+        internal void RigidizeEvent(CalendarEvent calEvent)
+        {
+            bool lockChangeAllowed = false;
+            if((calEvent)!=null 
+                && (
+                    ((ParentCalendarEvent!=null) && ParentCalendarEvent.Id == calEvent.Id ) || 
+                    ((RepeatParentEvent != null) && RepeatParentEvent.Id == calEvent.Id)
+                )
+            )
+            {
+                lockChangeAllowed = true;
+            }
+
+            if(lockChangeAllowed)
+            {
+                _RigidSchedule = true;
+            }
+            else
+            {
+                throw new Exception("Tried modifying the rigid status, but cannot validate the ParentCalendar Event or Repeat parent calendarevent");
+            }
+        }
+
+        /// <summary>
+        /// Function makes subevent non rigid. Note: this can be different from locked
+        /// </summary>
+        /// <param name="calEvent"></param>
+        internal void UnRigidizeEvent(CalendarEvent calEvent)
+        {
+            bool lockChangeAllowed = false;
+            if ((calEvent) != null
+                && (
+                    ((ParentCalendarEvent != null) && ParentCalendarEvent.Id == calEvent.Id) ||
+                    ((RepeatParentEvent != null) && RepeatParentEvent.Id == calEvent.Id)
+                )
+            )
+            {
+                lockChangeAllowed = true;
+            }
+
+            if (lockChangeAllowed)
+            {
+                _RigidSchedule = false;
+            }
+            else
+            {
+                throw new Exception("Tried modifying the rigid status, but cannot validate the ParentCalendar Event or Repeat parent calendarevent");
+            }
+        }
+
         #endregion
 
         #region Class Properties
+        /// <summary>
+        /// Is the subevent late
+        /// </summary>
+        public bool isTardy
+        {
+            get
+            {
+                return _isTardy;
+            }
+        }
 
-        public ulong OldUniversalIndex
+        /// <summary>
+        /// Is the subevent late
+        /// </summary>
+        public bool isOntime
+        {
+            get
+            {
+                return !isTardy;
+            }
+        }
+
+        /// <summary>
+        /// Pathoptimization has been acknowledged on this subevent
+        /// </summary>
+        public bool isOptimized
+        {
+            get
+            {
+                return OptimizationFlag;
+            }
+        }
+
+        public long OldUniversalIndex
         {
             get
             {
@@ -870,23 +1252,31 @@ namespace TilerElements
         {
             get
             {
-                bool retValue = preferredDayIndex != 0;
+                bool retValue = preferredDayIndex != ReferenceNow.UndesignatedDayIndex;
                 return retValue;
             }
         }
-         public ConflictProfile Conflicts
+         public virtual ConflictProfile Conflicts
          {
              get
              {
-                 return ConflictingEvents;
+                 return _ConflictingEvents;
              }
          }
 
-        public TimeLine getCalendarEventRange
+        public virtual TimeLine getCalculationRange
         {
             get 
             {
-                return CalendarEventRange;
+                return CalculationTimeLine ?? (CalculationTimeLine = ParentCalendarEvent.CalculationStartToEnd); 
+            }
+        }
+
+        public virtual TimeLine getCalendarEventRange
+        {
+            get
+            {
+                return _CalendarEventRange ?? ParentCalendarEvent.StartToEnd;
             }
         }
 
@@ -894,12 +1284,8 @@ namespace TilerElements
         {
             get 
             {
-                return EventScore;
-            }/*
-            set
-            {
-                EventScore = value;
-            }*/
+                return _EventScore;
+            }
         }
 
         public int IntData
@@ -911,15 +1297,23 @@ namespace TilerElements
         }
 
 
+        public override bool IsFromRecurring
+        {
+            get
+            {
+                return this.ParentCalendarEvent?.IsFromRecurring ?? base.IsFromRecurring;
+            }
+        }
+
         public double fittability
         {
             get
             {
-                double retValue = ((double)CalendarEventRange.TimelineSpan.Ticks )/ ((double)RangeSpan.Ticks);
+                double retValue = ((double)getCalculationRange.TimelineSpan.Ticks )/ ((double)getActiveDuration.Ticks);
                 return retValue;
             }
         }
-
+        [NotMapped]
         public BusyTimeLine ActiveSlot
         {
             set
@@ -941,15 +1335,113 @@ namespace TilerElements
             }
         }
 
-        public TimeSpan ActiveDuration
+        override public DateTimeOffset StartTime_EventDB
         {
             get
             {
-                return EventDuration;
+                return this.Start;
+            }
+            set
+            {
+                updateStartTime( value);
+                if (BusyFrame == null)
+                {
+                    BusyFrame = new BusyTimeLine(this.Id, Start, Start);
+                } else {
+                    BusyFrame = new BusyTimeLine(this.Id, Start, BusyFrame.End);
+                }
             }
         }
 
-        public string ID
+        [Index("SubEventToParentCalendarEventId", Order = 0)]
+        virtual public string CalendarEventId { get; set; }
+        [ForeignKey("CalendarEventId")]
+        virtual public CalendarEvent ParentCalendarEvent
+        {
+            set
+            {
+                _calendarEvent = value;
+            }
+            get
+            {
+                return _calendarEvent;
+            }
+        }
+
+        virtual public DateTimeOffset CalendarEventRangeStart
+        {
+            set
+            {
+                _CalendarEventRangeStart = value;
+                if(_CalendarEventRangeEnd!=null)
+                {
+                    _CalendarEventRange = new TimeLine(_CalendarEventRangeStart, _CalendarEventRangeEnd);
+                }
+            }
+            get
+            {
+                return getCalendarEventRange.Start;
+            }
+        }
+
+        
+        virtual public bool RepetitionLock_DB
+        {
+            set
+            {
+                _RepetitionLock = value;
+            }
+            get
+            {
+                return _RepetitionLock;
+            }
+        }
+
+        virtual public DateTimeOffset CalendarEventRangeEnd
+        {
+            set
+            {
+                _CalendarEventRangeEnd = value;
+                if (_CalendarEventRangeStart != null)
+                {
+                    _CalendarEventRange = new TimeLine(_CalendarEventRangeStart, _CalendarEventRangeEnd);
+                }
+            }
+            get
+            {
+                return getCalendarEventRange.End;
+            }
+        }
+
+        override public DateTimeOffset EndTime_EventDB
+        {
+            get
+            {
+                return this.End;
+            }
+            set
+            {
+                updateEndTime( value);
+                if (BusyFrame == null)
+                {
+                    BusyFrame = new BusyTimeLine(this.Id, End, End);
+                }
+                else
+                {
+                    BusyFrame = new BusyTimeLine(this.Id, BusyFrame.Start, End);
+                }
+            }
+        }
+
+        override public TimeSpan getActiveDuration
+        {
+            get
+            {
+                return _EventDuration;
+            }
+        }
+
+        override public string getId
         {
             get
             {
@@ -967,15 +1459,7 @@ namespace TilerElements
             }
         }
 
-         public bool Rigid
-        {
-            get
-            {
-                return RigidSchedule;
-            }
-        }
-
-        public  TimeLine RangeTimeLine
+        public virtual  TimeLine StartToEnd
         {
             get
             {
@@ -985,13 +1469,13 @@ namespace TilerElements
         }
 
 
-        public TimeSpan RangeSpan
-        {
-            get
-            {
-                return this.RangeTimeLine.TimelineSpan;
-            }
-        }
+        //public TimeSpan getActiveDuration
+        //{
+        //    get
+        //    {
+        //        return this.StartToEnd.TimelineSpan;
+        //    }
+        //}
 
         virtual public bool isBlobEvent
         {
@@ -1002,30 +1486,15 @@ namespace TilerElements
     }
         
 
-
-        public Event_Struct toEvent_Struct
-        {
-            get
-            {
-                Event_Struct retValue = new Event_Struct();
-                //retValue.StartTicks = Start.Ticks;
-                //retValue.EndTicks = End.Ticks;
-                //retValue.DurationTicks = ActiveDuration.Ticks;
-                //retValue.EventID = ID;
-                retValue.EventLocation = myLocation.toStruct();
-                return retValue;
-            }
-        }
-
-         public MiscData Notes
+        virtual public MiscData Notes
         { 
             get
             {
-                return DataBlob;
+                return _DataBlob;
             }
         }
 
-         public bool isVestige
+         virtual public bool isVestige
          {
              get 
              {
@@ -1049,6 +1518,114 @@ namespace TilerElements
             }
         }
 
+        public override DateTimeOffset getDeadline
+        {
+	        get 
+	        {
+                return getCalendarEventRange.End;
+	        }
+        }
+        public virtual Dictionary<TimeSpan, List<Reason>>  ReasonsForPosiition
+        {
+            get {
+                return ReasonsForCurrentPosition;
+            }
+        }
+
+        public virtual Dictionary<TimeSpan, List<Reason>> ReasonsOnHistoryforPosition
+        {
+            get
+            {
+                return HistoricalReasonsCurrentPosition;
+            }
+        }
+        public override Procrastination Procrastination_EventDB
+        {
+            get
+            {
+                return _calendarEvent?.Procrastination_EventDB;
+            }
+        }
+
+        public override Procrastination getProcrastinationInfo
+        {
+            get
+            {
+                return _calendarEvent.getProcrastinationInfo;
+            }
+        }
+
+        public override NowProfile ProfileOfNow_EventDB
+        {
+            get
+            {
+                return _ProfileOfNow ?? (_ProfileOfNow = this.ParentCalendarEvent?.getNowInfo);
+            }
+            set
+            {
+                _ProfileOfNow = value;
+            }
+        }
+
+        public virtual bool IsTardy_DB
+        {
+            get
+            {
+                return _isTardy;
+            }
+
+            set
+            {
+                _isTardy = value;
+            }
+        }
+
+        /// <summary>
+        /// SInce the function shiftSUbEventsByTimeAndId reorders all sub events by time and Id, meaning the subevent withe lowest alphabetically ordered id gets the earliesttime
+        /// This ensures that when the "shiftSUbEventsByTimeAndId" is called the subevent doesn't get reordered from the id.
+        /// </summary>
+        public virtual bool LockToId
+        {
+            get
+            {
+                return _LockToId;
+            }
+        }
+
+        public override NowProfile getNowInfo
+        {
+            get
+            {
+                return _ProfileOfNow?? ParentCalendarEvent.getNowInfo ?? RepeatParentEvent?.getNowInfo;
+            }
+        }
+
+        public bool isPre_reschedulingEnabled
+        {
+            get
+            {
+                return _enablePre_reschedulingTimelineLockDown;
+            }
+        }
+
+        public bool isRepetitionLocked
+        {
+            get
+            {
+                return _RepetitionLock;
+            }
+        }
+
+        public override JObject Json
+        {
+            get
+            {
+                JObject retValue = base.Json;
+                retValue.Add("SubCalCalEventStart", this.CalendarEventRangeStart.ToUnixTimeMilliseconds());
+                retValue.Add("SubCalCalEventEnd", this.CalendarEventRangeEnd.ToUnixTimeMilliseconds());
+                return retValue;
+            }
+        }
         #endregion
 
     }

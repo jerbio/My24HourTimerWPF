@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,11 +10,22 @@ namespace TilerElements
     /// <summary>
     /// represents the Timeline of restriction
     /// </summary>
-    public class RestrictionTimeLine
+    [Serializable]
+    public class RestrictionTimeLine: IUndoable
     {
+        //ToDo restriction timeline needs to include a day component
+        string _Id;
+        static TimeSpan TwentyFourHourTImeSpan = TimeSpan.FromDays(1);
         protected DateTimeOffset StartTimeOfDay;
-        protected TimeSpan RangeTimeSpan;
+        protected TimeSpan RangeTimeSpan;   
         protected DateTimeOffset EndTimeOfDay;
+
+        #region undoMembers
+        public DateTimeOffset UndoStartTimeOfDay;
+        public TimeSpan UndoRangeTimeSpan;
+        public DateTimeOffset UndoEndTimeOfDay;
+        public string _UndoId;
+        #endregion
 
         protected RestrictionTimeLine()
         {
@@ -27,6 +39,10 @@ namespace TilerElements
             StartTimeOfDay = new DateTimeOffset(1, 1, 1, Start.Hour, Start.Minute, Start.Second, new TimeSpan());
             End = End <= Start ? End.AddDays(1) : End;
             RangeTimeSpan = End - Start;
+            if(RangeTimeSpan > TwentyFourHourTImeSpan)
+            {
+                throw new Exception("RestrictionTimeLine cannot have a time span more than twenty four hours");
+            }
             EndTimeOfDay = StartTimeOfDay.Add(RangeTimeSpan);
         }
 
@@ -35,6 +51,10 @@ namespace TilerElements
         {
             StartTimeOfDay = new DateTimeOffset(1, 1, 1, Start.Hour, Start.Minute, Start.Second, new TimeSpan());
             RangeTimeSpan = SpanDuration;
+            if (RangeTimeSpan > TwentyFourHourTImeSpan)
+            {
+                throw new Exception("RestrictionTimeLine cannot have a time span more than twenty four hours");
+            }
             EndTimeOfDay = StartTimeOfDay.Add(RangeTimeSpan);
         }
 
@@ -81,11 +101,55 @@ namespace TilerElements
             return StartTimeOfDay;
         }
 
+        public override string ToString()
+        {
+            string retValue = StartTimeOfDay.toTimeZoneTime() + "-" + EndTimeOfDay.toTimeZoneTime() + "||" + RangeTimeSpan;
+            return retValue;
 
+        }
+
+        public void undoUpdate(Undo undo)
+        {
+            UndoStartTimeOfDay = StartTimeOfDay;
+            UndoRangeTimeSpan = RangeTimeSpan;
+            UndoEndTimeOfDay = EndTimeOfDay;
+            _UndoId = undo.id;
+            FirstInstantiation = false;
+        }
+
+        public void undo(string undoId)
+        {
+            if(undoId == UndoId)
+            {
+                Utility.Swap(ref UndoStartTimeOfDay, ref StartTimeOfDay);
+                Utility.Swap(ref UndoRangeTimeSpan, ref RangeTimeSpan);
+                Utility.Swap(ref UndoEndTimeOfDay, ref EndTimeOfDay);
+            }
+        }
+
+        public void redo(string undoId)
+        {
+            if (undoId == UndoId)
+            {
+                Utility.Swap(ref UndoStartTimeOfDay, ref StartTimeOfDay);
+                Utility.Swap(ref UndoRangeTimeSpan, ref RangeTimeSpan);
+                Utility.Swap(ref UndoEndTimeOfDay, ref EndTimeOfDay);
+            }
+        }
+
+        public virtual string ToDbString()
+        {
+            string retValue = JsonConvert.SerializeObject(this);
+            return retValue;
+        }
 
         #region Properties
         public DateTimeOffset Start
         {
+            set
+            {
+                StartTimeOfDay = value;
+            }
             get 
             {
                 return StartTimeOfDay;
@@ -94,6 +158,10 @@ namespace TilerElements
 
         public TimeSpan Span
         {
+            set
+            {
+                RangeTimeSpan = value;
+            }
             get
             {
                 return RangeTimeSpan;
@@ -102,9 +170,39 @@ namespace TilerElements
 
         public DateTimeOffset End
         {
+            set
+            {
+                EndTimeOfDay = value;
+            }
             get
             {
                 return EndTimeOfDay;
+            }
+        }
+
+        public string Id
+        {
+            get
+            {
+                return _Id ?? (_Id = Guid.NewGuid().ToString());
+            }
+            set
+            {
+                _Id = value;
+            }
+        }
+
+        public virtual bool FirstInstantiation { get; set; } = true;
+
+        public string UndoId
+        {
+            set
+            {
+                _UndoId = value;
+            }
+            get
+            {
+                return _UndoId;
             }
         }
         #endregion

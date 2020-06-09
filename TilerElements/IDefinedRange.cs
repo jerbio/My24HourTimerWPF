@@ -5,24 +5,24 @@ using System.Text;
 
 namespace TilerElements
 {
+    /// <summary>
+    /// Interface describes an element that provides a start and end, together with a way to simply gets its appropraite RangeTimeline
+    /// </summary>
     public interface IDefinedRange
     {
         DateTimeOffset Start
         {
-              get;
+            get;
         }
         DateTimeOffset End
         {
             get;
         }
 
-        TimeLine RangeTimeLine
+        TimeLine StartToEnd
         {
             get;
         }
-
-        
-
-       bool IsDateTimeWithin(DateTimeOffset DateTimeEntry);
+        bool IsDateTimeWithin(DateTimeOffset DateTimeEntry);
     }
 }

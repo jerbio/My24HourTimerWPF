@@ -1,0 +1,3089 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScheduleLog>
+  <LastIDCounter>false</LastIDCounter>
+  <referenceDay>1/1/2014 10:00:00 PM</referenceDay>
+  <scheduleNotes></scheduleNotes>
+  <lastUpdated>5/23/2019 6:54:00 AM</lastUpdated>
+  <EventSchedules>
+    <EventSchedule>
+      <Recurrence />
+      <TimeCreaated>5/20/2019 4:31:37 AM +00:00</TimeCreaated>
+      <TimeZone>UTC</TimeZone>
+      <isProcrastinateEvent>False</isProcrastinateEvent>
+      <ProcrastinationProfile>
+        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
+        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
+        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
+      </ProcrastinationProfile>
+      <NowProfile>
+        <Initialized>False</Initialized>
+        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
+      </NowProfile>
+      <Restricted>False</Restricted>
+      <MiscData>
+        <TypeSelection>0</TypeSelection>
+        <UserNote />
+      </MiscData>
+      <UIParams>
+        <Visible>True</Visible>
+        <Type>0</Type>
+        <Color>
+          <UserSelection>-1</UserSelection>
+          <Blue>127</Blue>
+          <Green>127</Green>
+          <Red>127</Red>
+          <Opacity>1</Opacity>
+        </Color>
+      </UIParams>
+      <Location>
+        <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+        <Id>f5372f26-6ca7-42f6-a41c-b9f07c3a0b08</Id>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Sarah White</Description>
+        <Address>216 highland cir, erie, co 80516, usa</Address>
+        <YCoordinate>-105.0298185</YCoordinate>
+        <XCoordinate>40.0407199</XCoordinate>
+      </Location>
+      <Enabled>True</Enabled>
+      <ID>1e8a3911-dd38-41ed-bdf6-1035ebdbc602_7_0_0</ID>
+      <NameId>9b3b2dc5-5f7b-40bf-b0fc-c0befeb185e5</NameId>
+      <Name>Lavendar</Name>
+      <StartTime>1/1/1970 12:00:00 AM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <DeletionCount>0</DeletionCount>
+      <CompletionCount>0</CompletionCount>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>5/30/2019 11:59:00 PM</Deadline>
+      <Split>4</Split>
+      <Duration>08:00:00</Duration>
+      <RigidFlag>False</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <isSleep>True</isSleep>
+          <isWake>False</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 4:31:37 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>f5372f26-6ca7-42f6-a41c-b9f07c3a0b08</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Sarah White</Description>
+            <Address>216 highland cir, erie, co 80516, usa</Address>
+            <YCoordinate>-105.0298185</YCoordinate>
+            <XCoordinate>40.0407199</XCoordinate>
+          </Location>
+          <NameId>9b3b2dc5-5f7b-40bf-b0fc-c0befeb185e5</NameId>
+          <Name>Lavendar</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>1e8a3911-dd38-41ed-bdf6-1035ebdbc602_7_0_c38e4e7c-9487-4f6a-a5d9-34692b907728</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/27/2019 4:29:00 PM</ActiveStartTime>
+          <ActiveEndTime>5/27/2019 6:29:00 PM</ActiveEndTime>
+          <Duration>02:00:00</Duration>
+          <StartTime>5/27/2019 4:29:00 PM</StartTime>
+          <EndTime>5/27/2019 6:29:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <isSleep>False</isSleep>
+          <isWake>False</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 4:32:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>f5372f26-6ca7-42f6-a41c-b9f07c3a0b08</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Sarah White</Description>
+            <Address>216 highland cir, erie, co 80516, usa</Address>
+            <YCoordinate>-105.0298185</YCoordinate>
+            <XCoordinate>40.0407199</XCoordinate>
+          </Location>
+          <NameId>9b3b2dc5-5f7b-40bf-b0fc-c0befeb185e5</NameId>
+          <Name>Lavendar</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>1e8a3911-dd38-41ed-bdf6-1035ebdbc602_7_0_6b9ef95d-208e-4661-a384-a530233d8c41</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/26/2019 8:00:00 PM</ActiveStartTime>
+          <ActiveEndTime>5/26/2019 10:00:00 PM</ActiveEndTime>
+          <Duration>02:00:00</Duration>
+          <StartTime>5/26/2019 8:00:00 PM</StartTime>
+          <EndTime>5/26/2019 10:00:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <isSleep>False</isSleep>
+          <isWake>False</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 4:32:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>f5372f26-6ca7-42f6-a41c-b9f07c3a0b08</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Sarah White</Description>
+            <Address>216 highland cir, erie, co 80516, usa</Address>
+            <YCoordinate>-105.0298185</YCoordinate>
+            <XCoordinate>40.0407199</XCoordinate>
+          </Location>
+          <NameId>9b3b2dc5-5f7b-40bf-b0fc-c0befeb185e5</NameId>
+          <Name>Lavendar</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>1e8a3911-dd38-41ed-bdf6-1035ebdbc602_7_0_0dac323a-0f94-4c66-bcff-be5628b6683b</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/25/2019 8:00:00 PM</ActiveStartTime>
+          <ActiveEndTime>5/25/2019 10:00:00 PM</ActiveEndTime>
+          <Duration>02:00:00</Duration>
+          <StartTime>5/25/2019 8:00:00 PM</StartTime>
+          <EndTime>5/25/2019 10:00:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <isSleep>True</isSleep>
+          <isWake>False</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 4:32:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>f5372f26-6ca7-42f6-a41c-b9f07c3a0b08</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Sarah White</Description>
+            <Address>216 highland cir, erie, co 80516, usa</Address>
+            <YCoordinate>-105.0298185</YCoordinate>
+            <XCoordinate>40.0407199</XCoordinate>
+          </Location>
+          <NameId>9b3b2dc5-5f7b-40bf-b0fc-c0befeb185e5</NameId>
+          <Name>Lavendar</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>1e8a3911-dd38-41ed-bdf6-1035ebdbc602_7_0_0457351a-16fa-47f2-87af-7ef3d0b8d727</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/24/2019 4:29:00 PM</ActiveStartTime>
+          <ActiveEndTime>5/24/2019 6:29:00 PM</ActiveEndTime>
+          <Duration>02:00:00</Duration>
+          <StartTime>5/24/2019 4:29:00 PM</StartTime>
+          <EndTime>5/24/2019 6:29:00 PM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
+    <EventSchedule>
+      <Recurrence />
+      <RestrictionProfile>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>540000000000</RangeSpan>
+            <EndTime>1/1/0001 11:00:00 PM</EndTime>
+            <StartTime>1/1/0001 8:00:00 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>Sunday</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>540000000000</RangeSpan>
+            <EndTime>1/1/0001 11:00:00 PM</EndTime>
+            <StartTime>1/1/0001 8:00:00 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>Monday</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>540000000000</RangeSpan>
+            <EndTime>1/1/0001 11:00:00 PM</EndTime>
+            <StartTime>1/1/0001 8:00:00 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>Tuesday</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>540000000000</RangeSpan>
+            <EndTime>1/1/0001 11:00:00 PM</EndTime>
+            <StartTime>1/1/0001 8:00:00 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>Wednesday</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>540000000000</RangeSpan>
+            <EndTime>1/1/0001 11:00:00 PM</EndTime>
+            <StartTime>1/1/0001 8:00:00 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>Thursday</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>540000000000</RangeSpan>
+            <EndTime>1/1/0001 11:00:00 PM</EndTime>
+            <StartTime>1/1/0001 8:00:00 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>Friday</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>575400000000</RangeSpan>
+            <EndTime>1/1/0001 11:59:00 PM</EndTime>
+            <StartTime>1/1/0001 8:00:00 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>Saturday</RestrictionDayOfWeek>
+        </RestrictionNode>
+      </RestrictionProfile>
+      <TimeCreaated>5/20/2019 7:35:00 AM +00:00</TimeCreaated>
+      <TimeZone>UTC</TimeZone>
+      <isProcrastinateEvent>False</isProcrastinateEvent>
+      <ProcrastinationProfile>
+        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
+        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
+        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
+      </ProcrastinationProfile>
+      <NowProfile>
+        <Initialized>False</Initialized>
+        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
+      </NowProfile>
+      <Restricted>True</Restricted>
+      <MiscData>
+        <TypeSelection>0</TypeSelection>
+        <UserNote />
+      </MiscData>
+      <UIParams>
+        <Visible>True</Visible>
+        <Type>0</Type>
+        <Color>
+          <UserSelection>-1</UserSelection>
+          <Blue>127</Blue>
+          <Green>127</Green>
+          <Red>127</Red>
+          <Opacity>1</Opacity>
+        </Color>
+      </UIParams>
+      <Location>
+        <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+        <Id>84e9e858-864e-4f78-b94a-b14b7e2e2be8</Id>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>2800 Pearl St, Boulder, CO 80301, USA</Description>
+        <Address>2800 pearl st, boulder, co 80301, usa</Address>
+        <YCoordinate>-105.2558735</YCoordinate>
+        <XCoordinate>40.0218233</XCoordinate>
+      </Location>
+      <Enabled>True</Enabled>
+      <ID>f539676a-8fcb-4ee1-bb01-a5085dc90f57_7_0_0</ID>
+      <NameId>63a22858-43b4-4168-970b-9ea7a7f97593</NameId>
+      <Name>target boulder</Name>
+      <StartTime>1/1/1970 12:00:00 AM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <DeletionCount>0</DeletionCount>
+      <CompletionCount>0</CompletionCount>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>5/30/2019 11:59:00 PM</Deadline>
+      <Split>5</Split>
+      <Duration>05:00:00</Duration>
+      <RigidFlag>False</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <RestrictionProfile>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Sunday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Monday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Tuesday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Wednesday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Thursday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Friday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>575400000000</RangeSpan>
+                <EndTime>1/1/0001 11:59:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Saturday</RestrictionDayOfWeek>
+            </RestrictionNode>
+          </RestrictionProfile>
+          <isSleep>False</isSleep>
+          <isWake>False</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 7:35:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>True</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>84e9e858-864e-4f78-b94a-b14b7e2e2be8</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>2800 Pearl St, Boulder, CO 80301, USA</Description>
+            <Address>2800 pearl st, boulder, co 80301, usa</Address>
+            <YCoordinate>-105.2558735</YCoordinate>
+            <XCoordinate>40.0218233</XCoordinate>
+          </Location>
+          <NameId>63a22858-43b4-4168-970b-9ea7a7f97593</NameId>
+          <Name>target boulder</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>f539676a-8fcb-4ee1-bb01-a5085dc90f57_7_0_f95bedb1-26c5-4131-ab08-65d0619bcb95</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/28/2019 12:51:00 PM</ActiveStartTime>
+          <ActiveEndTime>5/28/2019 1:51:00 PM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>5/28/2019 12:51:00 PM</StartTime>
+          <EndTime>5/28/2019 1:51:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <RestrictionProfile>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Sunday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Monday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Tuesday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Wednesday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Thursday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Friday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>575400000000</RangeSpan>
+                <EndTime>1/1/0001 11:59:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Saturday</RestrictionDayOfWeek>
+            </RestrictionNode>
+          </RestrictionProfile>
+          <isSleep>False</isSleep>
+          <isWake>False</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 7:35:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>True</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>84e9e858-864e-4f78-b94a-b14b7e2e2be8</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>2800 Pearl St, Boulder, CO 80301, USA</Description>
+            <Address>2800 pearl st, boulder, co 80301, usa</Address>
+            <YCoordinate>-105.2558735</YCoordinate>
+            <XCoordinate>40.0218233</XCoordinate>
+          </Location>
+          <NameId>63a22858-43b4-4168-970b-9ea7a7f97593</NameId>
+          <Name>target boulder</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>f539676a-8fcb-4ee1-bb01-a5085dc90f57_7_0_f287cc3f-8a53-4b4f-815a-90ee5c98032a</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/26/2019 4:01:00 PM</ActiveStartTime>
+          <ActiveEndTime>5/26/2019 5:01:00 PM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>5/26/2019 4:01:00 PM</StartTime>
+          <EndTime>5/26/2019 5:01:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <RestrictionProfile>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Sunday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Monday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Tuesday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Wednesday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Thursday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Friday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>575400000000</RangeSpan>
+                <EndTime>1/1/0001 11:59:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Saturday</RestrictionDayOfWeek>
+            </RestrictionNode>
+          </RestrictionProfile>
+          <isSleep>False</isSleep>
+          <isWake>False</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 7:35:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>True</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>84e9e858-864e-4f78-b94a-b14b7e2e2be8</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>2800 Pearl St, Boulder, CO 80301, USA</Description>
+            <Address>2800 pearl st, boulder, co 80301, usa</Address>
+            <YCoordinate>-105.2558735</YCoordinate>
+            <XCoordinate>40.0218233</XCoordinate>
+          </Location>
+          <NameId>63a22858-43b4-4168-970b-9ea7a7f97593</NameId>
+          <Name>target boulder</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>f539676a-8fcb-4ee1-bb01-a5085dc90f57_7_0_f065876a-eda4-4c26-a0ff-cf8d450d6a5d</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/25/2019 4:01:00 PM</ActiveStartTime>
+          <ActiveEndTime>5/25/2019 5:01:00 PM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>5/25/2019 4:01:00 PM</StartTime>
+          <EndTime>5/25/2019 5:01:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <RestrictionProfile>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Sunday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Monday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Tuesday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Wednesday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Thursday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Friday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>575400000000</RangeSpan>
+                <EndTime>1/1/0001 11:59:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Saturday</RestrictionDayOfWeek>
+            </RestrictionNode>
+          </RestrictionProfile>
+          <isSleep>False</isSleep>
+          <isWake>False</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 7:35:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>True</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>84e9e858-864e-4f78-b94a-b14b7e2e2be8</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>2800 Pearl St, Boulder, CO 80301, USA</Description>
+            <Address>2800 pearl st, boulder, co 80301, usa</Address>
+            <YCoordinate>-105.2558735</YCoordinate>
+            <XCoordinate>40.0218233</XCoordinate>
+          </Location>
+          <NameId>63a22858-43b4-4168-970b-9ea7a7f97593</NameId>
+          <Name>target boulder</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>f539676a-8fcb-4ee1-bb01-a5085dc90f57_7_0_e8e521d1-0a20-4db7-a3b5-402eb6b1eeeb</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/24/2019 8:00:00 PM</ActiveStartTime>
+          <ActiveEndTime>5/24/2019 9:00:00 PM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>5/24/2019 8:00:00 PM</StartTime>
+          <EndTime>5/24/2019 9:00:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <RestrictionProfile>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Sunday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Monday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Tuesday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Wednesday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Thursday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>540000000000</RangeSpan>
+                <EndTime>1/1/0001 11:00:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Friday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>575400000000</RangeSpan>
+                <EndTime>1/1/0001 11:59:00 PM</EndTime>
+                <StartTime>1/1/0001 8:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Saturday</RestrictionDayOfWeek>
+            </RestrictionNode>
+          </RestrictionProfile>
+          <isSleep>False</isSleep>
+          <isWake>False</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 7:35:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>True</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>84e9e858-864e-4f78-b94a-b14b7e2e2be8</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>2800 Pearl St, Boulder, CO 80301, USA</Description>
+            <Address>2800 pearl st, boulder, co 80301, usa</Address>
+            <YCoordinate>-105.2558735</YCoordinate>
+            <XCoordinate>40.0218233</XCoordinate>
+          </Location>
+          <NameId>63a22858-43b4-4168-970b-9ea7a7f97593</NameId>
+          <Name>target boulder</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>f539676a-8fcb-4ee1-bb01-a5085dc90f57_7_0_7fc2fe37-7a0b-49d3-8eef-1e93586acfd2</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/23/2019 3:00:00 PM</ActiveStartTime>
+          <ActiveEndTime>5/23/2019 4:00:00 PM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>5/23/2019 3:00:00 PM</StartTime>
+          <EndTime>5/23/2019 4:00:00 PM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
+    <EventSchedule>
+      <Recurrence />
+      <TimeCreaated>5/20/2019 3:41:23 AM +00:00</TimeCreaated>
+      <TimeZone>UTC</TimeZone>
+      <isProcrastinateEvent>False</isProcrastinateEvent>
+      <ProcrastinationProfile>
+        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
+        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
+        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
+      </ProcrastinationProfile>
+      <NowProfile>
+        <Initialized>False</Initialized>
+        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
+      </NowProfile>
+      <Restricted>False</Restricted>
+      <MiscData>
+        <TypeSelection>0</TypeSelection>
+        <UserNote />
+      </MiscData>
+      <UIParams>
+        <Visible>True</Visible>
+        <Type>0</Type>
+        <Color>
+          <UserSelection>-1</UserSelection>
+          <Blue>127</Blue>
+          <Green>127</Green>
+          <Red>127</Red>
+          <Opacity>1</Opacity>
+        </Color>
+      </UIParams>
+      <Location>
+        <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+        <Id>b3af5f35-400b-4d7b-a37c-ee94e2110f0b</Id>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Home</Description>
+        <Address>200 summit blvd, broomfield, co 80021, usa</Address>
+        <YCoordinate>-105.1451443</YCoordinate>
+        <XCoordinate>39.9260416</XCoordinate>
+      </Location>
+      <Enabled>True</Enabled>
+      <ID>2bd31d77-0566-4966-91ee-b571c53bc21f_7_0_0</ID>
+      <NameId>0b7d4c02-e5a7-4556-b2ac-5a61f70d7a93</NameId>
+      <Name>Home Event</Name>
+      <StartTime>1/1/1970 12:00:00 AM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <DeletionCount>0</DeletionCount>
+      <CompletionCount>0</CompletionCount>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>5/30/2019 11:59:00 PM</Deadline>
+      <Split>10</Split>
+      <Duration>20:00:00</Duration>
+      <RigidFlag>False</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <isSleep>False</isSleep>
+          <isWake>False</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 3:41:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>b3af5f35-400b-4d7b-a37c-ee94e2110f0b</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Home</Description>
+            <Address>200 summit blvd, broomfield, co 80021, usa</Address>
+            <YCoordinate>-105.1451443</YCoordinate>
+            <XCoordinate>39.9260416</XCoordinate>
+          </Location>
+          <NameId>0b7d4c02-e5a7-4556-b2ac-5a61f70d7a93</NameId>
+          <Name>Home Event</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>2bd31d77-0566-4966-91ee-b571c53bc21f_7_0_f8ecac2d-fbe5-470a-947e-e4e269f0da45</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/30/2019 10:44:00 AM</ActiveStartTime>
+          <ActiveEndTime>5/30/2019 12:44:00 PM</ActiveEndTime>
+          <Duration>02:00:00</Duration>
+          <StartTime>5/30/2019 10:44:00 AM</StartTime>
+          <EndTime>5/30/2019 12:44:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <isSleep>False</isSleep>
+          <isWake>True</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 3:41:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>b3af5f35-400b-4d7b-a37c-ee94e2110f0b</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Home</Description>
+            <Address>200 summit blvd, broomfield, co 80021, usa</Address>
+            <YCoordinate>-105.1451443</YCoordinate>
+            <XCoordinate>39.9260416</XCoordinate>
+          </Location>
+          <NameId>0b7d4c02-e5a7-4556-b2ac-5a61f70d7a93</NameId>
+          <Name>Home Event</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>2bd31d77-0566-4966-91ee-b571c53bc21f_7_0_f352340a-db31-4e90-af69-a59f75e889f9</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/29/2019 7:00:00 AM</ActiveStartTime>
+          <ActiveEndTime>5/29/2019 9:00:00 AM</ActiveEndTime>
+          <Duration>02:00:00</Duration>
+          <StartTime>5/29/2019 7:00:00 AM</StartTime>
+          <EndTime>5/29/2019 9:00:00 AM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <isSleep>False</isSleep>
+          <isWake>True</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 3:41:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>b3af5f35-400b-4d7b-a37c-ee94e2110f0b</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Home</Description>
+            <Address>200 summit blvd, broomfield, co 80021, usa</Address>
+            <YCoordinate>-105.1451443</YCoordinate>
+            <XCoordinate>39.9260416</XCoordinate>
+          </Location>
+          <NameId>0b7d4c02-e5a7-4556-b2ac-5a61f70d7a93</NameId>
+          <Name>Home Event</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>2bd31d77-0566-4966-91ee-b571c53bc21f_7_0_ec8ababd-0c18-40cf-8e21-e3eb2a80a2a1</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/28/2019 7:00:00 AM</ActiveStartTime>
+          <ActiveEndTime>5/28/2019 9:00:00 AM</ActiveEndTime>
+          <Duration>02:00:00</Duration>
+          <StartTime>5/28/2019 7:00:00 AM</StartTime>
+          <EndTime>5/28/2019 9:00:00 AM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <isSleep>True</isSleep>
+          <isWake>False</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 3:41:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>b3af5f35-400b-4d7b-a37c-ee94e2110f0b</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Home</Description>
+            <Address>200 summit blvd, broomfield, co 80021, usa</Address>
+            <YCoordinate>-105.1451443</YCoordinate>
+            <XCoordinate>39.9260416</XCoordinate>
+          </Location>
+          <NameId>0b7d4c02-e5a7-4556-b2ac-5a61f70d7a93</NameId>
+          <Name>Home Event</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>2bd31d77-0566-4966-91ee-b571c53bc21f_7_0_d514c892-5795-4601-bec5-cf7c2119d289</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/27/2019 9:12:00 AM</ActiveStartTime>
+          <ActiveEndTime>5/27/2019 11:12:00 AM</ActiveEndTime>
+          <Duration>02:00:00</Duration>
+          <StartTime>5/27/2019 9:12:00 AM</StartTime>
+          <EndTime>5/27/2019 11:12:00 AM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <isSleep>False</isSleep>
+          <isWake>True</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 3:41:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>b3af5f35-400b-4d7b-a37c-ee94e2110f0b</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Home</Description>
+            <Address>200 summit blvd, broomfield, co 80021, usa</Address>
+            <YCoordinate>-105.1451443</YCoordinate>
+            <XCoordinate>39.9260416</XCoordinate>
+          </Location>
+          <NameId>0b7d4c02-e5a7-4556-b2ac-5a61f70d7a93</NameId>
+          <Name>Home Event</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>2bd31d77-0566-4966-91ee-b571c53bc21f_7_0_c6a714e2-a82e-4306-8ff3-8f80c310a6c5</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/27/2019 7:00:00 AM</ActiveStartTime>
+          <ActiveEndTime>5/27/2019 9:00:00 AM</ActiveEndTime>
+          <Duration>02:00:00</Duration>
+          <StartTime>5/27/2019 7:00:00 AM</StartTime>
+          <EndTime>5/27/2019 9:00:00 AM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <isSleep>False</isSleep>
+          <isWake>True</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 3:41:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>b3af5f35-400b-4d7b-a37c-ee94e2110f0b</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Home</Description>
+            <Address>200 summit blvd, broomfield, co 80021, usa</Address>
+            <YCoordinate>-105.1451443</YCoordinate>
+            <XCoordinate>39.9260416</XCoordinate>
+          </Location>
+          <NameId>0b7d4c02-e5a7-4556-b2ac-5a61f70d7a93</NameId>
+          <Name>Home Event</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>2bd31d77-0566-4966-91ee-b571c53bc21f_7_0_c521fac1-b658-41ac-b4f8-2d34012975b2</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/26/2019 7:00:00 AM</ActiveStartTime>
+          <ActiveEndTime>5/26/2019 9:00:00 AM</ActiveEndTime>
+          <Duration>02:00:00</Duration>
+          <StartTime>5/26/2019 7:00:00 AM</StartTime>
+          <EndTime>5/26/2019 9:00:00 AM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <isSleep>False</isSleep>
+          <isWake>True</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 3:41:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>b3af5f35-400b-4d7b-a37c-ee94e2110f0b</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Home</Description>
+            <Address>200 summit blvd, broomfield, co 80021, usa</Address>
+            <YCoordinate>-105.1451443</YCoordinate>
+            <XCoordinate>39.9260416</XCoordinate>
+          </Location>
+          <NameId>0b7d4c02-e5a7-4556-b2ac-5a61f70d7a93</NameId>
+          <Name>Home Event</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>2bd31d77-0566-4966-91ee-b571c53bc21f_7_0_b49dfd22-c4b1-495d-bbe9-0e0f03028c1c</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/25/2019 7:00:00 AM</ActiveStartTime>
+          <ActiveEndTime>5/25/2019 9:00:00 AM</ActiveEndTime>
+          <Duration>02:00:00</Duration>
+          <StartTime>5/25/2019 7:00:00 AM</StartTime>
+          <EndTime>5/25/2019 9:00:00 AM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <isSleep>False</isSleep>
+          <isWake>True</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 3:41:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>b3af5f35-400b-4d7b-a37c-ee94e2110f0b</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Home</Description>
+            <Address>200 summit blvd, broomfield, co 80021, usa</Address>
+            <YCoordinate>-105.1451443</YCoordinate>
+            <XCoordinate>39.9260416</XCoordinate>
+          </Location>
+          <NameId>0b7d4c02-e5a7-4556-b2ac-5a61f70d7a93</NameId>
+          <Name>Home Event</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>2bd31d77-0566-4966-91ee-b571c53bc21f_7_0_a4ebc1a0-57b6-422a-aef2-2a0427b77da9</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/24/2019 9:12:00 AM</ActiveStartTime>
+          <ActiveEndTime>5/24/2019 11:12:00 AM</ActiveEndTime>
+          <Duration>02:00:00</Duration>
+          <StartTime>5/24/2019 9:12:00 AM</StartTime>
+          <EndTime>5/24/2019 11:12:00 AM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <isSleep>False</isSleep>
+          <isWake>True</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 3:41:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>b3af5f35-400b-4d7b-a37c-ee94e2110f0b</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Home</Description>
+            <Address>200 summit blvd, broomfield, co 80021, usa</Address>
+            <YCoordinate>-105.1451443</YCoordinate>
+            <XCoordinate>39.9260416</XCoordinate>
+          </Location>
+          <NameId>0b7d4c02-e5a7-4556-b2ac-5a61f70d7a93</NameId>
+          <Name>Home Event</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>2bd31d77-0566-4966-91ee-b571c53bc21f_7_0_7b6bc1bc-8264-41f8-b4ed-02ca61777dfb</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/24/2019 7:00:00 AM</ActiveStartTime>
+          <ActiveEndTime>5/24/2019 9:00:00 AM</ActiveEndTime>
+          <Duration>02:00:00</Duration>
+          <StartTime>5/24/2019 7:00:00 AM</StartTime>
+          <EndTime>5/24/2019 9:00:00 AM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <isSleep>False</isSleep>
+          <isWake>False</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 3:41:23 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>b3af5f35-400b-4d7b-a37c-ee94e2110f0b</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Home</Description>
+            <Address>200 summit blvd, broomfield, co 80021, usa</Address>
+            <YCoordinate>-105.1451443</YCoordinate>
+            <XCoordinate>39.9260416</XCoordinate>
+          </Location>
+          <NameId>0b7d4c02-e5a7-4556-b2ac-5a61f70d7a93</NameId>
+          <Name>Home Event</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>2bd31d77-0566-4966-91ee-b571c53bc21f_7_0_717367f5-fdc2-4841-ae99-2ab313eabe3f</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/23/2019 12:49:00 PM</ActiveStartTime>
+          <ActiveEndTime>5/23/2019 2:49:00 PM</ActiveEndTime>
+          <Duration>02:00:00</Duration>
+          <StartTime>5/23/2019 12:49:00 PM</StartTime>
+          <EndTime>5/23/2019 2:49:00 PM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
+    <EventSchedule>
+      <Recurrence />
+      <RestrictionProfile>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>252000000000</RangeSpan>
+            <EndTime>1/1/0001 5:00:00 PM</EndTime>
+            <StartTime>1/1/0001 10:00:00 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>Sunday</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>288000000000</RangeSpan>
+            <EndTime>1/1/0001 6:00:00 PM</EndTime>
+            <StartTime>1/1/0001 10:00:00 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>Monday</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>288000000000</RangeSpan>
+            <EndTime>1/1/0001 6:00:00 PM</EndTime>
+            <StartTime>1/1/0001 10:00:00 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>Tuesday</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>288000000000</RangeSpan>
+            <EndTime>1/1/0001 6:00:00 PM</EndTime>
+            <StartTime>1/1/0001 10:00:00 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>Wednesday</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>288000000000</RangeSpan>
+            <EndTime>1/1/0001 6:00:00 PM</EndTime>
+            <StartTime>1/1/0001 10:00:00 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>Thursday</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>288000000000</RangeSpan>
+            <EndTime>1/1/0001 6:00:00 PM</EndTime>
+            <StartTime>1/1/0001 10:00:00 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>Friday</RestrictionDayOfWeek>
+        </RestrictionNode>
+        <RestrictionNode>
+          <RestrictionTimeLineData>
+            <RangeSpan>288000000000</RangeSpan>
+            <EndTime>1/1/0001 6:00:00 PM</EndTime>
+            <StartTime>1/1/0001 10:00:00 AM</StartTime>
+          </RestrictionTimeLineData>
+          <RestrictionDayOfWeek>Saturday</RestrictionDayOfWeek>
+        </RestrictionNode>
+      </RestrictionProfile>
+      <TimeCreaated>5/20/2019 3:39:00 AM +00:00</TimeCreaated>
+      <TimeZone>UTC</TimeZone>
+      <isProcrastinateEvent>False</isProcrastinateEvent>
+      <ProcrastinationProfile>
+        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
+        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
+        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
+      </ProcrastinationProfile>
+      <NowProfile>
+        <Initialized>False</Initialized>
+        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
+      </NowProfile>
+      <Restricted>True</Restricted>
+      <MiscData>
+        <TypeSelection>0</TypeSelection>
+        <UserNote />
+      </MiscData>
+      <UIParams>
+        <Visible>True</Visible>
+        <Type>0</Type>
+        <Color>
+          <UserSelection>-1</UserSelection>
+          <Blue>127</Blue>
+          <Green>127</Green>
+          <Red>127</Red>
+          <Opacity>1</Opacity>
+        </Color>
+      </UIParams>
+      <Location>
+        <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+        <Id>0342366a-24cb-4439-934c-c3085ed34783</Id>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Colorado Home Fitness</Description>
+        <Address>180 e flatiron crossing dr #180a, broomfield, co 80021, usa</Address>
+        <YCoordinate>-105.1240338</YCoordinate>
+        <XCoordinate>39.9316545</XCoordinate>
+      </Location>
+      <Enabled>True</Enabled>
+      <ID>5b319046-ec09-40e1-84e5-1d64296ecff4_7_0_0</ID>
+      <NameId>62d160e2-7088-417d-a85e-6b4f775579a9</NameId>
+      <Name>Flat iron mall</Name>
+      <StartTime>1/1/1970 12:00:00 AM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <DeletionCount>0</DeletionCount>
+      <CompletionCount>0</CompletionCount>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>5/30/2019 11:59:00 PM</Deadline>
+      <Split>7</Split>
+      <Duration>14:00:00</Duration>
+      <RigidFlag>False</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <RestrictionProfile>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>252000000000</RangeSpan>
+                <EndTime>1/1/0001 5:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Sunday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Monday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Tuesday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Wednesday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Thursday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Friday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Saturday</RestrictionDayOfWeek>
+            </RestrictionNode>
+          </RestrictionProfile>
+          <isSleep>False</isSleep>
+          <isWake>False</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 3:39:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>True</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>0342366a-24cb-4439-934c-c3085ed34783</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Colorado Home Fitness</Description>
+            <Address>180 e flatiron crossing dr #180a, broomfield, co 80021, usa</Address>
+            <YCoordinate>-105.1240338</YCoordinate>
+            <XCoordinate>39.9316545</XCoordinate>
+          </Location>
+          <NameId>62d160e2-7088-417d-a85e-6b4f775579a9</NameId>
+          <Name>Flat iron mall</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>5b319046-ec09-40e1-84e5-1d64296ecff4_7_0_c2e1ab13-0f53-4fa4-8cdb-1edd847b2241</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/29/2019 3:38:00 PM</ActiveStartTime>
+          <ActiveEndTime>5/29/2019 5:38:00 PM</ActiveEndTime>
+          <Duration>02:00:00</Duration>
+          <StartTime>5/29/2019 3:38:00 PM</StartTime>
+          <EndTime>5/29/2019 5:38:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <RestrictionProfile>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>252000000000</RangeSpan>
+                <EndTime>1/1/0001 5:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Sunday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Monday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Tuesday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Wednesday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Thursday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Friday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Saturday</RestrictionDayOfWeek>
+            </RestrictionNode>
+          </RestrictionProfile>
+          <isSleep>True</isSleep>
+          <isWake>False</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 3:40:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>True</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>0342366a-24cb-4439-934c-c3085ed34783</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Colorado Home Fitness</Description>
+            <Address>180 e flatiron crossing dr #180a, broomfield, co 80021, usa</Address>
+            <YCoordinate>-105.1240338</YCoordinate>
+            <XCoordinate>39.9316545</XCoordinate>
+          </Location>
+          <NameId>62d160e2-7088-417d-a85e-6b4f775579a9</NameId>
+          <Name>Flat iron mall</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>5b319046-ec09-40e1-84e5-1d64296ecff4_7_0_ae3775e6-f7ab-47aa-9af4-61c9cc2be263</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/28/2019 4:00:00 PM</ActiveStartTime>
+          <ActiveEndTime>5/28/2019 6:00:00 PM</ActiveEndTime>
+          <Duration>02:00:00</Duration>
+          <StartTime>5/28/2019 4:00:00 PM</StartTime>
+          <EndTime>5/28/2019 6:00:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <RestrictionProfile>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>252000000000</RangeSpan>
+                <EndTime>1/1/0001 5:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Sunday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Monday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Tuesday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Wednesday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Thursday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Friday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Saturday</RestrictionDayOfWeek>
+            </RestrictionNode>
+          </RestrictionProfile>
+          <isSleep>True</isSleep>
+          <isWake>False</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 5:20:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>True</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>0342366a-24cb-4439-934c-c3085ed34783</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Colorado Home Fitness</Description>
+            <Address>180 e flatiron crossing dr #180a, broomfield, co 80021, usa</Address>
+            <YCoordinate>-105.1240338</YCoordinate>
+            <XCoordinate>39.9316545</XCoordinate>
+          </Location>
+          <NameId>62d160e2-7088-417d-a85e-6b4f775579a9</NameId>
+          <Name>Flat iron mall</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>5b319046-ec09-40e1-84e5-1d64296ecff4_7_0_a429787a-743a-43f5-a1b6-3427195f49e7</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/27/2019 11:34:00 AM</ActiveStartTime>
+          <ActiveEndTime>5/27/2019 1:34:00 PM</ActiveEndTime>
+          <Duration>02:00:00</Duration>
+          <StartTime>5/27/2019 11:34:00 AM</StartTime>
+          <EndTime>5/27/2019 1:34:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <RestrictionProfile>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>252000000000</RangeSpan>
+                <EndTime>1/1/0001 5:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Sunday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Monday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Tuesday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Wednesday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Thursday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Friday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Saturday</RestrictionDayOfWeek>
+            </RestrictionNode>
+          </RestrictionProfile>
+          <isSleep>False</isSleep>
+          <isWake>False</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 3:40:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>True</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>0342366a-24cb-4439-934c-c3085ed34783</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Colorado Home Fitness</Description>
+            <Address>180 e flatiron crossing dr #180a, broomfield, co 80021, usa</Address>
+            <YCoordinate>-105.1240338</YCoordinate>
+            <XCoordinate>39.9316545</XCoordinate>
+          </Location>
+          <NameId>62d160e2-7088-417d-a85e-6b4f775579a9</NameId>
+          <Name>Flat iron mall</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>5b319046-ec09-40e1-84e5-1d64296ecff4_7_0_970ac54b-a874-42a5-859e-70921574cc48</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/26/2019 10:00:00 AM</ActiveStartTime>
+          <ActiveEndTime>5/26/2019 12:00:00 PM</ActiveEndTime>
+          <Duration>02:00:00</Duration>
+          <StartTime>5/26/2019 10:00:00 AM</StartTime>
+          <EndTime>5/26/2019 12:00:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <RestrictionProfile>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>252000000000</RangeSpan>
+                <EndTime>1/1/0001 5:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Sunday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Monday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Tuesday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Wednesday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Thursday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Friday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Saturday</RestrictionDayOfWeek>
+            </RestrictionNode>
+          </RestrictionProfile>
+          <isSleep>False</isSleep>
+          <isWake>False</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 5:20:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>True</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>0342366a-24cb-4439-934c-c3085ed34783</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Colorado Home Fitness</Description>
+            <Address>180 e flatiron crossing dr #180a, broomfield, co 80021, usa</Address>
+            <YCoordinate>-105.1240338</YCoordinate>
+            <XCoordinate>39.9316545</XCoordinate>
+          </Location>
+          <NameId>62d160e2-7088-417d-a85e-6b4f775579a9</NameId>
+          <Name>Flat iron mall</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>5b319046-ec09-40e1-84e5-1d64296ecff4_7_0_8385380e-76cb-4030-a1e6-4076025d196a</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/25/2019 10:00:00 AM</ActiveStartTime>
+          <ActiveEndTime>5/25/2019 12:00:00 PM</ActiveEndTime>
+          <Duration>02:00:00</Duration>
+          <StartTime>5/25/2019 10:00:00 AM</StartTime>
+          <EndTime>5/25/2019 12:00:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <RestrictionProfile>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>252000000000</RangeSpan>
+                <EndTime>1/1/0001 5:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Sunday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Monday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Tuesday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Wednesday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Thursday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Friday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Saturday</RestrictionDayOfWeek>
+            </RestrictionNode>
+          </RestrictionProfile>
+          <isSleep>False</isSleep>
+          <isWake>False</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 3:40:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>True</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>0342366a-24cb-4439-934c-c3085ed34783</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Colorado Home Fitness</Description>
+            <Address>180 e flatiron crossing dr #180a, broomfield, co 80021, usa</Address>
+            <YCoordinate>-105.1240338</YCoordinate>
+            <XCoordinate>39.9316545</XCoordinate>
+          </Location>
+          <NameId>62d160e2-7088-417d-a85e-6b4f775579a9</NameId>
+          <Name>Flat iron mall</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>5b319046-ec09-40e1-84e5-1d64296ecff4_7_0_1b85ccbe-aef7-42c3-b9b3-9230759a22f1</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/24/2019 11:34:00 AM</ActiveStartTime>
+          <ActiveEndTime>5/24/2019 1:34:00 PM</ActiveEndTime>
+          <Duration>02:00:00</Duration>
+          <StartTime>5/24/2019 11:34:00 AM</StartTime>
+          <EndTime>5/24/2019 1:34:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <RestrictionProfile>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>252000000000</RangeSpan>
+                <EndTime>1/1/0001 5:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Sunday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Monday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Tuesday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Wednesday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Thursday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Friday</RestrictionDayOfWeek>
+            </RestrictionNode>
+            <RestrictionNode>
+              <RestrictionTimeLineData>
+                <RangeSpan>288000000000</RangeSpan>
+                <EndTime>1/1/0001 6:00:00 PM</EndTime>
+                <StartTime>1/1/0001 10:00:00 AM</StartTime>
+              </RestrictionTimeLineData>
+              <RestrictionDayOfWeek>Saturday</RestrictionDayOfWeek>
+            </RestrictionNode>
+          </RestrictionProfile>
+          <isSleep>True</isSleep>
+          <isWake>False</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 3:40:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>True</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>0342366a-24cb-4439-934c-c3085ed34783</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>Colorado Home Fitness</Description>
+            <Address>180 e flatiron crossing dr #180a, broomfield, co 80021, usa</Address>
+            <YCoordinate>-105.1240338</YCoordinate>
+            <XCoordinate>39.9316545</XCoordinate>
+          </Location>
+          <NameId>62d160e2-7088-417d-a85e-6b4f775579a9</NameId>
+          <Name>Flat iron mall</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>5b319046-ec09-40e1-84e5-1d64296ecff4_7_0_03999cd0-b99c-4b07-9c26-b76b95507696</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/23/2019 4:00:00 PM</ActiveStartTime>
+          <ActiveEndTime>5/23/2019 6:00:00 PM</ActiveEndTime>
+          <Duration>02:00:00</Duration>
+          <StartTime>5/23/2019 4:00:00 PM</StartTime>
+          <EndTime>5/23/2019 6:00:00 PM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
+    <EventSchedule>
+      <Recurrence />
+      <TimeCreaated>5/20/2019 4:27:47 AM +00:00</TimeCreaated>
+      <TimeZone>UTC</TimeZone>
+      <isProcrastinateEvent>False</isProcrastinateEvent>
+      <ProcrastinationProfile>
+        <ProcrastinationPreferredStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationPreferredStart>
+        <ProcrastinationDislikedStart>1/1/0001 12:00:00 AM +00:00</ProcrastinationDislikedStart>
+        <ProcrastinationDislikedDaySection>0</ProcrastinationDislikedDaySection>
+      </ProcrastinationProfile>
+      <NowProfile>
+        <Initialized>False</Initialized>
+        <PreferredStart>1/1/0001 12:00:00 AM +00:00</PreferredStart>
+      </NowProfile>
+      <Restricted>False</Restricted>
+      <MiscData>
+        <TypeSelection>0</TypeSelection>
+        <UserNote />
+      </MiscData>
+      <UIParams>
+        <Visible>True</Visible>
+        <Type>0</Type>
+        <Color>
+          <UserSelection>-1</UserSelection>
+          <Blue>127</Blue>
+          <Green>127</Green>
+          <Red>127</Red>
+          <Opacity>1</Opacity>
+        </Color>
+      </UIParams>
+      <Location>
+        <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+        <Id>7c9f0099-b3dc-47f1-8a9e-05fc01fe0363</Id>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>3333 Walnut St</Description>
+        <Address>3333 walnut st, boulder, co 80301, usa</Address>
+        <YCoordinate>-105.2489631</YCoordinate>
+        <XCoordinate>40.0202053</XCoordinate>
+      </Location>
+      <Enabled>True</Enabled>
+      <ID>b38b833f-8642-42af-b14e-1f0c85da061a_7_0_0</ID>
+      <NameId>9cea7e8a-1bdc-4d39-a1f9-1532216fea92</NameId>
+      <Name>Work Event</Name>
+      <StartTime>1/1/1970 12:00:00 AM</StartTime>
+      <PreDeadline>00:00:00</PreDeadline>
+      <DeletionCount>0</DeletionCount>
+      <CompletionCount>0</CompletionCount>
+      <PrepTime>00:00:00</PrepTime>
+      <Deadline>5/30/2019 11:59:00 PM</Deadline>
+      <Split>7</Split>
+      <Duration>07:00:00</Duration>
+      <RigidFlag>False</RigidFlag>
+      <EventSubSchedules>
+        <EventSubSchedule>
+          <isSleep>False</isSleep>
+          <isWake>True</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 4:27:47 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>7c9f0099-b3dc-47f1-8a9e-05fc01fe0363</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>3333 Walnut St</Description>
+            <Address>3333 walnut st, boulder, co 80301, usa</Address>
+            <YCoordinate>-105.2489631</YCoordinate>
+            <XCoordinate>40.0202053</XCoordinate>
+          </Location>
+          <NameId>9cea7e8a-1bdc-4d39-a1f9-1532216fea92</NameId>
+          <Name>Work Event</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>b38b833f-8642-42af-b14e-1f0c85da061a_7_0_f8b59aa6-8c71-49ba-a3ac-fd2e359c4780</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/30/2019 7:00:00 AM</ActiveStartTime>
+          <ActiveEndTime>5/30/2019 8:00:00 AM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>5/30/2019 7:00:00 AM</StartTime>
+          <EndTime>5/30/2019 8:00:00 AM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <isSleep>False</isSleep>
+          <isWake>False</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 5:20:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>7c9f0099-b3dc-47f1-8a9e-05fc01fe0363</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>3333 Walnut St</Description>
+            <Address>3333 walnut st, boulder, co 80301, usa</Address>
+            <YCoordinate>-105.2489631</YCoordinate>
+            <XCoordinate>40.0202053</XCoordinate>
+          </Location>
+          <NameId>9cea7e8a-1bdc-4d39-a1f9-1532216fea92</NameId>
+          <Name>Work Event</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>b38b833f-8642-42af-b14e-1f0c85da061a_7_0_dc92a100-7bc4-490e-be18-66138bd80f58</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/29/2019 11:44:00 AM</ActiveStartTime>
+          <ActiveEndTime>5/29/2019 12:44:00 PM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>5/29/2019 11:44:00 AM</StartTime>
+          <EndTime>5/29/2019 12:44:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <isSleep>False</isSleep>
+          <isWake>False</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 4:27:47 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>7c9f0099-b3dc-47f1-8a9e-05fc01fe0363</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>3333 Walnut St</Description>
+            <Address>3333 walnut st, boulder, co 80301, usa</Address>
+            <YCoordinate>-105.2489631</YCoordinate>
+            <XCoordinate>40.0202053</XCoordinate>
+          </Location>
+          <NameId>9cea7e8a-1bdc-4d39-a1f9-1532216fea92</NameId>
+          <Name>Work Event</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>b38b833f-8642-42af-b14e-1f0c85da061a_7_0_d38df0b5-36a3-4e6c-9014-9f7923770efa</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/28/2019 11:44:00 AM</ActiveStartTime>
+          <ActiveEndTime>5/28/2019 12:44:00 PM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>5/28/2019 11:44:00 AM</StartTime>
+          <EndTime>5/28/2019 12:44:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <isSleep>False</isSleep>
+          <isWake>False</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 5:20:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>7c9f0099-b3dc-47f1-8a9e-05fc01fe0363</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>3333 Walnut St</Description>
+            <Address>3333 walnut st, boulder, co 80301, usa</Address>
+            <YCoordinate>-105.2489631</YCoordinate>
+            <XCoordinate>40.0202053</XCoordinate>
+          </Location>
+          <NameId>9cea7e8a-1bdc-4d39-a1f9-1532216fea92</NameId>
+          <Name>Work Event</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>b38b833f-8642-42af-b14e-1f0c85da061a_7_0_c3060898-f615-42f9-97ad-ab6ae3f099cc</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/27/2019 9:00:00 PM</ActiveStartTime>
+          <ActiveEndTime>5/27/2019 10:00:00 PM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>5/27/2019 9:00:00 PM</StartTime>
+          <EndTime>5/27/2019 10:00:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <isSleep>True</isSleep>
+          <isWake>False</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 4:27:47 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>7c9f0099-b3dc-47f1-8a9e-05fc01fe0363</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>3333 Walnut St</Description>
+            <Address>3333 walnut st, boulder, co 80301, usa</Address>
+            <YCoordinate>-105.2489631</YCoordinate>
+            <XCoordinate>40.0202053</XCoordinate>
+          </Location>
+          <NameId>9cea7e8a-1bdc-4d39-a1f9-1532216fea92</NameId>
+          <Name>Work Event</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>b38b833f-8642-42af-b14e-1f0c85da061a_7_0_c05d580a-a5cc-41f4-ad8e-6a5bbd8b46b0</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/26/2019 2:54:00 PM</ActiveStartTime>
+          <ActiveEndTime>5/26/2019 3:54:00 PM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>5/26/2019 2:54:00 PM</StartTime>
+          <EndTime>5/26/2019 3:54:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <isSleep>False</isSleep>
+          <isWake>False</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 5:20:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>7c9f0099-b3dc-47f1-8a9e-05fc01fe0363</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>3333 Walnut St</Description>
+            <Address>3333 walnut st, boulder, co 80301, usa</Address>
+            <YCoordinate>-105.2489631</YCoordinate>
+            <XCoordinate>40.0202053</XCoordinate>
+          </Location>
+          <NameId>9cea7e8a-1bdc-4d39-a1f9-1532216fea92</NameId>
+          <Name>Work Event</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>b38b833f-8642-42af-b14e-1f0c85da061a_7_0_a5256cb6-4584-45e5-a133-c62480869a22</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/25/2019 2:54:00 PM</ActiveStartTime>
+          <ActiveEndTime>5/25/2019 3:54:00 PM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>5/25/2019 2:54:00 PM</StartTime>
+          <EndTime>5/25/2019 3:54:00 PM</EndTime>
+        </EventSubSchedule>
+        <EventSubSchedule>
+          <isSleep>True</isSleep>
+          <isWake>False</isWake>
+          <TravelTimeBefore>00:00:00.0000001</TravelTimeBefore>
+          <TravelTimeAfter>00:00:00.0000001</TravelTimeAfter>
+          <TimeCreaated>5/20/2019 5:20:00 AM +00:00</TimeCreaated>
+          <TimeZone>UTC</TimeZone>
+          <isProcrastinateEvent>False</isProcrastinateEvent>
+          <PauseInformation>
+            <UsedUpTime>00:00:00</UsedUpTime>
+            <PauseTime>1/1/0001 12:00:00 AM +00:00</PauseTime>
+          </PauseInformation>
+          <Restricted>False</Restricted>
+          <TimePositionReasons />
+          <ConflictProfile>
+            <ConflictIDs />
+            <Flag>False</Flag>
+            <Type>0</Type>
+          </ConflictProfile>
+          <MiscData>
+            <TypeSelection>0</TypeSelection>
+            <UserNote />
+          </MiscData>
+          <UIParams>
+            <Visible>True</Visible>
+            <Type>0</Type>
+            <Color>
+              <UserSelection>-1</UserSelection>
+              <Blue>127</Blue>
+              <Green>127</Green>
+              <Red>127</Red>
+              <Opacity>1</Opacity>
+            </Color>
+          </UIParams>
+          <Location>
+            <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+            <Id>7c9f0099-b3dc-47f1-8a9e-05fc01fe0363</Id>
+            <CheckCalendarEvent>False</CheckCalendarEvent>
+            <isNull>False</isNull>
+            <Description>3333 Walnut St</Description>
+            <Address>3333 walnut st, boulder, co 80301, usa</Address>
+            <YCoordinate>-105.2489631</YCoordinate>
+            <XCoordinate>40.0202053</XCoordinate>
+          </Location>
+          <NameId>9cea7e8a-1bdc-4d39-a1f9-1532216fea92</NameId>
+          <Name>Work Event</Name>
+          <Complete>False</Complete>
+          <Enabled>True</Enabled>
+          <ID>b38b833f-8642-42af-b14e-1f0c85da061a_7_0_3206cebc-ced0-468d-87eb-2e5878edc2c1</ID>
+          <Rigid>False</Rigid>
+          <ThirdPartyID />
+          <PrepTime>00:00:00</PrepTime>
+          <ActiveStartTime>5/24/2019 9:00:00 PM</ActiveStartTime>
+          <ActiveEndTime>5/24/2019 10:00:00 PM</ActiveEndTime>
+          <Duration>01:00:00</Duration>
+          <StartTime>5/24/2019 9:00:00 PM</StartTime>
+          <EndTime>5/24/2019 10:00:00 PM</EndTime>
+        </EventSubSchedule>
+      </EventSubSchedules>
+      <RepetitionFlag>False</RepetitionFlag>
+      <Completed>False</Completed>
+    </EventSchedule>
+  </EventSchedules>
+  <LocationCache>
+    <Locations>
+      <Location>
+        <CachedName>colorado home fitness</CachedName>
+        <LocationID>0342366a-24cb-4439-934c-c3085ed34783</LocationID>
+        <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+        <Id>0342366a-24cb-4439-934c-c3085ed34783</Id>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Colorado Home Fitness</Description>
+        <Address>180 e flatiron crossing dr #180a, broomfield, co 80021, usa</Address>
+        <YCoordinate>-105.1240338</YCoordinate>
+        <XCoordinate>39.9316545</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>3333 walnut st</CachedName>
+        <LocationID>7c9f0099-b3dc-47f1-8a9e-05fc01fe0363</LocationID>
+        <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+        <Id>7c9f0099-b3dc-47f1-8a9e-05fc01fe0363</Id>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>3333 Walnut St</Description>
+        <Address>3333 walnut st, boulder, co 80301, usa</Address>
+        <YCoordinate>-105.2489631</YCoordinate>
+        <XCoordinate>40.0202053</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>2800 pearl st, boulder, co 80301, usa</CachedName>
+        <LocationID>84e9e858-864e-4f78-b94a-b14b7e2e2be8</LocationID>
+        <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+        <Id>84e9e858-864e-4f78-b94a-b14b7e2e2be8</Id>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>2800 Pearl St, Boulder, CO 80301, USA</Description>
+        <Address>2800 pearl st, boulder, co 80301, usa</Address>
+        <YCoordinate>-105.2558735</YCoordinate>
+        <XCoordinate>40.0218233</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>home</CachedName>
+        <LocationID>b3af5f35-400b-4d7b-a37c-ee94e2110f0b</LocationID>
+        <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+        <Id>b3af5f35-400b-4d7b-a37c-ee94e2110f0b</Id>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Home</Description>
+        <Address>200 summit blvd, broomfield, co 80021, usa</Address>
+        <YCoordinate>-105.1451443</YCoordinate>
+        <XCoordinate>39.9260416</XCoordinate>
+      </Location>
+      <Location>
+        <CachedName>sarah white</CachedName>
+        <LocationID>f5372f26-6ca7-42f6-a41c-b9f07c3a0b08</LocationID>
+        <UserId>1e4f3252-66ba-4ea3-9c05-ddf205c6cd08</UserId>
+        <Id>f5372f26-6ca7-42f6-a41c-b9f07c3a0b08</Id>
+        <CheckCalendarEvent>False</CheckCalendarEvent>
+        <isNull>False</isNull>
+        <Description>Sarah White</Description>
+        <Address>216 highland cir, erie, co 80516, usa</Address>
+        <YCoordinate>-105.0298185</YCoordinate>
+        <XCoordinate>40.0407199</XCoordinate>
+      </Location>
+    </Locations>
+  </LocationCache>
+</ScheduleLog>

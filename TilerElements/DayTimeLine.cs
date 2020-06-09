@@ -8,114 +8,39 @@ using System.Threading.Tasks;
 
 namespace TilerElements
 {
-    public class DayTimeLine:TimeLine
+    public class DayTimeLine: TimelineWithSubcalendarEvents
     {
-        ulong UniversalDayIndex;
+        long UniversalDayIndex;
         int BoundDayIndex;
-        ConcurrentDictionary<string,SubCalendarEvent> AllocatedSubEvents;
-        double OccupancyOfTImeLine = 0;
-        TimeSpan freeSpace;
+        SubCalendarEvent _sleepSubEvent;
+        SubCalendarEvent _wakeSubEVent;
+        SubCalendarEvent _previousDaySleepSubEvent;
+        Location _beginLocation;
+        Location _endLocation;
         #region Constructor
-        public DayTimeLine(DateTimeOffset Start, DateTimeOffset End, ulong UniversalIndex, int BoundedIndex=-1)
+        public DayTimeLine(DateTimeOffset Start, DateTimeOffset End, long UniversalIndex, int BoundedIndex=-1):base(Start, End, null)
         {
-            StartTime = Start;
-            EndTime = End;
-            if (End <= Start)
-            {
-                //StartTime = MyStartTime;
-                EndTime = Start;
-            }
-            UniversalDayIndex = UniversalIndex;
-            BoundDayIndex = BoundedIndex;
             AllocatedSubEvents = new ConcurrentDictionary<string, SubCalendarEvent>();
             freeSpace = EndTime - StartTime;
+            this.UniversalDayIndex = UniversalIndex;
+            this.BoundDayIndex = BoundedIndex;
         }
         #endregion
-        #region Function
-
-        public void AddToSubEventList(IEnumerable<SubCalendarEvent> SubEventList)
-        {
-            Parallel.ForEach(SubEventList, eachSubCal =>//(eachSubCal in SubEventList)
-            {
-                AllocatedSubEvents.AddOrUpdate(eachSubCal.ID, eachSubCal, (key, value) => eachSubCal);
-                
-            });
-            
-            updateOccupancyOfTimeLine();
-        }
-
-        public void AddToSubEventList(SubCalendarEvent eachSubCal)
-        {
-            //Parallel.ForEach(SubEventList, eachSubCal =>//(eachSubCal in SubEventList)
-            {
-                AllocatedSubEvents.AddOrUpdate(eachSubCal.ID, eachSubCal, (key, value) => eachSubCal);
-
-            }
-            //);
-
-            updateOccupancyOfTimeLine();
-        }
-
-        public void InitializeSubEventList(List<SubCalendarEvent> SubEventList)
-        {
-            AllocatedSubEvents = new ConcurrentDictionary<string, SubCalendarEvent>(SubEventList.ToDictionary(obj=>obj.ID,obj=>obj));
-            updateOccupancyOfTimeLine();
-        }
-        public void updateOccupancyOfTimeLine()
-        {
-            OccupancyOfTImeLine = ((double)(SubCalendarEvent.TotalActiveDuration(AllocatedSubEvents.Values).Ticks+ ActiveTimeSlots.Sum(obj=>obj.BusyTimeSpan.Ticks)) / (double)TimelineSpan.Ticks);
-            freeSpace = TimelineSpan - SubCalendarEvent.TotalActiveDuration(AllocatedSubEvents.Values);
-        }
-
-        public List<SubCalendarEvent> getSubEventsInDayTimeLine()
-        {
-            List<SubCalendarEvent> retValue  =AllocatedSubEvents.Values.ToList();
-            return retValue;
-        }
-
+        #region functions
         override public TimeLine CreateCopy()
         {
             DayTimeLine CopyTimeLine = new DayTimeLine(this.StartTime, this.EndTime, UniversalDayIndex, BoundDayIndex);
             CopyTimeLine.AllocatedSubEvents = new ConcurrentDictionary<string, SubCalendarEvent>(AllocatedSubEvents);
             CopyTimeLine.OccupancyOfTImeLine = this.OccupancyOfTImeLine;
-            /*
-            BusyTimeLine[] TempActiveSlotsHolder = new BusyTimeLine[ActiveTimeSlots.Count()];
-            for (int i = 0; i < TempActiveSlotsHolder.Length;i++ )
-            {
-                TempActiveSlotsHolder[i] = ActiveTimeSlots[i].CreateCopy();
-            }
-
-            CopyTimeLine.ActiveTimeSlots = TempActiveSlotsHolder;
-            */
             return CopyTimeLine;
         }
-
-        public override string ToString()
+        public override void updateOccupancyOfTimeLine()
         {
-            return (base.ToString()+"||"+UniversalDayIndex.ToString());
+            base.updateOccupancyOfTimeLine();
         }
-        
-        /// <summary>
-        /// Function returns a timeLine with the begining and end. It does not populate the busyslots. It returns a new TImeline object
-        /// </summary>
-        /// <returns></returns>
-        public TimeLine getJustTimeLine()
-        {
-            TimeLine RetValue = new TimeLine(this.StartTime, this.EndTime);
-            return RetValue;
-        }
-
         #endregion
+
         #region Properties
-
-        public TimeSpan TotalFreeSpace
-        {
-            get
-            {
-                return freeSpace;
-            }
-
-        }
         public int BoundedIndex
         {
             get 
@@ -124,7 +49,7 @@ namespace TilerElements
             }
         }
 
-        public ulong UniversalIndex
+        public long UniversalIndex
         {
             get 
             {
@@ -132,16 +57,81 @@ namespace TilerElements
             }
         }
 
-
-        public double Occupancy
+        public void ClearAllSubEvents()
+        {
+            List<SubCalendarEvent> subEvents = AllocatedSubEvents.Values.ToList();
+            foreach(SubCalendarEvent subEvent in subEvents)
+            {
+                RemoveSubEvent(subEvent.Id);
+            }
+        }
+        /// <summary>
+        /// This is the subevent for the current day after which sleep is expected. Note this is always towards the end of the day
+        /// </summary>
+        public virtual SubCalendarEvent SleepSubEvent
         {
             get
             {
-                return OccupancyOfTImeLine;
+                return _sleepSubEvent;
+            }
+            set
+            {
+                if(_sleepSubEvent != null)
+                {
+                    _sleepSubEvent.isSleep = false;
+                }
+                _sleepSubEvent = value;
+                _sleepSubEvent.isSleep = true;
+            }
+        }
+        /// <summary>
+        /// This is the subevent for the current day before which sleep is expected. So there sholuld be a sleep span before this sub event
+        /// </summary>
+        public virtual SubCalendarEvent WakeSubEvent
+        {
+            get
+            {
+                return _wakeSubEVent ?? AllocatedSubEvents.Values.FirstOrDefault(subEvent => subEvent.isWake);
+            }
+            set
+            {
+                if (_wakeSubEVent != null)
+                {
+                    _wakeSubEVent.isWake = false;
+                }
+                _wakeSubEVent = value;
+                _wakeSubEVent.isWake = true;
             }
         }
 
 
+        /// <summary>
+        /// This is the subevent for the current day after which sleep is expected. This sleep time chunk is before "WakeSubevent". This often occurs if an event has a deadline that is within the sleep time frame. So for example a 1 hour subevent with a 2:00am deadline when the sleep time frame of 12:00AM- 6:00AM 
+        /// </summary>
+        public SubCalendarEvent PrecedingDaySleepSubEvent { get; set; }
+        public Location BeginLocation
+        {
+            get
+            {
+                return _beginLocation;
+            }
+            set
+            {
+                _beginLocation = value;
+            }
+        }
+
+        public Location EndLocation
+        {
+            get
+            {
+                return _endLocation;
+            }
+            set
+            {
+                _endLocation = value;
+            }
+        }
         #endregion
 
     }

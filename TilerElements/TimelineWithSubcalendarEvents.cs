@@ -47,10 +47,7 @@ namespace TilerElements
                 AllocatedSubEvents.AddOrUpdate(eachSubCal.getId, eachSubCal, (key, value) => eachSubCal);
             });
 
-            foreach (SubCalendarEvent eachSubCal in SubEventList)
-            {
-                base.AddBusySlots(eachSubCal.ActiveSlot);
-            }
+            base.AddBusySlots(SubEventList.Select(o => o.ActiveSlot));
 
             updateOccupancyOfTimeLine();
             updateAverageLocation();

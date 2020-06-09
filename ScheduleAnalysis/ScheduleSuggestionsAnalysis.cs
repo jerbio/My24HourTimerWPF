@@ -299,6 +299,7 @@ namespace ScheduleAnalysis
             ScheduleSuggestion suggestion = new ScheduleSuggestion();
             List<TimeLine> orderedTimelines = timelines.OrderBy(o => o.End).ToList();
             List<TimeLine> allTimelines = timelines.OrderBy(o => o.End).ToList();
+            HashSet<CalendarEvent> alreadySuggested = new HashSet<CalendarEvent>();
             for (int i=0; i< orderedTimelines.Count;i++)
             {
                 TimeLine timeLine = orderedTimelines[i];
@@ -311,7 +312,7 @@ namespace ScheduleAnalysis
                     if (calEventId_to_CalEvents.ContainsKey(calEventId))
                     {
                         CalendarEvent calEvent = calEventId_to_CalEvents[calEventId];
-                        if(MovableCalEvents.Contains(calEvent))
+                        if(MovableCalEvents.Contains(calEvent) && !alreadySuggested.Contains(calEvent))
                         {
                             calEvents.Add(calEvent);
                         }   
@@ -365,6 +366,7 @@ namespace ScheduleAnalysis
                         {
                             updatedTimeLine.AddBusySlots(calEvent.ActiveSubEvents.Select(o => o.ActiveSlot));
                             suggestion.addCalendarEventAndTimeline(calEvent, updatedTimeLine);
+                            alreadySuggested.Add(calEvent);
                         }
                         
                     }

@@ -2771,6 +2771,28 @@ namespace TilerCore
                 }
 
 
+                Dictionary<string, List<SubCalendarEvent>> calEventToSubEvents = new Dictionary<string, List<SubCalendarEvent>>();
+                foreach (SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine())
+                {
+                    if(!subEvent.ParentCalendarEvent.isLocked)
+                    {
+                        string calComponent = subEvent.getTilerID.getCalendarEventComponent();
+                        List<SubCalendarEvent> subeventOfSameCal = null;
+                        if (calEventToSubEvents.ContainsKey(calComponent))
+                        {
+                            subeventOfSameCal = calEventToSubEvents[calComponent];
+                        }
+                        else
+                        {
+                            subeventOfSameCal = new List<SubCalendarEvent>();
+                            calEventToSubEvents[calComponent] = subeventOfSameCal;
+                        }
+                        subeventOfSameCal.Add(subEvent);
+                    }
+                }
+
+
+                Dictionary<string, SubCalendarEvent> calEventToSubeventWithVerifiedForDayLocation = new Dictionary<string, SubCalendarEvent>();
                 foreach (SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => sub.LocationObj.IsVerified || (sub.isLocationAmbiguous && sub.IsValidationRun)))
                 {
                     int durationQutient = ((int)Math.Round(subEvent.getActiveDuration.TotalMinutes / Utility.QuarterHourTimeSpan.TotalMinutes));
@@ -2780,6 +2802,14 @@ namespace TilerCore
                     }
                     else {
                         durationToTimeSpan.Add(subEvent.Location, durationQutient);
+                    }
+                    string calIdComponent = subEvent.getTilerID.getCalendarEventComponent();
+                    if (calEventToSubEvents.ContainsKey(calIdComponent))
+                    {
+                        if(!calEventToSubeventWithVerifiedForDayLocation.ContainsKey(calIdComponent))
+                        {
+                            calEventToSubeventWithVerifiedForDayLocation.Add(calIdComponent, subEvent);
+                        }
                     }
                 }
 
@@ -2810,23 +2840,43 @@ namespace TilerCore
                             averageLocation = home != null && !home.isDefault && !home.isNull ? home : CurrentLocation;
                         }
 
-                        if (averageLocation != null && !averageLocation.isDefault && !averageLocation.isNull)
-                        {
-                            subEvent.validateLocation(averageLocation);/// This might kill performance because of multiple calls to google for validation
-                            int durationQutient = ((int)Math.Round(subEvent.getActiveDuration.TotalMinutes / Utility.QuarterHourTimeSpan.TotalMinutes));
-                            if (subEvent.Location.isNotNullAndNotDefault)
-                            {
-                                if (durationToTimeSpan.ContainsKey(subEvent.Location))
-                                {
-                                    durationToTimeSpan[subEvent.Location] += durationQutient;
-                                }
-                                else
-                                {
-                                    durationToTimeSpan.Add(subEvent.Location, durationQutient);
-                                }
-                            }
+                        string calIdComponent = subEvent.getTilerID.getCalendarEventComponent();
 
+                        if (calEventToSubeventWithVerifiedForDayLocation.ContainsKey(calIdComponent))
+                        {
+                            SubCalendarEvent subEventWithValidatedLocation = calEventToSubeventWithVerifiedForDayLocation[calIdComponent];
+                            if(subEventWithValidatedLocation.LocationObj == subEvent.LocationObj)
+                            {
+                                subEvent.updateLocationValidationId(subEventWithValidatedLocation.LocationValidationId);
+                            }
+                            else
+                            {
+                                throw new Exception("Sonmething is wrong with location obj, check your app logic for consistency");
+                            }
+                            
                         }
+                        else
+                        {
+                            if (averageLocation != null && !averageLocation.isDefault && !averageLocation.isNull)
+                            {
+                                subEvent.validateLocation(averageLocation);/// This might kill performance because of multiple calls to google for validation
+                                int durationQutient = ((int)Math.Round(subEvent.getActiveDuration.TotalMinutes / Utility.QuarterHourTimeSpan.TotalMinutes));
+                                if (subEvent.Location.isNotNullAndNotDefault)
+                                {
+                                    if (durationToTimeSpan.ContainsKey(subEvent.Location))
+                                    {
+                                        durationToTimeSpan[subEvent.Location] += durationQutient;
+                                    }
+                                    else
+                                    {
+                                        durationToTimeSpan.Add(subEvent.Location, durationQutient);
+                                    }
+                                }
+
+                            }
+                        }
+
+                        
                     }
                 }
                 locationValidation.Stop();

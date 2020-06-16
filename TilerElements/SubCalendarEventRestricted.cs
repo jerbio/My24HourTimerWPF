@@ -397,7 +397,7 @@ namespace TilerElements
                 updateEndTime( SubEventEntry.End);
                 this._EventPreDeadline = SubEventEntry.getPreDeadline;
                 this._EventScore = SubEventEntry.Score;
-                this._LocationInfo = SubEventEntry.Location;
+                this._LocationInfo = SubEventEntry._LocationInfo;
                 this.OldPreferredIndex = SubEventEntry.OldUniversalIndex;
                 this._otherPartyID = SubEventEntry.ThirdPartyID;
                 this.preferredDayIndex = SubEventEntry.UniversalDayIndex;

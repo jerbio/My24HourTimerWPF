@@ -12,6 +12,10 @@ namespace TilerElements
 {
     public class TilerUser : IdentityUser, IHasId
     {
+        public TilerUser():base()
+        {
+
+        }
 
         public static TilerUser autoUser = new TilerUser()
         {

@@ -302,5 +302,82 @@ namespace TilerTests
             Assert.IsFalse(broomfieldCheck);
 
         }
+
+        /// <summary>
+        /// Test ensures that when subevents of the same caledarevent within the same day have the same location.
+        /// So if you have CalenarEvent A (subevent AA and subevent AB) and also CalendarEvent B (with subevent BA and subevent BB)
+        /// If subevent AA and AB are in the same day you want them to have the same location. 
+        /// However if they're on different days its ok if their dynamic locations are on different days
+        /// </summary>
+        [TestMethod]
+        public void SubeventsOfSameCalendarOnSameDayShouldHaveSameLocation()
+        {
+            //throw new Exception("test is not written");
+            var packet = TestUtility.CreatePacket();
+            string locationName = "Walmart";
+            Location currLocation = new Location("3755 Moorhead Ave, Boulder, CO 80305");
+            currLocation.verify();
+            Location home = new Location("200 summit blvd Boulder CO", "home");
+            Location work = new Location("3333 walnut rd boulder CO", "work");
+            Location walmartLocation = new Location(locationName);
+            UserAccount user = packet.Account;
+            TilerUser tilerUser = packet.User;
+
+            DateTimeOffset refNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
+            TimeSpan duration = TimeSpan.FromHours(3);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.Add(duration + duration + duration);
+            TimeLine repetitionRange = new TimeLine(start, start.AddDays(13).AddHours(-23));
+            TimeLine actualRange = new TimeLine(start, start.AddDays(1).AddHours(-1));
+
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Repetition walmartRepetition = new Repetition(repetitionRange, Repetition.Frequency.DAILY, actualRange);
+            CalendarEvent workTestCalEvent = TestUtility.generateCalendarEvent(tilerUser, duration, walmartRepetition, start, end, 3, location: walmartLocation);
+
+            TestSchedule Schedule = new TestSchedule(user, refNow);
+            Schedule.CurrentLocation = home;
+            Schedule.AddToScheduleAndCommitAsync(workTestCalEvent).Wait();
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Repetition repetition = new Repetition(repetitionRange, Repetition.Frequency.DAILY, actualRange);
+            CalendarEvent testCalEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 3, location: work);
+
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.CurrentLocation = home;
+            Schedule.AddToScheduleAndCommitAsync(testCalEvent).Wait();
+
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Repetition rigidRepetition = new Repetition(repetitionRange, Repetition.Frequency.DAILY, actualRange);
+            TimeSpan rigidDuration = TimeSpan.FromHours(10);
+            CalendarEvent rigidTestCalEvent = TestUtility.generateCalendarEvent(tilerUser, rigidDuration, rigidRepetition, start, end, location: home, rigidFlags: true);
+
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.CurrentLocation = home;
+            Schedule.AddToScheduleAndCommitAsync(rigidTestCalEvent).Wait();
+            List<DayTimeLine> dayTimelines = Schedule.Now.getAllDaysForCalc().ToList();
+            foreach(DayTimeLine dayTimeline in dayTimelines)
+            {
+                Dictionary<string, Location> calEventAddressToLocation = new Dictionary<string, Location>();
+                foreach (SubCalendarEvent subevent in dayTimeline.getSubEventsInTimeLine())
+                {
+                    string calId = subevent.SubEvent_ID.getAllEventDictionaryLookup;
+                    if (!calEventAddressToLocation.ContainsKey(calId))
+                    {
+                        calEventAddressToLocation[calId] = subevent.Location;
+                    } 
+                    else
+                    {
+                        Location sameSubeventLocation = calEventAddressToLocation[calId];
+                        Assert.AreEqual(subevent.Location.Longitude, sameSubeventLocation.Longitude);
+                        Assert.AreEqual(subevent.Location.Latitude, sameSubeventLocation.Latitude);
+                    }
+                }
+            }
+        }
     }
 }

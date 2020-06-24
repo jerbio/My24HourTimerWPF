@@ -64,7 +64,8 @@ namespace TilerElements
         protected DateTimeOffset _CompletionTime;
         protected ReferenceNow _Now;
         protected double _EventScore = double.NaN;
-        protected DateTimeOffset _DeadlineSuggestion;
+        protected DateTimeOffset _DeadlineSuggestion;// Holds the deadline suggestion, and by default gets cleared when the deadline is reset
+        protected DateTimeOffset _LastDeadlineSuggestion;// Holds the last set deadline suggestions. It is never cleared
 
 
         #region undoParameters
@@ -246,6 +247,7 @@ namespace TilerElements
         virtual public void updateDeadlineSuggestion(DateTimeOffset deadline)
         {
             _DeadlineSuggestion = deadline;
+            _LastDeadlineSuggestion = deadline;
         }
 
         virtual public void resetAllSuggestions()
@@ -658,6 +660,14 @@ namespace TilerElements
             }
         }
 
+        virtual public DateTimeOffset LastDeadlineSuggestion
+        {
+            get
+            {
+                return _LastDeadlineSuggestion;
+            }
+        }
+
         [NotMapped]
         public ReferenceNow Now
         {
@@ -706,6 +716,19 @@ namespace TilerElements
             set
             {
                 _DeadlineSuggestion = DateTimeOffset.FromUnixTimeMilliseconds(value);
+            }
+        }
+
+        public long LastDeadlineSuggestion_DB
+        {
+            get
+            {
+                return _LastDeadlineSuggestion.ToUnixTimeMilliseconds();
+            }
+
+            set
+            {
+                _LastDeadlineSuggestion = DateTimeOffset.FromUnixTimeMilliseconds(value);
             }
         }
 

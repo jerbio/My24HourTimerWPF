@@ -294,6 +294,7 @@ namespace TilerElements
             copy.lockedPrecedingHours = this.lockedPrecedingHours;
             copy._enablePre_reschedulingTimelineLockDown = this._enablePre_reschedulingTimelineLockDown;
             copy._RepetitionLock = this._RepetitionLock;
+            copy._NowLock = this._NowLock;
             copy.isSleep = this.isSleep;
             copy.isWake = this.isWake;
             copy._isTardy = this._isTardy;
@@ -457,6 +458,7 @@ namespace TilerElements
             retValue._ProfileOfRestriction = this._ProfileOfRestriction;
             retValue._Now = this._Now;
             retValue._RepetitionLock = this._RepetitionLock;
+            retValue._NowLock = this._NowLock;
             return retValue;
         }
 

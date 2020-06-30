@@ -1323,7 +1323,7 @@ namespace TilerCore
                 blockName.Creator_EventDB = procrastinateAll.getCreator;
                 blockName.AssociatedEvent = procrastinateAll;
                 HashSet<SubCalendarEvent> NotdoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
-                clearAllRepetitionLock();
+                clearAllTimeLocks();
                 procrastinateAll = EvaluateTotalTimeLineAndAssignValidTimeSpots(procrastinateAll, NotdoneYet, null, null, 1) as ProcrastinateCalendarEvent;
 
                 Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(procrastinateAll.Error, AllEventDictionary_Cpy);
@@ -1358,6 +1358,8 @@ namespace TilerCore
             CalendarEvent referenceCalendarEvent = getCalendarEvent(EventID);
             SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
             ReferenceSubEvent.disableRepetitionLock();
+            ReferenceSubEvent.disableNowLock();
+            clearAllTimeLocks();
             referenceCalendarEvent.DayPreference.init();
             TimeSpan bumperTimeSpan = Utility.ZeroTimeSpan;
 
@@ -1407,7 +1409,7 @@ namespace TilerCore
 
             if (!InitialRigid)
             {
-                referenceCalendarEvent.RigidizeSubEvent(ReferenceSubEvent.Id);
+                ReferenceSubEvent.enableNowLock();
             }
 
             if (referenceCalendarEvent.IsFromRecurringAndNotChildRepeatCalEvent)
@@ -1422,11 +1424,6 @@ namespace TilerCore
 
 
             ScheduleUpdated = EvaluateTotalTimeLineAndAssignValidTimeSpots(ScheduleUpdated, NotDOneYet, null, null, 1);
-            if (!InitialRigid)
-            {
-                referenceCalendarEvent.UnRigidizeSubEvent(ReferenceSubEvent.Id);
-            }
-
 
             if (ScheduleUpdated.Error != null)
             {
@@ -1505,7 +1502,7 @@ namespace TilerCore
                 name, Now.constNow, Now.constNow.Add(duration), duration, new TimeSpan(), new TimeSpan(), new Repetition(), currentLocation, null, null, false, false, TilerUser, new TilerUserGroup(), timeZone, null, new NowProfile(), null);
             name.Creator_EventDB = NewEvent.getCreator;
             name.AssociatedEvent = NewEvent;
-            clearAllRepetitionLock();
+            clearAllTimeLocks();
             NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, new HashSet<SubCalendarEvent>(), currentLocation, null, 1, true, false);
 
             CustomErrors RetValue = NewEvent.Error;
@@ -2076,7 +2073,7 @@ namespace TilerCore
             ConcurrentBag<SubCalendarEvent> subEvents = new ConcurrentBag<SubCalendarEvent>();
             foreach (SubCalendarEvent subEvent in subEventsInSet)
             {
-                if (subEvent.getActiveDuration <= maxSubeventSpan)
+                if (subEvent.getActiveDuration <= maxSubeventSpan || subEvent.getIsProcrastinateCalendarEvent)
                 {
                     if (subEvent.isLocked)
                     {
@@ -6386,14 +6383,15 @@ namespace TilerCore
             return SpecificFreeSpots.ToArray();
         }
 
-        void clearAllRepetitionLock()
+        void clearAllTimeLocks()
         {
             IEnumerable<SubCalendarEvent> subEvents = getAllActiveSubEvents();
             foreach(SubCalendarEvent eachSubEvent in subEvents)
             {
-                if (eachSubEvent.End > Now.constNow && eachSubEvent.isRepetitionLocked)
+                if (eachSubEvent.End > Now.constNow && (eachSubEvent.isLocked && !eachSubEvent.isRigid))
                 {
                     eachSubEvent.disableRepetitionLock();
+                    eachSubEvent.disableNowLock();
                 }
             };
         }
@@ -6410,13 +6408,17 @@ namespace TilerCore
                 Procrastination procrastinateData = new Procrastination(ReferenceStart, RangeOfPush);
                 TimeLine timeLineAfterProcrastination = new TimeLine(procrastinateData.PreferredStartTime, ReferenceSubEvent.getCalendarEventRange.End);
                 ReferenceSubEvent.disableRepetitionLock();
+                ReferenceSubEvent.disableNowLock();
                 if (ReferenceSubEvent.canExistWithinTimeLine(timeLineAfterProcrastination))
                 {
                     ProcrastinateEvent.updateProcrastinate(procrastinateData);
                     DateTimeOffset StartTimeOfProcrastinate = ReferenceStart + RangeOfPush;
                     DateTimeOffset limitOfProcrastination = ReferenceSubEvent.getCalendarEventRange.End;
                     List<SubCalendarEvent> orderedByStartSubEvents = ProcrastinateEvent.ActiveSubEvents.OrderBy(o => o.Start).ToList();
-                    orderedByStartSubEvents.ForEach(subEvent => subEvent.disableRepetitionLock());
+                    orderedByStartSubEvents.ForEach(subEvent => {
+                        subEvent.disableRepetitionLock();
+                        subEvent.disableNowLock();
+                    });
 
                     ProcrastinateEvent.disableRepetitionLocks(timeLineAfterProcrastination.Start);
                     if (!Utility.tryPinSubEventsToEnd(orderedByStartSubEvents, timeLineAfterProcrastination) && !force)

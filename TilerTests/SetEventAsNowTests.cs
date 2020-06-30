@@ -472,8 +472,127 @@ namespace TilerTests
             SubCalendarEvent subEvent = Schedule.getAllActiveSubEvents().OrderBy(sub => sub.Start).Where(o => o.Start > refNowAfter3Days).First();
             DateTimeOffset earliestTIme = Schedule.Now.firstDay.Start + Utility.SleepSpan + Schedule.MorningPreparationTime;
             Assert.IsTrue(subEvent.Start >= earliestTIme);
+        }
+
+        /// <summary>
+        /// Function test when a sub event is set as now, it'll stay locked until the nowLock is reset
+        /// </summary>
+        [TestMethod]
+        public void setAsSubEVentNow_IsLocked()
+        {
+            TestSchedule Schedule;
+            TilerUser tilerUser = TestUtility.createUser();
+            Location currentLocation = new Location("3333 Walnut Rd Boulder, CO");
+            currentLocation.verify();
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+            DateTimeOffset iniRefNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
+            DateTimeOffset refNow = iniRefNow;
+            Schedule = new TestSchedule(user, refNow);
+            TimeSpan duration = TimeSpan.FromHours(1);
+            DateTimeOffset start = refNow;
+            TimeLine repetitionRange = new TimeLine(start, start.AddDays(13).AddHours(-23));
+            DateTimeOffset end = repetitionRange.End.AddDays(14);
+            DayOfWeek startingWeekDay = start.DayOfWeek;
+            Location location = new Location();
+            CalendarEvent testEvent0 = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 2, false);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.AddToScheduleAndCommitAsync(testEvent0).Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            CalendarEvent testEvent1 = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 2, false);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.AddToScheduleAndCommitAsync(testEvent1).Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            SubCalendarEvent setAsNowSubEvent = testEvent1.ActiveSubEvents.First();
+            Schedule.CurrentLocation = currentLocation;
+            Schedule.SetSubeventAsNow(setAsNowSubEvent.Id);
+            Schedule.persistToDB().Wait();
+            SubCalendarEvent setAsNowSubEventRetrieved = TestUtility.getSubEventById(setAsNowSubEvent.Id, user);
+            DateTimeOffset afterAsNow = setAsNowSubEventRetrieved.Start;
+            Assert.IsTrue(setAsNowSubEventRetrieved.isLocked);
+            Assert.IsTrue(setAsNowSubEventRetrieved.isNowLocked);
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            CalendarEvent testEvent2 = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 2, false);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.AddToScheduleAndCommitAsync(testEvent2).Wait();
+            SubCalendarEvent setAsNowSubEventAfterAsNow = Schedule.getSubCalendarEvent(setAsNowSubEvent.Id);
+            Assert.AreEqual(afterAsNow, setAsNowSubEventAfterAsNow.Start);
 
 
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.FindMeSomethingToDo(currentLocation).Wait();
+            Schedule.persistToDB().Wait();
+            setAsNowSubEventRetrieved = TestUtility.getSubEventById(setAsNowSubEvent.Id, user);
+            Assert.IsFalse(setAsNowSubEventRetrieved.isLocked);
+            Assert.IsFalse(setAsNowSubEventRetrieved.isNowLocked);
+        }
+
+
+        /// <summary>
+        /// Function test when a calendae event is set as now, it'll stay locked until the nowLock is reset
+        /// </summary>
+        [TestMethod]
+        public void setAsCalendarEventNow_IsLocked()
+        {
+            TestSchedule Schedule;
+            TilerUser tilerUser = TestUtility.createUser();
+            Location currentLocation = new Location("3333 Walnut Rd Boulder, CO");
+            currentLocation.verify();
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+            DateTimeOffset iniRefNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
+            DateTimeOffset refNow = iniRefNow;
+            Schedule = new TestSchedule(user, refNow);
+            TimeSpan duration = TimeSpan.FromHours(1);
+            DateTimeOffset start = refNow;
+            TimeLine repetitionRange = new TimeLine(start, start.AddDays(13).AddHours(-23));
+            DateTimeOffset end = repetitionRange.End.AddDays(14);
+            DayOfWeek startingWeekDay = start.DayOfWeek;
+            Location location = new Location();
+            CalendarEvent testEvent0 = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 2, false);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.AddToScheduleAndCommitAsync(testEvent0).Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            CalendarEvent testEvent1 = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 2, false);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.AddToScheduleAndCommitAsync(testEvent1).Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.CurrentLocation = currentLocation;
+            Schedule.SetCalendarEventAsNow(testEvent1.Id);
+            Schedule.persistToDB().Wait();
+            SubCalendarEvent setAsNowSubEventRetrieved = TestUtility.getCalendarEventById(testEvent1.Id, user).AllSubEvents.Where(subEvent => subEvent.isNowLocked).Single();
+            DateTimeOffset afterAsNow = setAsNowSubEventRetrieved.Start;
+            Assert.IsTrue(setAsNowSubEventRetrieved.isLocked);
+            Assert.IsTrue(setAsNowSubEventRetrieved.isNowLocked);
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            CalendarEvent testEvent2 = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 2, false);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.AddToScheduleAndCommitAsync(testEvent2).Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            SubCalendarEvent setAsNowSubEventAfterAsNow = Schedule.getSubCalendarEvent(setAsNowSubEventRetrieved.Id);
+            Assert.AreEqual(afterAsNow, setAsNowSubEventAfterAsNow.Start);
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            Schedule.FindMeSomethingToDo(currentLocation).Wait();
+            Schedule.persistToDB().Wait();
+            setAsNowSubEventRetrieved = TestUtility.getSubEventById(setAsNowSubEventRetrieved.Id, user);
+            Assert.IsFalse(setAsNowSubEventRetrieved.isLocked);
+            Assert.IsFalse(setAsNowSubEventRetrieved.isNowLocked);
         }
     }
 }

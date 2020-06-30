@@ -2081,6 +2081,7 @@ namespace TilerElements
         {
             SubCalendarEvent subEvent = getSubEvent(subEventId);
             subEvent.enableRepetitionLock();
+            subEvent.disableNowLock();
         }
 
         public virtual void disableRepetitionLocks(DateTimeOffset time)
@@ -2130,6 +2131,7 @@ namespace TilerElements
             }
             toBeRepeated.shiftEvent(currentTime, true);
             toBeRepeated.enableRepetitionLock();
+            toBeRepeated.disableNowLock();
         }
 
         public override void InitializeDayPreference(TimeLine timeLine)

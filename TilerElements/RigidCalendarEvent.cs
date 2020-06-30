@@ -58,6 +58,7 @@ namespace TilerElements
                 SubCalendarEvent newSubCalEvent = new SubCalendarEvent(this, getCreator, _Users, _TimeZone, _AverageTimePerSplit, this.getName, (End - _AverageTimePerSplit), this.End, new TimeSpan(), UniqueID.ToString(), _RigidSchedule, this._Enabled, this._UiParams, this.Notes, this._Complete, this._LocationInfo, this.StartToEnd);
                 newSubCalEvent.TimeCreated = this.TimeCreated;
                 newSubCalEvent.ProfileOfNow_EventDB = this.getNowInfo;
+                newSubCalEvent.disableNowLock();
                 _SubEvents.Add(newSubCalEvent.Id, newSubCalEvent);
             }
         }

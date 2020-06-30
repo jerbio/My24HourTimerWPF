@@ -74,6 +74,7 @@
     </Reference>
     <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
     <Reference Include="Microsoft.AspNet.Identity.EntityFramework, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="My24HourTimerWPF">
       <HintPath>..\My24HourTimerWPF\bin\Debug\My24HourTimerWPF.exe</HintPath>
     </Reference>
@@ -141,10 +142,6 @@
     <Compile Include="LogControlDump.cs" />
     <Compile Include="LogControlTest.cs" />
     <Compile Include="LogicTest.cs" />
-    <Compile Include="Migrations\202006300523215_nowLock.cs" />
-    <Compile Include="Migrations\202006300523215_nowLock.designer.cs">
-      <DependentUpon>202006300523215_nowLock.cs</DependentUpon>
-    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
     <Compile Include="Models\TestGoogleEvent.cs" />
@@ -322,11 +319,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="WagTapCalLogs\69e9166b-6754-46cf-b384-66c5557048f8\" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\202006300523215_nowLock.resx">
-      <DependentUpon>202006300523215_nowLock.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

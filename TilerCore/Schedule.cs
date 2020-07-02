@@ -1333,6 +1333,44 @@ namespace TilerCore
         }
 
 
+        public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ProcrastinateAll(TimeLine timeBlock, string NameOfEvent = "BLOCKED OUT", string timeZone = "UTC")
+        {
+
+            if (timeBlock.End > Now.constNow)
+            {
+                DateTimeOffset revisedStartTime = timeBlock.Start > Now.constNow ? timeBlock.Start : Now.constNow;
+                DateTimeOffset revisedEndTime = timeBlock.End;
+
+                TimeLine revisedTimeBlock = new TimeLine(revisedStartTime, revisedEndTime);
+
+                if (revisedTimeBlock.TimelineSpan.Ticks > 0)
+                {
+                    EventDisplay ProcrastinateDisplay = new EventDisplay(true, new TilerColor(), 2);
+                    Dictionary<string, CalendarEvent> AllEventDictionary_Cpy = new Dictionary<string, CalendarEvent>();
+                    AllEventDictionary_Cpy = getDeepCopyOfEventDictionary();
+
+                    EventName blockName = new EventName(null, null, NameOfEvent);
+                    TilerUser user = this.User;
+
+                    ProcrastinateCalendarEvent retrievedProcrastinateAll = getProcrastinateAllEvent();
+                    ProcrastinateCalendarEvent procrastinateAll = ProcrastinateCalendarEvent.generateProcrastinateAll(revisedTimeBlock.Start, user, revisedTimeBlock.TimelineSpan, timeZone, retrievedProcrastinateAll, NameOfEvent);
+
+                    blockName.Creator_EventDB = procrastinateAll.getCreator;
+                    blockName.AssociatedEvent = procrastinateAll;
+                    HashSet<SubCalendarEvent> NotdoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
+                    clearAllTimeLocks();
+                    procrastinateAll = EvaluateTotalTimeLineAndAssignValidTimeSpots(procrastinateAll, NotdoneYet, null, null, 1) as ProcrastinateCalendarEvent;
+
+                    Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(procrastinateAll.Error, AllEventDictionary_Cpy);
+                    return retValue;
+                }
+                throw new CustomErrors(CustomErrors.Errors.procrastinationBeforeNow, "Cannot go back in time quite yet");
+            }
+
+            throw new CustomErrors(CustomErrors.Errors.Procrastinate_All_Cannot_Clear_Past);
+        }
+
+
         public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> SetCalendarEventAsNow(string CalendarID, bool Force = false)
         {
             //CalendarEvent calendarEvent = getCalendarEvent(CalendarID);

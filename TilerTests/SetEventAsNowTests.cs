@@ -593,6 +593,8 @@ namespace TilerTests
             setAsNowSubEventRetrieved = TestUtility.getSubEventById(setAsNowSubEventRetrieved.Id, user);
             Assert.IsFalse(setAsNowSubEventRetrieved.isLocked);
             Assert.IsFalse(setAsNowSubEventRetrieved.isNowLocked);
+
+            TestUtility.isAddEventOperationInScheduleDumpSameAsLoaded(ref user, ref tilerUser, Schedule, refNow);
         }
     }
 }

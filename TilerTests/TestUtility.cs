@@ -543,6 +543,90 @@ namespace TilerTests
             return retValue;
         }
 
+        internal static void isAddEventOperationInScheduleDumpSameAsLoaded(ref UserAccount user, ref TilerUser tilerUser, TestSchedule Schedule, DateTimeOffset refNow)
+        {
+            TimeSpan duration = TimeSpan.FromHours(1);
+            TimeLine timeLine = TestUtility.getTimeFrames(refNow, duration).First();
+            TilerColor tilerColor = new TilerColor(255, 255, 0, 1, 5);
+            EventDisplay eventdisplay = new EventDisplay(true, tilerColor);
+            if (refNow.isBeginningOfTime())
+                refNow = DateTimeOffset.UtcNow;
+            Location location = TestUtility.getAdHocLocations()[0];
+            location.verify();
+
+
+            reloadTilerUser(ref user, ref tilerUser);
+            // Adding event one
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), timeLine.Start, timeLine.End, 1, false, eventDisplay: eventdisplay, location: location);
+            string testEVentId = testEvent.Id;
+            Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
+            Task<ScheduleDump> dumpWait = Schedule.CreateAndPersistScheduleDump();
+            dumpWait.Wait();
+            ScheduleDump scheduleDump = dumpWait.Result;
+
+            var mockContext = user.ScheduleLogControl.Database;
+
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+            mockContext = user.ScheduleLogControl.Database;
+            ScheduleDump retrievedDump = mockContext.ScheduleDumps.Find(scheduleDump.Id);
+
+            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+            Schedule scheduleFromDump = new TestSchedule(retrievedDump, user);
+
+            Assert.IsTrue(Schedule.isTestEquivalent(scheduleFromDump));
+
+            // Adding event two
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+
+            Location location1 = TestUtility.getAdHocLocations()[1];
+            TilerColor tilerColor1 = new TilerColor(255, 255, 0, 1, 5);
+            EventDisplay eventdisplay1 = new EventDisplay(true, tilerColor1);
+            CalendarEvent testEvent1 = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), timeLine.Start, timeLine.End, 1, false, eventDisplay: eventdisplay1, location: location1);
+            string testEVentId1 = testEvent1.Id;
+            TestSchedule Schedule1 = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            Schedule1.AddToScheduleAndCommitAsync(testEvent1).Wait();
+            Task<ScheduleDump> tempScheduleDumpTask = Schedule1.CreateScheduleDump();
+            tempScheduleDumpTask.Wait();
+            ScheduleDump tempScheduleDump = tempScheduleDumpTask.Result;
+            Task<ScheduleDump> dumpWait1 = Schedule1.CreateAndPersistScheduleDump(tempScheduleDump);
+            dumpWait1.Wait();
+            ScheduleDump scheduleDump1 = dumpWait1.Result;
+
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+
+            var mockContext1 = user.ScheduleLogControl.Database;
+
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+            mockContext1 = user.ScheduleLogControl.Database;
+            ScheduleDump retrievedDump1 = mockContext1.ScheduleDumps.Find(scheduleDump1.Id);
+
+            Schedule1 = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+            Schedule scheduleFromDump1 = new TestSchedule(retrievedDump1, user);
+
+            Assert.IsTrue(Schedule1.isTestEquivalent(scheduleFromDump1));
+        }
+
+
+        //public void isShuffleOperationInScheduleDumpSameAsLoaded(ref UserAccount user, ref TilerUser tilerUser)
+        //{
+
+        //}
 
         public static void isSubCalendarEventUIEquivalenToScheduleLoaded(UserAccount useraccount, ReferenceNow now, TimeLine timeLine=null)
         {
@@ -922,6 +1006,8 @@ namespace TilerTests
             bool retValue = (firstSubevent as TilerEvent).isTestEquivalent(secondSubevent as TilerEvent);
             Assert.IsTrue(retValue);
             retValue &= firstSubevent.isRepetitionLocked == secondSubevent.isRepetitionLocked;
+            Assert.IsTrue(retValue);
+            retValue &= firstSubevent.isNowLocked == secondSubevent.isNowLocked;
             Assert.IsTrue(retValue);
             retValue &= firstSubevent.isWake == secondSubevent.isWake;
             Assert.IsTrue(retValue);

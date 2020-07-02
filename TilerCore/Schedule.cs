@@ -736,13 +736,17 @@ namespace TilerCore
                 myCalendarEvent.updateEventName(NewName.NameValue);
             }
             var note = myCalendarEvent.Notes;
-            if (note == null)
+            if (note == null && triggerSubEvent.RepeatParentEvent!= null)
             {
                 note = (triggerSubEvent.RepeatParentEvent as CalendarEvent).Notes;
             }
 
+            if (note != null)
+            {
+                note.UserNote = notes;
+            }
 
-            note.UserNote = notes;
+            
 
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(myCalendarEvent.Error, AllEventDictionary);
             return retValue;

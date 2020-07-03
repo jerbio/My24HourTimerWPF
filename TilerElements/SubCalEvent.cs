@@ -48,6 +48,8 @@ namespace TilerElements
         public string Notes { get; set; }
         public bool isReadOnly { get; set; }
         public bool isTardy { get; set; }
+        public bool isProcrastinateAll { get; set; }
+        public bool isAllDay { get; set; }
         public CalEvent CalEvent { get; set; }
     }
 }

@@ -39,5 +39,6 @@ namespace TilerElements
         public bool canDoNow { get; set; } = false;
         public long SuggestedDeadline { get; set; }
         public long LastSuggestedDeadline { get; set; }
+        public bool isProcrastinateAll { get; set; }
     }
 }

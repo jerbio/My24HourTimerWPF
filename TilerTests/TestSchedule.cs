@@ -35,12 +35,13 @@ namespace TilerTests
         {
             _Now = new ReferenceNow(referenceNow, StartOfDay, myAccount.getTilerUser().TimeZoneDifference);
             this.RangeOfLookup = this.RangeOfLookup ?? new TimeLine(_Now.constNow.AddDays(DB_Schedule.TimeLookUpDayStart), _Now.constNow.AddDays(DB_Schedule.TimeLookUpDayEnd));
-            Tuple<Dictionary<string, CalendarEvent>, DateTimeOffset, Dictionary<string, Location>> profileData = await myAccount.ScheduleData.getProfileInfo(RangeOfLookup, _Now, this._IncludeUpdateHistory, retrievalOption, calendarIds: calendarIds).ConfigureAwait(false);
+            Tuple<Dictionary<string, CalendarEvent>, DateTimeOffset, Dictionary<string, Location>, Analysis> profileData = await myAccount.ScheduleData.getProfileInfo(RangeOfLookup, _Now, this._IncludeUpdateHistory, retrievalOption, calendarIds: calendarIds).ConfigureAwait(false);
             TravelCache travelCache = await myAccount.ScheduleData.getTravelCache(myAccount.UserID).ConfigureAwait(false);
             updateTravelCache(travelCache);
             myAccount.Now = _Now;
             if (profileData != null)
             {
+                this.setAnalysis(profileData.Item4);
                 DateTimeOffset referenceDayTimeNow = new DateTimeOffset(Now.calculationNow.Year, Now.calculationNow.Month, Now.calculationNow.Day, profileData.Item2.Hour, profileData.Item2.Minute, profileData.Item2.Second, new TimeSpan());// profileData.Item2;
                 ReferenceDayTIime = Now.calculationNow < referenceDayTimeNow ? referenceDayTimeNow.AddDays(-1) : referenceDayTimeNow;
                 initializeAllEventDictionary(profileData.Item1.Values);

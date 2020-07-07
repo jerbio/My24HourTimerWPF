@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,24 +10,55 @@ namespace TilerElements
 {
     public class Analysis
     {
-        protected string _Id = Guid.NewGuid().ToString();
-        double _CompletionRate = -1;
+        public static readonly double DefaultActivationRatio = 0.30;
+        double _CompletionRate = Analysis.DefaultActivationRatio;
         DateTimeOffset _LastUpdate = new DateTimeOffset();
-        TilerUser _User { get; set; }
-        TilerUser User
+        protected string _Id = Guid.NewGuid().ToString();
+        protected TilerUser _User;
+        [Key]
+        public virtual string Id
+        {
+            get
+            {
+                return _Id;
+            }
+            set
+            {
+                _Id = value;
+            }
+        }
+        [ForeignKey("Id")]
+        public virtual TilerUser User_DB {
+            get
+            {
+                return _User;
+            } 
+            set
+            {
+                _User = value;
+            }
+        }
+
+
+        public void setComplentionRate(double completionRate, DateTimeOffset currentTime)
+        {
+            _CompletionRate = completionRate;
+            _LastUpdate = currentTime;
+        }
+
+
+        public void setUser(TilerUser user)
+        {
+            this._User = user;
+        }
+
+        public virtual TilerUser User
         {
             get
             {
                 return _User;
             }
         }
-
-        public void setComplentionRate(double completionRate, DateTime currentTime)
-        {
-            _CompletionRate = completionRate;
-            _LastUpdate = currentTime;
-        }
-
         public DateTimeOffset LastUpdate
         {
             get
@@ -68,16 +101,12 @@ namespace TilerElements
             }
         }
 
-        public string Id
+        public static Analysis generateAnalysisObject(TilerUser tilerUser)
         {
-            get
-            {
-                return _Id;
-            }
-            set
-            {
-                _Id = value;
-            }
+            Analysis retValue = new Analysis();
+            return retValue;
         }
+
+        
     }
 }

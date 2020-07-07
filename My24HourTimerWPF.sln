@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27428.2005
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30204.135
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "My24HourTimerWPF", "My24HourTimerWPF\My24HourTimerWPF.csproj", "{9B826E2B-41F4-4164-9899-EE7F84529B66}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -15,19 +15,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TilerTests", "TilerTests\TilerTests.csproj", "{75C84EBA-6BA1-41A2-8E4D-E46CD0C92BC7}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9B826E2B-41F4-4164-9899-EE7F84529B66} = {9B826E2B-41F4-4164-9899-EE7F84529B66}
-		{5E86E44F-7CE0-482D-B3C5-059EF7032398} = {5E86E44F-7CE0-482D-B3C5-059EF7032398}
 		{307ED69E-4DF8-41C4-934C-38495FC8900C} = {307ED69E-4DF8-41C4-934C-38495FC8900C}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TilerCore", "TilerCore\TilerCore.csproj", "{BD4E5701-2E62-464B-8840-D49E056FD49B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TilerFront", "..\WagTapWeb\TilerFront\TilerFront.csproj", "{5E86E44F-7CE0-482D-B3C5-059EF7032398}"
-	ProjectSection(ProjectDependencies) = postProject
-		{BD4E5701-2E62-464B-8840-D49E056FD49B} = {BD4E5701-2E62-464B-8840-D49E056FD49B}
-		{86E36121-0952-46AB-9DF4-5AF34E2141B6} = {86E36121-0952-46AB-9DF4-5AF34E2141B6}
-		{9B826E2B-41F4-4164-9899-EE7F84529B66} = {9B826E2B-41F4-4164-9899-EE7F84529B66}
-		{307ED69E-4DF8-41C4-934C-38495FC8900C} = {307ED69E-4DF8-41C4-934C-38495FC8900C}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DBTilerElement", "..\WagTapWeb\DBTilerElement\DBTilerElement.csproj", "{86E36121-0952-46AB-9DF4-5AF34E2141B6}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -35,7 +26,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DBTilerElement", "..\WagTap
 		{307ED69E-4DF8-41C4-934C-38495FC8900C} = {307ED69E-4DF8-41C4-934C-38495FC8900C}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScheduleAnalysis", "ScheduleAnalysis\ScheduleAnalysis.csproj", "{F948EBA6-4B87-4162-B240-A5C19829F889}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScheduleAnalysis", "ScheduleAnalysis\ScheduleAnalysis.csproj", "{F948EBA6-4B87-4162-B240-A5C19829F889}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -119,26 +110,6 @@ Global
 		{BD4E5701-2E62-464B-8840-D49E056FD49B}.Release|x64.Build.0 = Release|Any CPU
 		{BD4E5701-2E62-464B-8840-D49E056FD49B}.Release|x86.ActiveCfg = Release|Any CPU
 		{BD4E5701-2E62-464B-8840-D49E056FD49B}.Release|x86.Build.0 = Release|Any CPU
-		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Debug|Win32.ActiveCfg = Debug|Any CPU
-		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Debug|Win32.Build.0 = Debug|Any CPU
-		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Debug|x64.Build.0 = Debug|Any CPU
-		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Debug|x86.Build.0 = Debug|Any CPU
-		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Release|Win32.ActiveCfg = Release|Any CPU
-		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Release|Win32.Build.0 = Release|Any CPU
-		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Release|x64.ActiveCfg = Release|Any CPU
-		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Release|x64.Build.0 = Release|Any CPU
-		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Release|x86.ActiveCfg = Release|Any CPU
-		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Release|x86.Build.0 = Release|Any CPU
 		{86E36121-0952-46AB-9DF4-5AF34E2141B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{86E36121-0952-46AB-9DF4-5AF34E2141B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{86E36121-0952-46AB-9DF4-5AF34E2141B6}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU

@@ -95,9 +95,12 @@ namespace TilerTests
             };
             TestDBContext context = new TestDBContext();
             CalendarEvent calEvent = createProcrastinateCalendarEvent(user);
+            Analysis analysis = createAnalysisObject(user);
 
             context.Users.Add(user);
+            context.Analysis.Add(analysis);
             context.CalEvents.Add(calEvent);
+            
             context.SaveChanges();
             TilerUser retrivedUser = context.Users.Find(userId);
 
@@ -111,6 +114,13 @@ namespace TilerTests
             DateTimeOffset now = Utility.ProcrastinateStartTime;
             CalendarEvent procrastinateCalEvent = ProcrastinateCalendarEvent.generateProcrastinateAll(now, user, TimeSpan.FromSeconds(0), "UTC");
             return procrastinateCalEvent;
+        }
+
+        public static Analysis createAnalysisObject(TilerUser user)
+        {
+            Analysis scheduleAnalysis = Analysis.generateAnalysisObject(user);
+            scheduleAnalysis.setUser(user);
+            return scheduleAnalysis;
         }
 
         public static int MonthLimit

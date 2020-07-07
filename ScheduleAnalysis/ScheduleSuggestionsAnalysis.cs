@@ -18,17 +18,18 @@ namespace ScheduleAnalysis
         Dictionary<string, CalendarEvent> calEventId_to_CalEvents = new Dictionary<string, CalendarEvent>();
         ILookup<string, SubCalendarEvent> calEventId_to_Subevents;
         ReferenceNow Now;
+        Analysis analysis;
         TilerUser TilerUser;
-        static readonly double DefaultActivationRatio = 0.30;
         static readonly double MaxActivationRatio = 0.75;
         double activeRatioBound;// The active ratio limit for when over scheduling is assumed to occur
-        public ScheduleSuggestionsAnalysis(IEnumerable<SubCalendarEvent> subEvents, ReferenceNow now, TilerUser tilerUser, Analysis analysis = null)
+        public ScheduleSuggestionsAnalysis(IEnumerable<SubCalendarEvent> subEvents, ReferenceNow now, TilerUser tilerUser, Analysis analysis)
         {
+            this.analysis = analysis;
             HashSet<SubCalendarEvent> allSubEvent = new HashSet<SubCalendarEvent>(subEvents);
             HashSet<SubCalendarEvent> subEventsForEvaluation = new HashSet<SubCalendarEvent>(allSubEvent.Where(subEvent => subEvent.isActive && !subEvent.isProcrastinateEvent && subEvent.getActiveDuration <= Utility.LeastAllDaySubeventDuration));
             OrderedActiveSubEvents = subEventsForEvaluation.OrderBy(o=>o.Start).ThenBy(o=>o.End).ToList();
             subEventId_to_Subevents = new Dictionary<string, SubCalendarEvent>();
-            activeRatioBound = analysis?.CompletionRate ?? DefaultActivationRatio;
+            activeRatioBound = analysis?.CompletionRate ?? Analysis.DefaultActivationRatio;
             calEventId_to_Subevents = OrderedActiveSubEvents.ToLookup(obj => obj.SubEvent_ID.getAllEventDictionaryLookup.ToString());
             foreach (SubCalendarEvent subEvent in subEventsForEvaluation)
             {
@@ -137,6 +138,10 @@ namespace ScheduleAnalysis
                 {
                     activeRatioBound = MaxActivationRatio;
                 }
+            }
+            if (this.analysis!=null)
+            {
+                this.analysis.setComplentionRate(activeRatioBound, DateTimeOffset.UtcNow);
             }
         }
 

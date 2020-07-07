@@ -57,6 +57,7 @@ namespace TilerCore
         const int _optimizedDayLimit = 10;
         TimeSpan _cacheInvalidationTimeSpan = Utility.OneHourTimeSpan;
         TimeStone _TimeStone;
+        Analysis _Analysis;
         public int OptimizedDayLimit
         {
             get
@@ -100,6 +101,14 @@ namespace TilerCore
             }
         }
 
+        public Analysis Analysis
+        {
+            get
+            {
+                return _Analysis;
+            }
+        }
+
         public string Id
         {
             get
@@ -111,6 +120,7 @@ namespace TilerCore
                 _Id = value;
             }
         }
+
         protected Dictionary<string, HashSet<CalendarEvent>> RepeatParentToCalendarEvents;
         private Dictionary<string, CalendarEvent> AllEventDictionary;
         protected DateTimeOffset ReferenceDayTIime;
@@ -308,6 +318,11 @@ namespace TilerCore
         public virtual void disableDayOptimization()
         {
             _OptimizationEnabled = false;
+        }
+
+        public virtual void setAnalysis(Analysis analysis)
+        {
+            this._Analysis = analysis;
         }
 
         public virtual void disableConflictResolution()
@@ -3402,7 +3417,7 @@ namespace TilerCore
             _isScheduleModified = true;
             uint TotalDays = (uint)AllDayTimeLine.Length;
             long DayIndex = AllDayTimeLine.First().UniversalIndex;
-            double occupancyThreshold = 0.67;// this placies a soft threshold for the occupancy that different cal events would use to determine if they should continue
+            double occupancyThreshold = this.Analysis?.CompletionRate ?? 0.67;// this placies a soft threshold for the occupancy that different cal events would use to determine if they should continue
             EventDayBags bagsPerDay = new EventDayBags(TotalDays);
             foreach (SubCalendarEvent subEvent in TotalActiveEvents)
             {

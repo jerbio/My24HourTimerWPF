@@ -6,6 +6,7 @@ using TilerElements;
 using System.Collections.Generic;
 using System.Linq;
 using TilerCore;
+using System.Threading.Tasks;
 
 namespace TilerTests
 {
@@ -140,7 +141,7 @@ namespace TilerTests
         //    TestSchedule schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
         //    TimeLine encompassingTimeline = new TimeLine(refNow, refNow.AddHours(8));
 
-            
+
         //    int rigidHoursSpan = 4;
         //    DateTimeOffset endOfRigid = encompassingTimeline.Start.AddHours(rigidHoursSpan);
         //    DateTimeOffset startOfDay = endOfRigid.AddHours(.5);
@@ -294,53 +295,86 @@ namespace TilerTests
 
         //}
 
-        ///// <summary>
-        ///// Function test a scenario where there is a change of no consequence is applied to a users schedule. This modification should not necessarily trigger a reordering of events.
-        ///// In this case a rigid calendar event is extended by 5 minutes, amongst non-rigids. This should not result in in the order of things. There might be a change in start times
-        ///// </summary>
-        //[TestMethod]
-        //public void noConsequenceChange ()
-        //{
-        //    List<Location> locations = TestUtility.getLocations();
-        //    UserAccount currentUser = TestUtility.getTestUser();
-        //    currentUser.Login().Wait();
-        //    DateTimeOffset refNow = TestUtility.parseAsUTC("11/6/2017 12:00AM");
-        //    DateTimeOffset start = TestUtility.parseAsUTC("11/6/2017 2:00PM");
-        //    TimeSpan duration = TimeSpan.FromHours(4);
-        //    TimeSpan rigidDuration = TimeSpan.FromHours(1);
-        //    DateTimeOffset end = start.Add(duration);
-        //    CalendarEvent noneRigid0 = TestUtility.generateCalendarEvent(duration, new Repetition(), start, start.AddDays(0.8), 4, false, locations[0]);
-        //    CalendarEvent noneRigid1 = TestUtility.generateCalendarEvent(duration, new Repetition(), start, start.AddDays(0.8), 4, false, locations[0]);
-        //    CalendarEvent rigid0 = TestUtility.generateCalendarEvent(rigidDuration, new Repetition(), start, start.Add(rigidDuration), 1, true, locations[0]);
-        //    CalendarEvent rigid1 = TestUtility.generateCalendarEvent(rigidDuration, new Repetition(), rigid0.Start.AddHours(4), rigid0.Start.AddHours(4).Add(rigidDuration), 1, true, locations[0]);
+        /// <summary>
+        /// Function test a scenario where there is a change of no consequence is applied to a users schedule. This modification should not necessarily trigger a reordering of events.
+        /// In this case a rigid calendar event is extended by 5 minutes, amongst non-rigids. This should not result in in the order of things. There might be a change in start times
+        /// </summary>
+        [TestMethod]
+        public async Task noConsequenceChange()
+        {
+            var packet = TestUtility.CreatePacket();
+            UserAccount user = packet.Account;
+            TilerUser tilerUser = packet.User;
+            List<Location> locations = TestUtility.getAdHocLocations(tilerUser.Id);
+            user.Login().Wait();
+            DateTimeOffset refNow = TestUtility.parseAsUTC("11/6/2017 12:00AM");
+            DateTimeOffset start = TestUtility.parseAsUTC("11/6/2017 2:00PM");
+            TimeSpan duration = TimeSpan.FromHours(4);
+            TimeSpan rigidDuration = TimeSpan.FromHours(1);
+            DateTimeOffset end = start.Add(duration);
+            
+            
+            
+            
 
-        //    TestSchedule schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
-        //    schedule.AddToScheduleAndCommit(noneRigid0).Wait();
-        //    schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
-        //    schedule.AddToScheduleAndCommit(noneRigid1).Wait();
-        //    schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
-        //    schedule.AddToScheduleAndCommit(rigid0).Wait();
-        //    schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
-        //    schedule.AddToScheduleAndCommit(rigid1).Wait();
-        //    schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
-        //    schedule.FindMeSomethingToDo(locations[0]).Wait();
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            CalendarEvent noneRigid0 = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, start.AddDays(0.8), 4, false, locations[0]);
+            TestSchedule schedule = new TestSchedule(user, refNow, refNow.AddDays(5));
+            schedule.AddToScheduleAndCommit(noneRigid0);
 
-        //    List<SubCalendarEvent> subEvents = schedule.getAllCalendarEvents().SelectMany(calEvent => calEvent.AllSubEvents).ToList();
-        //    subEvents = subEvents.OrderBy(obj => obj.Start).ToList();
-        //    List<string> orderedByTimelIds = subEvents.Select(subEvent => subEvent.getId).ToList();
-        //    schedule = new TestSchedule(currentUser, refNow, refNow.AddDays(5));
-        //    SubCalendarEvent subeventNoConsequence = rigid1.AllSubEvents.First();
-        //    TimeSpan timeDelta = TimeSpan.FromMinutes(30);
-        //    Tuple < CustomErrors, Dictionary < string, CalendarEvent >> bundleResult = schedule.BundleChangeUpdate(subeventNoConsequence.getId, subeventNoConsequence.getName, subeventNoConsequence.Start, subeventNoConsequence.End.Add(timeDelta), rigid1.Start, rigid1.End, 1, rigid1.Notes.UserNote);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            CalendarEvent noneRigid1 = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, start.AddDays(0.8), 4, false);
+            TestUtility.updateLocation(noneRigid1, locations[0]);
+            schedule = new TestSchedule(user, refNow, refNow.AddDays(5));
+            schedule.AddToScheduleAndCommit(noneRigid1);
 
-        //    List<SubCalendarEvent> reOrderedSubEvents = bundleResult.Item2.Values.SelectMany(calEvent => calEvent.AllSubEvents).OrderBy(obj => obj.Start).ToList();
-        //    List<string> reOrderedByTimelIds = reOrderedSubEvents.Select(subEvent => subEvent.getId).ToList();
-        //    Assert.AreEqual(reOrderedByTimelIds.Count, orderedByTimelIds.Count);
-        //    for(int i =0; i < orderedByTimelIds.Count; i++)
-        //    {
-        //        Assert.AreEqual(reOrderedByTimelIds[i], orderedByTimelIds[i]);
-        //    }
-        //}
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            CalendarEvent rigid0 = TestUtility.generateCalendarEvent(tilerUser, rigidDuration, new Repetition(), start, start.Add(rigidDuration), 1, true);
+            TestUtility.updateLocation(rigid0, locations[0]);
+            schedule = new TestSchedule(user, refNow, refNow.AddDays(5));
+            schedule.AddToScheduleAndCommit(rigid0);
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            CalendarEvent rigid1 = TestUtility.generateCalendarEvent(tilerUser, rigidDuration, new Repetition(), rigid0.Start.AddHours(4), rigid0.Start.AddHours(4).Add(rigidDuration), 1, true);
+            TestUtility.updateLocation(rigid1, locations[0]);
+            schedule = new TestSchedule(user, refNow, refNow.AddDays(5));
+            schedule.AddToScheduleAndCommit(rigid1);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, refNow, refNow.AddDays(5));
+            schedule.FindMeSomethingToDo(locations[0]).Wait();
+            schedule.persistToDB().Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, refNow);
+            List<SubCalendarEvent> subEvents = schedule.getAllCalendarEvents().SelectMany(calEvent => calEvent.AllSubEvents).ToList();
+            List<SubCalendarEvent> orderedByStartSubEvents = subEvents.OrderBy(obj => obj.Start).ToList();
+            List<string> orderedByTimelIds = orderedByStartSubEvents.Select(subEvent => subEvent.getId).ToList();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, refNow, refNow.AddDays(5), includeUpdateHistory: true);
+            SubCalendarEvent subeventNoConsequence = rigid1.AllSubEvents.First();
+            TimeSpan timeDelta = TimeSpan.FromMinutes(30);
+            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> bundleResult = schedule
+                .BundleChangeUpdate(
+                subeventNoConsequence.getId, 
+                subeventNoConsequence.getName, 
+                subeventNoConsequence.Start, 
+                subeventNoConsequence.End.Add(timeDelta), 
+                rigid1.Start, 
+                rigid1.End, 1, rigid1.Notes.UserNote);
+            
+            await schedule.persistToDB().ConfigureAwait(false);
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, refNow, refNow.AddDays(5));
+            List<SubCalendarEvent> reOrderedSubEvents = schedule.getAllCalendarEvents().SelectMany(calEvent => calEvent.AllSubEvents).OrderBy(obj => obj.Start).ToList();
+            List<string> reOrderedByTimelIds = reOrderedSubEvents.Select(subEvent => subEvent.getId).ToList();
+            Assert.AreEqual(reOrderedByTimelIds.Count, orderedByTimelIds.Count);
+            for (int i = 0; i < orderedByTimelIds.Count; i++)
+            {
+                Assert.AreEqual(reOrderedByTimelIds[i], orderedByTimelIds[i]);
+            }
+        }
         //[TestInitialize]
         //public void cleanUpLog()
         //{

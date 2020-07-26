@@ -283,52 +283,52 @@ namespace TilerElements
 
             List<CalendarEvent> MyArrayOfRepeatingCalendarEvents = new List<CalendarEvent>();
 
-            for (; MyRepeatCalendarEvent.Start < MyParentEvent.Repeat.Range.End;)
-            {
-                if (MyRepeatCalendarEvent.StartToEnd.TimelineSpan >= MyRepeatCalendarEvent.AverageTimeSpanPerSubEvent)
-                {
-                    MyArrayOfRepeatingCalendarEvents.Add(MyRepeatCalendarEvent);
-                    _DictionaryOfIDAndCalendarEvents.Add(MyRepeatCalendarEvent.getId, MyRepeatCalendarEvent);
-                }
+            this.extendTimeline(MyParentEvent.Repeat.Range, MyParentEvent, MyRepeatCalendarEvent);
 
-                TimeSpan repeatSpan = EachRepeatCalendarEnd - EachRepeatCalendarStart;
-                EachRepeatCalendarStart = IncreaseByFrequency(EachRepeatCalendarStart, getFrequency); ;
-                EachRepeatCalendarEnd = IncreaseByFrequency(EachRepeatCalendarEnd, getFrequency);
-                TimeSpan nextCalTimeSpan = EachRepeatCalendarEnd - EachRepeatCalendarStart;
-                if (EachRepeatCalendarEnd > MyParentEvent.Repeat.Range.End)
-                {
-                    EachRepeatCalendarEnd = MyParentEvent.Repeat.Range.End;
-                }
+            //for (; MyRepeatCalendarEvent.Start < MyParentEvent.Repeat.Range.End;)
+            //{
+            //    if (MyRepeatCalendarEvent.StartToEnd.TimelineSpan >= MyRepeatCalendarEvent.AverageTimeSpanPerSubEvent)
+            //    {
+            //        MyArrayOfRepeatingCalendarEvents.Add(MyRepeatCalendarEvent);
+            //        _DictionaryOfIDAndCalendarEvents.Add(MyRepeatCalendarEvent.getId, MyRepeatCalendarEvent);
+            //    }
 
-                if (EachRepeatCalendarStart > MyParentEvent.Repeat.Range.End ||  // if start time is past the repeat timeline
-                    ((EachRepeatCalendarEnd - EachRepeatCalendarStart) < MyRepeatCalendarEvent.AverageTimeSpanPerSubEvent) || // if timespan is less than time span of sub events
-                    nextCalTimeSpan < repeatSpan) // if next timeline span is less than span meant for each calendar event
-                {
-                    break;
-                }
+            //    TimeSpan repeatSpan = EachRepeatCalendarEnd - EachRepeatCalendarStart;
+            //    EachRepeatCalendarStart = IncreaseByFrequency(EachRepeatCalendarStart, getFrequency); ;
+            //    EachRepeatCalendarEnd = IncreaseByFrequency(EachRepeatCalendarEnd, getFrequency);
+            //    TimeSpan nextCalTimeSpan = EachRepeatCalendarEnd - EachRepeatCalendarStart;
+            //    if (EachRepeatCalendarEnd > MyParentEvent.Repeat.Range.End)
+            //    {
+            //        EachRepeatCalendarEnd = MyParentEvent.Repeat.Range.End;
+            //    }
 
-                MyEventCalendarID = EventID.GenerateRepeatCalendarEvent(MyParentEvent.getId);
-                if (MyRepeatCalendarEvent.isRigid)
-                {
-                    MyRepeatCalendarEvent = new RigidCalendarEvent(MyRepeatCalendarEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyRepeatCalendarEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyRepeatCalendarEvent.Repeat, MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID, MyParentEvent.getNowInfo, MyParentEvent.TimeLineHistory);
-                }
-                else
-                {
-                    MyRepeatCalendarEvent = new CalendarEvent(MyRepeatCalendarEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyRepeatCalendarEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyRepeatCalendarEvent.NumberOfSplit, MyRepeatCalendarEvent.Repeat, MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.getProcrastinationInfo, MyParentEvent.getNowInfo, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID, MyParentEvent.TimeLineHistory);
-                }
-                MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
-                MyRepeatCalendarEvent.Location = MyParentEvent.LocationObj;
-                foreach (SubCalendarEvent subEvent in MyRepeatCalendarEvent.AllSubEvents)
-                {
-                    subEvent.RepeatParentEvent = MyParentEvent;
-                }
-                MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
-                MyRepeatCalendarEvent.setRepeatParent(MyParentEvent);
-            }
-            MyParentEvent.deleteAllSubCalendarEventsFromRepeatParentCalendarEvent();
+            //    if (EachRepeatCalendarStart > MyParentEvent.Repeat.Range.End ||  // if start time is past the repeat timeline
+            //        ((EachRepeatCalendarEnd - EachRepeatCalendarStart) < MyRepeatCalendarEvent.AverageTimeSpanPerSubEvent) || // if timespan is less than time span of sub events
+            //        nextCalTimeSpan < repeatSpan) // if next timeline span is less than span meant for each calendar event
+            //    {
+            //        break;
+            //    }
+
+            //    MyEventCalendarID = EventID.GenerateRepeatCalendarEvent(MyParentEvent.getId);
+            //    if (MyRepeatCalendarEvent.isRigid)
+            //    {
+            //        MyRepeatCalendarEvent = new RigidCalendarEvent(MyRepeatCalendarEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyRepeatCalendarEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyRepeatCalendarEvent.Repeat, MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID, MyParentEvent.getNowInfo, MyParentEvent.TimeLineHistory);
+            //    }
+            //    else
+            //    {
+            //        MyRepeatCalendarEvent = new CalendarEvent(MyRepeatCalendarEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyRepeatCalendarEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyRepeatCalendarEvent.NumberOfSplit, MyRepeatCalendarEvent.Repeat, MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.getProcrastinationInfo, MyParentEvent.getNowInfo, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID, MyParentEvent.TimeLineHistory);
+            //    }
+            //    MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
+            //    MyRepeatCalendarEvent.Location = MyParentEvent.LocationObj;
+            //    foreach (SubCalendarEvent subEvent in MyRepeatCalendarEvent.AllSubEvents)
+            //    {
+            //        subEvent.RepeatParentEvent = MyParentEvent;
+            //    }
+            //    MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
+            //    MyRepeatCalendarEvent.setRepeatParent(MyParentEvent);
+            //}
+            //MyParentEvent.deleteAllSubCalendarEventsFromRepeatParentCalendarEvent();
         }
-
-
         public void PopulateRepetitionParameters(CalendarEventRestricted MyParentEvent)
         {
             if (!MyParentEvent.IsRecurring)//Checks if Repetition object is enabled or disabled. If Disabled then just return else continue
@@ -426,32 +426,32 @@ namespace TilerElements
             }
 
 
+            this.extendTimeline(MyParentEvent.Repeat.Range, MyParentEvent as CalendarEventRestricted);
+            //for (; calendarTimeLine.End < MyParentEvent.Repeat.Range.End;)
+            //{
+            //    if (restrictionTimeLine.doesTimeLineInterfere(calendarTimeLine))
+            //    {
 
-            for (; calendarTimeLine.End < MyParentEvent.Repeat.Range.End;)
-            {
-                if (restrictionTimeLine.doesTimeLineInterfere(calendarTimeLine))
-                {
-
-                    MyEventCalendarID = EventID.GenerateRepeatCalendarEvent(MyParentEvent.getId);
-                    MyRepeatCalendarEvent = CalendarEventRestricted.InstantiateRepeatedCandidate(MyParentEvent.getName, calendarTimeLine.Start, calendarTimeLine.End, MyParentEvent.Calendar_EventID, MyParentEvent.RestrictionProfile, MyParentEvent.getActiveDuration, MyParentEvent.NumberOfSplit, MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.isLocked, MyParentEvent.getPreparation, MyParentEvent.ThirdPartyID, MyParentEvent.Now, MyParentEvent.getCreator, MyParentEvent.Notes, MyParentEvent.getNowInfo, MyParentEvent.Procrastination_EventDB);
-                    MyArrayOfRepeatingCalendarEvents.Add(MyRepeatCalendarEvent);
-                    _DictionaryOfIDAndCalendarEvents.Add(MyRepeatCalendarEvent.getId, MyRepeatCalendarEvent);
-                    MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
-                    foreach (SubCalendarEvent subEvent in MyRepeatCalendarEvent.AllSubEvents)
-                    {
-                        subEvent.RepeatParentEvent = MyParentEvent;
-                    }
-                    MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
-                    MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
-                    MyRepeatCalendarEvent.setTimeLineHistory(ParentEvent.TimeLineHistory);
-                    MyRepeatCalendarEvent.setRepeatParent(MyParentEvent);
-                    MyRepeatCalendarEvent.Location = MyParentEvent.LocationObj;
-                }
-                EachRepeatCalendarStart = IncreaseByFrequency(EachRepeatCalendarStart, getFrequency);
-                EachRepeatCalendarEnd = IncreaseByFrequency(EachRepeatCalendarEnd, getFrequency);
-                calendarTimeLine = new TimeLine(EachRepeatCalendarStart, EachRepeatCalendarEnd);
-            }
-            MyParentEvent.deleteAllSubCalendarEventsFromRepeatParentCalendarEvent();
+            //        MyEventCalendarID = EventID.GenerateRepeatCalendarEvent(MyParentEvent.getId);
+            //        MyRepeatCalendarEvent = CalendarEventRestricted.InstantiateRepeatedCandidate(MyParentEvent.getName, calendarTimeLine.Start, calendarTimeLine.End, MyParentEvent.Calendar_EventID, MyParentEvent.RestrictionProfile, MyParentEvent.getActiveDuration, MyParentEvent.NumberOfSplit, MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.isLocked, MyParentEvent.getPreparation, MyParentEvent.ThirdPartyID, MyParentEvent.Now, MyParentEvent.getCreator, MyParentEvent.Notes, MyParentEvent.getNowInfo, MyParentEvent.Procrastination_EventDB);
+            //        MyArrayOfRepeatingCalendarEvents.Add(MyRepeatCalendarEvent);
+            //        _DictionaryOfIDAndCalendarEvents.Add(MyRepeatCalendarEvent.getId, MyRepeatCalendarEvent);
+            //        MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
+            //        foreach (SubCalendarEvent subEvent in MyRepeatCalendarEvent.AllSubEvents)
+            //        {
+            //            subEvent.RepeatParentEvent = MyParentEvent;
+            //        }
+            //        MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
+            //        MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
+            //        MyRepeatCalendarEvent.setTimeLineHistory(ParentEvent.TimeLineHistory);
+            //        MyRepeatCalendarEvent.setRepeatParent(MyParentEvent);
+            //        MyRepeatCalendarEvent.Location = MyParentEvent.LocationObj;
+            //    }
+            //    EachRepeatCalendarStart = IncreaseByFrequency(EachRepeatCalendarStart, getFrequency);
+            //    EachRepeatCalendarEnd = IncreaseByFrequency(EachRepeatCalendarEnd, getFrequency);
+            //    calendarTimeLine = new TimeLine(EachRepeatCalendarStart, EachRepeatCalendarEnd);
+            //}
+            //MyParentEvent.deleteAllSubCalendarEventsFromRepeatParentCalendarEvent();
         }
 
         private DateTimeOffset getStartTimeForAppropriateWeek(DateTimeOffset refTime, DayOfWeek SearchedDayOfweek)
@@ -543,6 +543,150 @@ namespace TilerElements
             this.PopulateRepetitionParameters(MyRepeatCalendarEvent);
             MyRepeatCalendarEvent.deleteAllSubCalendarEventsFromRepeatParentCalendarEvent();
         }
+        
+        private void extendTimeline(TimeLine timeLine, CalendarEvent MyParentEvent, CalendarEvent MyRepeatCalendarEvent)
+        {
+            EventID MyEventCalendarID = EventID.GenerateRepeatCalendarEvent(MyParentEvent.getId);
+            List<CalendarEvent> MyArrayOfRepeatingCalendarEvents = new List<CalendarEvent>();
+            DateTimeOffset EachRepeatCalendarStart = timeLine.Start < MyParentEvent.Start ? timeLine.Start : MyParentEvent.Start;
+            DateTimeOffset EachRepeatCalendarEnd = timeLine.End;
+            for (; MyRepeatCalendarEvent.Start < timeLine.End;)
+            {
+                if (MyRepeatCalendarEvent.StartToEnd.TimelineSpan >= MyRepeatCalendarEvent.AverageTimeSpanPerSubEvent)
+                {
+                    MyArrayOfRepeatingCalendarEvents.Add(MyRepeatCalendarEvent);
+                    _DictionaryOfIDAndCalendarEvents.Add(MyRepeatCalendarEvent.getId, MyRepeatCalendarEvent);
+                }
+
+                TimeSpan repeatSpan = EachRepeatCalendarEnd - EachRepeatCalendarStart;
+                EachRepeatCalendarStart = IncreaseByFrequency(EachRepeatCalendarStart, getFrequency); ;
+                EachRepeatCalendarEnd = IncreaseByFrequency(EachRepeatCalendarEnd, getFrequency);
+                TimeSpan nextCalTimeSpan = EachRepeatCalendarEnd - EachRepeatCalendarStart;
+                if (EachRepeatCalendarEnd > timeLine.End)
+                {
+                    EachRepeatCalendarEnd = timeLine.End;
+                }
+
+                if (EachRepeatCalendarStart > timeLine.End ||  // if start time is past the repeat timeline
+                    ((EachRepeatCalendarEnd - EachRepeatCalendarStart) < MyRepeatCalendarEvent.AverageTimeSpanPerSubEvent) || // if timespan is less than time span of sub events
+                    nextCalTimeSpan < repeatSpan) // if next timeline span is less than span meant for each calendar event
+                {
+                    break;
+                }
+
+                MyEventCalendarID = EventID.GenerateRepeatCalendarEvent(MyParentEvent.getId);
+                if (MyRepeatCalendarEvent.isRigid)
+                {
+                    MyRepeatCalendarEvent = new RigidCalendarEvent(MyRepeatCalendarEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyRepeatCalendarEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyRepeatCalendarEvent.Repeat, MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID, MyParentEvent.getNowInfo, MyParentEvent.TimeLineHistory);
+                }
+                else
+                {
+                    MyRepeatCalendarEvent = new CalendarEvent(MyRepeatCalendarEvent.getName, EachRepeatCalendarStart, EachRepeatCalendarEnd, MyRepeatCalendarEvent.getActiveDuration, MyParentEvent.getPreparation, MyParentEvent.getPreDeadline, MyRepeatCalendarEvent.NumberOfSplit, MyRepeatCalendarEvent.Repeat, MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.Notes, MyParentEvent.getProcrastinationInfo, MyParentEvent.getNowInfo, MyParentEvent.isEnabled, MyParentEvent.getIsComplete, MyParentEvent.getCreator, MyParentEvent.getAllUsers(), MyParentEvent.getTimeZone, MyEventCalendarID, MyParentEvent.TimeLineHistory);
+                }
+                MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
+                MyRepeatCalendarEvent.Location = MyParentEvent.LocationObj;
+                foreach (SubCalendarEvent subEvent in MyRepeatCalendarEvent.AllSubEvents)
+                {
+                    subEvent.RepeatParentEvent = MyParentEvent;
+                }
+                MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
+                MyRepeatCalendarEvent.setRepeatParent(MyParentEvent);
+            }
+            MyParentEvent.deleteAllSubCalendarEventsFromRepeatParentCalendarEvent();
+            if (this.RepetitionRangeEnd < timeLine.End)
+            {
+                this.RepetitionRangeEnd = timeLine.End;
+            }
+
+            if (this.RepetitionRangeStart > timeLine.Start)
+            {
+                this.RepetitionRangeStart = timeLine.Start;
+            }
+        }
+
+        private void extendTimeline(TimeLine timeLine, CalendarEventRestricted MyParentEvent)
+        {
+            List<CalendarEvent> MyArrayOfRepeatingCalendarEvents = new List<CalendarEvent>();
+            DateTimeOffset EachRepeatCalendarStart = timeLine.Start < MyParentEvent.Start ? timeLine.Start : MyParentEvent.Start;
+            DateTimeOffset EachRepeatCalendarEnd = timeLine.End;
+            TimeLine calendarTimeLine = timeLine.StartToEnd;
+            TimeLineRestricted restrictionTimeLine = new TimeLineRestricted(EachRepeatCalendarStart, MyParentEvent.Repeat.Range.End, MyParentEvent.RestrictionProfile, MyParentEvent.Now);
+            for (; calendarTimeLine.End < MyParentEvent.Repeat.Range.End;)
+            {
+                if (restrictionTimeLine.doesTimeLineInterfere(calendarTimeLine))
+                {
+
+                    EventID MyEventCalendarID = EventID.GenerateRepeatCalendarEvent(MyParentEvent.getId);
+                    CalendarEventRestricted MyRepeatCalendarEvent = CalendarEventRestricted.InstantiateRepeatedCandidate(MyParentEvent.getName, calendarTimeLine.Start, calendarTimeLine.End, MyParentEvent.Calendar_EventID, MyParentEvent.RestrictionProfile, MyParentEvent.getActiveDuration, MyParentEvent.NumberOfSplit, MyParentEvent.LocationObj, MyParentEvent.getUIParam, MyParentEvent.isLocked, MyParentEvent.getPreparation, MyParentEvent.ThirdPartyID, MyParentEvent.Now, MyParentEvent.getCreator, MyParentEvent.Notes, MyParentEvent.getNowInfo, MyParentEvent.Procrastination_EventDB);
+                    MyArrayOfRepeatingCalendarEvents.Add(MyRepeatCalendarEvent);
+                    _DictionaryOfIDAndCalendarEvents.Add(MyRepeatCalendarEvent.getId, MyRepeatCalendarEvent);
+                    MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
+                    foreach (SubCalendarEvent subEvent in MyRepeatCalendarEvent.AllSubEvents)
+                    {
+                        subEvent.RepeatParentEvent = MyParentEvent;
+                    }
+                    MyRepeatCalendarEvent.IsRepeatsChildCalEvent = true;
+                    MyRepeatCalendarEvent.setDayPreference(ParentEvent.DayPreference);
+                    MyRepeatCalendarEvent.setTimeLineHistory(ParentEvent.TimeLineHistory);
+                    MyRepeatCalendarEvent.setRepeatParent(MyParentEvent);
+                    MyRepeatCalendarEvent.Location = MyParentEvent.LocationObj;
+                }
+                EachRepeatCalendarStart = IncreaseByFrequency(EachRepeatCalendarStart, getFrequency);
+                EachRepeatCalendarEnd = IncreaseByFrequency(EachRepeatCalendarEnd, getFrequency);
+                calendarTimeLine = new TimeLine(EachRepeatCalendarStart, EachRepeatCalendarEnd);
+            }
+            MyParentEvent.deleteAllSubCalendarEventsFromRepeatParentCalendarEvent();
+            if (this.RepetitionRangeEnd < timeLine.End)
+            {
+                this.RepetitionRangeEnd = timeLine.End;
+            }
+
+            if (this.RepetitionRangeStart > timeLine.Start)
+            {
+                this.RepetitionRangeStart = timeLine.Start;
+            }
+        }
+
+        /// <summary>
+        /// Function enables the extension of the time line of the repetition object.
+        /// NOTE this will not extend extend before the start time of the parent calendar event. 
+        /// Also you need to pull in repetition from the DB
+        /// </summary>
+        /// <param name="updatedTimeLine"></param>
+        /// <param name="MyParentEvent"></param>
+        public void extendRepetitionTimeline(TimeLine updatedTimeLine, CalendarEventRestricted MyParentEvent)
+        {
+            if(_DictionaryOfWeekDayToRepetition !=null && _DictionaryOfWeekDayToRepetition.Count > 0)
+            {
+                foreach (Repetition repetition in _DictionaryOfWeekDayToRepetition.Values)
+                {
+                    CalendarEvent MyRepeatCalendarEvent = repetition._DictionaryOfIDAndCalendarEvents.Values.OrderBy(calEvent => calEvent.End).Last();
+                    _DictionaryOfIDAndCalendarEvents.Remove(MyRepeatCalendarEvent.Id);
+                    if (MyRepeatCalendarEvent.getIsEventRestricted && MyParentEvent.getIsEventRestricted)
+                    {
+                        repetition.extendTimeline(updatedTimeLine, MyRepeatCalendarEvent as CalendarEventRestricted, MyParentEvent as CalendarEventRestricted);
+                    } 
+                    else
+                    {
+                        repetition.extendTimeline(updatedTimeLine, MyParentEvent, MyRepeatCalendarEvent);
+                    }
+                }
+            }
+            else
+            {
+                if (MyParentEvent.getIsEventRestricted)
+                {
+                    this.extendTimeline(updatedTimeLine, MyParentEvent as CalendarEventRestricted);
+                }
+                else
+                {
+                    CalendarEvent MyRepeatCalendarEvent = _DictionaryOfIDAndCalendarEvents.Values.OrderBy(calEvent => calEvent.End).Last();
+                    _DictionaryOfIDAndCalendarEvents.Remove(MyRepeatCalendarEvent.Id);
+                    this.extendTimeline(updatedTimeLine, MyParentEvent, MyRepeatCalendarEvent);
+                }
+            }
+        }
+        
         DateTimeOffset IncreaseByFrequency(DateTimeOffset MyTime, Frequency Frequency, string timeZone = "UTC")
         {
             switch (Frequency)

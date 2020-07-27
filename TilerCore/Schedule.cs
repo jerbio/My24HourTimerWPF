@@ -713,11 +713,11 @@ namespace TilerCore
                 if (triggerSubEvent != null)
                 {
                     TimeLine newCalTimeLine = new TimeLine(newStart, newEnd);
-                    myCalendarEvent.updateTimeLine(triggerSubEvent, newCalTimeLine);
+                    myCalendarEvent.updateTimeLine(triggerSubEvent, newCalTimeLine, this.Now);
                 }
                 else
                 {
-                    myCalendarEvent.updateTimeLine(new TimeLine(newStart, newEnd));
+                    myCalendarEvent.updateTimeLine(new TimeLine(newStart, newEnd), this.Now);
                 }
 
                 HashSet<SubCalendarEvent> NoDoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
@@ -1042,14 +1042,13 @@ namespace TilerCore
             {
                 if (errorState)
                 {
-
                     Now.UpdateNow(SubEvent.Start);
                     CalendarEvent CalEventCopy = CalEvent.createCopy(EventID.GenerateCalendarEvent());
-                    SubEvent.disable(CalEvent);
+                    SubEvent.disable(CalEvent, this.Now);
                     SubCalendarEvent unDisabled = CalEventCopy.ActiveSubEvents.First();
                     foreach (SubCalendarEvent SubCalendarEvent in CalEventCopy.AllSubEvents.Except(new List<SubCalendarEvent>() { unDisabled }))
                     {
-                        SubCalendarEvent.disable(CalEventCopy);
+                        SubCalendarEvent.disable(CalEventCopy, this.Now);
                     }
                     TimeSpan timeDiffBeforePause = (SubEvent.Start - unDisabled.Start);
                     unDisabled.shiftEvent(timeDiffBeforePause);
@@ -1086,7 +1085,7 @@ namespace TilerCore
             CalendarEvent CalendarEventTOBeRemoved = removedCalEvent;
 
 
-            CalendarEventTOBeRemoved.Disable(false);
+            CalendarEventTOBeRemoved.Disable(this.Now, false);
             //CalendarEventTOBeRemoved.DisableSubEvents(CalendarEventTOBeRemoved.ActiveSubEvents);
             if (CalendarEventTOBeRemoved.isLocked)
             {
@@ -1300,7 +1299,7 @@ namespace TilerCore
         {
             CalendarEvent referenceCalendarEventWithSubEvent = getCalendarEvent(EventID);
             SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
-            ReferenceSubEvent.disable(referenceCalendarEventWithSubEvent);
+            ReferenceSubEvent.disable(referenceCalendarEventWithSubEvent, this.Now);
         }
 
         /// <summary>
@@ -1317,7 +1316,7 @@ namespace TilerCore
                     SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(eachString);
                     if (ReferenceSubEvent != null)
                     {
-                        ReferenceSubEvent.disable(referenceCalendarEventWithSubEvent);
+                        ReferenceSubEvent.disable(referenceCalendarEventWithSubEvent, this.Now);
                     }
                 }
                 
@@ -1337,7 +1336,7 @@ namespace TilerCore
                 TilerUser user = this.User;
 
                 ProcrastinateCalendarEvent retrievedProcrastinateAll = getProcrastinateAllEvent();
-                ProcrastinateCalendarEvent procrastinateAll = ProcrastinateCalendarEvent.generateProcrastinateAll(Now.constNow, user, DelaySpan, timeZone, retrievedProcrastinateAll, NameOfEvent);
+                ProcrastinateCalendarEvent procrastinateAll = ProcrastinateCalendarEvent.generateProcrastinateAll(Now.constNow, user, DelaySpan, this.Now, timeZone, retrievedProcrastinateAll, NameOfEvent);
 
                 blockName.Creator_EventDB = procrastinateAll.getCreator;
                 blockName.AssociatedEvent = procrastinateAll;
@@ -1372,7 +1371,7 @@ namespace TilerCore
                     TilerUser user = this.User;
 
                     ProcrastinateCalendarEvent retrievedProcrastinateAll = getProcrastinateAllEvent();
-                    ProcrastinateCalendarEvent procrastinateAll = ProcrastinateCalendarEvent.generateProcrastinateAll(revisedTimeBlock.Start, user, revisedTimeBlock.TimelineSpan, timeZone, retrievedProcrastinateAll, NameOfEvent);
+                    ProcrastinateCalendarEvent procrastinateAll = ProcrastinateCalendarEvent.generateProcrastinateAll(revisedTimeBlock.Start, user, revisedTimeBlock.TimelineSpan, this.Now, timeZone, retrievedProcrastinateAll, NameOfEvent);
 
                     blockName.Creator_EventDB = procrastinateAll.getCreator;
                     blockName.AssociatedEvent = procrastinateAll;
@@ -1461,7 +1460,7 @@ namespace TilerCore
                 newEnd = ReferenceSubEvent.End > referenceCalendarEvent.End ? ReferenceSubEvent.End : referenceCalendarEvent.End;
                 
                 TimeLine newTImeLine = new TimeLine(newStart, newEnd);
-                referenceCalendarEvent.updateTimeLine(newTImeLine);
+                referenceCalendarEvent.updateTimeLine(newTImeLine, this.Now);
             }
 
             if (!InitialRigid)
@@ -2361,7 +2360,7 @@ namespace TilerCore
             if (isInterFerringWithNow.Count > 0)
             {
                 interferringWithNowBlob = new BlobSubCalendarEvent(isInterFerringWithNow);
-                interferringWithNowBlob.updateTimeLine(new TimeLine(Now.calculationNow, interferringWithNowBlob.End));
+                interferringWithNowBlob.updateTimeLine(new TimeLine(Now.calculationNow, interferringWithNowBlob.End), this.Now);
                 foreach(var subEvent in isInterFerringWithNow)
                 {
                     ArrayOfInterferringSubEvents.Remove(subEvent);
@@ -2604,7 +2603,7 @@ namespace TilerCore
             if (isInterFerringWithNow.Count > 0)
             {
                 interferringWithNowBlob = new BlobSubCalendarEvent(isInterFerringWithNow);
-                interferringWithNowBlob.updateTimeLine(new TimeLine(Now.calculationNow, interferringWithNowBlob.End));
+                interferringWithNowBlob.updateTimeLine(new TimeLine(Now.calculationNow, interferringWithNowBlob.End), this.Now);
                 foreach (var subEvent in isInterFerringWithNow)
                 {
                     subEvent.ParentCalendarEvent.designateSubEvent(subEvent, Now);
@@ -3313,7 +3312,7 @@ namespace TilerCore
                     {
                         foreach (var subEventAndOldTime in subEventsToInitialSlot)
                         {
-                            subEventAndOldTime.Key.updateTimeLine(subEventAndOldTime.Value);
+                            subEventAndOldTime.Key.updateTimeLine(subEventAndOldTime.Value, this.Now);
                         }
                     } else if (allIsPinned) {
                         allReadyBeforeBumped.Add(subEvent);

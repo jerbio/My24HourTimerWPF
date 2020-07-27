@@ -53,7 +53,7 @@ namespace TilerElements
         /// </summary>
         /// <param name="subEvent">The subvent thats triggerring the change in the calendar event</param>
         /// <param name="newTImeLine">new timeline</param>
-        public override void updateTimeLine(SubCalendarEvent subEvent, TimeLine newTImeLine)
+        public override void updateTimeLine(SubCalendarEvent subEvent, TimeLine newTImeLine, ReferenceNow now)
         {
             updateTimeLine(subEvent);
         }
@@ -73,7 +73,7 @@ namespace TilerElements
                 BlobSubCalendarEvent blobSubEvent = new BlobSubCalendarEvent(interferringWithSubEvents);
                 foreach (SubCalendarEvent interferringWithSubEvent in blobSubEvent.getSubCalendarEventsInBlob())
                 {
-                    interferringWithSubEvent.disable(this);
+                    interferringWithSubEvent.autoDisable(this, Reason.AutoDeletion.ProcrastinateAllConflictingSubevent);
                 }
                 DateTimeOffset subEventStart = subEvent.Start < blobSubEvent.Start ? subEvent.Start : blobSubEvent.Start;
                 DateTimeOffset subEventEnd = subEvent.End > blobSubEvent.End ? subEvent.End : blobSubEvent.End;
@@ -132,7 +132,7 @@ namespace TilerElements
         }
 
 
-        public static ProcrastinateCalendarEvent generateProcrastinateAll(DateTimeOffset referenceNow, TilerUser user, TimeSpan DelaySpan, string timeZone, ProcrastinateCalendarEvent procrastinateEvent = null, string NameOfEvent = "BLOCKED OUT")
+        public static ProcrastinateCalendarEvent generateProcrastinateAll(DateTimeOffset referenceNow, TilerUser user, TimeSpan DelaySpan, ReferenceNow now, string timeZone, ProcrastinateCalendarEvent procrastinateEvent = null, string NameOfEvent = "BLOCKED OUT")
         {
             EventName blockName = new EventName(user, null, NameOfEvent);
             EventID clearAllEventsId = new EventID(user.getClearAllEventsId());
@@ -148,7 +148,7 @@ namespace TilerElements
                 blockName, eventStartTime, eventEndTime, DelaySpan, new TimeSpan(0), new TimeSpan(0), new Repetition(), new Location(), new EventDisplay(), new MiscData(), true, false, user, new TilerUserGroup(), timeZone, 1, nowProfile);
                 blockName.Creator_EventDB = procrastinateAll.getCreator;
                 blockName.AssociatedEvent = procrastinateAll;
-                procrastinateAll.ActiveSubEvents.First().disable(procrastinateAll);
+                procrastinateAll.ActiveSubEvents.First().autoDisable(procrastinateAll, Reason.AutoDeletion.ProcrastinateAllInitialization);
             }
             else
             {

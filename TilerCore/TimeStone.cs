@@ -16,7 +16,7 @@ namespace TilerCore
         {
             CalendarEvent calEvent = schedule.getCalendarEvent(eventId);
             DayTimeLine timeLine = schedule.Now.getDayTimeLineByTime(newDay);
-            TempTilerEventChanges tilerChanges = calEvent.prepForWhatIfDifferentDay(timeLine, eventId);
+            TempTilerEventChanges tilerChanges = calEvent.prepForWhatIfDifferentDay(timeLine, eventId, schedule.Now);
             schedule.updateAllEventDictionary(calEvent);
 
             if (schedule.CurrentLocation== null)

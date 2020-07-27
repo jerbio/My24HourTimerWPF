@@ -288,7 +288,7 @@ namespace TilerElements
             throw new NotImplementedException("Yet to implement a OtherWise functionality for subcalendar event");
         }
 
-        virtual public TempTilerEventChanges prepForWhatIfDifferentDay(TimeLine timeLine, EventID eventId)
+        virtual public TempTilerEventChanges prepForWhatIfDifferentDay(TimeLine timeLine, EventID eventId, ReferenceNow now)
         {
             CalendarEvent calEvent;
             TempTilerEventChanges retvalue = new TempTilerEventChanges();
@@ -338,11 +338,11 @@ namespace TilerElements
             calEvent.TempChanges.allChanges.Add(subEvent);
             calEvent.TempChanges.allChanges.Add(subEventCopy);
             retvalue.allChanges.Add(calEvent);
-            subEvent.disable(calEvent);
+            subEvent.disable(calEvent, now);
             return retvalue;
         }
 
-        virtual public TempTilerEventChanges prepForWhatIfDifferentStartTime(DateTimeOffset startTime, EventID eventId)
+        virtual public TempTilerEventChanges prepForWhatIfDifferentStartTime(DateTimeOffset startTime, EventID eventId, ReferenceNow now)
         {
             CalendarEvent calEvent;
             TempTilerEventChanges retvalue = new TempTilerEventChanges();
@@ -394,7 +394,7 @@ namespace TilerElements
                 calEvent.TempChanges.allChanges.Add(subEvent);
                 calEvent.TempChanges.allChanges.Add(subEventCopy);
                 retvalue.allChanges.Add(calEvent);
-                subEvent.disable(calEvent);
+                subEvent.disable(calEvent, Now);
                 return retvalue;
             }
             else
@@ -651,7 +651,7 @@ namespace TilerElements
         /// <param name="Start"></param>
         /// <param name="End"></param>
         /// <returns></returns>
-        public static CalendarEvent getEmptyCalendarEvent(EventID myEventID, DateTimeOffset Start = new DateTimeOffset(), DateTimeOffset End = new DateTimeOffset())
+        public static CalendarEvent getEmptyCalendarEvent(EventID myEventID, DateTimeOffset Start = new DateTimeOffset(), DateTimeOffset End = new DateTimeOffset(), ReferenceNow now = null)
         {
             CalendarEvent retValue = new CalendarEvent(true);
             retValue.UniqueID = new EventID(myEventID.getCalendarEventID());
@@ -659,7 +659,7 @@ namespace TilerElements
             retValue.updateEndTime(End);
             retValue._EventDuration = new TimeSpan(0);
             SubCalendarEvent emptySubEvent = SubCalendarEvent.getEmptySubCalendarEvent(retValue.UniqueID);
-            emptySubEvent.updateTimeLine(retValue.StartToEnd);
+            emptySubEvent.updateTimeLine(retValue.StartToEnd, now);
             emptySubEvent.ParentCalendarEvent = retValue;
             retValue._SubEvents.Add(emptySubEvent.Id, emptySubEvent);
             retValue._Splits = 1;
@@ -728,9 +728,10 @@ namespace TilerElements
             }
         }
 
-        virtual public void Disable(bool goDeep = true)
+        virtual public void Disable(ReferenceNow now, bool goDeep = true)
         {
             this._Enabled = false;
+            this._DeletionTime = now.constNow;
             if (goDeep)
             {
                 DisableSubEvents(AllSubEvents);
@@ -740,6 +741,7 @@ namespace TilerElements
         virtual public void Enable(bool goDeep = false)
         {
             this._Enabled = true;
+            this._DeletionTime = Utility.BeginningOfTime;
             if (goDeep)
             {
                 EnableSubEvents(AllSubEvents);
@@ -1860,7 +1862,7 @@ namespace TilerElements
         }
 
 
-        override public void updateTimeLine(TimeLine newTimeLine)
+        override public void updateTimeLine(TimeLine newTimeLine, ReferenceNow now)
         {
             TimeLine oldTimeLine = new TimeLine(Start, End);
             AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(newTimeLine));
@@ -1905,9 +1907,9 @@ namespace TilerElements
             updateCalculationStartToEnd();
         }
 
-        virtual public void updateTimeLine(SubCalendarEvent subEvent, TimeLine newTImeLine)
+        virtual public void updateTimeLine(SubCalendarEvent subEvent, TimeLine newTImeLine, ReferenceNow now)
         {
-            updateTimeLine(newTImeLine);
+            updateTimeLine(newTImeLine, now);
         }
 
         /// <summary>

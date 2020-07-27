@@ -61,6 +61,7 @@ namespace TilerElements
         protected CalendarEvent _RepeatParentEvent;
         protected DateTimeOffset _TimeOfScheduleLoad;
         protected bool _ValidationIsRun = false;
+        protected DateTimeOffset _DeletionTime;
         protected DateTimeOffset _CompletionTime;
         protected ReferenceNow _Now;
         protected double _EventScore = double.NaN;
@@ -291,7 +292,7 @@ namespace TilerElements
         {
             this.EndDateTime = time;
         }
-        abstract public void updateTimeLine(TimeLine newTImeLine);
+        abstract public void updateTimeLine(TimeLine newTImeLine, ReferenceNow now);
 
 
         #region undoFunctions
@@ -873,6 +874,19 @@ namespace TilerElements
             }
         }
 
+        [Index("UserIdAndDeletionTime", Order = 1)]
+        virtual public long DeletionTime_DB
+        {
+            get
+            {
+                return this._DeletionTime.ToUnixTimeMilliseconds();
+            }
+            set
+            {
+                this._DeletionTime = DateTimeOffset.FromUnixTimeMilliseconds(value);
+            }
+        }
+
         public bool Complete_EventDB
         {
             get
@@ -1186,6 +1200,7 @@ namespace TilerElements
         [Index("UserIdAndIniStart", Order = 0)]
         [Index("UserIdAndIniEnd", Order = 0)]
         [Index("UserIdAndCompleteTime", Order = 0)]
+        [Index("UserIdAndDeletionTime", Order = 0)]
         public string CreatorId { get; set; }
         [ForeignKey("CreatorId")]
         public TilerUser Creator_EventDB

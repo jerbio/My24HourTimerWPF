@@ -112,7 +112,7 @@ namespace TilerTests
         public static CalendarEvent createProcrastinateCalendarEvent(TilerUser user)
         {
             DateTimeOffset now = Utility.ProcrastinateStartTime;
-            CalendarEvent procrastinateCalEvent = ProcrastinateCalendarEvent.generateProcrastinateAll(now, user, TimeSpan.FromSeconds(0), "UTC");
+            CalendarEvent procrastinateCalEvent = ProcrastinateCalendarEvent.generateProcrastinateAll(now, user, TimeSpan.FromSeconds(0), null, "UTC");
             return procrastinateCalEvent;
         }
 

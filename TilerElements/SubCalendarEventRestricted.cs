@@ -275,6 +275,7 @@ namespace TilerElements
             copy._UiParams = this._UiParams?.createCopy();
             copy._AutoDeleted = this._AutoDeleted;
             copy._EventScore = this._EventScore;
+            copy._DeletionTime = this._DeletionTime;
             if (eventId != null)
             {
                 copy.UniqueID = eventId;

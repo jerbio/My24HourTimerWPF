@@ -180,12 +180,13 @@ namespace TilerElements
             }
         }
 
-        public virtual void disable(CalendarEvent myCalEvent)
+        public virtual void disable(CalendarEvent myCalEvent, ReferenceNow now)
         {
             if (this._Enabled)
             {
                 this._Enabled = false;
                 this._AutoDeleted = false;
+                this._DeletionTime = now.constNow;
                 myCalEvent.incrementDeleteCount(this.getActiveDuration);
             }
         }
@@ -195,6 +196,7 @@ namespace TilerElements
             if (this._Enabled)
             {
                 this._Enabled = false;
+                this._DeletionTime = Utility.BeginningOfTime;
                 myCalEvent.incrementAutoDeleteCount(this.getActiveDuration);
             }
             this._AutoDeleted = true;
@@ -242,6 +244,7 @@ namespace TilerElements
             if (!this._Enabled)
             {
                 this._Enabled = true;
+                this._DeletionTime = Utility.BeginningOfTime;
                 myCalEvent.decrementDeleteCount(this.getActiveDuration);
             }
         }
@@ -451,6 +454,7 @@ namespace TilerElements
             copy.OptimizationFlag = this.OptimizationFlag;
             copy._PrepTime = this._PrepTime;
             copy.MiscIntData = this.MiscIntData;
+            copy._DeletionTime = this._DeletionTime;
             if (this.CalculationTimeLine != null)
             {
                 copy.CalculationTimeLine = this.CalculationTimeLine.CreateCopy();
@@ -912,7 +916,7 @@ namespace TilerElements
             return retValue;
          }
 
-        override public void updateTimeLine(TimeLine timeLine)
+        override public void updateTimeLine(TimeLine timeLine, ReferenceNow now=null)
         {
             updateStartTime( timeLine.Start);
             updateEndTime( timeLine.End);

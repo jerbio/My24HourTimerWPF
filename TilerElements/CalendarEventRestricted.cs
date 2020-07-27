@@ -402,7 +402,7 @@ namespace TilerElements
             CalculationLimitationWithUnUsables = CalculationLimitation.ToDictionary(obj => obj.Key, obj => obj.Value);
         }
 
-        override public void updateTimeLine(TimeLine timeLine)
+        override public void updateTimeLine(TimeLine timeLine, ReferenceNow now)
         {
             TimeLineRestricted newTimeLine = new TimeLineRestricted(timeLine.Start, timeLine.End, this._ProfileOfRestriction, _Now);
             if(newTimeLine.IsViable)

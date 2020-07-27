@@ -300,9 +300,10 @@ namespace TilerElements
                     EachRepeatCalendarEnd = MyParentEvent.Repeat.Range.End;
                 }
 
-                if (EachRepeatCalendarStart > MyParentEvent.Repeat.Range.End ||  // if start time is past the repeat timeline
-                    ((EachRepeatCalendarEnd - EachRepeatCalendarStart) < MyRepeatCalendarEvent.AverageTimeSpanPerSubEvent) || // if timespan is less than time span of sub events
-                    nextCalTimeSpan < repeatSpan) // if next timeline span is less than span meant for each calendar event
+                if (EachRepeatCalendarStart > MyParentEvent.Repeat.Range.End // if start time is past the repeat timeline
+                    || ((EachRepeatCalendarEnd - EachRepeatCalendarStart) < MyRepeatCalendarEvent.AverageTimeSpanPerSubEvent) // if timespan is less than time span of sub events
+                    //|| nextCalTimeSpan < repeatSpan // if next timeline span is less than span meant for each calendar event
+                     )
                 {
                     break;
                 }

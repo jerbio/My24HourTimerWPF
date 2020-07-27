@@ -359,7 +359,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             Schedule.CurrentLocation = home;
             Schedule.AddToScheduleAndCommitAsync(rigidTestCalEvent).Wait();
-            List<DayTimeLine> dayTimelines = Schedule.Now.getAllDaysForCalc().ToList();
+            List<DayTimeLine> dayTimelines = Schedule.Now.getAllDaysForCalc().OrderBy(dayTimeline => dayTimeline.Start).Take(Schedule.OptimizedDayLimit).ToList();
             foreach(DayTimeLine dayTimeline in dayTimelines)
             {
                 Dictionary<string, Location> calEventAddressToLocation = new Dictionary<string, Location>();

@@ -36,7 +36,7 @@ namespace ScheduleAnalysis
                 subEventId_to_Subevents.Add(subEvent.Id, subEvent);
                 if(!calEventId_to_CalEvents.ContainsKey(subEvent.SubEvent_ID.getAllEventDictionaryLookup))
                 {
-                    subEvent.ParentCalendarEvent.resetAllSuggestions();
+                    subEvent.ParentCalendarEvent.resetAllDeadlineSuggestions();
                     calEventId_to_CalEvents.Add(subEvent.SubEvent_ID.getAllEventDictionaryLookup, subEvent.ParentCalendarEvent);
                 }
 

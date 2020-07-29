@@ -251,14 +251,20 @@ namespace TilerElements
             _LastDeadlineSuggestion = deadline;
         }
 
-        virtual public void resetAllSuggestions()
+        virtual public void resetAllDeadlineSuggestions()
         {
             resetDeadlineSuggestion();
+            resetAutoLastDeadlineSuggestion();
         }
 
         virtual public void resetDeadlineSuggestion()
         {
             _DeadlineSuggestion = Utility.JSStartTime;
+        }
+
+        virtual public void resetAutoLastDeadlineSuggestion()
+        {
+            _LastDeadlineSuggestion = new DateTimeOffset();
         }
 
         /// <summary>

@@ -1465,11 +1465,6 @@ namespace TilerElements
             return;
         }
 
-        virtual public void resetAutoDeadlineSuggestion()
-        {
-            _DeadlineSuggestion = new DateTimeOffset();
-        }
-
         public virtual void InitialCalculationLookupDays(IEnumerable<DayTimeLine> RelevantDays, ReferenceNow now = null)
         {
             CalculationLimitation = RelevantDays.Where(obj => {

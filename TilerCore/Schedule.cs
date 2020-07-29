@@ -3431,7 +3431,7 @@ namespace TilerCore
                     obj.resetDesignationAllActiveEventsInCalculables();
                     obj.InitialCalculationLookupDays(AllDayTimeLine, this.Now);
                     obj.updateCompletionTimeArray(Now);
-                    obj.resetAutoDeadlineSuggestion();
+                    obj.resetDeadlineSuggestion();
                 });
             foreach (SubCalendarEvent subEvent in TotalActiveEvents)
             {

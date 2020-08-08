@@ -61,10 +61,12 @@ namespace TilerElements
         protected CalendarEvent _RepeatParentEvent;
         protected DateTimeOffset _TimeOfScheduleLoad;
         protected bool _ValidationIsRun = false;
+        protected DateTimeOffset _DeletionTime;
         protected DateTimeOffset _CompletionTime;
         protected ReferenceNow _Now;
         protected double _EventScore = double.NaN;
-        protected DateTimeOffset _DeadlineSuggestion;
+        protected DateTimeOffset _DeadlineSuggestion;// Holds the deadline suggestion, and by default gets cleared when the deadline is reset
+        protected DateTimeOffset _LastDeadlineSuggestion;// Holds the last set deadline suggestions. It is never cleared
 
 
         #region undoParameters
@@ -246,16 +248,23 @@ namespace TilerElements
         virtual public void updateDeadlineSuggestion(DateTimeOffset deadline)
         {
             _DeadlineSuggestion = deadline;
+            _LastDeadlineSuggestion = deadline;
         }
 
-        virtual public void resetAllSuggestions()
+        virtual public void resetAllDeadlineSuggestions()
         {
             resetDeadlineSuggestion();
+            resetAutoLastDeadlineSuggestion();
         }
 
         virtual public void resetDeadlineSuggestion()
         {
             _DeadlineSuggestion = Utility.JSStartTime;
+        }
+
+        virtual public void resetAutoLastDeadlineSuggestion()
+        {
+            _LastDeadlineSuggestion = new DateTimeOffset();
         }
 
         /// <summary>
@@ -289,7 +298,7 @@ namespace TilerElements
         {
             this.EndDateTime = time;
         }
-        abstract public void updateTimeLine(TimeLine newTImeLine);
+        abstract public void updateTimeLine(TimeLine newTImeLine, ReferenceNow now);
 
 
         #region undoFunctions
@@ -658,6 +667,14 @@ namespace TilerElements
             }
         }
 
+        virtual public DateTimeOffset LastDeadlineSuggestion
+        {
+            get
+            {
+                return _LastDeadlineSuggestion;
+            }
+        }
+
         [NotMapped]
         public ReferenceNow Now
         {
@@ -706,6 +723,19 @@ namespace TilerElements
             set
             {
                 _DeadlineSuggestion = DateTimeOffset.FromUnixTimeMilliseconds(value);
+            }
+        }
+
+        public long LastDeadlineSuggestion_DB
+        {
+            get
+            {
+                return _LastDeadlineSuggestion.ToUnixTimeMilliseconds();
+            }
+
+            set
+            {
+                _LastDeadlineSuggestion = DateTimeOffset.FromUnixTimeMilliseconds(value);
             }
         }
 
@@ -847,6 +877,19 @@ namespace TilerElements
             set
             {
                 this._CompletionTime = DateTimeOffset.FromUnixTimeMilliseconds(value);
+            }
+        }
+
+        [Index("UserIdAndDeletionTime", Order = 1)]
+        virtual public long DeletionTime_DB
+        {
+            get
+            {
+                return this._DeletionTime.ToUnixTimeMilliseconds();
+            }
+            set
+            {
+                this._DeletionTime = DateTimeOffset.FromUnixTimeMilliseconds(value);
             }
         }
 
@@ -1163,6 +1206,7 @@ namespace TilerElements
         [Index("UserIdAndIniStart", Order = 0)]
         [Index("UserIdAndIniEnd", Order = 0)]
         [Index("UserIdAndCompleteTime", Order = 0)]
+        [Index("UserIdAndDeletionTime", Order = 0)]
         public string CreatorId { get; set; }
         [ForeignKey("CreatorId")]
         public TilerUser Creator_EventDB

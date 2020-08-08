@@ -30,6 +30,7 @@ namespace TilerElements
             TilerConfig_Repeat_Procrastinate_All = 400000014,
             Creation_Config_RepeatEnd_Earlier_Than_RepeatStart = 400000015,
             Creation_Config_End_Earlier_Than_Start = 400000016,
+            Procrastinate_All_Cannot_Clear_Past = 400000017,
             Preview_Calendar_Type_Not_Supported = 50000001,
             Preview_Calendar_Not_Enough_Data_For_Preview = 50000002
         };
@@ -42,6 +43,7 @@ namespace TilerElements
             {Errors.cannotFitWithinTimeline, "Cannot fit the sub event within the timeline" },
             {Errors.procrastinationPastDeadline, "Procrastination of the tile will put it past the deadline of the tile" },
             {Errors.procrastinationAllSubeventsCannotFitDeadline, "After Procrastination of the tile all subevents won't be able to fit within the newly readjusted timeline post procrastination " },
+            {Errors.Procrastinate_All_Cannot_Clear_Past, "You cannot clear time chunk in the past, try updating an event in the past" },
             {Errors.procrastinationBeforeNow, "Cannot go back in time, if you're from the future, please tell us how tiler is doing" },
             {Errors.eventUpdateBeforeNow, "The select time slot for the schedule change does is before the current time, try loading a schedule which includes the current time"},
             {Errors.TilerConfig_Zero_SplitCount, "Cannot create or modify with a final state with zero events"},

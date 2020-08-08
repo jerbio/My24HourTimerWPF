@@ -46,7 +46,7 @@ namespace TilerTests
             _Context.CalEvents.ForEachAsync(calEvent => {
                     if(calEvent.CreatorId == _TilerUser.Id)
                     {
-                        calEvent.Disable(false);
+                        calEvent.Disable(this.Now, false);
                     }    
                 });
         }

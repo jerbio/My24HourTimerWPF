@@ -15,6 +15,7 @@ namespace TilerElements
         protected DateTimeOffset StartTime;
         protected Dictionary<string, BusyTimeLine> ActiveTimeSlots;
         protected bool isForever = false;
+        protected TimeSpan _TotalActiveSpan;
 
         #region constructor
         public TimeLine()
@@ -22,11 +23,11 @@ namespace TilerElements
             StartTime = new DateTimeOffset();
             EndTime = StartTime;
             ActiveTimeSlots = new Dictionary<string, BusyTimeLine>();
-            
+            _TotalActiveSpan = new TimeSpan();
         }
 
 
-        public TimeLine(DateTimeOffset MyStartTime, DateTimeOffset MyEndTime)
+        public TimeLine(DateTimeOffset MyStartTime, DateTimeOffset MyEndTime):base()
         {
             StartTime = MyStartTime;
             EndTime = MyEndTime;
@@ -161,6 +162,13 @@ namespace TilerElements
             return CopyTimeLine;
         }
 
+        virtual protected void updateTotalActiveSpan()
+        {
+            Utility.ConflictEvaluation ConflictEvaluation = new Utility.ConflictEvaluation(this.OccupiedSlots);
+            TimeSpan totalSpan = TimeSpan.FromTicks(ConflictEvaluation.ConflictingTimeRange.Concat(ConflictEvaluation.NonConflictingTimeRange).Select(timeRange => timeRange.StartToEnd.TimelineSpan).Sum(timeSpan => timeSpan.Ticks));
+            _TotalActiveSpan = totalSpan;
+        }
+
         /// <summary>
         /// Function checks if <paramref name="entryTimeLine"/> can fit within the Current (this) TimeLine
         /// </summary>
@@ -195,7 +203,7 @@ namespace TilerElements
                 {
                     ActiveTimeSlots[busytimeLine.Id] = busytimeLine;
                 }
-                
+                updateTotalActiveSpan();
             }
         }
 
@@ -206,6 +214,7 @@ namespace TilerElements
         virtual public void RemoveBusySlots(BusyTimeLine busyTimeLine)//Hack Alert further update will be to check if it interferes
         {
             ActiveTimeSlots.Remove(busyTimeLine.Id);
+            updateTotalActiveSpan();
         }
 
         virtual public void AddBusySlots(IEnumerable<BusyTimeLine> MyBusySlot)//Hack Alert further update will be to check if it busy slots fall within range of the timeLine
@@ -221,8 +230,8 @@ namespace TilerElements
                 {
                     ActiveTimeSlots.Add(busytimeLine.Id, busytimeLine);
                 }
-                
             };
+            updateTotalActiveSpan();
         }
 
 
@@ -445,9 +454,7 @@ namespace TilerElements
         {
             get
             {
-                Utility.ConflictEvaluation ConflictEvaluation = new Utility.ConflictEvaluation(this.OccupiedSlots);
-                TimeSpan totalSpan = TimeSpan.FromTicks(ConflictEvaluation.ConflictingTimeRange.Concat(ConflictEvaluation.NonConflictingTimeRange).Select(timeRange => timeRange.StartToEnd.TimelineSpan).Sum(timeSpan => timeSpan.Ticks));
-                return totalSpan;
+                return _TotalActiveSpan;
             }
         }
 

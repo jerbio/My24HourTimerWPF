@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TilerElements;
 using ScheduleAnalysis;
-
+using System.Runtime.Remoting.Messaging;
 
 namespace TilerCore
 {
@@ -16,7 +16,7 @@ namespace TilerCore
         {
             CalendarEvent calEvent = schedule.getCalendarEvent(eventId);
             DayTimeLine timeLine = schedule.Now.getDayTimeLineByTime(newDay);
-            TempTilerEventChanges tilerChanges = calEvent.prepForWhatIfDifferentDay(timeLine, eventId);
+            TempTilerEventChanges tilerChanges = calEvent.prepForWhatIfDifferentDay(timeLine, eventId, schedule.Now);
             schedule.updateAllEventDictionary(calEvent);
 
             if (schedule.CurrentLocation== null)
@@ -84,6 +84,49 @@ namespace TilerCore
             }
             var beforeNow = new ReferenceNow(schedule.Now.constNow, schedule.Now.EndOfDay, schedule.Now.TimeZoneDifference);
             var procradstinateResult = schedule.ProcrastinateAll(pushSpan);
+
+            var beforeCalevents = procradstinateResult.Item2.Values.Where(obj => obj.isActive).Select(obj => obj.createCopy()).ToList();
+            List<SubCalendarEvent> beforeSubEvents = beforeCalevents.SelectMany(calEvent => calEvent.ActiveSubEvents).Where(subEvent => !subEvent.isDesignated).ToList();
+            var orderedDayTimeLines = beforeNow.getAllDaysLookup().OrderBy(obj => obj.Key).Select(obj => obj.Value).ToList();
+
+
+            WhatIfSubEventDayDesignation(orderedDayTimeLines.ToArray(), beforeSubEvents);
+            Health beforeChange = new Health(procradstinateResult.Item2.Values.Where(obj => obj.isActive).Select(obj => obj.createCopy()), beforeNow.constNow, assessmentWindow.TimelineSpan, beforeNow, schedule.getHomeLocation);
+
+            var afterSubEVents = schedule.getAllActiveCalendarEvents().SelectMany(calEvent => calEvent.ActiveSubEvents).Where(subEvent => { subEvent.resetAndgetUnUsableIndex(); return true; });//.Where(subEvent => !subEvent.isDesignated).ToList();
+            var afterNow = new ReferenceNow(schedule.Now.constNow, schedule.Now.EndOfDay, schedule.Now.TimeZoneDifference);
+            var afterCalevents = schedule.getAllActiveCalendarEvents().Where(obj => obj.isActive).ToList();
+            var afterorderedDayTimeLines = afterNow.getAllDaysLookup().OrderBy(obj => obj.Key).Select(obj => obj.Value);
+            //afterCalevents.AsParallel().ForAll((calEvent) => calEvent.InitialCalculationLookupDays(afterorderedDayTimeLines, afterNow));
+            WhatIfSubEventDayDesignation(afterorderedDayTimeLines.ToArray(), afterSubEVents);
+
+            Health afterChange = new Health(schedule.getAllCalendarEvents().Where(obj => obj.isActive), afterNow.constNow, assessmentWindow.TimelineSpan, afterNow, schedule.getHomeLocation);
+            var retValue = new Tuple<Health, Health>(beforeChange, afterChange);
+            return retValue;
+        }
+
+
+        /// <summary>
+        /// function assesses changes to a schedule. It tests if a time chunk is cleared out. It tries to see the effect of the schedule change.
+        /// </summary>
+        /// <param name="pushSpan"></param>
+        /// <param name="assessmentWindow"></param>
+        /// <returns></returns>
+        virtual public async Task<Tuple<Health, Health>> PushedAll(TimeLine blockedTimeLine, TimeLine assessmentWindow)
+        {
+            if (assessmentWindow == null)
+            {
+                assessmentWindow = new TimeLine(schedule.Now.constNow, schedule.Now.constNow.AddDays(7));
+            }
+            
+            if (schedule.CurrentLocation == null)
+            {
+                schedule.CurrentLocation = Location.getDefaultLocation();
+            }
+
+            
+            var beforeNow = new ReferenceNow(schedule.Now.constNow, schedule.Now.EndOfDay, schedule.Now.TimeZoneDifference);
+            var procradstinateResult = schedule.ProcrastinateAll(blockedTimeLine);
 
             var beforeCalevents = procradstinateResult.Item2.Values.Where(obj => obj.isActive).Select(obj => obj.createCopy()).ToList();
             List<SubCalendarEvent> beforeSubEvents = beforeCalevents.SelectMany(calEvent => calEvent.ActiveSubEvents).Where(subEvent => !subEvent.isDesignated).ToList();

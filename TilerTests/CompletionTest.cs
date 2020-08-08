@@ -275,15 +275,23 @@ namespace TilerTests
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
+            DateTimeOffset completionTime = Schedule.Now.constNow;
             string completedSubEventId = testEvent.AllSubEvents[0].getId;
             Schedule.markSubEventAsCompleteCalendarEventAndReadjust(completedSubEventId);
             Schedule.WriteFullScheduleToLog().Wait();
             SubCalendarEvent subEvent = TestUtility.getSubEventById(completedSubEventId, user);
             Assert.IsTrue(subEvent.getIsComplete);
+            Assert.AreEqual(subEvent.CompletionTime, completionTime);
 
             EventID evenId = new EventID(completedSubEventId);
             retrievedCalendarEvent = TestUtility.getCalendarEventById(evenId.getCalendarEventID(), user);
             Assert.AreEqual(retrievedCalendarEvent.CompletionCount, 1);
+            List<SubCalendarEvent> completeSubEvents = retrievedCalendarEvent.AllSubEvents.Where(sub => sub.getIsComplete).ToList();
+            Assert.AreEqual(completeSubEvents.Count, 1);
+            foreach (SubCalendarEvent completeSubevent in completeSubEvents)
+            {
+                Assert.AreEqual(completeSubevent.CompletionTime, completionTime);
+            }
 
             // Running completion on the same subEvent, we should get the same completion count
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
@@ -371,6 +379,7 @@ namespace TilerTests
             }
             Schedule = new TestSchedule(user, refNow, calendarIds: calendarIds);
             Schedule.markSubEventsAsComplete(subEventIds.Select(subeventid => subeventid.ToString())).Wait();
+            DateTimeOffset completionTime = Schedule.Now.constNow;
             Schedule.WriteFullScheduleToLog().Wait();
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
@@ -381,6 +390,10 @@ namespace TilerTests
             Assert.IsTrue(testSubEvent.getIsComplete);
             Assert.IsTrue(testSubEvent0.getIsComplete);
             Assert.IsTrue(testSubEvent1.getIsComplete);
+            Assert.AreEqual(testSubEvent.CompletionTime, completionTime);
+            Assert.AreEqual(testSubEvent0.CompletionTime, completionTime);
+            Assert.AreEqual(testSubEvent1.CompletionTime, completionTime);
+
 
             CalendarEvent retrievedCalendarEvent = TestUtility.getCalendarEventById(testEvent.getId, user);
             CalendarEvent retrievedCalendarEvent0 = TestUtility.getCalendarEventById(testEvent0.getId, user);
@@ -408,6 +421,28 @@ namespace TilerTests
             Assert.AreEqual(retrievedCalendarEvent.CompletionCount, 1);
             Assert.AreEqual(retrievedCalendarEvent0.CompletionCount, 1);
             Assert.AreEqual(retrievedCalendarEvent1.CompletionCount, 1);
+
+
+            List<SubCalendarEvent> completeSubEvents = retrievedCalendarEvent.AllSubEvents.Where(sub => sub.getIsComplete).ToList();
+            Assert.AreEqual(completeSubEvents.Count, 1);
+            foreach (SubCalendarEvent completeSubevent in completeSubEvents)
+            {
+                Assert.AreEqual(completeSubevent.CompletionTime, completionTime);
+            }
+
+            completeSubEvents = retrievedCalendarEvent0.AllSubEvents.Where(sub => sub.getIsComplete).ToList();
+            Assert.AreEqual(completeSubEvents.Count, 1);
+            foreach (SubCalendarEvent completeSubevent in completeSubEvents)
+            {
+                Assert.AreEqual(completeSubevent.CompletionTime, completionTime);
+            }
+
+            completeSubEvents = retrievedCalendarEvent1.AllSubEvents.Where(sub => sub.getIsComplete).ToList();
+            Assert.AreEqual(completeSubEvents.Count, 1);
+            foreach (SubCalendarEvent completeSubevent in completeSubEvents)
+            {
+                Assert.AreEqual(completeSubevent.CompletionTime, completionTime);
+            }
         }
 
 

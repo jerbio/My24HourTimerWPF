@@ -7,11 +7,16 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using System.Security.Claims;
 using Microsoft.AspNet.Identity;
 using NodaTime;
+using System.ComponentModel.DataAnnotations;
 
 namespace TilerElements
 {
     public class TilerUser : IdentityUser, IHasId
     {
+        public TilerUser():base()
+        {
+
+        }
 
         public static TilerUser autoUser = new TilerUser()
         {
@@ -177,7 +182,6 @@ namespace TilerElements
             return ClearAllId;
         }
 
-        //public string UserName { get; set; }
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<TilerUser> manager)
         {
             // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType

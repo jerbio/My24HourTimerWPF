@@ -38,7 +38,7 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow, startOfDay, includeUpdateHistory: true);
             IEnumerable<SubCalendarEvent> activeSubEVents = Schedule.getAllActiveSubEvents();
-            ScheduleSuggestionsAnalysis scheduleSuggestion = new ScheduleSuggestionsAnalysis(activeSubEVents, Schedule.Now, tilerUser);
+            ScheduleSuggestionsAnalysis scheduleSuggestion = new ScheduleSuggestionsAnalysis(activeSubEVents, Schedule.Now, tilerUser, Schedule.Analysis);
 
             var overoccupiedTimelines = scheduleSuggestion.getOverLoadedWeeklyTimelines(refNow);
             var suggestion = scheduleSuggestion.suggestScheduleChange(overoccupiedTimelines);
@@ -79,7 +79,7 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow, startOfDay, includeUpdateHistory: true);
             IEnumerable<SubCalendarEvent> activeSubEVents = Schedule.getAllActiveSubEvents();
-            ScheduleSuggestionsAnalysis scheduleSuggestion = new ScheduleSuggestionsAnalysis(activeSubEVents, Schedule.Now, tilerUser);
+            ScheduleSuggestionsAnalysis scheduleSuggestion = new ScheduleSuggestionsAnalysis(activeSubEVents, Schedule.Now, tilerUser, Schedule.Analysis);
 
             var overoccupiedTimelines = scheduleSuggestion.getOverLoadedWeeklyTimelines(refNow);
             var suggestion = scheduleSuggestion.suggestScheduleChange(overoccupiedTimelines);
@@ -120,7 +120,7 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow, startOfDay, includeUpdateHistory: true);
             IEnumerable<SubCalendarEvent> activeSubEVents = Schedule.getAllActiveSubEvents();
-            ScheduleSuggestionsAnalysis scheduleSuggestion = new ScheduleSuggestionsAnalysis(activeSubEVents, Schedule.Now, tilerUser);
+            ScheduleSuggestionsAnalysis scheduleSuggestion = new ScheduleSuggestionsAnalysis(activeSubEVents, Schedule.Now, tilerUser, Schedule.Analysis);
 
             var overoccupiedTimelines = scheduleSuggestion.getOverLoadedWeeklyTimelines(refNow);
             var suggestion = scheduleSuggestion.suggestScheduleChange(overoccupiedTimelines);
@@ -148,7 +148,7 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow, startOfDay, includeUpdateHistory: true);
             IEnumerable<SubCalendarEvent> activeAfterSecondSubEvents = Schedule.getAllActiveSubEvents();
-            scheduleSuggestion = new ScheduleSuggestionsAnalysis(activeAfterSecondSubEvents, Schedule.Now, tilerUser);
+            scheduleSuggestion = new ScheduleSuggestionsAnalysis(activeAfterSecondSubEvents, Schedule.Now, tilerUser, Schedule.Analysis);
 
             var overoccupiedTimelinesAfterSecondSubEvent = scheduleSuggestion.getOverLoadedWeeklyTimelines(refNow);
             var suggestionAfterSecondSubEvent = scheduleSuggestion.suggestScheduleChange(overoccupiedTimelinesAfterSecondSubEvent);
@@ -188,7 +188,7 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow, startOfDay, includeUpdateHistory: true);
             IEnumerable<SubCalendarEvent> activeSubEVents = Schedule.getAllActiveSubEvents();
-            ScheduleSuggestionsAnalysis scheduleSuggestion = new ScheduleSuggestionsAnalysis(activeSubEVents, Schedule.Now, tilerUser);
+            ScheduleSuggestionsAnalysis scheduleSuggestion = new ScheduleSuggestionsAnalysis(activeSubEVents, Schedule.Now, tilerUser, Schedule.Analysis);
 
             var overoccupiedTimelines = scheduleSuggestion.getOverLoadedWeeklyTimelines(refNow);
             var suggestion = scheduleSuggestion.suggestScheduleChange(overoccupiedTimelines);
@@ -223,7 +223,7 @@ namespace TilerTests
 
 
             IEnumerable<SubCalendarEvent> activeAfterSecondSubEvents = Schedule.getAllActiveSubEvents();
-            scheduleSuggestion = new ScheduleSuggestionsAnalysis(activeAfterSecondSubEvents, Schedule.Now, tilerUser);
+            scheduleSuggestion = new ScheduleSuggestionsAnalysis(activeAfterSecondSubEvents, Schedule.Now, tilerUser, Schedule.Analysis);
 
             var overoccupiedTimelinesAfterSecondSubEvent = scheduleSuggestion.getOverLoadedWeeklyTimelines(refNow);
             var suggestionAfterSecondSubEvent = scheduleSuggestion.suggestScheduleChange(overoccupiedTimelinesAfterSecondSubEvent);

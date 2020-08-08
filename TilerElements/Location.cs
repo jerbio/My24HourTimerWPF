@@ -64,6 +64,7 @@ namespace TilerElements
         protected string _UndoId = "";
         protected string _ThirdPartyId = "";
         protected ThirdPartyMapSource _ThirdPartySource;
+        [NonSerialized]
         protected TilerUser _User;
         protected LocationValidation _LocationValidation;
         protected TilerEvent _Event;
@@ -1104,8 +1105,9 @@ namespace TilerElements
         }
         [Index("UserIdAndDesciption", Order = 0, IsUnique = true)]
         public string UserId { get; set; }
+        
         [Required, ForeignKey("UserId")]
-        public TilerUser User
+        public virtual TilerUser User
         {
             get
             {

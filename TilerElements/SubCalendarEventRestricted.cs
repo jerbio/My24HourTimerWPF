@@ -275,6 +275,7 @@ namespace TilerElements
             copy._UiParams = this._UiParams?.createCopy();
             copy._AutoDeleted = this._AutoDeleted;
             copy._EventScore = this._EventScore;
+            copy._DeletionTime = this._DeletionTime;
             if (eventId != null)
             {
                 copy.UniqueID = eventId;
@@ -294,6 +295,7 @@ namespace TilerElements
             copy.lockedPrecedingHours = this.lockedPrecedingHours;
             copy._enablePre_reschedulingTimelineLockDown = this._enablePre_reschedulingTimelineLockDown;
             copy._RepetitionLock = this._RepetitionLock;
+            copy._NowLock = this._NowLock;
             copy.isSleep = this.isSleep;
             copy.isWake = this.isWake;
             copy._isTardy = this._isTardy;
@@ -397,7 +399,7 @@ namespace TilerElements
                 updateEndTime( SubEventEntry.End);
                 this._EventPreDeadline = SubEventEntry.getPreDeadline;
                 this._EventScore = SubEventEntry.Score;
-                this._LocationInfo = SubEventEntry.Location;
+                this._LocationInfo = SubEventEntry._LocationInfo;
                 this.OldPreferredIndex = SubEventEntry.OldUniversalIndex;
                 this._otherPartyID = SubEventEntry.ThirdPartyID;
                 this.preferredDayIndex = SubEventEntry.UniversalDayIndex;
@@ -457,6 +459,7 @@ namespace TilerElements
             retValue._ProfileOfRestriction = this._ProfileOfRestriction;
             retValue._Now = this._Now;
             retValue._RepetitionLock = this._RepetitionLock;
+            retValue._NowLock = this._NowLock;
             return retValue;
         }
 

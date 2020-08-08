@@ -21,7 +21,13 @@ namespace TilerElements
         public readonly static DateTimeOffset BeginningOfTime = new DateTimeOffset();
         public readonly static DateTimeOffset ProcrastinateStartTime = BeginningOfTime.AddDays(1);
         public readonly static Random rng = new Random();
+        /// <summary>
+        /// The default number of days before the currentTime to be use to include sub events for calculation
+        /// </summary>
         public readonly static int defaultBeginDay = -15;
+        /// <summary>
+        /// The default number of days from the currentTime to be use to include sub events for calculation
+        /// </summary>
         public readonly static int defaultEndDay = 90;
         public readonly static TimeSpan OneDayTimeSpan = TimeSpan.FromDays(1);
         public readonly static TimeSpan QuarterHourTimeSpan = TimeSpan.FromMinutes(15);

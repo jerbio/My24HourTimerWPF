@@ -39,6 +39,8 @@ namespace TilerElements
         public bool isSleep { get; set; } = false;
         [NotMapped]
         protected bool _RepetitionLock { get; set; } = false; // this is the lock for an event when repeat is clicked
+        [NotMapped]
+        protected bool _NowLock { get; set; } = false; // This is the lock applied when an event is set as now
         protected bool tempLock { get; set; } = false;// This should never get persisted
         protected bool lockedPrecedingHours { get; set; } = false;// This should never get persisted
         protected bool _enablePre_reschedulingTimelineLockDown { get; set; } = true;// This prevent locking for preceding twentyFour or for interferring with now
@@ -181,12 +183,13 @@ namespace TilerElements
             }
         }
 
-        public virtual void disable(CalendarEvent myCalEvent)
+        public virtual void disable(CalendarEvent myCalEvent, ReferenceNow now)
         {
             if (this._Enabled)
             {
                 this._Enabled = false;
                 this._AutoDeleted = false;
+                this._DeletionTime = now.constNow;
                 myCalEvent.incrementDeleteCount(this.getActiveDuration);
             }
         }
@@ -196,6 +199,7 @@ namespace TilerElements
             if (this._Enabled)
             {
                 this._Enabled = false;
+                this._DeletionTime = Utility.BeginningOfTime;
                 myCalEvent.incrementAutoDeleteCount(this.getActiveDuration);
             }
             this._AutoDeleted = true;
@@ -243,6 +247,7 @@ namespace TilerElements
             if (!this._Enabled)
             {
                 this._Enabled = true;
+                this._DeletionTime = Utility.BeginningOfTime;
                 myCalEvent.decrementDeleteCount(this.getActiveDuration);
             }
         }
@@ -442,6 +447,7 @@ namespace TilerElements
             copy.lockedPrecedingHours = this.lockedPrecedingHours;
             copy._enablePre_reschedulingTimelineLockDown = this._enablePre_reschedulingTimelineLockDown;
             copy._RepetitionLock= this._RepetitionLock;
+            copy._NowLock = this._NowLock;
             copy.ParentCalendarEvent = parentCalendarEvent;
             copy._isTardy = this._isTardy;
             copy._Priority = this._Priority;
@@ -451,6 +457,7 @@ namespace TilerElements
             copy.OptimizationFlag = this.OptimizationFlag;
             copy._PrepTime = this._PrepTime;
             copy.MiscIntData = this.MiscIntData;
+            copy._DeletionTime = this._DeletionTime;
             if (this.CalculationTimeLine != null)
             {
                 copy.CalculationTimeLine = this.CalculationTimeLine.CreateCopy();
@@ -684,6 +691,7 @@ namespace TilerElements
             retValue._otherPartyID = this._otherPartyID;
             retValue._LocationValidationId = this._LocationValidationId;
             retValue._RepetitionLock = this._RepetitionLock;
+            retValue._NowLock = this._NowLock;
             return retValue;
         }
 
@@ -911,7 +919,7 @@ namespace TilerElements
             return retValue;
          }
 
-        override public void updateTimeLine(TimeLine timeLine)
+        override public void updateTimeLine(TimeLine timeLine, ReferenceNow now=null)
         {
             updateStartTime( timeLine.Start);
             updateEndTime( timeLine.End);
@@ -1062,6 +1070,16 @@ namespace TilerElements
             CalculationMode = false;
         }
 
+        public virtual void enableNowLock()
+        {
+            _NowLock = true;
+        }
+
+        public virtual void disableNowLock()
+        {
+            _NowLock = false;
+        }
+
         public virtual void enableRepetitionLock()
         {
             _RepetitionLock = true;
@@ -1115,7 +1133,7 @@ namespace TilerElements
             }
         }
 
-        public override bool isLocked => base.isLocked || this.tempLock || this.lockedPrecedingHours || this.isRepetitionLocked;
+        public override bool isLocked => base.isLocked || this.tempLock || this.lockedPrecedingHours || this.isRepetitionLocked || this.isNowLocked;
 
         /// <summary>
         /// This changes the duration of the subevent. It requires the change in duration. This just adds/subtracts the delta to the end time
@@ -1428,6 +1446,17 @@ namespace TilerElements
                 return _RepetitionLock;
             }
         }
+        virtual public bool NowLock_DB
+        {
+            set
+            {
+                _NowLock = value;
+            }
+            get
+            {
+                return _NowLock;
+            }
+        }
 
         virtual public DateTimeOffset CalendarEventRangeEnd
         {
@@ -1645,6 +1674,14 @@ namespace TilerElements
             get
             {
                 return _RepetitionLock;
+            }
+        }
+
+        public bool isNowLocked
+        {
+            get
+            {
+                return _NowLock;
             }
         }
 

@@ -18,24 +18,25 @@ namespace ScheduleAnalysis
         Dictionary<string, CalendarEvent> calEventId_to_CalEvents = new Dictionary<string, CalendarEvent>();
         ILookup<string, SubCalendarEvent> calEventId_to_Subevents;
         ReferenceNow Now;
+        Analysis analysis;
         TilerUser TilerUser;
-        static readonly double DefaultActivationRatio = 0.30;
         static readonly double MaxActivationRatio = 0.75;
         double activeRatioBound;// The active ratio limit for when over scheduling is assumed to occur
-        public ScheduleSuggestionsAnalysis(IEnumerable<SubCalendarEvent> subEvents, ReferenceNow now, TilerUser tilerUser, Analysis analysis = null)
+        public ScheduleSuggestionsAnalysis(IEnumerable<SubCalendarEvent> subEvents, ReferenceNow now, TilerUser tilerUser, Analysis analysis)
         {
+            this.analysis = analysis;
             HashSet<SubCalendarEvent> allSubEvent = new HashSet<SubCalendarEvent>(subEvents);
             HashSet<SubCalendarEvent> subEventsForEvaluation = new HashSet<SubCalendarEvent>(allSubEvent.Where(subEvent => subEvent.isActive && !subEvent.isProcrastinateEvent && subEvent.getActiveDuration <= Utility.LeastAllDaySubeventDuration));
             OrderedActiveSubEvents = subEventsForEvaluation.OrderBy(o=>o.Start).ThenBy(o=>o.End).ToList();
             subEventId_to_Subevents = new Dictionary<string, SubCalendarEvent>();
-            activeRatioBound = analysis?.CompletionRate ?? DefaultActivationRatio;
+            activeRatioBound = analysis?.CompletionRate ?? Analysis.DefaultActivationRatio;
             calEventId_to_Subevents = OrderedActiveSubEvents.ToLookup(obj => obj.SubEvent_ID.getAllEventDictionaryLookup.ToString());
             foreach (SubCalendarEvent subEvent in subEventsForEvaluation)
             {
                 subEventId_to_Subevents.Add(subEvent.Id, subEvent);
                 if(!calEventId_to_CalEvents.ContainsKey(subEvent.SubEvent_ID.getAllEventDictionaryLookup))
                 {
-                    subEvent.ParentCalendarEvent.resetAllSuggestions();
+                    subEvent.ParentCalendarEvent.resetAllDeadlineSuggestions();
                     calEventId_to_CalEvents.Add(subEvent.SubEvent_ID.getAllEventDictionaryLookup, subEvent.ParentCalendarEvent);
                 }
 
@@ -137,6 +138,10 @@ namespace ScheduleAnalysis
                 {
                     activeRatioBound = MaxActivationRatio;
                 }
+            }
+            if (this.analysis!=null)
+            {
+                this.analysis.setComplentionRate(activeRatioBound, DateTimeOffset.UtcNow);
             }
         }
 
@@ -299,6 +304,7 @@ namespace ScheduleAnalysis
             ScheduleSuggestion suggestion = new ScheduleSuggestion();
             List<TimeLine> orderedTimelines = timelines.OrderBy(o => o.End).ToList();
             List<TimeLine> allTimelines = timelines.OrderBy(o => o.End).ToList();
+            HashSet<CalendarEvent> alreadySuggested = new HashSet<CalendarEvent>();
             for (int i=0; i< orderedTimelines.Count;i++)
             {
                 TimeLine timeLine = orderedTimelines[i];
@@ -311,7 +317,7 @@ namespace ScheduleAnalysis
                     if (calEventId_to_CalEvents.ContainsKey(calEventId))
                     {
                         CalendarEvent calEvent = calEventId_to_CalEvents[calEventId];
-                        if(MovableCalEvents.Contains(calEvent))
+                        if(MovableCalEvents.Contains(calEvent) && !alreadySuggested.Contains(calEvent))
                         {
                             calEvents.Add(calEvent);
                         }   
@@ -365,6 +371,7 @@ namespace ScheduleAnalysis
                         {
                             updatedTimeLine.AddBusySlots(calEvent.ActiveSubEvents.Select(o => o.ActiveSlot));
                             suggestion.addCalendarEventAndTimeline(calEvent, updatedTimeLine);
+                            alreadySuggested.Add(calEvent);
                         }
                         
                     }

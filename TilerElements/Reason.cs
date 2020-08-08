@@ -84,7 +84,12 @@ namespace TilerElements
             [XmlEnum(Name = "DayOfWeek")]
             DayOfWeek
         }
-        public enum AutoDeletion { RepetitionSpanTooSmall, None };
+        public enum AutoDeletion { 
+            RepetitionSpanTooSmall, 
+            None, // This should never be used unless during initialization
+            ProcrastinateAllInitialization,
+            ProcrastinateAllConflictingSubevent
+        };
         protected Options _Option;
         public string _UndoId;
         protected string _Id = Guid.NewGuid().ToString();

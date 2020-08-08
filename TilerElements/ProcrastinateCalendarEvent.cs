@@ -53,7 +53,7 @@ namespace TilerElements
         /// </summary>
         /// <param name="subEvent">The subvent thats triggerring the change in the calendar event</param>
         /// <param name="newTImeLine">new timeline</param>
-        public override void updateTimeLine(SubCalendarEvent subEvent, TimeLine newTImeLine)
+        public override void updateTimeLine(SubCalendarEvent subEvent, TimeLine newTImeLine, ReferenceNow now)
         {
             updateTimeLine(subEvent);
         }
@@ -73,7 +73,7 @@ namespace TilerElements
                 BlobSubCalendarEvent blobSubEvent = new BlobSubCalendarEvent(interferringWithSubEvents);
                 foreach (SubCalendarEvent interferringWithSubEvent in blobSubEvent.getSubCalendarEventsInBlob())
                 {
-                    interferringWithSubEvent.disable(this);
+                    interferringWithSubEvent.autoDisable(this, Reason.AutoDeletion.ProcrastinateAllConflictingSubevent);
                 }
                 DateTimeOffset subEventStart = subEvent.Start < blobSubEvent.Start ? subEvent.Start : blobSubEvent.Start;
                 DateTimeOffset subEventEnd = subEvent.End > blobSubEvent.End ? subEvent.End : blobSubEvent.End;
@@ -96,7 +96,43 @@ namespace TilerElements
             return this.updateSplitCount(SplitCOunt);
         }
 
-        public static ProcrastinateCalendarEvent generateProcrastinateAll(DateTimeOffset referenceNow, TilerUser user, TimeSpan DelaySpan, string timeZone, ProcrastinateCalendarEvent procrastinateEvent = null, string NameOfEvent = "BLOCKED OUT")
+        public ProcrastinateAllSubCalendarEvent createProcrastinateBlock(DateTimeOffset procrastinateStartTime, TilerUser user, TimeSpan DelaySpan, string timeZone, string NameOfEvent = "BLOCKED OUT")
+        {
+            EventName blockName = new EventName(user, null, NameOfEvent);
+            EventID clearAllEventsId = new EventID(user.getClearAllEventsId());
+            EventID suEventId = EventID.GenerateSubCalendarEvent(clearAllEventsId);
+            DateTimeOffset eventStartTime = procrastinateStartTime;
+            DateTimeOffset eventEndTime = eventStartTime.Add(DelaySpan);
+            ProcrastinateCalendarEvent procrastinateAll = this;
+            
+            procrastinateAll.updateEndTime(procrastinateStartTime.Add(DelaySpan));
+            TimeLine procrastinationTimeLine = new TimeLine(procrastinateStartTime, procrastinateAll.End);
+            ProcrastinateAllSubCalendarEvent subEvent = new ProcrastinateAllSubCalendarEvent(user, new TilerUserGroup(), user.TimeZone, procrastinationTimeLine, new EventID(suEventId.getCalendarEventID()), procrastinateAll._LocationInfo, procrastinateAll);
+            //Combines multiple subcalendarevents that interfere into one single subcalendarEvent
+            List<SubCalendarEvent> interferringSubEvents = procrastinateAll.ActiveSubEvents.Where(possibleInterferringSubEvent => possibleInterferringSubEvent.End >= procrastinateStartTime).OrderBy(possibleInterferringSubEvent => possibleInterferringSubEvent.End).ToList();
+            if (interferringSubEvents.Count > 0)
+            {
+                SubCalendarEvent interferringSubEvent = interferringSubEvents.OrderByDescending(obj => obj.End).First();
+                interferringSubEvent.shiftEvent(subEvent.Start, true);
+                TimeSpan delta = subEvent.End - interferringSubEvent.End;
+                interferringSubEvent.addDurartion(delta);
+                procrastinateAll.updateTimeLine(interferringSubEvent);
+                subEvent = interferringSubEvent as ProcrastinateAllSubCalendarEvent;
+            }
+            else
+            {
+                procrastinateAll.IncreaseSplitCount(1, new List<SubCalendarEvent>() { subEvent });
+                procrastinateAll.AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(procrastinateAll.StartToEnd));
+            }
+            
+            blockName.Creator_EventDB = procrastinateAll.getCreator;
+            blockName.AssociatedEvent = procrastinateAll;
+            procrastinateAll.UpdateTimePerSplit();
+            return subEvent;
+        }
+
+
+        public static ProcrastinateCalendarEvent generateProcrastinateAll(DateTimeOffset referenceNow, TilerUser user, TimeSpan DelaySpan, ReferenceNow now, string timeZone, ProcrastinateCalendarEvent procrastinateEvent = null, string NameOfEvent = "BLOCKED OUT")
         {
             EventName blockName = new EventName(user, null, NameOfEvent);
             EventID clearAllEventsId = new EventID(user.getClearAllEventsId());
@@ -112,29 +148,12 @@ namespace TilerElements
                 blockName, eventStartTime, eventEndTime, DelaySpan, new TimeSpan(0), new TimeSpan(0), new Repetition(), new Location(), new EventDisplay(), new MiscData(), true, false, user, new TilerUserGroup(), timeZone, 1, nowProfile);
                 blockName.Creator_EventDB = procrastinateAll.getCreator;
                 blockName.AssociatedEvent = procrastinateAll;
-                procrastinateAll.ActiveSubEvents.First().disable(procrastinateAll);
+                procrastinateAll.ActiveSubEvents.First().autoDisable(procrastinateAll, Reason.AutoDeletion.ProcrastinateAllInitialization);
             }
             else
             {
+                procrastinateEvent.createProcrastinateBlock(referenceNow, user, DelaySpan, timeZone, NameOfEvent);
                 procrastinateAll = procrastinateEvent;
-                procrastinateAll.updateEndTime( referenceNow.Add(DelaySpan));
-                TimeLine procrastinationTimeLine = new TimeLine(referenceNow, procrastinateAll.End);
-                ProcrastinateAllSubCalendarEvent subEvent = new ProcrastinateAllSubCalendarEvent(user, new TilerUserGroup(), user.TimeZone, procrastinationTimeLine, new EventID(suEventId.getCalendarEventID()), procrastinateAll._LocationInfo, procrastinateAll);
-                //Combines multiple subcalendarevents that interfere into one single subcalendarEvent
-                List<SubCalendarEvent> interferringSubEvents = procrastinateAll.ActiveSubEvents.Where(possibleInterferringSubEvent => possibleInterferringSubEvent.End >= referenceNow).OrderBy(possibleInterferringSubEvent => possibleInterferringSubEvent.End).ToList();
-                if (interferringSubEvents.Count > 0)
-                {
-                    SubCalendarEvent interferringSubEvent = interferringSubEvents.OrderByDescending(obj=>obj.End).First();
-                    interferringSubEvent.shiftEvent(subEvent.Start,true);
-                    TimeSpan delta = subEvent.End - interferringSubEvent.End;
-                    interferringSubEvent.addDurartion(delta);
-                    procrastinateAll.updateTimeLine(interferringSubEvent);
-                }
-                else
-                {
-                    procrastinateAll.IncreaseSplitCount(1, new List<SubCalendarEvent>() { subEvent });
-                    procrastinateAll.AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(procrastinateAll.StartToEnd));
-                }
             }
             blockName.Creator_EventDB = procrastinateAll.getCreator;
             blockName.AssociatedEvent = procrastinateAll;

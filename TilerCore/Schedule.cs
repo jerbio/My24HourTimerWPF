@@ -57,6 +57,7 @@ namespace TilerCore
         const int _optimizedDayLimit = 10;
         TimeSpan _cacheInvalidationTimeSpan = Utility.OneHourTimeSpan;
         TimeStone _TimeStone;
+        Analysis _Analysis;
         public int OptimizedDayLimit
         {
             get
@@ -100,6 +101,14 @@ namespace TilerCore
             }
         }
 
+        public Analysis Analysis
+        {
+            get
+            {
+                return _Analysis;
+            }
+        }
+
         public string Id
         {
             get
@@ -111,6 +120,7 @@ namespace TilerCore
                 _Id = value;
             }
         }
+
         protected Dictionary<string, HashSet<CalendarEvent>> RepeatParentToCalendarEvents;
         private Dictionary<string, CalendarEvent> AllEventDictionary;
         protected DateTimeOffset ReferenceDayTIime;
@@ -308,6 +318,11 @@ namespace TilerCore
         public virtual void disableDayOptimization()
         {
             _OptimizationEnabled = false;
+        }
+
+        public virtual void setAnalysis(Analysis analysis)
+        {
+            this._Analysis = analysis;
         }
 
         public virtual void disableConflictResolution()
@@ -698,11 +713,11 @@ namespace TilerCore
                 if (triggerSubEvent != null)
                 {
                     TimeLine newCalTimeLine = new TimeLine(newStart, newEnd);
-                    myCalendarEvent.updateTimeLine(triggerSubEvent, newCalTimeLine);
+                    myCalendarEvent.updateTimeLine(triggerSubEvent, newCalTimeLine, this.Now);
                 }
                 else
                 {
-                    myCalendarEvent.updateTimeLine(new TimeLine(newStart, newEnd));
+                    myCalendarEvent.updateTimeLine(new TimeLine(newStart, newEnd), this.Now);
                 }
 
                 HashSet<SubCalendarEvent> NoDoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
@@ -736,13 +751,17 @@ namespace TilerCore
                 myCalendarEvent.updateEventName(NewName.NameValue);
             }
             var note = myCalendarEvent.Notes;
-            if (note == null)
+            if (note == null && triggerSubEvent.RepeatParentEvent!= null)
             {
                 note = (triggerSubEvent.RepeatParentEvent as CalendarEvent).Notes;
             }
 
+            if (note != null)
+            {
+                note.UserNote = notes;
+            }
 
-            note.UserNote = notes;
+            
 
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(myCalendarEvent.Error, AllEventDictionary);
             return retValue;
@@ -1023,14 +1042,13 @@ namespace TilerCore
             {
                 if (errorState)
                 {
-
                     Now.UpdateNow(SubEvent.Start);
                     CalendarEvent CalEventCopy = CalEvent.createCopy(EventID.GenerateCalendarEvent());
-                    SubEvent.disable(CalEvent);
+                    SubEvent.disable(CalEvent, this.Now);
                     SubCalendarEvent unDisabled = CalEventCopy.ActiveSubEvents.First();
                     foreach (SubCalendarEvent SubCalendarEvent in CalEventCopy.AllSubEvents.Except(new List<SubCalendarEvent>() { unDisabled }))
                     {
-                        SubCalendarEvent.disable(CalEventCopy);
+                        SubCalendarEvent.disable(CalEventCopy, this.Now);
                     }
                     TimeSpan timeDiffBeforePause = (SubEvent.Start - unDisabled.Start);
                     unDisabled.shiftEvent(timeDiffBeforePause);
@@ -1067,7 +1085,7 @@ namespace TilerCore
             CalendarEvent CalendarEventTOBeRemoved = removedCalEvent;
 
 
-            CalendarEventTOBeRemoved.Disable(false);
+            CalendarEventTOBeRemoved.Disable(this.Now, false);
             //CalendarEventTOBeRemoved.DisableSubEvents(CalendarEventTOBeRemoved.ActiveSubEvents);
             if (CalendarEventTOBeRemoved.isLocked)
             {
@@ -1281,7 +1299,7 @@ namespace TilerCore
         {
             CalendarEvent referenceCalendarEventWithSubEvent = getCalendarEvent(EventID);
             SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
-            ReferenceSubEvent.disable(referenceCalendarEventWithSubEvent);
+            ReferenceSubEvent.disable(referenceCalendarEventWithSubEvent, this.Now);
         }
 
         /// <summary>
@@ -1298,7 +1316,7 @@ namespace TilerCore
                     SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(eachString);
                     if (ReferenceSubEvent != null)
                     {
-                        ReferenceSubEvent.disable(referenceCalendarEventWithSubEvent);
+                        ReferenceSubEvent.disable(referenceCalendarEventWithSubEvent, this.Now);
                     }
                 }
                 
@@ -1318,18 +1336,56 @@ namespace TilerCore
                 TilerUser user = this.User;
 
                 ProcrastinateCalendarEvent retrievedProcrastinateAll = getProcrastinateAllEvent();
-                ProcrastinateCalendarEvent procrastinateAll = ProcrastinateCalendarEvent.generateProcrastinateAll(Now.constNow, user, DelaySpan, timeZone, retrievedProcrastinateAll, NameOfEvent);
+                ProcrastinateCalendarEvent procrastinateAll = ProcrastinateCalendarEvent.generateProcrastinateAll(Now.constNow, user, DelaySpan, this.Now, timeZone, retrievedProcrastinateAll, NameOfEvent);
 
                 blockName.Creator_EventDB = procrastinateAll.getCreator;
                 blockName.AssociatedEvent = procrastinateAll;
                 HashSet<SubCalendarEvent> NotdoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
-                clearAllRepetitionLock();
+                clearAllTimeLocks();
                 procrastinateAll = EvaluateTotalTimeLineAndAssignValidTimeSpots(procrastinateAll, NotdoneYet, null, null, 1) as ProcrastinateCalendarEvent;
 
                 Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(procrastinateAll.Error, AllEventDictionary_Cpy);
                 return retValue;
             }
             throw new CustomErrors(CustomErrors.Errors.procrastinationBeforeNow, "Cannot go back in time quite yet");
+        }
+
+
+        public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> ProcrastinateAll(TimeLine timeBlock, string NameOfEvent = "BLOCKED OUT", string timeZone = "UTC")
+        {
+
+            if (timeBlock.End > Now.constNow)
+            {
+                DateTimeOffset revisedStartTime = timeBlock.Start > Now.constNow ? timeBlock.Start : Now.constNow;
+                DateTimeOffset revisedEndTime = timeBlock.End;
+
+                TimeLine revisedTimeBlock = new TimeLine(revisedStartTime, revisedEndTime);
+
+                if (revisedTimeBlock.TimelineSpan.Ticks > 0)
+                {
+                    EventDisplay ProcrastinateDisplay = new EventDisplay(true, new TilerColor(), 2);
+                    Dictionary<string, CalendarEvent> AllEventDictionary_Cpy = new Dictionary<string, CalendarEvent>();
+                    AllEventDictionary_Cpy = getDeepCopyOfEventDictionary();
+
+                    EventName blockName = new EventName(null, null, NameOfEvent);
+                    TilerUser user = this.User;
+
+                    ProcrastinateCalendarEvent retrievedProcrastinateAll = getProcrastinateAllEvent();
+                    ProcrastinateCalendarEvent procrastinateAll = ProcrastinateCalendarEvent.generateProcrastinateAll(revisedTimeBlock.Start, user, revisedTimeBlock.TimelineSpan, this.Now, timeZone, retrievedProcrastinateAll, NameOfEvent);
+
+                    blockName.Creator_EventDB = procrastinateAll.getCreator;
+                    blockName.AssociatedEvent = procrastinateAll;
+                    HashSet<SubCalendarEvent> NotdoneYet = getNoneDoneYetBetweenNowAndReerenceStartTIme();
+                    clearAllTimeLocks();
+                    procrastinateAll = EvaluateTotalTimeLineAndAssignValidTimeSpots(procrastinateAll, NotdoneYet, null, null, 1) as ProcrastinateCalendarEvent;
+
+                    Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(procrastinateAll.Error, AllEventDictionary_Cpy);
+                    return retValue;
+                }
+                throw new CustomErrors(CustomErrors.Errors.procrastinationBeforeNow, "Cannot go back in time quite yet");
+            }
+
+            throw new CustomErrors(CustomErrors.Errors.Procrastinate_All_Cannot_Clear_Past);
         }
 
 
@@ -1358,6 +1414,8 @@ namespace TilerCore
             CalendarEvent referenceCalendarEvent = getCalendarEvent(EventID);
             SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
             ReferenceSubEvent.disableRepetitionLock();
+            ReferenceSubEvent.disableNowLock();
+            clearAllTimeLocks();
             referenceCalendarEvent.DayPreference.init();
             TimeSpan bumperTimeSpan = Utility.ZeroTimeSpan;
 
@@ -1402,12 +1460,12 @@ namespace TilerCore
                 newEnd = ReferenceSubEvent.End > referenceCalendarEvent.End ? ReferenceSubEvent.End : referenceCalendarEvent.End;
                 
                 TimeLine newTImeLine = new TimeLine(newStart, newEnd);
-                referenceCalendarEvent.updateTimeLine(newTImeLine);
+                referenceCalendarEvent.updateTimeLine(newTImeLine, this.Now);
             }
 
             if (!InitialRigid)
             {
-                referenceCalendarEvent.RigidizeSubEvent(ReferenceSubEvent.Id);
+                ReferenceSubEvent.enableNowLock();
             }
 
             if (referenceCalendarEvent.IsFromRecurringAndNotChildRepeatCalEvent)
@@ -1422,11 +1480,6 @@ namespace TilerCore
 
 
             ScheduleUpdated = EvaluateTotalTimeLineAndAssignValidTimeSpots(ScheduleUpdated, NotDOneYet, null, null, 1);
-            if (!InitialRigid)
-            {
-                referenceCalendarEvent.UnRigidizeSubEvent(ReferenceSubEvent.Id);
-            }
-
 
             if (ScheduleUpdated.Error != null)
             {
@@ -1505,7 +1558,7 @@ namespace TilerCore
                 name, Now.constNow, Now.constNow.Add(duration), duration, new TimeSpan(), new TimeSpan(), new Repetition(), currentLocation, null, null, false, false, TilerUser, new TilerUserGroup(), timeZone, null, new NowProfile(), null);
             name.Creator_EventDB = NewEvent.getCreator;
             name.AssociatedEvent = NewEvent;
-            clearAllRepetitionLock();
+            clearAllTimeLocks();
             NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, new HashSet<SubCalendarEvent>(), currentLocation, null, 1, true, false);
 
             CustomErrors RetValue = NewEvent.Error;
@@ -2076,7 +2129,7 @@ namespace TilerCore
             ConcurrentBag<SubCalendarEvent> subEvents = new ConcurrentBag<SubCalendarEvent>();
             foreach (SubCalendarEvent subEvent in subEventsInSet)
             {
-                if (subEvent.getActiveDuration <= maxSubeventSpan)
+                if (subEvent.getActiveDuration <= maxSubeventSpan || subEvent.getIsProcrastinateCalendarEvent)
                 {
                     if (subEvent.isLocked)
                     {
@@ -2307,7 +2360,7 @@ namespace TilerCore
             if (isInterFerringWithNow.Count > 0)
             {
                 interferringWithNowBlob = new BlobSubCalendarEvent(isInterFerringWithNow);
-                interferringWithNowBlob.updateTimeLine(new TimeLine(Now.calculationNow, interferringWithNowBlob.End));
+                interferringWithNowBlob.updateTimeLine(new TimeLine(Now.calculationNow, interferringWithNowBlob.End), this.Now);
                 foreach(var subEvent in isInterFerringWithNow)
                 {
                     ArrayOfInterferringSubEvents.Remove(subEvent);
@@ -2550,7 +2603,7 @@ namespace TilerCore
             if (isInterFerringWithNow.Count > 0)
             {
                 interferringWithNowBlob = new BlobSubCalendarEvent(isInterFerringWithNow);
-                interferringWithNowBlob.updateTimeLine(new TimeLine(Now.calculationNow, interferringWithNowBlob.End));
+                interferringWithNowBlob.updateTimeLine(new TimeLine(Now.calculationNow, interferringWithNowBlob.End), this.Now);
                 foreach (var subEvent in isInterFerringWithNow)
                 {
                     subEvent.ParentCalendarEvent.designateSubEvent(subEvent, Now);
@@ -2771,6 +2824,28 @@ namespace TilerCore
                 }
 
 
+                Dictionary<string, List<SubCalendarEvent>> calEventToSubEvents = new Dictionary<string, List<SubCalendarEvent>>();
+                foreach (SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine())
+                {
+                    if(!subEvent.ParentCalendarEvent.isLocked)
+                    {
+                        string calComponent = subEvent.getTilerID.getCalendarEventComponent();
+                        List<SubCalendarEvent> subeventOfSameCal = null;
+                        if (calEventToSubEvents.ContainsKey(calComponent))
+                        {
+                            subeventOfSameCal = calEventToSubEvents[calComponent];
+                        }
+                        else
+                        {
+                            subeventOfSameCal = new List<SubCalendarEvent>();
+                            calEventToSubEvents[calComponent] = subeventOfSameCal;
+                        }
+                        subeventOfSameCal.Add(subEvent);
+                    }
+                }
+
+
+                Dictionary<string, SubCalendarEvent> calEventToSubeventWithVerifiedForDayLocation = new Dictionary<string, SubCalendarEvent>();
                 foreach (SubCalendarEvent subEvent in EachDay.getSubEventsInTimeLine().Where(sub => sub.LocationObj.IsVerified || (sub.isLocationAmbiguous && sub.IsValidationRun)))
                 {
                     int durationQutient = ((int)Math.Round(subEvent.getActiveDuration.TotalMinutes / Utility.QuarterHourTimeSpan.TotalMinutes));
@@ -2780,6 +2855,14 @@ namespace TilerCore
                     }
                     else {
                         durationToTimeSpan.Add(subEvent.Location, durationQutient);
+                    }
+                    string calIdComponent = subEvent.getTilerID.getCalendarEventComponent();
+                    if (calEventToSubEvents.ContainsKey(calIdComponent))
+                    {
+                        if(!calEventToSubeventWithVerifiedForDayLocation.ContainsKey(calIdComponent))
+                        {
+                            calEventToSubeventWithVerifiedForDayLocation.Add(calIdComponent, subEvent);
+                        }
                     }
                 }
 
@@ -2810,23 +2893,43 @@ namespace TilerCore
                             averageLocation = home != null && !home.isDefault && !home.isNull ? home : CurrentLocation;
                         }
 
-                        if (averageLocation != null && !averageLocation.isDefault && !averageLocation.isNull)
-                        {
-                            subEvent.validateLocation(averageLocation);/// This might kill performance because of multiple calls to google for validation
-                            int durationQutient = ((int)Math.Round(subEvent.getActiveDuration.TotalMinutes / Utility.QuarterHourTimeSpan.TotalMinutes));
-                            if (subEvent.Location.isNotNullAndNotDefault)
-                            {
-                                if (durationToTimeSpan.ContainsKey(subEvent.Location))
-                                {
-                                    durationToTimeSpan[subEvent.Location] += durationQutient;
-                                }
-                                else
-                                {
-                                    durationToTimeSpan.Add(subEvent.Location, durationQutient);
-                                }
-                            }
+                        string calIdComponent = subEvent.getTilerID.getCalendarEventComponent();
 
+                        if (calEventToSubeventWithVerifiedForDayLocation.ContainsKey(calIdComponent))
+                        {
+                            SubCalendarEvent subEventWithValidatedLocation = calEventToSubeventWithVerifiedForDayLocation[calIdComponent];
+                            if(subEventWithValidatedLocation.LocationObj == subEvent.LocationObj)
+                            {
+                                subEvent.updateLocationValidationId(subEventWithValidatedLocation.LocationValidationId);
+                            }
+                            else
+                            {
+                                throw new Exception("Sonmething is wrong with location obj, check your app logic for consistency");
+                            }
+                            
                         }
+                        else
+                        {
+                            if (averageLocation != null && !averageLocation.isDefault && !averageLocation.isNull)
+                            {
+                                subEvent.validateLocation(averageLocation);/// This might kill performance because of multiple calls to google for validation
+                                int durationQutient = ((int)Math.Round(subEvent.getActiveDuration.TotalMinutes / Utility.QuarterHourTimeSpan.TotalMinutes));
+                                if (subEvent.Location.isNotNullAndNotDefault)
+                                {
+                                    if (durationToTimeSpan.ContainsKey(subEvent.Location))
+                                    {
+                                        durationToTimeSpan[subEvent.Location] += durationQutient;
+                                    }
+                                    else
+                                    {
+                                        durationToTimeSpan.Add(subEvent.Location, durationQutient);
+                                    }
+                                }
+
+                            }
+                        }
+
+                        
                     }
                 }
                 locationValidation.Stop();
@@ -3209,7 +3312,7 @@ namespace TilerCore
                     {
                         foreach (var subEventAndOldTime in subEventsToInitialSlot)
                         {
-                            subEventAndOldTime.Key.updateTimeLine(subEventAndOldTime.Value);
+                            subEventAndOldTime.Key.updateTimeLine(subEventAndOldTime.Value, this.Now);
                         }
                     } else if (allIsPinned) {
                         allReadyBeforeBumped.Add(subEvent);
@@ -3313,7 +3416,7 @@ namespace TilerCore
             _isScheduleModified = true;
             uint TotalDays = (uint)AllDayTimeLine.Length;
             long DayIndex = AllDayTimeLine.First().UniversalIndex;
-            double occupancyThreshold = 0.67;// this placies a soft threshold for the occupancy that different cal events would use to determine if they should continue
+            double occupancyThreshold = this.Analysis?.CompletionRate ?? 0.67;// this placies a soft threshold for the occupancy that different cal events would use to determine if they should continue
             EventDayBags bagsPerDay = new EventDayBags(TotalDays);
             foreach (SubCalendarEvent subEvent in TotalActiveEvents)
             {
@@ -3328,7 +3431,7 @@ namespace TilerCore
                     obj.resetDesignationAllActiveEventsInCalculables();
                     obj.InitialCalculationLookupDays(AllDayTimeLine, this.Now);
                     obj.updateCompletionTimeArray(Now);
-                    obj.resetAutoDeadlineSuggestion();
+                    obj.resetDeadlineSuggestion();
                 });
             foreach (SubCalendarEvent subEvent in TotalActiveEvents)
             {
@@ -6336,14 +6439,15 @@ namespace TilerCore
             return SpecificFreeSpots.ToArray();
         }
 
-        void clearAllRepetitionLock()
+        void clearAllTimeLocks()
         {
             IEnumerable<SubCalendarEvent> subEvents = getAllActiveSubEvents();
             foreach(SubCalendarEvent eachSubEvent in subEvents)
             {
-                if (eachSubEvent.End > Now.constNow && eachSubEvent.isRepetitionLocked)
+                if (eachSubEvent.End > Now.constNow && (eachSubEvent.isLocked && !eachSubEvent.isRigid))
                 {
                     eachSubEvent.disableRepetitionLock();
+                    eachSubEvent.disableNowLock();
                 }
             };
         }
@@ -6360,13 +6464,17 @@ namespace TilerCore
                 Procrastination procrastinateData = new Procrastination(ReferenceStart, RangeOfPush);
                 TimeLine timeLineAfterProcrastination = new TimeLine(procrastinateData.PreferredStartTime, ReferenceSubEvent.getCalendarEventRange.End);
                 ReferenceSubEvent.disableRepetitionLock();
+                ReferenceSubEvent.disableNowLock();
                 if (ReferenceSubEvent.canExistWithinTimeLine(timeLineAfterProcrastination))
                 {
                     ProcrastinateEvent.updateProcrastinate(procrastinateData);
                     DateTimeOffset StartTimeOfProcrastinate = ReferenceStart + RangeOfPush;
                     DateTimeOffset limitOfProcrastination = ReferenceSubEvent.getCalendarEventRange.End;
                     List<SubCalendarEvent> orderedByStartSubEvents = ProcrastinateEvent.ActiveSubEvents.OrderBy(o => o.Start).ToList();
-                    orderedByStartSubEvents.ForEach(subEvent => subEvent.disableRepetitionLock());
+                    orderedByStartSubEvents.ForEach(subEvent => {
+                        subEvent.disableRepetitionLock();
+                        subEvent.disableNowLock();
+                    });
 
                     ProcrastinateEvent.disableRepetitionLocks(timeLineAfterProcrastination.Start);
                     if (!Utility.tryPinSubEventsToEnd(orderedByStartSubEvents, timeLineAfterProcrastination) && !force)

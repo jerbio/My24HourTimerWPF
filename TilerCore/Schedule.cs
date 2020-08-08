@@ -958,7 +958,7 @@ namespace TilerCore
             List<SubCalendarEvent> RetValue = getAllCalendarEvents().SelectMany(obj => obj.ActiveSubEvents).Where(obj => obj.IsDateTimeWithin(Now.constNow)).ToList();
             return RetValue;
         }
-        async public Task<CustomErrors> PauseEvent()
+        async public virtual Task<CustomErrors> PauseEvent()
         {
             List<SubCalendarEvent> SubEvents = getCurrentSubEvent();
             SubEvents = SubEvents.OrderByDescending(obj => obj.getActiveDuration).ToList();
@@ -975,7 +975,7 @@ namespace TilerCore
             return RetValue;
         }
 
-        public async Task<CustomErrors> PauseEvent(string Event, string CurrentPausedEventId = null)
+        async public virtual Task<CustomErrors> PauseEvent(string Event, string CurrentPausedEventId = null)
         {
             EventID id = new EventID(Event);
             EventID currentPausedId = null;
@@ -986,7 +986,7 @@ namespace TilerCore
             return await PauseEvent(id, currentPausedId);
         }
 
-        public async Task<CustomErrors> PauseEvent(EventID EventId, EventID CurrentPausedEventId = null)
+        async public virtual Task<CustomErrors> PauseEvent(EventID EventId, EventID CurrentPausedEventId = null)
         {
             CalendarEvent CalEvent = getCalendarEvent(EventId.ToString());
 
@@ -994,7 +994,7 @@ namespace TilerCore
             {
                 CalendarEvent PreviousPausedCalEvent = getCalendarEvent(CurrentPausedEventId.ToString());
                 SubCalendarEvent currentPausedEvent = PreviousPausedCalEvent.getSubEvent(CurrentPausedEventId);
-                currentPausedEvent.UnPause(Now.constNow);
+                currentPausedEvent.ResetPause(Now.constNow);
             }
 
             CalEvent.PauseSubEvent(EventId, Now.constNow, CurrentPausedEventId);

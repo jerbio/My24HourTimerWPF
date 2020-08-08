@@ -10,7 +10,7 @@ namespace TilerElements
 {
     public class SubCalendarEvent : TilerEvent,IDefinedRange
     {
-        public static DateTimeOffset InitialPauseTime  = new DateTimeOffset();
+        public static DateTimeOffset InitialPauseTime = Utility.JSStartTime;
         protected BusyTimeLine BusyFrame;
         protected BusyTimeLine TempBusyFrame;
         protected TimeLine _CalendarEventRange;
@@ -51,6 +51,7 @@ namespace TilerElements
         /// Will hold the reasons that were collated from the last time the schedule was modified. This is to be only loaded from storage and not to be updated
         /// </summary>
         protected Dictionary<TimeSpan, List<Reason>> HistoricalReasonsCurrentPosition = new Dictionary<TimeSpan, List<Reason>>();
+        [NotMapped]
         protected List<TimeLine> _pausedTimeSlot = null;
 
         #region undoMembers
@@ -991,6 +992,11 @@ namespace TilerElements
         {
             return _PauseTime;
         }
+        /// <summary>
+        /// Pauses this subevent. Locks the timeline of the beginning of the timespan to the current time of the subevent
+        /// </summary>
+        /// <param name="currentTime"></param>
+        /// <returns></returns>
         virtual internal TimeSpan Pause(DateTimeOffset currentTime)
         {
             _PauseTime = currentTime;
@@ -1002,6 +1008,11 @@ namespace TilerElements
             return NewUsedTime;
         }
 
+        /// <summary>
+        /// Resumes a subevent. This takes the rest of the available timeline after being paused and pins it to currentTime 
+        /// </summary>
+        /// <param name="currentTime"></param>
+        /// <returns></returns>
         virtual internal bool Continue(DateTimeOffset currentTime)
         {
             _PauseTime = new DateTimeOffset();
@@ -1009,8 +1020,13 @@ namespace TilerElements
             bool RetValue = shiftEvent(timeDiff);
             return RetValue;
         }
-
-        virtual public bool UnPause(DateTimeOffset currentTime)
+        /// <summary>
+        /// This resets all attributes related to the pausing of a sub event. Note this is not the same as the function Continue.
+        /// This does not resume the event it just clears all paused parameters so this subevent doesnt seem paused
+        /// </summary>
+        /// <param name="currentTime"></param>
+        /// <returns></returns>
+        virtual public bool ResetPause(DateTimeOffset currentTime)
         {
             _PauseTime = new DateTimeOffset();
             _UsedTime = new TimeSpan();

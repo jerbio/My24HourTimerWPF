@@ -1438,12 +1438,27 @@ namespace TilerElements
         {
             set
             {
-                JArray pauseSlots = JsonConvert.
-                _pausedTimeSlot = JSo;
+                _pausedTimeSlot = new List<TimeLine>();
+                JArray pauseSlots = JArray.Parse(value);
+                foreach(JObject timelineObj in pauseSlots)
+                {
+                    TimeLine timeLine = TimeLine.JobjectToTimeLine(timelineObj);
+                    _pausedTimeSlot.Add(timeLine);
+                }
+                
             }
             get
             {
-                return _RepetitionLock;
+                JArray retJValue = new JArray();
+                if(_pausedTimeSlot !=null && _pausedTimeSlot.Count > 0)
+                {
+                    foreach(TimeLine timeLine in _pausedTimeSlot)
+                    {
+                        retJValue.Add(timeLine.ToJson());
+                    }
+                    
+                }
+                return retJValue.ToString();
             }
         }
         virtual public bool NowLock_DB

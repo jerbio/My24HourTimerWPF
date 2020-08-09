@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TilerElements;
 using TilerFront;
@@ -14,12 +16,12 @@ namespace TilerTests
         /// It should also reset all previously paused events
         /// </summary>
         [TestMethod]
-        public void PauseEvent()
+        public async Task PauseEvent()
         {
-            Packet packet = TestUtility.CreatePacket();
+            Packet packet = CreatePacket();
             TilerUser tilerUser = packet.User;
-            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
-            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            UserAccount user = getTestUser(userId: tilerUser.Id);
+            reloadTilerUser(ref user, ref tilerUser);
 
             DateTimeOffset refNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
             DateTimeOffset startOfDay = refNow;
@@ -29,8 +31,27 @@ namespace TilerTests
             TimeSpan durationPerEvent = TimeSpan.FromHours(210);
             CalendarEvent calEvent = TestUtility.generateCalendarEvent(tilerUser, durationPerEvent, null, calEventTimeLine.Start, calEventTimeLine.End, totalSplit);
             DB_Schedule schedule = new TestSchedule(user, refNow, startOfDay);
-            await schedule.AddToScheduleAndCommit(calEvent).configureAwait(false);
-            
+            schedule.AddToScheduleAndCommit(calEvent);
+            reloadTilerUser(ref user, ref tilerUser);
+
+            CalendarEvent calEvent0 = TestUtility.generateCalendarEvent(tilerUser, durationPerEvent, null, calEventTimeLine.Start, calEventTimeLine.End, totalSplit);
+            schedule = new TestSchedule(user, refNow, startOfDay);
+            schedule.AddToScheduleAndCommit(calEvent0);
+            reloadTilerUser(ref user, ref tilerUser);
+
+            schedule = new TestSchedule(user, refNow, startOfDay);
+            CalendarEvent calEventRetrieved = schedule.getCalendarEvent(calEvent.Id);
+            CalendarEvent calEventRetrieved0 = schedule.getCalendarEvent(calEvent0.Id);
+
+            SubCalendarEvent secondSubEvent = calEventRetrieved.ActiveSubEvents.OrderBy(subEvent => subEvent.Start).ToList()[1];
+            DateTimeOffset pausedRefNow = Utility.MiddleTime(secondSubEvent);
+            schedule = new TestSchedule(user, pausedRefNow, startOfDay);
+            Tuple<CustomErrors, SubCalendarEvent> pauseResult = schedule.PauseEvent().Result;
+            Assert.AreEqual(pauseResult.Item2, secondSubEvent);
+            throw new NotImplementedException("Still need to check for the pause time, check if previous paused are reset, check for multiple pauses per timeline");
+
+
+
 
 
 

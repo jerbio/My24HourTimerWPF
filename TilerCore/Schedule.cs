@@ -977,21 +977,22 @@ namespace TilerCore
             List<SubCalendarEvent> RetValue = getAllCalendarEvents().SelectMany(obj => obj.ActiveSubEvents).Where(obj => obj.IsDateTimeWithin(Now.constNow)).ToList();
             return RetValue;
         }
-        async public virtual Task<CustomErrors> PauseEvent()
+        async public virtual Task<Tuple< CustomErrors, SubCalendarEvent>> PauseEvent()
         {
             List<SubCalendarEvent> SubEvents = getCurrentSubEvent();
             SubEvents = SubEvents.OrderByDescending(obj => obj.getActiveDuration).ToList();
             SubCalendarEvent relevantSubEvent = SubEvents.FirstOrDefault();
-            CustomErrors RetValue;
+            CustomErrors errorResult;
             if (relevantSubEvent != null)
             {
-                RetValue = await PauseEvent(relevantSubEvent.SubEvent_ID);
+                errorResult = await PauseEvent(relevantSubEvent.SubEvent_ID);
             }
             else
             {
-                RetValue = null;
+                errorResult = null;
             }
-            return RetValue;
+            Tuple<CustomErrors, SubCalendarEvent> retValue = new Tuple<CustomErrors, SubCalendarEvent>(errorResult, relevantSubEvent);
+            return retValue;
         }
 
         async public virtual Task<CustomErrors> PauseEvent(string Event, string CurrentPausedEventId = null)

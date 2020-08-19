@@ -34,6 +34,22 @@ namespace TilerTests
             //((TestSchedule)schedule).WriteFullScheduleToOutlook();
         }
 
+
+
+        [TestMethod]
+        public void file_dc02cd13()
+        {
+            string scheduleId = "dc02cd13-87b7-49c6-abf0-4dafc6354ed6";
+            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+            currentLocation.IsVerified = true;
+            DateTimeOffset refNow = DateTimeOffset.Parse("8/19/2020 3:02:00 PM +00:00");
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId, refNow);
+            Schedule schedule = scheduleAndDump.Item1;
+            schedule.CurrentLocation = currentLocation;
+            schedule.ProcrastinateAll(TimeSpan.FromHours(2));
+            ((TestSchedule)schedule).WriteFullScheduleToOutlook();
+        }
+
         /*
          * This test tries to see that there is sufficent diversity. Read notes scheule dump nodes
          * The 

@@ -500,6 +500,17 @@ namespace TilerTests
             dump.XmlDoc = xmlDoc;
             string notes = dump.XmlDoc.DocumentElement.SelectSingleNode("/ScheduleLog/scheduleNotes")?.InnerText;
             dump.Notes = notes;
+            string logConstNow = dump.XmlDoc.DocumentElement.SelectSingleNode("/ScheduleLog/constNowTime")?.InnerText;
+            if(logConstNow.isNot_NullEmptyOrWhiteSpace() && refNow.isBeginningOfTime())
+            {
+                refNow = DateTimeOffset.Parse(logConstNow);
+            }
+
+            string logDateTimeOffsetUtcNow = dump.XmlDoc.DocumentElement.SelectSingleNode("/ScheduleLog/dateTimeOffsetUtcNow")?.InnerText;
+            if (logDateTimeOffsetUtcNow.isNot_NullEmptyOrWhiteSpace() && refNow.isBeginningOfTime())
+            {
+                refNow = DateTimeOffset.Parse(logDateTimeOffsetUtcNow);
+            }
 
 
             TilerUser User = new TilerUser() { UserName = userId + "@tiler-test.com", Id = userId };

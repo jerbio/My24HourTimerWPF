@@ -6444,7 +6444,7 @@ namespace TilerCore
             IEnumerable<SubCalendarEvent> subEvents = getAllActiveSubEvents();
             foreach(SubCalendarEvent eachSubEvent in subEvents)
             {
-                if (eachSubEvent.End > Now.constNow && (eachSubEvent.isLocked && !eachSubEvent.isRigid))
+                if (eachSubEvent.isLocked && !eachSubEvent.isRigid)
                 {
                     eachSubEvent.disableRepetitionLock();
                     eachSubEvent.disableNowLock();

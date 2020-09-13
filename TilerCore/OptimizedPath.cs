@@ -21,6 +21,7 @@ namespace TilerCore
         protected List<SubCalendarEvent> UnassignedSubevents = new List<SubCalendarEvent>();// These are disabled events, events that could not find a slot
         protected List<SubCalendarEvent> ReassignedDisabledSubevents = new List<SubCalendarEvent>();
         Dictionary<string, SubCalendarEvent> slicedSubEvents = new Dictionary<string, SubCalendarEvent>();
+        List<SubCalendarEvent> previouslyPinned = new List<SubCalendarEvent>();
 
         /// <summary>
         /// This holds the subevents that cannot fit anywhere within this and also have no partial timefram that works
@@ -688,8 +689,14 @@ namespace TilerCore
                 }
             }
 
+            
+            //if (SubEventsInrespectivepaths.Count == previouslyPinned.Count)
+            //{
+            //    SubEventsInrespectivepaths = this.previouslyPinned;
+            //    //throw new Exception("Something smells fishy previouslyPinned should always be the same as alreadyPinned");
+            //}
 
-            //SubEventsInrespectivepaths = SubEventsInrespectivepaths.OrderBy(o => o.Start).ToList();
+            
             List<SubCalendarEvent> orderedPathStiched = OrderedOptimizedGroupings.SelectMany(obj => obj.getEventsForStitichingWithOtherOptimizedGroupings()).ToList();
             int insertionIndex = 0;
             for(int i=0; i< orderedPathStiched.Count;i++ )// this loop inserts all the respective elements around the already pinned events 
@@ -760,6 +767,7 @@ namespace TilerCore
         List<SubCalendarEvent> tryPinningInCurrentDayTimeline(TimeLine AllTimeLine, List<SubCalendarEvent> subEvents, List<OptimizedGrouping> OrderedOptimizedGroupings)
         {
             var retTuple = recursivelyPinnOrderedSubEventsInDayTimeline(AllTimeLine, subEvents);
+            HashSet<SubCalendarEvent> allSubEvents = new HashSet<SubCalendarEvent>();
             foreach (var kvp in retTuple.Item2)
             {
                 OptimizedGrouping grouping = AllGroupings[kvp.Key];
@@ -768,8 +776,13 @@ namespace TilerCore
                 grouping.clearPathStitchedEvents();
                 grouping.ClearPinnedSubEvents();
                 grouping.setPathStitchedEvents(orderedSubevents);
+                orderedSubevents.ForEach((subEvent) =>
+                {
+                    allSubEvents.Add(subEvent);
+                });
+                //allOrdered
             }
-
+            previouslyPinned = allSubEvents.ToList();
             foreach (var grouping in OrderedOptimizedGroupings)
             {
                 if (grouping.getPathStitchedSubevents().Count > 0)

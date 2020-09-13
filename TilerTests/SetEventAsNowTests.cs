@@ -594,7 +594,7 @@ namespace TilerTests
             Assert.IsFalse(setAsNowSubEventRetrieved.isLocked);
             Assert.IsFalse(setAsNowSubEventRetrieved.isNowLocked);
 
-            TestUtility.isAddEventOperationInScheduleDumpSameAsLoaded(ref user, ref tilerUser, Schedule, refNow);
+            TestUtility.isAddEventOperationInScheduleDumpSameAsLoaded(ref user, ref tilerUser, refNow);// this is known to fail
         }
     }
 }

@@ -689,14 +689,14 @@ namespace TilerCore
                 }
             }
 
-            
-            //if (SubEventsInrespectivepaths.Count == previouslyPinned.Count)
-            //{
-            //    SubEventsInrespectivepaths = this.previouslyPinned;
-            //    //throw new Exception("Something smells fishy previouslyPinned should always be the same as alreadyPinned");
-            //}
 
-            
+            if (SubEventsInrespectivepaths.Count == previouslyPinned.Count)// This ensures that the order of the ordered sub events are pinned. This is because events pinned can tehave their time set in an optimized group time frame but this ensures that the order of successfully pinned events is saved.
+            {
+                SubEventsInrespectivepaths = this.previouslyPinned;
+                //throw new Exception("Something smells fishy previouslyPinned should always be the same as alreadyPinned");
+            }
+
+
             List<SubCalendarEvent> orderedPathStiched = OrderedOptimizedGroupings.SelectMany(obj => obj.getEventsForStitichingWithOtherOptimizedGroupings()).ToList();
             int insertionIndex = 0;
             for(int i=0; i< orderedPathStiched.Count;i++ )// this loop inserts all the respective elements around the already pinned events 
@@ -780,9 +780,8 @@ namespace TilerCore
                 {
                     allSubEvents.Add(subEvent);
                 });
-                //allOrdered
             }
-            previouslyPinned = allSubEvents.ToList();
+            previouslyPinned = allSubEvents.OrderBy(o=>o.Start).ToList();
             foreach (var grouping in OrderedOptimizedGroupings)
             {
                 if (grouping.getPathStitchedSubevents().Count > 0)

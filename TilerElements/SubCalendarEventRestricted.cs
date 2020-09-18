@@ -197,6 +197,8 @@ namespace TilerElements
             bool retValue=base.PinToStart(RestrictedLimitingFrame);
             return retValue;
         }
+
+
         /// <summary>
         /// Function initializes the CalendarEventRange. CalendarEventRange is the range for the calendar event. Since this is the restricted class then it sets the timeline to use the earliest possible Start Time and latest possible Datetime to set the rangetimeline.
         /// </summary>

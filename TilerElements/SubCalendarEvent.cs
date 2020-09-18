@@ -504,19 +504,44 @@ namespace TilerElements
         /// <returns></returns>
         virtual public bool PinToStart(TimeLine limitingTimeLine)
         {
+            TimeLine reEvaluatedLimitingTimeLine = limitingTimeLine;
+            if (this.Location.RestrictionProfile != null)
+            {
+                List<TimeLine> allPossibleTimelines = this.Location.RestrictionProfile.getAllNonPartialTimeFrames(limitingTimeLine).Where(obj => obj.TimelineSpan >= getActiveDuration).OrderBy(obj => obj.Start).ToList();
+                if (allPossibleTimelines.Count > 0)
+                {
+                    reEvaluatedLimitingTimeLine = reEvaluatedLimitingTimeLine.InterferringTimeLine(allPossibleTimelines[0]);
+                    if (reEvaluatedLimitingTimeLine == null)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+
+                TimeLine RestrictedLimitingFrame = this.Location.RestrictionProfile.getEarliestActiveFrameAfterBeginning(reEvaluatedLimitingTimeLine).Item1;
+                if (RestrictedLimitingFrame.TimelineSpan < getActiveDuration)
+                {
+                    reEvaluatedLimitingTimeLine = this.Location.RestrictionProfile.getEarliestFullframe(reEvaluatedLimitingTimeLine);
+                }
+            }
+
+
             DateTimeOffset ReferenceStartTime = new DateTimeOffset();
             DateTimeOffset ReferenceEndTime = new DateTimeOffset();
 
-            ReferenceStartTime = limitingTimeLine.Start;
-            if (this.getCalculationRange.Start > limitingTimeLine.Start)
+            ReferenceStartTime = reEvaluatedLimitingTimeLine.Start;
+            if (this.getCalculationRange.Start > reEvaluatedLimitingTimeLine.Start)
             {
                 ReferenceStartTime = this.getCalculationRange.Start;
             }
 
             ReferenceEndTime = this.getCalculationRange.End;
-            if (this.getCalculationRange.End > limitingTimeLine.End)
+            if (this.getCalculationRange.End > reEvaluatedLimitingTimeLine.End)
             {
-                ReferenceEndTime = limitingTimeLine.End;
+                ReferenceEndTime = reEvaluatedLimitingTimeLine.End;
             }
 
             /*foreach (SubCalendarEvent MySubCalendarEvent in MySubCalendarEventList)
@@ -527,7 +552,7 @@ namespace TilerElements
 
             if (this.isLocked)
             {
-                return (limitingTimeLine.IsTimeLineWithin( this.StartToEnd));
+                return (reEvaluatedLimitingTimeLine.IsTimeLineWithin( this.StartToEnd));
             }
 
             if (this._EventDuration > TimeDifference)

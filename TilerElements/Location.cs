@@ -64,6 +64,7 @@ namespace TilerElements
         protected string _UndoId = "";
         protected string _ThirdPartyId = "";
         protected ThirdPartyMapSource _ThirdPartySource;
+        protected RestrictionProfile _ProfileOfRestriction = null;
         [NonSerialized]
         protected TilerUser _User;
         protected LocationValidation _LocationValidation;
@@ -696,6 +697,14 @@ namespace TilerElements
             }
         }
 
+        public RestrictionProfile RestrictionProfile
+        {
+            get
+            {
+                return _ProfileOfRestriction;
+            }
+        }
+
         public static Location getClosestLocation(IEnumerable<Location> AllLocations, Location RefLocation)
         {
             Location RetValue = null;
@@ -1116,6 +1125,19 @@ namespace TilerElements
             set
             {
                 _User = value;
+            }
+        }
+
+        public virtual RestrictionProfile RestrictionProfile_DB
+        {
+            set
+            {
+                _ProfileOfRestriction = value;
+            }
+
+            get
+            {
+                return _ProfileOfRestriction;
             }
         }
         #endregion

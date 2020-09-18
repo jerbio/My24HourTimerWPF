@@ -500,6 +500,17 @@ namespace TilerTests
             dump.XmlDoc = xmlDoc;
             string notes = dump.XmlDoc.DocumentElement.SelectSingleNode("/ScheduleLog/scheduleNotes")?.InnerText;
             dump.Notes = notes;
+            string logConstNow = dump.XmlDoc.DocumentElement.SelectSingleNode("/ScheduleLog/constNowTime")?.InnerText;
+            if(logConstNow.isNot_NullEmptyOrWhiteSpace() && refNow.isBeginningOfTime())
+            {
+                refNow = DateTimeOffset.Parse(logConstNow);
+            }
+
+            string logDateTimeOffsetUtcNow = dump.XmlDoc.DocumentElement.SelectSingleNode("/ScheduleLog/dateTimeOffsetUtcNow")?.InnerText;
+            if (logDateTimeOffsetUtcNow.isNot_NullEmptyOrWhiteSpace() && refNow.isBeginningOfTime())
+            {
+                refNow = DateTimeOffset.Parse(logDateTimeOffsetUtcNow);
+            }
 
 
             TilerUser User = new TilerUser() { UserName = userId + "@tiler-test.com", Id = userId };
@@ -553,7 +564,13 @@ namespace TilerTests
             return retValue;
         }
 
-        internal static void isAddEventOperationInScheduleDumpSameAsLoaded(ref UserAccount user, ref TilerUser tilerUser, TestSchedule Schedule, DateTimeOffset refNow)
+        /// <summary>
+        /// This asserts if the passed user and refnow can evaluate a schedule from the DB and from the schedule dump to the same equivalent end point.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="tilerUser"></param>
+        /// <param name="refNow"></param>
+        internal static void isAddEventOperationInScheduleDumpSameAsLoaded(ref UserAccount user, ref TilerUser tilerUser, DateTimeOffset refNow)
         {
             TimeSpan duration = TimeSpan.FromHours(1);
             TimeLine timeLine = TestUtility.getTimeFrames(refNow, duration).First();
@@ -566,6 +583,7 @@ namespace TilerTests
 
 
             reloadTilerUser(ref user, ref tilerUser);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
             // Adding event one
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), timeLine.Start, timeLine.End, 1, false, eventDisplay: eventdisplay, location: location);
             string testEVentId = testEvent.Id;

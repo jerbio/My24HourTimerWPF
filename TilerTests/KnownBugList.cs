@@ -34,6 +34,53 @@ namespace TilerTests
             //((TestSchedule)schedule).WriteFullScheduleToOutlook();
         }
 
+
+
+        [TestMethod]
+        public void file_dc02cd13()
+        {
+            string scheduleId = "dc02cd13-87b7-49c6-abf0-4dafc6354ed6";
+            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+            currentLocation.IsVerified = true;
+            DateTimeOffset refNow = DateTimeOffset.Parse("8/19/2020 3:02:00 PM +00:00");
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId, refNow);
+            Schedule schedule = scheduleAndDump.Item1;
+            schedule.CurrentLocation = currentLocation;
+            schedule.ProcrastinateAll(TimeSpan.FromHours(2));
+            ((TestSchedule)schedule).WriteFullScheduleToOutlook();
+        }
+
+        [TestMethod]
+        public void file_62b2fe96()
+        {
+            string scheduleId = "62b2fe96-94ef-498f-a68b-59f0371023b5";
+            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+            currentLocation.IsVerified = true;
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+            Schedule schedule = scheduleAndDump.Item1;
+            schedule.CurrentLocation = currentLocation;
+            DateTimeOffset end = DateTimeOffset.Parse("12/31/2022 5:59:00 AM +00:00");
+            DateTimeOffset repeatTimeSelectionEnd = new DateTimeOffset(schedule.Now.constNow.Year, schedule.Now.constNow.Month+1, 1, 5, 59, 0, new TimeSpan());
+            TimeLine rangeOfSingleRepetition= new TimeLine(schedule.Now.constNow, repeatTimeSelectionEnd);
+            TimeLine rangeOfTempGoogleEvent = new TimeLine(schedule.Now.constNow, end);
+            Repetition repeat = new Repetition(
+                rangeOfTempGoogleEvent,
+                Repetition.Frequency.MONTHLY,
+                rangeOfSingleRepetition
+                );
+            CalendarEvent googleCalSimulation = TestUtility.generateCalendarEvent(
+                schedule.User,
+                TimeSpan.FromMinutes(10),
+                repeat,
+                rangeOfTempGoogleEvent.Start,
+                rangeOfTempGoogleEvent.End,
+                2,
+                false);
+
+
+            ((TestSchedule)schedule).AddToScheduleAndCommit(googleCalSimulation);
+        }
+
         /*
          * This test tries to see that there is sufficent diversity. Read notes scheule dump nodes
          * The 

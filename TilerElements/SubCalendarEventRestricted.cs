@@ -299,6 +299,7 @@ namespace TilerElements
             copy.isSleep = this.isSleep;
             copy.isWake = this.isWake;
             copy._isTardy = this._isTardy;
+            copy._PauseLock = this._PauseLock;
             if (this.CalculationTimeLine != null)
             {
                 copy.CalculationTimeLine = this.CalculationTimeLine.CreateCopy();
@@ -460,6 +461,7 @@ namespace TilerElements
             retValue._Now = this._Now;
             retValue._RepetitionLock = this._RepetitionLock;
             retValue._NowLock = this._NowLock;
+            retValue._PauseLock = this._PauseLock;
             return retValue;
         }
 

@@ -555,7 +555,7 @@ namespace TilerElements
             ActiveTimeSlots = new Dictionary<string, BusyTimeLine>();
         }
 
-        public JObject ToJson()
+        virtual public JObject ToJson()
         {
             JObject retValue = new JObject();
             retValue.Add("start", Start.ToUnixTimeMilliseconds());

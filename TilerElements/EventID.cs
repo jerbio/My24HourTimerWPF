@@ -7,10 +7,16 @@ namespace TilerElements
 {
     public class EventID
     {
-        string[] LayerID = new string[4] { "0", "7", "0", "0"};
-        string s_FullID="";
-        static string delimiter = "_";
-        static char delimiter_char ='_';
+        const int lengthOfField = 4;
+        string pauseString = "";
+        string[] LayerID = new string[lengthOfField] { "0", "7", "0", "0"};
+        string eventID_string="";
+        string fullString = "";
+        static char delimiter_char = '_';
+        static string delimiter = ""+ delimiter_char;
+        static char pauseDelimiter_char = '*';
+        static string pauseDelimiter = ""+ pauseDelimiter_char;
+        
         public EventID(string stringId)
         {
             if (!string.IsNullOrEmpty(stringId))
@@ -38,23 +44,23 @@ namespace TilerElements
             {
                 case 0:
                     {
-                        LayerID = new string[4] { "0", "7", "0", "0" };
+                        LayerID = new string[lengthOfField] { "0", "7", "0", "0" };
                     }
                     break;
 
                 case 1:
                     {
-                        LayerID = new string[4] { myLayerID[0], "7", "0", "0" };
+                        LayerID = new string[lengthOfField] { myLayerID[0], "7", "0", "0" };
                     }
                     break;
                 case 2:
                     {
-                        LayerID = new string[4] { myLayerID[0], myLayerID[1],"0", "0" };
+                        LayerID = new string[lengthOfField] { myLayerID[0], myLayerID[1],"0", "0" };
                     }
                     break;
                 case 3:
                     {
-                        LayerID = new string[4] { myLayerID[0], myLayerID[1], myLayerID[2], "0" };
+                        LayerID = new string[lengthOfField] { myLayerID[0], myLayerID[1], myLayerID[2], "0" };
                     }
                     break;
                 case 4:
@@ -66,12 +72,13 @@ namespace TilerElements
                     throw new Exception("Tried To initialize with invalid ID");
             }
 
-            s_FullID = string.Join(delimiter, LayerID);
+            updateFullString();
         }
 
         public static EventID convertToSubcalendarEventID(string stringID)
         {
-            string[] splitStringResult = stringID.Split(delimiter_char);
+            string tileId = stringID.Split(pauseDelimiter_char)[0];
+            string[] splitStringResult = tileId.Split(delimiter_char);
             EventID retValue = new EventID();
             if (splitStringResult.Length > 3)
             {
@@ -95,13 +102,16 @@ namespace TilerElements
                 }
                 
             }
-            retValue.updateSFullID();
+            retValue.updateFullString();
             return retValue;
         }
 
-        private void updateSFullID()
+        /// <summary>
+        /// Just updates the full tile event id, this concats the strings of all the tile id components using the delimiter
+        /// </summary>
+        private void updateTileIdString()
         {
-            s_FullID=string.Join("_", LayerID);
+            eventID_string = string.Join(delimiter, LayerID);
         }
 
         public static EventID convertToRepeatCalendarEventID(string stringID)
@@ -129,7 +139,30 @@ namespace TilerElements
         {
             string id = Guid.NewGuid().ToString();
             LayerID[index] = id;
-            s_FullID = string.Join(delimiter, LayerID);
+            updateFullString();
+        }
+
+        /// <summary>
+        /// Updates the pause id;
+        /// </summary>
+        private void AddPauseID()
+        {
+            string id = Guid.NewGuid().ToString();
+            pauseString = id;
+        }
+
+        /// <summary>
+        /// Updates the full string, this updates the full id which includes both the tile id and pauseId
+        /// </summary>
+        public void updateFullString()
+        {
+            updateTileIdString();
+            string tileString = eventID_string.ToString();
+            fullString = tileString;
+            if(pauseString.isNot_NullEmptyOrWhiteSpace())
+            {
+                fullString += pauseDelimiter + pauseString + pauseDelimiter;
+            }
         }
 
         public static EventID GenerateCalendarEvent()
@@ -199,21 +232,23 @@ namespace TilerElements
         public static EventID GenerateSubCalendarEvent(string ParentID)
         {
             EventID retValue = new EventID(ParentID);
-            //if (retValue.LayerID.Count == 3)
-            {
-                retValue.AddNewComponentID(3);
-                return retValue;
-            }
+            retValue.AddNewComponentID(3);
+            return retValue;
         }
 
         public static EventID GenerateSubCalendarEvent(EventID ParentID)
         {
             EventID retValue = new EventID(ParentID.ToString());
-            //if (retValue.LayerID.Count == 3)
-            {
-                retValue.AddNewComponentID(3);
-                return retValue;
-            }
+            retValue.AddNewComponentID(3);
+            return retValue;
+        }
+
+        public static EventID GeneratePauseId(EventID ParentID)
+        {
+            EventID retValue = new EventID(ParentID.ToString());
+            retValue.AddPauseID();
+            retValue.updateFullString();
+            return retValue;
         }
 
 
@@ -223,11 +258,10 @@ namespace TilerElements
             string StringID = "";
             for (i = 0; (i <= LevelIndex - 1) && (LevelIndex < LayerID.Length); i++)
             {
-                StringID += LayerID[i] + "_";
+                StringID += LayerID[i] + delimiter;
             }
             StringID += LayerID[LevelIndex];
             return StringID;
-
         }
 
         private string getLevelID(int Level)
@@ -237,7 +271,7 @@ namespace TilerElements
 
         public int getLevelID_Int(int Level)
         {
-            return  Convert.ToInt32( LayerID[Level]);
+            return  Convert.ToInt32(LayerID[Level]);
         }
 
         public string getIDUpToCalendarEvent()
@@ -260,7 +294,6 @@ namespace TilerElements
             return getStringIDAtLevel(3);
         }
 
-
         public string getCalendarEventComponent()
         {
             return getLevelID(0);
@@ -281,10 +314,10 @@ namespace TilerElements
             return getLevelID(3);
         }
 
-
-
-
-
+        public string getPauseComponent()
+        {
+            return this.pauseString;
+        }
 
         public string getCalendarEventID()
         {
@@ -333,7 +366,7 @@ namespace TilerElements
             {
                 return "";
             }
-            return s_FullID;
+            return fullString;
         }
 
         public override bool Equals(object obj)
@@ -350,12 +383,12 @@ namespace TilerElements
                 return false;
             }
 
-            return (this.s_FullID == p.s_FullID);
+            return (this.fullString == p.fullString);
         }
 
         public override int GetHashCode()
         {
-            return s_FullID.GetHashCode();
+            return fullString.GetHashCode();
         }
 
         public static uint LatestID

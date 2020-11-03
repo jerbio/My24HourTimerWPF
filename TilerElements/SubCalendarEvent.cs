@@ -54,7 +54,7 @@ namespace TilerElements
         /// </summary>
         protected Dictionary<TimeSpan, List<Reason>> HistoricalReasonsCurrentPosition = new Dictionary<TimeSpan, List<Reason>>();
         [NotMapped]
-        protected List<TimeLine> _pausedTimeSlot = null;
+        protected List<PausedTimeLine> _pausedTimeSlot = null;
 
         #region undoMembers
 
@@ -330,6 +330,12 @@ namespace TilerElements
         public void enablePreschedulingLock()
         {
             _enablePre_reschedulingTimelineLockDown = true;
+        }
+
+        virtual public void addToPausedTimeSlot(PausedTimeLine pausedTimeLine)
+        {
+            _pausedTimeSlot.Add(pausedTimeLine);
+            _UsedTime = TimeSpan.FromTicks(_pausedTimeSlot.Select(timeLine => timeLine.TimelineSpan.Ticks).Sum());
         }
 
         virtual public void addReasons(Reason eventReason)
@@ -1007,10 +1013,21 @@ namespace TilerElements
         {
             DateTimeOffset Start = this.Start;
             DateTimeOffset End = this.End;
-            TimeLine pauseTimeLine = new TimeLine(Start, currentTime);
-            _pausedTimeSlot.Add(pauseTimeLine);
-            _UsedTime = TimeSpan.FromTicks(_pausedTimeSlot.Select(timeLine => timeLine.TimelineSpan.Ticks).Sum());
+            EventID pauseEventId = EventID.GeneratePauseId(this.SubEvent_ID);
+            PausedTimeLine pauseTimeLine = new PausedTimeLine(pauseEventId.ToString() , Start, currentTime);
+            addToPausedTimeSlot(pauseTimeLine);
+            setPauseLock();
             return pauseTimeLine.TimelineSpan;
+        }
+
+        virtual protected void setPauseLock()
+        {
+            _PauseLock = true;
+        }
+
+        virtual public void disablePauseLock()
+        {
+            _PauseLock = false;
         }
 
         /// <summary>
@@ -1022,6 +1039,7 @@ namespace TilerElements
         {
             TimeSpan timeDiff = (currentTime - UsedTime) - (Start);
             bool RetValue = shiftEvent(timeDiff);
+            disablePauseLock();
             return RetValue;
         }
         /// <summary>
@@ -1032,8 +1050,9 @@ namespace TilerElements
         /// <returns></returns>
         virtual public bool ResetPause(DateTimeOffset currentTime)
         {
-            _pausedTimeSlot = new List<TimeLine>();
+            _pausedTimeSlot = new List<PausedTimeLine>();
             _UsedTime = new TimeSpan();
+            disablePauseLock();
             TimeSpan timeDiff = new TimeSpan();
             bool RetValue = shiftEvent(timeDiff);
             return RetValue;
@@ -1336,8 +1355,8 @@ namespace TilerElements
                 return this.ParentCalendarEvent?.IsFromRecurring ?? base.IsFromRecurring;
             }
         }
-
-        public List<TimeLine> pausedTimeLines
+        [NotMapped]
+        public List<PausedTimeLine> pausedTimeLines
         {
             get
             {
@@ -1442,14 +1461,17 @@ namespace TilerElements
         {
             set
             {
-                _pausedTimeSlot = new List<TimeLine>();
-                JArray pauseSlots = JArray.Parse(value);
-                foreach (JObject timelineObj in pauseSlots)
+                _pausedTimeSlot = new List<PausedTimeLine>();
+                if(value.isNot_NullEmptyOrWhiteSpace())
                 {
-                    TimeLine timeLine = TimeLine.JobjectToTimeLine(timelineObj);
-                    _pausedTimeSlot.Add(timeLine);
+                    JArray pauseSlots = JArray.Parse(value);
+                    foreach (JObject timelineObj in pauseSlots)
+                    {
+                        PausedTimeLine timeLine = PausedTimeLine.JobjectToTimeLine(timelineObj);
+                        _pausedTimeSlot.Add(timeLine);
+                    }
                 }
-
+                
             }
             get
             {
@@ -1465,6 +1487,7 @@ namespace TilerElements
                 return retJValue.ToString();
             }
         }
+
         virtual public bool NowLock_DB
         {
             set

@@ -1013,8 +1013,11 @@ namespace TilerCore
             if (CurrentPausedEventId != null)
             {
                 CalendarEvent PreviousPausedCalEvent = getCalendarEvent(CurrentPausedEventId.ToString());
-                SubCalendarEvent currentPausedEvent = PreviousPausedCalEvent.getSubEvent(CurrentPausedEventId);
-                currentPausedEvent.ResetPause(Now.constNow);
+                if (PreviousPausedCalEvent != null)
+                {
+                    SubCalendarEvent currentPausedEvent = PreviousPausedCalEvent.getSubEvent(CurrentPausedEventId);
+                    currentPausedEvent.ResetPause(Now.constNow);
+                }
             }
 
             CalEvent.PauseSubEvent(EventId, Now.constNow, CurrentPausedEventId);

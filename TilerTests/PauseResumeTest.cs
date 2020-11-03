@@ -65,5 +65,13 @@ namespace TilerTests
         public void ResumeEvent()
         {
         }
+
+        /// <summary>
+        /// When outside calendar range you should be able to resume event
+        /// </summary>
+        [TestMethod]
+        public void ResumeEventEventOutSideCalendarLoadRange()
+        {
+        }
     }
 }

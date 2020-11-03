@@ -871,7 +871,7 @@ namespace TilerElements
         virtual public void PauseSubEvent(EventID SubEventId, DateTimeOffset CurrentTime, EventID CurrentPausedEventId = null)
         {
             SubCalendarEvent SubEvent = getSubEvent(SubEventId);
-            if (!SubEvent.isLocked)
+            if (!SubEvent.isPauseLocked)
             {
                 TimeSpan TimeDelta = SubEvent.Pause(CurrentTime);
                 _UsedTime += TimeDelta;

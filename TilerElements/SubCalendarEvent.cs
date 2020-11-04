@@ -507,27 +507,9 @@ namespace TilerElements
             TimeLine reEvaluatedLimitingTimeLine = limitingTimeLine;
             if (this.Location.RestrictionProfile != null)
             {
-                List<TimeLine> allPossibleTimelines = this.Location.RestrictionProfile.getAllNonPartialTimeFrames(limitingTimeLine).Where(obj => obj.TimelineSpan >= getActiveDuration).OrderBy(obj => obj.Start).ToList();
-                if (allPossibleTimelines.Count > 0)
-                {
-                    reEvaluatedLimitingTimeLine = reEvaluatedLimitingTimeLine.InterferringTimeLine(allPossibleTimelines[0]);
-                    if (reEvaluatedLimitingTimeLine == null)
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    return false;
-                }
-
-                TimeLine RestrictedLimitingFrame = this.Location.RestrictionProfile.getEarliestActiveFrameAfterBeginning(reEvaluatedLimitingTimeLine).Item1;
-                if (RestrictedLimitingFrame.TimelineSpan < getActiveDuration)
-                {
-                    reEvaluatedLimitingTimeLine = this.Location.RestrictionProfile.getEarliestFullframe(reEvaluatedLimitingTimeLine);
-                }
+                return PinToStartRestricted(limitingTimeLine, this.Location.RestrictionProfile);
             }
-
+            return PinToStartUnrestricted(limitingTimeLine);
 
             DateTimeOffset ReferenceStartTime = new DateTimeOffset();
             DateTimeOffset ReferenceEndTime = new DateTimeOffset();
@@ -563,20 +545,112 @@ namespace TilerElements
             if ((ReferenceStartTime > this.getCalculationRange.End) || (ReferenceEndTime < this.getCalculationRange.Start))
             {
                 return false;
+            }
+
+            List<BusyTimeLine> MyActiveSlot = new List<BusyTimeLine>();
+            
+            this.updateStartTime( ReferenceStartTime);
+            this.updateEndTime( this.Start + this.getActiveDuration);
+            TimeSpan BusyTimeLineShift = this.Start - ActiveSlot.Start;
+            ActiveSlot.shiftTimeline(BusyTimeLineShift);
+            return true;
+        }
+
+
+
+        virtual public bool PinToStartUnrestricted(TimeLine limitingTimeLine)
+        {
+            DateTimeOffset ReferenceStartTime = new DateTimeOffset();
+            DateTimeOffset ReferenceEndTime = new DateTimeOffset();
+
+            ReferenceStartTime = limitingTimeLine.Start;
+            if (this.getCalculationRange.Start > limitingTimeLine.Start)
+            {
+                ReferenceStartTime = this.getCalculationRange.Start;
+            }
+
+            ReferenceEndTime = this.getCalculationRange.End;
+            if (this.getCalculationRange.End > limitingTimeLine.End)
+            {
+                ReferenceEndTime = limitingTimeLine.End;
+            }
+
+            /*foreach (SubCalendarEvent MySubCalendarEvent in MySubCalendarEventList)
+            {
+                SubCalendarTimeSpan = SubCalendarTimeSpan.Add(MySubCalendarEvent.ActiveDuration);//  you might be able to combine the implementing for lopp with this in order to avoid several loops
+            }*/
+            TimeSpan TimeDifference = (ReferenceEndTime - ReferenceStartTime);
+
+            if (this.isLocked)
+            {
+                return (limitingTimeLine.IsTimeLineWithin(this.StartToEnd));
+            }
+
+            if (this._EventDuration > TimeDifference)
+            {
+                return false;
+                //throw new Exception("Oh oh check PinSubEventsToStart Subcalendar is longer than available timeline");
+            }
+            if ((ReferenceStartTime > this.getCalculationRange.End) || (ReferenceEndTime < this.getCalculationRange.Start))
+            {
+                return false;
                 //throw new Exception("Oh oh Calendar event isn't Timeline range. Check PinSubEventsToEnd :(");
             }
 
             List<BusyTimeLine> MyActiveSlot = new List<BusyTimeLine>();
             //foreach (SubCalendarEvent MySubCalendarEvent in MySubCalendarEventList)
-            
-                this.updateStartTime( ReferenceStartTime);
-                this.updateEndTime( this.Start + this.getActiveDuration);
-                //this.ActiveSlot = new BusyTimeLine(this.ID, (this.StartDateTime), this.EndDateTime);
-                TimeSpan BusyTimeLineShift = this.Start - ActiveSlot.Start;
-                ActiveSlot.shiftTimeline(BusyTimeLineShift);
-                return true;
+
+            this.updateStartTime(ReferenceStartTime);
+            this.updateEndTime(this.Start + this.getActiveDuration);
+            //this.ActiveSlot = new BusyTimeLine(this.ID, (this.StartDateTime), this.EndDateTime);
+            TimeSpan BusyTimeLineShift = this.Start - ActiveSlot.Start;
+            ActiveSlot.shiftTimeline(BusyTimeLineShift);
+            return true;
         }
 
+        virtual public bool PinToStartRestricted(TimeLine MyTimeLineEntry, RestrictionProfile _ProfileOfRestriction)
+        {
+            if (this.isLocked)
+            {
+                return (MyTimeLineEntry.IsTimeLineWithin(this.StartToEnd));
+            }
+
+            TimeLine MyTimeLine = MyTimeLineEntry.InterferringTimeLine(getCalculationRange);
+            if (MyTimeLine == null)
+            {
+                return false;
+            }
+
+            bool retValue = false;
+
+            List<TimeLine> allPossibleTimelines = _ProfileOfRestriction.getAllNonPartialTimeFrames(MyTimeLine).Where(obj => obj.TimelineSpan >= getActiveDuration).OrderBy(obj => obj.Start).ToList();
+
+            if (allPossibleTimelines.Count > 0)
+            {
+                foreach (TimeLine eachTimeline in allPossibleTimelines)
+                {
+                    TimeLine matchingTimeLine = MyTimeLine.InterferringTimeLine(eachTimeline);
+                    retValue |= matchingTimeLine != null;
+
+                    TimeLine RestrictedLimitingFrame = _ProfileOfRestriction.getEarliestActiveFrameAfterBeginning(matchingTimeLine).Item1;
+                    if (RestrictedLimitingFrame.TimelineSpan < getActiveDuration)
+                    {
+                        RestrictedLimitingFrame = _ProfileOfRestriction.getEarliestFullframe(matchingTimeLine);
+                    }
+                    retValue = PinToStartUnrestricted(RestrictedLimitingFrame);
+                    if (retValue)
+                    {
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                return false;
+            }
+
+            return retValue;
+        }
         public override void updateDayPreference(List<OptimizedGrouping> groupings)
         {
             Dictionary<TimeOfDayPreferrence.DaySection, OptimizedGrouping> sectionTOGrouping = groupings.ToDictionary(group => group.DaySector, group => group);
@@ -759,11 +833,22 @@ namespace TilerElements
         }
 
         /// <summary>
-        /// This pins the sub event to the latest possible time based on either the endtime of <paramref name="LimitingTimeLine"/> or the calculationRangeTimeLine
+        /// This pins the sub event to the latest possible time based on either the endtime of <paramref name="limitingTimeLine"/> or the calculationRangeTimeLine
         /// </summary>
-        /// <param name="LimitingTimeLine"></param>
+        /// <param name="limitingTimeLine"></param>
         /// <returns></returns>
-        virtual public bool PinToEnd(TimeLine LimitingTimeLine)
+        virtual public bool PinToEnd(TimeLine limitingTimeLine)
+        {
+            TimeLine reEvaluatedLimitingTimeLine = limitingTimeLine;
+            if (this.Location.RestrictionProfile != null)
+            {
+                return PinToEndRestricted(limitingTimeLine, this.Location.RestrictionProfile);
+            }
+            return PinToEndUnrestricted(limitingTimeLine);
+        }
+
+
+        virtual protected bool PinToEndUnrestricted(TimeLine LimitingTimeLine)
         {
             if (this.isLocked)
             {
@@ -779,20 +864,65 @@ namespace TilerElements
             DateTimeOffset MyStartTime = ReferenceTime - this._EventDuration;
 
 
-            if ((MyStartTime>=LimitingTimeLine.Start )&&(MyStartTime>=getCalculationRange.Start))
+            if ((MyStartTime >= LimitingTimeLine.Start) && (MyStartTime >= getCalculationRange.Start))
             {
 
-                updateStartTime( MyStartTime);
+                updateStartTime(MyStartTime);
                 //ActiveSlot = new BusyTimeLine(this.ID, (MyStartTime), ReferenceTime);
                 TimeSpan BusyTimeLineShift = MyStartTime - ActiveSlot.Start;
                 ActiveSlot.shiftTimeline(BusyTimeLineShift);
-                updateEndTime( ReferenceTime);
+                updateEndTime(ReferenceTime);
                 return true;
             }
 
             updateStartTime(ActiveSlot.Start);
-            updateEndTime( ActiveSlot.End);
+            updateEndTime(ActiveSlot.End);
             return false;
+        }
+
+
+        virtual protected bool PinToEndRestricted(TimeLine LimitingTimeLineData, RestrictionProfile restrictionProfile)
+        {
+            if (this.isLocked)
+            {
+                return (LimitingTimeLineData.IsTimeLineWithin(this.StartToEnd));
+            }
+
+            TimeLine LimitingTimeLine = LimitingTimeLineData.InterferringTimeLine(getCalculationRange);
+            if (LimitingTimeLine == null)
+            {
+                return false;
+            }
+
+            bool retValue = false;
+
+            List<TimeLine> allPossibleTimelines = restrictionProfile.getAllNonPartialTimeFrames(LimitingTimeLine).Where(obj => obj.TimelineSpan >= getActiveDuration).OrderByDescending(obj => obj.End).ToList();
+            if (allPossibleTimelines.Count > 0)
+            {
+                foreach (TimeLine eachTimeline in allPossibleTimelines)
+                {
+                    TimeLine matchingTimeLine = LimitingTimeLine.InterferringTimeLine(eachTimeline);
+                    retValue |= matchingTimeLine != null;
+
+                    TimeLine RestrictedLimitingFrame = restrictionProfile.getLatestActiveTimeFrameBeforeEnd(LimitingTimeLine).Item1;
+                    if (RestrictedLimitingFrame.TimelineSpan < getActiveDuration)
+                    {
+                        RestrictedLimitingFrame = restrictionProfile.getLatestFullFrame(LimitingTimeLine);
+                    }
+                    retValue = PinToStartUnrestricted(RestrictedLimitingFrame);
+                    if (retValue)
+                    {
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                return false;
+            }
+
+            
+            return retValue;
         }
 
         /// <summary>

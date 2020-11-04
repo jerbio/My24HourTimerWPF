@@ -134,26 +134,34 @@ namespace TilerElements
                 return false;
             }
 
-            List<TimeLine> allPossibleTimelines = _ProfileOfRestriction.getAllNonPartialTimeFrames(LimitingTimeLine).Where(obj => obj.TimelineSpan >= getActiveDuration).OrderByDescending(obj => obj.End).ToList();
+
+            bool retValue = false;
+            List <TimeLine> allPossibleTimelines = _ProfileOfRestriction.getAllNonPartialTimeFrames(LimitingTimeLine).Where(obj => obj.TimelineSpan >= getActiveDuration).OrderByDescending(obj => obj.End).ToList();
             if (allPossibleTimelines.Count > 0)
             {
-                LimitingTimeLine = LimitingTimeLine.InterferringTimeLine( allPossibleTimelines[0]);
-                if (LimitingTimeLine == null)
+                foreach (TimeLine eachTimeline in allPossibleTimelines)
                 {
-                    return false;
+                    TimeLine matchingTimeLine = LimitingTimeLine.InterferringTimeLine(eachTimeline);
+                    retValue |= matchingTimeLine != null;
+                    TimeLine RestrictedLimitingFrame = _ProfileOfRestriction.getLatestActiveTimeFrameBeforeEnd(LimitingTimeLine).Item1;
+                    if (RestrictedLimitingFrame.TimelineSpan < getActiveDuration)
+                    {
+                        RestrictedLimitingFrame = _ProfileOfRestriction.getLatestFullFrame(LimitingTimeLine);
+                    }
+                    retValue = base.PinToEnd(RestrictedLimitingFrame);
+                    if (retValue)
+                    {
+                        break;
+                    }
                 }
+                
             }
             else
             {
                 return false;
             }
 
-            TimeLine RestrictedLimitingFrame = _ProfileOfRestriction.getLatestActiveTimeFrameBeforeEnd(LimitingTimeLine).Item1;
-            if (RestrictedLimitingFrame.TimelineSpan<getActiveDuration)
-            {
-                RestrictedLimitingFrame = _ProfileOfRestriction.getLatestFullFrame(LimitingTimeLine);
-            }
-            bool retValue=base.PinToEnd(RestrictedLimitingFrame);
+            
             return retValue;
         }
 
@@ -170,31 +178,35 @@ namespace TilerElements
                 return false;
             }
 
+            bool retValue = false;
 
 
             List<TimeLine> allPossibleTimelines = _ProfileOfRestriction.getAllNonPartialTimeFrames(MyTimeLine).Where(obj=>obj.TimelineSpan>=getActiveDuration).OrderBy(obj=>obj.Start).ToList();
 
             if (allPossibleTimelines.Count > 0)
             {
-                MyTimeLine = MyTimeLine.InterferringTimeLine(allPossibleTimelines[0]);
-                if (MyTimeLine == null)
+                foreach (TimeLine eachTimeline in allPossibleTimelines)
                 {
-                    return false;
+                    TimeLine matchingTimeLine = MyTimeLine.InterferringTimeLine(eachTimeline);
+                    retValue |= matchingTimeLine != null;
+
+                    TimeLine RestrictedLimitingFrame = _ProfileOfRestriction.getEarliestActiveFrameAfterBeginning(matchingTimeLine).Item1;
+                    if (RestrictedLimitingFrame.TimelineSpan < getActiveDuration)
+                    {
+                        RestrictedLimitingFrame = _ProfileOfRestriction.getEarliestFullframe(matchingTimeLine);
+                    }
+                    retValue = base.PinToStart(RestrictedLimitingFrame);
+                    if (retValue)
+                    {
+                        break;
+                    }
                 }
             }
             else 
             {
                 return false;
             }
-
             
-
-            TimeLine RestrictedLimitingFrame = _ProfileOfRestriction.getEarliestActiveFrameAfterBeginning(MyTimeLine).Item1;
-            if (RestrictedLimitingFrame.TimelineSpan < getActiveDuration)
-            {
-                RestrictedLimitingFrame = _ProfileOfRestriction.getEarliestFullframe(MyTimeLine);
-            }
-            bool retValue=base.PinToStart(RestrictedLimitingFrame);
             return retValue;
         }
 

@@ -64,6 +64,7 @@ namespace TilerTests
         [TestMethod]
         public void ResumeEvent()
         {
+
         }
 
         /// <summary>
@@ -71,6 +72,14 @@ namespace TilerTests
         /// </summary>
         [TestMethod]
         public void ResumeEventEventOutSideCalendarLoadRange()
+        {
+        }
+
+        /// <summary>
+        /// When a sub event is paused and resumed multiple times the sub event should have different timelines with different paused events
+        /// </summary>
+        [TestMethod]
+        public void MultiplePauseTImeLines()
         {
         }
     }

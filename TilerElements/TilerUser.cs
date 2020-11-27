@@ -8,6 +8,7 @@ using System.Security.Claims;
 using Microsoft.AspNet.Identity;
 using NodaTime;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TilerElements
 {
@@ -70,6 +71,24 @@ namespace TilerElements
         }
 
         protected string _TimeZone = "UTC";
+        protected string _PausedEventId = null;
+
+        public EventID PausedEventId
+        {
+            get
+            {
+                if (_PausedEventId.isNot_NullEmptyOrWhiteSpace())
+                {
+                    return new EventID(_PausedEventId);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+        [ForeignKey("PausedEventId_DB")]
+        public SubCalendarEvent PausedEvent { get; set; }
 
         public string TimeZone
         {
@@ -80,6 +99,18 @@ namespace TilerElements
             set
             {
                 _TimeZone = value;
+            }
+        }
+
+        public string PausedEventId_DB
+        {
+            get
+            {
+                return _PausedEventId;
+            }
+            set
+            {
+                _PausedEventId = value;
             }
         }
 
@@ -142,6 +173,18 @@ namespace TilerElements
         public void updateTimeZoneTimeSpan(TimeSpan timeZoneDifference)
         {
             this._TimeZoneDifference = timeZoneDifference;
+        }
+
+        public void setPausedEventId(SubCalendarEvent pausedEvent)
+        {
+            this.PausedEvent = pausedEvent;
+        }
+
+
+        public void clearPausedEventId()
+        {
+            this._PausedEventId = null;
+            this.PausedEvent = null;
         }
 
         /// <summary>

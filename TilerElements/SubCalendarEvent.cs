@@ -1034,11 +1034,12 @@ namespace TilerElements
         /// Resumes a subevent. This takes the rest of the available timeline after being paused and pins it to currentTime 
         /// </summary>
         /// <param name="currentTime"></param>
+        /// <param name="forceOutSideDeadlinecurrentTime">force the resume even if is outside the deadlie of the calendar event</param>
         /// <returns></returns>
-        virtual internal bool Continue(DateTimeOffset currentTime)
+        virtual internal bool Continue(DateTimeOffset currentTime, bool forceOutSideDeadline = false)
         {
             TimeSpan timeDiff = (currentTime - UsedTime) - (Start);
-            bool RetValue = shiftEvent(timeDiff);
+            bool RetValue = shiftEvent(timeDiff, force:forceOutSideDeadline);
             disablePauseLock();
             return RetValue;
         }

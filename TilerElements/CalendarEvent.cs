@@ -868,7 +868,7 @@ namespace TilerElements
         /// </summary>
         /// <param name="SubEventId"></param>
         /// <param name="CurrentTime"></param>
-        virtual public void PauseSubEvent(EventID SubEventId, DateTimeOffset CurrentTime, EventID CurrentPausedEventId = null)
+        virtual public SubCalendarEvent PauseSubEvent(EventID SubEventId, DateTimeOffset CurrentTime)
         {
             SubCalendarEvent SubEvent = getSubEvent(SubEventId);
             if (!SubEvent.isPauseLocked)
@@ -876,12 +876,20 @@ namespace TilerElements
                 TimeSpan TimeDelta = SubEvent.Pause(CurrentTime);
                 _UsedTime += TimeDelta;
             }
+            return SubEvent;
         }
 
-        virtual public bool ContinueSubEvent(EventID SubEventId, DateTimeOffset CurrentTime)
+        /// <summary>
+        /// Resumes a subevent. This takes the rest of the available timeline after being paused and pins it to currentTime 
+        /// </summary>
+        /// <param name="SubEventId"></param>
+        /// <param name="CurrentTime"></param>
+        /// <param name="forceOutSideDeadline"></param>
+        /// <returns></returns>
+        virtual public bool ContinueSubEvent(EventID SubEventId, DateTimeOffset CurrentTime, bool forceOutSideDeadline = false)
         {
             SubCalendarEvent SubEvent = getSubEvent(SubEventId);
-            return SubEvent.Continue(CurrentTime);
+            return SubEvent.Continue(CurrentTime, forceOutSideDeadline);
         }
 
         public bool IsDateTimeWithin(DateTimeOffset DateTimeEntry)

@@ -1077,6 +1077,120 @@ namespace TilerTests
             Assert.IsTrue(parentRestrictedCalendarEventRetrieved.End == restrictedEnd);
         }
 
+        /// <summary>
+        /// This test verfies if the you have a repetition. And one of the repetition sequences is updated out side the root calendar event
+        /// then the root calendarEvent needs to be extended too
+        /// </summary>
+        [TestMethod]
+        public void DeadlineUpdateOutsideRepetitionRangeShouldUpdateRootCalendarEVent_Repeat()
+        {
+            //DB_Schedule Schedule;
+            DateTimeOffset refNow = TestUtility.parseAsUTC("9:00 am");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("10:00 pm");
+            var packet = TestUtility.CreatePacket();
+            TilerUser tilerUser = packet.User;
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+
+            TimeSpan duration = TimeSpan.FromHours(1);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = start.AddDays(5);
+
+
+            TimeSpan timeSPanPerSubEvent = duration;
+            Location location = TestUtility.getAdHocLocations()[1];
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            TimeLine repeatTimeLine = new TimeLine(start, start.AddDays(21));
+            TimeLine actualRangeTimeLine = new TimeLine(start, end);
+            Repetition repeat = new Repetition(repeatTimeLine, Repetition.Frequency.WEEKLY, actualRangeTimeLine);
+            CalendarEvent nonRigidRepeatCalendarEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repeat, start, end, 5, false);
+            DB_Schedule Schedule = new TestSchedule(user, refNow, startOfDay);
+            Schedule.AddToScheduleAndCommitAsync(nonRigidRepeatCalendarEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow, startOfDay, includeUpdateHistory: true);
+            SubCalendarEvent testSubEvent = nonRigidRepeatCalendarEvent.ActiveSubEvents.First();
+            DateTimeOffset tileNewStart = testSubEvent.Start;
+            DateTimeOffset tileNewEnd = testSubEvent.End;
+            DateTimeOffset calEventNewStart = nonRigidRepeatCalendarEvent.Start.AddDays(-1);
+            DateTimeOffset calEventNewEnd = nonRigidRepeatCalendarEvent.End.AddDays(10);
+            var scheduleUpdated = Schedule.BundleChangeUpdate(testSubEvent.getId, testSubEvent.getName, tileNewStart, tileNewEnd, calEventNewStart, calEventNewEnd, nonRigidRepeatCalendarEvent.NumberOfSplit, testSubEvent.Notes.UserNote);
+            Schedule.persistToDB().Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            SubCalendarEvent testSubEventRetrieved = TestUtility.getSubEventById(testSubEvent.Id, user);
+            CalendarEvent repeatCalendarEventRetrieved = TestUtility.getCalendarEventById(testSubEventRetrieved.SubEvent_ID.getRepeatCalendarEventID(), user);
+
+            Assert.AreEqual(repeatCalendarEventRetrieved.Start, calEventNewStart);
+            Assert.AreEqual(repeatCalendarEventRetrieved.End, calEventNewEnd);
+
+
+            CalendarEvent rootCalendarEventRetrieved = TestUtility.getCalendarEventById(testSubEvent.SubEvent_ID.getCalendarEventID(), user);
+
+            Assert.AreEqual(rootCalendarEventRetrieved.Start, calEventNewStart);
+            Assert.AreEqual(rootCalendarEventRetrieved.End, calEventNewEnd);
+        }
+
+
+        /// <summary>
+        /// This test verfies if the you have a repetition. And one of the repetition sequences is updated out side the root calendar event
+        /// then the root calendarEvent needs to be extended too. This is using restricted cal event
+        /// </summary>
+        [TestMethod]
+        public void DeadlineUpdateOutsideRepetitionRangeShouldUpdateRootCalendarEVent_Restricted_Repeat()
+        {
+            //DB_Schedule Schedule;
+            DateTimeOffset refNow = TestUtility.parseAsUTC("8/21/2019 9:00 am +00:00");
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("10:00 pm");
+            var packet = TestUtility.CreatePacket();
+            TilerUser tilerUser = packet.User;
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+
+            TimeSpan duration = TimeSpan.FromHours(1);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = start.AddDays(5);
+
+
+            TimeSpan timeSPanPerSubEvent = duration;
+            Location location = TestUtility.getAdHocLocations()[1];
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            TimeLine repeatTimeLine = new TimeLine(start, start.AddDays(21));
+            TimeLine actualRangeTimeLine = new TimeLine(start, end);
+            Repetition repeat = new Repetition(repeatTimeLine, Repetition.Frequency.WEEKLY, actualRangeTimeLine);
+            RestrictionProfile restrictionProfile = new RestrictionProfile(start.Add(duration), TimeSpan.FromSeconds(duration.TotalSeconds * 4));
+            DB_Schedule Schedule = new TestSchedule(user, refNow, startOfDay);
+            CalendarEvent nonRigidRepeatCalendarEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repeat, start, end, 5, false, restrictionProfile: restrictionProfile, now: Schedule.Now);
+
+            Schedule.AddToScheduleAndCommitAsync(nonRigidRepeatCalendarEvent).Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow, startOfDay, includeUpdateHistory: true);
+            SubCalendarEvent testSubEvent = nonRigidRepeatCalendarEvent.ActiveSubEvents.First();
+            DateTimeOffset tileNewStart = testSubEvent.Start;
+            DateTimeOffset tileNewEnd = testSubEvent.End;
+            DateTimeOffset calEventNewStart = nonRigidRepeatCalendarEvent.Start.AddDays(-1);
+            DateTimeOffset calEventNewEnd = nonRigidRepeatCalendarEvent.End.AddDays(10);
+            var scheduleUpdated = Schedule.BundleChangeUpdate(testSubEvent.getId, testSubEvent.getName, tileNewStart, tileNewEnd, calEventNewStart, calEventNewEnd, nonRigidRepeatCalendarEvent.NumberOfSplit, testSubEvent.Notes.UserNote);
+            Schedule.persistToDB().Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            SubCalendarEvent testSubEventRetrieved = TestUtility.getSubEventById(testSubEvent.Id, user);
+            CalendarEvent repeatCalendarEventRetrieved = TestUtility.getCalendarEventById(testSubEventRetrieved.SubEvent_ID.getRepeatCalendarEventID(), user);
+
+            Assert.AreEqual(repeatCalendarEventRetrieved.Start, calEventNewStart);
+            Assert.AreEqual(repeatCalendarEventRetrieved.End, calEventNewEnd);
+
+
+            CalendarEvent rootCalendarEventRetrieved = TestUtility.getCalendarEventById(testSubEvent.SubEvent_ID.getCalendarEventID(), user);
+            DateTimeOffset revisedStart = TestUtility.parseAsUTC("8/20/2019 10:00:00 AM +00:00");
+            DateTimeOffset revisedEnd = TestUtility.parseAsUTC("9/20/2019 2:00:00 PM +00:00");
+
+            Assert.AreEqual(rootCalendarEventRetrieved.Start, revisedStart);
+            Assert.AreEqual(rootCalendarEventRetrieved.End, revisedEnd);
+        }
 
         [TestMethod]
         public void RestrictedSubEventUpdate()

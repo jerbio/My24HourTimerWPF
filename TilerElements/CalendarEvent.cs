@@ -1900,6 +1900,13 @@ namespace TilerElements
                 throw customError;
             }
             updateCalculationStartToEnd();
+            if (this.RepeatParentEvent!= null)
+            {
+                if (this.Start < this.RepeatParentEvent.Start || this.End > this.RepeatParentEvent.End)
+                {
+                    this.RepeatParentEvent.updateTimeLine(newTimeLine, now);
+                }
+            }
         }
 
         virtual public void updateTimeLine(SubCalendarEvent subEvent, TimeLine newTImeLine, ReferenceNow now)

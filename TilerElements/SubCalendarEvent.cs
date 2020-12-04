@@ -1439,13 +1439,16 @@ namespace TilerElements
             set
             {
                 _pausedTimeSlot = new List<TimeLine>();
-                JArray pauseSlots = JArray.Parse(value);
-                foreach(JObject timelineObj in pauseSlots)
-                {
-                    TimeLine timeLine = TimeLine.JobjectToTimeLine(timelineObj);
-                    _pausedTimeSlot.Add(timeLine);
-                }
                 
+                if (value!=null)
+                {
+                    JArray pauseSlots = JArray.Parse(value);
+                    foreach (JObject timelineObj in pauseSlots)
+                    {
+                        TimeLine timeLine = TimeLine.JobjectToTimeLine(timelineObj);
+                        _pausedTimeSlot.Add(timeLine);
+                    }
+                }
             }
             get
             {

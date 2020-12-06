@@ -977,24 +977,25 @@ namespace TilerCore
             List<SubCalendarEvent> RetValue = getAllCalendarEvents().SelectMany(obj => obj.ActiveSubEvents).Where(obj => obj.IsDateTimeWithin(Now.constNow)).ToList();
             return RetValue;
         }
-        async public Task<CustomErrors> PauseEvent()
+        async public virtual Task<Tuple< CustomErrors, SubCalendarEvent>> PauseEvent()
         {
             List<SubCalendarEvent> SubEvents = getCurrentSubEvent();
             SubEvents = SubEvents.OrderByDescending(obj => obj.getActiveDuration).ToList();
             SubCalendarEvent relevantSubEvent = SubEvents.FirstOrDefault();
-            CustomErrors RetValue;
+            CustomErrors errorResult;
             if (relevantSubEvent != null)
             {
-                RetValue = await PauseEvent(relevantSubEvent.SubEvent_ID);
+                errorResult = await PauseEvent(relevantSubEvent.SubEvent_ID);
             }
             else
             {
-                RetValue = null;
+                errorResult = null;
             }
-            return RetValue;
+            Tuple<CustomErrors, SubCalendarEvent> retValue = new Tuple<CustomErrors, SubCalendarEvent>(errorResult, relevantSubEvent);
+            return retValue;
         }
 
-        public async Task<CustomErrors> PauseEvent(string Event, string CurrentPausedEventId = null)
+        async public virtual Task<CustomErrors> PauseEvent(string Event, string CurrentPausedEventId = null)
         {
             EventID id = new EventID(Event);
             EventID currentPausedId = null;
@@ -1005,7 +1006,7 @@ namespace TilerCore
             return await PauseEvent(id, currentPausedId);
         }
 
-        public async Task<CustomErrors> PauseEvent(EventID EventId, EventID CurrentPausedEventId = null)
+        async public virtual Task<CustomErrors> PauseEvent(EventID EventId, EventID CurrentPausedEventId = null)
         {
             CalendarEvent CalEvent = getCalendarEvent(EventId.ToString());
 
@@ -1013,7 +1014,7 @@ namespace TilerCore
             {
                 CalendarEvent PreviousPausedCalEvent = getCalendarEvent(CurrentPausedEventId.ToString());
                 SubCalendarEvent currentPausedEvent = PreviousPausedCalEvent.getSubEvent(CurrentPausedEventId);
-                currentPausedEvent.UnPause(Now.constNow);
+                currentPausedEvent.ResetPause(Now.constNow);
             }
 
             CalEvent.PauseSubEvent(EventId, Now.constNow, CurrentPausedEventId);

@@ -457,7 +457,14 @@ namespace TilerElements
                 CustomErrors customError = new CustomErrors(CustomErrors.Errors.restrictedTimeLineUpdateInValid, "The restricted timeline update cannot contain restriction time frames");
                 throw customError;
             }
-            
+            if (this.RepeatParentEvent != null)
+            {
+                if (this.Start < this.RepeatParentEvent.Start || this.End > this.RepeatParentEvent.End)
+                {
+                    this.RepeatParentEvent.updateTimeLine(newTimeLine, now);
+                }
+            }
+
         }
 
 

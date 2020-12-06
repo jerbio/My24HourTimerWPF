@@ -544,9 +544,6 @@ namespace My24HourTimerWPF
                 string EventEndDateTime = CurrentTimeOfExecution.ToString();
                 string[] TempString = EventEndDateTime.Split(' ');
                 eventEndTime = TempString[1] + TempString[2];
-                //eventEndDate
-                //MessageBox.Show("Please Type EndTime in The Format: HH:MM A/PM");
-                //return;
             }
             bool RigidFlag = false;
             Repetition MyRepetition=new Repetition();
@@ -1450,7 +1447,8 @@ namespace My24HourTimerWPF
             TilerFront.Models.LoginViewModel myLogin = new TilerFront.Models.LoginViewModel() { Username = UserNameTextBox.Text, Password = PasswordTextBox.Text, RememberMe = true };
             TilerFront.Models.AuthorizedUser AuthorizeUser = new TilerFront.Models.AuthorizedUser(){UserID="d350ba4d-fe0b-445c-bed6-b6411c2156b3",UserName="jerbio"};
             TilerFront.UserAccount currentUser = await AuthorizeUser.getUserAccount();
-
+            
+            
 
             currentUser.getTilerUser().EndfOfDay = DateTimeOffset.Parse("2:00am");
             await currentUser.Login();
@@ -1552,13 +1550,19 @@ namespace My24HourTimerWPF
             MySchedule.WriteFullScheduleToLog();
             MySchedule.WriteFullScheduleToOutlook();
         }
+
+        private void Pause_Click(object sender, RoutedEventArgs e)
+        {
+            string eventId = textBox9.Text;
+            MySchedule.PauseEvent(eventId).Wait();
+        }
     }
 
-    
-    
-    
 
-    
+
+
+
+
     public  class SystemTimeUpdate
     {
         /// <summary>

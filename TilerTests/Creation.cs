@@ -1479,6 +1479,87 @@ namespace TilerTests
         }
 
 
+        /// <summary>
+        /// Test verifies the persisting of travel time
+        /// </summary>
+        [TestMethod]
+        public async Task TravelTime()
+        {
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/7/2017");// this should be a thursday
+            DayOfWeek userWeekDay = DayOfWeek.Thursday;
+            ReferenceNow now = new ReferenceNow(refNow, refNow, new TimeSpan());
+            const int splitCount = 1;
+            TilerUser tilerUser = TestUtility.createUser();
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+
+
+            List<Location> adHocLocations = TestUtility.getAdHocLocations(tilerUser.Id);
+            List<Location> persistedLocations = TestUtility.addLocations(user, tilerUser, adHocLocations).ToList();
+
+            Location workLocation = persistedLocations.Single(Location => Location.Description == "Work");
+            Location homeLocation = persistedLocations.Single(Location => Location.Description == "Home");
+            Location gymLocation = persistedLocations.Single(Location => Location.Description == "Gym");
+
+            //adHocLocations
+
+            Location currentLocation = gymLocation;
+            TimeSpan gym_work =  Location.getDrivingTimeFromWeb(gymLocation, workLocation);
+            TimeSpan home_work = Location.getDrivingTimeFromWeb(homeLocation, workLocation);
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            tilerUser.BeginningOfWeek = userWeekDay;
+            TestSchedule Schedule = new TestSchedule(user, refNow);
+            Schedule.CurrentLocation = currentLocation;
+            TimeSpan duration = TimeSpan.FromHours(4);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = start.AddDays(1);
+            TimeLine repetitionRange = new TimeLine(start, end);
+            DayOfWeek startingWeekDay = start.DayOfWeek;
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, splitCount, false, gymLocation);
+            Schedule.AddToSchedule(testEvent);
+            testEvent.LocationId = gymLocation.Id;
+            testEvent.Location_DB = null;
+            foreach(SubCalendarEvent eachSubEvent in testEvent.AllSubEvents)
+            {
+                eachSubEvent.LocationId = gymLocation.Id;
+                eachSubEvent.Location_DB = null;
+            }
+            await Schedule.WriteFullScheduleToLog(testEvent).ConfigureAwait(false);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            CalendarEvent testEventRetrieved = TestUtility.getCalendarEventById(testEvent.Id, user);
+            SubCalendarEvent subEvent = testEventRetrieved.ActiveSubEvents.First();
+            TimeSpan oneMinSpan = TimeSpan.FromMinutes(1);
+            Assert.IsTrue(subEvent.TravelTimeBefore < oneMinSpan, "subevent travel time should be less than one minute since the current location is gym location");
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            CalendarEvent testEvent1 = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, splitCount, false, workLocation);
+            Schedule.AddToSchedule(testEvent1);
+            testEvent1.LocationId = workLocation.Id;
+            testEvent1.Location_DB = null;
+            foreach (SubCalendarEvent eachSubEvent in testEvent1.AllSubEvents)
+            {
+                eachSubEvent.LocationId = workLocation.Id;
+                eachSubEvent.Location_DB = null;
+            }
+            await Schedule.WriteFullScheduleToLog(testEvent1).ConfigureAwait(false);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            CalendarEvent testEvent1Retrieved = TestUtility.getCalendarEventById(testEvent1.Id, user);
+            SubCalendarEvent subEvent1 = testEvent1Retrieved.ActiveSubEvents.First();
+
+
+            List<SubCalendarEvent> allSubEvents = Schedule.getAllActiveSubEvents().OrderBy(o=>o.Start).ToList();
+            SubCalendarEvent firstSubEvent = allSubEvents.First();
+            SubCalendarEvent secondSubEvent = allSubEvents.Last();
+
+            Assert.IsTrue(firstSubEvent.TravelTimeBefore < oneMinSpan, "subevent travel time should be less than one minute since the current location is gym location, so the first sub event should be the one closes to gym");
+            Assert.AreEqual(firstSubEvent.TravelTimeAfter, secondSubEvent.TravelTimeBefore, "first subevent travel after time should be the same as sub event travel time before");
+        }
+
+
+
 
         [TestMethod]
         public void VerifyDayPreferenceOrder()

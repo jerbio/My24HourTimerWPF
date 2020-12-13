@@ -651,7 +651,12 @@ namespace TilerElements
         /// <param name="Start"></param>
         /// <param name="End"></param>
         /// <returns></returns>
-        public static CalendarEvent getEmptyCalendarEvent(EventID myEventID, DateTimeOffset Start = new DateTimeOffset(), DateTimeOffset End = new DateTimeOffset(), ReferenceNow now = null)
+        public static CalendarEvent getEmptyCalendarEvent(
+            EventID myEventID, 
+            DateTimeOffset Start = new DateTimeOffset(),
+            DateTimeOffset End = new DateTimeOffset(),
+            ReferenceNow now = null
+            )
         {
             CalendarEvent retValue = new CalendarEvent(true);
             retValue.UniqueID = new EventID(myEventID.getCalendarEventID());

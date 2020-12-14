@@ -32,9 +32,10 @@ namespace TilerElements
         protected CalendarEvent _calendarEvent;
         protected bool _LockToId = false;
         [NotMapped]
-        public TimeSpan TravelTimeBefore { get; set; } = new TimeSpan(1);
+        public TimeSpan TravelTimeBefore { get; set; } = new TimeSpan(0);
         [NotMapped]
-        public TimeSpan TravelTimeAfter { get; set; } = new TimeSpan(1);
+        public TimeSpan TravelTimeAfter { get; set; } = new TimeSpan(0);
+
         public bool isWake { get; set; } = false;
         public bool isSleep { get; set; } = false;
         [NotMapped]
@@ -1511,6 +1512,31 @@ namespace TilerElements
                 }
             }
         }
+
+        public virtual long TravelTimeBefore_DB
+        {
+            get
+            {
+                return TravelTimeBefore.Ticks;
+            }
+            set
+            {
+                TravelTimeBefore = TimeSpan.FromTicks(value);
+            }
+        }
+
+        public virtual long TravelTimeAfter_DB
+        {
+            get
+            {
+                return TravelTimeAfter.Ticks;
+            }
+            set
+            {
+                TravelTimeAfter = TimeSpan.FromTicks(value);
+            }
+        }
+
 
         override public TimeSpan getActiveDuration
         {

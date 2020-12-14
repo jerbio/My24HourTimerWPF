@@ -300,13 +300,14 @@ namespace ScheduleAnalysis
 
         public DateTimeOffset evaluateIdealDeadline(CalendarEvent calEvent, List<CalendarEvent> scheduledEvents)
         {
-            DateTimeOffset retValue = new DateTimeOffset();
+            DateTimeOffset retValue = Utility.BeginningOfTime;
             if (!calEvent.IsFromRecurring)
             {
                 DateTimeOffset start = Now.constNow;
                 List<SubCalendarEvent> subEvents = new List<SubCalendarEvent>(scheduledEvents
                     .SelectMany(eachCalEvent => eachCalEvent.ActiveSubEvents)
                     .Where(subEvent =>
+                        (!subEvent.isRigid) &&// this is rigid check is included because the activation bound only calculated based on non-rigid 
                         subEvent.getActiveDuration <= Utility.OneDayTimeSpan &&
                         subEvent.End >= start
                     )
@@ -338,24 +339,34 @@ namespace ScheduleAnalysis
                     {
                         TimeSpan effectiveOtherSubEventSpan = earliestSubEvent.getActiveDuration;
                         double otherSubEventmultiplier = 1;
-                        if (earliestSubEvent.getIsEventRestricted)
-                        {
-                            TimeSpan totalOtherSubEVentActiveSpan = TimeSpan.FromTicks(
-                                (earliestSubEvent.RestrictionProfile.DaySelection
-                                    .Select(restrictionDay => restrictionDay.RestrictionTimeLine.Span)
-                                    .Sum(timeSpan => timeSpan.Ticks)));
-                            otherSubEventmultiplier = ((double)sevenDaySpan.Ticks / (double)totalOtherSubEVentActiveSpan.Ticks);
-                        }
+                        //if (earliestSubEvent.getIsEventRestricted)
+                        //{
+                        //    TimeSpan totalOtherSubEVentActiveSpan = TimeSpan.FromTicks(
+                        //        (earliestSubEvent.RestrictionProfile.NoNull_DaySelections
+                        //            .Select(restrictionDay => restrictionDay.RestrictionTimeLine.Span)
+                        //            .Sum(timeSpan => timeSpan.Ticks)));
+                        //    otherSubEventmultiplier = ((double)sevenDaySpan.Ticks / (double)totalOtherSubEVentActiveSpan.Ticks);
+                        //}
                         effectiveOtherSubEventSpan = TimeSpan.FromTicks((long)(effectiveOtherSubEventSpan.Ticks * otherSubEventmultiplier));
-                        otherTotalUsedUpTimeSpan.Add(effectiveOtherSubEventSpan);
+                        otherTotalUsedUpTimeSpan = otherTotalUsedUpTimeSpan.Add(effectiveOtherSubEventSpan);
+                    }
+                    TimeSpan totalUsedUpSpan = effectiveSubEventSpan + otherTotalUsedUpTimeSpan;
+                    double currentActiveRatio = totalUsedUpSpan.TotalSeconds / encompassedTimeLine.TimelineSpan.TotalSeconds;
+                    if (currentActiveRatio > this.activeRatioBound)
+                    {
+                        
+                        TimeSpan idealTimeLineSpan = TimeSpan.FromTicks((long)((double)(totalUsedUpSpan.Ticks) / (this.activeRatioBound)));
+                        encompassedTimeLine = new TimeLine(encompassedTimeLine.Start, start.Add(idealTimeLineSpan));
+
+                        subEventsWithinTimeline = new List<SubCalendarEvent>(subEvents.Skip(updatedSubEventsWithinTimeline.Count).Where(eachSubEvent => encompassedTimeLine.doesTimeLineInterfere(eachSubEvent)));
+                        updatedSubEventsWithinTimeline = updatedSubEventsWithinTimeline.Concat(subEventsWithinTimeline).ToList();
+                    }
+                    else
+                    {
+                        break;
                     }
 
-                    TimeSpan totalUsedUpSpan = effectiveSubEventSpan + otherTotalUsedUpTimeSpan;
-                    TimeSpan idealTimeLineSpan= TimeSpan.FromTicks((long)((double)(totalUsedUpSpan.Ticks) / (this.activeRatioBound)));
-                    encompassedTimeLine = new TimeLine(encompassedTimeLine.Start, start.Add(idealTimeLineSpan));
-
-                    subEventsWithinTimeline = new List<SubCalendarEvent>(subEvents.Skip(updatedSubEventsWithinTimeline.Count).Where(eachSubEvent => encompassedTimeLine.doesTimeLineInterfere(eachSubEvent)));
-                    updatedSubEventsWithinTimeline = updatedSubEventsWithinTimeline.Concat(subEventsWithinTimeline).ToList();
+                    
                 }
                 while (subEventsWithinTimeline.Count != 0 && updatedSubEventsWithinTimeline.Count != subEvents.Count);
                 retValue = encompassedTimeLine.End;

@@ -1064,8 +1064,7 @@ namespace TilerCore
             
             
 
-
-            if (errorState)
+			if (errorState)
             {
                 this.TilerUser.clearPausedEventId();
                 Now.UpdateNow(SubEvent.Start);
@@ -1094,10 +1093,29 @@ namespace TilerCore
             {
                 RetValue = new CustomErrors(CustomErrors.Errors.Resume_Event_Cannot_Outside_Deadline_Of_CalendarEvent);
             }
+            return RetValue;
+        }
 
-
-
-
+        /// <summary>
+        /// Function essentially recalibrates the schedule like its a new morning.
+        /// It picks non-completed prior events and includes them in the new calculation
+        /// </summary>
+        /// <returns></returns>
+        public async Task<CustomErrors> reviseSchedule(Location currentLocation, string timeZone = "UTC")
+        {
+            clearAllTimeLocks();
+            myWatch.Start();
+            EventID id = EventID.GenerateCalendarEvent();
+            TimeSpan duration = TimeSpan.FromMinutes(1);
+            EventName name = new EventName(null, null, "NothingToDo");
+            CalendarEvent NewEvent = new RigidCalendarEvent(
+                name, Now.constNow, Now.constNow.Add(duration), duration, new TimeSpan(), new TimeSpan(), new Repetition(), currentLocation, null, null, false, false, TilerUser, new TilerUserGroup(), timeZone, null, new NowProfile(), null);
+            name.Creator_EventDB = NewEvent.getCreator;
+            name.AssociatedEvent = NewEvent;
+            clearAllTimeLocks();
+            NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, new HashSet<SubCalendarEvent>(), currentLocation, null, 1, true, false, false, false);
+            CustomErrors RetValue = NewEvent.Error;
+            removeFromAllEventDictionary(NewEvent.Calendar_EventID.getCalendarEventComponent());
             return RetValue;
         }
 
@@ -1783,8 +1801,9 @@ namespace TilerCore
         /// <param name="NoneCOmmitedCalendarEvent"></param>
         /// <param name="InterringWithNowEvent"></param>
         /// <param name="optimizeFirstTwentyFourHours"></param>
+        /// <param name="preservePrecedingTwentyFourHours">This is a boolean arg to allow the inclusion of the tiles within the preceding twenty four hours from now. If false then tiles preceding the calculation now will be used in the evaluation</param>
         /// <returns></returns>
-        public CalendarEvent EvaluateTotalTimeLineAndAssignValidTimeSpots(CalendarEvent MyEvent, HashSet<SubCalendarEvent> UnDoneEvents, Location callLocation, List<CalendarEvent> NoneCOmmitedCalendarEvent = null, int InterringWithNowEvent = 0, bool optimizeFirstTwentyFourHours = true, bool preserveFirstTwentyFourHours = true, bool shuffle = false)
+        public CalendarEvent EvaluateTotalTimeLineAndAssignValidTimeSpots(CalendarEvent MyEvent, HashSet<SubCalendarEvent> UnDoneEvents, Location callLocation, List<CalendarEvent> NoneCOmmitedCalendarEvent = null, int InterringWithNowEvent = 0, bool optimizeFirstTwentyFourHours = true, bool preserveFirstTwentyFourHours = true, bool shuffle = false, bool preservePrecedingTwentyFourHours = true)
         {
             if (NoneCOmmitedCalendarEvent == null)
             {
@@ -1794,12 +1813,12 @@ namespace TilerCore
             {
                 CalendarEvent tempCalendarEvent = CalendarEvent.getEmptyCalendarEvent(MyEvent.Calendar_EventID, MyEvent.CalculationStart, MyEvent.isLocked ? MyEvent.CalculationStart : MyEvent.End);//creates an "empty" calendar event. If the calEvent is rigid it has time span of zero
 
-                EvaluateTotalTimeLineAndAssignValidTimeSpots(tempCalendarEvent, UnDoneEvents, callLocation, MyEvent.Repeat.RecurringCalendarEvents().ToList(), InterringWithNowEvent, optimizeFirstTwentyFourHours, preserveFirstTwentyFourHours, shuffle);
+                EvaluateTotalTimeLineAndAssignValidTimeSpots(tempCalendarEvent, UnDoneEvents, callLocation, MyEvent.Repeat.RecurringCalendarEvents().ToList(), InterringWithNowEvent, optimizeFirstTwentyFourHours, preserveFirstTwentyFourHours, shuffle, preservePrecedingTwentyFourHours);
                 return MyEvent;
             }
             Stopwatch watch = new Stopwatch();
             watch.Start();
-            CalendarEvent MyCalendarEventUpdated = ReArrangeTimeLineWithinWithinCalendaEventRangeUpdated(MyEvent, NoneCOmmitedCalendarEvent.ToList(), InterringWithNowEvent, UnDoneEvents, callLocation, optimizeFirstTwentyFourHours, preserveFirstTwentyFourHours, shuffle);
+            CalendarEvent MyCalendarEventUpdated = ReArrangeTimeLineWithinWithinCalendaEventRangeUpdated(MyEvent, NoneCOmmitedCalendarEvent.ToList(), InterringWithNowEvent, UnDoneEvents, callLocation, optimizeFirstTwentyFourHours, preserveFirstTwentyFourHours, shuffle, preservePrecedingTwentyFourHours);
             watch.Stop();
             TimeSpan scheduleCal = watch.Elapsed;
             Debug.WriteLine("Schedule calculation took " + scheduleCal.ToString());
@@ -2209,12 +2228,12 @@ namespace TilerCore
             return retValue;
         }
 
+        /// <summary>
+        /// function gets the none done events within the current day frame.
+        /// </summary>
+        /// <returns></returns>
         HashSet<SubCalendarEvent> getNoneDoneYetBetweenNowAndReerenceStartTIme()
-        {/*
-          * function gets the none done events within the current day frame.
-          */
-
-
+        {
             TimeLine TimeLineBetweenNowAndReferenceStartTIme = new TimeLine(ReferenceDayTIime.AddDays(-90), Now.calculationNow);
             SubCalendarEvent[] NotDoneYet = getInterferringSubEvents(TimeLineBetweenNowAndReferenceStartTIme);
             IEnumerable<SubCalendarEvent> retValue = NotDoneYet.Where(obj => (!obj.isLocked) && (!obj.StartToEnd.IsDateTimeWithin(Now.calculationNow)));
@@ -2283,7 +2302,8 @@ namespace TilerCore
         /// <param name="InterferringWithNowFlag"></param>
         /// <param name="NotDoneYet"></param>
         /// <param name="OptimizeFirstTwentyFour"></param>
-        /// <param name="preserveFirstTwentyFourHours"></param>
+        /// <param name="preserveFirstTwentyFourHours">This boolean ensures the best effort preservation of the tiles within the next daytimeline. If true the tiles within the next daytimeline will be preferred to be in the next day timeline</param>
+        /// <param name="preservePrecedingTwentyFourHours">This is a boolean arg to allow the inclusion of the tiles within the preceding twenty four hours from now. If false then tiles preceding the calculation now will be used in the evaluation</param>
         /// <returns></returns>
         CalendarEvent ReArrangeTimeLineWithinWithinCalendaEventRangeUpdated(
             CalendarEvent MyCalendarEvent,
@@ -2293,7 +2313,8 @@ namespace TilerCore
             Location callLocation,
             bool OptimizeFirstTwentyFour = true,
             bool preserveFirstTwentyFourHours = true,
-            bool shuffle = false)// this looks at the timeline of the calendar event and then tries to rearrange all subevents within the range to suit final output. Such that there will be sufficient time space for each subevent
+            bool shuffle = false,
+            bool preservePrecedingTwentyFourHours = true)// this looks at the timeline of the calendar event and then tries to rearrange all subevents within the range to suit final output. Such that there will be sufficient time space for each subevent
         {
             /*
                 Name{: Jerome Biotidara
@@ -2367,20 +2388,27 @@ namespace TilerCore
             List<SubCalendarEvent> preceding24HourSubevent = new List<SubCalendarEvent>();// holds subevents that are within the preceding dayTImeline and preceding hours of now
             List<SubCalendarEvent> notPreceding24HourSubevent = new List<SubCalendarEvent>();// holds sub events that will be used for calculation
 
-            foreach (SubCalendarEvent subEvent in ArrayOfInterferringSubEvents)
+            if (preservePrecedingTwentyFourHours)
             {
-                if (subEvent.ActiveSlot.End<= precedingStart.End && subEvent.ActiveSlot.doesTimeLineInterfere(precedingStart) && subEvent.isPre_reschedulingEnabled)
+                foreach (SubCalendarEvent subEvent in ArrayOfInterferringSubEvents)
                 {
-                    preceding24HourSubevent.Add(subEvent);
-                    subEvent.ParentCalendarEvent.designateSubEvent(subEvent, Now);
-                    subEvent.lockPrecedingHours();
+                    if (
+                        subEvent.ActiveSlot.End <= precedingStart.End && 
+                        subEvent.ActiveSlot.doesTimeLineInterfere(precedingStart) && 
+                        subEvent.isPre_reschedulingEnabled)
+                    {
+                        preceding24HourSubevent.Add(subEvent);
+                        subEvent.ParentCalendarEvent.designateSubEvent(subEvent, Now);
+                        subEvent.lockPrecedingHours();
+                    }
+                    else
+                    {
+                        notPreceding24HourSubevent.Add(subEvent);
+                    }
                 }
-                else
-                {
-                    notPreceding24HourSubevent.Add(subEvent);
-                }
+                ArrayOfInterferringSubEvents = notPreceding24HourSubevent;
             }
-            ArrayOfInterferringSubEvents = notPreceding24HourSubevent;
+            
 
             List<SubCalendarEvent> isInterFerringWithNow = ArrayOfInterferringSubEvents.Where(obj => obj.isLocked && obj.IsDateTimeWithin(Now.calculationNow)).ToList();
             BlobSubCalendarEvent interferringWithNowBlob = null;
@@ -3439,7 +3467,14 @@ namespace TilerCore
             return retValue;
         }
 
-        ulong ParallelizeCallsToDay(List<CalendarEvent> AllCalEvents, List<SubCalendarEvent> TotalActiveEvents, DayTimeLine[] AllDayTimeLine, Location callLocation, bool Optimize = true, bool preserveFirttwentyFourHours = true, bool shuffle = false)
+        ulong ParallelizeCallsToDay(
+            List<CalendarEvent> AllCalEvents, 
+            List<SubCalendarEvent> TotalActiveEvents, 
+            DayTimeLine[] AllDayTimeLine, 
+            Location callLocation, 
+            bool Optimize = true, 
+            bool preserveFirttwentyFourHours = true, 
+            bool shuffle = false)
         {
             _isScheduleModified = true;
             uint TotalDays = (uint)AllDayTimeLine.Length;

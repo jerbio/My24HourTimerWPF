@@ -651,7 +651,12 @@ namespace TilerElements
         /// <param name="Start"></param>
         /// <param name="End"></param>
         /// <returns></returns>
-        public static CalendarEvent getEmptyCalendarEvent(EventID myEventID, DateTimeOffset Start = new DateTimeOffset(), DateTimeOffset End = new DateTimeOffset(), ReferenceNow now = null)
+        public static CalendarEvent getEmptyCalendarEvent(
+            EventID myEventID, 
+            DateTimeOffset Start = new DateTimeOffset(),
+            DateTimeOffset End = new DateTimeOffset(),
+            ReferenceNow now = null
+            )
         {
             CalendarEvent retValue = new CalendarEvent(true);
             retValue.UniqueID = new EventID(myEventID.getCalendarEventID());
@@ -1908,6 +1913,13 @@ namespace TilerElements
                 throw customError;
             }
             updateCalculationStartToEnd();
+            if (this.RepeatParentEvent!= null)
+            {
+                if (this.Start < this.RepeatParentEvent.Start || this.End > this.RepeatParentEvent.End)
+                {
+                    this.RepeatParentEvent.updateTimeLine(newTimeLine, now);
+                }
+            }
         }
 
         virtual public void updateTimeLine(SubCalendarEvent subEvent, TimeLine newTImeLine, ReferenceNow now)

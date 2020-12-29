@@ -170,6 +170,7 @@ namespace TilerTests
 
             SubCalendarEvent resumeSubEvent = schedule.getSubCalendarEvent(pausedEventId);
             Assert.AreEqual(resumeSubEvent.pausedTimeLines.Count, 1);
+            Assert.IsFalse(resumeSubEvent.isPauseLocked);
 
             TimeSpan totalPausedSpan = TimeSpan.FromTicks(resumeSubEvent.pausedTimeLines.Sum((timeLine) => timeLine.TimelineSpan.Ticks));
             DateTimeOffset pausedEventStart = schedule.Now.constNow - totalPausedSpan;

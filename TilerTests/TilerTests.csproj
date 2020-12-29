@@ -142,14 +142,6 @@
     <Compile Include="LogControlDump.cs" />
     <Compile Include="LogControlTest.cs" />
     <Compile Include="LogicTest.cs" />
-    <Compile Include="Migrations\202012280350256_pauseFix.cs" />
-    <Compile Include="Migrations\202012280350256_pauseFix.designer.cs">
-      <DependentUpon>202012280350256_pauseFix.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202012280708532_usedUpTImeFix.cs" />
-    <Compile Include="Migrations\202012280708532_usedUpTImeFix.designer.cs">
-      <DependentUpon>202012280708532_usedUpTImeFix.cs</DependentUpon>
-    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
     <Compile Include="Models\TestGoogleEvent.cs" />
@@ -337,14 +329,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="WagTapCalLogs\69e9166b-6754-46cf-b384-66c5557048f8\" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\202012280350256_pauseFix.resx">
-      <DependentUpon>202012280350256_pauseFix.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202012280708532_usedUpTImeFix.resx">
-      <DependentUpon>202012280708532_usedUpTImeFix.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

@@ -1068,6 +1068,7 @@ namespace TilerCore
             {
                 this.TilerUser.clearPausedEventId();
                 Now.UpdateNow(SubEvent.Start);
+                SubEvent.disablePauseLock();
                 CalendarEvent CalEventCopy = CalEvent.createCopy(EventID.GenerateCalendarEvent());
                 SubEvent.disable(CalEvent, this.Now);
                 SubCalendarEvent unDisabled = CalEventCopy.ActiveSubEvents.First();// we're doing the disabling because there could be a scenario where a sub event is resumed and the CalendarEvent still has non-completed tiles. This would mean you could move other non-completed tiles to the extended dadline., instead of just the paused tile
@@ -1077,7 +1078,7 @@ namespace TilerCore
                 }
                 TimeSpan timeDiffBeforePause = (SubEvent.Start - unDisabled.Start);
                 unDisabled.shiftEvent(timeDiffBeforePause, forceOutsideDeadline);
-                unDisabled.tempLockSubEvent();
+                unDisabled.tempLockSubEvent();// this lock is needed so the pausde event doesnt shift durinr schedule reevaluation
 
                 HashSet<SubCalendarEvent> NotDoneYets = getNoneDoneYetBetweenNowAndReerenceStartTIme();
                 NotDoneYets.RemoveWhere(obj => obj.StartToEnd.doesTimeLineInterfere(unDisabled.StartToEnd));

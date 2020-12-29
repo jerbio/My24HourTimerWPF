@@ -1428,19 +1428,8 @@ namespace TilerElements
             }
         }
 
-        [NotMapped]
-        virtual public TimeSpan UsedTime
-        {
-            set
-            {
-                throw new NotImplementedException("You are trying to set the used up time in a tiler events. Invalid action.");
-            }
-
-            get
-            {
-                return _UsedTime;
-            }
-        }
+        
+        
 
         virtual public string getId
         {

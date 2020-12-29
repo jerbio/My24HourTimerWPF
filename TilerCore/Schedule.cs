@@ -1070,13 +1070,13 @@ namespace TilerCore
                 Now.UpdateNow(SubEvent.Start);
                 CalendarEvent CalEventCopy = CalEvent.createCopy(EventID.GenerateCalendarEvent());
                 SubEvent.disable(CalEvent, this.Now);
-                SubCalendarEvent unDisabled = CalEventCopy.ActiveSubEvents.First();
+                SubCalendarEvent unDisabled = CalEventCopy.ActiveSubEvents.First();// we're doing the disabling because there could be a scenario where a sub event is resumed and the CalendarEvent still has non-completed tiles. This would mean you could move other non-completed tiles to the extended dadline., instead of just the paused tile
                 foreach (SubCalendarEvent SubCalendarEvent in CalEventCopy.AllSubEvents.Except(new List<SubCalendarEvent>() { unDisabled }))
                 {
                     SubCalendarEvent.disable(CalEventCopy, this.Now);
                 }
                 TimeSpan timeDiffBeforePause = (SubEvent.Start - unDisabled.Start);
-                unDisabled.shiftEvent(timeDiffBeforePause);
+                unDisabled.shiftEvent(timeDiffBeforePause, forceOutsideDeadline);
                 unDisabled.tempLockSubEvent();
 
                 HashSet<SubCalendarEvent> NotDoneYets = getNoneDoneYetBetweenNowAndReerenceStartTIme();
@@ -1103,7 +1103,6 @@ namespace TilerCore
         /// <returns></returns>
         public async Task<CustomErrors> reviseSchedule(Location currentLocation, string timeZone = "UTC")
         {
-            clearAllTimeLocks();
             myWatch.Start();
             EventID id = EventID.GenerateCalendarEvent();
             TimeSpan duration = TimeSpan.FromMinutes(1);
@@ -1482,8 +1481,22 @@ namespace TilerCore
                 ++dayPreference.Count;
                 TimeOfDayPreferrence.DaySection daySection = Now.getDaySection(Now.constNow);
                 dayPreference[daySection] += 1;
-                NowProfile myNow = new NowProfile(Now.constNow, true);
-                referenceCalendarEvent.UpdateNowProfile(myNow);
+                
+                if (referenceCalendarEvent.NowProfileId.isNot_NullEmptyOrWhiteSpace() &&
+                    nowProfile.Id == referenceCalendarEvent.NowProfileId)
+                {
+                    nowProfile.PreferredTime = Now.constNow;
+                    nowProfile.isInitialized = true;
+                    referenceCalendarEvent.UpdateNowProfile(nowProfile);
+                }
+                else
+                {
+                    NowProfile myNow = new NowProfile(Now.constNow, true);
+                    referenceCalendarEvent.UpdateNowProfile(myNow);
+                }
+
+
+                
             }
 
             EventID SubEventID = new EventID(EventID);
@@ -6512,7 +6525,9 @@ namespace TilerCore
                     eachSubEvent.disableRepetitionLock();
                     eachSubEvent.disableNowLock();
                 }
+                eachSubEvent.disablePauseLock();
             };
+            this.TilerUser.clearPausedEventId();
         }
 
 

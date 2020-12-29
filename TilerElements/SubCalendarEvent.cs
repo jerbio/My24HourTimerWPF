@@ -40,12 +40,13 @@ namespace TilerElements
         [NotMapped]
         protected bool _RepetitionLock { get; set; } = false; // this is the lock for an event when repeat is clicked
         [NotMapped]
-        protected bool _NowLock { get; set; } = false; // This is the lock applied when an event is set as now
-        protected bool _PauseLock { get; set; } = false; // This is the lock applied when an event is paused
+        protected bool _NowLock { get; set; } // This is the lock applied when an event is set as now
+        protected bool _PauseLock { get; set;} // This is the lock applied when an event is paused
         protected bool tempLock { get; set; } = false;// This should never get persisted
-        protected bool lockedPrecedingHours { get; set; } = false;// This should never get persisted
+        protected bool lockedPrecedingHours { get; set; }// This should never get persisted
         protected bool _enablePre_reschedulingTimelineLockDown { get; set; } = true;// This prevent locking for preceding twentyFour or for interferring with now
         protected bool _isTardy { get; set; } = false;//Named tardy 'cause we fancy like that
+        protected TimeSpan _UsedPauseTime = new TimeSpan();
         /// <summary>
         /// This holds the current session reasons. It will updated based on data and calculation optimizations from HistoricalCurrentPosition
         /// </summary>
@@ -336,7 +337,7 @@ namespace TilerElements
         virtual public void addToPausedTimeSlot(PausedTimeLine pausedTimeLine)
         {
             _pausedTimeSlot.Add(pausedTimeLine);
-            _UsedTime = TimeSpan.FromTicks(_pausedTimeSlot.Select(timeLine => timeLine.TimelineSpan.Ticks).Sum());
+            _UsedPauseTime = TimeSpan.FromTicks(_pausedTimeSlot.Select(timeLine => timeLine.TimelineSpan.Ticks).Sum());
         }
 
         virtual public void addReasons(Reason eventReason)
@@ -439,7 +440,7 @@ namespace TilerElements
             copy.preferredDayIndex = this.preferredDayIndex;
             copy._Creator = this._Creator;
             copy._Semantics = this._Semantics != null ? this._Semantics.createCopy() : null;
-            copy._UsedTime = this._UsedTime;
+            copy._UsedPauseTime = this._UsedPauseTime;
             copy.OptimizationFlag = this.OptimizationFlag;
             copy._LastReasonStartTimeChanged = this._LastReasonStartTimeChanged;
             copy._DaySectionPreference = this._DaySectionPreference;
@@ -461,7 +462,7 @@ namespace TilerElements
             copy._Priority = this._Priority;
             copy._EventScore = this._EventScore;
             copy.UnUsableIndex = this.UnUsableIndex;
-            copy._UsedTime = this._UsedTime;
+            copy._UsedPauseTime = this._UsedPauseTime;
             copy.OptimizationFlag = this.OptimizationFlag;
             copy._PrepTime = this._PrepTime;
             copy.MiscIntData = this.MiscIntData;
@@ -635,7 +636,7 @@ namespace TilerElements
                 this._otherPartyID = SubEventEntry._otherPartyID;
                 this._Creator = SubEventEntry._Creator;
                 this._Semantics = SubEventEntry._Semantics;
-                this._UsedTime = SubEventEntry._UsedTime;
+                this._UsedPauseTime = SubEventEntry._UsedPauseTime;
                 this._LocationValidationId = this._LocationValidationId;
                 return true;
             }
@@ -1039,9 +1040,10 @@ namespace TilerElements
         /// <returns></returns>
         virtual internal bool Continue(DateTimeOffset currentTime, bool forceOutSideDeadline = false)
         {
-            TimeSpan timeDiff = (currentTime - UsedTime) - (Start);
-            bool RetValue = shiftEvent(timeDiff, force:forceOutSideDeadline);
-            disablePauseLock();
+            TimeSpan timeDiff = (currentTime - UsedPauseTime) - (Start);
+            bool RetValue = shiftEvent(timeDiff, force:forceOutSideDeadline);// NOTE WE DO NOT WANT TO DISABLE THE PAUSE LOCK, this because even after a subevent is continued it needs to stay locked so it wont get shifted
+            
+            
             return RetValue;
         }
         /// <summary>
@@ -1053,7 +1055,7 @@ namespace TilerElements
         virtual public bool ResetPause(DateTimeOffset currentTime)
         {
             _pausedTimeSlot = new List<PausedTimeLine>();
-            _UsedTime = new TimeSpan();
+            _UsedPauseTime = new TimeSpan();
             disablePauseLock();
             TimeSpan timeDiff = new TimeSpan();
             bool RetValue = shiftEvent(timeDiff);
@@ -1393,6 +1395,27 @@ namespace TilerElements
             get
             {
                 return BusyFrame;
+            }
+        }
+
+        virtual public TimeSpan UsedPauseTime
+        {
+            get
+            {
+                return _UsedPauseTime;
+            }
+        }
+
+        virtual public long UsedPauseTime_DB
+        {
+            set
+            {
+                this._UsedPauseTime = TimeSpan.FromMilliseconds(value);
+            }
+
+            get
+            {
+                return (long)_UsedPauseTime.TotalMilliseconds;
             }
         }
 

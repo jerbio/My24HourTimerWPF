@@ -963,8 +963,8 @@ namespace TilerTests
             Assert.IsTrue(testSubEventRetrieved.isLocked);
             Assert.IsTrue(RigidCalendarEventRetrieved.Start == rigidNewStart);
             Assert.IsTrue(RigidCalendarEventRetrieved.End == rigidNewEnd);
-            Assert.IsTrue(parentRigidCalendarEventRetrieved.Start == rigidStart);
-            Assert.IsTrue(parentRigidCalendarEventRetrieved.End == rigidEnd);
+            Assert.IsTrue(parentRigidCalendarEventRetrieved.Start == rigidNewStart);//for rigid events, this does not extend the timeline of the root calendarevent
+            Assert.IsTrue(parentRigidCalendarEventRetrieved.End == rigidNewEnd);//for rigid events, this does not extend the timeline of the root calendarevent
 
 
 
@@ -1032,7 +1032,7 @@ namespace TilerTests
             Assert.IsTrue(nonRigidCalendarEventRetrieved.Start == nonRigidOldStart);
             Assert.IsTrue(nonRigidCalendarEventRetrieved.End == testSubEventRetrieved.End);
             Assert.IsTrue(parentNonRigidCalendarEventRetrieved.Start == start);
-            Assert.IsTrue(parentNonRigidCalendarEventRetrieved.End == end);
+            Assert.IsTrue(parentNonRigidCalendarEventRetrieved.End == tileNewEnd);
 
 
 
@@ -1052,8 +1052,8 @@ namespace TilerTests
             Assert.IsTrue(testSubEventRetrieved.isLocked);
             Assert.IsTrue(RigidCalendarEventRetrieved.Start == testSubEventRetrieved.Start);
             Assert.IsTrue(RigidCalendarEventRetrieved.End == testSubEventRetrieved.End);
-            Assert.IsTrue(parentRigidCalendarEventRetrieved.Start == rigidStart);
-            Assert.IsTrue(parentRigidCalendarEventRetrieved.End == rigidEnd);
+            Assert.IsTrue(parentRigidCalendarEventRetrieved.Start == tileNewStart);//for rigid events, this does not extend the timeline of the root calendarevent
+            Assert.IsTrue(parentRigidCalendarEventRetrieved.End == tileNewEnd);//for rigid events, this does not extend the timeline of the root calendarevent
 
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);

@@ -629,7 +629,7 @@ namespace TilerElements
             {
                 _ProfileOfNow = ProfileNowData;
                 string nowProfileId = this.NowProfileId;
-                if (!string.IsNullOrEmpty(nowProfileId))
+                if (nowProfileId.isNot_NullEmptyOrWhiteSpace() && nowProfileId!=_ProfileOfNow.Id)
                 {
                     _ProfileOfNow.Id = nowProfileId;
                 }
@@ -1873,13 +1873,13 @@ namespace TilerElements
         override public void updateTimeLine(TimeLine newTimeLine, ReferenceNow now)
         {
             TimeLine oldTimeLine = new TimeLine(Start, End);
-            AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(newTimeLine));
+            CalEventSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(newTimeLine));
             bool worksForAllSubevents = true;
             SubCalendarEvent failingSubEvent = SubCalendarEvent.getEmptySubCalendarEvent(this.Calendar_EventID);
             TimeLine startToEnd = newTimeLine.StartToEnd;
             updateStartTime(startToEnd.Start);
             updateEndTime(startToEnd.End);
-            foreach (SubCalendarEvent subEvent in AllSubEvents)
+            foreach (SubCalendarEvent subEvent in CalEventSubEvents)
             {
                 if (!(!this.isLocked && subEvent.isLocked)) // if the subevent is unlocked but the parent is locked then don't bother checking
                 {
@@ -1899,7 +1899,7 @@ namespace TilerElements
                     _EventDuration = End - Start;
                 }
                 addUpdatedTimeLine(oldTimeLine);
-                AllSubEvents.AsParallel().ForAll(obj =>
+                CalEventSubEvents.AsParallel().ForAll(obj =>
                 {
                     obj.changeCalendarEventRange(this.StartToEnd);
                     obj.updateCalculationEventRange(this.CalculationStartToEnd);
@@ -1908,7 +1908,7 @@ namespace TilerElements
             {
                 updateStartTime(oldTimeLine.Start);
                 updateEndTime(oldTimeLine.End);
-                AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(oldTimeLine));
+                CalEventSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(oldTimeLine));
                 CustomErrors customError = new CustomErrors(CustomErrors.Errors.cannotFitWithinTimeline, "Cannot update the timeline for the calendar event with sub event " + failingSubEvent.getId + ". Most likely because the new time line won't fit the sub event");
                 throw customError;
             }
@@ -2316,9 +2316,26 @@ namespace TilerElements
             }
         }
 
+        /// <summary>
+        /// get property returns all asub events. Both completed, disabled and active.
+        /// This does not go down the recurring calendar events
+        /// </summary>
+        [NotMapped]
+        public virtual SubCalendarEvent[] CalEventSubEvents
+        {
+            get
+            {
+                return _SubEvents?.Values.Where(obj => obj != null).ToArray();
+            }
+        }
 
+        /// <summary>
+        /// get property returns all asub events. Both completed, disabled and active.
+        /// If this is a repeating root calEvent this returns all cal events of the recurring calevents.
+        /// If you want only th sub events of this calendar event and not recurring calevents use CalEventSubEvents
+        /// </summary>
         public virtual SubCalendarEvent[] AllSubEvents
-        {//return All Subcalevents that enabled or not.
+        {
             get
             {
                 if (IsFromRecurringAndNotChildRepeatCalEvent && this._RepeatIsLoaded)
@@ -2606,6 +2623,22 @@ namespace TilerElements
         }
 
 
+        virtual public TimeSpan UsedTime
+        {
+            get
+            {
+                return _UsedTime;
+            }
+        }
+
+        public override NowProfile getNowInfo
+        {
+            get
+            {
+                return _ProfileOfNow ?? this.RepeatParentEvent?.getNowInfo;
+            }
+        }
+
         #region DB Properties
         virtual public string TimeLineHistoryId { get; set; }
         [ForeignKey("TimeLineHistoryId")]
@@ -2782,6 +2815,18 @@ namespace TilerElements
         }
 
 
+        virtual public long UsedTime_DB
+        {
+            set
+            {
+                _UsedTime = TimeSpan.FromMilliseconds(value);
+            }
+
+            get
+            {
+                return (long)_UsedTime.TotalMilliseconds;
+            }
+        }
         #endregion
         #endregion
 

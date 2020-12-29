@@ -129,14 +129,41 @@ namespace TilerTests
             schedule.SetSubeventAsNow(firstSubEventOfNextDay.Id);
             await schedule.persistToDB().ConfigureAwait(false);
 
+            SubCalendarEvent futurePausedSubEvent = schedule.getSubCalendarEvent(firstSubEventOfNextDay.Id);
+
 
             reloadTilerUser(ref user, ref tilerUser);
             schedule = new TestSchedule(user, nextRefNow, startOfDay);
-            SubCalendarEvent notPausedSubEvent = schedule.getCalendarEvent(pausedSubEvent.getTilerID).ActiveSubEvents.Where(subEvent => subEvent.Id != pausedSubEvent.Id).FirstOrDefault();
+            SubCalendarEvent notPausedSubEvent = schedule
+                .getCalendarEvent(pausedSubEvent.getTilerID)
+                .ActiveSubEvents.Where(subEvent => subEvent.Id != pausedSubEvent.Id)
+                .FirstOrDefault();
             EventID pausedEventId = schedule.User.PausedEventId;
-            Assert.AreEqual(pausedEventId.ToString(), pausedSubEvent.Id);
+            Assert.IsNull(pausedEventId);
+            Assert.IsFalse(notPausedSubEvent.isPauseLocked);
 
             CustomErrors resumeNotPausedSubEventResult = await schedule.ResumeEvent(notPausedSubEvent.getTilerID).ConfigureAwait(false);
+            Assert.AreEqual(
+                resumeNotPausedSubEventResult.Code,
+                (int)CustomErrors.Errors.Resume_Event_Cannot_Resume_Not_Paused_SubEvent,
+                "Resume should return error because of no current paused events, because after set as now the time locks should be cleared"
+                );
+
+
+
+            reloadTilerUser(ref user, ref tilerUser);
+            pausedRefNow = Utility.MiddleTime(futurePausedSubEvent);
+            exhaustedTimeLine = new TimeLine(futurePausedSubEvent.Start, pausedRefNow);
+            schedule = new TestSchedule(user, pausedRefNow, startOfDay);
+            Tuple<CustomErrors, SubCalendarEvent> pauseResultAfterSetAsNow = schedule
+                .PauseEvent().Result;
+            pausedSubEvent = futurePausedSubEvent;// the set as now sub event should be the pausable subEvent
+            Assert.AreEqual(pauseResultAfterSetAsNow.Item2.Id, pausedSubEvent.Id);
+            pausedEventId = pausedSubEvent.SubEvent_ID;
+            await schedule.persistToDB().ConfigureAwait(false);
+
+
+
             Assert.AreEqual(resumeNotPausedSubEventResult.Code, (int)CustomErrors.Errors.Resume_Event_Cannot_Resume_Not_Paused_SubEvent, "Trying to resume not paused event");
             CustomErrors resumeResult = await schedule.ResumeEvent().ConfigureAwait(false);
             Assert.IsNull(resumeResult, "There should be no errors because of successful resume");
@@ -224,7 +251,7 @@ namespace TilerTests
             CustomErrors resumeNotPausedSubEventResult = await schedule.ResumeEvent(notPausedSubEvent.getTilerID).ConfigureAwait(false);
             Assert.AreEqual(resumeNotPausedSubEventResult.Code, (int)CustomErrors.Errors.Resume_Event_Cannot_Resume_Not_Paused_SubEvent, "Trying to resume not paused event");
             CustomErrors resumeResult = await schedule.ResumeEvent().ConfigureAwait(false);
-            Assert.AreEqual(resumeNotPausedSubEventResult.Code, (int)CustomErrors.Errors.Resume_Event_Cannot_Outside_Deadline_Of_CalendarEvent, "Resuming outside range, should be forced");
+            Assert.AreEqual(resumeResult.Code, (int)CustomErrors.Errors.Resume_Event_Cannot_Outside_Deadline_Of_CalendarEvent, "Resuming outside range, should be forced");
 
             CustomErrors forceResumeResult = await schedule.ResumeEvent(forceOutsideDeadline: true).ConfigureAwait(false);
             Assert.IsNull(forceResumeResult, "There should be no errors because of successful resume");

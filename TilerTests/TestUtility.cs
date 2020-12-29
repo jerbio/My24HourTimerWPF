@@ -986,14 +986,8 @@ namespace TilerTests
                                 {
                                     if ((firstTilerEvent.InitialStartTime_DB == secondTilerEvent.InitialStartTime_DB) && (firstTilerEvent.InitialStartTime_DB == secondTilerEvent.InitialStartTime_DB))
                                     {
-                                        if (firstTilerEvent.UsedTime == secondTilerEvent.UsedTime)
-                                        {
-                                            retValue = true;
-                                        }
-                                        else
-                                        {
-                                            retValue = false; Assert.IsTrue(retValue, "Used time aren't the same");
-                                        }
+                                        retValue = true;
+                                        
                                     }
                                     else
                                     {
@@ -1044,6 +1038,8 @@ namespace TilerTests
             Assert.IsTrue(retValue);
             retValue &= firstSubevent.isTardy == secondSubevent.isTardy;
             Assert.IsTrue(retValue);
+            retValue &= firstSubevent.UsedPauseTime == secondSubevent.UsedPauseTime;
+            Assert.IsTrue(retValue, "Used time aren't the same");
             return retValue;
         }
 

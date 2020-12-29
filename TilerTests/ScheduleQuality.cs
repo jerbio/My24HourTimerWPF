@@ -139,7 +139,7 @@ namespace TilerTests
             Schedule.SetSubeventAsNow(subEvent.Id);
             Schedule.persistToDB().Wait();
 
-            IEnumerable<CalendarEvent> allRepeatingCalevents = Schedule.getAllRelatedCalendarEvents(testEvent.Id);
+            List<CalendarEvent> allRepeatingCalevents = Schedule.getAllRelatedCalendarEvents(testEvent.Id).ToList();
             NowProfile nowProfile = allRepeatingCalevents.First().getNowInfo;
             EventPreference daypreference = allRepeatingCalevents.First().DayPreference;
             foreach (CalendarEvent calEvent in allRepeatingCalevents)
@@ -159,7 +159,7 @@ namespace TilerTests
             Schedule.markSubEventAsComplete(subEvent.Id).Wait();
             Schedule.persistToDB().Wait();
 
-            allRepeatingCalevents = Schedule.getAllRelatedCalendarEvents(testEvent.Id);
+            allRepeatingCalevents = Schedule.getAllRelatedCalendarEvents(testEvent.Id).ToList();
             nowProfile = allRepeatingCalevents.First().getNowInfo;
             daypreference = allRepeatingCalevents.First().DayPreference;
             foreach (CalendarEvent calEvent in allRepeatingCalevents)
@@ -181,7 +181,7 @@ namespace TilerTests
             Schedule.SetSubeventAsNow(subEvent.Id);
             Schedule.persistToDB().Wait();
 
-            allRepeatingCalevents = Schedule.getAllRelatedCalendarEvents(testEvent.Id);
+            allRepeatingCalevents = Schedule.getAllRelatedCalendarEvents(testEvent.Id).ToList();
             nowProfile = allRepeatingCalevents.First().getNowInfo;
             daypreference = allRepeatingCalevents.First().DayPreference;
             foreach (CalendarEvent calEvent in allRepeatingCalevents)
@@ -202,7 +202,7 @@ namespace TilerTests
             Schedule.markSubEventAsComplete(subEvent.Id).Wait();
             Schedule.persistToDB().Wait();
 
-            allRepeatingCalevents = Schedule.getAllRelatedCalendarEvents(testEvent.Id);
+            allRepeatingCalevents = Schedule.getAllRelatedCalendarEvents(testEvent.Id).ToList();
             nowProfile = allRepeatingCalevents.First().getNowInfo;
             daypreference = allRepeatingCalevents.First().DayPreference;
             foreach (CalendarEvent calEvent in allRepeatingCalevents)
@@ -223,7 +223,7 @@ namespace TilerTests
             IEnumerable<CalendarEvent> calEvents = Schedule.getAllRelatedCalendarEvents(nextOccurence.Id);
             Schedule.persistToDB().Wait();
 
-            allRepeatingCalevents = Schedule.getAllRelatedCalendarEvents(testEvent.Id);
+            allRepeatingCalevents = Schedule.getAllRelatedCalendarEvents(testEvent.Id).ToList();
             nowProfile = allRepeatingCalevents.First().getNowInfo;
             daypreference = allRepeatingCalevents.First().DayPreference;
             foreach (CalendarEvent calEvent in allRepeatingCalevents)

@@ -637,7 +637,7 @@ namespace TilerElements
 
             getProcrastinationInfo.reset();
             updateCalculationStartToEnd();
-            AllSubEvents.AsParallel().ForAll(obj =>
+            CalEventSubEvents.AsParallel().ForAll(obj =>
             {
                 obj.changeCalendarEventRange(this.StartToEnd);
                 obj.updateCalculationEventRange(this.CalculationStartToEnd);

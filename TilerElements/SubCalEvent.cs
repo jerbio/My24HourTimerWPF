@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -25,7 +26,6 @@ namespace TilerElements
         public long SuggestedDeadline { get; set; }
         public double SubCalEventLong { get; set; }
         public double SubCalEventLat { get; set; }
-
         public double PauseStart { get; set; }
         public double PauseEnd { get; set; }
         public int RColor { get; set; }
@@ -50,6 +50,7 @@ namespace TilerElements
         public bool isTardy { get; set; }
         public bool isProcrastinateAll { get; set; }
         public bool isAllDay { get; set; }
+        public IList<StartEnd> pausedTimeLines { get; set; }
         public CalEvent CalEvent { get; set; }
     }
 }

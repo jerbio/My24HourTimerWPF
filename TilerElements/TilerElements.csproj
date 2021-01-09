@@ -133,6 +133,7 @@
     <Compile Include="EventPreference.cs" />
     <Compile Include="PausedEvent.cs" />
     <Compile Include="PausedTimeLine.cs" />
+    <Compile Include="StartEnd.cs" />
     <Compile Include="TravelCache.cs" />
     <Compile Include="LocationCacheEntry.cs" />
     <Compile Include="LocationJson.cs" />

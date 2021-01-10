@@ -249,8 +249,11 @@ namespace TilerElements
         {
             SubCalendarEventRestricted copy = new SubCalendarEventRestricted();
             copy.BusyFrame = this.BusyFrame.CreateCopy() as BusyTimeLine;
-            copy._CalendarEventRange = ((TimeLineRestricted)getCalendarEventRange) != null ? 
-                ((TimeLineRestricted)getCalendarEventRange).IsViable ? getCalendarEventRange.CreateCopy(): this.getCalendarEventRange : this.getCalendarEventRange.CreateCopy();
+
+            TimeLineRestricted calendarEventRangeRestricted = (getCalendarEventRange as TimeLineRestricted);
+
+            copy._CalendarEventRange = calendarEventRangeRestricted != null ? 
+                                            (calendarEventRangeRestricted).IsViable ? getCalendarEventRange.CreateCopy(): this.getCalendarEventRange : this.getCalendarEventRange.CreateCopy();
             copy._Complete = _Complete;
             copy._ConflictingEvents = this._ConflictingEvents.CreateCopy();
             copy._DataBlob = this._DataBlob?.createCopy();

@@ -268,7 +268,7 @@ namespace TilerTests
             reloadTilerUser(ref user, ref tilerUser);
             schedule = new TestSchedule(user, afterPausedEventDeadline, startOfDay);
             SubCalendarEvent retrievedResumeSubEvent = schedule.getSubCalendarEvent(pausedEventId);
-            Assert.AreEqual(retrievedResumeSubEvent.pausedTimeLines.Count, 1);
+            Assert.AreEqual(retrievedResumeSubEvent.pausedTimeLines.Count, 1);// THis is known to fail because we of the reordering of tiles based on ids. This would mean moving the paused tile to an earlier time frame outside the schedlue retrieval window. We need to make the pause timeline part of the calendar event and not Sub calendar event
             Assert.IsTrue(exhaustedTimeLine.isTestEquivalent(retrievedResumeSubEvent.pausedTimeLines[0]));
         }
 

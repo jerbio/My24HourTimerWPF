@@ -574,7 +574,7 @@ namespace TilerTests
 
 
         /// <summary>
-        /// Test creates a restrictedP profile calendarEvent
+        /// Test creates a restricted profile calendarEvent
         /// </summary>
         [TestMethod]
         public void TestCreationOfCalendarEventRestricted()
@@ -607,6 +607,33 @@ namespace TilerTests
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(newlyaddedevent.isTestEquivalent(loadedFromSchedule));
+        }
+
+
+        /// <summary>
+        /// Test creates a non-viable restricted calevent with a restriction profile and should throw an error.
+        /// Non-viable means a tile thats cannot be scheduled. For example a restriceted timeline for weekday but the tile is scheduled only during the weekend.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(CustomErrors), "The timeline for tile is non viable check to see that you're scheduling the tile within a time frame that can contain tile")]
+        public void TestCreationOfNonViableCalendarEventRestricted()
+        {
+            TilerUser tilerUser = TestUtility.createUser();
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
+            TestSchedule Schedule = new TestSchedule(user, refNow);
+            TimeSpan duration = TimeSpan.FromHours(4);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.AddDays(1);
+            TimeLine repetitionRange = new TimeLine(start, start.AddDays(13).AddHours(-23));
+            DayOfWeek startingWeekDay = start.DayOfWeek;
+            Repetition repetition = new Repetition();
+            var restrictionProfile = new RestrictionProfile(7, tilerUser.BeginningOfWeek, start, start.Add( duration + duration));
+            CalendarEventRestricted testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 1, false, restrictionProfile: restrictionProfile, now: Schedule.Now) as CalendarEventRestricted;
+            Assert.IsFalse(testEvent.willAllTileFit, "Because this is a non viable tile the tiles should not be pinnable");
+            Schedule.AddToSchedule(testEvent);
         }
 
         [TestMethod]

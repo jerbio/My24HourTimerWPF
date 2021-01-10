@@ -33,10 +33,11 @@ namespace TilerElements
             Procrastinate_All_Cannot_Clear_Past = 400000017,
             Resume_Event_Paused_Event_Id_is_Null = 400000018,
             Resume_Event_Cannot_Resume_Not_Paused_SubEvent = 400000019,
-            Resume_Event_Cannot_Outside_Deadline_Of_CalendarEvent = 400000023,
             SetAsNow_Cannot_Set_In_Active_Tile_AsNow = 400000020,
             Pause_Event_There_Is_No_Current_To_Pause = 400000021,
             Pause_Event_Cannot_Pause_ProcrastinateAllEvent = 400000022,
+            Resume_Event_Cannot_Outside_Deadline_Of_CalendarEvent = 400000023,
+            restrictionProfileNonvaiable = 400000024,
             Preview_Calendar_Type_Not_Supported = 50000001,
             Preview_Calendar_Not_Enough_Data_For_Preview = 50000002
         };
@@ -70,7 +71,8 @@ namespace TilerElements
             {Errors.Creation_Config_End_Earlier_Than_Start, "End time has to be later than start " },
             {Errors.Preview_Calendar_Type_Not_Supported, "Selected Calendar is not supported for manipulation" },
             {Errors.Preview_Calendar_Not_Enough_Data_For_Preview, "Tiler cannot confidently make prediction" },
-            {Errors.UserEmailNotMatchingSubEvent, "Event ids do not match the event assosciated emails. Check if there is an email for each event id" }
+            {Errors.UserEmailNotMatchingSubEvent, "Event ids do not match the event assosciated emails. Check if there is an email for each event id" },
+            {Errors.restrictionProfileNonvaiable, "The timeline for tile is non viable check to see that you're scheduling the tile within a time frame that can contain tile"}
 
         };
         string ErrorMessage;
@@ -143,10 +145,31 @@ namespace TilerElements
             
         }
 
-        static string getErrorMessage(int errorCode)
+        public static string getErrorMessage(int errorCode)
         {
             Errors error = (Errors)Enum.Parse(typeof(Errors), errorCode.ToString());
             return getErrorMessage(error);
         }
+
+        public static bool isValidErrorCode(int errorCode)
+        {
+            bool retValue = Enum.IsDefined(typeof(Errors), errorCode);
+            return retValue;
+        }
+
+
+        public static bool errorCodeHasMessage(CustomErrors errorCode)
+        {
+            bool retValue = Enum.IsDefined(typeof(Errors), errorCode);
+            return retValue;
+        }
+
+        public static bool errorCodeHasMessage(int errorCode)
+        {
+            bool retValue = isValidErrorCode(errorCode) && errorMessage.ContainsKey((Utility.ParseEnum<Errors>(errorCode.ToString()) ));
+            return retValue;
+        }
+
+        
     }
 }

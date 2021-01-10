@@ -2435,6 +2435,25 @@ namespace TilerElements
             }
         }
 
+
+        public virtual bool willAllTileFit
+        {
+            get
+            {
+                bool retValue = false;
+                bool lastEvaluation = true;
+                ILookup<CalendarEvent, SubCalendarEvent>groupByCalEvent =AllSubEvents.ToLookup(obj => obj.ParentCalendarEvent);
+                foreach(var keyGroupPair in groupByCalEvent)
+                {
+                    TimeLine timeLine = keyGroupPair.Key.StartToEnd;
+                    lastEvaluation = lastEvaluation && Utility.checkIfPinSubEventsToEnd(groupByCalEvent[keyGroupPair.Key], timeLine);
+                    retValue = lastEvaluation;
+                }
+
+                return retValue;
+            }
+        }
+
         public TimeSpan RangeSpan
         {
             get

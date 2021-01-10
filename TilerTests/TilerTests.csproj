@@ -198,6 +198,9 @@
     <Content Include="test-db.mdf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="WagTapCalLogs\0172685c-f4ee-4ff4-a359-69f4a3fa8cae\0172685c-f4ee-4ff4-a359-69f4a3fa8cae.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="WagTapCalLogs\065febec-d1fe-4c8b-bd32-548613d4479f.xml" />
     <Content Include="WagTapCalLogs\0897a52c-708a-46cb-85f9-bbf26d6f7688\0897a52c-708a-46cb-85f9-bbf26d6f7688.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

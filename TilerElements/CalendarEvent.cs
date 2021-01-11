@@ -637,7 +637,7 @@ namespace TilerElements
 
             getProcrastinationInfo.reset();
             updateCalculationStartToEnd();
-            AllSubEvents.AsParallel().ForAll(obj =>
+            CalEventSubEvents.AsParallel().ForAll(obj =>
             {
                 obj.changeCalendarEventRange(this.StartToEnd);
                 obj.updateCalculationEventRange(this.CalculationStartToEnd);
@@ -2430,6 +2430,25 @@ namespace TilerElements
                     && (!this.IsFromRecurringAndIsChildCalEvent || (
                     this.RepeatParentEvent == null || this.RepeatParentEvent.isActive
                     )); ;
+
+                return retValue;
+            }
+        }
+
+
+        public virtual bool willAllTileFit
+        {
+            get
+            {
+                bool retValue = false;
+                bool lastEvaluation = true;
+                ILookup<CalendarEvent, SubCalendarEvent>groupByCalEvent =AllSubEvents.ToLookup(obj => obj.ParentCalendarEvent);
+                foreach(var keyGroupPair in groupByCalEvent)
+                {
+                    TimeLine timeLine = keyGroupPair.Key.StartToEnd;
+                    lastEvaluation = lastEvaluation && Utility.checkIfPinSubEventsToEnd(groupByCalEvent[keyGroupPair.Key], timeLine);
+                    retValue = lastEvaluation;
+                }
 
                 return retValue;
             }

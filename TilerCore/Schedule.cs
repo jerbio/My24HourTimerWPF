@@ -1575,7 +1575,18 @@ namespace TilerCore
                 subEvent.PinToEnd(CompleteSchedule);
             }
 
-            NewEvent.TimeOfScheduleLoad = Now.constNow;// ensures that any latter dependencies on time loaded(e.g locaiton validation) use the verified location
+            CalendarEventRestricted NewEventAsRestricted = NewEvent as CalendarEventRestricted;
+            if (NewEventAsRestricted != null)
+            {
+                int conviableCount = NewEventAsRestricted.AllSubEvents.Where(subEvent => !((subEvent as SubCalendarEventRestricted).getCalendarEventRange as TimeLineRestricted).IsViable).Count();
+                if(conviableCount > 0)
+                {
+                    throw new CustomErrors(CustomErrors.Errors.restrictionProfileNonvaiable);
+                }
+
+            }
+
+                NewEvent.TimeOfScheduleLoad = Now.constNow;// ensures that any latter dependencies on time loaded(e.g locaiton validation) use the verified location
             HashSet<SubCalendarEvent> NotdoneYet = new HashSet<SubCalendarEvent>();
             NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, NotdoneYet, null);
             

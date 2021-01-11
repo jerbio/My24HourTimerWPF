@@ -174,7 +174,24 @@ namespace TilerElements
         }
         public virtual void updateCalculationEventRange(TimeLine timeLine)
         {
+            TimeLineRestricted restrictedTimeLine = timeLine as TimeLineRestricted;
+            if (restrictedTimeLine != null)
+            {
+                if (!restrictedTimeLine.IsViable)
+                {
+                    return;
+                }
+            }
+
             TimeLine interferringTimeLine = this.getCalendarEventRange.InterferringTimeLine(timeLine);
+            restrictedTimeLine = timeLine as TimeLineRestricted;
+            if (restrictedTimeLine != null)
+            {
+                if (!restrictedTimeLine.IsViable)
+                {
+                    return;
+                }
+            }
             if (interferringTimeLine == null)
             {
                 this.CalculationTimeLine = timeLine;

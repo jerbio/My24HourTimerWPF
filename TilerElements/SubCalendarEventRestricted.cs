@@ -249,7 +249,11 @@ namespace TilerElements
         {
             SubCalendarEventRestricted copy = new SubCalendarEventRestricted();
             copy.BusyFrame = this.BusyFrame.CreateCopy() as BusyTimeLine;
-            copy._CalendarEventRange = getCalendarEventRange.CreateCopy();
+
+            TimeLineRestricted calendarEventRangeRestricted = (getCalendarEventRange as TimeLineRestricted);
+
+            copy._CalendarEventRange = calendarEventRangeRestricted != null ? 
+                                            (calendarEventRangeRestricted).IsViable ? getCalendarEventRange.CreateCopy(): this.getCalendarEventRange : this.getCalendarEventRange.CreateCopy();
             copy._Complete = _Complete;
             copy._ConflictingEvents = this._ConflictingEvents.CreateCopy();
             copy._DataBlob = this._DataBlob?.createCopy();
@@ -349,7 +353,24 @@ namespace TilerElements
 
         public override void updateCalculationEventRange(TimeLine timeLine)
         {
+            TimeLineRestricted restrictedTimeLine = timeLine as TimeLineRestricted;
+            if (restrictedTimeLine != null)
+            {
+                if (!restrictedTimeLine.IsViable)
+                {
+                    return;
+                }
+            }
+
             TimeLine interferringTimeLine = this.getCalendarEventRange.InterferringTimeLine(timeLine);
+            restrictedTimeLine = timeLine as TimeLineRestricted;
+            if (restrictedTimeLine != null)
+            {
+                if (!restrictedTimeLine.IsViable)
+                {
+                    return;
+                }
+            }
             if (interferringTimeLine == null)
             {
                 this.CalculationTimeLine = new TimeLineRestricted(timeLine, this.RestrictionProfile, this._Now);

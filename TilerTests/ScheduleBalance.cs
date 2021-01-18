@@ -91,6 +91,85 @@ namespace TilerTests
         }
 
 
+        /// <summary>
+        /// Test tries to ensure there aren't unusual concentration of tiles. 
+        /// It ensures that tiles with multiple counts are scheduled to be in time frames if you split the timeline between the counts.
+        /// So for example if a tile is five times a month, a tile should be scheduled for every fifth timeline of a month as opposed to scheduling everything at the end of the month.
+        /// </summary>
+        [TestMethod]
+        public void TileScheduleAsTwiceAMonthShouldHaveTileInSeparateTwoWeeks()
+        {
+            var packet = TestUtility.CreatePacket();
+            UserAccount user = packet.Account;
+            TilerUser tilerUser = packet.User;
+
+            Location homeLocation = new Location("2895 Van aken Blvd cleveland OH 44120");
+            Location workLocation = new Location(41.5002762, -81.6839155, "1228 euclid Ave cleveland OH", "Work", false, false);
+            Location gymLocation = new Location(41.4987461, -81.6884993, "619 Prospect Avenue Cleveland, OH 44115", "Gym", false, false);
+            Location churchLocation = new Location(41.569467, -81.539422, "1465 Dille Rd, Cleveland, OH 44117", "Church", false, false);
+            Location shakerLibrary = new Location(41.4658937, -81.5664832, "16500 Van Aken Blvd, Shaker Heights, OH 44120", "Shake Library", false, false);
+
+            List<Location> locations = new List<Location>() { homeLocation, workLocation, gymLocation, churchLocation };
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            refNow = new DateTimeOffset(refNow.Year, refNow.Month, refNow.Day, 8, 0, 0, new TimeSpan());
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            
+            TestSchedule schedule = new TestSchedule(user, refNow);
+            TimeLine encompassingTimeline = new TimeLine(refNow, refNow.AddMonths(3));
+            TimeSpan calEventSpan = TimeSpan.FromHours(10);
+            Repetition repetition = new Repetition(encompassingTimeline, Repetition.Frequency.WEEKLY, new TimeLine(encompassingTimeline.Start, encompassingTimeline.Start.AddDays(1)));
+
+            CalendarEvent twoHourEachTIleFor_3Months= TestUtility.generateCalendarEvent(tilerUser, calEventSpan, repetition, encompassingTimeline.Start, encompassingTimeline.End, 5, false);
+            schedule.AddToScheduleAndCommit(twoHourEachTIleFor_3Months);
+
+
+            Repetition oneHourRepetition = new Repetition(encompassingTimeline, Repetition.Frequency.WEEKLY, new TimeLine(encompassingTimeline.Start, encompassingTimeline.Start.AddDays(1)));
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, refNow);
+            CalendarEvent oneHourEachTIleFor_3Months = TestUtility.generateCalendarEvent(tilerUser, calEventSpan, oneHourRepetition, encompassingTimeline.Start, encompassingTimeline.End, 10, false);
+            schedule.AddToScheduleAndCommit(oneHourEachTIleFor_3Months);
+
+
+            TimeSpan threeHourSpan = TimeSpan.FromHours(30);
+            Repetition threeHourRepetition = new Repetition(encompassingTimeline, Repetition.Frequency.WEEKLY, new TimeLine(encompassingTimeline.Start, encompassingTimeline.Start.AddDays(1)));
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, refNow);
+            CalendarEvent threeHourEachTIleFor_3Months = TestUtility.generateCalendarEvent(tilerUser, threeHourSpan, threeHourRepetition, encompassingTimeline.Start, encompassingTimeline.End, 10, false);
+            schedule.AddToScheduleAndCommit(threeHourEachTIleFor_3Months);
+
+
+            TimeSpan fourHourSpan = TimeSpan.FromHours(40);
+            Repetition fourHourRepetition = new Repetition(encompassingTimeline, Repetition.Frequency.WEEKLY, new TimeLine(encompassingTimeline.Start, encompassingTimeline.Start.AddDays(1)));
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            DateTimeOffset startOfDay= TestUtility.parseAsUTC("06/02/2017 7:00am");
+            schedule = new TestSchedule(user, refNow, startOfDay);
+            CalendarEvent fourHourEachTIleFor_3Months = TestUtility.generateCalendarEvent(tilerUser, fourHourSpan, fourHourRepetition, encompassingTimeline.Start, encompassingTimeline.End, 10, false);
+            schedule.AddToScheduleAndCommit(fourHourEachTIleFor_3Months);
+
+
+            Repetition fourHourRepetitionCopy = new Repetition(encompassingTimeline, Repetition.Frequency.WEEKLY, new TimeLine(encompassingTimeline.Start, encompassingTimeline.Start.AddDays(1)));
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, refNow, startOfDay);
+            CalendarEvent fourHourEachTIleFor_3MonthsCopy = TestUtility.generateCalendarEvent(tilerUser, fourHourSpan, fourHourRepetitionCopy, encompassingTimeline.Start, encompassingTimeline.End, 10, false);
+            schedule.AddToScheduleAndCommit(fourHourEachTIleFor_3MonthsCopy);
+
+
+            TimeSpan FailingTile = TimeSpan.FromHours(4);
+            Repetition twoHour_PerTwoWeeks = new Repetition(encompassingTimeline, Repetition.Frequency.MONTHLY, new TimeLine(encompassingTimeline.Start, encompassingTimeline.Start.AddDays(1)));
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, refNow, startOfDay);
+            EventName tileName = new EventName(null, null, "Single Tile Every two weeks");
+            CalendarEvent twoHour_PerTwoWeeksCopy = TestUtility.generateCalendarEvent(tilerUser, FailingTile, twoHour_PerTwoWeeks, encompassingTimeline.Start, encompassingTimeline.End, 2, false, tileName: tileName);
+            //schedule.disableConflictResolution();
+            schedule.AddToScheduleAndCommit(twoHour_PerTwoWeeksCopy);
+
+
+
+            schedule.WriteFullScheduleToOutlook();
+
+        }
+
+
         /// Current UTC time is 12:15 AM, Friday, June 2, 2017
         /// End of day is 10:00pm
         /// There is a conflict between the subevents 6413191_7_0_6413193 "Path optimization - implement optimization about beginning from home" and 6417040_7_0_6926266 "Event name analysis". 

@@ -375,7 +375,7 @@ namespace TilerTests
         }
 
 
-        public static CalendarEvent generateCalendarEvent(TilerUser testUser, TimeSpan duration, Repetition repetition, DateTimeOffset Start, DateTimeOffset End, int splitCount = 1, bool rigidFlags = false, Location location = null, RestrictionProfile restrictionProfile = null, MiscData note = null, ReferenceNow now = null, EventDisplay eventDisplay = null)
+        public static CalendarEvent generateCalendarEvent(TilerUser testUser, TimeSpan duration, Repetition repetition, DateTimeOffset Start, DateTimeOffset End, int splitCount = 1, bool rigidFlags = false, Location location = null, RestrictionProfile restrictionProfile = null, MiscData note = null, ReferenceNow now = null, EventDisplay eventDisplay = null, EventName tileName = null)
         {
             if (Start == StartOfTime)
             {
@@ -401,7 +401,7 @@ namespace TilerTests
             eventDisplay = eventDisplay ?? new EventDisplay();
             if(restrictionProfile == null)
             {
-                EventName name = new EventName(null, null, "TestCalendarEvent-" + Guid.NewGuid().ToString());
+                EventName name = tileName ?? new EventName(null, null, "TestCalendarEvent-" + Guid.NewGuid().ToString());
                 if(testUser == null)
                 {
                     getTestUser(true);
@@ -425,7 +425,7 @@ namespace TilerTests
                 {
                     throw new ArgumentNullException("now", "You need to add a referencenow object for creation of calendareventrestricted object");
                 }
-                EventName name = new EventName(null, null, "TestCalendarEvent-" + Guid.NewGuid().ToString() + "-Restricted");
+                EventName name = tileName ?? new EventName(null, null, "TestCalendarEvent-" + Guid.NewGuid().ToString() + "-Restricted");
                 RetValue = new CalendarEventRestricted(testUser, new TilerUserGroup(), name, Start, End, restrictionProfile, duration, repetition, false, true, splitCount, false, new NowProfile(), location, new TimeSpan(), new TimeSpan(), null, now, new Procrastination(Utility.BeginningOfTime, new TimeSpan()), new TimeLineHistory(), UiSettings: new EventDisplay(), NoteData: note);
                 name.Creator_EventDB = RetValue.getCreator;
                 name.AssociatedEvent = RetValue;

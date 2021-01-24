@@ -154,15 +154,52 @@ namespace TilerTests
             schedule.AddToScheduleAndCommit(fourHourEachTIleFor_3MonthsCopy);
 
 
-            TimeSpan FailingTile = TimeSpan.FromHours(4);
-            Repetition twoHour_PerTwoWeeks = new Repetition(encompassingTimeline, Repetition.Frequency.MONTHLY, new TimeLine(encompassingTimeline.Start, encompassingTimeline.Start.AddDays(1)));
+            TimeSpan FailingTile = TimeSpan.FromHours(1);
+            Repetition twoHour_PerTwoWeeksRepetition = new Repetition(encompassingTimeline, Repetition.Frequency.MONTHLY, new TimeLine(encompassingTimeline.Start, encompassingTimeline.Start.AddDays(1)));
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             schedule = new TestSchedule(user, refNow, startOfDay);
             EventName tileName = new EventName(null, null, "Single Tile Every two weeks");
-            CalendarEvent twoHour_PerTwoWeeksCopy = TestUtility.generateCalendarEvent(tilerUser, FailingTile, twoHour_PerTwoWeeks, encompassingTimeline.Start, encompassingTimeline.End, 2, false, tileName: tileName);
-            //schedule.disableConflictResolution();
-            schedule.AddToScheduleAndCommit(twoHour_PerTwoWeeksCopy);
+            CalendarEvent thirtyMin_PerTwoWeeks = TestUtility.generateCalendarEvent(tilerUser, FailingTile, twoHour_PerTwoWeeksRepetition, encompassingTimeline.Start, encompassingTimeline.End, 2, false, tileName: tileName);
+            schedule.AddToScheduleAndCommit(thirtyMin_PerTwoWeeks);
 
+
+            
+            TimeSpan fiveDays = TimeSpan.FromDays(5);
+            foreach(CalendarEvent eachCalEvent in schedule.getAllRelatedCalendarEvents( thirtyMin_PerTwoWeeks.Id).Where(calEvent => calEvent.IsRepeatsChildCalEvent))
+            {
+                List<SubCalendarEvent> subEvents = eachCalEvent.AllSubEvents.OrderBy(o => o.Start).ToList();
+                TimeSpan subEventSpacing = subEvents[1].End - subEvents[0].End;
+                Assert.IsTrue(subEventSpacing >= fiveDays);
+            }
+
+            // We want to complete all tiles from currentNow till the beginning of timeLineLimitForCompletion(not right now we're going with arbitrar number of days)
+            // and want to see if there is a repriotization of the monthly tile. This is because with the completion of tiles it means the 'not compeleted' latest added tile should get higher priority and should lead to better spacing
+            DateTimeOffset timeLineLimitForCompletion = thirtyMin_PerTwoWeeks.Start.AddDays(8);
+            TimeLine timeline = new TimeLine(schedule.Now.constNow, timeLineLimitForCompletion);
+            List<SubCalendarEvent> toBeCompletedSubEvents =  schedule
+                .getAllActiveSubEvents()
+                .Where(subEvent => 
+                    timeline.doesTimeLineInterfere(subEvent) && 
+                    !subEvent.Id.Contains(thirtyMin_PerTwoWeeks.Calendar_EventID.getCalendarEventComponent()))
+                .ToList();
+
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, refNow, timeline.End);
+            schedule.markSubEventsAsComplete(toBeCompletedSubEvents.Select(o => o.Id)).Wait();
+            schedule.persistToDB().Wait();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, timeline.End);
+            schedule.FindMeSomethingToDo(homeLocation).Wait();
+
+            foreach (CalendarEvent eachCalEvent in schedule.getAllRelatedCalendarEvents(thirtyMin_PerTwoWeeks.Id).Where(calEvent => calEvent.IsRepeatsChildCalEvent))
+            {
+                List<SubCalendarEvent> subEvents = eachCalEvent.AllSubEvents.OrderBy(o => o.Start).ToList();
+                TimeSpan subEventSpacing = subEvents[1].End - subEvents[0].End;
+                Assert.IsTrue(subEventSpacing >= fiveDays);
+            }
 
 
             schedule.WriteFullScheduleToOutlook();

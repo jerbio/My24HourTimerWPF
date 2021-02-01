@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace TilerElements
 {
-    public enum DataRetrivalOption { Evaluation, Ui, All, None, Prediction };
+    public enum DataRetrivalOption { Name, DataBlob, Now, Evaluation, Ui, All, None, Prediction, Repetition };
 }

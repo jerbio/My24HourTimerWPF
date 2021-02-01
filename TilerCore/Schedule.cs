@@ -985,40 +985,46 @@ namespace TilerCore
             CustomErrors errorResult;
             if (relevantSubEvent != null)
             {
-                errorResult = await PauseEvent(relevantSubEvent.SubEvent_ID);
+                if (!relevantSubEvent.isProcrastinateEvent)
+                {
+                    errorResult = await PauseEvent(relevantSubEvent.SubEvent_ID);
+                } 
+                else
+                {
+                    errorResult = new CustomErrors(CustomErrors.Errors.Pause_Event_Cannot_Pause_ProcrastinateAllEvent);
+                }
             }
             else
             {
-                errorResult = null;
+                errorResult = new CustomErrors(CustomErrors.Errors.Pause_Event_There_Is_No_Current_To_Pause);
             }
             Tuple<CustomErrors, SubCalendarEvent> retValue = new Tuple<CustomErrors, SubCalendarEvent>(errorResult, relevantSubEvent);
             return retValue;
         }
 
-        async public virtual Task<CustomErrors> PauseEvent(string Event, string CurrentPausedEventId = null)
+        async public virtual Task<CustomErrors> PauseEvent(string Event)
         {
             EventID id = new EventID(Event);
-            EventID currentPausedId = null;
-            if (!string.IsNullOrEmpty(CurrentPausedEventId))
-            {
-                currentPausedId = new EventID(CurrentPausedEventId);
-            }
+            EventID currentPausedId = this.TilerUser.PausedEventId;
             return await PauseEvent(id, currentPausedId);
         }
 
-        async public virtual Task<CustomErrors> PauseEvent(EventID EventId, EventID CurrentPausedEventId = null)
+        async protected virtual Task<CustomErrors> PauseEvent(EventID EventId, EventID CurrentPausedEventId = null)
         {
             CalendarEvent CalEvent = getCalendarEvent(EventId.ToString());
 
             if (CurrentPausedEventId != null)
             {
                 CalendarEvent PreviousPausedCalEvent = getCalendarEvent(CurrentPausedEventId.ToString());
-                SubCalendarEvent currentPausedEvent = PreviousPausedCalEvent.getSubEvent(CurrentPausedEventId);
-                currentPausedEvent.ResetPause(Now.constNow);
+                if (PreviousPausedCalEvent != null)
+                {
+                    SubCalendarEvent currentPausedEvent = PreviousPausedCalEvent.getSubEvent(CurrentPausedEventId);
+                    currentPausedEvent.ResetPause(Now.constNow);
+                }
             }
 
-            CalEvent.PauseSubEvent(EventId, Now.constNow, CurrentPausedEventId);
-            //await UpdateWithDifferentSchedule(AllEventDictionary);
+            SubCalendarEvent pausedSubEvent = CalEvent.PauseSubEvent(EventId, Now.constNow);
+            this.TilerUser.setPausedEventId(pausedSubEvent);
             CustomErrors RetValue = null;
             return RetValue;
         }
@@ -1029,46 +1035,64 @@ namespace TilerCore
             return await ResumeEvent(id);
         }
 
-        public async Task<CustomErrors> ResumeEvent(EventID EventId)
+        public async Task<CustomErrors> ResumeEvent(EventID EventId = null, bool forceOutsideDeadline = false)
         {
+            CustomErrors RetValue;
+            if (EventId == null)
+            {
+                EventId = TilerUser.PausedEventId;
+            }
+
+            if (EventId == null)
+            {
+                RetValue = new CustomErrors(CustomErrors.Errors.Resume_Event_Paused_Event_Id_is_Null);
+                return RetValue;
+            }
             CalendarEvent CalEvent = getCalendarEvent(EventId.ToString());
             if (CalEvent.IsFromRecurringAndNotChildRepeatCalEvent)
             {
                 CalEvent = CalEvent.getRepeatedCalendarEvent(EventId.getIDUpToRepeatCalendarEvent());
             }
 
-            bool errorState = CalEvent.ContinueSubEvent(EventId, Now.constNow);
             SubCalendarEvent SubEvent = CalEvent.getSubEvent(EventId);
-            CustomErrors RetValue;
+            if (!SubEvent.isPauseLocked)
             {
-                if (errorState)
+                RetValue = new CustomErrors(CustomErrors.Errors.Resume_Event_Cannot_Resume_Not_Paused_SubEvent);
+                return RetValue;
+            }
+            bool errorState = CalEvent.ContinueSubEvent(EventId, Now.constNow, forceOutsideDeadline);
+            
+            
+
+			if (errorState)
+            {
+                this.TilerUser.clearPausedEventId();
+                Now.UpdateNow(SubEvent.Start);
+                SubEvent.disablePauseLock();
+                CalendarEvent CalEventCopy = CalEvent.createCopy(EventID.GenerateCalendarEvent());
+                SubEvent.disable(CalEvent, this.Now);
+                SubCalendarEvent unDisabled = CalEventCopy.ActiveSubEvents.First();// we're doing the disabling because there could be a scenario where a sub event is resumed and the CalendarEvent still has non-completed tiles. This would mean you could move other non-completed tiles to the extended dadline., instead of just the paused tile
+                foreach (SubCalendarEvent SubCalendarEvent in CalEventCopy.AllSubEvents.Except(new List<SubCalendarEvent>() { unDisabled }))
                 {
-                    Now.UpdateNow(SubEvent.Start);
-                    CalendarEvent CalEventCopy = CalEvent.createCopy(EventID.GenerateCalendarEvent());
-                    SubEvent.disable(CalEvent, this.Now);
-                    SubCalendarEvent unDisabled = CalEventCopy.ActiveSubEvents.First();
-                    foreach (SubCalendarEvent SubCalendarEvent in CalEventCopy.AllSubEvents.Except(new List<SubCalendarEvent>() { unDisabled }))
-                    {
-                        SubCalendarEvent.disable(CalEventCopy, this.Now);
-                    }
-                    TimeSpan timeDiffBeforePause = (SubEvent.Start - unDisabled.Start);
-                    unDisabled.shiftEvent(timeDiffBeforePause);
-                    unDisabled.tempLockSubEvent();
-
-                    HashSet<SubCalendarEvent> NotDoneYets = getNoneDoneYetBetweenNowAndReerenceStartTIme();
-                    NotDoneYets.RemoveWhere(obj => obj.StartToEnd.doesTimeLineInterfere(unDisabled.StartToEnd));
-                    CalEventCopy = EvaluateTotalTimeLineAndAssignValidTimeSpots(CalEventCopy, NotDoneYets, null, InterringWithNowEvent: 2);
-
-
-                    SubEvent.Enable(CalEvent);
-                    TimeSpan timeDiff = (unDisabled.Start - SubEvent.Start);
-                    SubEvent.shiftEvent(timeDiff);
-                    RetValue = null;
+                    SubCalendarEvent.disable(CalEventCopy, this.Now);
                 }
-                else
-                {
-                    RetValue = new CustomErrors("could not continue sub event because it is out of calendar event range error", 40000001);
-                }
+                TimeSpan timeDiffBeforePause = (SubEvent.Start - unDisabled.Start);
+                unDisabled.shiftEvent(timeDiffBeforePause, forceOutsideDeadline);
+                unDisabled.tempLockSubEvent();// this lock is needed so the pausde event doesnt shift durinr schedule reevaluation
+
+                HashSet<SubCalendarEvent> NotDoneYets = getNoneDoneYetBetweenNowAndReerenceStartTIme();
+                NotDoneYets.RemoveWhere(obj => obj.StartToEnd.doesTimeLineInterfere(unDisabled.StartToEnd));
+                CalEventCopy = EvaluateTotalTimeLineAndAssignValidTimeSpots(CalEventCopy, NotDoneYets, null, InterringWithNowEvent: 2);
+
+
+                SubEvent.Enable(CalEvent);
+                TimeSpan timeDiff = (unDisabled.Start - SubEvent.Start);
+                SubEvent.shiftEvent(timeDiff);
+                RetValue = null;
+            }
+            else
+            {
+                RetValue = new CustomErrors(CustomErrors.Errors.Resume_Event_Cannot_Outside_Deadline_Of_CalendarEvent);
             }
             return RetValue;
         }
@@ -1080,7 +1104,6 @@ namespace TilerCore
         /// <returns></returns>
         public async Task<CustomErrors> reviseSchedule(Location currentLocation, string timeZone = "UTC")
         {
-            clearAllTimeLocks();
             myWatch.Start();
             EventID id = EventID.GenerateCalendarEvent();
             TimeSpan duration = TimeSpan.FromMinutes(1);
@@ -1432,6 +1455,10 @@ namespace TilerCore
         {
             CalendarEvent referenceCalendarEvent = getCalendarEvent(EventID);
             SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
+            if (!ReferenceSubEvent.isActive)
+            {
+                return new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(new CustomErrors(CustomErrors.Errors.SetAsNow_Cannot_Set_In_Active_Tile_AsNow), null);
+            }
             ReferenceSubEvent.disableRepetitionLock();
             ReferenceSubEvent.disableNowLock();
             clearAllTimeLocks();
@@ -1455,8 +1482,22 @@ namespace TilerCore
                 ++dayPreference.Count;
                 TimeOfDayPreferrence.DaySection daySection = Now.getDaySection(Now.constNow);
                 dayPreference[daySection] += 1;
-                NowProfile myNow = new NowProfile(Now.constNow, true);
-                referenceCalendarEvent.UpdateNowProfile(myNow);
+                
+                if (referenceCalendarEvent.NowProfileId.isNot_NullEmptyOrWhiteSpace() &&
+                    nowProfile.Id == referenceCalendarEvent.NowProfileId)
+                {
+                    nowProfile.PreferredTime = Now.constNow;
+                    nowProfile.isInitialized = true;
+                    referenceCalendarEvent.UpdateNowProfile(nowProfile);
+                }
+                else
+                {
+                    NowProfile myNow = new NowProfile(Now.constNow, true);
+                    referenceCalendarEvent.UpdateNowProfile(myNow);
+                }
+
+
+                
             }
 
             EventID SubEventID = new EventID(EventID);
@@ -1534,7 +1575,18 @@ namespace TilerCore
                 subEvent.PinToEnd(CompleteSchedule);
             }
 
-            NewEvent.TimeOfScheduleLoad = Now.constNow;// ensures that any latter dependencies on time loaded(e.g locaiton validation) use the verified location
+            CalendarEventRestricted NewEventAsRestricted = NewEvent as CalendarEventRestricted;
+            if (NewEventAsRestricted != null)
+            {
+                int conviableCount = NewEventAsRestricted.AllSubEvents.Where(subEvent => !((subEvent as SubCalendarEventRestricted).getCalendarEventRange as TimeLineRestricted).IsViable).Count();
+                if(conviableCount > 0)
+                {
+                    throw new CustomErrors(CustomErrors.Errors.restrictionProfileNonvaiable);
+                }
+
+            }
+
+                NewEvent.TimeOfScheduleLoad = Now.constNow;// ensures that any latter dependencies on time loaded(e.g locaiton validation) use the verified location
             HashSet<SubCalendarEvent> NotdoneYet = new HashSet<SubCalendarEvent>();
             NewEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(NewEvent, NotdoneYet, null);
             
@@ -6485,7 +6537,9 @@ namespace TilerCore
                     eachSubEvent.disableRepetitionLock();
                     eachSubEvent.disableNowLock();
                 }
+                eachSubEvent.disablePauseLock();
             };
+            this.TilerUser.clearPausedEventId();
         }
 
 

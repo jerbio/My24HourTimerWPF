@@ -249,7 +249,11 @@ namespace TilerElements
         {
             SubCalendarEventRestricted copy = new SubCalendarEventRestricted();
             copy.BusyFrame = this.BusyFrame.CreateCopy() as BusyTimeLine;
-            copy._CalendarEventRange = getCalendarEventRange.CreateCopy();
+
+            TimeLineRestricted calendarEventRangeRestricted = (getCalendarEventRange as TimeLineRestricted);
+
+            copy._CalendarEventRange = calendarEventRangeRestricted != null ? 
+                                            (calendarEventRangeRestricted).IsViable ? getCalendarEventRange.CreateCopy(): this.getCalendarEventRange : this.getCalendarEventRange.CreateCopy();
             copy._Complete = _Complete;
             copy._ConflictingEvents = this._ConflictingEvents.CreateCopy();
             copy._DataBlob = this._DataBlob?.createCopy();
@@ -299,6 +303,7 @@ namespace TilerElements
             copy.isSleep = this.isSleep;
             copy.isWake = this.isWake;
             copy._isTardy = this._isTardy;
+            copy._PauseLock = this._PauseLock;
             if (this.CalculationTimeLine != null)
             {
                 copy.CalculationTimeLine = this.CalculationTimeLine.CreateCopy();
@@ -348,7 +353,24 @@ namespace TilerElements
 
         public override void updateCalculationEventRange(TimeLine timeLine)
         {
+            TimeLineRestricted restrictedTimeLine = timeLine as TimeLineRestricted;
+            if (restrictedTimeLine != null)
+            {
+                if (!restrictedTimeLine.IsViable)
+                {
+                    return;
+                }
+            }
+
             TimeLine interferringTimeLine = this.getCalendarEventRange.InterferringTimeLine(timeLine);
+            restrictedTimeLine = timeLine as TimeLineRestricted;
+            if (restrictedTimeLine != null)
+            {
+                if (!restrictedTimeLine.IsViable)
+                {
+                    return;
+                }
+            }
             if (interferringTimeLine == null)
             {
                 this.CalculationTimeLine = new TimeLineRestricted(timeLine, this.RestrictionProfile, this._Now);
@@ -460,6 +482,7 @@ namespace TilerElements
             retValue._Now = this._Now;
             retValue._RepetitionLock = this._RepetitionLock;
             retValue._NowLock = this._NowLock;
+            retValue._PauseLock = this._PauseLock;
             return retValue;
         }
 

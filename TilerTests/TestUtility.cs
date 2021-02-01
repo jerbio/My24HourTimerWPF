@@ -650,12 +650,6 @@ namespace TilerTests
             Assert.IsTrue(Schedule1.isTestEquivalent(scheduleFromDump1));
         }
 
-
-        //public void isShuffleOperationInScheduleDumpSameAsLoaded(ref UserAccount user, ref TilerUser tilerUser)
-        //{
-
-        //}
-
         public static void isSubCalendarEventUIEquivalenToScheduleLoaded(UserAccount useraccount, ReferenceNow now, TimeLine timeLine=null)
         {
             LogControl LogAccess = useraccount.ScheduleLogControl;
@@ -993,20 +987,21 @@ namespace TilerTests
                                     if ((firstTilerEvent.InitialStartTime_DB == secondTilerEvent.InitialStartTime_DB) && (firstTilerEvent.InitialStartTime_DB == secondTilerEvent.InitialStartTime_DB))
                                     {
                                         retValue = true;
+                                        
                                     }
                                     else
                                     {
-                                        retValue = false; Assert.IsTrue(retValue);
+                                        retValue = false; Assert.IsTrue(retValue, "InitialStartTime aren't equal");
                                     }
                                 }
                                 else
                                 {
-                                    retValue = false; Assert.IsTrue(retValue);
+                                    retValue = false; Assert.IsTrue(retValue, "IsComplete aren't equal");
                                 }
                             }
                             else
                             {
-                                retValue = false; Assert.IsTrue(retValue);
+                                retValue = false; Assert.IsTrue(retValue, "Autodeletions aren't equal");
                             }
                         }
                         else
@@ -1043,6 +1038,8 @@ namespace TilerTests
             Assert.IsTrue(retValue);
             retValue &= firstSubevent.isTardy == secondSubevent.isTardy;
             Assert.IsTrue(retValue);
+            retValue &= firstSubevent.UsedPauseTime == secondSubevent.UsedPauseTime;
+            Assert.IsTrue(retValue, "Used time aren't the same");
             return retValue;
         }
 
@@ -1260,6 +1257,58 @@ namespace TilerTests
                 retValue = firstRepetition == secondRepetition;// this will only be true when both are null
             }
             Assert.IsTrue(retValue);
+            return retValue;
+        }
+
+
+        public static bool isTestEquivalent(this BusyTimeLine firstBusyTimeLine, BusyTimeLine secondBusyTimeLine, bool ignoreIdCheck = false)
+        {
+            bool retValue = true;
+            retValue = ((TimeLine)firstBusyTimeLine).isTestEquivalent(((TimeLine)secondBusyTimeLine));
+            Assert.IsTrue(retValue, "Busytimeline are not equivalent");
+            if (!ignoreIdCheck)
+            {
+                retValue = firstBusyTimeLine.Id == secondBusyTimeLine.Id;
+                Assert.IsTrue(retValue, "Busytimeline Ids are not equivalent");
+            }
+
+            return retValue;
+        }
+
+        public static bool isTestEquivalent(this TimeLine firstTimeLine, TimeLine secondTimeLine)
+        {
+            bool retValue = true;
+            if (firstTimeLine.Start == secondTimeLine.Start)
+            {
+                if (firstTimeLine.End == secondTimeLine.End)
+                {
+                    if (firstTimeLine.OccupiedSlots != null && secondTimeLine.OccupiedSlots != null)
+                    {
+                        if (firstTimeLine.OccupiedSlots.Count() == secondTimeLine.OccupiedSlots.Count())
+                        {
+                            retValue = true;
+                        }
+                        else
+                        {
+                            retValue = false; Assert.IsTrue(retValue, "OccupiedSlots of Timeline count aren't the same");
+                        }
+                    } 
+                    else
+                    {
+                        retValue = firstTimeLine.OccupiedSlots == secondTimeLine.OccupiedSlots;
+                        Assert.IsTrue(retValue, "OccupiedSlots are both not null");
+                    }
+                }
+                else
+                {
+                    retValue = false; Assert.IsTrue(retValue, "End times of Timeline aren't the same");
+                }
+            }
+            else
+            {
+                retValue = false; Assert.IsTrue(retValue, "Start times of Timeline aren't the same");
+            }
+
             return retValue;
         }
 

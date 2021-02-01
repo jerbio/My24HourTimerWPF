@@ -10,5 +10,6 @@ namespace TilerElements
     public class LocationJson:Location
     {
         public DateTimeOffset LastUsed { get; set; } = Utility.BeginningOfTime;
+        public override TilerUser User { get => null; set => base.User = value; }
     }
 }

@@ -61,7 +61,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, nextDayRefNow, startOfDay);
             await Schedule.reviseSchedule(new Location()).ConfigureAwait(false);
             List<SubCalendarEvent> subeventsInFirstTwentyFourHoursAfterRevise = Schedule.getInterferringSubEvents(precedingTwentyHoursTimeline, Schedule.getAllActiveSubEvents()).ToList();
-            Assert.AreNotEqual(subeventsInFirstTwentyFourHoursAfterRevise.Count, 0);
+            Assert.AreEqual(subeventsInFirstTwentyFourHoursAfterRevise.Count, 0, "After revising schedule there should be no tiles before now");
         }
     }
 }

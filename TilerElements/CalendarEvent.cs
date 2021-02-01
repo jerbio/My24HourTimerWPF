@@ -629,7 +629,7 @@ namespace TilerElements
             {
                 _ProfileOfNow = ProfileNowData;
                 string nowProfileId = this.NowProfileId;
-                if (!string.IsNullOrEmpty(nowProfileId))
+                if (nowProfileId.isNot_NullEmptyOrWhiteSpace() && nowProfileId!=_ProfileOfNow.Id)
                 {
                     _ProfileOfNow.Id = nowProfileId;
                 }
@@ -637,7 +637,7 @@ namespace TilerElements
 
             getProcrastinationInfo.reset();
             updateCalculationStartToEnd();
-            AllSubEvents.AsParallel().ForAll(obj =>
+            CalEventSubEvents.AsParallel().ForAll(obj =>
             {
                 obj.changeCalendarEventRange(this.StartToEnd);
                 obj.updateCalculationEventRange(this.CalculationStartToEnd);
@@ -873,20 +873,28 @@ namespace TilerElements
         /// </summary>
         /// <param name="SubEventId"></param>
         /// <param name="CurrentTime"></param>
-        virtual public void PauseSubEvent(EventID SubEventId, DateTimeOffset CurrentTime, EventID CurrentPausedEventId = null)
+        virtual public SubCalendarEvent PauseSubEvent(EventID SubEventId, DateTimeOffset CurrentTime)
         {
             SubCalendarEvent SubEvent = getSubEvent(SubEventId);
-            if (!SubEvent.isLocked)
+            if (!SubEvent.isPauseLocked)
             {
                 TimeSpan TimeDelta = SubEvent.Pause(CurrentTime);
                 _UsedTime += TimeDelta;
             }
+            return SubEvent;
         }
 
-        virtual public bool ContinueSubEvent(EventID SubEventId, DateTimeOffset CurrentTime)
+        /// <summary>
+        /// Resumes a subevent. This takes the rest of the available timeline after being paused and pins it to currentTime 
+        /// </summary>
+        /// <param name="SubEventId"></param>
+        /// <param name="CurrentTime"></param>
+        /// <param name="forceOutSideDeadline"></param>
+        /// <returns></returns>
+        virtual public bool ContinueSubEvent(EventID SubEventId, DateTimeOffset CurrentTime, bool forceOutSideDeadline = false)
         {
             SubCalendarEvent SubEvent = getSubEvent(SubEventId);
-            return SubEvent.Continue(CurrentTime);
+            return SubEvent.Continue(CurrentTime, forceOutSideDeadline);
         }
 
         public bool IsDateTimeWithin(DateTimeOffset DateTimeEntry)
@@ -1865,13 +1873,13 @@ namespace TilerElements
         override public void updateTimeLine(TimeLine newTimeLine, ReferenceNow now)
         {
             TimeLine oldTimeLine = new TimeLine(Start, End);
-            AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(newTimeLine));
+            CalEventSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(newTimeLine));
             bool worksForAllSubevents = true;
             SubCalendarEvent failingSubEvent = SubCalendarEvent.getEmptySubCalendarEvent(this.Calendar_EventID);
             TimeLine startToEnd = newTimeLine.StartToEnd;
             updateStartTime(startToEnd.Start);
             updateEndTime(startToEnd.End);
-            foreach (SubCalendarEvent subEvent in AllSubEvents)
+            foreach (SubCalendarEvent subEvent in CalEventSubEvents)
             {
                 if (!(!this.isLocked && subEvent.isLocked)) // if the subevent is unlocked but the parent is locked then don't bother checking
                 {
@@ -1891,7 +1899,7 @@ namespace TilerElements
                     _EventDuration = End - Start;
                 }
                 addUpdatedTimeLine(oldTimeLine);
-                AllSubEvents.AsParallel().ForAll(obj =>
+                CalEventSubEvents.AsParallel().ForAll(obj =>
                 {
                     obj.changeCalendarEventRange(this.StartToEnd);
                     obj.updateCalculationEventRange(this.CalculationStartToEnd);
@@ -1900,7 +1908,7 @@ namespace TilerElements
             {
                 updateStartTime(oldTimeLine.Start);
                 updateEndTime(oldTimeLine.End);
-                AllSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(oldTimeLine));
+                CalEventSubEvents.AsParallel().ForAll(obj => obj.changeCalendarEventRange(oldTimeLine));
                 CustomErrors customError = new CustomErrors(CustomErrors.Errors.cannotFitWithinTimeline, "Cannot update the timeline for the calendar event with sub event " + failingSubEvent.getId + ". Most likely because the new time line won't fit the sub event");
                 throw customError;
             }
@@ -2308,9 +2316,26 @@ namespace TilerElements
             }
         }
 
+        /// <summary>
+        /// get property returns all asub events. Both completed, disabled and active.
+        /// This does not go down the recurring calendar events
+        /// </summary>
+        [NotMapped]
+        public virtual SubCalendarEvent[] CalEventSubEvents
+        {
+            get
+            {
+                return _SubEvents?.Values.Where(obj => obj != null).ToArray();
+            }
+        }
 
+        /// <summary>
+        /// get property returns all asub events. Both completed, disabled and active.
+        /// If this is a repeating root calEvent this returns all cal events of the recurring calevents.
+        /// If you want only th sub events of this calendar event and not recurring calevents use CalEventSubEvents
+        /// </summary>
         public virtual SubCalendarEvent[] AllSubEvents
-        {//return All Subcalevents that enabled or not.
+        {
             get
             {
                 if (IsFromRecurringAndNotChildRepeatCalEvent && this._RepeatIsLoaded)
@@ -2405,6 +2430,25 @@ namespace TilerElements
                     && (!this.IsFromRecurringAndIsChildCalEvent || (
                     this.RepeatParentEvent == null || this.RepeatParentEvent.isActive
                     )); ;
+
+                return retValue;
+            }
+        }
+
+
+        public virtual bool willAllTileFit
+        {
+            get
+            {
+                bool retValue = false;
+                bool lastEvaluation = true;
+                ILookup<CalendarEvent, SubCalendarEvent>groupByCalEvent =AllSubEvents.ToLookup(obj => obj.ParentCalendarEvent);
+                foreach(var keyGroupPair in groupByCalEvent)
+                {
+                    TimeLine timeLine = keyGroupPair.Key.StartToEnd;
+                    lastEvaluation = lastEvaluation && Utility.checkIfPinSubEventsToEnd(groupByCalEvent[keyGroupPair.Key], timeLine);
+                    retValue = lastEvaluation;
+                }
 
                 return retValue;
             }
@@ -2598,6 +2642,22 @@ namespace TilerElements
         }
 
 
+        virtual public TimeSpan UsedTime
+        {
+            get
+            {
+                return _UsedTime;
+            }
+        }
+
+        public override NowProfile getNowInfo
+        {
+            get
+            {
+                return _ProfileOfNow ?? this.RepeatParentEvent?.getNowInfo;
+            }
+        }
+
         #region DB Properties
         virtual public string TimeLineHistoryId { get; set; }
         [ForeignKey("TimeLineHistoryId")]
@@ -2774,6 +2834,18 @@ namespace TilerElements
         }
 
 
+        virtual public long UsedTime_DB
+        {
+            set
+            {
+                _UsedTime = TimeSpan.FromMilliseconds(value);
+            }
+
+            get
+            {
+                return (long)_UsedTime.TotalMilliseconds;
+            }
+        }
         #endregion
         #endregion
 

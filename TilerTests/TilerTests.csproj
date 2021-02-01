@@ -142,10 +142,6 @@
     <Compile Include="LogControlDump.cs" />
     <Compile Include="LogControlTest.cs" />
     <Compile Include="LogicTest.cs" />
-    <Compile Include="Migrations\202012130627533_travelTimePersist.cs" />
-    <Compile Include="Migrations\202012130627533_travelTimePersist.designer.cs">
-      <DependentUpon>202012130627533_travelTimePersist.cs</DependentUpon>
-    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
     <Compile Include="Models\TestGoogleEvent.cs" />
@@ -333,11 +329,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="WagTapCalLogs\69e9166b-6754-46cf-b384-66c5557048f8\" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\202012130627533_travelTimePersist.resx">
-      <DependentUpon>202012130627533_travelTimePersist.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

@@ -216,7 +216,8 @@ namespace TilerTests
             schedule.FindMeSomethingToDo(broomfieldLocation).Wait();
             schedule.persistToDB().Wait();
             Assert.AreEqual(schedule.getAllLocations().Count(), 1);
-            foreach (Location location in schedule.getAllCalendarEvents().SelectMany(o => o.ActiveSubEvents.Select(sub => sub.Location)).ToList())
+            TimeLine optimizationTimeLine = new TimeLine(schedule.Now.constNow, schedule.Now.constNow.AddDays(schedule.OptimizedDayLimit));
+            foreach (Location location in schedule.getAllCalendarEvents().SelectMany(o => o.ActiveSubEvents.Where(subEvent => optimizationTimeLine.doesTimeLineInterfere(subEvent)).Select(sub => sub.Location)).ToList())
             {
                 Assert.IsTrue(location.Address.ToLower().Contains(broomfieldString) || location.Address.ToLower().Contains(lafayetteString));// this can sometime use lafayette. This happened in my case when I ran this test with a VPN location in london. If this fails verify your PCs location
                 (location as LocationJson).LastUsed = schedule.Now.constNow;
@@ -230,7 +231,8 @@ namespace TilerTests
             schedule.FindMeSomethingToDo(boulderLocation).Wait();
             schedule.persistToDB().Wait();
             Assert.AreEqual(schedule.getAllLocations().Count(), 1);
-            foreach (Location location in schedule.getAllCalendarEvents().SelectMany(o => o.ActiveSubEvents.Select(sub => sub.Location)).ToList())
+            optimizationTimeLine = new TimeLine(schedule.Now.constNow, schedule.Now.constNow.AddDays(schedule.OptimizedDayLimit));
+            foreach (Location location in schedule.getAllCalendarEvents().SelectMany(o => o.ActiveSubEvents.Where(subEvent => optimizationTimeLine.doesTimeLineInterfere(subEvent)).Select(sub => sub.Location)).ToList())
             {
 
                 Assert.IsTrue(location.Address.ToLower().Contains(boulderString));
@@ -245,7 +247,8 @@ namespace TilerTests
             schedule.CurrentLocation = coloadoSpringLocation;
             schedule.FindMeSomethingToDo(coloadoSpringLocation).Wait();
             schedule.persistToDB().Wait();
-            foreach (Location location in schedule.getAllCalendarEvents().SelectMany(o => o.ActiveSubEvents.Select(sub => sub.Location)).ToList())
+            optimizationTimeLine = new TimeLine(schedule.Now.constNow, schedule.Now.constNow.AddDays(schedule.OptimizedDayLimit));
+            foreach (Location location in schedule.getAllCalendarEvents().SelectMany(o => o.ActiveSubEvents.Where(subEvent => optimizationTimeLine.doesTimeLineInterfere(subEvent)).Select(sub => sub.Location)).ToList())
             {
                 Assert.IsTrue(location.Address.ToLower().Contains(coSpringsString));
                 Assert.AreEqual((location as LocationJson).LastUsed, schedule.Now.constNow);
@@ -275,7 +278,8 @@ namespace TilerTests
             schedule.CurrentLocation = coloadoSpringLocation;
             schedule.FindMeSomethingToDo(coloadoSpringLocation).Wait();
             schedule.persistToDB().Wait();
-            foreach (Location location in schedule.getAllCalendarEvents().SelectMany(o => o.ActiveSubEvents.Select(sub => sub.Location)).ToList())
+            optimizationTimeLine = new TimeLine(schedule.Now.constNow, schedule.Now.constNow.AddDays(schedule.OptimizedDayLimit));
+            foreach (Location location in schedule.getAllCalendarEvents().SelectMany(o => o.ActiveSubEvents.Where(subEvent => optimizationTimeLine.doesTimeLineInterfere(subEvent)).Select(sub => sub.Location)).ToList())
             {
                 Assert.IsTrue(location.Address.ToLower().Contains(coSpringsString));
                 Assert.AreEqual((location as LocationJson).LastUsed, schedule.Now.constNow);

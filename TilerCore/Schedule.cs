@@ -4654,7 +4654,7 @@ namespace TilerCore
         /// Function selects the days to be used for the calculation of a schedule. All SubEvents need to be part of the same Calendar event.
         /// </summary>
         /// <param name="AllSubEvents"></param>
-        /// <param name="AllDays"></param>
+        /// <param name="AllDays_orderedByDayIndex"></param>
         /// <returns>
         /// a list of tuples, each tuple has: 
         ///     item1 is the preferred day for a subevent
@@ -4663,7 +4663,7 @@ namespace TilerCore
         /// </returns>
         List<Tuple<long, SubCalendarEvent>> EvaluateEachDayIndexForEvent(
             List<SubCalendarEvent> AllSubEvents,
-            List<DayTimeLine> AllDays,
+            List<DayTimeLine> AllDays_orderedByDayIndex,
             CalendarEvent calEvent,
             EventDayBags bagsPerDay,
             long balancingStartingindex)
@@ -4688,9 +4688,13 @@ namespace TilerCore
                     PreferrdDayIndex = balancingStartingindex;
                 }
 
-                List <mTuple<bool, DayTimeLine>> OptimizedDayTimeLine = AllDays.Select(obj => new mTuple<bool, DayTimeLine>(((long)(obj.UniversalIndex - PreferrdDayIndex) >= 0), obj)).ToList();//this line orders Daytimeline by  if they are after the procrastination day.
+                List <mTuple<bool, DayTimeLine>> OptimizedDayTimeLine = AllDays_orderedByDayIndex.Select(obj => new mTuple<bool, DayTimeLine>(((long)(obj.UniversalIndex - PreferrdDayIndex) >= 0), obj)).ToList();//this line orders Daytimeline by  if they are after the procrastination day.
 
-                List<mTuple<bool, DayTimeLine>> beforeProcrastination = OptimizedDayTimeLine.Where(obj => !obj.Item1).ToList();
+                Dictionary<DayTimeLine, int> dayTimeLineToIndex = new Dictionary<DayTimeLine, int>();
+                List<DayTimeLine> indexToDayTimeLine = new List<DayTimeLine>();
+                
+
+                List <mTuple<bool, DayTimeLine>> beforeProcrastination = OptimizedDayTimeLine.Where(obj => !obj.Item1).ToList();
                 OptimizedDayTimeLine = OptimizedDayTimeLine.GetRange(beforeProcrastination.Count, OptimizedDayTimeLine.Count - beforeProcrastination.Count);// this reorders all the days with before or on procrastination to the back of list
                 int bagCount = bagsPerDay.DayBags().Count;
                 List<DayBag> dayBags = bagsPerDay.DayBags().GetRange(OptimizedDayTimeLine.First().Item2.BoundedIndex, bagCount - OptimizedDayTimeLine.First().Item2.BoundedIndex)
@@ -4704,6 +4708,9 @@ namespace TilerCore
 
                 timeLineScores = Utility.multiDimensionCalculationNormalize(combinedDOubles);
                 double subEventPerDay = ((double)AllSubEvents.Count) / (double)timeLineScores.Count; // this holds the ideal sub event per day 
+                double daysPerSubEVent = 1 / subEventPerDay;
+                double heatAdder = subEventPerDay;// this is technically 1/daysPerSubEVent but this is eqaul to subEventPerDay
+                int daysPerSubEventSplit = (int)daysPerSubEVent / 2;
 
                 List <Tuple<int, double, DayTimeLine>> dayIndexToTImeLine = timeLineScores.Select((score, index) => { return new Tuple<int, double, DayTimeLine>(index, score, OptimizedDayTimeLine[index].Item2); }).ToList();
 
@@ -4716,70 +4723,118 @@ namespace TilerCore
                 List<DayTimeLine> useUpOrder = new List<DayTimeLine>();
                 mTuple<double, DayTimeLine> lastDaySelected = orderedOnEvaluation.FirstOrDefault();
 
+                ///
+                /// This action implements a the heatsocre update of the days to ensure.
+                ///
+                Action<Dictionary<DayTimeLine, DayTempEvaluation>, DayTimeLine> updateHeatScore = (dayTimeLineToTempEvaluations, lastDayTimeLineSelected) =>
+                {
+                    DayTempEvaluation latestUpdatedDayTemp = DayTimeLineCurrentProperties[lastDayTimeLineSelected];
+                    latestUpdatedDayTemp.incrementDayElectionCount();
+                    int indexOfDay = dayTimeLineToIndex[lastDayTimeLineSelected];
+                    DayTimeLineCurrentProperties[lastDaySelected.Item2].incrementDayElectionCount();
+                    useUpOrder.Add(lastDayTimeLineSelected);
+                    if (daysPerSubEventSplit > 0)
+                    {
+                        int beforeDayListIndex = dayTimeLineToIndex[lastDayTimeLineSelected];
+                        List<DayTimeLine> beforeDayTimeLines = new List<DayTimeLine>();
+                        // this for loop populates the DayTimeLines before lastDayTimeLineSelected and orders them in old to older days. So in the descending order of universal day index 121,120, 119
+                        for (int i = beforeDayListIndex - 1, counter = 0; i >= 0 && counter < daysPerSubEventSplit; i--, counter++)
+                        {
+                            DayTimeLine nextDayTime = indexToDayTimeLine[i];
+                            beforeDayTimeLines.Add(nextDayTime);
+                        }
+
+
+                        int dayAfterListIndex = dayTimeLineToIndex[lastDayTimeLineSelected];
+                        List<DayTimeLine> afterDayTimeLines = new List<DayTimeLine>();
+                        // this for loop populates the DayTimeLines after lastDayTimeLineSelected and orders them in late to later days. So in the ascending order of universal day index 123, 124, 125
+                        for (int i = dayAfterListIndex + 1, counter = 0; i < indexToDayTimeLine.Count && counter < daysPerSubEventSplit; i++, counter++)
+                        {
+                            DayTimeLine nextDayTime = indexToDayTimeLine[i];
+                            afterDayTimeLines.Add(nextDayTime);
+                        }
+
+
+
+                        for (int index = 0, i = afterDayTimeLines.Count > beforeDayTimeLines.Count ? afterDayTimeLines.Count : beforeDayTimeLines.Count
+                            ; i > 0; i--, index++ )
+                        {
+                            int multiplier = i;
+                            
+                            if(index < afterDayTimeLines.Count)
+                            {
+                                DayTimeLine afterDayTimeLine = afterDayTimeLines[index];
+                                DayTempEvaluation afterDayTempEvaluation = dayTimeLineToTempEvaluations[afterDayTimeLine];
+                                double heatScore = multiplier * heatAdder;
+                                afterDayTempEvaluation.incrementHeatScore(heatScore);
+                            }
+
+                            if (index < beforeDayTimeLines.Count)
+                            {
+                                DayTimeLine beforeDayTimeLine = beforeDayTimeLines[index];
+                                DayTempEvaluation beforeDayTempEvaluation = dayTimeLineToTempEvaluations[beforeDayTimeLine];
+                                double heatScore = multiplier * heatAdder;
+                                beforeDayTempEvaluation.incrementHeatScore(heatScore);
+                            }
+                        }
+                    }
+                };
+
+
+
                 if (lastDaySelected != null)
                 {
                     long selectedDayIndex = lastDaySelected.Item2.UniversalIndex;
                     SubCalendarEvent subEvent = AllSubEvents.First();
                     daysSelected.Add(lastDaySelected.Item2);
                     retValue.Add(new Tuple<long, SubCalendarEvent>(selectedDayIndex, subEvent));
-                    useUpOrder.Add(lastDaySelected.Item2);
+                    
                     if (orderedOnEvaluation.Count != 0)
                     {
                         long iniIndex = (long)dayIndexes[0];
                         long finalIndex = (long)dayIndexes.Last();
-                        DayTimeLineCurrentProperties = orderedOnEvaluation.ToDictionary(dayTuple =>
+
+                        int index = 0;
+                        foreach (var dayTuple in  orderedOnEvaluation.OrderBy(o => o.Item2.Start))
                         {
-                            return dayTuple.Item2;
-                        },
-                            dayTuple =>
+                            var eachOptimizedDayTimeLine = dayTuple.Item2;
+                            dayTimeLineToIndex.Add(eachOptimizedDayTimeLine, index);
+                            indexToDayTimeLine.Add(eachOptimizedDayTimeLine);
+
+                            long left = (long)dayTuple.Item2.UniversalIndex - iniIndex;
+                            long right = finalIndex - (long)dayTuple.Item2.UniversalIndex;
+                            long diff = (long)left - (long)right;
+                            long uDiff = (long)Math.Abs(diff);
+
+
+                            var dayTempEvaluation = new DayTempEvaluation(subEventPerDay)
                             {
-                                long left = (long)dayTuple.Item2.UniversalIndex - iniIndex;
-                                long right = finalIndex- (long)dayTuple.Item2.UniversalIndex;
-                                long diff = (long)left - (long)right;
-                                long uDiff = (long)Math.Abs(diff);
-                                return new DayTempEvaluation(subEventPerDay)
-                                {
-                                    Diff = uDiff,
-                                    Left = left,
-                                    Right = right,
-                                    Score = dayTuple.Item1,
-                                    TimeLineScore = dayTuple.Item1,
-                                    InitialTimeLineScore = dayTuple.Item1,
-                                    AssignedSubEventsInDay = calEvent.getSubeventsInDay(dayTuple.Item2.UniversalIndex).Count(),
-                                    DayIndex = (long)dayTuple.Item2.UniversalIndex
-                                };
-                            }
-                        );
-                        DayTimeLineCurrentProperties[lastDaySelected.Item2].incrementDayElectionCount();
+                                Diff = uDiff,
+                                Left = left,
+                                Right = right,
+                                Score = dayTuple.Item1,
+                                DayTimeLineTier = dayTuple.Item1,
+                                InitialTimeLineScore = dayTuple.Item1,
+                                AssignedSubEventsInDay = calEvent.getSubeventsInDay(dayTuple.Item2.UniversalIndex).Count(),
+                                DayIndex = (long)dayTuple.Item2.UniversalIndex
+                            };
+
+                            DayTimeLineCurrentProperties.Add(dayTuple.Item2, dayTempEvaluation);
+                            index++;
+                        }
+                        updateHeatScore(DayTimeLineCurrentProperties, lastDaySelected.Item2);
                         for (int i = 1; i < AllSubEvents.Count; i++)
                         {
                             subEvent = AllSubEvents[i];
-                            //if (useUpOrder.Count != dayIndexes.Count)
-                            {
-                                List<IList<double>> data = orderedOnEvaluation.Select(obj => (IList<double>)DayTimeLineCurrentProperties[obj.Item2].toMultiArrayDict()).ToList();
-                                List<double> values = Utility.multiDimensionCalculationNormalize(data);
-                                int lowestIndex = values.MinIndex();
-                                lastDaySelected = orderedOnEvaluation[lowestIndex];
-                                DayTimeLine minDayTimeLine = lastDaySelected.Item2;
-                                daysSelected.Add(lastDaySelected.Item2);
-                                retValue.Add(new Tuple<long, SubCalendarEvent>(minDayTimeLine.UniversalIndex, subEvent));
-                                selectedDayIndex = lastDaySelected.Item2.UniversalIndex;
-                                DayTimeLineCurrentProperties[minDayTimeLine].incrementDayElectionCount();
-                                useUpOrder.Add(minDayTimeLine);
-                            }
-                            //else
-                            //{
-                            //    int j = 0;
-                            //    int usedUPLength = useUpOrder.Count;
-                            //    for (; i < AllSubEvents.Count; i++, j++)
-                            //    {
-                            //        SubCalendarEvent excessSubEvent = AllSubEvents[i];
-                            //        int dayIndex = j % usedUPLength;
-                            //        DayTimeLine dayTimeLine = useUpOrder[dayIndex];
-                            //        DayTimeLineCurrentProperties[dayTimeLine].incrementDayElectionCount();
-                            //        retValue.Add(new Tuple<long, SubCalendarEvent>(dayTimeLine.UniversalIndex, excessSubEvent));
-                            //    }
-                            //}
+                            List<IList<double>> data = orderedOnEvaluation.Select(obj => (IList<double>)DayTimeLineCurrentProperties[obj.Item2].toMultiArrayDict()).ToList();
+                            List<double> values = Utility.multiDimensionCalculationNormalize(data);
+                            int lowestIndex = values.MinIndex();
+                            lastDaySelected = orderedOnEvaluation[lowestIndex];
+                            DayTimeLine minDayTimeLine = lastDaySelected.Item2;
+                            daysSelected.Add(lastDaySelected.Item2);
+                            retValue.Add(new Tuple<long, SubCalendarEvent>(minDayTimeLine.UniversalIndex, subEvent));
+                            selectedDayIndex = lastDaySelected.Item2.UniversalIndex;
+                            updateHeatScore(DayTimeLineCurrentProperties, lastDaySelected.Item2);
                         }
                     }
                 }

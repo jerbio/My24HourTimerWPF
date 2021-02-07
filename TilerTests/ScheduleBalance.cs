@@ -163,7 +163,6 @@ namespace TilerTests
             schedule.AddToScheduleAndCommit(thirtyMin_PerTwoWeeks);
 
 
-            
             TimeSpan fiveDays = TimeSpan.FromDays(5);
             foreach(CalendarEvent eachCalEvent in schedule.getAllRelatedCalendarEvents( thirtyMin_PerTwoWeeks.Id).Where(calEvent => calEvent.IsRepeatsChildCalEvent))
             {
@@ -192,13 +191,15 @@ namespace TilerTests
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             schedule = new TestSchedule(user, timeline.End);
+            schedule.disableConflictResolution();
+            Utility.debugString = thirtyMin_PerTwoWeeks.RecurringCalendarEvents.First().Calendar_EventID.getRepeatCalendarEventComponent();
             schedule.FindMeSomethingToDo(homeLocation).Wait();
 
             foreach (CalendarEvent eachCalEvent in schedule.getAllRelatedCalendarEvents(thirtyMin_PerTwoWeeks.Id).Where(calEvent => calEvent.IsRepeatsChildCalEvent))
             {
                 List<SubCalendarEvent> subEvents = eachCalEvent.AllSubEvents.OrderBy(o => o.Start).ToList();
                 TimeSpan subEventSpacing = subEvents[1].End - subEvents[0].End;
-                Assert.IsTrue(subEventSpacing >= fiveDays);
+                Assert.IsTrue(subEventSpacing >= TimeSpan.FromDays(1));
             }
 
 

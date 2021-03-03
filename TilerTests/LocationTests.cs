@@ -51,6 +51,75 @@ namespace TilerTests
             Assert.IsTrue(testEvent1.ActiveSubEvents.First().Location.IsVerified);
         }
 
+        [TestMethod]
+        public void LocationVeificationFromScheduleDump()
+        {
+            var packet = TestUtility.CreatePacket();
+            Location currLocation = new Location("3755 Moorhead Ave, Boulder, CO 80305");
+            currLocation.verify();
+            Location homeLocation = new Location("200 summit blvd Boulder CO", "home");
+            Location otherLocation = new Location("200 summit blvd Boulder CO", "home");
+            Location workLocation = new Location("3333 walnut rd boulder CO", "work");
+            UserAccount user = packet.Account;
+            TilerUser tilerUser = packet.User;
+
+            DateTimeOffset refNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
+            TimeSpan duration = TimeSpan.FromHours(2);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.Add(duration + duration + duration);
+            TimeLine repetitionRange = new TimeLine(start, start.AddDays(13).AddHours(-23));
+            DayOfWeek startingWeekDay = start.DayOfWeek;
+            Repetition repetition = new Repetition();
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            TestSchedule Schedule = new TestSchedule(user, refNow);
+            Schedule.CurrentLocation = currLocation;
+            CalendarEventRestricted testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 4, false, restrictionProfile: new RestrictionProfile(start, duration + duration), now: Schedule.Now, location: workLocation) as CalendarEventRestricted;
+            Schedule.CurrentLocation = currLocation;
+            Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
+            Assert.IsTrue(testEvent.ActiveSubEvents.First().isLocationAmbiguous);// Location string from google is more than 45% differenet, count wise
+            Assert.IsTrue(testEvent.ActiveSubEvents.First().Location.IsVerified);
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            CalendarEventRestricted testEvent1 = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 4, false, restrictionProfile: new RestrictionProfile(start, duration + duration), now: Schedule.Now, location: homeLocation) as CalendarEventRestricted;
+            Schedule.CurrentLocation = currLocation;
+            Schedule.AddToScheduleAndCommitAsync(testEvent1).Wait();
+            SubCalendarEvent firstSubEvent = testEvent1.ActiveSubEvents.First();
+            Assert.IsTrue(firstSubEvent.isLocationAmbiguous);
+            Assert.IsTrue(firstSubEvent.Location.IsVerified);
+
+            Task<ScheduleDump> tempScheduleDumpTask = Schedule.CreateScheduleDump();
+            tempScheduleDumpTask.Wait();
+            ScheduleDump tempScheduleDump = tempScheduleDumpTask.Result;
+            Task<ScheduleDump> dumpWait1 = Schedule.CreateAndPersistScheduleDump(tempScheduleDump);
+            dumpWait1.Wait();
+            ScheduleDump scheduleDump1 = dumpWait1.Result;
+
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+
+            var mockContext1 = user.ScheduleLogControl.Database;
+
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+            mockContext1 = user.ScheduleLogControl.Database;
+            ScheduleDump retrievedDump1 = mockContext1.ScheduleDumps.Find(scheduleDump1.Id);
+
+            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+
+            user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+            Schedule scheduleFromDump1 = new TestSchedule(retrievedDump1, user);
+            SubCalendarEvent dumpSubEvent = scheduleFromDump1.getSubCalendarEvent(firstSubEvent.Id);
+            Assert.IsTrue(dumpSubEvent.isLocationAmbiguous);
+            Assert.IsTrue(dumpSubEvent.Location.IsVerified);
+            Assert.AreEqual(dumpSubEvent.LocationValidationId, firstSubEvent.LocationValidationId);
+        }
+
         /// <summary>
         /// This test verifies that the location cache is updated whenever an event is looked up. It also verifies the last time the cache entries were updated
         /// The test needs an internet connection to pass

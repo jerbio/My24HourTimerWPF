@@ -22,6 +22,7 @@ namespace TilerElements
             o.Add("travelTimeAfter", value.TravelTimeAfter.TotalMilliseconds);
             o.Add("address", value.Location?.Address);
             o.Add("addressDescription", value.Location?.Description);
+            o.Add("searchdDescription", value.LocationObj?.SearchdDescription);
             o.Add("rangeStart", value.CalendarEventRangeStart.ToUnixTimeMilliseconds());
             o.Add("rangeEnd", value.CalendarEventRangeStart.ToUnixTimeMilliseconds());
             o.Add("thirdpartyType", value.ThirdpartyType.ToString());

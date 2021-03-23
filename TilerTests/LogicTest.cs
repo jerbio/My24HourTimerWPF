@@ -16,31 +16,32 @@ namespace TilerTests
     [TestClass]
     public class LogicTest
     {
-        //[TestMethod]
-        //public void checkForConflict()
-        //{
-        //    TimeSpan jitterSpan = TimeSpan.FromMinutes(10);
-        //    TimeSpan durationOfEvents = TimeSpan.FromMinutes(60);
-        //    DateTimeOffset Start = DateTimeOffset.UtcNow;
-        //    DateTimeOffset newStart = Start;
-        //    UserAccount user = TestUtility.getTestUser();
-        //    user.Login().Wait();
-        //    DateTimeOffset refNow = DateTimeOffset.UtcNow;
-        //    Schedule mySchedule = new TestSchedule(user, refNow);
-        //    int count = 5;
-        //    List<CalendarEvent> allEvents = new List<CalendarEvent>();
-        //    for(int i=0; i<count; i++)
-        //    {
-        //        CalendarEvent CalendarEvent = TestUtility.generateCalendarEvent(durationOfEvents, new TilerElements.Repetition(), newStart, newStart.Add(durationOfEvents), 1, true );
-        //        allEvents.Add(CalendarEvent);
-        //        newStart = newStart.Add(jitterSpan);
-        //        mySchedule.AddToSchedule(CalendarEvent);
-        //    }
+        [TestMethod]
+        public void checkForConflict()
+        {
+            TilerUser tilerUser = TestUtility.createUser();
+            TimeSpan jitterSpan = TimeSpan.FromMinutes(10);
+            TimeSpan durationOfEvents = TimeSpan.FromMinutes(60);
+            DateTimeOffset Start = DateTimeOffset.UtcNow;
+            DateTimeOffset newStart = Start;
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            user.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            Schedule mySchedule = new TestSchedule(user, refNow);
+            int count = 5;
+            List<CalendarEvent> allEvents = new List<CalendarEvent>();
+            for (int i = 0; i < count; i++)
+            {
+                CalendarEvent CalendarEvent = TestUtility.generateCalendarEvent(mySchedule.User, durationOfEvents, new TilerElements.Repetition(), newStart, newStart.Add(durationOfEvents), 1, true);
+                allEvents.Add(CalendarEvent);
+                newStart = newStart.Add(jitterSpan);
+                mySchedule.AddToSchedule(CalendarEvent);
+            }
 
-        //    List<BlobSubCalendarEvent> conflictingEvents = Utility.getConflictingEvents(allEvents.SelectMany(obj => obj.ActiveSubEvents));
-        //    int conflictingEventCount = conflictingEvents.Sum(blob => blob.getSubCalendarEventsInBlob().Count());
-        //    Assert.AreEqual(conflictingEventCount, count);
-        //}
+            List<BlobSubCalendarEvent> conflictingEvents = Utility.getConflictingEvents(allEvents.SelectMany(obj => obj.ActiveSubEvents)).Item1;
+            int conflictingEventCount = conflictingEvents.Sum(blob => blob.getSubCalendarEventsInBlob().Count());
+            Assert.AreEqual(conflictingEventCount, count);
+        }
 
         //[TestCleanup]
         //public void eachTestCleanUp()

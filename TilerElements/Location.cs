@@ -654,7 +654,11 @@ namespace TilerElements
                 var centralSquareRoot = Math.Sqrt(x * x + y * y);
                 var centralLatitude = Math.Atan2(z, centralSquareRoot);
 
-                return new Location(centralLatitude * 180 / Math.PI, centralLongitude * 180 / Math.PI);
+                retValue = new Location(centralLatitude * 180 / Math.PI, centralLongitude * 180 / Math.PI);
+                retValue.isDefault = false;
+                retValue.isNull = false;
+
+                return retValue;
             }
             else
             {

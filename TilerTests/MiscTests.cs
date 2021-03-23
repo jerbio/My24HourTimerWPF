@@ -90,6 +90,8 @@ namespace TilerTests
             Schedule.AddToScheduleAndCommitAsync(testEventB).Wait();
 
             TimeSpan duration = TimeSpan.FromHours(20);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            restrictionProfile = new RestrictionProfile(daysOfTheWeek, constrictionProfiles);
             CalendarEventRestricted testEventResticted = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end.AddDays(-2), 10, false, restrictionProfile: restrictionProfile, now: Schedule.Now) as CalendarEventRestricted;
             Schedule = new TestSchedule(user, refNow);
             Schedule.AddToScheduleAndCommitAsync(testEventResticted).Wait();

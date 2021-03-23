@@ -546,33 +546,6 @@ namespace TilerTests
             Assert.IsTrue(verificationEventPulled.isTestEquivalent(loadedFromSchedule));
         }
 
-        //[TestMethod]
-        //public void TestCreationOfRepeatRigid()
-        //{
-        //    UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
-        //    user.Login().Wait();
-        //    DateTimeOffset refNow = DateTimeOffset.UtcNow;
-        //    Schedule = new TestSchedule(user, refNow);
-        //    TimeSpan duration = TimeSpan.FromHours(1);
-        //    DateTimeOffset start = refNow;
-        //    DateTimeOffset end = refNow.Add(duration);
-        //    TimeLine repetitionRange = new TimeLine(start, start.AddDays(14));
-        //    Repetition repetition = new Repetition(true, repetitionRange, Repetition.Frequency.DAILY, new TimeLine(start, end));
-        //    CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 1, true);
-        //    string testEVentId = testEvent.getId;
-        //    Schedule.AddToScheduleAndCommit(testEvent).Wait();
-        //    var mockContext = new TestDBContext();
-        //    user = TestUtility.getTestUser(true, userId: tilerUser.Id);
-
-        //    Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEVentId);
-        //    waitVar.Wait();
-        //    CalendarEvent verificationEventPulled = waitVar.Result;
-        //    Assert.IsNotNull(testEvent);
-        //    Assert.IsNotNull(verificationEventPulled);
-        //    Assert.IsTrue(testEvent.isTestEquivalent(verificationEventPulled));
-        //}
-
-
         /// <summary>
         /// Test creates a restricted profile calendarEvent
         /// </summary>

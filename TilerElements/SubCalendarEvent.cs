@@ -43,6 +43,8 @@ namespace TilerElements
         protected bool _NowLock { get; set; } // This is the lock applied when an event is set as now
         protected bool _PauseLock { get; set;} // This is the lock applied when an event is paused
         protected bool tempLock { get; set; } = false;// This should never get persisted
+        [NotMapped]
+        protected bool conflictResolutionLock { get; set; } = false;// This should never get persisted, this is locked to artiificially lock a tile when a position for it is found 
         protected bool lockedPrecedingHours { get; set; }// This should never get persisted
         protected bool _enablePre_reschedulingTimelineLockDown { get; set; } = true;// This prevent locking for preceding twentyFour or for interferring with now
         protected bool _isTardy { get; set; } = false;//Named tardy 'cause we fancy like that
@@ -323,6 +325,17 @@ namespace TilerElements
         public void resetTempUnlock()
         {
             tempLock = false;
+        }
+
+
+        public void conflictLockSubEvent()
+        {
+            conflictResolutionLock = true;
+        }
+
+        public void resetconflictLock()
+        {
+            conflictResolutionLock = false;
         }
 
         public void lockPrecedingHours()
@@ -1169,7 +1182,7 @@ namespace TilerElements
             }
         }
 
-        public override bool isLocked => base.isLocked || this.tempLock || this.lockedPrecedingHours || this.isRepetitionLocked || this.isNowLocked||this.isPauseLocked;
+        public override bool isLocked => base.isLocked || this.tempLock || this.lockedPrecedingHours || this.isRepetitionLocked || this.isNowLocked||this.isPauseLocked|| this.conflictResolutionLock;
 
         /// <summary>
         /// This changes the duration of the subevent. It requires the change in duration. This just adds/subtracts the delta to the end time

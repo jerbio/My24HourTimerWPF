@@ -1681,12 +1681,21 @@ namespace TilerElements
                         double TotalDistance = SubCalendarEvent.CalculateDistance(FullList_Copy, 0, useFibonnacci: false);
                         if (firstBorderLocation != null)
                         {
-                            TotalDistance += Location.calculateDistance(FullList_Copy.First().Location, firstBorderLocation, worstValue);
+                            double sumResult = Location.calculateDistance(FullList_Copy.First().Location, firstBorderLocation, worstValue);
+                            if(sumResult != worstValue)
+                            {
+                                TotalDistance += sumResult;
+                            }   
                         }
 
                         if (secondBorderLocation != null)
                         {
-                            TotalDistance += Location.calculateDistance(FullList_Copy.Last().Location, secondBorderLocation, worstValue);
+                            double sumResult = Location.calculateDistance(FullList_Copy.Last().Location, secondBorderLocation, worstValue);
+                            if (sumResult != worstValue)
+                            {
+                                TotalDistance += sumResult;
+                            }
+                            
                         }
                         TotalDistances[i] = TotalDistance;
                     }

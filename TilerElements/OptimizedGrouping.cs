@@ -70,7 +70,7 @@ namespace TilerElements
             Dictionary<OptimizedGrouping, Location> RetValue = OrderedGrouping.ToDictionary(obj => obj, obj => Location.AverageGPSLocation(obj.PathStitchedSubEvents.Select(obj1 => obj1.Location)));
             return RetValue;
         }
-        public static Dictionary<OptimizedGrouping, Location> buildStitchers(Dictionary<TimeOfDayPreferrence.DaySection, OptimizedGrouping> groupingsDictionary)
+        public static Dictionary<OptimizedGrouping, Location> buildStitchers(Dictionary<TimeOfDayPreferrence.DaySection, OptimizedGrouping> groupingsDictionary, Location BeginLocation)
         {
             IEnumerable<OptimizedGrouping> Groupings = groupingsDictionary.Values;
             Dictionary<OptimizedGrouping, Location> AverageLocation = getAverageLocation(Groupings);
@@ -81,6 +81,7 @@ namespace TilerElements
             List<OptimizedGrouping> groupReordered = TimeOfDayPreferrence.ActiveDaySections
                 .Where(daySection => groupingsDictionary.ContainsKey(daySection))
                 .Select(daySection => groupingsDictionary[daySection]).ToList();
+            groupReordered[0].LeftStitch = BeginLocation;
             OptimizedGrouping noneGrouping;
             if (groupingsDictionary.ContainsKey(DaySection.None))
             {
@@ -104,11 +105,19 @@ namespace TilerElements
                         KeyValuePair<OptimizedGrouping, Location> Next = OrderedAvergeLocation[i + 1];
 
                         Location leftLocation = !OrderedAvergeLocation[i].Key.LeftBorder.isDefault && !OrderedAvergeLocation[i].Key.LeftBorder.isNull ? OrderedAvergeLocation[i].Key.LeftBorder : Current.Value;
+                        Location initialRightStitch = Current.Key.RightStitch;
                         Current.Key.RightStitch = Location.getClosestLocation(Next.Key.PathStitchedSubEvents.Select(obj => obj.Location), Current.Value);
                         //Not updating the Left stitch because it is the beginning of the actual path
                         if (Current.Key.RightStitch == null)
                         {
-                            Current.Key.RightStitch = Next.Key.DefaultLocation;
+                            if (initialRightStitch.isNotNullAndNotDefault)
+                            {
+                                Current.Key.RightStitch = initialRightStitch;
+                            } else
+                            {
+                                Current.Key.RightStitch = Next.Key.DefaultLocation;
+                            }
+                            
                         }
                     }
                     else
@@ -116,16 +125,32 @@ namespace TilerElements
                         KeyValuePair<OptimizedGrouping, Location> Previous = OrderedAvergeLocation[i - 1];
                         KeyValuePair<OptimizedGrouping, Location> Current = OrderedAvergeLocation[i];
                         KeyValuePair<OptimizedGrouping, Location> Next = OrderedAvergeLocation[i + 1];
+                        Location initialRightStitch = Current.Key.RightStitch;
+                        Location initialLeftStitch = Current.Key.LeftStitch;
                         Current.Key.LeftStitch = Location.getClosestLocation(Previous.Key.PathStitchedSubEvents.Select(obj => obj.Location), Current.Value);
                         Current.Key.RightStitch = Location.getClosestLocation(Next.Key.PathStitchedSubEvents.Select(obj => obj.Location), Current.Value);
 
                         if (Current.Key.LeftStitch == null)
                         {
-                            Current.Key.LeftStitch = Previous.Key.DefaultLocation;
+                            if (initialLeftStitch.isNotNullAndNotDefault)
+                            {
+                                Current.Key.LeftStitch = initialLeftStitch;
+                            }
+                            else
+                            {
+                                Current.Key.LeftStitch = Previous.Key.DefaultLocation;
+                            }
                         }
                         if (Current.Key.RightStitch == null)
                         {
-                            Current.Key.RightStitch = Next.Key.DefaultLocation;
+                            if (initialRightStitch.isNotNullAndNotDefault)
+                            {
+                                Current.Key.RightStitch = initialRightStitch;
+                            }
+                            else
+                            {
+                                Current.Key.RightStitch = Next.Key.DefaultLocation;
+                            }
                         }
                     }
                 }
@@ -136,17 +161,32 @@ namespace TilerElements
                         KeyValuePair<OptimizedGrouping, Location> Current = OrderedAvergeLocation[i];
                         KeyValuePair<OptimizedGrouping, Location> Next = Current;// OrderedAvergeLocation[i + 1];
                         List<SubCalendarEvent> NextPhaseSubevent = Next.Key.PathStitchedSubEvents.ToList();
+                        Location initialRightStitch = Current.Key.RightStitch;
+                        Location initialLeftStitch = Current.Key.LeftStitch;
                         Current.Key.LeftStitch = Current.Value;
                         Current.Key.RightStitch = NextPhaseSubevent.Count > 0 ? Location.getClosestLocation(NextPhaseSubevent.Select(obj => obj.Location), Current.Value) : Current.Value;
 
                         if (Current.Key.LeftStitch == null)
                         {
-                            Current.Key.LeftStitch = Current.Key.DefaultLocation;
+                            if (initialLeftStitch.isNotNullAndNotDefault)
+                            {
+                                Current.Key.LeftStitch = initialLeftStitch;
+                            }
+                            else
+                            {
+                                Current.Key.LeftStitch = Current.Key.DefaultLocation;
+                            }
                         }
-
                         if (Current.Key.RightStitch == null)
                         {
-                            Current.Key.RightStitch = Next.Key.DefaultLocation;
+                            if (initialRightStitch.isNotNullAndNotDefault)
+                            {
+                                Current.Key.RightStitch = initialRightStitch;
+                            }
+                            else
+                            {
+                                Current.Key.RightStitch = Next.Key.DefaultLocation;
+                            }
                         }
                     }
                     else
@@ -156,10 +196,18 @@ namespace TilerElements
                             KeyValuePair<OptimizedGrouping, Location> Previous = OrderedAvergeLocation[i - 1];
                             KeyValuePair<OptimizedGrouping, Location> Current = OrderedAvergeLocation[i];
                             List<SubCalendarEvent> PrevPhaseSubevent = Previous.Key.PathStitchedSubEvents.ToList();
+                            Location initialLeftStitch = Current.Key.LeftStitch;
                             Current.Key.LeftStitch = PrevPhaseSubevent.Count > 0 ? Location.getClosestLocation(PrevPhaseSubevent.Select(obj => obj.Location), Current.Value) : Current.Value;
                             if (Current.Key.LeftStitch == null)
                             {
-                                Current.Key.LeftStitch = Previous.Key.DefaultLocation;
+                                if (initialLeftStitch.isNotNullAndNotDefault)
+                                {
+                                    Current.Key.LeftStitch = initialLeftStitch;
+                                }
+                                else
+                                {
+                                    Current.Key.LeftStitch = Previous.Key.DefaultLocation;
+                                }
                             }
                         }
                     }

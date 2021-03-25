@@ -42,6 +42,7 @@ namespace TilerElements
         public readonly static TimeSpan LeastAllDaySubeventDuration = Utility.OneDayTimeSpan.Add(-Utility.QuarterHourTimeSpan);
         public readonly static TimeSpan SleepSpan = Utility.SixHourTimeSpan;//careful about changing this from six hours because this is used to recalculate the post sleep timeline
         public readonly static string timeZoneString = "America/Denver";
+        public static string debugString= "America/Denver";
 
         static Utility()
         {
@@ -1680,12 +1681,21 @@ namespace TilerElements
                         double TotalDistance = SubCalendarEvent.CalculateDistance(FullList_Copy, 0, useFibonnacci: false);
                         if (firstBorderLocation != null)
                         {
-                            TotalDistance += Location.calculateDistance(FullList_Copy.First().Location, firstBorderLocation, worstValue);
+                            double sumResult = Location.calculateDistance(FullList_Copy.First().Location, firstBorderLocation, worstValue);
+                            if(sumResult != worstValue)
+                            {
+                                TotalDistance += sumResult;
+                            }   
                         }
 
                         if (secondBorderLocation != null)
                         {
-                            TotalDistance += Location.calculateDistance(FullList_Copy.Last().Location, secondBorderLocation, worstValue);
+                            double sumResult = Location.calculateDistance(FullList_Copy.Last().Location, secondBorderLocation, worstValue);
+                            if (sumResult != worstValue)
+                            {
+                                TotalDistance += sumResult;
+                            }
+                            
                         }
                         TotalDistances[i] = TotalDistance;
                     }

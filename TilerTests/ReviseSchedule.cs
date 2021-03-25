@@ -59,6 +59,7 @@ namespace TilerTests
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, nextDayRefNow, startOfDay);
+            Utility.debugString = "avengers0";
             await Schedule.reviseSchedule(new Location()).ConfigureAwait(false);
             List<SubCalendarEvent> subeventsInFirstTwentyFourHoursAfterRevise = Schedule.getInterferringSubEvents(precedingTwentyHoursTimeline, Schedule.getAllActiveSubEvents()).ToList();
             Assert.AreEqual(subeventsInFirstTwentyFourHoursAfterRevise.Count, 0, "After revising schedule there should be no tiles before now");

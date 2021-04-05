@@ -108,7 +108,7 @@ namespace TilerTests
             mockContext1 = user.ScheduleLogControl.Database;
             ScheduleDump retrievedDump1 = mockContext1.ScheduleDumps.Find(scheduleDump1.Id);
 
-            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.All);
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();

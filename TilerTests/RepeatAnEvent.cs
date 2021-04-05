@@ -479,7 +479,7 @@ namespace TilerTests
             Assert.AreNotEqual(firstSubEvent.End, secondSubEvent.Start);
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            schedule = new TestSchedule(user, firstSubEvent.Start, includeUpdateHistory: true);
+            schedule = new TestSchedule(user, firstSubEvent.Start, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             schedule.SetSubeventAsNow(firstSubEvent.Id);
             schedule.persistToDB().Wait();
 

@@ -148,7 +148,7 @@ namespace TilerCore
         protected TimeSpan _MorningPreparationTime = TimeSpan.FromMinutes(45);// trying to get 45 minutes
         protected HashSet<SubCalendarEvent> _ConflictingSubEvents = new HashSet<SubCalendarEvent>();
         protected HashSet<SubCalendarEvent> _EvaluatedSubevents = new HashSet<SubCalendarEvent>(); // Subevents that were used to for schedule evaluation
-        protected DataRetrivalOption retrievalOption = DataRetrivalOption.Evaluation;
+        protected HashSet<DataRetrivalOption> retrievalOptions = DataRetrievalSet.scheduleManipulation;
         protected bool _OptimizationEnabled = true;
         protected bool _isConflictResolveEnabled = true;
         public ReferenceNow Now
@@ -612,7 +612,7 @@ namespace TilerCore
             return retVallue;
         }
 
-        public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> BundleChangeUpdate(string SubEventID,
+        virtual public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> BundleChangeUpdate(string SubEventID,
             EventName NewName,
             DateTimeOffset SubeventStart,
             DateTimeOffset SubeventEnd,
@@ -698,11 +698,10 @@ namespace TilerCore
             calendarEventRange = new TimeLine(calEventStart, calEventEnd);
             return BundleChangeUpdate(mySubCalEvent.SubEvent_ID.ToString(), NewName, calendarEventRange.Start, calendarEventRange.End, SplitCount, Notes, subEventTimeLineChange, mySubCalEvent);
         }
-        public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> BundleChangeUpdate(string EventId, EventName NewName, DateTimeOffset newStart, DateTimeOffset newEnd, int newSplitCount, string notes, bool forceRecalculation = false, SubCalendarEvent triggerSubEvent = null)
+        virtual public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> BundleChangeUpdate(string EventId, EventName NewName, DateTimeOffset newStart, DateTimeOffset newEnd, int newSplitCount, string notes, bool forceRecalculation = false, SubCalendarEvent triggerSubEvent = null)
         {
             CalendarEvent myCalendarEvent = getCalendarEvent(EventId);
-            TimeLine initialTimeLine = myCalendarEvent.StartToEnd;
-            bool isNameChange = NewName.NameValue != myCalendarEvent.getName?.NameValue;
+            
             bool isDeadlineChange = (newEnd) != myCalendarEvent.End;
             bool isStartChange = newStart != myCalendarEvent.Start;
             bool isSplitDiff = myCalendarEvent.NumberOfSplit != newSplitCount;
@@ -745,21 +744,8 @@ namespace TilerCore
                     myCalendarEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(myCalendarEvent, NoDoneYet, null, null, 0);
                 }
             }
-
-            if (isNameChange)
-            {
-                myCalendarEvent.updateEventName(NewName.NameValue);
-            }
-            var note = myCalendarEvent.Notes;
-            if (note == null && triggerSubEvent.RepeatParentEvent!= null)
-            {
-                note = (triggerSubEvent.RepeatParentEvent as CalendarEvent).Notes;
-            }
-
-            if (note != null)
-            {
-                note.UserNote = notes;
-            }
+            
+            
 
             
 

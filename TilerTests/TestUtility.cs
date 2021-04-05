@@ -600,7 +600,7 @@ namespace TilerTests
             mockContext = user.ScheduleLogControl.Database;
             ScheduleDump retrievedDump = mockContext.ScheduleDumps.Find(scheduleDump.Id);
 
-            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.All);
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
@@ -619,7 +619,7 @@ namespace TilerTests
             EventDisplay eventdisplay1 = new EventDisplay(true, tilerColor1);
             CalendarEvent testEvent1 = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), timeLine.Start, timeLine.End, 1, false, eventDisplay: eventdisplay1, location: location1);
             string testEVentId1 = testEvent1.Id;
-            TestSchedule Schedule1 = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            TestSchedule Schedule1 = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.All);
             Schedule1.AddToScheduleAndCommitAsync(testEvent1).Wait();
             Task<ScheduleDump> tempScheduleDumpTask = Schedule1.CreateScheduleDump();
             tempScheduleDumpTask.Wait();
@@ -640,7 +640,7 @@ namespace TilerTests
             mockContext1 = user.ScheduleLogControl.Database;
             ScheduleDump retrievedDump1 = mockContext1.ScheduleDumps.Find(scheduleDump1.Id);
 
-            Schedule1 = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            Schedule1 = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.All);
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
@@ -654,11 +654,11 @@ namespace TilerTests
         {
             LogControl LogAccess = useraccount.ScheduleLogControl;
             TimeLine rangeOfLookup = timeLine ?? new TimeLine(now.constNow.AddDays(Utility.defaultBeginDay), now.constNow.AddDays(Utility.defaultEndDay));
-            var task = LogAccess.getAllEnabledSubCalendarEvent(rangeOfLookup, now, retrievalOption: DataRetrivalOption.Ui);
+            var task = LogAccess.getAllEnabledSubCalendarEvent(rangeOfLookup, now, retrievalOptions: DataRetrievalSet.UiSet);
             task.Wait();
             var allSubs = task.Result.ToList();
 
-            var taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, now, true, retrievalOption: DataRetrivalOption.Ui);
+            var taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, now, retrievalOptions: DataRetrievalSet.UiSet);
             taskCal.Wait();
             var allCals = taskCal.Result.ToList();
             var calSubEVents = allCals.Select(obj => obj.Value).SelectMany(obj => obj.ActiveSubEvents).ToList();

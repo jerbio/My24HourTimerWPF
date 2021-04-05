@@ -155,7 +155,7 @@ namespace TilerTests
             var mockContext = new TestDBContext();
             UserAccount userAcc = TestUtility.getTestUser(true, userId: tilerUser.Id);
 
-            Task<CalendarEvent> waitVar = userAcc.ScheduleLogControl.getCalendarEventWithID(testEvent.Id, DataRetrivalOption.All);
+            Task<CalendarEvent> waitVar = userAcc.ScheduleLogControl.getCalendarEventWithID(testEvent.Id, DataRetrievalSet.All);
             waitVar.Wait();
             CalendarEvent verificationEventPulled = waitVar.Result;
 
@@ -164,7 +164,7 @@ namespace TilerTests
             Assert.IsTrue(testEvent.isTestEquivalent(verificationEventPulled));
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(verificationEventPulled.isTestEquivalent(loadedFromSchedule));
@@ -208,7 +208,7 @@ namespace TilerTests
             tilerUser = user.getTilerUser();
             user.Login().Wait();
 
-            TestSchedule Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            TestSchedule Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.All);
             TimeSpan duration = TimeSpan.FromHours(1);
             TimeLine timeLine = TestUtility.getTimeFrames(refNow, duration).First();
             TilerColor tilerColor = new TilerColor(255, 255, 0, 1, 5);
@@ -233,7 +233,7 @@ namespace TilerTests
             mockContext = user.ScheduleLogControl.Database;
             ScheduleDump retrievedDump = mockContext.ScheduleDumps.Find(scheduleDump.Id);
 
-            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.All);
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
@@ -252,7 +252,7 @@ namespace TilerTests
             EventDisplay eventdisplay1 = new EventDisplay(true, tilerColor1);
             CalendarEvent testEvent1 = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), timeLine.Start, timeLine.End, 1, false, eventDisplay: eventdisplay1, location: location1);
             string testEVentId1 = testEvent1.Id;
-            TestSchedule Schedule1 = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            TestSchedule Schedule1 = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.All);
             Schedule1.AddToScheduleAndCommitAsync(testEvent1).Wait();
             Task<ScheduleDump> tempScheduleDumpTask = Schedule1.CreateScheduleDump();
             tempScheduleDumpTask.Wait();
@@ -273,7 +273,7 @@ namespace TilerTests
             mockContext1 = user.ScheduleLogControl.Database;
             ScheduleDump retrievedDump1 = mockContext1.ScheduleDumps.Find(scheduleDump1.Id);
 
-            Schedule1 = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            Schedule1 = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.All);
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
@@ -297,7 +297,7 @@ namespace TilerTests
             user.Login().Wait();
 
             DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
-            TestSchedule Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            TestSchedule Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.All);
             TimeSpan duration = TimeSpan.FromHours(4);
 
             TimeLine timeLine = TestUtility.getTimeFrames(refNow, duration).First();
@@ -319,7 +319,7 @@ namespace TilerTests
             tilerUser = user.getTilerUser();
             user.Login().Wait();
 
-            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.All);
             Location location1 = TestUtility.getAdHocLocations()[1];
             TilerColor tilerColor1 = new TilerColor(255, 255, 0, 1, 5);
             EventDisplay eventdisplay1 = new EventDisplay(true, tilerColor1);
@@ -338,7 +338,7 @@ namespace TilerTests
             mockContext = user.ScheduleLogControl.Database;
             ScheduleDump retrievedDump = mockContext.ScheduleDumps.Find(scheduleDump.Id);
 
-            TestSchedule ScheduleFromRDBMS = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            TestSchedule ScheduleFromRDBMS = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.All);
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
@@ -355,7 +355,7 @@ namespace TilerTests
             CalendarEvent testEvent2 = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(5), new Repetition(), timeLine.Start, timeLine.End, 4, false, eventDisplay: eventdisplay2, location: location2);
             CalendarEvent testEvent2Cpy = testEvent2.createCopy();
             //CalendarEvent testEvent2Cpy = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(5), new Repetition(), timeLine.Start, timeLine.End, 4, false, eventDisplay: eventdisplay2, location: location2);
-            ScheduleFromRDBMS = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            ScheduleFromRDBMS = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.All);
 
 
 
@@ -433,7 +433,7 @@ namespace TilerTests
             Assert.IsTrue(testEvent.isTestEquivalent(verificationEventPulled));
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(verificationEventPulled.isTestEquivalent(loadedFromSchedule));
@@ -468,7 +468,7 @@ namespace TilerTests
             Assert.IsTrue(testEvent.isTestEquivalent(verificationEventPulled));
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.All);
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(verificationEventPulled.isTestEquivalent(loadedFromSchedule));
@@ -505,7 +505,7 @@ namespace TilerTests
             Assert.IsTrue(testEvent.isTestEquivalent(verificationEventPulled));
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(verificationEventPulled.isTestEquivalent(loadedFromSchedule));
@@ -540,7 +540,7 @@ namespace TilerTests
             Assert.IsTrue(testEvent.isTestEquivalent(verificationEventPulled));
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(verificationEventPulled.isTestEquivalent(loadedFromSchedule));
@@ -576,7 +576,7 @@ namespace TilerTests
             Assert.IsTrue(testEvent.isTestEquivalent(newlyaddedevent));
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(newlyaddedevent.isTestEquivalent(loadedFromSchedule));
@@ -637,7 +637,7 @@ namespace TilerTests
             Assert.IsTrue(testEvent.isTestEquivalent(newlyaddedevent));
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(newlyaddedevent.isTestEquivalent(loadedFromSchedule));
@@ -686,7 +686,7 @@ namespace TilerTests
             }
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.All);
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(verificationEventPulled.isTestEquivalent(loadedFromSchedule));
@@ -730,7 +730,7 @@ namespace TilerTests
 
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.All);
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(verificationEventPulled.isTestEquivalent(loadedFromSchedule));
@@ -763,11 +763,11 @@ namespace TilerTests
             TimeLine rangeOfLookup = new TimeLine(refNow, testEvent.End);
             LogControl LogAccess = user.ScheduleLogControl;
 
-            var task = LogAccess.getAllEnabledSubCalendarEvent(rangeOfLookup, Schedule.Now, retrievalOption: DataRetrivalOption.Ui);
+            var task = LogAccess.getAllEnabledSubCalendarEvent(rangeOfLookup, Schedule.Now, retrievalOptions: DataRetrievalSet.UiSet);
             task.Wait();
             var allSubs = task.Result.ToList();
 
-            var taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, Schedule.Now, true, retrievalOption: DataRetrivalOption.Ui);
+            var taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, Schedule.Now, retrievalOptions: DataRetrievalSet.UiSet);
             taskCal.Wait();
             var allCals = taskCal.Result.ToList();
             var calSubEVents = allCals.Select(obj => obj.Value).SelectMany(obj => obj.AllSubEvents).ToList();
@@ -788,11 +788,11 @@ namespace TilerTests
             rangeOfLookup = new TimeLine(refNow, testEvent.End);
             LogAccess = user.ScheduleLogControl;
 
-            task = LogAccess.getAllEnabledSubCalendarEvent(rangeOfLookup, Schedule.Now, retrievalOption: DataRetrivalOption.Ui);
+            task = LogAccess.getAllEnabledSubCalendarEvent(rangeOfLookup, Schedule.Now, retrievalOptions: DataRetrievalSet.UiSet);
             task.Wait();
             allSubs = task.Result.ToList();
 
-            taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, Schedule.Now, true, retrievalOption: DataRetrivalOption.Ui);
+            taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, Schedule.Now, retrievalOptions: DataRetrievalSet.UiSet);
             taskCal.Wait();
             allCals = taskCal.Result.ToList();
             calSubEVents = allCals.Select(obj => obj.Value).SelectMany(obj => obj.AllSubEvents).ToList();
@@ -813,11 +813,11 @@ namespace TilerTests
             rangeOfLookup = new TimeLine(refNow, testEvent.End);
             LogAccess = user.ScheduleLogControl;
 
-            task = LogAccess.getAllEnabledSubCalendarEvent(rangeOfLookup, Schedule.Now, retrievalOption: DataRetrivalOption.Ui);
+            task = LogAccess.getAllEnabledSubCalendarEvent(rangeOfLookup, Schedule.Now, retrievalOptions: DataRetrievalSet.UiSet);
             task.Wait();
             allSubs = task.Result.ToList();
 
-            taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, Schedule.Now, true, retrievalOption: DataRetrivalOption.Ui);
+            taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, Schedule.Now, retrievalOptions: DataRetrievalSet.UiSet);
             taskCal.Wait();
             allCals = taskCal.Result.ToList();
             calSubEVents = allCals.Select(obj => obj.Value).SelectMany(obj => obj.AllSubEvents).ToList();
@@ -839,7 +839,7 @@ namespace TilerTests
             tilerUser = user.getTilerUser();
             user.Login().Wait();
             DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
-            TestSchedule Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            TestSchedule Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.All);
             TimeSpan duration = TimeSpan.FromHours(4);
             DateTimeOffset start = refNow;
             DateTimeOffset end = refNow.Add(duration);
@@ -941,7 +941,7 @@ namespace TilerTests
 
             Assert.IsTrue(testEvent.isTestEquivalent(newlyaddedevent));
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.All);
             CalendarEvent calendarEventFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(calendarEventFromSchedule));
             int currentDayIndex = (int)repetitionRange.Start.DayOfWeek;
@@ -997,7 +997,7 @@ namespace TilerTests
 
             Assert.IsTrue(testEvent.isTestEquivalent(newlyaddedevent));
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.All);
             CalendarEvent calendarEventFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(calendarEventFromSchedule));
             int currentDayIndex = (int)repetitionRange.Start.DayOfWeek;
@@ -1076,7 +1076,7 @@ namespace TilerTests
             Assert.IsTrue(newlyaddedevent.isTestEquivalent(testEvent));
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            TestSchedule Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
+            TestSchedule Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(newlyaddedevent.isTestEquivalent(loadedFromSchedule));
@@ -1111,7 +1111,7 @@ namespace TilerTests
             Assert.IsTrue(newlyaddedevent.isTestEquivalent(testEvent));
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            TestSchedule Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
+            TestSchedule Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(newlyaddedevent.isTestEquivalent(loadedFromSchedule));
@@ -1161,7 +1161,7 @@ namespace TilerTests
             Assert.AreEqual(renamedEvent.getName.NameId, testEvent.getName.NameId);
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            TestSchedule Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
+            TestSchedule Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(renamedEvent.isTestEquivalent(loadedFromSchedule));
@@ -1206,7 +1206,7 @@ namespace TilerTests
             Assert.AreEqual(renamedEvent.Notes.UserNote, newNoteName);
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            TestSchedule Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
+            TestSchedule Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(renamedEvent.isTestEquivalent(loadedFromSchedule));
@@ -1338,7 +1338,7 @@ namespace TilerTests
 
             lookupWindow = new TimeLine(refNow, repeatTimeLine.End);
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, rangeOfLookup: lookupWindow, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, rangeOfLookup: lookupWindow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
 
 
             foreach (CalendarEvent calEvent in verificationEventPulled.RecurringCalendarEvents)
@@ -1469,7 +1469,7 @@ namespace TilerTests
 
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             Task<ScheduleDump> taskScheduleDump = Schedule.CreateScheduleDump(Schedule.Now);
             taskScheduleDump.Wait();
             ScheduleDump scheduleDump = taskScheduleDump.Result;

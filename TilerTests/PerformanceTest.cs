@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define RunSlowTest
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -86,7 +88,7 @@ namespace TilerTests
                 LogControl LogAccess = user.ScheduleLogControl;
                 watch.Restart();
 
-                var task = LogAccess.getAllEnabledSubCalendarEvent(rangeOfLookup, Schedule.Now, retrievalOption: DataRetrivalOption.Ui);
+                var task = LogAccess.getAllEnabledSubCalendarEvent(rangeOfLookup, Schedule.Now, retrievalOptions: DataRetrievalSet.UiSet);
                 task.Wait();
                 var allSubs = task.Result.ToList();
 
@@ -96,7 +98,7 @@ namespace TilerTests
                 
                 watch.Reset();
                 watch.Start();
-                var taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, Schedule.Now, true, retrievalOption: DataRetrivalOption.Ui);
+                var taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, Schedule.Now, retrievalOptions: DataRetrievalSet.UiSet);
                 taskCal.Wait();
                 var allCals = taskCal.Result.ToList();
                 watch.Stop();

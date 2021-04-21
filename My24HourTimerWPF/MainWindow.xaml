@@ -137,6 +137,7 @@
                     <Button Content="Update Deadline" Height="37" HorizontalAlignment="Left" Margin="66,559,0,0" x:Name="UpdateDeadlineButton" VerticalAlignment="Top" Width="154" Click="UpdateDeadline" />
                     <Button Content="Peek&#xD;&#xA;" Height="37" HorizontalAlignment="Left" Margin="604,411,0,0" x:Name="button6_Copy" VerticalAlignment="Top" Width="154" Click="PeekIntoFuture" />
                     <Button x:Name="FindMeSomethingToDo" Content="I need something to do" HorizontalAlignment="Left" Margin="303,525,0,0" VerticalAlignment="Top" Width="154" Height="29" Click="button_Click_1"/>
+                    <Button x:Name="Pause" Content="Pause" Margin="303,570,311,50" Click="Pause_Click"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Current Schedule" Name="tabItem3">
@@ -148,6 +149,6 @@
             </TabItem>
 
         </TabControl>
-        <TextBlock Height="24" HorizontalAlignment="Left" Margin="10,657,0,0" Name="textBlock9" Text="Status:" VerticalAlignment="Top" Width="542" Grid.ColumnSpan="2" />
+        <TextBlock Height="24" HorizontalAlignment="Left" Margin="-196,657,0,-1" Name="textBlock9" Text="Status:" VerticalAlignment="Top" Width="542" />
     </Grid>
 </Window>

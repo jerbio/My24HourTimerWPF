@@ -28,6 +28,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DBTilerElement", "..\WagTap
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScheduleAnalysis", "ScheduleAnalysis\ScheduleAnalysis.csproj", "{F948EBA6-4B87-4162-B240-A5C19829F889}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TilerFront", "..\WagTapWeb\TilerFront\TilerFront.csproj", "{5E86E44F-7CE0-482D-B3C5-059EF7032398}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -150,6 +152,26 @@ Global
 		{F948EBA6-4B87-4162-B240-A5C19829F889}.Release|x64.Build.0 = Release|Any CPU
 		{F948EBA6-4B87-4162-B240-A5C19829F889}.Release|x86.ActiveCfg = Release|Any CPU
 		{F948EBA6-4B87-4162-B240-A5C19829F889}.Release|x86.Build.0 = Release|Any CPU
+		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Debug|Win32.Build.0 = Debug|Any CPU
+		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Debug|x64.Build.0 = Debug|Any CPU
+		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Debug|x86.Build.0 = Debug|Any CPU
+		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Release|Win32.ActiveCfg = Release|Any CPU
+		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Release|Win32.Build.0 = Release|Any CPU
+		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Release|x64.ActiveCfg = Release|Any CPU
+		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Release|x64.Build.0 = Release|Any CPU
+		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Release|x86.ActiveCfg = Release|Any CPU
+		{5E86E44F-7CE0-482D-B3C5-059EF7032398}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -21,7 +21,13 @@ namespace TilerElements
         public readonly static DateTimeOffset BeginningOfTime = new DateTimeOffset();
         public readonly static DateTimeOffset ProcrastinateStartTime = BeginningOfTime.AddDays(1);
         public readonly static Random rng = new Random();
+        /// <summary>
+        /// The default number of days before the currentTime to be use to include sub events for calculation
+        /// </summary>
         public readonly static int defaultBeginDay = -15;
+        /// <summary>
+        /// The default number of days from the currentTime to be use to include sub events for calculation
+        /// </summary>
         public readonly static int defaultEndDay = 90;
         public readonly static TimeSpan OneDayTimeSpan = TimeSpan.FromDays(1);
         public readonly static TimeSpan QuarterHourTimeSpan = TimeSpan.FromMinutes(15);
@@ -36,6 +42,7 @@ namespace TilerElements
         public readonly static TimeSpan LeastAllDaySubeventDuration = Utility.OneDayTimeSpan.Add(-Utility.QuarterHourTimeSpan);
         public readonly static TimeSpan SleepSpan = Utility.SixHourTimeSpan;//careful about changing this from six hours because this is used to recalculate the post sleep timeline
         public readonly static string timeZoneString = "America/Denver";
+        public static string debugString= "America/Denver";
 
         static Utility()
         {
@@ -1011,29 +1018,22 @@ namespace TilerElements
             return retValue;
         }
 
-
-
-
-
-
-        static private bool PinSubEventsToStart_NoEdit(List<SubCalendarEvent> arg1, TimeLine Arg2)
+        /// <summary>
+        /// This returns true or false if tile can be pin to end and will restore the time position of the tiles.
+        /// </summary>
+        /// <param name="arg1"></param>
+        /// <param name="Arg2"></param>
+        /// <returns></returns>
+        static public bool checkIfPinSubEventsToEnd(IEnumerable<SubCalendarEvent> arg1, TimeLine Arg2)
         {
-            bool retValue = true;
-            if (arg1.Count > 0)
-            {
-                retValue = arg1[0].PinToStart(Arg2);
-                TimeLine var0 = new TimeLine(arg1[0].ActiveSlot.End, Arg2.End);
-                arg1.RemoveAt(0);
-                if (retValue && PinSubEventsToStart_NoEdit(arg1, var0))
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
+            var dictOfSubEvents = arg1.ToDictionary(sub => sub, sub => sub.ActiveSlot.CreateCopy());
+            var retValue = PinSubEventsToEnd(arg1.ToArray(), Arg2);
 
+            foreach (var kvp in dictOfSubEvents)
+            {
+                kvp.Key.shiftEvent(kvp.Value.Start);
+            }
+            
             return retValue;
         }
 
@@ -1061,15 +1061,14 @@ namespace TilerElements
         /// <returns></returns>
         static public bool PinSubEventsToEnd(IEnumerable<SubCalendarEvent> arg1, TimeLine Arg2)
         {
-
-
-            return PinSubEventsToEnd_NoEdit(arg1.ToArray(), Arg2);
+            return PinSubEventsToEnd_NoEdit(arg1.ToArray(), Arg2).Item1;
         }
 
 
-        static private bool PinSubEventsToEnd_NoEdit(SubCalendarEvent[] arg1, TimeLine Arg2)
+        static internal Tuple<bool, int> PinSubEventsToEnd_NoEdit(SubCalendarEvent[] arg1, TimeLine Arg2)
         {
-            bool retValue = true;
+            bool successfulPin = true;
+            int successFullPinCount = 0;
             long length = arg1.LongLength;
             TimeLine refTimeline = Arg2.StartToEnd;
             SubCalendarEvent refEvent;
@@ -1078,39 +1077,20 @@ namespace TilerElements
                 refEvent = arg1[i];
                 if (refEvent.PinToEnd(refTimeline))
                 {
-
+                    successFullPinCount++;
                 }
                 else
                 {
-                    retValue = false;
+                    successfulPin = false;
                     break;
                 }
                 refTimeline = new TimeLine(refTimeline.Start, refEvent.ActiveSlot.Start);
             }
+
+            Tuple<bool, int> retValue = new Tuple<bool, int>(successfulPin, successFullPinCount);
             return retValue;
         }
 
-
-        static private bool PinSubEventsToEnd_NoEdit(List<SubCalendarEvent> arg1, TimeLine Arg2)
-        {
-            bool retValue = true;
-            if (arg1.Count > 0)
-            {//hack notice you need to ensure that each subcalevent can fit within the timeline. YOu need a way to resolve this if not possible
-                retValue = arg1[arg1.Count - 1].PinToEnd(Arg2);
-                TimeLine var0 = new TimeLine(Arg2.Start, arg1[arg1.Count - 1].ActiveSlot.Start);
-                arg1.RemoveAt(arg1.Count - 1);
-                if (retValue && PinSubEventsToEnd_NoEdit(arg1, var0))
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-
-            return retValue;
-        }
 
         static public List<List<T>> SerializeList<T>(List<List<List<T>>> Arg1)
         {
@@ -1701,12 +1681,21 @@ namespace TilerElements
                         double TotalDistance = SubCalendarEvent.CalculateDistance(FullList_Copy, 0, useFibonnacci: false);
                         if (firstBorderLocation != null)
                         {
-                            TotalDistance += Location.calculateDistance(FullList_Copy.First().Location, firstBorderLocation, worstValue);
+                            double sumResult = Location.calculateDistance(FullList_Copy.First().Location, firstBorderLocation, worstValue);
+                            if(sumResult != worstValue)
+                            {
+                                TotalDistance += sumResult;
+                            }   
                         }
 
                         if (secondBorderLocation != null)
                         {
-                            TotalDistance += Location.calculateDistance(FullList_Copy.Last().Location, secondBorderLocation, worstValue);
+                            double sumResult = Location.calculateDistance(FullList_Copy.Last().Location, secondBorderLocation, worstValue);
+                            if (sumResult != worstValue)
+                            {
+                                TotalDistance += sumResult;
+                            }
+                            
                         }
                         TotalDistances[i] = TotalDistance;
                     }

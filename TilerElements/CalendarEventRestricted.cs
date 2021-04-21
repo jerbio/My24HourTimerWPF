@@ -402,7 +402,7 @@ namespace TilerElements
             CalculationLimitationWithUnUsables = CalculationLimitation.ToDictionary(obj => obj.Key, obj => obj.Value);
         }
 
-        override public void updateTimeLine(TimeLine timeLine)
+        override public void updateTimeLine(TimeLine timeLine, ReferenceNow now)
         {
             TimeLineRestricted newTimeLine = new TimeLineRestricted(timeLine.Start, timeLine.End, this._ProfileOfRestriction, _Now);
             if(newTimeLine.IsViable)
@@ -457,7 +457,14 @@ namespace TilerElements
                 CustomErrors customError = new CustomErrors(CustomErrors.Errors.restrictedTimeLineUpdateInValid, "The restricted timeline update cannot contain restriction time frames");
                 throw customError;
             }
-            
+            if (this.RepeatParentEvent != null)
+            {
+                if (this.Start < this.RepeatParentEvent.Start || this.End > this.RepeatParentEvent.End)
+                {
+                    this.RepeatParentEvent.updateTimeLine(newTimeLine, now);
+                }
+            }
+
         }
 
 

@@ -546,35 +546,8 @@ namespace TilerTests
             Assert.IsTrue(verificationEventPulled.isTestEquivalent(loadedFromSchedule));
         }
 
-        //[TestMethod]
-        //public void TestCreationOfRepeatRigid()
-        //{
-        //    UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
-        //    user.Login().Wait();
-        //    DateTimeOffset refNow = DateTimeOffset.UtcNow;
-        //    Schedule = new TestSchedule(user, refNow);
-        //    TimeSpan duration = TimeSpan.FromHours(1);
-        //    DateTimeOffset start = refNow;
-        //    DateTimeOffset end = refNow.Add(duration);
-        //    TimeLine repetitionRange = new TimeLine(start, start.AddDays(14));
-        //    Repetition repetition = new Repetition(true, repetitionRange, Repetition.Frequency.DAILY, new TimeLine(start, end));
-        //    CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 1, true);
-        //    string testEVentId = testEvent.getId;
-        //    Schedule.AddToScheduleAndCommit(testEvent).Wait();
-        //    var mockContext = new TestDBContext();
-        //    user = TestUtility.getTestUser(true, userId: tilerUser.Id);
-
-        //    Task<CalendarEvent> waitVar = user.ScheduleLogControl.getCalendarEventWithID(testEVentId);
-        //    waitVar.Wait();
-        //    CalendarEvent verificationEventPulled = waitVar.Result;
-        //    Assert.IsNotNull(testEvent);
-        //    Assert.IsNotNull(verificationEventPulled);
-        //    Assert.IsTrue(testEvent.isTestEquivalent(verificationEventPulled));
-        //}
-
-
         /// <summary>
-        /// Test creates a restrictedP profile calendarEvent
+        /// Test creates a restricted profile calendarEvent
         /// </summary>
         [TestMethod]
         public void TestCreationOfCalendarEventRestricted()
@@ -607,6 +580,33 @@ namespace TilerTests
             CalendarEvent loadedFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsTrue(testEvent.isTestEquivalent(loadedFromSchedule));
             Assert.IsTrue(newlyaddedevent.isTestEquivalent(loadedFromSchedule));
+        }
+
+
+        /// <summary>
+        /// Test creates a non-viable restricted calevent with a restriction profile and should throw an error.
+        /// Non-viable means a tile thats cannot be scheduled. For example a restriceted timeline for weekday but the tile is scheduled only during the weekend.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(CustomErrors), "The timeline for tile is non viable check to see that you're scheduling the tile within a time frame that can contain tile")]
+        public void TestCreationOfNonViableCalendarEventRestricted()
+        {
+            TilerUser tilerUser = TestUtility.createUser();
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/2/2017");
+            TestSchedule Schedule = new TestSchedule(user, refNow);
+            TimeSpan duration = TimeSpan.FromHours(4);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.AddDays(1);
+            TimeLine repetitionRange = new TimeLine(start, start.AddDays(13).AddHours(-23));
+            DayOfWeek startingWeekDay = start.DayOfWeek;
+            Repetition repetition = new Repetition();
+            var restrictionProfile = new RestrictionProfile(7, tilerUser.BeginningOfWeek, start, start.Add( duration + duration));
+            CalendarEventRestricted testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 1, false, restrictionProfile: restrictionProfile, now: Schedule.Now) as CalendarEventRestricted;
+            Assert.IsFalse(testEvent.willAllTileFit, "Because this is a non viable tile the tiles should not be pinnable");
+            Schedule.AddToSchedule(testEvent);
         }
 
         [TestMethod]
@@ -1477,6 +1477,87 @@ namespace TilerTests
             TestUtility.isTestEquivalent(Schedule, scheduleDumpSchedule);
 
         }
+
+
+        /// <summary>
+        /// Test verifies the persisting of travel time
+        /// </summary>
+        [TestMethod]
+        public async Task TravelTime()
+        {
+            DateTimeOffset refNow = TestUtility.parseAsUTC("12:00AM 12/7/2017");// this should be a thursday
+            DayOfWeek userWeekDay = DayOfWeek.Thursday;
+            ReferenceNow now = new ReferenceNow(refNow, refNow, new TimeSpan());
+            const int splitCount = 1;
+            TilerUser tilerUser = TestUtility.createUser();
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+
+
+            List<Location> adHocLocations = TestUtility.getAdHocLocations(tilerUser.Id);
+            List<Location> persistedLocations = TestUtility.addLocations(user, tilerUser, adHocLocations).ToList();
+
+            Location workLocation = persistedLocations.Single(Location => Location.Description == "Work");
+            Location homeLocation = persistedLocations.Single(Location => Location.Description == "Home");
+            Location gymLocation = persistedLocations.Single(Location => Location.Description == "Gym");
+
+            //adHocLocations
+
+            Location currentLocation = gymLocation;
+            TimeSpan gym_work =  Location.getDrivingTimeFromWeb(gymLocation, workLocation);
+            TimeSpan home_work = Location.getDrivingTimeFromWeb(homeLocation, workLocation);
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            tilerUser.BeginningOfWeek = userWeekDay;
+            TestSchedule Schedule = new TestSchedule(user, refNow);
+            Schedule.CurrentLocation = currentLocation;
+            TimeSpan duration = TimeSpan.FromHours(4);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = start.AddDays(1);
+            TimeLine repetitionRange = new TimeLine(start, end);
+            DayOfWeek startingWeekDay = start.DayOfWeek;
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, splitCount, false, gymLocation);
+            Schedule.AddToSchedule(testEvent);
+            testEvent.LocationId = gymLocation.Id;
+            testEvent.Location_DB = null;
+            foreach(SubCalendarEvent eachSubEvent in testEvent.AllSubEvents)
+            {
+                eachSubEvent.LocationId = gymLocation.Id;
+                eachSubEvent.Location_DB = null;
+            }
+            await Schedule.WriteFullScheduleToLog(testEvent).ConfigureAwait(false);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            CalendarEvent testEventRetrieved = TestUtility.getCalendarEventById(testEvent.Id, user);
+            SubCalendarEvent subEvent = testEventRetrieved.ActiveSubEvents.First();
+            TimeSpan oneMinSpan = TimeSpan.FromMinutes(1);
+            Assert.IsTrue(subEvent.TravelTimeBefore < oneMinSpan, "subevent travel time should be less than one minute since the current location is gym location");
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Schedule = new TestSchedule(user, refNow);
+            CalendarEvent testEvent1 = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, splitCount, false, workLocation);
+            Schedule.AddToSchedule(testEvent1);
+            testEvent1.LocationId = workLocation.Id;
+            testEvent1.Location_DB = null;
+            foreach (SubCalendarEvent eachSubEvent in testEvent1.AllSubEvents)
+            {
+                eachSubEvent.LocationId = workLocation.Id;
+                eachSubEvent.Location_DB = null;
+            }
+            await Schedule.WriteFullScheduleToLog(testEvent1).ConfigureAwait(false);
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            CalendarEvent testEvent1Retrieved = TestUtility.getCalendarEventById(testEvent1.Id, user);
+            SubCalendarEvent subEvent1 = testEvent1Retrieved.ActiveSubEvents.First();
+
+
+            List<SubCalendarEvent> allSubEvents = Schedule.getAllActiveSubEvents().OrderBy(o=>o.Start).ToList();
+            SubCalendarEvent firstSubEvent = allSubEvents.First();
+            SubCalendarEvent secondSubEvent = allSubEvents.Last();
+
+            Assert.IsTrue(firstSubEvent.TravelTimeBefore < oneMinSpan, "subevent travel time should be less than one minute since the current location is gym location, so the first sub event should be the one closes to gym");
+            Assert.AreEqual(firstSubEvent.TravelTimeAfter, secondSubEvent.TravelTimeBefore, "first subevent travel after time should be the same as sub event travel time before");
+        }
+
 
 
 

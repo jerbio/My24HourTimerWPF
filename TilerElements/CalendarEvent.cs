@@ -41,7 +41,10 @@ namespace TilerElements
         protected TimeLine _CalculationStartToEnd;
         protected bool _RepeatIsLoaded = true;
         protected TimeLineHistory _TimeLineHistory = null;
-
+        [NotMapped]
+        protected List<PausedTimeLine> _pausedTimeSlot = null;
+        protected TimeSpan _UsedPauseTime = new TimeSpan();
+        protected SubCalendarEvent pausedSubEvent { get; set; }
         #region undoMembers
         public int UndoSplits;
         public TimeSpan UndoAverageTimePerSplit;
@@ -266,6 +269,8 @@ namespace TilerElements
             _EventDayPreference = MyUpdated._EventDayPreference;
             this._IniStartTime = this.Start;
             this._IniEndTime = this.End;
+            this._pausedTimeSlot = MyUpdated._pausedTimeSlot;
+            this._UsedPauseTime = MyUpdated._UsedPauseTime;
             addUpdatedTimeLine(this.StartToEnd);
         }
         #endregion
@@ -604,6 +609,7 @@ namespace TilerElements
             MyCalendarEventCopy._ProfileOfNow = this.getNowInfo?.CreateCopy();
             MyCalendarEventCopy._Semantics = this._Semantics?.createCopy();
             MyCalendarEventCopy._UsedTime = this._UsedTime;
+            MyCalendarEventCopy._UsedPauseTime = this._UsedPauseTime;
 
             foreach (SubCalendarEvent eachSubCalendarEvent in this.SubEvents.Values)
             {
@@ -617,6 +623,8 @@ namespace TilerElements
             MyCalendarEventCopy._DaySectionPreference = this._DaySectionPreference;
             MyCalendarEventCopy._EventDayPreference = this.DayPreference?.createCopy();
             MyCalendarEventCopy._EventScore = this._EventScore;
+            MyCalendarEventCopy.pausedSubEvent = this.pausedSubEvent;
+            MyCalendarEventCopy.PausedSubEventID = this.PausedSubEventID;
             return MyCalendarEventCopy;
         }
 
@@ -731,6 +739,29 @@ namespace TilerElements
             {
                 throw new Exception("You are Completing more event Than is available");
             }
+        }
+
+
+        /// <summary>
+        /// This resets all attributes related to the pausing of a sub event. Note this is not the same as the function Continue.
+        /// This does not resume the event it just clears all paused parameters so this subevent doesnt seem paused
+        /// </summary>
+        /// <param name="currentTime"></param>
+        /// <returns></returns>
+        virtual public bool ResetPause(DateTimeOffset currentTime)
+        {
+            _pausedTimeSlot = new List<PausedTimeLine>();
+            _UsedPauseTime = new TimeSpan();
+            disablePauseLock();
+            TimeSpan timeDiff = new TimeSpan();
+            bool RetValue = shiftEvent(timeDiff);
+            return RetValue;
+        }
+
+        virtual public void addToPausedTimeSlot(PausedTimeLine pausedTimeLine)
+        {
+            _pausedTimeSlot.Add(pausedTimeLine);
+            _UsedPauseTime = TimeSpan.FromTicks(_pausedTimeSlot.Select(timeLine => timeLine.TimelineSpan.Ticks).Sum());
         }
 
         virtual public void Disable(ReferenceNow now, bool goDeep = true)
@@ -878,7 +909,7 @@ namespace TilerElements
             SubCalendarEvent SubEvent = getSubEvent(SubEventId);
             if (!SubEvent.isPauseLocked)
             {
-                TimeSpan TimeDelta = SubEvent.Pause(CurrentTime);
+                TimeSpan TimeDelta = this.Pause(SubEvent, CurrentTime);
                 _UsedTime += TimeDelta;
             }
             return SubEvent;
@@ -1401,6 +1432,8 @@ namespace TilerElements
                 this._AutoDeleted = CalendarEventEntry._AutoDeleted;
                 this._Users = CalendarEventEntry._Users;
                 this._UsedTime = CalendarEventEntry._UsedTime;
+                this.pausedSubEvent = CalendarEventEntry.pausedSubEvent;
+                this.PausedSubEventID = CalendarEventEntry.PausedSubEventID;
                 return;
             }
 
@@ -2160,6 +2193,38 @@ namespace TilerElements
             base.InitializeDayPreference(timeLine);
         }
 
+
+        /// <summary>
+        /// Resumes a subevent. This takes the rest of the available timeline after being paused and pins it to currentTime 
+        /// </summary>
+        /// <param name="currentTime"></param>
+        /// <param name="forceOutSideDeadlinecurrentTime">force the resume even if is outside the deadlie of the calendar event</param>
+        /// <returns></returns>
+        virtual internal bool Continue(DateTimeOffset currentTime, bool forceOutSideDeadline = false)
+        {
+            TimeSpan timeDiff = (currentTime - UsedPauseTime) - (Start);
+            bool RetValue = shiftEvent(timeDiff, force: forceOutSideDeadline);// NOTE WE DO NOT WANT TO DISABLE THE PAUSE LOCK, this because even after a subevent is continued it needs to stay locked so it wont get shifted
+
+
+            return RetValue;
+        }
+
+
+        /// <summary>
+        /// Pauses this subevent. Locks the timeline of the beginning of the timespan to the current time of the subevent
+        /// </summary>
+        /// <param name="currentTime"></param>
+        /// <returns></returns>
+        virtual internal TimeSpan Pause(SubCalendarEvent pausedSubevent, DateTimeOffset currentTime)
+        {
+            DateTimeOffset Start = this.Start;
+            DateTimeOffset End = this.End;
+            EventID pauseEventId = EventID.GeneratePauseId(pausedSubevent.SubEvent_ID);
+            PausedTimeLine pauseTimeLine = new PausedTimeLine(pauseEventId.ToString(), Start, currentTime);
+            addToPausedTimeSlot(pauseTimeLine);
+            return pauseTimeLine.TimelineSpan;
+        }
+
         #endregion
 
         #region Properties
@@ -2658,6 +2723,23 @@ namespace TilerElements
             }
         }
 
+        virtual public TimeSpan UsedPauseTime
+        {
+            get
+            {
+                return _UsedPauseTime;
+            }
+        }
+
+        [NotMapped]
+        public List<PausedTimeLine> pausedTimeLines
+        {
+            get
+            {
+                return _pausedTimeSlot;
+            }
+        }
+
         #region DB Properties
         virtual public string TimeLineHistoryId { get; set; }
         [ForeignKey("TimeLineHistoryId")]
@@ -2845,6 +2927,65 @@ namespace TilerElements
             {
                 return (long)_UsedTime.TotalMilliseconds;
             }
+        }
+
+        virtual public long UsedPauseTime_DB
+        {
+            set
+            {
+                this._UsedPauseTime = TimeSpan.FromMilliseconds(value);
+            }
+
+            get
+            {
+                return (long)_UsedPauseTime.TotalMilliseconds;
+            }
+        }
+
+
+        virtual public string PausedTimeSlots_DB
+        {
+            set
+            {
+                _pausedTimeSlot = new List<PausedTimeLine>();
+                if (value.isNot_NullEmptyOrWhiteSpace())
+                {
+                    JArray pauseSlots = JArray.Parse(value);
+                    foreach (JObject timelineObj in pauseSlots)
+                    {
+                        PausedTimeLine timeLine = PausedTimeLine.JobjectToTimeLine(timelineObj);
+                        _pausedTimeSlot.Add(timeLine);
+                    }
+                }
+            }
+            get
+            {
+                JArray retJValue = new JArray();
+                if (_pausedTimeSlot != null && _pausedTimeSlot.Count > 0)
+                {
+                    foreach (TimeLine timeLine in _pausedTimeSlot)
+                    {
+                        retJValue.Add(timeLine.ToJson());
+                    }
+
+                }
+                return retJValue.ToString();
+            }
+        }
+
+
+
+        public string PausedSubEventID { get; set; }
+        [ForeignKey("PausedSubEventID")]
+        public  SubCalendarEvent PausedSubEvent_DB 
+        { 
+            get 
+            {
+                return pausedSubEvent;
+            } 
+            set {
+                pausedSubEvent = value;
+            } 
         }
         #endregion
         #endregion

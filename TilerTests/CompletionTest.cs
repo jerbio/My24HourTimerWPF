@@ -92,7 +92,7 @@ namespace TilerTests
             TimeLine RepetitionActualTImeLine = new TimeLine(start, end);
             Repetition repetition = new Repetition(RepetitionTImeLine, Repetition.Frequency.DAILY, RepetitionActualTImeLine);
             CalendarEvent repeatTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 2, false);
-            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.All);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.scheduleManipulation);
             Schedule.AddToScheduleAndCommitAsync(repeatTestEvent).Wait();
             int beforeRepeatCompletionCount = Schedule.getAllCalendarEvents().ToLookup(calEvent => calEvent.RepeatParentEventId).Count();
 
@@ -108,7 +108,7 @@ namespace TilerTests
 
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.All);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.scheduleManipulation);
             int afterRepeatCompletionCount = Schedule.getAllCalendarEvents().ToLookup(calEvent => calEvent.RepeatParentEventId).Count();
             Assert.AreEqual(beforeRepeatCompletionCount, afterRepeatCompletionCount + 1);
             EventID repeatEventId = new EventID(completedRepeatSubEventId);

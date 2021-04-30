@@ -16,6 +16,7 @@ using TilerCore;
 using System.Xml;
 using System.IO;
 
+
 namespace TilerTests
 {
     public static class TestUtility
@@ -94,6 +95,7 @@ namespace TilerTests
                 PasswordHash = password + Guid.NewGuid().ToString()
             };
             TestDBContext context = new TestDBContext();
+
             CalendarEvent calEvent = createProcrastinateCalendarEvent(user);
             Analysis analysis = createAnalysisObject(user);
 
@@ -1674,6 +1676,8 @@ namespace TilerTests
             {
                 _User = user;
                 _Context = context;
+                _Context.Database.Log = s => System.Diagnostics.Debug.WriteLine(s);
+
                 _Account = getTestUser(userId: _User.Id);
             }
 

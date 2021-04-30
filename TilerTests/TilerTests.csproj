@@ -137,15 +137,12 @@
     <Compile Include="AnalysisTest.cs" />
     <Compile Include="AsyncDataAccessor.cs" />
     <Compile Include="Creation.cs" />
+    <Compile Include="DeadlineSuggestion.cs" />
     <Compile Include="KnownBugList.cs" />
     <Compile Include="LocationTests.cs" />
     <Compile Include="LogControlDump.cs" />
     <Compile Include="LogControlTest.cs" />
     <Compile Include="LogicTest.cs" />
-    <Compile Include="Migrations\202104010759226_dbPerformance.cs" />
-    <Compile Include="Migrations\202104010759226_dbPerformance.designer.cs">
-      <DependentUpon>202104010759226_dbPerformance.cs</DependentUpon>
-    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
     <Compile Include="Models\TestGoogleEvent.cs" />
@@ -336,11 +333,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="WagTapCalLogs\69e9166b-6754-46cf-b384-66c5557048f8\" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\202104010759226_dbPerformance.resx">
-      <DependentUpon>202104010759226_dbPerformance.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

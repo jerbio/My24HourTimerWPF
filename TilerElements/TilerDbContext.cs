@@ -16,12 +16,12 @@ namespace TilerElements
     {
         public TilerDbContext()
         {
-            this.Configuration.LazyLoadingEnabled = false;
+            //this.Configuration.LazyLoadingEnabled = false;
         }
         public TilerDbContext(string connectionName)
             : base(connectionName, throwIfV1Schema: false)
         {
-            this.Configuration.LazyLoadingEnabled = false;
+            //this.Configuration.LazyLoadingEnabled = false;
         }
 
         virtual public System.Data.Entity.DbSet<TilerEvent> events { get; set; }

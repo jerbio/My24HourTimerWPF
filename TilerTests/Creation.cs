@@ -999,9 +999,7 @@ namespace TilerTests
 
             Assert.IsTrue(testEvent.isTestEquivalent(newlyaddedevent));
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            var repeatSet = DataRetrievalSet.scheduleManipulation;
-            repeatSet.Add(DataRetrivalOption.Repetition);
-            Schedule = new TestSchedule(user, refNow, retrievalOptions: repeatSet);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithRepeat);
             CalendarEvent calendarEventFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
             Assert.IsNotNull(calendarEventFromSchedule);
             //Assert.IsTrue(testEvent.isTestEquivalent(calendarEventFromSchedule));

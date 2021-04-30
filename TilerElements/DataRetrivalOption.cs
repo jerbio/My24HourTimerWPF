@@ -17,6 +17,16 @@ namespace TilerElements
             DataRetrivalOption.Pause,
             DataRetrivalOption.Location
         };
+
+        public readonly static HashSet<DataRetrivalOption> scheduleManipulationWithRepeat = new HashSet<DataRetrivalOption>() {
+            DataRetrivalOption.SubEvent,
+            DataRetrivalOption.TimeLine,
+            DataRetrivalOption.Evaluation,
+            DataRetrivalOption.Now,
+            DataRetrivalOption.Pause,
+            DataRetrivalOption.Location,
+            DataRetrivalOption.Repetition
+        };
         public readonly static HashSet<DataRetrivalOption> scheduleManipulationWithUpdateHistory = new HashSet<DataRetrivalOption>() {
             DataRetrivalOption.SubEvent,
             DataRetrivalOption.TimeLine,

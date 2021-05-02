@@ -2508,13 +2508,6 @@ namespace TilerElements
             }
         }
 
-        virtual public MiscData Notes
-        {
-            get
-            {
-                return _DataBlob;
-            }
-        }
         /// <summary>
         /// Flag to check if a repeating or non-repeating event loads the repeating object
         /// </summary>

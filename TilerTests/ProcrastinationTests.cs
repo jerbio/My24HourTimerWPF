@@ -571,7 +571,7 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
             var backInTImeProcrastinateEVent = Schedule.getProcrastinateAllEvent();
-            Assert.AreEqual(backInTImeProcrastinateEVent.AllSubEvents.Count(), 1);/// there should only be one subcal because schedule only reads about 105 days 15 days before refNow and 90 days after refNow
+            Assert.AreEqual(backInTImeProcrastinateEVent.AllSubEvents.Count(), 3);/// this always pulls all procrastinate all tiles.
 
         }
     }

@@ -1664,28 +1664,11 @@ namespace TilerElements
         }
 
 
-        //public TimeSpan getActiveDuration
-        //{
-        //    get
-        //    {
-        //        return this.StartToEnd.TimelineSpan;
-        //    }
-        //}
-
         virtual public bool isBlobEvent
         {
             get
             {
                 return BlobEvent;
-            }
-    }
-        
-
-        virtual public MiscData Notes
-        { 
-            get
-            {
-                return _DataBlob;
             }
         }
 

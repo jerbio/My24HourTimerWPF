@@ -94,6 +94,37 @@ namespace TilerTests
             Assert.AreEqual(retrievedCalendarEvent.getName.NameValue, newName);
             Assert.IsTrue(retrievedCalendarEvent.isTestEquivalent(testEvent));
         }
+        /// <summary>
+        /// Test creates and adds a non-rigid tile. It then updates the tile while it's outside it look up window.
+        /// Essentially it sets the the refnow to a time frame years out side the time rnage.
+        /// </summary>
+        [TestMethod]
+        public void NameOfNonRigidSubEventUpdate_outsideRange()
+        {
+            string newName = Guid.NewGuid().ToString();
+            TilerUser tilerUser = TestUtility.createUser();
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+            DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("10:00 pm");
+            TestSchedule schedule = new TestSchedule(user, refNow, startOfDay);
+            TimeSpan duration = TimeSpan.FromHours(1);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.Add(duration.Add(duration));
+            CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, new Repetition(), start, end, 1, false);
+            schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
+            DateTimeOffset outSideRangeRefNow = testEvent.End.AddYears(4);
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            TestSchedule scheduleReloaded = new TestSchedule(user, outSideRangeRefNow, startOfDay, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory, calendarIds: new HashSet<string>() { testEvent.Id }) ; ; ;
+            var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(testEvent.getId, new EventName(user.getTilerUser(), testEvent, newName), testEvent.Start, testEvent.End, testEvent.NumberOfSplit, testEvent.Notes.UserNote);
+            scheduleReloaded.persistToDB().Wait();
+            CalendarEvent retrievedCalendarEvent = TestUtility.getCalendarEventById(testEvent.Calendar_EventID, user);
+            Assert.AreEqual(retrievedCalendarEvent.getName.NameValue, newName);
+            Assert.IsTrue(retrievedCalendarEvent.isTestEquivalent(testEvent));
+        }
+
 
         [TestMethod]
         public void NameOfRepeatNonRigidSubEventUpdate()
@@ -672,7 +703,7 @@ namespace TilerTests
             Schedule.AddToScheduleAndCommitAsync(nonRigidCalendarEvent).Wait();
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, startOfDay);
+            Schedule = new TestSchedule(user, refNow, startOfDay, retrievalOptions: DataRetrievalSet.All);
             nonRigidCalendarEvent = Schedule.getCalendarEvent(nonRigidCalendarEvent.Id);
             SubCalendarEvent testSubEvent = nonRigidCalendarEvent.ActiveSubEvents.OrderBy(subEventIter => subEventIter.Start).First();
 
@@ -911,7 +942,7 @@ namespace TilerTests
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             HashSet<string> calendarIds = new HashSet<string>() { nonRigidCalendarEvent.Id };
-            Schedule = new TestSchedule(user, refNow, startOfDay, calendarIds: calendarIds, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
+            Schedule = new TestSchedule(user, refNow, startOfDay, calendarIds: calendarIds, retrievalOptions: DataRetrievalSet.All);
             nonRigidCalendarEvent = Schedule.getCalendarEvent(nonRigidCalendarEvent.Id);
             SubCalendarEvent testSubEvent = Schedule.getAllRelatedActiveSubEvents(nonRigidCalendarEvent.Id).OrderBy(subEventIter => subEventIter.Start).First();
 

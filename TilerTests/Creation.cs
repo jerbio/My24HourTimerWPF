@@ -736,6 +736,11 @@ namespace TilerTests
             Assert.IsTrue(verificationEventPulled.isTestEquivalent(loadedFromSchedule));
         }
 
+        /// <summary>
+        /// This test test to see that the sub events rendered on the front end are correlated on the front end.
+        /// 
+        /// It verifies the auto deleted subevents are not sent to the front end and even if they are included in the schedule manipulation set are not added to the schedule evaluation
+        /// </summary>
         [TestMethod]
         public void TestCreationOfSubeventVerifyWebRetrievaMatchesEvaluationRetrieval()
         {
@@ -776,14 +781,13 @@ namespace TilerTests
             Assert.AreEqual(allSubs.Count, subEventCount);
 
 
-
+            //This creates a repeition tile with and verifies that the subevent counts are valid with those sent to the front end
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             var restrictionProfile = new RestrictionProfile(start, duration + duration);
             repetition = new Repetition(repetitionRange, Repetition.Frequency.WEEKLY, new TimeLine(start, end), weekDaysAsInt.ToArray());
             CalendarEvent testEventRestriction = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, repetitionRange.Start, repetitionRange.End, 1, false, restrictionProfile: restrictionProfile, now: Schedule.Now);
             Schedule = new TestSchedule(user, refNow);
             Schedule.AddToScheduleAndCommitAsync(testEventRestriction).Wait();
-
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             rangeOfLookup = new TimeLine(refNow, testEvent.End);
             LogAccess = user.ScheduleLogControl;
@@ -792,7 +796,7 @@ namespace TilerTests
             task.Wait();
             allSubs = task.Result.ToList();
 
-            taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, Schedule.Now, retrievalOptions: DataRetrievalSet.UiSet);
+            taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, Schedule.Now, retrievalOptions: DataRetrievalSet.scheduleManipulation);
             taskCal.Wait();
             allCals = taskCal.Result.ToList();
             calSubEVents = allCals.Select(obj => obj.Value).SelectMany(obj => obj.AllSubEvents).ToList();
@@ -800,7 +804,7 @@ namespace TilerTests
             Assert.AreEqual(allSubs.Count, repetitionSubEventCount + subEventCount);
             Assert.AreEqual(allSubs.Count, calSubEVents.Count);
 
-
+            //This creates a restricte tile with and verifies that the subevent count schedulmanipualtionset matches those of the UI set
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             restrictionProfile = new RestrictionProfile(start, duration + duration);
             TimeLine repetitionActualRange = new TimeLine(start, end);
@@ -817,17 +821,19 @@ namespace TilerTests
             task.Wait();
             allSubs = task.Result.ToList();
 
-            taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, Schedule.Now, retrievalOptions: DataRetrievalSet.UiSet);
+            taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, Schedule.Now, retrievalOptions: DataRetrievalSet.scheduleManipulation);
             taskCal.Wait();
             allCals = taskCal.Result.ToList();
             calSubEVents = allCals.Select(obj => obj.Value).SelectMany(obj => obj.AllSubEvents).ToList();
+            var activeCalSubEVents = allCals.Select(obj => obj.Value).SelectMany(obj => obj.ActiveSubEvents).ToList();
             int repetitionWeeklySubEventCount = 11;
             int AutoDeletionCount = 9;
             Assert.AreEqual(AutoDeletionCount, testEventRestriction.Repeat.RecurringCalendarEvents().Sum(cal => cal.AutoDeletionCount));
             Assert.AreEqual(allSubs.Count, repetitionSubEventCount + subEventCount + repetitionWeeklySubEventCount);
             
             Assert.AreEqual(allSubs.Count + 9, calSubEVents.Count);
-            
+            Assert.AreEqual(allSubs.Count, activeCalSubEVents.Count);
+
         }
 
 
@@ -941,10 +947,9 @@ namespace TilerTests
 
             Assert.IsTrue(testEvent.isTestEquivalent(newlyaddedevent));
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            var repeatSet = DataRetrievalSet.scheduleManipulation;
-            repeatSet.Add(DataRetrivalOption.Repetition);
-            Schedule = new TestSchedule(user, refNow, retrievalOptions: repeatSet);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithRepeat);
             CalendarEvent calendarEventFromSchedule = Schedule.getCalendarEvent(testEvent.Id);
+            Assert.IsNotNull(calendarEventFromSchedule);
             //Assert.IsTrue(testEvent.isTestEquivalent(calendarEventFromSchedule));
             int currentDayIndex = (int)repetitionRange.Start.DayOfWeek;
             for (int index = 0; index < subEvents.Count; index++)

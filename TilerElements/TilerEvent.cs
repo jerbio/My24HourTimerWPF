@@ -121,7 +121,7 @@ namespace TilerElements
         /// <param name="NewName">The new name of the calendar event</param>
         virtual public void updateEventName(string NewName)
         {
-            _Name.updateName(NewName);
+            this.getName.updateName(NewName);
         }
 
         public List<OptimizedGrouping> evaluateDayPreference(IList<OptimizedGrouping> groupings)
@@ -536,6 +536,15 @@ namespace TilerElements
                 return _isProcrastinateEvent;
             }
         }
+
+        virtual public MiscData Notes
+        {
+            get
+            {
+                return _DataBlob;
+            }
+        }
+
         public bool isThirdParty
         {
             get

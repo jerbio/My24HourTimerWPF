@@ -1281,7 +1281,8 @@ namespace TilerElements
             }
         }
 
-
+        public virtual string RestrictionProfileId { get; set; }
+        [ForeignKey("RestrictionProfileId")]
         public virtual RestrictionProfile RestrictionProfile_DB { get; set; } = null;
 
         public virtual RestrictionProfile RestrictionProfile { get; }

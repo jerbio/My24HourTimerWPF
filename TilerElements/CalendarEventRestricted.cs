@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 
@@ -8,7 +9,8 @@ namespace TilerElements
     public class CalendarEventRestricted:CalendarEvent, IUndoable
     {
         protected RestrictionProfile _ProfileOfRestriction;
-
+        [NotMapped]
+        protected RestrictionProfile _SingleUseProfileOfRestriction;
         public RestrictionProfile UndoProfileOfRestriction;
         protected CalendarEventRestricted ()
         {
@@ -88,8 +90,6 @@ namespace TilerElements
             addUpdatedTimeLine(this.StartToEnd);
             InstantiateSubEvents();
         }
-
-
 
         public CalendarEventRestricted(TilerUser creator, TilerUserGroup userGroup, string timeZone, EventName Name, DateTimeOffset Start, DateTimeOffset End, RestrictionProfile restrictionProfile, TimeSpan Duration, Repetition RepetitionProfile, bool isCompleted, bool isEnabled, int Divisions, bool isRigid, NowProfile profileOfNow, Location Location,TimeSpan EventPreparation,TimeSpan Event_PreDeadline, EventID eventId, ReferenceNow now, Procrastination procrastination, TimeLineHistory updateHistory, EventDisplay UiSettings = null, MiscData NoteData = null)
         {
@@ -259,12 +259,28 @@ namespace TilerElements
             }
         }
 
+        public RestrictionProfile SingleUseRestrictionProfile
+        {
+            get
+            {
+                RestrictionProfile retValue = _SingleUseProfileOfRestriction;
+                _SingleUseProfileOfRestriction = null;
+                return retValue;
+                
+            }
+        }
+
         public override RestrictionProfile RestrictionProfile
         {
             get
             {
-                return _ProfileOfRestriction;
+                return this.SingleUseRestrictionProfile ?? _ProfileOfRestriction;
             }
+        }
+
+        internal void setSingleUseRestrictionProfile(RestrictionProfile restrictionProfile)
+        {
+            _SingleUseProfileOfRestriction = restrictionProfile;
         }
 
         public void setNow (ReferenceNow now, bool updateCalendarEventRange = false)

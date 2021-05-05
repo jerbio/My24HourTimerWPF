@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace TilerElements
 {
-    public enum DataRetrivalOption {TimeLine, Name, DataBlob, Now, Evaluation, Ui, All, None, Prediction, Repetition, Pause, SubEvent, Location, TimeLineHistory};
+    public enum DataRetrivalOption {TimeLine, Name, DataBlob, Now, Evaluation, EvaluationPerformance, Ui, All, None, Prediction, Repetition, Pause, SubEvent, Location, TimeLineHistory};
     public static class DataRetrievalSet
     {
         public readonly static HashSet<DataRetrivalOption> scheduleManipulation = new HashSet<DataRetrivalOption>() {
             DataRetrivalOption.SubEvent,
             DataRetrivalOption.TimeLine,
-            DataRetrivalOption.Evaluation, 
+            DataRetrivalOption.EvaluationPerformance, 
             DataRetrivalOption.Now, 
             DataRetrivalOption.Pause,
             DataRetrivalOption.Location

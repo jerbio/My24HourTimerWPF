@@ -6,13 +6,20 @@ using System.Threading.Tasks;
 
 namespace TilerElements
 {
-    public enum DataRetrivalOption {TimeLine, Name, DataBlob, Now, Evaluation, EvaluationPerformance, Ui, All, None, Prediction, Repetition, Pause, SubEvent, Location, TimeLineHistory};
+    public enum DataRetrivalOption {Name, DataBlob, Now, Evaluation, EvaluationPerformance, Ui, All, None, Prediction, Repetition, Pause, SubEvent, Location, TimeLineHistory};
     public static class DataRetrievalSet
     {
+        public readonly static HashSet<DataRetrivalOption> scheduleManipulationPerformance = new HashSet<DataRetrivalOption>() {
+            DataRetrivalOption.SubEvent,
+            DataRetrivalOption.EvaluationPerformance,
+            DataRetrivalOption.Now,
+            DataRetrivalOption.Pause,
+            DataRetrivalOption.Location
+        };
+
         public readonly static HashSet<DataRetrivalOption> scheduleManipulation = new HashSet<DataRetrivalOption>() {
             DataRetrivalOption.SubEvent,
-            DataRetrivalOption.TimeLine,
-            DataRetrivalOption.EvaluationPerformance, 
+            DataRetrivalOption.Evaluation, 
             DataRetrivalOption.Now, 
             DataRetrivalOption.Pause,
             DataRetrivalOption.Location
@@ -20,7 +27,6 @@ namespace TilerElements
 
         public readonly static HashSet<DataRetrivalOption> scheduleManipulationWithRepeat = new HashSet<DataRetrivalOption>() {
             DataRetrivalOption.SubEvent,
-            DataRetrivalOption.TimeLine,
             DataRetrivalOption.Evaluation,
             DataRetrivalOption.Now,
             DataRetrivalOption.Pause,
@@ -29,7 +35,6 @@ namespace TilerElements
         };
         public readonly static HashSet<DataRetrivalOption> scheduleManipulationWithUpdateHistory = new HashSet<DataRetrivalOption>() {
             DataRetrivalOption.SubEvent,
-            DataRetrivalOption.TimeLine,
             DataRetrivalOption.Evaluation,
             DataRetrivalOption.Now,
             DataRetrivalOption.Pause,
@@ -37,13 +42,13 @@ namespace TilerElements
             DataRetrivalOption.Location
         };
         public readonly static HashSet<DataRetrivalOption> analysisManipulation = new HashSet<DataRetrivalOption>() {
-            DataRetrivalOption.TimeLine,
+            DataRetrivalOption.SubEvent,
             DataRetrivalOption.Evaluation,
             DataRetrivalOption.TimeLineHistory,
-            DataRetrivalOption.Location
+            DataRetrivalOption.Location,
+            DataRetrivalOption.Now
         };
-        public readonly static HashSet<DataRetrivalOption> NoteSet = new HashSet<DataRetrivalOption>() { DataRetrivalOption.DataBlob };
-        public readonly static HashSet<DataRetrivalOption> UiSet= new HashSet<DataRetrivalOption>() { DataRetrivalOption.Ui, DataRetrivalOption.Location, DataRetrivalOption.Name, };
+        public readonly static HashSet<DataRetrivalOption> UiSet = new HashSet<DataRetrivalOption>() { DataRetrivalOption.Ui, DataRetrivalOption.Location, DataRetrivalOption.Name, DataRetrivalOption.SubEvent, };
         public readonly static HashSet<DataRetrivalOption> All = new HashSet<DataRetrivalOption>() { DataRetrivalOption.All };
     }
 }

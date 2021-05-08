@@ -143,6 +143,10 @@
     <Compile Include="LogControlDump.cs" />
     <Compile Include="LogControlTest.cs" />
     <Compile Include="LogicTest.cs" />
+    <Compile Include="Migrations\202105072209479_restrictionProfileIdColumn.cs" />
+    <Compile Include="Migrations\202105072209479_restrictionProfileIdColumn.designer.cs">
+      <DependentUpon>202105072209479_restrictionProfileIdColumn.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
     <Compile Include="Models\TestGoogleEvent.cs" />
@@ -171,6 +175,7 @@
     <Compile Include="AutoSuggestDeadlineTest.cs" />
     <Compile Include="PauseResumeTest.cs" />
     <Compile Include="ReviseSchedule.cs" />
+    <Compile Include="DBRetrievalOption.cs" />
     <Compile Include="UserAccountDump.cs" />
     <Compile Include="UserAccountTest.cs" />
     <Compile Include="WhatIfTest.cs" />
@@ -333,6 +338,11 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="WagTapCalLogs\69e9166b-6754-46cf-b384-66c5557048f8\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\202105072209479_restrictionProfileIdColumn.resx">
+      <DependentUpon>202105072209479_restrictionProfileIdColumn.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

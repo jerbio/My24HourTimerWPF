@@ -297,11 +297,15 @@ namespace TilerElements
                 }
             } else
             {
-                foreach (SubCalendarEvent subEvent in AllSubEvents)
-                {//only selecting Active Subevents for performance reasons
-                    SubCalendarEventRestricted subEventAsRestricted = (subEvent as SubCalendarEventRestricted);
-                    subEventAsRestricted?.setNow(now, updateCalendarEventRange);
-                };
+                if(AllSubEvents!=null)
+                {
+                    foreach (SubCalendarEvent subEvent in AllSubEvents)
+                    {//only selecting Active Subevents for performance reasons
+                        SubCalendarEventRestricted subEventAsRestricted = (subEvent as SubCalendarEventRestricted);
+                        subEventAsRestricted?.setNow(now, updateCalendarEventRange);
+                    };
+                }
+                
             }
             
 

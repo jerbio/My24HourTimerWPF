@@ -5,13 +5,15 @@ using System.Text;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations.Schema;
+using Newtonsoft.Json.Linq;
 
 namespace TilerElements
 {
     /// <summary>
     /// Reperesents the restriction of profile. This is to be used with events. There is no to be a default constructor for semantic purposes
     /// </summary>
-    public class RestrictionProfile: IUndoable
+    [Serializable]
+    public class RestrictionProfile: IUndoable, IJson
     {
         protected string _Id = Guid.NewGuid().ToString();
         static DateTimeOffset SundayDate = new DateTimeOffset(2015, 3, 15, 0, 0, 0, new TimeSpan());
@@ -30,7 +32,7 @@ namespace TilerElements
         /// The Tuple Item1 '0' means the origin is from the day in the 0 index of NoNull_DaySelections.
         /// The Tuple Item2 '1' means it is overlaps 1 day after the original. So it overlaps one more day, which is in this case Sunday. The original day in this case is Saturday.
         /// </summary>
-        protected List<Tuple<int,int>>[] _DayOfWeekToOverlappingIndexes = new List<Tuple<int,int>>[7];
+        private List<Tuple<int,int>>[] _DayOfWeekToOverlappingIndexes = new List<Tuple<int,int>>[7];
 
 
         bool[] _ActiveDays = new bool[7];
@@ -683,6 +685,12 @@ namespace TilerElements
             {
                 noNullDay.redo(undoId);
             }
+        }
+
+        public JObject ToJson()
+        {
+            JObject retValue = new JObject();
+            return retValue;
         }
         #endregion
 

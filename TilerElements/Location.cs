@@ -28,6 +28,7 @@ using GoogleApi.Entities.Places.Search.Find.Response;
 using Newtonsoft.Json;
 using GoogleMaps = GoogleMapsApi.GoogleMaps;
 using System.Diagnostics;
+using Newtonsoft.Json.Linq;
 
 namespace TilerElements
 {
@@ -69,6 +70,9 @@ namespace TilerElements
         protected TilerUser _User;
         protected LocationValidation _LocationValidation;
         protected TilerEvent _Event;
+
+        protected RestrictionProfile _Restriction = null;
+
 
         /// <summary>
         /// was tiler able to pull location from google maps. If tiler fails to pull location from google maps then this location is null.
@@ -850,6 +854,14 @@ namespace TilerElements
             }
         }
 
+        public RestrictionProfile RestrictionProfile
+        {
+            get
+            {
+                return this._Restriction;
+            }
+        }
+
         public string LocationValidation_DB
         {
             get
@@ -1114,6 +1126,37 @@ namespace TilerElements
             set
             {
                 _UndoDefaultFlag = value;
+            }
+        }
+
+        public string RestrictionProfile_DB
+        {
+            get
+            {
+                string retValue = "";
+                if (_Restriction != null)
+                {
+                    JObject retJObject = new JObject();
+                    retJObject.Add("DaySelection_DbString", _Restriction.DaySelection_DbString);
+                    retJObject.Add("NoNull_DaySelections_DbString", _Restriction.NoNull_DaySelections_DbString);
+                    retValue = retJObject.ToString();
+                }
+                return retValue;
+            }
+
+            set
+            {
+                if(value.isNot_NullEmptyOrWhiteSpace())
+                {
+                    RestrictionProfile serializedObject = JsonConvert.DeserializeObject<RestrictionProfile>(value);
+                    serializedObject.InitializeOverLappingDictionary();
+                    _Restriction = serializedObject;
+                }
+                else
+                {
+                    _Restriction = null;
+                }
+                
             }
         }
         [Index("UserIdAndDesciption", Order = 0, IsUnique = true)]

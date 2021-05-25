@@ -162,13 +162,9 @@
     <Compile Include="LogControlDump.cs" />
     <Compile Include="LogControlTest.cs" />
     <Compile Include="LogicTest.cs" />
-    <Compile Include="Migrations\202105072209479_restrictionProfileIdColumn.cs" />
-    <Compile Include="Migrations\202105072209479_restrictionProfileIdColumn.designer.cs">
-      <DependentUpon>202105072209479_restrictionProfileIdColumn.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202105242218216_restrictionProfileForLocation.cs" />
-    <Compile Include="Migrations\202105242218216_restrictionProfileForLocation.designer.cs">
-      <DependentUpon>202105242218216_restrictionProfileForLocation.cs</DependentUpon>
+    <Compile Include="Migrations\202105250304491_stringifiedRestrictionProfile.cs" />
+    <Compile Include="Migrations\202105250304491_stringifiedRestrictionProfile.designer.cs">
+      <DependentUpon>202105250304491_stringifiedRestrictionProfile.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
@@ -363,11 +359,8 @@
     <Folder Include="WagTapCalLogs\69e9166b-6754-46cf-b384-66c5557048f8\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\202105072209479_restrictionProfileIdColumn.resx">
-      <DependentUpon>202105072209479_restrictionProfileIdColumn.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202105242218216_restrictionProfileForLocation.resx">
-      <DependentUpon>202105242218216_restrictionProfileForLocation.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\202105250304491_stringifiedRestrictionProfile.resx">
+      <DependentUpon>202105250304491_stringifiedRestrictionProfile.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Choose>

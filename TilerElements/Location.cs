@@ -71,8 +71,6 @@ namespace TilerElements
         protected LocationValidation _LocationValidation;
         protected TilerEvent _Event;
 
-        protected RestrictionProfile _Restriction = null;
-
 
         /// <summary>
         /// was tiler able to pull location from google maps. If tiler fails to pull location from google maps then this location is null.
@@ -222,6 +220,10 @@ namespace TilerElements
                             Radius = 5000
                         };
 
+
+
+
+
                         var response = GooglePlaces.FindSearch.Query(placesFindSearchRequest);
                         GoogleApi.Entities.Places.Search.Find.Response.Candidate candidate = null;
 
@@ -229,9 +231,26 @@ namespace TilerElements
 
                         if (response.Status == GoogleApi.Entities.Common.Enums.Status.Ok)
                         {
+                            var jsonData = response.RawJson;
+                            candidate = response.Candidates.FirstOrDefault();
+
+                            var placesDetailRequest = new GoogleApi.Entities.Places.Details.Request.PlacesDetailsRequest()
+                            {
+                                Fields = [GoogleApi.Entities.Places.Details.Request.Enums.FieldTypes.Basic],
+                                Key = Location.ApiKey,
+                                PlaceId = candidate.PlaceId,
+                            };
+                            var detailResponse = GooglePlaces.Details.Query(placesDetailRequest);
+                            if (detailResponse.Status == GoogleApi.Entities.Common.Enums.Status.Ok)
+                            {
+                                //https://maps.googleapis.com/maps/api/place/details/json?place_id=ChIJsalwnJyMa4cRrt3GDP5iygM&fields=name,rating,formatted_phone_number,opening_hours,utc_offset&key=AIzaSyDXrtMxPbt6Dqlllpm77AQ47vcCFxZ4oUU
+                                //TODO Make request as above directly to google maps api using rest request withou using the GooglePlaces.Details.Query. This is because we can't add muliple parameters
+                                var detailJsonData = detailResponse.RawJson;
+                            }
+
                             googleRemoteWatch.Stop();
                             Debug.WriteLine("Google remote request took " + googleRemoteWatch.Elapsed.ToString());
-                            candidate = response.Candidates.FirstOrDefault();
+
                             retValue = new LocationJson();
                             if (candidate != null)
                             {
@@ -713,6 +732,14 @@ namespace TilerElements
             }
         }
 
+        public bool isRestricted
+        {
+            get 
+            { 
+                return this.RestrictionProfile != null;
+            }
+        }
+
         public static Location getClosestLocation(IEnumerable<Location> AllLocations, Location RefLocation)
         {
             Location RetValue = null;
@@ -854,13 +881,6 @@ namespace TilerElements
             }
         }
 
-        public RestrictionProfile RestrictionProfile
-        {
-            get
-            {
-                return this._Restriction;
-            }
-        }
 
         public string LocationValidation_DB
         {
@@ -1134,11 +1154,11 @@ namespace TilerElements
             get
             {
                 string retValue = "";
-                if (_Restriction != null)
+                if (_ProfileOfRestriction != null)
                 {
                     JObject retJObject = new JObject();
-                    retJObject.Add("DaySelection_DbString", _Restriction.DaySelection_DbString);
-                    retJObject.Add("NoNull_DaySelections_DbString", _Restriction.NoNull_DaySelections_DbString);
+                    retJObject.Add("DaySelection_DbString", _ProfileOfRestriction.DaySelection_DbString);
+                    retJObject.Add("NoNull_DaySelections_DbString", _ProfileOfRestriction.NoNull_DaySelections_DbString);
                     retValue = retJObject.ToString();
                 }
                 return retValue;
@@ -1150,11 +1170,11 @@ namespace TilerElements
                 {
                     RestrictionProfile serializedObject = JsonConvert.DeserializeObject<RestrictionProfile>(value);
                     serializedObject.InitializeOverLappingDictionary();
-                    _Restriction = serializedObject;
+                    _ProfileOfRestriction = serializedObject;
                 }
                 else
                 {
-                    _Restriction = null;
+                    _ProfileOfRestriction = null;
                 }
                 
             }
@@ -1175,20 +1195,20 @@ namespace TilerElements
             }
         }
 
-        public virtual string RestrictionProfileId { get; set; }
-        [ForeignKey("RestrictionProfileId")]
-        public virtual RestrictionProfile RestrictionProfile_DB
-        {
-            set
-            {
-                _ProfileOfRestriction = value;
-            }
+        //public virtual string RestrictionProfileId { get; set; }
+        //[ForeignKey("RestrictionProfileId")]
+        //public virtual RestrictionProfile RestrictionProfile_DB
+        //{
+        //    set
+        //    {
+        //        _ProfileOfRestriction = value;
+        //    }
 
-            get
-            {
-                return _ProfileOfRestriction;
-            }
-        }
+        //    get
+        //    {
+        //        return _ProfileOfRestriction;
+        //    }
+        //}
         #endregion
     }
 }

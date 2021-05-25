@@ -248,7 +248,7 @@ namespace TilerElements
             this._Priority = MyUpdated.getEventPriority;
             this._UiParams = MyUpdated.getUIParam;
             this._DataBlob = MyUpdated.Notes;
-            this.isRestricted = MyUpdated.getIsEventRestricted;
+            this._isEventRestricted = MyUpdated.getIsEventRestricted;
             this._LocationInfo = MyUpdated.Location;//hack you might need to make copy
             this._ProfileOfProcrastination = MyUpdated.getProcrastinationInfo;
             this._AutoDeleted = MyUpdated.getIsUserDeleted;
@@ -595,7 +595,7 @@ namespace TilerElements
             MyCalendarEventCopy._UiParams = this._UiParams?.createCopy();
             MyCalendarEventCopy._DataBlob = this._DataBlob?.createCopy();
             MyCalendarEventCopy._Enabled = this._Enabled;
-            MyCalendarEventCopy.isRestricted = this.isRestricted;
+            MyCalendarEventCopy._isEventRestricted = this._isEventRestricted;
             MyCalendarEventCopy._LocationInfo = _LocationInfo;//hack you might need to make copy
             MyCalendarEventCopy._ProfileOfProcrastination = this._ProfileOfProcrastination?.CreateCopy();
             MyCalendarEventCopy._AutoDeleted = this._AutoDeleted;
@@ -1646,7 +1646,7 @@ namespace TilerElements
             RetValue._UiParams = this.getUIParam;
             RetValue._DataBlob = this.Notes;
             RetValue._Enabled = this.isEnabled;
-            RetValue.isRestricted = this.getIsEventRestricted;
+            RetValue._isEventRestricted = this.getIsEventRestricted;
             RetValue._LocationInfo = this._LocationInfo;//hack you might need to make copy
             RetValue._ProfileOfProcrastination = this.getProcrastinationInfo?.CreateCopy();
             RetValue._AutoDeleted = this.getIsUserDeleted;
@@ -2067,14 +2067,24 @@ namespace TilerElements
 
         virtual protected void updateCalculationStartToEnd()
         {
-            DateTimeOffset start = this.CalculationStart;
-            DateTimeOffset end = this.End;
-            if (this.CalculationStart > this.End)
+            if(!this.getIsEventRestricted)
             {
-                end = this.CalculationStart;
-            }
+                DateTimeOffset start = this.CalculationStart;
+                DateTimeOffset end = this.End;
+                if (this.CalculationStart > this.End)
+                {
+                    end = this.CalculationStart;
+                }
 
-            _CalculationStartToEnd = new TimeLine(start, end);
+                _CalculationStartToEnd = new TimeLine(start, end);
+                return;
+            }
+            updateCalculationStartToEndRestricted(this.RestrictionProfile);
+        }
+
+        virtual protected void updateCalculationStartToEndRestricted(RestrictionProfile restrictionProfile)
+        {
+            _CalculationStartToEnd = new TimeLineRestricted(this.CalculationStart, this.End, restrictionProfile, Now);
         }
 
         protected override void updateStartTime(DateTimeOffset time)

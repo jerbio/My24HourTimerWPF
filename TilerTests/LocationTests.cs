@@ -452,5 +452,48 @@ namespace TilerTests
                 }
             }
         }
+
+        /// <summary>
+        /// Function uses an ambiguous location entry, retrieves the restricted time frame and schedules the tile only within the restricted hours retrieved from maps
+        /// </summary>
+        [TestMethod]
+        public void restrictedLocation()
+        {
+            //throw new Exception("test is not written");
+            var packet = TestUtility.CreatePacket();
+            string locationName = "Bad Daddy's Burger Bar";
+            Location currLocation = new Location("3755 Moorhead Ave, Boulder, CO 80305");
+            currLocation.verify();
+            Location home = new Location("200 summit blvd Boulder CO", "home");
+            Location work = new Location("3333 walnut rd boulder CO", "work");
+            Location walmartLocation = new Location(locationName);
+            UserAccount user = packet.Account;
+            TilerUser tilerUser = packet.User;
+
+            DateTimeOffset refNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
+            TimeSpan duration = TimeSpan.FromHours(3);
+            DateTimeOffset start = refNow;
+            DateTimeOffset end = refNow.Add(duration + duration + duration);
+            TimeLine repetitionRange = new TimeLine(start, start.AddDays(13).AddHours(-23));
+            TimeLine actualRange = new TimeLine(start, start.AddDays(1).AddHours(-1));
+
+
+
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            Repetition walmartRepetition = new Repetition(repetitionRange, Repetition.Frequency.DAILY, actualRange);
+            CalendarEvent walmartTestCalEvent = TestUtility.generateCalendarEvent(tilerUser, duration, walmartRepetition, start, end, 3, location: walmartLocation);
+
+            TestSchedule Schedule = new TestSchedule(user, refNow);
+            Schedule.CurrentLocation = home;
+            Schedule.AddToScheduleAndCommitAsync(walmartTestCalEvent).Wait();
+            
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
+            SubCalendarEvent firstSubEvent = walmartTestCalEvent.ActiveSubEvents.First();
+            SubCalendarEvent firstSubEventRetrived = TestUtility.getSubEventById(firstSubEvent.Id, user);
+            Location subEventLocation = firstSubEventRetrived.Location;
+            Assert.IsTrue(subEventLocation.isRestricted, "This walmart has certain work hours and these hours need to be set");
+
+        }
+
     }
 }

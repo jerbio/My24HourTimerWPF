@@ -39,7 +39,7 @@ namespace TilerElements
         protected TimeSpan _PrepTime;
         protected EventID UniqueID;
         protected int _Priority;
-        protected bool isRestricted = false;
+        protected bool _isEventRestricted = false;
         protected static DateTimeOffset EventNow = DateTimeOffset.UtcNow;
         protected static TimeSpan CalculationEndSpan = new TimeSpan(180, 0, 0, 0, 0);
         protected Procrastination _ProfileOfProcrastination;
@@ -319,7 +319,7 @@ namespace TilerElements
             UndoEventPreDeadline = _EventPreDeadline;
             UndoPrepTime = _PrepTime;
             UndoPriority = _Priority;
-            UndoIsRestricted = isRestricted;
+            UndoIsRestricted = _isEventRestricted;
             UndoCalculationEndSpan = CalculationEndSpan;
             _ProfileOfProcrastination.undoUpdate(undo);
             _ProfileOfNow.undoUpdate(undo);
@@ -353,7 +353,7 @@ namespace TilerElements
                 Utility.Swap(ref UndoEventPreDeadline, ref _EventPreDeadline);
                 Utility.Swap(ref UndoPrepTime, ref _PrepTime);
                 Utility.Swap(ref UndoPriority, ref _Priority);
-                Utility.Swap(ref UndoIsRestricted, ref isRestricted);
+                Utility.Swap(ref UndoIsRestricted, ref _isEventRestricted);
                 Utility.Swap(ref UndoCalculationEndSpan, ref CalculationEndSpan);
                 _ProfileOfProcrastination.undo(undoId);
                 _ProfileOfNow.undo(undoId);
@@ -386,7 +386,7 @@ namespace TilerElements
                 Utility.Swap(ref UndoEventPreDeadline, ref _EventPreDeadline);
                 Utility.Swap(ref UndoPrepTime, ref _PrepTime);
                 Utility.Swap(ref UndoPriority, ref _Priority);
-                Utility.Swap(ref UndoIsRestricted, ref isRestricted);
+                Utility.Swap(ref UndoIsRestricted, ref _isEventRestricted);
                 Utility.Swap(ref UndoCalculationEndSpan, ref CalculationEndSpan);
                 _ProfileOfProcrastination.undo(undoId);
                 _ProfileOfNow.undo(undoId);
@@ -1083,11 +1083,11 @@ namespace TilerElements
         {
             get
             {
-                return this.isRestricted;
+                return this._isEventRestricted;
             }
             set
             {
-                this.isRestricted = value;
+                this._isEventRestricted = value;
             }
         }
 
@@ -1328,27 +1328,45 @@ namespace TilerElements
         }
 
         virtual public TimeSpan getPreparation
-         {
-             get
-             {
-                 return _PrepTime;
-             }
-         }
-         public TimeSpan getPreDeadline
-         {
-             get
-             {
-                 return _EventPreDeadline;
-             }
-         }
+        {
+            get
+            {
+                return _PrepTime;
+            }
+        }
+        public TimeSpan getPreDeadline
+        {
+            get
+            {
+                return _EventPreDeadline;
+            }
+        }
 
-         public bool getIsEventRestricted
-         {
-             get
-             {
-                 return isRestricted;
-             }
-         }
+        /// <summary>
+        /// This returns true if the actual tilerEvent is restricted. This does not check any other componen is restricted.
+        /// If you want to verify if a component of the tile is restricted then you need to use <see cref="isRestricted"/>
+        /// </summary>
+        public bool getIsEventRestricted
+        {
+            get
+            {
+                return _isEventRestricted || this.RestrictionProfile!=null;
+            }
+        }
+
+        /// <summary>
+        /// Getter function returns returns true if any components of tile is restricted. So this could be the locaion or the tile.
+        /// If you want to verify if the just tilerEvent is restriceted then use <see cref="getIsEventRestricted"/>
+        /// </summary>
+        public bool isRestricted
+        {
+            get
+            {
+                return this.getIsEventRestricted || this.Location!= null ? this.Location.isRestricted : false;
+            }
+        }
+
+
         public bool getIsDeadlineElapsed
          {
              get 

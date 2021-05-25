@@ -466,7 +466,7 @@ namespace TilerElements
             SubCalendarEvent copy = new SubCalendarEvent(parentCalendarEvent, getCreator, _Users, this._TimeZone, Id, this.getName?.createCopy(), Start, End, BusyFrame?.CreateCopy() as BusyTimeLine, this._RigidSchedule, this.isEnabled, this._UiParams?.createCopy(), this.Notes?.createCopy(), this._Complete, this._LocationInfo, new TimeLine(getCalendarEventRange.Start, getCalendarEventRange.End), _ConflictingEvents?.CreateCopy());
             copy.ThirdPartyID = this.ThirdPartyID;
             copy._AutoDeleted = this._AutoDeleted;
-            copy.isRestricted = this.isRestricted;
+            copy._isEventRestricted = this._isEventRestricted;
             copy.preferredDayIndex = this.preferredDayIndex;
             copy._Creator = this._Creator;
             copy._Semantics = this._Semantics != null ? this._Semantics.createCopy() : null;
@@ -547,55 +547,33 @@ namespace TilerElements
         virtual public bool PinToStart(TimeLine limitingTimeLine)
         {
             TimeLine reEvaluatedLimitingTimeLine = limitingTimeLine;
-            if (this.Location.RestrictionProfile != null)
+            if (this.isRestricted)
             {
+                if(this.getIsEventRestricted)
+                {
+                    
+                    if(!this.Location.isRestricted)
+                    {
+                        return PinToStartRestricted(limitingTimeLine, this.RestrictionProfile);
+                    }
+                    else
+                    {
+                        List<TimeLine> allPossibleTimelines = this.RestrictionProfile.getAllNonPartialTimeFrames(limitingTimeLine).Where(obj => obj.TimelineSpan >= getActiveDuration).OrderBy(obj => obj.Start).ToList();
+                        bool pinResult = false;
+                        foreach (TimeLine eachTimeline in allPossibleTimelines)
+                        {
+                            pinResult = PinToStartRestricted(eachTimeline, this.Location.RestrictionProfile);
+                            if (pinResult)
+                            {
+                                break;
+                            }
+                        }
+                        return pinResult;
+                    }
+                }
                 return PinToStartRestricted(limitingTimeLine, this.Location.RestrictionProfile);
             }
             return PinToStartUnrestricted(limitingTimeLine);
-
-            DateTimeOffset ReferenceStartTime = new DateTimeOffset();
-            DateTimeOffset ReferenceEndTime = new DateTimeOffset();
-
-            ReferenceStartTime = reEvaluatedLimitingTimeLine.Start;
-            if (this.getCalculationRange.Start > reEvaluatedLimitingTimeLine.Start)
-            {
-                ReferenceStartTime = this.getCalculationRange.Start;
-            }
-
-            ReferenceEndTime = this.getCalculationRange.End;
-            if (this.getCalculationRange.End > reEvaluatedLimitingTimeLine.End)
-            {
-                ReferenceEndTime = reEvaluatedLimitingTimeLine.End;
-            }
-
-            /*foreach (SubCalendarEvent MySubCalendarEvent in MySubCalendarEventList)
-            {
-                SubCalendarTimeSpan = SubCalendarTimeSpan.Add(MySubCalendarEvent.ActiveDuration);//  you might be able to combine the implementing for lopp with this in order to avoid several loops
-            }*/
-            TimeSpan TimeDifference = (ReferenceEndTime - ReferenceStartTime);
-
-            if (this.isLocked)
-            {
-                return (reEvaluatedLimitingTimeLine.IsTimeLineWithin( this.StartToEnd));
-            }
-
-            if (this._EventDuration > TimeDifference)
-            {
-                return false;
-                //throw new Exception("Oh oh check PinSubEventsToStart Subcalendar is longer than available timeline");
-            }
-            if ((ReferenceStartTime > this.getCalculationRange.End) || (ReferenceEndTime < this.getCalculationRange.Start))
-            {
-                return false;
-            }
-
-            List<BusyTimeLine> MyActiveSlot = new List<BusyTimeLine>();
-            
-            this.updateStartTime( ReferenceStartTime);
-            this.updateEndTime( this.Start + this.getActiveDuration);
-            TimeSpan BusyTimeLineShift = this.Start - ActiveSlot.Start;
-            ActiveSlot.shiftTimeline(BusyTimeLineShift);
-            return true;
         }
 
 
@@ -747,7 +725,7 @@ namespace TilerElements
                 this.updateEndTime(SubEventEntry.End);
                 this._EventPreDeadline = SubEventEntry.getPreDeadline;
                 this._EventScore = SubEventEntry.Score;
-                this.isRestricted = SubEventEntry.getIsEventRestricted;
+                this._isEventRestricted = SubEventEntry.getIsEventRestricted;
                 this._LocationInfo = SubEventEntry._LocationInfo;
                 this.OldPreferredIndex = SubEventEntry.OldUniversalIndex;
                 this._otherPartyID = SubEventEntry.ThirdPartyID;
@@ -812,7 +790,7 @@ namespace TilerElements
             retValue.updateEndTime(this.End);
             retValue._EventPreDeadline = this.getPreDeadline;
             retValue._EventScore = this.Score;
-            retValue.isRestricted = this.getIsEventRestricted;
+            retValue._isEventRestricted = this.getIsEventRestricted;
             retValue._LocationInfo = (this._LocationInfo == null) ? Location.getNullLocation() : this._LocationInfo.CreateCopy();
             retValue.OldPreferredIndex = this.OldUniversalIndex;
             retValue.preferredDayIndex = this.UniversalDayIndex;
@@ -883,10 +861,33 @@ namespace TilerElements
         virtual public bool PinToEnd(TimeLine limitingTimeLine)
         {
             TimeLine reEvaluatedLimitingTimeLine = limitingTimeLine;
-            if (this.Location.RestrictionProfile != null)
+            if (this.isRestricted)
             {
+                if (this.getIsEventRestricted)
+                {
+
+                    if (!this.Location.isRestricted)
+                    {
+                        return PinToEndRestricted(limitingTimeLine, this.RestrictionProfile);
+                    }
+                    else
+                    {
+                        List<TimeLine> allPossibleTimelines = this.RestrictionProfile.getAllNonPartialTimeFrames(limitingTimeLine).Where(obj => obj.TimelineSpan >= getActiveDuration).OrderByDescending(obj => obj.End).ToList();
+                        bool pinResult = false;
+                        foreach (TimeLine eachTimeline in allPossibleTimelines)
+                        {
+                            pinResult = PinToEndRestricted(eachTimeline, this.Location.RestrictionProfile);
+                            if (pinResult)
+                            {
+                                break;
+                            }
+                        }
+                        return pinResult;
+                    }
+                }
                 return PinToEndRestricted(limitingTimeLine, this.Location.RestrictionProfile);
             }
+
             return PinToEndUnrestricted(limitingTimeLine);
         }
 

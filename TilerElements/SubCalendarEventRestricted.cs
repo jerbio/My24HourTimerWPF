@@ -39,7 +39,7 @@ namespace TilerElements
             string subEventID = ""
             )
         { 
-            isRestricted =true;
+            _isEventRestricted =true;
             this.updateStartTime( Start);
             this.updateEndTime( End);
             _EventDuration = End - Start;
@@ -73,7 +73,7 @@ namespace TilerElements
 
         public SubCalendarEventRestricted()
         {
-            isRestricted = true;
+            _isEventRestricted = true;
             updateStartTime( new DateTimeOffset());
             updateEndTime( new DateTimeOffset());
             _EventDuration = End - Start;
@@ -118,96 +118,6 @@ namespace TilerElements
         public IEnumerable<TimeLine> getFeasibleTimeLines(TimeLine TimeLineEntry)
         {
             return _ProfileOfRestriction.getAllNonPartialTimeFrames(TimeLineEntry);
-        }
-
-
-        public override bool PinToEnd(TimeLine LimitingTimeLineData)
-        {
-            if (this.isLocked)
-            {
-                return (LimitingTimeLineData.IsTimeLineWithin(this.StartToEnd));
-            }
-
-            TimeLine LimitingTimeLine = LimitingTimeLineData.InterferringTimeLine(getCalculationRange);
-            if (LimitingTimeLine == null)
-            {
-                return false;
-            }
-
-
-            bool retValue = false;
-            List <TimeLine> allPossibleTimelines = _ProfileOfRestriction.getAllNonPartialTimeFrames(LimitingTimeLine).Where(obj => obj.TimelineSpan >= getActiveDuration).OrderByDescending(obj => obj.End).ToList();
-            if (allPossibleTimelines.Count > 0)
-            {
-                foreach (TimeLine eachTimeline in allPossibleTimelines)
-                {
-                    TimeLine matchingTimeLine = LimitingTimeLine.InterferringTimeLine(eachTimeline);
-                    retValue |= matchingTimeLine != null;
-                    TimeLine RestrictedLimitingFrame = _ProfileOfRestriction.getLatestActiveTimeFrameBeforeEnd(LimitingTimeLine).Item1;
-                    if (RestrictedLimitingFrame.TimelineSpan < getActiveDuration)
-                    {
-                        RestrictedLimitingFrame = _ProfileOfRestriction.getLatestFullFrame(LimitingTimeLine);
-                    }
-                    retValue = base.PinToEnd(RestrictedLimitingFrame);
-                    if (retValue)
-                    {
-                        break;
-                    }
-                }
-                
-            }
-            else
-            {
-                return false;
-            }
-
-            
-            return retValue;
-        }
-
-        public override bool PinToStart(TimeLine MyTimeLineEntry)
-        {
-            if (this.isLocked)
-            {
-                return (MyTimeLineEntry.IsTimeLineWithin(this.StartToEnd));
-            }
-
-            TimeLine MyTimeLine = MyTimeLineEntry.InterferringTimeLine(getCalculationRange);
-            if (MyTimeLine == null)
-            {
-                return false;
-            }
-
-            bool retValue = false;
-
-
-            List<TimeLine> allPossibleTimelines = _ProfileOfRestriction.getAllNonPartialTimeFrames(MyTimeLine).Where(obj=>obj.TimelineSpan>=getActiveDuration).OrderBy(obj=>obj.Start).ToList();
-
-            if (allPossibleTimelines.Count > 0)
-            {
-                foreach (TimeLine eachTimeline in allPossibleTimelines)
-                {
-                    TimeLine matchingTimeLine = MyTimeLine.InterferringTimeLine(eachTimeline);
-                    retValue |= matchingTimeLine != null;
-
-                    TimeLine RestrictedLimitingFrame = _ProfileOfRestriction.getEarliestActiveFrameAfterBeginning(matchingTimeLine).Item1;
-                    if (RestrictedLimitingFrame.TimelineSpan < getActiveDuration)
-                    {
-                        RestrictedLimitingFrame = _ProfileOfRestriction.getEarliestFullframe(matchingTimeLine);
-                    }
-                    retValue = base.PinToStart(RestrictedLimitingFrame);
-                    if (retValue)
-                    {
-                        break;
-                    }
-                }
-            }
-            else 
-            {
-                return false;
-            }
-            
-            return retValue;
         }
 
 
@@ -278,7 +188,7 @@ namespace TilerElements
             copy._EventPreDeadline = this._EventPreDeadline;
             copy._EventScore = this._EventScore;
             copy.HardCalendarEventRange = this.HardCalendarEventRange?.CreateCopy();
-            copy.isRestricted = this.isRestricted;
+            copy._isEventRestricted = this._isEventRestricted;
             copy.Vestige = this.Vestige;
             copy._LocationInfo = this.LocationObj;
             copy.LocationValidationId_DB = this.LocationValidationId_DB;
@@ -475,7 +385,7 @@ namespace TilerElements
             retValue.updateEndTime( this.End);
             retValue._EventPreDeadline = this.getPreDeadline;
             retValue._EventScore = this.Score;
-            retValue.isRestricted = this.getIsEventRestricted;
+            retValue._isEventRestricted = this.getIsEventRestricted;
             retValue._LocationInfo = this.Location;
             retValue.OldPreferredIndex = this.OldUniversalIndex;
             retValue._otherPartyID = this.ThirdPartyID;

@@ -63,7 +63,7 @@ namespace TilerElements
             {
                 _AverageTimePerSplit = new TimeSpan();
             }
-            isRestricted = true;
+            _isEventRestricted = true;
             _ProfileOfNow = profileOfNow?? new NowProfile();
             this._Creator = creator;
             this._Users = userGroup;
@@ -105,7 +105,7 @@ namespace TilerElements
             _UiParams = UiSettings;
             _DataBlob = NoteData;
             _ProfileOfNow = profileOfNow??new NowProfile();
-            isRestricted = true;
+            _isEventRestricted = true;
             _EventDuration = Duration;
             if (_Splits != 0) {
                 _AverageTimePerSplit = TimeSpan.FromTicks(_EventDuration.Ticks / _Splits);
@@ -152,7 +152,7 @@ namespace TilerElements
             retValue._Enabled = true;
             retValue._Splits = division;
             retValue._AverageTimePerSplit = TimeSpan.FromTicks( retValue._EventDuration.Ticks / division);
-            retValue.isRestricted = true;
+            retValue._isEventRestricted = true;
             retValue._LocationInfo = Location;
             retValue.EndOfCalculation = End < TilerEvent.EventNow.Add(CalculationEndSpan) ? End : TilerEvent.EventNow.Add(CalculationEndSpan);
             retValue._RigidSchedule = RigidFlag;
@@ -194,7 +194,7 @@ namespace TilerElements
             MyCalendarEventCopy._UiParams = this._UiParams?.createCopy();
             MyCalendarEventCopy._DataBlob = this._DataBlob?.createCopy();
             MyCalendarEventCopy._Enabled = this._Enabled;
-            MyCalendarEventCopy.isRestricted = this.isRestricted;
+            MyCalendarEventCopy._isEventRestricted = this._isEventRestricted;
             MyCalendarEventCopy._LocationInfo = _LocationInfo;//hack you might need to make copy
             MyCalendarEventCopy._AutoDeleted = this._AutoDeleted;
             MyCalendarEventCopy._CompletedCount = this._CompletedCount;
@@ -331,7 +331,7 @@ namespace TilerElements
             RetValue._UiParams = this.getUIParam?.createCopy();
             RetValue._DataBlob = this.Notes;
             RetValue._Enabled = this.isEnabled;
-            RetValue.isRestricted = this.getIsEventRestricted;
+            RetValue._isEventRestricted = this.getIsEventRestricted;
             RetValue._LocationInfo = this.Location;//hack you might need to make copy
             RetValue._AutoDeleted = this.getIsUserDeleted;
             RetValue._CompletedCount = this.CompletionCount;
@@ -500,10 +500,6 @@ namespace TilerElements
             updateCalculationStartToEnd();
         }
 
-        protected override void updateCalculationStartToEnd()
-        {
-            _CalculationStartToEnd = new TimeLineRestricted(this.CalculationStart, this.End, this.RestrictionProfile, Now);
-        }
         public override TimeLine CalculationStartToEnd
         {
             get

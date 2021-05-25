@@ -121,7 +121,7 @@ namespace TilerElements
         /// <param name="NewName">The new name of the calendar event</param>
         virtual public void updateEventName(string NewName)
         {
-            _Name.updateName(NewName);
+            this.getName.updateName(NewName);
         }
 
         public List<OptimizedGrouping> evaluateDayPreference(IList<OptimizedGrouping> groupings)
@@ -536,6 +536,15 @@ namespace TilerElements
                 return _isProcrastinateEvent;
             }
         }
+
+        virtual public MiscData Notes
+        {
+            get
+            {
+                return _DataBlob;
+            }
+        }
+
         public bool isThirdParty
         {
             get
@@ -1281,7 +1290,8 @@ namespace TilerElements
             }
         }
 
-
+        public virtual string RestrictionProfileId { get; set; }
+        [ForeignKey("RestrictionProfileId")]
         public virtual RestrictionProfile RestrictionProfile_DB { get; set; } = null;
 
         public virtual RestrictionProfile RestrictionProfile { get; }
@@ -1428,19 +1438,8 @@ namespace TilerElements
             }
         }
 
-        [NotMapped]
-        virtual public TimeSpan UsedTime
-        {
-            set
-            {
-                throw new NotImplementedException("You are trying to set the used up time in a tiler events. Invalid action.");
-            }
-
-            get
-            {
-                return _UsedTime;
-            }
-        }
+        
+        
 
         virtual public string getId
         {

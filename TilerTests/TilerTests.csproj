@@ -39,8 +39,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BouncyCastle.Crypto, Version=1.8.6.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
-      <HintPath>..\packages\BouncyCastle.1.8.6.1\lib\BouncyCastle.Crypto.dll</HintPath>
+    <Reference Include="BouncyCastle.Crypto, Version=1.8.9.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
+      <HintPath>..\packages\BouncyCastle.1.8.9\lib\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
     <Reference Include="Castle.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <HintPath>..\packages\Castle.Core.4.4.1\lib\net45\Castle.Core.dll</HintPath>
@@ -60,14 +60,29 @@
     <Reference Include="Google.Apis.Auth.PlatformServices, Version=1.49.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
       <HintPath>..\packages\Google.Apis.Auth.1.49.0\lib\net45\Google.Apis.Auth.PlatformServices.dll</HintPath>
     </Reference>
-    <Reference Include="Google.Apis.Calendar.v3, Version=1.49.0.2119, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
-      <HintPath>..\packages\Google.Apis.Calendar.v3.1.49.0.2119\lib\net45\Google.Apis.Calendar.v3.dll</HintPath>
+    <Reference Include="Google.Apis.Calendar.v3, Version=1.51.0.2312, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Apis.Calendar.v3.1.51.0.2312\lib\net45\Google.Apis.Calendar.v3.dll</HintPath>
     </Reference>
     <Reference Include="Google.Apis.Core, Version=1.49.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
       <HintPath>..\packages\Google.Apis.Core.1.49.0\lib\net45\Google.Apis.Core.dll</HintPath>
     </Reference>
     <Reference Include="Google.Apis.PlatformServices, Version=1.49.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
       <HintPath>..\packages\Google.Apis.1.49.0\lib\net45\Google.Apis.PlatformServices.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis, Version=1.51.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Apis.1.51.0\lib\net45\Google.Apis.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.Auth, Version=1.51.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Apis.Auth.1.51.0\lib\net45\Google.Apis.Auth.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.Auth.PlatformServices, Version=1.51.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Apis.Auth.1.51.0\lib\net45\Google.Apis.Auth.PlatformServices.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.Core, Version=1.51.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Apis.Core.1.51.0\lib\net45\Google.Apis.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.PlatformServices, Version=1.51.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Apis.1.51.0\lib\net45\Google.Apis.PlatformServices.dll</HintPath>
     </Reference>
     <Reference Include="GoogleMapsApi, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GoogleMapsApi.0.80.0\lib\net40\GoogleMapsApi.dll</HintPath>
@@ -78,15 +93,15 @@
     <Reference Include="My24HourTimerWPF">
       <HintPath>..\My24HourTimerWPF\bin\Debug\My24HourTimerWPF.exe</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
     </Reference>
-    <Reference Include="System.Collections.Immutable, Version=1.2.5.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Collections.Immutable.1.7.1\lib\net461\System.Collections.Immutable.dll</HintPath>
+    <Reference Include="System.Collections.Immutable, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Collections.Immutable.5.0.0\lib\net461\System.Collections.Immutable.dll</HintPath>
     </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
@@ -100,8 +115,8 @@
     <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
     </Reference>
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.7.1\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.5.0.0\lib\net45\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
     <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
@@ -137,11 +152,20 @@
     <Compile Include="AnalysisTest.cs" />
     <Compile Include="AsyncDataAccessor.cs" />
     <Compile Include="Creation.cs" />
+    <Compile Include="DeadlineSuggestion.cs" />
     <Compile Include="KnownBugList.cs" />
     <Compile Include="LocationTests.cs" />
     <Compile Include="LogControlDump.cs" />
     <Compile Include="LogControlTest.cs" />
     <Compile Include="LogicTest.cs" />
+    <Compile Include="Migrations\202105072209479_restrictionProfileIdColumn.cs" />
+    <Compile Include="Migrations\202105072209479_restrictionProfileIdColumn.designer.cs">
+      <DependentUpon>202105072209479_restrictionProfileIdColumn.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202105242218216_restrictionProfileForLocation.cs" />
+    <Compile Include="Migrations\202105242218216_restrictionProfileForLocation.designer.cs">
+      <DependentUpon>202105242218216_restrictionProfileForLocation.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
     <Compile Include="Models\TestGoogleEvent.cs" />
@@ -168,6 +192,9 @@
     <Compile Include="ScheduleQuality.cs" />
     <Compile Include="RepeatAnEvent.cs" />
     <Compile Include="AutoSuggestDeadlineTest.cs" />
+    <Compile Include="PauseResumeTest.cs" />
+    <Compile Include="ReviseSchedule.cs" />
+    <Compile Include="DBRetrievalOption.cs" />
     <Compile Include="UserAccountDump.cs" />
     <Compile Include="UserAccountTest.cs" />
     <Compile Include="WhatIfTest.cs" />
@@ -194,6 +221,9 @@
     <Content Include="PerformanceLog_OptimizeDisabled_before_location_cache - Copy.txt" />
     <Content Include="PerformanceLog_OptimizeEnabled_before_location_cache.txt" />
     <Content Include="test-db.mdf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="WagTapCalLogs\0172685c-f4ee-4ff4-a359-69f4a3fa8cae\0172685c-f4ee-4ff4-a359-69f4a3fa8cae.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="WagTapCalLogs\065febec-d1fe-4c8b-bd32-548613d4479f.xml" />
@@ -251,7 +281,9 @@
     <Content Include="WagTapCalLogs\95b9d6de-fd19-445a-a122-e36b110a4c3b\95b9d6de-fd19-445a-a122-e36b110a4c3b.xml" />
     <Content Include="WagTapCalLogs\9820d846-5f9c-46e6-8d99-58ff1292754a\9820d846-5f9c-46e6-8d99-58ff1292754a.xml" />
     <Content Include="WagTapCalLogs\982935bc-f5bc-4d5e-a372-7a5d5e40cfa0.xml" />
-    <Content Include="WagTapCalLogs\982935bc-f5bc-4d5e-a372-7a5d5e40cfa0\982935bc-f5bc-4d5e-a372-7a5d5e40cfa0.xml" />
+    <Content Include="WagTapCalLogs\982935bc-f5bc-4d5e-a372-7a5d5e40cfa0\982935bc-f5bc-4d5e-a372-7a5d5e40cfa0.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="WagTapCalLogs\982935bc-f5bc-4d5e-a372-7a5d5e40cfa0\Copy_982935bc-f5bc-4d5e-a372-7a5d5e40cfa0.xml" />
     <Content Include="WagTapCalLogs\9af810bf-c610-4de7-adf1-2ac6d46feef4\9af810bf-c610-4de7-adf1-2ac6d46feef4.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -325,6 +357,14 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="WagTapCalLogs\69e9166b-6754-46cf-b384-66c5557048f8\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\202105072209479_restrictionProfileIdColumn.resx">
+      <DependentUpon>202105072209479_restrictionProfileIdColumn.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202105242218216_restrictionProfileForLocation.resx">
+      <DependentUpon>202105242218216_restrictionProfileForLocation.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

@@ -191,7 +191,7 @@ namespace TilerCore
                             }
                         }
                     }
-                    OptimizedGrouping.buildStitchers(AllGroupings);
+                    OptimizedGrouping.buildStitchers(AllGroupings, BeginLocation);
                     StitchAllGroupings();
                 }
                 else

@@ -479,7 +479,7 @@ namespace TilerTests
             Assert.AreNotEqual(firstSubEvent.End, secondSubEvent.Start);
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            schedule = new TestSchedule(user, firstSubEvent.Start, includeUpdateHistory: true);
+            schedule = new TestSchedule(user, firstSubEvent.Start, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             schedule.SetSubeventAsNow(firstSubEvent.Id);
             schedule.persistToDB().Wait();
 
@@ -534,7 +534,10 @@ namespace TilerTests
             #endregion
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            schedule = new TestSchedule(user, refNow);
+            var retrievalSet = DataRetrievalSet.scheduleManipulation;
+            retrievalSet.Add(DataRetrivalOption.DataBlob);
+            retrievalSet.Add(DataRetrivalOption.Name);
+            schedule = new TestSchedule(user, refNow, retrievalOptions: retrievalSet);
             List<SubCalendarEvent> subEvents = schedule.getAllActiveSubEvents().OrderBy(o => o.Start).ToList();
             bool pinSuccess = Utility.PinSubEventsToStart(subEvents, testEvent0.StartToEnd);
             SubCalendarEvent firstSubEvent = subEvents[0];
@@ -549,7 +552,7 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             schedule = new TestSchedule(user, refNow);
             Assert.IsFalse(firstSubEvent.isRigid);
-            schedule.BundleChangeUpdate(firstSubEvent.Id, firstSubEvent.Name, refNow, refNow.Add(restrictionSpan), new DateTimeOffset(), firstSubEvent.CalendarEventRangeEnd, firstSubEvent.ParentCalendarEvent.NumberOfSplit, firstSubEvent.Notes.UserNote);
+            schedule.BundleChangeUpdate(firstSubEvent.Id, firstSubEvent.Name, refNow, refNow.Add(restrictionSpan), new DateTimeOffset(), firstSubEvent.CalendarEventRangeEnd, firstSubEvent.ParentCalendarEvent.NumberOfSplit, firstSubEvent.Notes?.UserNote);
             schedule.persistToDB().Wait();
 
 

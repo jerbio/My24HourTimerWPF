@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define loggingEnables
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using TilerElements;
+using System.Diagnostics;
 
 namespace TilerTests.Models
 {
@@ -26,11 +29,27 @@ namespace TilerTests.Models
             string DB_RUNTIME_LOCATION = @"C:\Users\jerom\Documents\Visual Studio 2015\Projects\WagTap\My24HourTimerWPF\TilerTests\bin\Debug";
             AppDomain.CurrentDomain.SetData("DataDirectory", DB_RUNTIME_LOCATION);
             System.Data.Entity.Database.SetInitializer<TestDBContext>(null);
+            this.intiializeLogging();
         }
         public TestDBContext(string connectionName = "TestDBConnection")
             : base(connectionName)
         {
             System.Data.Entity.Database.SetInitializer<TestDBContext>(null);// this is needed so you don't run into an error being thrown because its trying to create new database, or it fails to find an already created DB.
+            this.intiializeLogging();
+        }
+
+        void intiializeLogging()
+        {
+#if loggingEnables
+            Action<string> debugWrite = (str) => {
+                if (!String.IsNullOrEmpty(str))
+                {
+                    //Debug.WriteLine(str);
+                    Debug.Write(str);
+                }
+            };
+            this.Database.Log = debugWrite;
+#endif
         }
     }
 }

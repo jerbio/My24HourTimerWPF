@@ -16,6 +16,7 @@ using TilerCore;
 using System.Xml;
 using System.IO;
 
+
 namespace TilerTests
 {
     public static class TestUtility
@@ -94,6 +95,7 @@ namespace TilerTests
                 PasswordHash = password + Guid.NewGuid().ToString()
             };
             TestDBContext context = new TestDBContext();
+
             CalendarEvent calEvent = createProcrastinateCalendarEvent(user);
             Analysis analysis = createAnalysisObject(user);
 
@@ -375,7 +377,7 @@ namespace TilerTests
         }
 
 
-        public static CalendarEvent generateCalendarEvent(TilerUser testUser, TimeSpan duration, Repetition repetition, DateTimeOffset Start, DateTimeOffset End, int splitCount = 1, bool rigidFlags = false, Location location = null, RestrictionProfile restrictionProfile = null, MiscData note = null, ReferenceNow now = null, EventDisplay eventDisplay = null)
+        public static CalendarEvent generateCalendarEvent(TilerUser testUser, TimeSpan duration, Repetition repetition, DateTimeOffset Start, DateTimeOffset End, int splitCount = 1, bool rigidFlags = false, Location location = null, RestrictionProfile restrictionProfile = null, MiscData note = null, ReferenceNow now = null, EventDisplay eventDisplay = null, EventName tileName = null)
         {
             if (Start == StartOfTime)
             {
@@ -401,7 +403,7 @@ namespace TilerTests
             eventDisplay = eventDisplay ?? new EventDisplay();
             if(restrictionProfile == null)
             {
-                EventName name = new EventName(null, null, "TestCalendarEvent-" + Guid.NewGuid().ToString());
+                EventName name = tileName ?? new EventName(null, null, "TestCalendarEvent-" + Guid.NewGuid().ToString());
                 if(testUser == null)
                 {
                     getTestUser(true);
@@ -425,7 +427,7 @@ namespace TilerTests
                 {
                     throw new ArgumentNullException("now", "You need to add a referencenow object for creation of calendareventrestricted object");
                 }
-                EventName name = new EventName(null, null, "TestCalendarEvent-" + Guid.NewGuid().ToString() + "-Restricted");
+                EventName name = tileName ?? new EventName(null, null, "TestCalendarEvent-" + Guid.NewGuid().ToString() + "-Restricted");
                 RetValue = new CalendarEventRestricted(testUser, new TilerUserGroup(), name, Start, End, restrictionProfile, duration, repetition, false, true, splitCount, false, new NowProfile(), location, new TimeSpan(), new TimeSpan(), null, now, new Procrastination(Utility.BeginningOfTime, new TimeSpan()), new TimeLineHistory(), UiSettings: new EventDisplay(), NoteData: note);
                 name.Creator_EventDB = RetValue.getCreator;
                 name.AssociatedEvent = RetValue;
@@ -600,7 +602,7 @@ namespace TilerTests
             mockContext = user.ScheduleLogControl.Database;
             ScheduleDump retrievedDump = mockContext.ScheduleDumps.Find(scheduleDump.Id);
 
-            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.All);
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
@@ -619,7 +621,7 @@ namespace TilerTests
             EventDisplay eventdisplay1 = new EventDisplay(true, tilerColor1);
             CalendarEvent testEvent1 = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), timeLine.Start, timeLine.End, 1, false, eventDisplay: eventdisplay1, location: location1);
             string testEVentId1 = testEvent1.Id;
-            TestSchedule Schedule1 = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            TestSchedule Schedule1 = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.All);
             Schedule1.AddToScheduleAndCommitAsync(testEvent1).Wait();
             Task<ScheduleDump> tempScheduleDumpTask = Schedule1.CreateScheduleDump();
             tempScheduleDumpTask.Wait();
@@ -640,7 +642,7 @@ namespace TilerTests
             mockContext1 = user.ScheduleLogControl.Database;
             ScheduleDump retrievedDump1 = mockContext1.ScheduleDumps.Find(scheduleDump1.Id);
 
-            Schedule1 = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            Schedule1 = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.All);
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
@@ -650,21 +652,15 @@ namespace TilerTests
             Assert.IsTrue(Schedule1.isTestEquivalent(scheduleFromDump1));
         }
 
-
-        //public void isShuffleOperationInScheduleDumpSameAsLoaded(ref UserAccount user, ref TilerUser tilerUser)
-        //{
-
-        //}
-
         public static void isSubCalendarEventUIEquivalenToScheduleLoaded(UserAccount useraccount, ReferenceNow now, TimeLine timeLine=null)
         {
             LogControl LogAccess = useraccount.ScheduleLogControl;
             TimeLine rangeOfLookup = timeLine ?? new TimeLine(now.constNow.AddDays(Utility.defaultBeginDay), now.constNow.AddDays(Utility.defaultEndDay));
-            var task = LogAccess.getAllEnabledSubCalendarEvent(rangeOfLookup, now, retrievalOption: DataRetrivalOption.Ui);
+            var task = LogAccess.getAllEnabledSubCalendarEvent(rangeOfLookup, now, retrievalOptions: DataRetrievalSet.UiSet);
             task.Wait();
             var allSubs = task.Result.ToList();
 
-            var taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, now, true, retrievalOption: DataRetrivalOption.Ui);
+            var taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, now, retrievalOptions: DataRetrievalSet.UiSet);
             taskCal.Wait();
             var allCals = taskCal.Result.ToList();
             var calSubEVents = allCals.Select(obj => obj.Value).SelectMany(obj => obj.ActiveSubEvents).ToList();
@@ -993,20 +989,21 @@ namespace TilerTests
                                     if ((firstTilerEvent.InitialStartTime_DB == secondTilerEvent.InitialStartTime_DB) && (firstTilerEvent.InitialStartTime_DB == secondTilerEvent.InitialStartTime_DB))
                                     {
                                         retValue = true;
+                                        
                                     }
                                     else
                                     {
-                                        retValue = false; Assert.IsTrue(retValue);
+                                        retValue = false; Assert.IsTrue(retValue, "InitialStartTime aren't equal");
                                     }
                                 }
                                 else
                                 {
-                                    retValue = false; Assert.IsTrue(retValue);
+                                    retValue = false; Assert.IsTrue(retValue, "IsComplete aren't equal");
                                 }
                             }
                             else
                             {
-                                retValue = false; Assert.IsTrue(retValue);
+                                retValue = false; Assert.IsTrue(retValue, "Autodeletions aren't equal");
                             }
                         }
                         else
@@ -1043,6 +1040,8 @@ namespace TilerTests
             Assert.IsTrue(retValue);
             retValue &= firstSubevent.isTardy == secondSubevent.isTardy;
             Assert.IsTrue(retValue);
+            retValue &= firstSubevent.UsedPauseTime == secondSubevent.UsedPauseTime;
+            Assert.IsTrue(retValue, "Used time aren't the same");
             return retValue;
         }
 
@@ -1260,6 +1259,58 @@ namespace TilerTests
                 retValue = firstRepetition == secondRepetition;// this will only be true when both are null
             }
             Assert.IsTrue(retValue);
+            return retValue;
+        }
+
+
+        public static bool isTestEquivalent(this BusyTimeLine firstBusyTimeLine, BusyTimeLine secondBusyTimeLine, bool ignoreIdCheck = false)
+        {
+            bool retValue = true;
+            retValue = ((TimeLine)firstBusyTimeLine).isTestEquivalent(((TimeLine)secondBusyTimeLine));
+            Assert.IsTrue(retValue, "Busytimeline are not equivalent");
+            if (!ignoreIdCheck)
+            {
+                retValue = firstBusyTimeLine.Id == secondBusyTimeLine.Id;
+                Assert.IsTrue(retValue, "Busytimeline Ids are not equivalent");
+            }
+
+            return retValue;
+        }
+
+        public static bool isTestEquivalent(this TimeLine firstTimeLine, TimeLine secondTimeLine)
+        {
+            bool retValue = true;
+            if (firstTimeLine.Start == secondTimeLine.Start)
+            {
+                if (firstTimeLine.End == secondTimeLine.End)
+                {
+                    if (firstTimeLine.OccupiedSlots != null && secondTimeLine.OccupiedSlots != null)
+                    {
+                        if (firstTimeLine.OccupiedSlots.Count() == secondTimeLine.OccupiedSlots.Count())
+                        {
+                            retValue = true;
+                        }
+                        else
+                        {
+                            retValue = false; Assert.IsTrue(retValue, "OccupiedSlots of Timeline count aren't the same");
+                        }
+                    } 
+                    else
+                    {
+                        retValue = firstTimeLine.OccupiedSlots == secondTimeLine.OccupiedSlots;
+                        Assert.IsTrue(retValue, "OccupiedSlots are both not null");
+                    }
+                }
+                else
+                {
+                    retValue = false; Assert.IsTrue(retValue, "End times of Timeline aren't the same");
+                }
+            }
+            else
+            {
+                retValue = false; Assert.IsTrue(retValue, "Start times of Timeline aren't the same");
+            }
+
             return retValue;
         }
 
@@ -1625,6 +1676,8 @@ namespace TilerTests
             {
                 _User = user;
                 _Context = context;
+                _Context.Database.Log = s => System.Diagnostics.Debug.WriteLine(s);
+
                 _Account = getTestUser(userId: _User.Id);
             }
 

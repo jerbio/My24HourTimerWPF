@@ -36,7 +36,7 @@ namespace TilerTests
 
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, startOfDay, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, startOfDay, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             IEnumerable<SubCalendarEvent> activeSubEVents = Schedule.getAllActiveSubEvents();
             ScheduleSuggestionsAnalysis scheduleSuggestion = new ScheduleSuggestionsAnalysis(activeSubEVents, Schedule.Now, tilerUser, Schedule.Analysis);
 
@@ -77,7 +77,7 @@ namespace TilerTests
 
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, startOfDay, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, startOfDay, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             IEnumerable<SubCalendarEvent> activeSubEVents = Schedule.getAllActiveSubEvents();
             ScheduleSuggestionsAnalysis scheduleSuggestion = new ScheduleSuggestionsAnalysis(activeSubEVents, Schedule.Now, tilerUser, Schedule.Analysis);
 
@@ -118,7 +118,7 @@ namespace TilerTests
 
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, startOfDay, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, startOfDay, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             IEnumerable<SubCalendarEvent> activeSubEVents = Schedule.getAllActiveSubEvents();
             ScheduleSuggestionsAnalysis scheduleSuggestion = new ScheduleSuggestionsAnalysis(activeSubEVents, Schedule.Now, tilerUser, Schedule.Analysis);
 
@@ -141,12 +141,12 @@ namespace TilerTests
 
             //Need to Shuffle because of preceding schedule containing initial subevents
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, startOfDay, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, startOfDay, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             await Schedule.FindMeSomethingToDo(new Location()).ConfigureAwait(false);
             await Schedule.persistToDB().ConfigureAwait(false);
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, startOfDay, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, startOfDay, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             IEnumerable<SubCalendarEvent> activeAfterSecondSubEvents = Schedule.getAllActiveSubEvents();
             scheduleSuggestion = new ScheduleSuggestionsAnalysis(activeAfterSecondSubEvents, Schedule.Now, tilerUser, Schedule.Analysis);
 
@@ -155,7 +155,7 @@ namespace TilerTests
             Schedule.persistToDB().Wait();
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, startOfDay, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, startOfDay, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
 
             CalendarEvent retrievedFirstCalendarEvent = Schedule.getCalendarEvent(calEvent.Id);
             CalendarEvent retrievedSecondCalendarEvent = Schedule.getCalendarEvent(secondCalEvent.Id);
@@ -186,7 +186,7 @@ namespace TilerTests
 
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, startOfDay, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, startOfDay, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             IEnumerable<SubCalendarEvent> activeSubEVents = Schedule.getAllActiveSubEvents();
             ScheduleSuggestionsAnalysis scheduleSuggestion = new ScheduleSuggestionsAnalysis(activeSubEVents, Schedule.Now, tilerUser, Schedule.Analysis);
 
@@ -209,13 +209,13 @@ namespace TilerTests
 
             //Need to Shuffle because of preceding schedule containing initial subevents
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, startOfDay, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, startOfDay, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             await Schedule.FindMeSomethingToDo(new Location()).ConfigureAwait(false);
             await Schedule.persistToDB().ConfigureAwait(false);
 
             // Update second calevent deadline
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, startOfDay, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, startOfDay, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             SubCalendarEvent subEvent = secondCalEvent.ActiveSubEvents.First();
             DateTimeOffset deadline = secondCalEvent.End.AddDays(1);
             Schedule.BundleChangeUpdate(subEvent.Id, subEvent.getName, subEvent.Start, subEvent.End, secondCalEvent.Start, deadline, secondCalEvent.NumberOfSplit, secondCalEvent.Notes.UserNote);
@@ -230,7 +230,7 @@ namespace TilerTests
             Schedule.persistToDB().Wait();
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, startOfDay, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, startOfDay, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
 
             CalendarEvent retrievedFirstCalendarEvent = Schedule.getCalendarEvent(calEvent.Id);
             CalendarEvent retrievedSecondCalendarEvent = Schedule.getCalendarEvent(secondCalEvent.Id);

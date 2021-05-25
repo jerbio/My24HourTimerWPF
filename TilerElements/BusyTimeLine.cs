@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json.Linq;
 
 namespace TilerElements
 {
@@ -64,7 +65,25 @@ namespace TilerElements
             return this;
         }
 
+        public override JObject ToJson()
+        {
+            var retValue = base.ToJson();
+            retValue.Add("id", this.Id);
+            return retValue;
+        }
 
+        public static BusyTimeLine JobjectToTimeLine(JObject jObject)
+        {
+            string startTimeString = jObject.GetValue("start").ToString();
+            string endTimeString = jObject.GetValue("end").ToString();
+            string idString = jObject.GetValue("id").ToString();
+            DateTimeOffset start = DateTimeOffset.FromUnixTimeMilliseconds(Convert.ToInt64(startTimeString));
+            DateTimeOffset end = DateTimeOffset.FromUnixTimeMilliseconds(Convert.ToInt64(endTimeString));
+
+
+            BusyTimeLine retValue = new BusyTimeLine(idString, start, end);
+            return retValue;
+        }
         #endregion
         #region Properties
         public TimeSpan BusyTimeSpan

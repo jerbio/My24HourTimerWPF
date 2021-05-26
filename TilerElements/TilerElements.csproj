@@ -139,6 +139,7 @@
     <Compile Include="CalendarEvent.cs" />
     <Compile Include="CalendarEventRestricted.cs" />
     <Compile Include="CalEvent.cs" />
+    <Compile Include="CustomDetailRequest.cs" />
     <Compile Include="DataRetrivalOption.cs" />
     <Compile Include="DayConfig.cs" />
     <Compile Include="GoogleCalendarEvent.cs" />

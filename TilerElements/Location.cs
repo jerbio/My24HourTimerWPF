@@ -236,16 +236,29 @@ namespace TilerElements
 
                             var placesDetailRequest = new GoogleApi.Entities.Places.Details.Request.PlacesDetailsRequest()
                             {
-                                Fields = [GoogleApi.Entities.Places.Details.Request.Enums.FieldTypes.Basic],
+                                Fields = GoogleApi.Entities.Places.Details.Request.Enums.FieldTypes.Basic| GoogleApi.Entities.Places.Details.Request.Enums.FieldTypes.Utc_Offset|GoogleApi.Entities.Places.Details.Request.Enums.FieldTypes.Opening_Hours| GoogleApi.Entities.Places.Details.Request.Enums.FieldTypes.Formatted_Address,
                                 Key = Location.ApiKey,
                                 PlaceId = candidate.PlaceId,
                             };
+
                             var detailResponse = GooglePlaces.Details.Query(placesDetailRequest);
                             if (detailResponse.Status == GoogleApi.Entities.Common.Enums.Status.Ok)
                             {
                                 //https://maps.googleapis.com/maps/api/place/details/json?place_id=ChIJsalwnJyMa4cRrt3GDP5iygM&fields=name,rating,formatted_phone_number,opening_hours,utc_offset&key=AIzaSyDXrtMxPbt6Dqlllpm77AQ47vcCFxZ4oUU
                                 //TODO Make request as above directly to google maps api using rest request withou using the GooglePlaces.Details.Query. This is because we can't add muliple parameters
                                 var detailJsonData = detailResponse.RawJson;
+                                var detailJson = JObject.Parse(detailJsonData);
+                                var resultProperty = detailJson.Property("result");
+                                if(resultProperty != null)
+                                {
+                                    JObject result = resultProperty.Value as JObject;
+                                    var opening_hoursProperties = result.Property("opening_hours");
+                                    if(opening_hoursProperties!=null)
+                                    {
+                                        JObject opening_hours = opening_hoursProperties.Value as JObject;
+                                    }
+                                    
+                                }
                             }
 
                             googleRemoteWatch.Stop();

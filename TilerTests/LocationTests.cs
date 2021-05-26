@@ -461,7 +461,7 @@ namespace TilerTests
         {
             //throw new Exception("test is not written");
             var packet = TestUtility.CreatePacket();
-            string locationName = "Gurkhas Restaurant | A Family Owned and Operated Restaurant Serving Authentic Nepalese and Traditional Indian Cuisine";
+            string locationName = "Busaba";
             Location currLocation = new Location("3755 Moorhead Ave, Boulder, CO 80305");
             currLocation.verify();
             Location home = new Location("200 summit blvd Boulder CO", "home");

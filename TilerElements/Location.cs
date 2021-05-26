@@ -233,6 +233,7 @@ namespace TilerElements
                         {
                             var jsonData = response.RawJson;
                             candidate = response.Candidates.FirstOrDefault();
+                            RestrictionProfile restrictionProfile = null;
 
                             var placesDetailRequest = new GoogleApi.Entities.Places.Details.Request.PlacesDetailsRequest()
                             {
@@ -253,12 +254,75 @@ namespace TilerElements
                                 {
                                     JObject result = resultProperty.Value as JObject;
                                     var opening_hoursProperties = result.Property("opening_hours");
-                                    if(opening_hoursProperties!=null)
+                                    var offsetHoursProperties = result.Property("utc_offset");
+                                    double offsetMinutes = 0;
+                                    if (offsetHoursProperties != null)
+                                    {
+                                        offsetMinutes = Convert.ToDouble(offsetHoursProperties.Value);
+                                    }
+                                    if (opening_hoursProperties!=null)
                                     {
                                         JObject opening_hours = opening_hoursProperties.Value as JObject;
+                                        var periodProperties = opening_hours.Property("periods");
+                                        if(periodProperties!=null)
+                                        {
+                                            JArray periods = periodProperties.Value as JArray;
+                                            if(periods.Count > 0)
+                                            {
+                                                Dictionary<int, List<JObject>> dayToTimeInfo = new Dictionary<int, List<JObject>>();
+                                                foreach(var dayTimeInfo in periods)
+                                                {
+                                                    JObject dayData = dayTimeInfo as JObject;
+                                                    var openProperty = dayData.Property("open");
+                                                    if(openProperty!=null)
+                                                    {
+                                                        JObject openDayData = openProperty.Value as JObject;
+                                                        if(openDayData != null)
+                                                        {
+                                                            var dayIndexProperty = openDayData.Property("day");
+                                                            if(dayIndexProperty!=null)
+                                                            {
+                                                                int dayIndex = (int)dayIndexProperty.Value;
+                                                                List<JObject> timeInfoList = new List<JObject>();
+                                                                if(dayToTimeInfo.ContainsKey(dayIndex))
+                                                                {
+                                                                    timeInfoList = dayToTimeInfo[dayIndex];
+                                                                } else
+                                                                {
+                                                                    dayToTimeInfo.Add(dayIndex, timeInfoList);
+                                                                }
+
+                                                                timeInfoList.Add(dayData);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                List<DayOfWeek> daysOfWeek = new List<DayOfWeek>();
+                                                List<RestrictionTimeLine> RestrictionTimeLines = new List<RestrictionTimeLine>();
+                                                foreach (var kvp in dayToTimeInfo)
+                                                {
+                                                    DayOfWeek dayOfWeek = (DayOfWeek)kvp.Key;
+                                                    JObject openFirst = kvp.Value.OrderBy(o => o["open"]["time"]).FirstOrDefault();
+                                                    JObject closeLast= kvp.Value.OrderByDescending(o => o["close"]["time"]).FirstOrDefault();
+                                                    string militaryOpenTimeString = (string)openFirst["open"]["time"];
+                                                    string militaryCloseTimeString = (string)closeLast["close"]["time"];
+                                                    double militaryOpenHours = Convert.ToDouble(militaryOpenTimeString);
+                                                    double militaryCloseHours = Convert.ToDouble(militaryCloseTimeString);
+                                                    var openTupleTimeData = RestrictionProfile.miltaryTimeHoursToDayOfWeek(dayOfWeek, militaryOpenHours, offsetMinutes);
+                                                    var closeTupleTimeData = RestrictionProfile.miltaryTimeHoursToDayOfWeek(dayOfWeek, militaryCloseHours, offsetMinutes);
+                                                    RestrictionTimeLine restrictionTimeLine = new RestrictionTimeLine(openTupleTimeData.Item2, closeTupleTimeData.Item2);
+                                                    daysOfWeek.Add(openTupleTimeData.Item1);
+                                                    RestrictionTimeLines.Add(restrictionTimeLine);
+                                                }
+                                                if(daysOfWeek.Count > 0 && daysOfWeek.Count == RestrictionTimeLines.Count)
+                                                {
+                                                    restrictionProfile = new RestrictionProfile(daysOfWeek, RestrictionTimeLines);
+                                                }
+                                            }
+                                        }
                                     }
-                                    
                                 }
+                                this.setRestrictionProfile(restrictionProfile);
                             }
 
                             googleRemoteWatch.Stop();
@@ -294,11 +358,13 @@ namespace TilerElements
                                 if (retValueJson != null)
                                 {
                                     retValueJson.LastUsed = currentTime;
+                                    retValueJson.setRestrictionProfile(restrictionProfile);
                                 }
                                 
                                 if (!useThis)
                                 {
                                     retValue._Id = result.PlaceId;
+                                    retValue.setRestrictionProfile(restrictionProfile);
                                     _LocationValidation.addLocation(retValue as LocationJson, currentTime);
                                 }
                                 
@@ -778,6 +844,11 @@ namespace TilerElements
             }
         }
 
+        public void setRestrictionProfile(RestrictionProfile restrictionProfile)
+        {
+            this._ProfileOfRestriction = restrictionProfile;
+        }
+
         public void undoUpdate(Undo undo)
         {
             _UndoLatitude = _Latitude;
@@ -1208,20 +1279,6 @@ namespace TilerElements
             }
         }
 
-        //public virtual string RestrictionProfileId { get; set; }
-        //[ForeignKey("RestrictionProfileId")]
-        //public virtual RestrictionProfile RestrictionProfile_DB
-        //{
-        //    set
-        //    {
-        //        _ProfileOfRestriction = value;
-        //    }
-
-        //    get
-        //    {
-        //        return _ProfileOfRestriction;
-        //    }
-        //}
         #endregion
     }
 }

@@ -180,6 +180,35 @@ namespace TilerElements
             }
         }
 
+        public static Tuple<DayOfWeek, DateTimeOffset> miltaryTimeHoursToDayOfWeek(DayOfWeek currentDayOfWeek, double militaryHours, double offsetMinutes)
+        {
+            TimeSpan offsetTotalMinuteSpan = TimeSpan.FromMinutes(offsetMinutes);
+            double maxMilitaryHours = 2400;
+            double offsetTotalHourSpan = offsetTotalMinuteSpan.TotalHours * -1;
+            double utcMilitaryHours = militaryHours + (offsetTotalHourSpan*100);
+            
+            DayOfWeek updatedDayOfWeek = currentDayOfWeek;
+            if (utcMilitaryHours< 0)
+            {
+                updatedDayOfWeek = (DayOfWeek)((((int)currentDayOfWeek - 1) + 7) % 7);
+            }
+
+
+            if (utcMilitaryHours >= maxMilitaryHours)
+            {
+                updatedDayOfWeek = (DayOfWeek)((((int)currentDayOfWeek + 1) + 7) % 7);
+            }
+
+            double updateMilitaryHours = (utcMilitaryHours + maxMilitaryHours) % maxMilitaryHours;
+            int minuteComponent = ((int)updateMilitaryHours) % 100;
+            int hourComponent = ((int)updateMilitaryHours) / 100;
+
+            DateTimeOffset retValueTime = new DateTimeOffset(1, 1, 1, hourComponent, minuteComponent, 0, new TimeSpan());
+            Tuple<DayOfWeek, DateTimeOffset> retValue = new Tuple<DayOfWeek, DateTimeOffset>(updatedDayOfWeek, retValueTime);
+            return retValue;
+        }
+
+
         public RestrictionProfile createCopy()
         {
             RestrictionProfile retValue = new RestrictionProfile();

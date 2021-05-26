@@ -683,6 +683,7 @@ namespace TilerCore
             {
                 if (!isFromRigidEvent)
                 {
+                    myCalendarEvent.UnRigidizeSubEvent(mySubCalEvent.Id);
                     mySubCalEvent.UpdateThis(ChangedSubCal);
                     myCalendarEvent.RigidizeSubEvent(mySubCalEvent.Id);
                     mySubCalEvent.tempLockSubEvent();

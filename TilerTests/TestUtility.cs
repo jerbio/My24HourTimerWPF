@@ -1038,7 +1038,7 @@ namespace TilerTests
             Assert.IsTrue(retValue);
             retValue &= firstSubevent.isTardy == secondSubevent.isTardy;
             Assert.IsTrue(retValue);
-            retValue &= firstSubevent.UsedPauseTime == secondSubevent.UsedPauseTime;
+            retValue &= firstSubevent.ParentCalendarEvent.UsedPauseTime == secondSubevent.ParentCalendarEvent.UsedPauseTime;
             Assert.IsTrue(retValue, "Used time aren't the same");
             return retValue;
         }

@@ -750,12 +750,13 @@ namespace TilerElements
         /// <returns></returns>
         virtual public bool ResetPause(DateTimeOffset currentTime)
         {
-            _pausedTimeSlot = new List<PausedTimeLine>();
-            _UsedPauseTime = new TimeSpan();
-            disablePauseLock();
-            TimeSpan timeDiff = new TimeSpan();
-            bool RetValue = shiftEvent(timeDiff);
-            return RetValue;
+            throw new NotImplementedException();
+            //_pausedTimeSlot = new List<PausedTimeLine>();
+            //_UsedPauseTime = new TimeSpan();
+            //disablePauseLock();
+            //TimeSpan timeDiff = new TimeSpan();
+            //bool RetValue = shiftEvent(timeDiff);
+            //return RetValue;
         }
 
         virtual public void addToPausedTimeSlot(PausedTimeLine pausedTimeLine)
@@ -2202,11 +2203,12 @@ namespace TilerElements
         /// <returns></returns>
         virtual internal bool Continue(DateTimeOffset currentTime, bool forceOutSideDeadline = false)
         {
-            TimeSpan timeDiff = (currentTime - UsedPauseTime) - (Start);
-            bool RetValue = shiftEvent(timeDiff, force: forceOutSideDeadline);// NOTE WE DO NOT WANT TO DISABLE THE PAUSE LOCK, this because even after a subevent is continued it needs to stay locked so it wont get shifted
+            throw new NotImplementedException();
+            //TimeSpan timeDiff = (currentTime - UsedPauseTime) - (Start);
+            //bool RetValue = shiftEvent(timeDiff, force: forceOutSideDeadline);// NOTE WE DO NOT WANT TO DISABLE THE PAUSE LOCK, this because even after a subevent is continued it needs to stay locked so it wont get shifted
 
 
-            return RetValue;
+            //return RetValue;
         }
 
 
@@ -2225,6 +2227,10 @@ namespace TilerElements
             return pauseTimeLine.TimelineSpan;
         }
 
+
+        virtual public bool disablePauseLock() {
+            throw new NotImplementedException();
+        }
         #endregion
 
         #region Properties

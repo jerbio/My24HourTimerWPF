@@ -171,6 +171,11 @@ namespace TilerElements
         {
             _isTardy = true;
         }
+
+        public bool Continue(DateTimeOffset CurrentTime, bool forceOutSideDeadline)
+        {
+            throw new NotImplementedException();
+        }
         public virtual void updateCalculationEventRange(TimeLine timeLine)
         {
             TimeLineRestricted restrictedTimeLine = timeLine as TimeLineRestricted;

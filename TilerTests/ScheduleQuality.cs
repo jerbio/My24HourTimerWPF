@@ -864,6 +864,39 @@ namespace TilerTests
             
         }
 
+
+        /// This test tries to verify that the schedule is as balanced as possible.
+        /// Essentially when there is a schedule, you want to ensure you are in in the UTC TimeZone, and setting the timeZoneString to empty string for ease of troubleshooting.
+        /// Generally for some reason there seems to be some day with an absurdly higher than usual concentration of tiles. 
+        /// This test tries to ensure that post conflict resolution there is a balance in the schedule and no unnecessary conflicts.
+        /// https://drive.google.com/file/d/16ks7fTyNSCidzfyy8l3lCoFvnAtn_1T8/view?usp=sharing
+        [TestMethod]
+        public void balanced_after_conflict_resolution()
+        {
+            Utility.timeZoneString = "";
+            DateTimeOffset startOfDay = TestUtility.parseAsUTC("2:00am");
+            DateTimeOffset refNow = TestUtility.parseAsUTC("10/23/2017 7:00:34PM");
+            DateTimeOffset endOfEvent = TestUtility.parseAsUTC("10/24/2017 3:59:00AM");
+            //UserAccount currentUser = TestUtility.getTestUser(userId: "712dd797-8991-4f79-90c1-7b51c744c4bd");
+
+            string scheduleId = "712dd797-8991-4f79-90c1-7b51c744c4bd";
+            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId, refNow);
+            Schedule schedule = scheduleAndDump.Item1;
+            TilerUser tilerUser = schedule.User;
+
+            TimeLine actualTime = new TimeLine(TestUtility.parseAsUTC("10/21/2017 1:00PM"), TestUtility.parseAsUTC("10/21/2017 10:00PM"));
+            Repetition repeating = new Repetition(new TimeLine(startOfDay.AddDays(-5), startOfDay.AddDays(18)), Repetition.Frequency.DAILY, actualTime);
+            CalendarEvent repeatingCalEvent = TestUtility.generateCalendarEvent(tilerUser, actualTime.TimelineSpan, repeating, actualTime.Start, actualTime.End, rigidFlags: true);// simulation of google cal event
+            schedule.AddToSchedule(repeatingCalEvent);
+            CalendarEvent calEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromMinutes(30), new Repetition(), refNow, endOfEvent);
+            schedule.AddToSchedule(calEvent);
+            ((TestSchedule)schedule).WriteFullScheduleToOutlook();
+
+            schedule.Now.getAllDaysForCalc();
+            
+        }
+
         public List<DateTimeOffset> getCorrespondingWeekdays(TimeLine timeLine, DayOfWeek dayOfWeek)
         {
             List<DateTimeOffset> retValue = new List<DateTimeOffset>();

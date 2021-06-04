@@ -201,7 +201,7 @@ namespace TilerTests
             TestSchedule schedule = (TestSchedule)scheduleAndDump.Item1;
             var resultOfShuffle = schedule.FindMeSomethingToDo(homeLocation);
             resultOfShuffle.Wait();
-            schedule.WriteFullScheduleToLog().Wait();
+            schedule.WriteFullScheduleToOutlook();
             SubCalendarEvent subEventA = schedule.getSubCalendarEvent("7170280_7_0_7170281");
             SubCalendarEvent subEventB = schedule.getSubCalendarEvent("7156969_7_0_7156970");
             Assert.IsFalse(subEventB.ActiveSlot.doesTimeLineInterfere(subEventA.ActiveSlot));

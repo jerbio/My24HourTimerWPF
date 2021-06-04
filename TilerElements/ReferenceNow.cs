@@ -92,9 +92,9 @@ namespace TilerElements
             return DayLookUp;
         }
 
-        public IEnumerable<DayTimeLine> getAllDaysForCalc()
+        public IList<DayTimeLine> getAllDaysForCalc()
         {
-            return AllDays;
+            return AllDays.ToList();
         }
 
 

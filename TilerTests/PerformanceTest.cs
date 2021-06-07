@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define RunSlowTest
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -86,7 +88,7 @@ namespace TilerTests
                 LogControl LogAccess = user.ScheduleLogControl;
                 watch.Restart();
 
-                var task = LogAccess.getAllEnabledSubCalendarEvent(rangeOfLookup, Schedule.Now, retrievalOption: DataRetrivalOption.Ui);
+                var task = LogAccess.getAllEnabledSubCalendarEvent(rangeOfLookup, Schedule.Now, retrievalOptions: DataRetrievalSet.scheduleManipulation);
                 task.Wait();
                 var allSubs = task.Result.ToList();
 
@@ -96,7 +98,7 @@ namespace TilerTests
                 
                 watch.Reset();
                 watch.Start();
-                var taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, Schedule.Now, true, retrievalOption: DataRetrivalOption.Ui);
+                var taskCal = LogAccess.getAllEnabledCalendarEvent(rangeOfLookup, Schedule.Now, retrievalOptions: DataRetrievalSet.scheduleManipulation);
                 taskCal.Wait();
                 var allCals = taskCal.Result.ToList();
                 watch.Stop();
@@ -108,6 +110,7 @@ namespace TilerTests
                 Debug.WriteLine("-------------------------------------------------------");
                 TestUtility.reloadTilerUser(ref user, ref tilerUser);
                 Schedule = new TestSchedule(user, refNow);
+                Schedule.disableConflictResolution();
                 Repetition repetition = new Repetition(repetitionTimeLine, Repetition.Frequency.DAILY, eachRepeatFrame);
                 CalendarEventRestricted testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 5, false, restrictionProfile: new RestrictionProfile(start, duration + duration), now: Schedule.Now) as CalendarEventRestricted;
                 allCalendarEvents.Add(testEvent);
@@ -115,6 +118,7 @@ namespace TilerTests
             }
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
+            Schedule.disableConflictResolution();
             Schedule.FindMeSomethingToDo(new Location()).Wait();
             Schedule.persistToDB().Wait();
             watch.Stop();

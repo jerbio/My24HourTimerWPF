@@ -13,6 +13,11 @@ namespace TilerTests
     [TestClass]
     public class KnownBugList
     {
+        [TestInitialize]
+        public void initTest()
+        {
+            TestUtility.init();
+        }
 
         /*
          * This test tries to see that there is sufficent diversity. Read notes scheule dump nodes
@@ -32,6 +37,27 @@ namespace TilerTests
             //var scheduleAndDump = TestUtility.getSchedule(scheduleId);
             //Schedule schedule = scheduleAndDump.Item1;
             //((TestSchedule)schedule).WriteFullScheduleToOutlook();
+        }
+
+
+        /// <summary>
+        /// This captures the scenario where a tile was locked preiously due to a timeline update. However later changing the timeline of locked tile to time outside the current timeline of the calendarevent could result in an error
+        /// </summary>
+
+        [TestMethod]
+        public void file_227f54d4()
+        {
+            string scheduleId = "227f54d4-5ae1-4194-9096-191b6ce77d33";
+            Location currentLocation = new TilerElements.Location(39.9255867, -105.145055, "", "", false, false);
+            currentLocation.IsVerified = true;
+            var scheduleAndDump = TestUtility.getSchedule(scheduleId);
+            Schedule schedule = scheduleAndDump.Item1;
+            string subEventId = "e010b6be-8939-4c7d-9d24-0406c3f1eb90_7_2d7c9292-2697-419b-8c3d-3e9ad29cbeb3_991dd3a7-aa40-42d3-a43c-ac7f42c07beb";
+            SubCalendarEvent subEvent = schedule.getSubCalendarEvent(subEventId);
+            TimeLine currentTimeLine = subEvent.StartToEnd;
+            TimeLine shiftedTimeLine = new TimeLine(currentTimeLine.Start.AddMinutes(-30), currentTimeLine.End.AddMinutes(-30));
+            schedule.BundleChangeUpdate(subEventId, subEvent.Name.createCopy(Guid.NewGuid().ToString()), shiftedTimeLine.Start, shiftedTimeLine.End, subEvent.ParentCalendarEvent.Start, subEvent.ParentCalendarEvent.End,  subEvent.ParentCalendarEvent.NumberOfSplit, subEvent.ParentCalendarEvent.Notes.UserNote);
+            ((TestSchedule)schedule).WriteFullScheduleToOutlook();
         }
 
 

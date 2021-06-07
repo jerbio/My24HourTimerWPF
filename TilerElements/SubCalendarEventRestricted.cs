@@ -596,6 +596,15 @@ namespace TilerElements
                 return _ProfileOfRestriction;
             }
         }
+
+        public override TimeLine getCalculationRange
+        {
+            get
+            {
+                (ParentCalendarEvent as CalendarEventRestricted).setSingleUseRestrictionProfile(this.RestrictionProfile);
+                return base.getCalculationRange;
+            }
+        }
         #endregion
     }
 }

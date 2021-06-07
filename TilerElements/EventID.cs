@@ -291,7 +291,7 @@ namespace TilerElements
 
         public string getIDUpToSubCalendarEvent()
         {
-            return getStringIDAtLevel(3);
+            return EventID.convertToSubcalendarEventID(this.ToString()).ToString();
         }
 
         public string getCalendarEventComponent()

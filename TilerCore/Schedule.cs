@@ -1019,7 +1019,7 @@ namespace TilerCore
                 if (PreviousPausedCalEvent != null)
                 {
                     SubCalendarEvent currentPausedEvent = PreviousPausedCalEvent.getSubEvent(CurrentPausedEventId);
-                    currentPausedEvent.ParentCalendarEvent.ResetPause(Now.constNow);
+                    currentPausedEvent.ParentCalendarEvent.ResetPause(Now);
                 }
             }
 
@@ -1032,17 +1032,14 @@ namespace TilerCore
         public async Task<CustomErrors> ContinueEvent(string Event)
         {
             EventID id = new EventID(Event);
-            return await ResumeEvent(id);
+            return await ResumeEvent();
         }
 
-        public async Task<CustomErrors> ResumeEvent(EventID EventId = null, bool forceOutsideDeadline = false)
+        public async Task<CustomErrors> ResumeEvent(bool forceOutsideDeadline = false)
         {
 
             CustomErrors RetValue;
-            if (EventId == null)
-            {
-                EventId = TilerUser.PausedEventId;
-            }
+            EventID EventId = TilerUser.PausedEventId;
 
             if (EventId == null)
             {
@@ -1056,12 +1053,12 @@ namespace TilerCore
             }
 
             SubCalendarEvent SubEvent = CalEvent.getSubEvent(EventId);
-            if (!SubEvent.isPauseLocked)
+            if (!SubEvent.isPaused)
             {
                 RetValue = new CustomErrors(CustomErrors.Errors.Resume_Event_Cannot_Resume_Not_Paused_SubEvent);
                 return RetValue;
             }
-            bool errorState = CalEvent.ContinueSubEvent(EventId, Now.constNow, forceOutsideDeadline);
+            bool errorState = CalEvent.Continue(Now, forceOutsideDeadline);
             
             
 
@@ -1069,7 +1066,6 @@ namespace TilerCore
             {
                 this.TilerUser.clearPausedEventId();
                 Now.UpdateNow(SubEvent.Start);
-                SubEvent.ParentCalendarEvent.disablePauseLock();
                 CalendarEvent CalEventCopy = CalEvent.createCopy(EventID.GenerateCalendarEvent());
                 SubEvent.disable(CalEvent, this.Now);
                 SubCalendarEvent unDisabled = CalEventCopy.ActiveSubEvents.First();// we're doing the disabling because there could be a scenario where a sub event is resumed and the CalendarEvent still has non-completed tiles. This would mean you could move other non-completed tiles to the extended dadline., instead of just the paused tile
@@ -6695,7 +6691,7 @@ namespace TilerCore
                     eachSubEvent.disableRepetitionLock();
                     eachSubEvent.disableNowLock();
                 }
-                eachSubEvent.ParentCalendarEvent.disablePauseLock();
+                eachSubEvent.ParentCalendarEvent.ResetPause(this.Now);
             };
             this.TilerUser.clearPausedEventId();
         }

@@ -14,7 +14,7 @@ namespace TilerElements
 {
     public class TilerUser : IdentityUser, IHasId
     {
-        public TilerUser():base()
+        public TilerUser() : base()
         {
 
         }
@@ -47,7 +47,8 @@ namespace TilerElements
         public string LatestId { get; set; }
         public string CalendarType { get; set; } = ThirdPartyControl.CalendarTool.tiler.ToString();
         protected TimeSpan _TimeZoneDifference;
-        protected string _Id{get;set;}
+        protected string _Id { get; set; }
+        protected ScheduleProfile _ScheduleProfile;
 
         public override string Id
         {
@@ -59,7 +60,7 @@ namespace TilerElements
             set
             {
                 Guid idAsGuid;
-                if(Guid.TryParse(value, out idAsGuid))
+                if (Guid.TryParse(value, out idAsGuid))
                 {
                     _Id = idAsGuid.ToString();
                 }
@@ -71,15 +72,23 @@ namespace TilerElements
         }
 
         protected string _TimeZone = "UTC";
-        protected string _PausedEventId = null;
-
+        public virtual ScheduleProfile ScheduleProfile
+        {
+            get {
+                return _ScheduleProfile;
+            }
+            set
+            {
+                _ScheduleProfile = value;
+            }
+        }
         public EventID PausedEventId
         {
             get
             {
-                if (_PausedEventId.isNot_NullEmptyOrWhiteSpace())
+                if (this.ScheduleProfile!=null && this.ScheduleProfile.PausedTileId.isNot_NullEmptyOrWhiteSpace())
                 {
-                    return new EventID(_PausedEventId);
+                    return new EventID(this.ScheduleProfile.PausedTileId);
                 }
                 else
                 {
@@ -87,8 +96,6 @@ namespace TilerElements
                 }
             }
         }
-        [ForeignKey("PausedEventId_DB")]
-        public SubCalendarEvent PausedEvent { get; set; }
 
         public string TimeZone
         {
@@ -99,18 +106,6 @@ namespace TilerElements
             set
             {
                 _TimeZone = value;
-            }
-        }
-
-        public string PausedEventId_DB
-        {
-            get
-            {
-                return _PausedEventId;
-            }
-            set
-            {
-                _PausedEventId = value;
             }
         }
 
@@ -175,16 +170,21 @@ namespace TilerElements
             this._TimeZoneDifference = timeZoneDifference;
         }
 
+
         public void setPausedEventId(SubCalendarEvent pausedEvent)
         {
-            this.PausedEvent = pausedEvent;
+            this.ScheduleProfile.setPausedEventId( pausedEvent);
         }
 
+        public void initializeScheduleProfile()
+        {
+            this.ScheduleProfile = new ScheduleProfile();
+            this.ScheduleProfile.Id = this.Id;
+        }
 
         public void clearPausedEventId()
         {
-            this._PausedEventId = null;
-            this.PausedEvent = null;
+            this.ScheduleProfile.clearPausedEventId();
         }
 
         /// <summary>

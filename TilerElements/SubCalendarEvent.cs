@@ -41,7 +41,7 @@ namespace TilerElements
         protected bool _RepetitionLock { get; set; } = false; // this is the lock for an event when repeat is clicked
         [NotMapped]
         protected bool _NowLock { get; set; } // This is the lock applied when an event is set as now
-        protected bool _PauseLock { get; set;} // This is the lock applied when an event is paused
+        protected bool _PauseLock { get; set;} // This is the lock applied when an event is paused, so these are locked afer the tile has been resumed
         protected bool tempLock { get; set; } = false;// This should never get persisted
         [NotMapped]
         protected bool conflictResolutionLock { get; set; } = false;// This should never get persisted, this is locked to artiificially lock a tile when a position for it is found 
@@ -172,10 +172,59 @@ namespace TilerElements
             _isTardy = true;
         }
 
-        public bool Continue(DateTimeOffset CurrentTime, bool forceOutSideDeadline)
+        /// <summary>
+        /// Function resumes the pausing of a tile. It does this by using the left over time from the pausedtimeline and total duration at the time of pausing to calculate the left over time for the tile.
+        /// </summary>
+        /// <param name="now"></param>
+        /// <param name="pausedTimeLine"></param>
+        /// <param name="forceOutSideDeadline"></param>
+        /// <returns></returns>
+        internal bool Continue(ReferenceNow now, PausedTimeLineEntry pausedTimeLine, bool forceOutSideDeadline = false)
         {
-            throw new NotImplementedException();
+            TimeSpan totalDuration = pausedTimeLine.InitialTotalDuration;
+            TimeSpan usedUptimeSpan = pausedTimeLine.End - pausedTimeLine.Start;
+            TimeSpan durationLeft = totalDuration - usedUptimeSpan;
+
+            if(durationLeft.Ticks >= 0)
+            {
+                TimeLine initialTimeLine = this.StartToEnd;
+                DateTimeOffset currentTime = now.constNow;
+                DateTimeOffset end = currentTime.Add(durationLeft);
+                TimeLine updatedTimeLine = new TimeLine(currentTime, end);
+                this.updateTimeLine(updatedTimeLine, now);
+                if(!forceOutSideDeadline)
+                {
+                    bool retValue = this.canExistWithinTimeLine(now.StartToEnd);
+                    if (!retValue)
+                    {
+                        this.updateTimeLine(initialTimeLine, now);
+                        return retValue;
+                    }
+                }
+                this.setPauseLock();
+                pausedTimeLine.setAsDeleted();
+                return true;
+            }
+            throw new Exception("There is an isssue wih continuing subevent, the pausedtime line supercedes the subevent left.");
         }
+
+        /// <summary>
+        /// This takes a previously paused timeline and resets it to its previous duraion. And removes any pause lock.
+        /// </summary>
+        /// <param name="now"></param>
+        /// <param name="pausedTimeLine"></param>
+        /// <param name="forceOutSideDeadline"></param>
+        /// <returns></returns>
+        internal void ResetPause(ReferenceNow now, PausedTimeLineEntry pausedTimeLine)
+        {
+            
+            DateTimeOffset end = now.constNow;
+            DateTimeOffset start = end - pausedTimeLine.InitialTotalDuration;
+            TimeLine timeLine = new TimeLine(start, end);
+            this.updateTimeLine(timeLine);
+            this.disablePauseLock();
+        }
+
         public virtual void updateCalculationEventRange(TimeLine timeLine)
         {
             TimeLineRestricted restrictedTimeLine = timeLine as TimeLineRestricted;
@@ -1135,7 +1184,7 @@ namespace TilerElements
             }
         }
 
-        public override bool isLocked => base.isLocked || this.tempLock || this.lockedPrecedingHours || this.isRepetitionLocked || this.isNowLocked||this.isPauseLocked|| this.conflictResolutionLock;
+        public override bool isLocked => base.isLocked || this.tempLock || this.lockedPrecedingHours || this.isRepetitionLocked || this.isNowLocked||this.isPausedLocked|| this.conflictResolutionLock;
 
         /// <summary>
         /// This changes the duration of the subevent. It requires the change in duration. This just adds/subtracts the delta to the end time
@@ -1704,11 +1753,19 @@ namespace TilerElements
             }
         }
 
-        public bool isPauseLocked
+        public bool isPausedLocked
         {
             get
             {
                 return _PauseLock;
+            }
+        }
+
+        public bool isPaused
+        {
+            get
+            {
+                return this.ParentCalendarEvent.isSubEventPaused(this);
             }
         }
 

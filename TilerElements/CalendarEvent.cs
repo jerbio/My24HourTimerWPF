@@ -42,8 +42,7 @@ namespace TilerElements
         protected bool _RepeatIsLoaded = true;
         protected TimeLineHistory _TimeLineHistory = null;
         [NotMapped]
-        protected List<PausedTimeLine> _pausedTimeSlot = null;
-        protected TimeSpan _UsedPauseTime = new TimeSpan();
+        protected Dictionary<string, Dictionary<string, PausedTimeLineEntry>> _PausedTimeSlots = new Dictionary<string, Dictionary<string, PausedTimeLineEntry>>();
         protected SubCalendarEvent pausedSubEvent { get; set; }
         #region undoMembers
         public int UndoSplits;
@@ -269,8 +268,7 @@ namespace TilerElements
             _EventDayPreference = MyUpdated._EventDayPreference;
             this._IniStartTime = this.Start;
             this._IniEndTime = this.End;
-            this._pausedTimeSlot = MyUpdated._pausedTimeSlot;
-            this._UsedPauseTime = MyUpdated._UsedPauseTime;
+            this._PausedTimeSlots = MyUpdated._PausedTimeSlots;
             addUpdatedTimeLine(this.StartToEnd);
         }
         #endregion
@@ -609,7 +607,6 @@ namespace TilerElements
             MyCalendarEventCopy._ProfileOfNow = this.getNowInfo?.CreateCopy();
             MyCalendarEventCopy._Semantics = this._Semantics?.createCopy();
             MyCalendarEventCopy._UsedTime = this._UsedTime;
-            MyCalendarEventCopy._UsedPauseTime = this._UsedPauseTime;
 
             foreach (SubCalendarEvent eachSubCalendarEvent in this.SubEvents.Values)
             {
@@ -748,21 +745,56 @@ namespace TilerElements
         /// </summary>
         /// <param name="currentTime"></param>
         /// <returns></returns>
-        virtual public bool ResetPause(DateTimeOffset currentTime)
+        virtual public void ResetPause(ReferenceNow now)
         {
-            throw new NotImplementedException();
-            //_pausedTimeSlot = new List<PausedTimeLine>();
-            //_UsedPauseTime = new TimeSpan();
-            //disablePauseLock();
-            //TimeSpan timeDiff = new TimeSpan();
-            //bool RetValue = shiftEvent(timeDiff);
-            //return RetValue;
+            List<PausedTimeLineEntry> revisedPauseList = this.ActivePausedTimeLines.OrderByDescending(pausedTimeLine => pausedTimeLine.End).ToList();
+
+            for(; revisedPauseList.Count > 0;)
+            {
+                PausedTimeLineEntry pausedimeLine = revisedPauseList[0];
+                SubCalendarEvent eachSubEvent = getSubEvent(pausedimeLine.getSubEventId());
+                if(eachSubEvent == null)
+                {
+                    throw new Exception("There is an issue with clearing the paused subevents, looks like the subevent was not found");
+                }
+                eachSubEvent.ResetPause(now, pausedimeLine);
+                removePausedTimeSlot(pausedimeLine);
+                revisedPauseList.RemoveAt(0);
+            }
         }
 
-        virtual public void addToPausedTimeSlot(PausedTimeLine pausedTimeLine)
+        virtual public void addToPausedTimeSlot(PausedTimeLineEntry pausedTimeLine)
         {
-            _pausedTimeSlot.Add(pausedTimeLine);
-            _UsedPauseTime = TimeSpan.FromTicks(_pausedTimeSlot.Select(timeLine => timeLine.TimelineSpan.Ticks).Sum());
+            Dictionary<string, PausedTimeLineEntry> PausedTimeLineEntries;
+            EventID eventID = new EventID(pausedTimeLine.Id);
+            string subCalendarEventID = eventID.getSubCalendarEventID();
+            if (pausedTimeSlots.ContainsKey(subCalendarEventID))
+            {
+                PausedTimeLineEntries = pausedTimeSlots[subCalendarEventID];
+            } else
+            {
+                PausedTimeLineEntries = new Dictionary<string, PausedTimeLineEntry>();
+                pausedTimeSlots.Add(subCalendarEventID, PausedTimeLineEntries);
+            }
+            PausedTimeLineEntries.Add(pausedTimeLine.Id, pausedTimeLine);
+        }
+
+        virtual public void removePausedTimeSlot(PausedTimeLineEntry pausedTimeLine)
+        {
+            Dictionary<string, PausedTimeLineEntry> PausedTimeLineEntries;
+            EventID eventID = new EventID(pausedTimeLine.Id);
+            string subCalendarEventID = eventID.getSubCalendarEventID();
+            if (pausedTimeSlots.ContainsKey(subCalendarEventID))
+            {
+                PausedTimeLineEntries = pausedTimeSlots[subCalendarEventID];
+                PausedTimeLineEntries.Remove(pausedTimeLine.Id);
+            }
+            
+        }
+
+        virtual protected void clearPausedTimeSlot(PausedTimeLineEntry pausedTimeLine)
+        {
+            pausedTimeSlots.Clear();
         }
 
         virtual public void Disable(ReferenceNow now, bool goDeep = true)
@@ -908,7 +940,7 @@ namespace TilerElements
         virtual public SubCalendarEvent PauseSubEvent(EventID SubEventId, DateTimeOffset CurrentTime)
         {
             SubCalendarEvent SubEvent = getSubEvent(SubEventId);
-            if (!SubEvent.isPauseLocked)
+            if (!SubEvent.isPaused)
             {
                 TimeSpan TimeDelta = this.Pause(SubEvent, CurrentTime);
                 _UsedTime += TimeDelta;
@@ -916,17 +948,30 @@ namespace TilerElements
             return SubEvent;
         }
 
+        virtual public bool isSubEventPaused(SubCalendarEvent subEvent)
+        {
+            bool retValue = false;
+            if(this.pausedTimeSlots!=null)
+            {
+                retValue = this.pausedTimeSlots.ContainsKey(subEvent.Id);
+                retValue = retValue && this.pausedTimeSlots[subEvent.Id].Select(dictOfPausedTimeLine => dictOfPausedTimeLine.Value).Any(eachPausedTimeLine => !eachPausedTimeLine.IsFinal);
+            }
+            
+            return retValue;
+        }
+
         /// <summary>
         /// Resumes a subevent. This takes the rest of the available timeline after being paused and pins it to currentTime 
         /// </summary>
-        /// <param name="SubEventId"></param>
-        /// <param name="CurrentTime"></param>
+        /// <param name="now"></param>
         /// <param name="forceOutSideDeadline"></param>
         /// <returns></returns>
-        virtual public bool ContinueSubEvent(EventID SubEventId, DateTimeOffset CurrentTime, bool forceOutSideDeadline = false)
+        virtual public bool Continue(ReferenceNow now, bool forceOutSideDeadline = false)
         {
-            SubCalendarEvent SubEvent = getSubEvent(SubEventId);
-            return SubEvent.Continue(CurrentTime, forceOutSideDeadline);
+            PausedTimeLineEntry latestPausedTimeline = this.ActivePausedTimeLines.OrderByDescending(eachPausedTimeline => eachPausedTimeline.CreationTime).First();
+            EventID eventId = new EventID(latestPausedTimeline.Id);
+            SubCalendarEvent SubEvent = getSubEvent(eventId.getSubCalendarEventID());
+            return SubEvent.Continue(now, latestPausedTimeline, forceOutSideDeadline);
         }
 
         public bool IsDateTimeWithin(DateTimeOffset DateTimeEntry)
@@ -2196,40 +2241,21 @@ namespace TilerElements
 
 
         /// <summary>
-        /// Resumes a subevent. This takes the rest of the available timeline after being paused and pins it to currentTime 
-        /// </summary>
-        /// <param name="currentTime"></param>
-        /// <param name="forceOutSideDeadlinecurrentTime">force the resume even if is outside the deadlie of the calendar event</param>
-        /// <returns></returns>
-        virtual internal bool Continue(DateTimeOffset currentTime, bool forceOutSideDeadline = false)
-        {
-            throw new NotImplementedException();
-            //TimeSpan timeDiff = (currentTime - UsedPauseTime) - (Start);
-            //bool RetValue = shiftEvent(timeDiff, force: forceOutSideDeadline);// NOTE WE DO NOT WANT TO DISABLE THE PAUSE LOCK, this because even after a subevent is continued it needs to stay locked so it wont get shifted
-
-
-            //return RetValue;
-        }
-
-
-        /// <summary>
         /// Pauses this subevent. Locks the timeline of the beginning of the timespan to the current time of the subevent
         /// </summary>
         /// <param name="currentTime"></param>
         /// <returns></returns>
         virtual internal TimeSpan Pause(SubCalendarEvent pausedSubevent, DateTimeOffset currentTime)
         {
-            DateTimeOffset Start = this.Start;
-            DateTimeOffset End = this.End;
+            DateTimeOffset Start = pausedSubevent.Start;
+            DateTimeOffset End = currentTime;
             EventID pauseEventId = EventID.GeneratePauseId(pausedSubevent.SubEvent_ID);
-            PausedTimeLine pauseTimeLine = new PausedTimeLine(pauseEventId.ToString(), Start, currentTime);
+            string pauseId = pauseEventId.ToString();//TODO figure out the apporpriate id in the scenario of multiple pauses for the same sub event
+            PausedTimeLineEntry pauseTimeLine = new PausedTimeLineEntry(pauseId, Start, End);
+            pauseTimeLine.InitialTotalDuration = pausedSubevent.StartToEnd.TimelineSpan;
+            pauseTimeLine.IsRigid = pausedSubevent.isRigid;
             addToPausedTimeSlot(pauseTimeLine);
             return pauseTimeLine.TimelineSpan;
-        }
-
-
-        virtual public bool disablePauseLock() {
-            throw new NotImplementedException();
         }
         #endregion
 
@@ -2729,20 +2755,30 @@ namespace TilerElements
             }
         }
 
-        virtual public TimeSpan UsedPauseTime
+        [NotMapped]
+        public List<PausedTimeLineEntry> PausedTimeLines
         {
             get
             {
-                return _UsedPauseTime;
+                return pausedTimeSlots.Values.SelectMany(pausedTimeLines => pausedTimeLines.Values).ToList();
             }
         }
 
         [NotMapped]
-        public List<PausedTimeLine> pausedTimeLines
+        public List<PausedTimeLineEntry> ActivePausedTimeLines
         {
             get
             {
-                return _pausedTimeSlot;
+                return pausedTimeSlots.Values.SelectMany(pausedTimeLines => pausedTimeLines.Values).Where(eachPausedTimeLine => !eachPausedTimeLine.IsFinal).ToList();
+            }
+        }
+
+
+        virtual public Dictionary<string, Dictionary<string, PausedTimeLineEntry>> pausedTimeSlots
+        {
+            get
+            {
+                return _PausedTimeSlots;
             }
         }
 
@@ -2935,45 +2971,31 @@ namespace TilerElements
             }
         }
 
-        virtual public long UsedPauseTime_DB
-        {
-            set
-            {
-                this._UsedPauseTime = TimeSpan.FromMilliseconds(value);
-            }
-
-            get
-            {
-                return (long)_UsedPauseTime.TotalMilliseconds;
-            }
-        }
-
 
         virtual public string PausedTimeSlots_DB
         {
             set
             {
-                _pausedTimeSlot = new List<PausedTimeLine>();
+                _PausedTimeSlots = new Dictionary<string, Dictionary<string, PausedTimeLineEntry>>();
                 if (value.isNot_NullEmptyOrWhiteSpace())
                 {
                     JArray pauseSlots = JArray.Parse(value);
                     foreach (JObject timelineObj in pauseSlots)
                     {
-                        PausedTimeLine timeLine = PausedTimeLine.JobjectToTimeLine(timelineObj);
-                        _pausedTimeSlot.Add(timeLine);
+                        PausedTimeLineEntry pausedTimeLine = PausedTimeLineEntry.JobjectToTimeLine(timelineObj);
+                        addToPausedTimeSlot(pausedTimeLine);
                     }
                 }
             }
             get
             {
                 JArray retJValue = new JArray();
-                if (_pausedTimeSlot != null && _pausedTimeSlot.Count > 0)
+                if (pausedTimeSlots != null && pausedTimeSlots.Count > 0)
                 {
-                    foreach (TimeLine timeLine in _pausedTimeSlot)
+                    foreach (PausedTimeLineEntry pausedTimeLine in PausedTimeLines)
                     {
-                        retJValue.Add(timeLine.ToJson());
+                        retJValue.Add(pausedTimeLine.ToJson());
                     }
-
                 }
                 return retJValue.ToString();
             }

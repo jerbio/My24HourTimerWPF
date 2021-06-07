@@ -60,8 +60,8 @@
     <Reference Include="Google.Apis.Auth.PlatformServices, Version=1.49.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
       <HintPath>..\packages\Google.Apis.Auth.1.49.0\lib\net45\Google.Apis.Auth.PlatformServices.dll</HintPath>
     </Reference>
-    <Reference Include="Google.Apis.Calendar.v3, Version=1.49.0.2142, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
-      <HintPath>..\packages\Google.Apis.Calendar.v3.1.49.0.2142\lib\net45\Google.Apis.Calendar.v3.dll</HintPath>
+    <Reference Include="Google.Apis.Calendar.v3, Version=1.49.0.2224, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Apis.Calendar.v3.1.49.0.2224\lib\net45\Google.Apis.Calendar.v3.dll</HintPath>
     </Reference>
     <Reference Include="Google.Apis.Core, Version=1.49.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
       <HintPath>..\packages\Google.Apis.Core.1.49.0\lib\net45\Google.Apis.Core.dll</HintPath>
@@ -142,6 +142,14 @@
     <Compile Include="LogControlDump.cs" />
     <Compile Include="LogControlTest.cs" />
     <Compile Include="LogicTest.cs" />
+    <Compile Include="Migrations\202106060031491_scheduleProfile.cs" />
+    <Compile Include="Migrations\202106060031491_scheduleProfile.designer.cs">
+      <DependentUpon>202106060031491_scheduleProfile.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202106060558033_scheduleProfileUpdate.cs" />
+    <Compile Include="Migrations\202106060558033_scheduleProfileUpdate.designer.cs">
+      <DependentUpon>202106060558033_scheduleProfileUpdate.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
     <Compile Include="Models\TestGoogleEvent.cs" />
@@ -332,6 +340,14 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="WagTapCalLogs\69e9166b-6754-46cf-b384-66c5557048f8\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\202106060031491_scheduleProfile.resx">
+      <DependentUpon>202106060031491_scheduleProfile.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202106060558033_scheduleProfileUpdate.resx">
+      <DependentUpon>202106060558033_scheduleProfileUpdate.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

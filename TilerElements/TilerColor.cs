@@ -102,6 +102,35 @@ namespace TilerElements
             HexColor = '#'+r + g + b;
         }
 
+
+        public static TilerColor pausedUIColor()
+        {
+            TilerColor retValue = new TilerColor();
+            retValue.R = 127;
+            retValue.G = 127;
+            retValue.B = 127;
+
+            string r = retValue.Red.ToString("X");
+            string g = retValue.Green.ToString("X");
+            string b = retValue.Blue.ToString("X");
+            if (r.Length == 1)
+            {
+                r = "0" + r;
+            }
+
+            if (g.Length == 1)
+            {
+                g = "0" + g;
+            }
+
+            if (b.Length == 1)
+            {
+                b = "0" + b;
+            }
+            retValue.HexColor = '#' + r + g + b;
+            return retValue;
+        }
+
         public void undoUpdate(Undo undo)
         {
             UndoRed = Red;

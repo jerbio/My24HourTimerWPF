@@ -77,13 +77,16 @@ namespace TilerTests
                 email = userId + "@testuser.com";
             }
 
+            ScheduleProfile scheduleProfile = new ScheduleProfile();
             TilerUser user = new TilerUser()
             {
                 Id = userId,
                 UserName = userName,
                 Email = email,
-                PasswordHash = password
+                PasswordHash = password,
+                ScheduleProfile = scheduleProfile
             };
+            scheduleProfile.Id = user.Id;
 
 
             TilerUser user2 = new TilerUser()
@@ -102,7 +105,13 @@ namespace TilerTests
             context.CalEvents.Add(calEvent);
             
             context.SaveChanges();
-            TilerUser retrivedUser = context.Users.Find(userId);
+            TilerUser retrivedUser = context.Users
+                .Include(eachUser => eachUser.ScheduleProfile)
+                .SingleOrDefault(eachUser => eachUser.Id == userId);
+            if (retrivedUser != null && retrivedUser.ScheduleProfile == null)
+            {
+                retrivedUser.initializeScheduleProfile();
+            }
 
             Tuple<DbContext, TilerUser> retValue = new Tuple<DbContext, TilerUser>(context, retrivedUser);
 
@@ -471,7 +480,12 @@ namespace TilerTests
 
             
 
-            TilerUser tilerUser = _Context.Users.Find(userId);
+            TilerUser tilerUser = _Context.Users.Include(eachUser => eachUser.ScheduleProfile)
+                .SingleOrDefault(eachUser => eachUser.Id == userId);
+            if (tilerUser != null && tilerUser.ScheduleProfile == null)
+            {
+                tilerUser.initializeScheduleProfile();
+            }
             UserAccount userAccount = new UserAccountTest(tilerUser, _Context);
             return userAccount;
         }
@@ -1038,7 +1052,6 @@ namespace TilerTests
             Assert.IsTrue(retValue);
             retValue &= firstSubevent.isTardy == secondSubevent.isTardy;
             Assert.IsTrue(retValue);
-            retValue &= firstSubevent.ParentCalendarEvent.UsedPauseTime == secondSubevent.ParentCalendarEvent.UsedPauseTime;
             Assert.IsTrue(retValue, "Used time aren't the same");
             return retValue;
         }
@@ -1160,6 +1173,47 @@ namespace TilerTests
                 {
                     retValue = false;
                 }
+
+                if (firstCalEvent.PausedTimeLines.Count() == secondCalEvent.PausedTimeLines.Count())
+                {
+                    var firstSubEventDictionary = firstCalEvent.pausedTimeSlots;
+                    var secondSubEvenDictionary = secondCalEvent.pausedTimeSlots;
+                    foreach (var pausedTimelineDictKvp in firstSubEventDictionary)
+                    {
+                        if (secondSubEvenDictionary.ContainsKey(pausedTimelineDictKvp.Key))
+                        {
+                            Dictionary<string, PausedTimeLineEntry> firstdictionary = firstSubEventDictionary[pausedTimelineDictKvp.Key];
+                            Dictionary<string, PausedTimeLineEntry> seconddictionary = secondSubEvenDictionary[pausedTimelineDictKvp.Key];
+                            foreach (PausedTimeLineEntry firstPausedTimeline in firstdictionary.Values)
+                            {
+                                if (seconddictionary.ContainsKey(firstPausedTimeline.Id))
+                                {
+                                    var secondPausedTimeline = seconddictionary[firstPausedTimeline.Id];
+                                    retValue = firstPausedTimeline.isTestEquivalent(secondPausedTimeline);
+                                    if (!retValue)
+                                    {
+                                        break;
+                                    }
+                                }
+                                else
+                                {
+                                    retValue = false;
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            retValue = false;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    retValue = false;
+                }
+
                 Assert.IsTrue(retValue);
                 retValue &= isTestEquivalent(firstCalEvent as TilerEvent, secondCalEvent as TilerEvent);
                 Assert.IsTrue(retValue);
@@ -1502,6 +1556,44 @@ namespace TilerTests
                 retValue = false;
             }
             Assert.IsTrue(retValue);
+            return retValue;
+        }
+
+        public static bool isTestEquivalent(this PausedTimeLineEntry PausedTimeLineEntryA, PausedTimeLineEntry PausedTimeLineEntryB)
+        {
+            bool retValue = ((BusyTimeLine)PausedTimeLineEntryA).isTestEquivalent((BusyTimeLine)PausedTimeLineEntryB);
+            if(retValue)
+            {
+                retValue &= PausedTimeLineEntryA.CreationTime.removeSecondsAndMilliseconds() == PausedTimeLineEntryB.CreationTime.removeSecondsAndMilliseconds();
+                if(retValue)
+                {
+                    retValue &= PausedTimeLineEntryA.InitialTotalDuration == PausedTimeLineEntryB.InitialTotalDuration;
+                    if(retValue)
+                    {
+                        retValue &= PausedTimeLineEntryA.IsFinal == PausedTimeLineEntryB.IsFinal;
+                        if(retValue)
+                        {
+                            retValue &= PausedTimeLineEntryA.IsRigid == PausedTimeLineEntryB.IsRigid;
+                            Assert.IsTrue(retValue, "IsRigid of aren't equal");
+                        }
+                        else
+                        {
+                            Assert.IsTrue(retValue, "Isfinal aren't equal");
+                        }
+                    }
+                    else
+                    {
+                        Assert.IsTrue(retValue, "InitialTotalDuration aren't equal");
+                    }
+                } else
+                {
+                    Assert.IsTrue(retValue, "CreationTime aren't equal");
+                }
+                
+            } else
+            {
+                Assert.IsTrue(retValue, "Busy time line casting is unqueivalent");
+            }
             return retValue;
         }
 

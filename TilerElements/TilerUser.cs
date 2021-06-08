@@ -72,7 +72,17 @@ namespace TilerElements
         }
 
         protected string _TimeZone = "UTC";
+
         public virtual ScheduleProfile ScheduleProfile
+        {
+            get
+            {
+                return _ScheduleProfile?? (_ScheduleProfile = new ScheduleProfile());
+            }
+        }
+
+
+        public virtual ScheduleProfile ScheduleProfile_DB
         {
             get {
                 return _ScheduleProfile;
@@ -178,7 +188,7 @@ namespace TilerElements
 
         public void initializeScheduleProfile()
         {
-            this.ScheduleProfile = new ScheduleProfile();
+            this.ScheduleProfile_DB = new ScheduleProfile();
             this.ScheduleProfile.Id = this.Id;
         }
 

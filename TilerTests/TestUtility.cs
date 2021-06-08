@@ -85,7 +85,7 @@ namespace TilerTests
                 UserName = userName,
                 Email = email,
                 PasswordHash = password,
-                ScheduleProfile = scheduleProfile
+                ScheduleProfile_DB = scheduleProfile
             };
             scheduleProfile.Id = user.Id;
 
@@ -108,7 +108,7 @@ namespace TilerTests
             
             context.SaveChanges();
             TilerUser retrivedUser = context.Users
-                .Include(eachUser => eachUser.ScheduleProfile)
+                .Include(eachUser => eachUser.ScheduleProfile_DB)
                 .SingleOrDefault(eachUser => eachUser.Id == userId);
             if (retrivedUser != null && retrivedUser.ScheduleProfile == null)
             {
@@ -482,7 +482,7 @@ namespace TilerTests
 
             
 
-            TilerUser tilerUser = _Context.Users.Include(eachUser => eachUser.ScheduleProfile)
+            TilerUser tilerUser = _Context.Users.Include(eachUser => eachUser.ScheduleProfile_DB)
                 .SingleOrDefault(eachUser => eachUser.Id == userId);
             if (tilerUser != null && tilerUser.ScheduleProfile == null)
             {

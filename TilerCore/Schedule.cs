@@ -403,9 +403,9 @@ namespace TilerCore
             }
         }
 
-        public CalendarEvent getCalendarEvent(string EventID)
+        public CalendarEvent getCalendarEvent(string eventIdString)
         {
-            EventID userEvent = new EventID(EventID);
+            EventID userEvent = EventID.convertToSubcalendarEventID(eventIdString);
             return getCalendarEvent(userEvent);
         }
 
@@ -491,10 +491,11 @@ namespace TilerCore
             return getSubCalendarEvent(EventID.ToString());
         }
 
-        public SubCalendarEvent getSubCalendarEvent(string EventID)
+        public SubCalendarEvent getSubCalendarEvent(string EventIDString)
         {
-            CalendarEvent myCalendarEvent = getCalendarEvent(EventID);
-            return myCalendarEvent.getSubEvent(new EventID(EventID));
+            EventID eventId = EventID.convertToSubcalendarEventID(EventIDString);
+            CalendarEvent myCalendarEvent = getCalendarEvent(eventId);
+            return myCalendarEvent.getSubEvent(eventId);
         }
 
         public IEnumerable<CalendarEvent> getGoogleCalendarEvents()
@@ -612,7 +613,7 @@ namespace TilerCore
             return retVallue;
         }
 
-        virtual public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> BundleChangeUpdate(string SubEventID,
+        virtual public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> BundleChangeUpdate(string eventIDString,
             EventName NewName,
             DateTimeOffset SubeventStart,
             DateTimeOffset SubeventEnd,
@@ -621,7 +622,8 @@ namespace TilerCore
             int SplitCount,
             string Notes)
         {
-            EventID myEventID = new EventID(SubEventID);
+
+            string SubEventID = EventID.convertToSubcalendarEventID(eventIDString).ToString();
             SubCalendarEvent mySubCalEvent = getSubCalendarEvent(SubEventID);
             CalendarEvent myCalendarEvent = getCalendarEvent(SubEventID);
             DateTimeOffset calEventStart = TimeLineStart.isBeginningOfTime() ? myCalendarEvent.Start : TimeLineStart;

@@ -202,7 +202,7 @@ namespace TilerElements
                     }
                 }
                 this.setPauseLock();
-                pausedTimeLine.setAsDeleted();
+                pausedTimeLine.setAsFinal();
                 return true;
             }
             throw new Exception("There is an isssue wih continuing subevent, the pausedtime line supercedes the subevent left.");

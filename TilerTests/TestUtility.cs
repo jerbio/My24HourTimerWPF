@@ -574,7 +574,7 @@ namespace TilerTests
 
         public static SubCalendarEvent getSubEventById(string subEventId, UserAccount user)
         {
-            Task<SubCalendarEvent> waitVar = user.ScheduleLogControl.getSubEventWithID(subEventId);
+            Task<SubCalendarEvent> waitVar = user.ScheduleLogControl.getSubEventWithID(EventID.convertToSubcalendarEventID( subEventId).ToString());
             waitVar.Wait();
             SubCalendarEvent retValue = waitVar.Result;
             return retValue;

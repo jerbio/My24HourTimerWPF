@@ -683,20 +683,28 @@ namespace TilerCore
 
             if (subEventTimeLineChange)
             {
-                if (!isFromRigidEvent)
+                if(!EventID.isPauseId(eventIDString))
                 {
-                    myCalendarEvent.UnRigidizeSubEvent(mySubCalEvent.Id);
-                    mySubCalEvent.UpdateThis(ChangedSubCal);
-                    myCalendarEvent.RigidizeSubEvent(mySubCalEvent.Id);
-                    mySubCalEvent.tempLockSubEvent();
-                }
-                else
+                    if (!isFromRigidEvent)
+                    {
+                        myCalendarEvent.UnRigidizeSubEvent(mySubCalEvent.Id);
+                        mySubCalEvent.UpdateThis(ChangedSubCal);
+                        myCalendarEvent.RigidizeSubEvent(mySubCalEvent.Id);
+                        mySubCalEvent.tempLockSubEvent();
+                    }
+                    else
+                    {
+                        mySubCalEvent.shiftEvent(ChangedSubCal.Start, true);
+                        mySubCalEvent.UpdateThis(ChangedSubCal);
+                    }
+                    calEventStart = calendarEventRange.Start < mySubCalEvent.Start ? calendarEventRange.Start : mySubCalEvent.Start;
+                    calEventEnd = calendarEventRange.End > mySubCalEvent.End ? calendarEventRange.End : mySubCalEvent.End;
+                } else
                 {
-                    mySubCalEvent.shiftEvent(ChangedSubCal.Start, true);
-                    mySubCalEvent.UpdateThis(ChangedSubCal);
+                    Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(new CustomErrors(CustomErrors.Errors.Cannot_update_timeline_of_pausedtimeline), AllEventDictionary);
+                    return retValue;
                 }
-                calEventStart = calendarEventRange.Start < mySubCalEvent.Start ? calendarEventRange.Start : mySubCalEvent.Start;
-                calEventEnd = calendarEventRange.End > mySubCalEvent.End ? calendarEventRange.End : mySubCalEvent.End;
+                
             }
             calendarEventRange = new TimeLine(calEventStart, calEventEnd);
             return BundleChangeUpdate(mySubCalEvent.SubEvent_ID.ToString(), NewName, calendarEventRange.Start, calendarEventRange.End, SplitCount, Notes, subEventTimeLineChange, mySubCalEvent);
@@ -752,7 +760,7 @@ namespace TilerCore
 
             
 
-            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(myCalendarEvent.Error, AllEventDictionary);
+            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(myCalendarEvent.Error??new CustomErrors(CustomErrors.Errors.success), AllEventDictionary);
             return retValue;
         }
 
@@ -1372,7 +1380,7 @@ namespace TilerCore
                 clearAllTimeLocks();
                 procrastinateAll = EvaluateTotalTimeLineAndAssignValidTimeSpots(procrastinateAll, NotdoneYet, null, null, 1) as ProcrastinateCalendarEvent;
 
-                Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(procrastinateAll.Error, AllEventDictionary_Cpy);
+                Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(procrastinateAll.Error??new CustomErrors(CustomErrors.Errors.success), AllEventDictionary_Cpy);
                 return retValue;
             }
             throw new CustomErrors(CustomErrors.Errors.procrastinationBeforeNow, "Cannot go back in time quite yet");
@@ -1567,7 +1575,7 @@ namespace TilerCore
                 int conviableCount = NewEventAsRestricted.AllSubEvents.Where(subEvent => !((subEvent as SubCalendarEventRestricted).getCalendarEventRange as TimeLineRestricted).IsViable).Count();
                 if(conviableCount > 0)
                 {
-                    throw new CustomErrors(CustomErrors.Errors.restrictionProfileNonvaiable);
+                    throw new CustomErrors(CustomErrors.Errors.RestrictionProfileNonvaiable);
                 }
 
             }

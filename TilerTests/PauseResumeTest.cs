@@ -875,5 +875,343 @@ namespace TilerTests
 
         }
 
+        /// <summary>
+        /// Paused and resumed tiles should be completeable from the pausedTImelineEntry
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod]
+        public async Task CompletePauseEvent()
+        {
+            Packet packet = CreatePacket();
+            TilerUser tilerUser = packet.User;
+            UserAccount user = getTestUser(userId: tilerUser.Id);
+            reloadTilerUser(ref user, ref tilerUser);
+
+            DateTimeOffset refNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
+            DateTimeOffset startOfDay = refNow;
+            TimeLine calEventTimeLine = new TimeLine(refNow, refNow.AddDays(30));
+            int eventsPerDay = 8;
+            int totalSplit = eventsPerDay * (int)calEventTimeLine.TimelineSpan.TotalDays;
+            TimeSpan durationPerEvent = TimeSpan.FromHours(210);
+            CalendarEvent calEvent = TestUtility.generateCalendarEvent(tilerUser, durationPerEvent, null, calEventTimeLine.Start, calEventTimeLine.End, totalSplit);
+            DB_Schedule schedule = new TestSchedule(user, refNow, startOfDay);
+            schedule.AddToScheduleAndCommit(calEvent);
+            reloadTilerUser(ref user, ref tilerUser);
+
+            CalendarEvent calEvent0 = TestUtility.generateCalendarEvent(tilerUser, durationPerEvent, null, calEventTimeLine.Start, calEventTimeLine.End, totalSplit);
+            schedule = new TestSchedule(user, refNow, startOfDay);
+            schedule.AddToScheduleAndCommit(calEvent0);
+            reloadTilerUser(ref user, ref tilerUser);
+
+            schedule = new TestSchedule(user, refNow, startOfDay);
+            CalendarEvent calEventRetrieved = schedule.getCalendarEvent(calEvent.Id);
+            CalendarEvent calEventRetrieved0 = schedule.getCalendarEvent(calEvent0.Id);
+
+            Tuple<CustomErrors, SubCalendarEvent> preCurrentSubEvents = schedule.PauseEvent().Result;
+            Assert.AreEqual(preCurrentSubEvents.Item1.Code, (int)CustomErrors.Errors.Pause_Event_There_Is_No_Current_To_Pause);
+
+
+
+            SubCalendarEvent pausedSubEvent = calEventRetrieved.ActiveSubEvents.OrderBy(subEvent => subEvent.Start).ToList()[1];
+            DateTimeOffset pausedRefNow = Utility.MiddleTime(pausedSubEvent);
+            schedule = new TestSchedule(user, pausedRefNow, startOfDay);
+            CustomErrors resumeError = await schedule.ResumeEvent().ConfigureAwait(false);
+            Assert.AreEqual(resumeError.Code,
+                (int)CustomErrors.Errors.Resume_Event_Paused_Event_Id_is_Null,
+                "Resume should return error because of no current paused events");
+
+            Tuple<CustomErrors, SubCalendarEvent> pauseResult = schedule.PauseEvent().Result;
+            Assert.AreEqual(pauseResult.Item2, pausedSubEvent);
+            await schedule.persistToDB().ConfigureAwait(false);
+            reloadTilerUser(ref user, ref tilerUser);
+            
+            
+            Assert.AreEqual(
+                tilerUser.PausedEventId.ToString(),
+                pausedSubEvent.Id);
+
+
+            DateTimeOffset nextRefNow = pausedRefNow.AddDays(1);
+            schedule = new TestSchedule(user, nextRefNow, startOfDay);
+
+            SubCalendarEvent pausedSubEventRetrived = schedule.getSubCalendarEvent(tilerUser.PausedEventId);
+            Assert.IsTrue(pausedSubEventRetrived.isPaused);
+
+
+            reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, nextRefNow, startOfDay);
+            Assert.AreEqual(
+                pausedSubEventRetrived.ParentCalendarEvent.ActivePausedTimeLines.Count
+                , 1,
+                "There should only be one paused timeline since we've paused once on thid Calendarevent");
+            PausedTimeLineEntry pausedTimeLine = pausedSubEventRetrived.ParentCalendarEvent.ActivePausedTimeLines.First();
+            schedule.markSubEventAsCompleteCalendarEventAndReadjust(pausedTimeLine.Id);
+            await schedule.persistToDB().ConfigureAwait(false);
+
+
+            reloadTilerUser(ref user, ref tilerUser);
+            SubCalendarEvent willBeCompletedSubEventRetrieved = TestUtility.getSubEventById(tilerUser.PausedEventId.ToString(), user);
+            CalendarEvent calendarEventOfRetrivedSubEvent = willBeCompletedSubEventRetrieved.ParentCalendarEvent;
+
+            Assert.AreEqual(calendarEventOfRetrivedSubEvent.PausedTimeLines.Count, 1, "All active paused tiles should stay paused, to avoid possible side effects");
+            Assert.IsTrue(willBeCompletedSubEventRetrieved.getIsComplete);
+            
+        }
+
+        /// <summary>
+        /// Paused and resumed tiles should be deletable from the pausedTImelineEntry
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod]
+        public async Task DeletePauseEvent()
+        {
+            Packet packet = CreatePacket();
+            TilerUser tilerUser = packet.User;
+            UserAccount user = getTestUser(userId: tilerUser.Id);
+            reloadTilerUser(ref user, ref tilerUser);
+
+            DateTimeOffset refNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
+            DateTimeOffset startOfDay = refNow;
+            TimeLine calEventTimeLine = new TimeLine(refNow, refNow.AddDays(30));
+            int eventsPerDay = 8;
+            int totalSplit = eventsPerDay * (int)calEventTimeLine.TimelineSpan.TotalDays;
+            TimeSpan durationPerEvent = TimeSpan.FromHours(210);
+            CalendarEvent calEvent = TestUtility.generateCalendarEvent(tilerUser, durationPerEvent, null, calEventTimeLine.Start, calEventTimeLine.End, totalSplit);
+            DB_Schedule schedule = new TestSchedule(user, refNow, startOfDay);
+            schedule.AddToScheduleAndCommit(calEvent);
+            reloadTilerUser(ref user, ref tilerUser);
+
+            CalendarEvent calEvent0 = TestUtility.generateCalendarEvent(tilerUser, durationPerEvent, null, calEventTimeLine.Start, calEventTimeLine.End, totalSplit);
+            schedule = new TestSchedule(user, refNow, startOfDay);
+            schedule.AddToScheduleAndCommit(calEvent0);
+            reloadTilerUser(ref user, ref tilerUser);
+
+            schedule = new TestSchedule(user, refNow, startOfDay);
+            CalendarEvent calEventRetrieved = schedule.getCalendarEvent(calEvent.Id);
+            CalendarEvent calEventRetrieved0 = schedule.getCalendarEvent(calEvent0.Id);
+
+            Tuple<CustomErrors, SubCalendarEvent> preCurrentSubEvents = schedule.PauseEvent().Result;
+            Assert.AreEqual(preCurrentSubEvents.Item1.Code, (int)CustomErrors.Errors.Pause_Event_There_Is_No_Current_To_Pause);
+
+
+
+            SubCalendarEvent pausedSubEvent = calEventRetrieved.ActiveSubEvents.OrderBy(subEvent => subEvent.Start).ToList()[1];
+            DateTimeOffset pausedRefNow = Utility.MiddleTime(pausedSubEvent);
+            schedule = new TestSchedule(user, pausedRefNow, startOfDay);
+            CustomErrors resumeError = await schedule.ResumeEvent().ConfigureAwait(false);
+            Assert.AreEqual(resumeError.Code,
+                (int)CustomErrors.Errors.Resume_Event_Paused_Event_Id_is_Null,
+                "Resume should return error because of no current paused events");
+
+            Tuple<CustomErrors, SubCalendarEvent> pauseResult = schedule.PauseEvent().Result;
+            Assert.AreEqual(pauseResult.Item2, pausedSubEvent);
+            await schedule.persistToDB().ConfigureAwait(false);
+            reloadTilerUser(ref user, ref tilerUser);
+
+
+            Assert.AreEqual(
+                tilerUser.PausedEventId.ToString(),
+                pausedSubEvent.Id);
+
+
+            DateTimeOffset nextRefNow = pausedRefNow.AddDays(1);
+            schedule = new TestSchedule(user, nextRefNow, startOfDay);
+
+            SubCalendarEvent pausedSubEventRetrived = schedule.getSubCalendarEvent(tilerUser.PausedEventId);
+            Assert.IsTrue(pausedSubEventRetrived.isPaused);
+
+
+            reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, nextRefNow, startOfDay);
+            Assert.AreEqual(
+                pausedSubEventRetrived.ParentCalendarEvent.ActivePausedTimeLines.Count
+                , 1,
+                "There should only be one paused timeline since we've paused once on thid Calendarevent");
+            PausedTimeLineEntry pausedTimeLine = pausedSubEventRetrived.ParentCalendarEvent.ActivePausedTimeLines.First();
+            await schedule.deleteSubCalendarEventAndReadjust(pausedTimeLine.Id).ConfigureAwait(false);
+            await schedule.persistToDB().ConfigureAwait(false);
+
+
+            reloadTilerUser(ref user, ref tilerUser);
+            SubCalendarEvent willBeDeletedSubEventRetrieved = TestUtility.getSubEventById(tilerUser.PausedEventId.ToString(), user);
+            CalendarEvent calendarEventOfRetrivedSubEvent = willBeDeletedSubEventRetrieved.ParentCalendarEvent;
+
+            Assert.AreEqual(calendarEventOfRetrivedSubEvent.PausedTimeLines.Count, 1, "All active paused tiles should stay paused, to avoid possible side effects");
+            Assert.IsFalse(willBeDeletedSubEventRetrieved.getIsComplete);
+            Assert.IsTrue(willBeDeletedSubEventRetrieved.getIsDeleted);
+        }
+
+
+        /// <summary>
+        /// Paused and resumed tiles can be editable only through their deadlines and notes but not the actual tile itself
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod]
+        public async Task EditablePauseEvent()
+        {
+            Packet packet = CreatePacket();
+            TilerUser tilerUser = packet.User;
+            UserAccount user = getTestUser(userId: tilerUser.Id);
+            reloadTilerUser(ref user, ref tilerUser);
+
+            DateTimeOffset refNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
+            DateTimeOffset startOfDay = refNow;
+            TimeLine calEventTimeLine = new TimeLine(refNow, refNow.AddDays(30));
+            int eventsPerDay = 8;
+            int totalSplit = eventsPerDay * (int)calEventTimeLine.TimelineSpan.TotalDays;
+            TimeSpan durationPerEvent = TimeSpan.FromHours(210);
+            CalendarEvent calEvent = TestUtility.generateCalendarEvent(tilerUser, durationPerEvent, null, calEventTimeLine.Start, calEventTimeLine.End, totalSplit);
+            DB_Schedule schedule = new TestSchedule(user, refNow, startOfDay);
+            schedule.AddToScheduleAndCommit(calEvent);
+            reloadTilerUser(ref user, ref tilerUser);
+
+            CalendarEvent calEvent0 = TestUtility.generateCalendarEvent(tilerUser, durationPerEvent, null, calEventTimeLine.Start, calEventTimeLine.End, totalSplit);
+            schedule = new TestSchedule(user, refNow, startOfDay);
+            schedule.AddToScheduleAndCommit(calEvent0);
+            reloadTilerUser(ref user, ref tilerUser);
+
+            schedule = new TestSchedule(user, refNow, startOfDay);
+            CalendarEvent calEventRetrieved = schedule.getCalendarEvent(calEvent.Id);
+            CalendarEvent calEventRetrieved0 = schedule.getCalendarEvent(calEvent0.Id);
+
+            Tuple<CustomErrors, SubCalendarEvent> preCurrentSubEvents = schedule.PauseEvent().Result;
+            Assert.AreEqual(preCurrentSubEvents.Item1.Code, (int)CustomErrors.Errors.Pause_Event_There_Is_No_Current_To_Pause);
+
+
+
+            SubCalendarEvent pausedSubEvent = calEventRetrieved.ActiveSubEvents.OrderBy(subEvent => subEvent.Start).ToList()[1];
+            DateTimeOffset pausedRefNow = Utility.MiddleTime(pausedSubEvent);
+            schedule = new TestSchedule(user, pausedRefNow, startOfDay);
+            CustomErrors resumeError = await schedule.ResumeEvent().ConfigureAwait(false);
+            Assert.AreEqual(resumeError.Code,
+                (int)CustomErrors.Errors.Resume_Event_Paused_Event_Id_is_Null,
+                "Resume should return error because of no current paused events");
+
+            Tuple<CustomErrors, SubCalendarEvent> pauseResult = schedule.PauseEvent().Result;
+            Assert.AreEqual(pauseResult.Item2, pausedSubEvent);
+            await schedule.persistToDB().ConfigureAwait(false);
+            reloadTilerUser(ref user, ref tilerUser);
+
+
+            Assert.AreEqual(
+                tilerUser.PausedEventId.ToString(),
+                pausedSubEvent.Id);
+
+
+            DateTimeOffset nextRefNow = pausedRefNow.AddDays(1);
+            schedule = new TestSchedule(user, nextRefNow, startOfDay);
+
+            SubCalendarEvent pausedSubEventRetrived = schedule.getSubCalendarEvent(tilerUser.PausedEventId);
+            Assert.IsTrue(pausedSubEventRetrived.isPaused);
+            await schedule.persistToDB().ConfigureAwait(false);
+
+
+            DateTimeOffset afterPauseDeadline = pausedSubEventRetrived.End.AddDays(1);
+
+            reloadTilerUser(ref user, ref tilerUser);
+            pausedSubEventRetrived = TestUtility.getSubEventById(tilerUser.PausedEventId.ToString(), user);
+            schedule = new TestSchedule(user, nextRefNow, startOfDay, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
+            schedule.BundleChangeUpdate(
+                pausedSubEventRetrived.Id,
+                pausedSubEventRetrived.Name.createCopy(), 
+                pausedSubEventRetrived.Start, 
+                pausedSubEventRetrived.End, 
+                pausedSubEventRetrived.ParentCalendarEvent.Start, afterPauseDeadline, pausedSubEventRetrived.ParentCalendarEvent.NumberOfSplit, "");
+            await schedule.persistToDB().ConfigureAwait(false);
+
+            reloadTilerUser(ref user, ref tilerUser);
+            SubCalendarEvent willBeDeletedSubEventRetrieved = TestUtility.getSubEventById(tilerUser.PausedEventId.ToString(), user);
+            CalendarEvent calendarEventOfRetrivedSubEvent = willBeDeletedSubEventRetrieved.ParentCalendarEvent;
+
+            Assert.AreEqual(calendarEventOfRetrivedSubEvent.End, afterPauseDeadline, "The calendarevent deadline should be the same as the deadline");
+
+            ////Testing a name change and notes change
+            string updatedNotes = "updatedNotes";
+            string updatedName = "updatedName";
+
+            reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, nextRefNow, startOfDay, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
+            SubCalendarEvent pausedSubEventRetrivedAftereadlineEdit = TestUtility.getSubEventById(tilerUser.PausedEventId.ToString(), user);
+            EventName newName = new EventName(tilerUser, pausedSubEventRetrivedAftereadlineEdit, updatedName);
+            schedule.BundleChangeUpdate(
+                pausedSubEventRetrivedAftereadlineEdit.Id,
+                newName,
+                pausedSubEventRetrivedAftereadlineEdit.Start,
+                pausedSubEventRetrivedAftereadlineEdit.End,
+                pausedSubEventRetrivedAftereadlineEdit.ParentCalendarEvent.Start, pausedSubEventRetrivedAftereadlineEdit.ParentCalendarEvent.End,
+                pausedSubEventRetrivedAftereadlineEdit.ParentCalendarEvent.NumberOfSplit, updatedNotes);
+            await schedule.persistToDB().ConfigureAwait(false);
+
+            reloadTilerUser(ref user, ref tilerUser);
+            SubCalendarEvent afterSubEventHasNameUpdated = TestUtility.getSubEventById(tilerUser.PausedEventId.ToString(), user);
+            Assert.AreEqual(afterSubEventHasNameUpdated.getName.NameValue, updatedName);
+            Assert.AreEqual(afterSubEventHasNameUpdated.Notes.UserNote, updatedNotes);
+
+
+            //Testing a name change and notes change with pauseTimeline Id
+            string updatedNotesForPauseTimelineId = "updatedNotes from Pause timeline id";
+            string updatedNameForPauseTimelineId = "updatedName from Pause timeline id";
+
+            reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, nextRefNow, startOfDay, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
+            SubCalendarEvent pausedSubEventFromPausedTimeline = TestUtility.getSubEventById(tilerUser.PausedEventId.ToString(), user);
+            EventName newNameForPauseTimelineId = new EventName(tilerUser, pausedSubEventFromPausedTimeline, updatedNameForPauseTimelineId);
+            DateTimeOffset newDeadlineFromPauseTimelineId = pausedSubEventFromPausedTimeline.ParentCalendarEvent.End.AddDays(2);
+            PausedTimeLineEntry pausedTimeLineEntry = pausedSubEventFromPausedTimeline.ParentCalendarEvent.ActivePausedTimeLines.First();
+            var changeResult = schedule.BundleChangeUpdate(
+                pausedTimeLineEntry.Id.ToString(),
+                newNameForPauseTimelineId,
+                pausedSubEventFromPausedTimeline.Start,
+                pausedSubEventFromPausedTimeline.End,
+                pausedSubEventFromPausedTimeline.ParentCalendarEvent.Start, newDeadlineFromPauseTimelineId,
+                pausedSubEventFromPausedTimeline.ParentCalendarEvent.NumberOfSplit, updatedNotesForPauseTimelineId);
+            await schedule.persistToDB().ConfigureAwait(false);
+
+            reloadTilerUser(ref user, ref tilerUser);
+            SubCalendarEvent subEventFrompausedTimelineId = TestUtility.getSubEventById(tilerUser.PausedEventId.ToString(), user);
+            Assert.AreEqual(subEventFrompausedTimelineId.getName.NameValue, updatedNameForPauseTimelineId);
+            Assert.AreEqual(subEventFrompausedTimelineId.Notes.UserNote, updatedNotesForPauseTimelineId);
+            Assert.AreEqual(subEventFrompausedTimelineId.ParentCalendarEvent.End, newDeadlineFromPauseTimelineId);
+            Assert.AreEqual((int)changeResult.Item1.Code, (int)CustomErrors.Errors.success);
+
+
+
+            //With trying to update with the pausetimeline id
+            string updatedNotesWithPauseTimelineAsSubEventTimeLine = "updatedNotes from Pause timeline id";
+            string updatedNameWithPauseTimelineAsSubEventTimeLine = "updatedName from Pause timeline id";
+
+            
+            reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, nextRefNow, startOfDay, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
+            SubCalendarEvent pausedSubEventWithPauseTimelineAsSubEventTimeLine = TestUtility.getSubEventById(tilerUser.PausedEventId.ToString(), user);
+
+            string oldNotes = pausedSubEventWithPauseTimelineAsSubEventTimeLine.Notes.UserNote;
+            string oldName = pausedSubEventWithPauseTimelineAsSubEventTimeLine.getName.NameValue;
+
+
+            EventName newNameWithPauseTimelineAsSubEventTimeLine = new EventName(tilerUser, pausedSubEventWithPauseTimelineAsSubEventTimeLine, updatedNameWithPauseTimelineAsSubEventTimeLine);
+            DateTimeOffset oldDeadline = pausedSubEventWithPauseTimelineAsSubEventTimeLine.ParentCalendarEvent.End;
+            DateTimeOffset newDeadlineWithPauseTimelineAsSubEventTimeLine = pausedSubEventWithPauseTimelineAsSubEventTimeLine.ParentCalendarEvent.End.AddDays(2);
+            PausedTimeLineEntry pausedTimeLineEntryWithPauseTimelineAsSubEventTimeLine = pausedSubEventWithPauseTimelineAsSubEventTimeLine.ParentCalendarEvent.ActivePausedTimeLines.First();
+            var changeResultWithPauseTimelineAsSubEventTimeLine = schedule.BundleChangeUpdate(
+                pausedTimeLineEntryWithPauseTimelineAsSubEventTimeLine.Id.ToString(),
+                newNameWithPauseTimelineAsSubEventTimeLine,
+                pausedSubEventWithPauseTimelineAsSubEventTimeLine.Start,
+                pausedSubEventWithPauseTimelineAsSubEventTimeLine.End.AddHours(2),
+                pausedSubEventWithPauseTimelineAsSubEventTimeLine.ParentCalendarEvent.Start, newDeadlineWithPauseTimelineAsSubEventTimeLine,
+                pausedSubEventWithPauseTimelineAsSubEventTimeLine.ParentCalendarEvent.NumberOfSplit, updatedNotesWithPauseTimelineAsSubEventTimeLine);
+            await schedule.persistToDB().ConfigureAwait(false);
+
+            reloadTilerUser(ref user, ref tilerUser);
+            SubCalendarEvent subEventWithPauseTimelineAsSubEventTimeLine = TestUtility.getSubEventById(tilerUser.PausedEventId.ToString(), user);
+            Assert.AreEqual(subEventWithPauseTimelineAsSubEventTimeLine.getName.NameValue, oldName);
+            Assert.AreEqual(subEventWithPauseTimelineAsSubEventTimeLine.Notes.UserNote, oldNotes);
+            Assert.AreEqual(subEventWithPauseTimelineAsSubEventTimeLine.ParentCalendarEvent.End, oldDeadline);
+            Assert.AreEqual((int)changeResultWithPauseTimelineAsSubEventTimeLine.Item1.Code, (int)CustomErrors.Errors.Cannot_update_timeline_of_pausedtimeline);
+
+
+        }
+
+
     }
 }

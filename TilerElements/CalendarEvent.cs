@@ -788,8 +788,39 @@ namespace TilerElements
             {
                 PausedTimeLineEntries = pausedTimeSlots[subCalendarEventID];
                 PausedTimeLineEntries.Remove(pausedTimeLine.Id);
+            }    
+        }
+
+        protected IEnumerable<PausedTimeLineEntry> PausedTimelinesForSubEVent(EventID subEventId)
+        {
+            if(this.pausedTimeSlots.ContainsKey(subEventId.getSubCalendarEventID()))
+            {
+                return this.pausedTimeSlots[subEventId.ToString()].Values;
             }
-            
+            return new List<PausedTimeLineEntry>();
+        }
+
+        /// <summary>
+        /// Function finalizes all paused tiles associated with a given subevent
+        /// </summary>
+        /// <param name="subEventId"></param>
+        virtual public void finalizedPausedTile(EventID subEventId)
+        {
+            foreach(PausedTimeLineEntry pausedTimeLineEntry in PausedTimelinesForSubEVent(subEventId))
+            {
+                if(!pausedTimeLineEntry.IsFinal)
+                {
+                    pausedTimeLineEntry.setAsFinal();
+                }
+            }
+        }
+        /// <summary>
+        /// Function finalizes all paused tiles associated with a given subevent
+        /// </summary>
+        /// <param name="subEventId"></param>
+        virtual public void finalizedPausedTile(string subEventId)
+        {
+            finalizedPausedTile(new EventID(subEventId));
         }
 
         virtual protected void clearPausedTimeSlot(PausedTimeLineEntry pausedTimeLine)
@@ -904,6 +935,10 @@ namespace TilerElements
                         eachCalendarEvent.SetCompletion(CompletionStatus, now, goDeep);
                     }
                 }
+                foreach (var pausedTimeline in this.ActivePausedTimeLines)
+                {
+                    pausedTimeline.setAsFinal();
+                }
             }
             else
             {
@@ -918,6 +953,11 @@ namespace TilerElements
                         nonCompleteSubEvents(AllSubEvents);
                     }
 
+                }
+
+                foreach(var pausedTimeline in this.ActivePausedTimeLines)
+                {
+                    pausedTimeline.setAsFinal();
                 }
             }
         }
@@ -2763,6 +2803,15 @@ namespace TilerElements
             get
             {
                 return pausedTimeSlots.Values.SelectMany(pausedTimeLines => pausedTimeLines.Values).Where(eachPausedTimeLine => !eachPausedTimeLine.IsFinal).ToList();
+            }
+        }
+
+        [NotMapped]
+        public List<PausedTimeLineEntry> FinalPausedTimeLines
+        {
+            get
+            {
+                return pausedTimeSlots.Values.SelectMany(pausedTimeLines => pausedTimeLines.Values).Where(eachPausedTimeLine => eachPausedTimeLine.IsFinal).ToList();
             }
         }
 

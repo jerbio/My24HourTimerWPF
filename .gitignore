@@ -52,6 +52,7 @@ TilerTests/bin/Debug/*.pdb
 TilerTests/bin/Debug/*.exe
 TilerTests/obj/Debug/
 TilerTests/bin/Debug/
+TilerTests/Migrations/*
 TilerElements/obj/Debug/
 .vs/*
 UpgradeLog*

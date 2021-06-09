@@ -37,7 +37,8 @@ namespace TilerElements
             Pause_Event_There_Is_No_Current_To_Pause = 400000021,
             Pause_Event_Cannot_Pause_ProcrastinateAllEvent = 400000022,
             Resume_Event_Cannot_Outside_Deadline_Of_CalendarEvent = 400000023,
-            restrictionProfileNonvaiable = 400000024,
+            RestrictionProfileNonvaiable = 400000024,
+            Cannot_update_timeline_of_pausedtimeline = 400000025,
             Preview_Calendar_Type_Not_Supported = 50000001,
             Preview_Calendar_Not_Enough_Data_For_Preview = 50000002
         };
@@ -72,7 +73,8 @@ namespace TilerElements
             {Errors.Preview_Calendar_Type_Not_Supported, "Selected Calendar is not supported for manipulation" },
             {Errors.Preview_Calendar_Not_Enough_Data_For_Preview, "Tiler cannot confidently make prediction" },
             {Errors.UserEmailNotMatchingSubEvent, "Event ids do not match the event assosciated emails. Check if there is an email for each event id" },
-            {Errors.restrictionProfileNonvaiable, "The timeline for tile is non viable check to see that you're scheduling the tile within a time frame that can contain tile"}
+            {Errors.RestrictionProfileNonvaiable, "The timeline for tile is non viable check to see that you're scheduling the tile within a time frame that can contain tile"},
+            {Errors.Cannot_update_timeline_of_pausedtimeline, "Cannot update the timeline of a paused timeline, because you know its in the past and Einstein has strong feelings about that" }
 
         };
         string ErrorMessage;

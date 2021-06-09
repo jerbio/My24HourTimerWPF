@@ -35,7 +35,10 @@ namespace TilerElements
 
         }
 
-        public void setAsDeleted()
+        /// <summary>
+        /// Function sets the paused timeline as final so the time line should be uneditable
+        /// </summary>
+        public void setAsFinal()
         {
             this.IsFinal = true;
         }

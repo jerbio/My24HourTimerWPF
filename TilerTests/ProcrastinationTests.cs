@@ -283,7 +283,7 @@ namespace TilerTests
             TimeSpan procrastinationSpan = TimeSpan.FromHours(2);
 
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> procrastinateResult = Schedule.ProcrastinateAll(procrastinationSpan);
-            Assert.IsNull(procrastinateResult.Item1);
+            Assert.AreEqual((int)procrastinateResult.Item1.Code, (int)CustomErrors.Errors.success);
             Schedule.persistToDB().Wait();
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
@@ -307,7 +307,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow0, calendarIds: calendarIds);
             TimeSpan additionalProcrastinationSpan = TimeSpan.FromHours(2);
             procrastinateResult = Schedule.ProcrastinateAll(additionalProcrastinationSpan);
-            Assert.IsNull(procrastinateResult.Item1);
+            Assert.AreEqual((int)procrastinateResult.Item1.Code, (int)CustomErrors.Errors.success);
             Schedule.persistToDB().Wait();
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow0);
@@ -335,7 +335,7 @@ namespace TilerTests
             SubCalendarEvent firstClearedBlock = procrastinationEvent.ActiveSubEvents.OrderBy(obj => obj.Start).First();
             procrastinateResult = Schedule.BundleChangeUpdate(firstClearedBlock.getId, procrastinationEvent.getName, startOfProcrastinateAll, newEndOfProcrastinateAll, startOfProcrastinateAll, newEndOfProcrastinateAll, procrastinationEvent.NumberOfSplit, procrastinationEvent.Notes.UserNote);
 
-            Assert.IsNull(procrastinateResult.Item1);
+            Assert.AreEqual(procrastinateResult.Item1.Code, (int)CustomErrors.Errors.success);
             Schedule.persistToDB().Wait();
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow0);
@@ -361,7 +361,7 @@ namespace TilerTests
             TimeSpan additionalProcrastinationSpan0 = TimeSpan.FromHours(1);
             procrastinateResult = Schedule.ProcrastinateAll(additionalProcrastinationSpan0);
          
-            Assert.IsNull(procrastinateResult.Item1);
+            Assert.AreEqual(procrastinateResult.Item1.Code, (int)CustomErrors.Errors.success);
             Task updateWait = Schedule.persistToDB();
             
             updateWait.Wait();
@@ -390,7 +390,7 @@ namespace TilerTests
             firstClearedBlock = procrastinationEvent.ActiveSubEvents.OrderBy(obj => obj.Start).First();
             procrastinateResult = Schedule.BundleChangeUpdate(firstClearedBlock.getId, procrastinationEvent.getName, startOfProcrastinateAll, newEndOfProcrastinateAll, startOfProcrastinateAll, newEndOfProcrastinateAll, procrastinationEvent.NumberOfSplit, firstClearedBlock.Notes.UserNote);
 
-            Assert.IsNull(procrastinateResult.Item1);
+            Assert.AreEqual(procrastinateResult.Item1.Code, (int)CustomErrors.Errors.success);
             Schedule.persistToDB().Wait();
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow0);
@@ -485,7 +485,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow, calendarIds: calendarIds);
             TimeSpan procrastinationSpan = TimeSpan.FromHours(4.5);
             var procrassinateResult = Schedule.ProcrastinateAll(procrastinationSpan);
-            Assert.IsNull(procrassinateResult.Item1);
+            Assert.AreEqual((int)procrassinateResult.Item1.Code, (int)CustomErrors.Errors.success);
             Schedule.persistToDB().Wait();
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
@@ -562,7 +562,7 @@ namespace TilerTests
             calendarIds = new HashSet<string>() { tilerUser.ClearAllId };
             Schedule = new TestSchedule(user, oneYearLaterRefNow, calendarIds: calendarIds);
             var OneYearFutureProcrastinateResult = Schedule.ProcrastinateAll(oneYearInFutureProcrastinateSpan);
-            Assert.IsNull(OneYearFutureProcrastinateResult.Item1);
+            Assert.AreEqual((int)OneYearFutureProcrastinateResult.Item1.Code, (int)CustomErrors.Errors.success);
             Schedule.persistToDB().Wait();
             var oneYearInFutureProcrastinateCaleventRetrieved = TestUtility.getCalendarEventById(Schedule.getProcrastinateAllEvent().getTilerID, user);
             Assert.AreEqual(oneYearInFutureProcrastinateCaleventRetrieved.AllSubEvents.Count(), 3);// Reading directly from DB we should get every subcalendar event

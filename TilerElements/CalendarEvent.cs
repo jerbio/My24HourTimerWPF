@@ -43,7 +43,6 @@ namespace TilerElements
         protected TimeLineHistory _TimeLineHistory = null;
         [NotMapped]
         protected Dictionary<string, Dictionary<string, PausedTimeLineEntry>> _PausedTimeSlots = new Dictionary<string, Dictionary<string, PausedTimeLineEntry>>();
-        protected SubCalendarEvent pausedSubEvent { get; set; }
         #region undoMembers
         public int UndoSplits;
         public TimeSpan UndoAverageTimePerSplit;
@@ -620,8 +619,6 @@ namespace TilerElements
             MyCalendarEventCopy._DaySectionPreference = this._DaySectionPreference;
             MyCalendarEventCopy._EventDayPreference = this.DayPreference?.createCopy();
             MyCalendarEventCopy._EventScore = this._EventScore;
-            MyCalendarEventCopy.pausedSubEvent = this.pausedSubEvent;
-            MyCalendarEventCopy.PausedSubEventID = this.PausedSubEventID;
             return MyCalendarEventCopy;
         }
 
@@ -1518,8 +1515,6 @@ namespace TilerElements
                 this._AutoDeleted = CalendarEventEntry._AutoDeleted;
                 this._Users = CalendarEventEntry._Users;
                 this._UsedTime = CalendarEventEntry._UsedTime;
-                this.pausedSubEvent = CalendarEventEntry.pausedSubEvent;
-                this.PausedSubEventID = CalendarEventEntry.PausedSubEventID;
                 return;
             }
 
@@ -3041,21 +3036,6 @@ namespace TilerElements
                 }
                 return retJValue.ToString();
             }
-        }
-
-
-
-        public string PausedSubEventID { get; set; }
-        [ForeignKey("PausedSubEventID")]
-        public  SubCalendarEvent PausedSubEvent_DB 
-        { 
-            get 
-            {
-                return pausedSubEvent;
-            } 
-            set {
-                pausedSubEvent = value;
-            } 
         }
         #endregion
         #endregion

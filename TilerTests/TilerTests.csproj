@@ -158,6 +158,10 @@
     <Compile Include="Migrations\202106080545236_postPauseFix.designer.cs">
       <DependentUpon>202106080545236_postPauseFix.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202106100541415_pausedTileFIx.cs" />
+    <Compile Include="Migrations\202106100541415_pausedTileFIx.designer.cs">
+      <DependentUpon>202106100541415_pausedTileFIx.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
     <Compile Include="Models\TestGoogleEvent.cs" />
@@ -362,6 +366,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202106080545236_postPauseFix.resx">
       <DependentUpon>202106080545236_postPauseFix.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202106100541415_pausedTileFIx.resx">
+      <DependentUpon>202106100541415_pausedTileFIx.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Choose>

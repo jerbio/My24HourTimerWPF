@@ -1327,7 +1327,7 @@ namespace TilerTests
             Schedule.FindMeSomethingToDo(location).Wait();
             Schedule.persistToDB().Wait();
             IEnumerable<CalendarEvent> calEvents = Schedule.getAllRelatedCalendarEvents(repeatEvent.Calendar_EventID);
-            Assert.IsTrue(calEvents.SelectMany(obj=> obj.ActiveSubEvents).Count() == 5);// this is 5 because of we ignore the subevents outside the range
+            Assert.IsTrue(calEvents.SelectMany(obj=> obj.ActiveSubEvents).Count() == 4);// this is 4 because of we ignore the subevents outside the range
 
             UserAccount userAcc = TestUtility.getTestUser(userId: tilerUser.Id);
             Task<CalendarEvent> waitVar = userAcc.ScheduleLogControl.getCalendarEventWithID(repeatEvent.Id);

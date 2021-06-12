@@ -38,6 +38,7 @@ namespace TilerElements
             Pause_Event_Cannot_Pause_ProcrastinateAllEvent = 400000022,
             Resume_Event_Cannot_Outside_Deadline_Of_CalendarEvent = 400000023,
             restrictionProfileNonvaiable = 400000024,
+            Recurring_Tile_Extension_Has_To_Be_Greater_Than_Current_Timeline= 400000025,
             Preview_Calendar_Type_Not_Supported = 50000001,
             Preview_Calendar_Not_Enough_Data_For_Preview = 50000002
         };

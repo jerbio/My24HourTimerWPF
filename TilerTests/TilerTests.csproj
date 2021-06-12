@@ -146,22 +146,6 @@
     <Compile Include="LogControlDump.cs" />
     <Compile Include="LogControlTest.cs" />
     <Compile Include="LogicTest.cs" />
-    <Compile Include="Migrations\202106060031491_scheduleProfile.cs" />
-    <Compile Include="Migrations\202106060031491_scheduleProfile.designer.cs">
-      <DependentUpon>202106060031491_scheduleProfile.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202106060558033_scheduleProfileUpdate.cs" />
-    <Compile Include="Migrations\202106060558033_scheduleProfileUpdate.designer.cs">
-      <DependentUpon>202106060558033_scheduleProfileUpdate.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202106080545236_postPauseFix.cs" />
-    <Compile Include="Migrations\202106080545236_postPauseFix.designer.cs">
-      <DependentUpon>202106080545236_postPauseFix.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202106100541415_pausedTileFIx.cs" />
-    <Compile Include="Migrations\202106100541415_pausedTileFIx.designer.cs">
-      <DependentUpon>202106100541415_pausedTileFIx.cs</DependentUpon>
-    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\TestDBContext.cs" />
     <Compile Include="Models\TestGoogleEvent.cs" />
@@ -356,20 +340,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="WagTapCalLogs\69e9166b-6754-46cf-b384-66c5557048f8\" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\202106060031491_scheduleProfile.resx">
-      <DependentUpon>202106060031491_scheduleProfile.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202106060558033_scheduleProfileUpdate.resx">
-      <DependentUpon>202106060558033_scheduleProfileUpdate.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202106080545236_postPauseFix.resx">
-      <DependentUpon>202106080545236_postPauseFix.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202106100541415_pausedTileFIx.resx">
-      <DependentUpon>202106100541415_pausedTileFIx.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

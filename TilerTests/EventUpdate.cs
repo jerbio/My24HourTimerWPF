@@ -190,10 +190,26 @@ namespace TilerTests
             schedule.AddToScheduleAndCommitAsync(increaseSplitCountTestEvent).Wait();
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             TestSchedule scheduleReloaded = new TestSchedule(user, refNow, startOfDay, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
-            int newSplitCount = increaseSplitCountTestEvent.NumberOfSplit + 1;
-            var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(increaseSplitCountTestEvent.getId, increaseSplitCountTestEvent.getName, increaseSplitCountTestEvent.Start, increaseSplitCountTestEvent.End, newSplitCount, increaseSplitCountTestEvent.Notes.UserNote);
-            increaseSplitCountTestEvent = scheduleReloaded.getCalendarEvent(increaseSplitCountTestEvent.Id);//Using this instead of TestUtility.getCalendarEventById because we need the calemdarevent in memory, not in storage for the future assert
+            CalendarEvent increaseSplitCountTestEventReloaded = scheduleReloaded.getCalendarEvent(increaseSplitCountTestEvent.Id);
+            HashSet<string> allSubEVentId = new HashSet<string>(increaseSplitCountTestEventReloaded.AllSubEvents.Select(o => o.Id));
+            int splitIncrease = 1;
+            int newSplitCount = increaseSplitCountTestEvent.NumberOfSplit + splitIncrease;
+            var scheduleUpdated = scheduleReloaded.BundleChangeUpdate(increaseSplitCountTestEventReloaded.getId, increaseSplitCountTestEvent.getName, increaseSplitCountTestEventReloaded.Start, increaseSplitCountTestEventReloaded.End, newSplitCount, increaseSplitCountTestEvent.Notes.UserNote);
+            increaseSplitCountTestEvent = scheduleReloaded.getCalendarEvent(increaseSplitCountTestEventReloaded.Id);//Using this instead of TestUtility.getCalendarEventById because we need the calemdarevent in memory, not in storage for the future assert
             scheduleReloaded.persistToDB().Wait();
+            List<SubCalendarEvent> newSubEvent = increaseSplitCountTestEvent.AllSubEvents.Where(eachSubEvent => !allSubEVentId.Contains(eachSubEvent.Id)).ToList();
+            Assert.AreEqual(newSubEvent.Count, splitIncrease);
+            SubCalendarEvent newSubEVent = newSubEvent[0];
+            SubCalendarEvent retrievedNewSubEVent = TestUtility.getSubEventById(newSubEVent.Id, user);
+            Assert.IsNotNull(retrievedNewSubEVent.Name);
+            Assert.IsNotNull(retrievedNewSubEVent.Location);
+
+            Assert.AreEqual(retrievedNewSubEVent.Name.NameValue, increaseSplitCountTestEvent.getName.NameValue, "The increased tile should have the same name");
+            Assert.IsNotNull(retrievedNewSubEVent.Location.Address, increaseSplitCountTestEvent.Location.Address, "The increased tile should have the same address");
+
+
+
+
             scheduleReloaded = new TestSchedule(user, refNow, startOfDay);
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             CalendarEvent retrievedCalendarEvent = TestUtility.getCalendarEventById(increaseSplitCountTestEvent.Calendar_EventID, user);

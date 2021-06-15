@@ -1858,7 +1858,7 @@ namespace TilerElements
         {
             if (delta < _Splits)
             {
-                List<SubCalendarEvent> orderedByActive = _SubEvents.Collection.OrderByDescending(subEvent => !subEvent.Value.isActive).Select(subEvemt => subEvemt.Value).ToList();
+                List<SubCalendarEvent> orderedByActive = _SubEvents.Collection.OrderByDescending(subEvent => subEvent.Value.isActive && !subEvent.Value.isPaused).Select(subEvemt => subEvemt.Value).ToList();
                 for (int i = 0; i < delta; i++)
                 {
                     SubCalendarEvent SubEvent = orderedByActive.First();
@@ -1892,6 +1892,8 @@ namespace TilerElements
                 _EventDuration = _EventDuration.Add(newSubCalEvent.getActiveDuration);
                 newSubCalEvent.UiParamsId = this.UiParamsId;
                 newSubCalEvent.DataBlobId = this.DataBlobId;
+                newSubCalEvent.NameId = this.NameId;
+                newSubCalEvent.LocationId = this.LocationId;
                 newSubs.Add(newSubCalEvent);
             }
             _Splits += (int)delta;

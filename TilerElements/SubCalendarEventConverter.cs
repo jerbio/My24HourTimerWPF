@@ -30,7 +30,7 @@ namespace TilerElements
             o.Add("colorRed", value.getUIParam?.UIColor?.R);
             o.Add("colorGreen", value.getUIParam?.UIColor?.G);
             o.Add("colorBlue", value.getUIParam?.UIColor?.B);
-            o.Add("isPaused", value.isPauseLocked);
+            o.Add("isPaused", value.isPaused);
             o.Add("isComplete", value.getIsComplete);
             o.Add("isRecurring", value.IsFromRecurring);
             o.WriteTo(writer);

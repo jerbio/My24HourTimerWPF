@@ -54,6 +54,7 @@ namespace TilerElements
         virtual public System.Data.Entity.DbSet<EventPreference> EventPreferences { get; set; }
         virtual public System.Data.Entity.DbSet<TravelCache> TravelCaches { get; set; }
         virtual public System.Data.Entity.DbSet<Analysis> Analysis { get; set; }
+        virtual public System.Data.Entity.DbSet<ScheduleProfile> ScheduleProfiles { get; set; }
         virtual public System.Data.Entity.DbSet<PausedEvent> PausedEvents { get; set; }
 
         public static TilerDbContext Create()

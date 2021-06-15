@@ -251,7 +251,7 @@ namespace TilerTests
             TimeSpan threeHourSpan = TimeSpan.FromHours(3);
             var procrartinateResult = schedule.ProcrastinateAll(threeHourSpan);
             DateTimeOffset procrastinationStart = schedule.Now.constNow.Add(threeHourSpan);
-            Assert.IsNull(procrartinateResult.Item1);
+            Assert.AreEqual((int)procrartinateResult.Item1.Code, (int)CustomErrors.Errors.success);
             schedule.persistToDB().Wait();
 
             CalendarEvent afterProcrastinataionInstance_DB = TestUtility.getCalendarEventById(firstSubEvent.Id, user);

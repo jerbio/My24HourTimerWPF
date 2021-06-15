@@ -48,7 +48,7 @@ namespace TilerElements
             DataRetrivalOption.Location,
             DataRetrivalOption.Now
         };
-        public readonly static HashSet<DataRetrivalOption> UiSet = new HashSet<DataRetrivalOption>() { DataRetrivalOption.Ui, DataRetrivalOption.Location, DataRetrivalOption.Name, DataRetrivalOption.SubEvent, };
+        public readonly static HashSet<DataRetrivalOption> UiSet = new HashSet<DataRetrivalOption>() { DataRetrivalOption.Ui, DataRetrivalOption.Location, DataRetrivalOption.Name, DataRetrivalOption.SubEvent, DataRetrivalOption.DataBlob };
         public readonly static HashSet<DataRetrivalOption> All = new HashSet<DataRetrivalOption>() { DataRetrivalOption.All };
     }
 }

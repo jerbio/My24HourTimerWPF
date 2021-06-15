@@ -48,6 +48,11 @@ namespace TilerElements
         {
             initializeFibonacci();
         }
+
+        public static bool isDebugSet()
+        {
+            return debugString.isNot_NullEmptyOrWhiteSpace();
+        }
         static void initializeFibonacci()
         {
             uint a = 0;

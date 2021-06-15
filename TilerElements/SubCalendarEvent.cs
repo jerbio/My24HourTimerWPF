@@ -1367,7 +1367,7 @@ namespace TilerElements
             }
         }
 
-        public double Score
+        override public double Score
         {
             get
             {

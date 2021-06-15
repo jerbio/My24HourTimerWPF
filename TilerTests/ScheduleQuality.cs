@@ -884,6 +884,8 @@ namespace TilerTests
             var scheduleAndDump = TestUtility.getSchedule(scheduleId, refNow);
             Schedule schedule = scheduleAndDump.Item1;
             TilerUser tilerUser = schedule.User;
+            //schedule.disableConflictResolution();
+            //schedule.disableDayOptimization();
 
             TimeLine actualTime = new TimeLine(TestUtility.parseAsUTC("10/21/2017 1:00PM"), TestUtility.parseAsUTC("10/21/2017 10:00PM"));
             Repetition repeating = new Repetition(new TimeLine(startOfDay.AddDays(-5), startOfDay.AddDays(18)), Repetition.Frequency.DAILY, actualTime);
@@ -893,8 +895,16 @@ namespace TilerTests
             schedule.AddToSchedule(calEvent);
             ((TestSchedule)schedule).WriteFullScheduleToOutlook();
 
-            schedule.Now.getAllDaysForCalc();
-            
+            DateTimeOffset lastValidDay = TestUtility.parseAsUTC("10/28/2017 11:59:00PM");
+            List<DayTimeLine> headvySchedule = schedule.Now.getAllDaysForCalc().Where(eachDay => eachDay.End < lastValidDay).ToList();
+            double average = headvySchedule.Average(eachDay => eachDay.Occupancy);
+            double maxBound = average + 0.05;
+            double minBound = average - 0.05;
+            List<DayTimeLine> outsideBounds = headvySchedule.Where(eachDay => eachDay.Occupancy > maxBound || eachDay.Occupancy < minBound).ToList();
+            Assert.AreEqual(outsideBounds.Count, 0);
+
+
+
         }
 
         public List<DateTimeOffset> getCorrespondingWeekdays(TimeLine timeLine, DayOfWeek dayOfWeek)

@@ -41,8 +41,8 @@ namespace TilerElements
         public readonly static TimeSpan ArbitraryDayUseUpTimeSpan = TimeSpan.FromHours(1.5);// THis is to ensure things like showering, getting to bus station and random daily events that are not scheduled still get some aportioning
         public readonly static TimeSpan LeastAllDaySubeventDuration = Utility.OneDayTimeSpan.Add(-Utility.QuarterHourTimeSpan);
         public readonly static TimeSpan SleepSpan = Utility.SixHourTimeSpan;//careful about changing this from six hours because this is used to recalculate the post sleep timeline
-        public static string timeZoneString = "America/Denver";
-        public static string debugString= "America/Denver";
+        public static string timeZoneString = "";// "America/Denver";
+        public static string debugString = "";// "America/Denver";
 
         static Utility()
         {
@@ -1414,6 +1414,26 @@ namespace TilerElements
         public static bool isBeginningOfJsTime(this DateTimeOffset time)
         {
             return time == JSStartTime;
+        }
+
+        //https://stackoverflow.com/questions/3141692/standard-deviation-of-generic-list
+        public static double StandardDeviation(this IEnumerable<double> values)
+        {
+            double standardDeviation = 0;
+
+            if (values.Any())
+            {
+                // Compute the average.     
+                double avg = values.Average();
+
+                // Perform the Sum of (value-avg)_2_2.      
+                double sum = values.Sum(d => Math.Pow(d - avg, 2));
+
+                // Put it all together.      
+                standardDeviation = Math.Sqrt((sum) / (values.Count() - 1));
+            }
+
+            return standardDeviation;
         }
 
         public static List<double> EvaluateTimeLines(IEnumerable<TimelineWithSubcalendarEvents> timeLines, TilerEvent tilerEvent)

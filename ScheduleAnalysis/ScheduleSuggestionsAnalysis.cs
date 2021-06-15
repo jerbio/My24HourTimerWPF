@@ -400,7 +400,7 @@ namespace ScheduleAnalysis
                     }
                 }
                 evaluateCalendarEvents(calEvents);
-                List<CalendarEvent> calEventOrderedByScore = calEvents.OrderByDescending(calEvent => calEvent.EventScore).ToList();
+                List<CalendarEvent> calEventOrderedByScore = calEvents.OrderByDescending(calEvent => calEvent.Score).ToList();
                 List<TimeLine> possibleTimeLines = allTimelines.Skip(i + 1).ToList();
                 foreach (CalendarEvent calEvent in calEventOrderedByScore)
                 {

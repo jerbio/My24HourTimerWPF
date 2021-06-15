@@ -3486,6 +3486,130 @@ namespace TilerCore
             return retValue;
         }
 
+        /// <summary>
+        /// Function takes a bunch of daytimeline and then move subevents in over saurated to understaurated days for a more even schedule
+        /// </summary>
+        /// <param name="AllDayTimeLine"></param>
+        void balanceTradingDays(IList<TimelineWithSubcalendarEvents> AllDayTimeLine)
+        {
+            var OptimizedDays = AllDayTimeLine.Take(4).ToList();
+            double standardDeviation = OptimizedDays.Select(o => o.Occupancy).StandardDeviation();
+            double average = OptimizedDays.Average(o => o.Occupancy);
+            List<TimelineWithSubcalendarEvents> aboveAverage = OptimizedDays.Where(eachOptimizedDay => (eachOptimizedDay.Occupancy > average) && ((eachOptimizedDay.Occupancy - average) > standardDeviation)).ToList();
+            List<TimelineWithSubcalendarEvents> belowAverage = OptimizedDays.Where(eachOptimizedDay => (eachOptimizedDay.Occupancy < average) && ((average - eachOptimizedDay.Occupancy) >= standardDeviation)).ToList();
+
+            List<SubCalendarEvent> overScheduled = aboveAverage.SelectMany(eachDaytimeline => eachDaytimeline.getSubEventsInTimeLine()).OrderBy(eachSubevent => eachSubevent.Score).ToList();
+
+        }
+
+
+        void bestEffortConflictResolution(List<SubCalendarEvent> TotalActiveEvents, IList<TimelineWithSubcalendarEvents> AllDayTimeLine)
+        {
+            if (isConflictResolveEnabled)
+            {
+                HashSet<SubCalendarEvent> designatedSubEvents = new HashSet<SubCalendarEvent>(TotalActiveEvents.Where(o => o.isDesignated));
+                List<SubCalendarEvent> designatedConflicts = util.getConflictingEvents(designatedSubEvents).Item1.SelectMany(o => o.getSubCalendarEventsInBlob()).ToList();
+                this._ConflictingSubEvents.RemoveWhere(subEvent => designatedSubEvents.Contains(subEvent));
+                List<SubCalendarEvent> conflictingSubEvents = this._ConflictingSubEvents.OrderBy(o => o.Score).ToList();
+                HashSet<SubCalendarEvent> newlyResolvedThroughConflictResolution = new HashSet<SubCalendarEvent>();
+
+
+                HashSet<SubCalendarEvent> resolvedConflicts = new HashSet<SubCalendarEvent>(designatedSubEvents);
+                var conflictResolutionResult = resolveConflicts(conflictingSubEvents, AllDayTimeLine);
+                conflictResolutionResult.Item1.ForEach((eachSubEvent) =>
+                {//this goes through each resolved conflict and assigns them to their respective days.
+                    this._ConflictingSubEvents.Remove(eachSubEvent);
+                    eachSubEvent.ParentCalendarEvent.designateSubEvent(eachSubEvent, this.Now);
+                    DayTimeLine reassigneddayTimeLine = this.Now.getDayTimeLineByDayIndex(eachSubEvent.UniversalDayIndex);
+                    reassigneddayTimeLine.AddToSubEventList(eachSubEvent);
+                    resolvedConflicts.Add(eachSubEvent);
+                    newlyResolvedThroughConflictResolution.Add(eachSubEvent);
+                });
+                
+                List<SubCalendarEvent> unresolvedConflicts = conflictResolutionResult.Item2.Where(subEvent => subEvent.Start >= Now.calculationNow).ToList();
+                unresolvedConflicts.ForEach((subEvent) =>
+                {
+                    DayTimeLine dayTimeLine = Now.getDayTimeLineByTime(subEvent.Start);
+                    bool conflictResolve = singleTileConflictResolution(subEvent, dayTimeLine);
+                    if (conflictResolve)
+                    {//this goes through each resolved conflict and assigns them to their respective days.
+                        _ConflictingSubEvents.Remove(subEvent);
+                        subEvent.ParentCalendarEvent.designateSubEvent(subEvent, this.Now);
+                        DayTimeLine reassigneddayTimeLine = this.Now.getDayTimeLineByDayIndex(subEvent.UniversalDayIndex);
+                        reassigneddayTimeLine.AddToSubEventList(subEvent);
+                        resolvedConflicts.Add(subEvent);
+                        newlyResolvedThroughConflictResolution.Add(subEvent);
+                    }
+                });
+                ///This section creates one contiguous timeline across multiple daytimelines and tries to see if a tile can find a timeslot. This means if a tile finds a timeslot it'll be a slot that falls between multiple days.
+                ///TO ensure we can continue implementation with daytime line calculation we'd need to lock the resolved tiles to ensure it doesn't shift such that it makes other tiles fall into the wrong days
+                TimeLine conflictTImeLine = new TimeLine(this.Now.calculationNow, this.Now.getAllDaysForCalc().OrderBy(o => o.End).Last().End);
+                unresolvedConflicts = _ConflictingSubEvents.OrderBy(o => o.Score).ToList();
+                TimelineWithSubcalendarEvents timeLineOfEvaluation = new TimelineWithSubcalendarEvents(conflictTImeLine.Start, conflictTImeLine.End, resolvedConflicts);
+                List<TimelineWithSubcalendarEvents> timelineWithSubcalendarEvents = new List<TimelineWithSubcalendarEvents>() { timeLineOfEvaluation };
+                List<SubCalendarEvent> orderedResolvedConflict = resolvedConflicts.OrderBy(o => o.Start).ToList();
+
+
+                if (unresolvedConflicts.Count > 0)
+                {
+                    unresolvedConflicts.ForEach((eachSubEvent) =>
+                    {
+                        int bestPosition = util.getBestPosition(timeLineOfEvaluation, eachSubEvent, orderedResolvedConflict);
+                        if(bestPosition != -1)
+                        {
+                            orderedResolvedConflict.Insert(bestPosition, eachSubEvent);
+                            TimeLine pinTimeLine;
+                            DayTimeLine resolvedConflictDayTimeLine;
+                            List<SubCalendarEvent> subEventsOfPreviousDay;
+                            ///If it is in between several tiles then pin it to the earlier day.
+                            if (bestPosition > 0 && bestPosition < (orderedResolvedConflict.Count- 1))
+                            {
+                                int nextIndex = bestPosition - 1;
+                                SubCalendarEvent lastSubEventOfNextDay = orderedResolvedConflict[nextIndex];
+                                resolvedConflictDayTimeLine = this.Now.getDayTimeLineByDayIndex(lastSubEventOfNextDay.UniversalDayIndex);
+                                subEventsOfPreviousDay = resolvedConflictDayTimeLine.getSubEventsInTimeLine().OrderBy(o => o.Start).ToList();
+                                subEventsOfPreviousDay.Add(eachSubEvent);
+                            }
+                            else
+                            {
+                                ///If it is the first tile then we can simply add it to the appropriate day.
+                                if (bestPosition == 0)
+                                {
+                                    resolvedConflictDayTimeLine = this.Now.firstDay;
+                                    subEventsOfPreviousDay = resolvedConflictDayTimeLine.getSubEventsInTimeLine().OrderBy(o => o.Start).ToList();
+                                    subEventsOfPreviousDay.Insert(0, eachSubEvent);
+                                } 
+                                else if(bestPosition == orderedResolvedConflict.Count)/// It's the last tile pinnable then we can pin it to the end of the last day
+                                {
+                                    int nextIndex = bestPosition - 1;
+                                    SubCalendarEvent lastSubEventOfNextDay = orderedResolvedConflict[nextIndex];
+                                    resolvedConflictDayTimeLine = this.Now.getDayTimeLineByDayIndex(lastSubEventOfNextDay.UniversalDayIndex);
+                                    subEventsOfPreviousDay = resolvedConflictDayTimeLine.getSubEventsInTimeLine().OrderBy(o => o.Start).ToList();
+                                    subEventsOfPreviousDay.Add(eachSubEvent);
+                                } else
+                                {
+                                    throw new Exception("this branch should never be reached because it means an index out side the the count is reached");
+                                }
+                            }
+
+                            pinTimeLine = new TimeLine(resolvedConflictDayTimeLine.Start, eachSubEvent.ParentCalendarEvent.End);
+                            if (!util.tryPinSubEventsToStart(subEventsOfPreviousDay, pinTimeLine))
+                            {
+                                throw new Exception("Failed to tryPinSubEventsToStart, something is wrong with conflict resolution");
+                            }
+                            
+                            eachSubEvent.conflictLockSubEvent();
+                            newlyResolvedThroughConflictResolution.Add(eachSubEvent);
+                            _ConflictingSubEvents.Remove(eachSubEvent);
+                            eachSubEvent.ParentCalendarEvent.designateSubEvent(eachSubEvent, this.Now);
+                            resolvedConflictDayTimeLine.AddToSubEventList(eachSubEvent);
+                            resolvedConflicts.Add(eachSubEvent);
+                        }
+                    });
+                }
+            }
+        }
+
         ulong ParallelizeCallsToDay(
             List<CalendarEvent> AllCalEvents, 
             List<SubCalendarEvent> TotalActiveEvents, 
@@ -3711,109 +3835,11 @@ namespace TilerCore
 
             List<SubCalendarEvent> orderedByStart = TotalActiveEvents.OrderBy(obj => obj.Start).ToList();
 
-            HashSet<SubCalendarEvent> designatedSubEvents = new HashSet<SubCalendarEvent>(TotalActiveEvents.Where(o=>o.isDesignated));
-            List<SubCalendarEvent> designatedConflicts = util.getConflictingEvents(designatedSubEvents).Item1.SelectMany(o => o.getSubCalendarEventsInBlob()).ToList();
-            this._ConflictingSubEvents.RemoveWhere(subEvent => designatedSubEvents.Contains(subEvent));
-            List<SubCalendarEvent> conflictingSubEvents = this._ConflictingSubEvents.OrderBy(o=>o.Score).ToList();
-            HashSet<SubCalendarEvent> newlyResolvedThroughConflictResolution = new HashSet<SubCalendarEvent>();
-
-            if (isConflictResolveEnabled)
-            {
-                HashSet<SubCalendarEvent> resolvedConflicts = new HashSet<SubCalendarEvent>(designatedSubEvents);
-                var conflictResolutionResult = resolveConflicts(conflictingSubEvents, AllDayTimeLine);
-                conflictResolutionResult.Item1.ForEach((eachSubEvent) =>
-                {//this goes through each resolved conflict and assigns them to their respective days.
-                    this._ConflictingSubEvents.Remove(eachSubEvent);
-                    eachSubEvent.ParentCalendarEvent.designateSubEvent(eachSubEvent, this.Now);
-                    DayTimeLine reassigneddayTimeLine = this.Now.getDayTimeLineByDayIndex(eachSubEvent.UniversalDayIndex);
-                    reassigneddayTimeLine.AddToSubEventList(eachSubEvent);
-                    resolvedConflicts.Add(eachSubEvent);
-                    newlyResolvedThroughConflictResolution.Add(eachSubEvent);
-                });
-                
-                List<SubCalendarEvent> unresolvedConflicts = conflictResolutionResult.Item2.Where(subEvent => subEvent.Start >= Now.calculationNow).ToList();
-                unresolvedConflicts.ForEach((subEvent) =>
-                {
-                    DayTimeLine dayTimeLine = Now.getDayTimeLineByTime(subEvent.Start);
-                    bool conflictResolve = singleTileConflictResolution(subEvent, dayTimeLine);
-                    if (conflictResolve)
-                    {//this goes through each resolved conflict and assigns them to their respective days.
-                        _ConflictingSubEvents.Remove(subEvent);
-                        subEvent.ParentCalendarEvent.designateSubEvent(subEvent, this.Now);
-                        DayTimeLine reassigneddayTimeLine = this.Now.getDayTimeLineByDayIndex(subEvent.UniversalDayIndex);
-                        reassigneddayTimeLine.AddToSubEventList(subEvent);
-                        resolvedConflicts.Add(subEvent);
-                        newlyResolvedThroughConflictResolution.Add(subEvent);
-                    }
-                });
-                ///This section creates one contiguous timeline across multiple daytimelines and tries to see if a tile can find a timeslot. This means if a tile finds a timeslot it'll be a slot that falls between multiple days.
-                ///TO ensure we can continue implementation with daytime line calculation we'd need to lock the resolved tiles to ensure it doesn't shift such that it makes other tiles fall into the wrong days
-                TimeLine conflictTImeLine = new TimeLine(this.Now.calculationNow, this.Now.getAllDaysForCalc().OrderBy(o => o.End).Last().End);
-                unresolvedConflicts = _ConflictingSubEvents.OrderBy(o => o.Score).ToList();
-                TimelineWithSubcalendarEvents timeLineOfEvaluation = new TimelineWithSubcalendarEvents(conflictTImeLine.Start, conflictTImeLine.End, resolvedConflicts);
-                List<TimelineWithSubcalendarEvents> timelineWithSubcalendarEvents = new List<TimelineWithSubcalendarEvents>() { timeLineOfEvaluation };
-                List<SubCalendarEvent> orderedResolvedConflict = resolvedConflicts.OrderBy(o => o.Start).ToList();
 
 
-                if (unresolvedConflicts.Count > 0)
-                {
-                    unresolvedConflicts.ForEach((eachSubEvent) =>
-                    {
-                        int bestPosition = util.getBestPosition(timeLineOfEvaluation, eachSubEvent, orderedResolvedConflict);
-                        if(bestPosition != -1)
-                        {
-                            orderedResolvedConflict.Insert(bestPosition, eachSubEvent);
-                            TimeLine pinTimeLine;
-                            DayTimeLine resolvedConflictDayTimeLine;
-                            List<SubCalendarEvent> subEventsOfPreviousDay;
-                            ///If it is in between several tiles then pin it to the earlier day.
-                            if (bestPosition > 0 && bestPosition < (orderedResolvedConflict.Count- 1))
-                            {
-                                int nextIndex = bestPosition - 1;
-                                SubCalendarEvent lastSubEventOfNextDay = orderedResolvedConflict[nextIndex];
-                                resolvedConflictDayTimeLine = this.Now.getDayTimeLineByDayIndex(lastSubEventOfNextDay.UniversalDayIndex);
-                                subEventsOfPreviousDay = resolvedConflictDayTimeLine.getSubEventsInTimeLine().OrderBy(o => o.Start).ToList();
-                                subEventsOfPreviousDay.Add(eachSubEvent);
-                            }
-                            else
-                            {
-                                ///If it is the first tile then we can simply add it to the appropriate day.
-                                if (bestPosition == 0)
-                                {
-                                    resolvedConflictDayTimeLine = this.Now.firstDay;
-                                    subEventsOfPreviousDay = resolvedConflictDayTimeLine.getSubEventsInTimeLine().OrderBy(o => o.Start).ToList();
-                                    subEventsOfPreviousDay.Insert(0, eachSubEvent);
-                                } 
-                                else if(bestPosition == orderedResolvedConflict.Count)/// It's the last tile pinnable then we can pin it to the end of the last day
-                                {
-                                    int nextIndex = bestPosition - 1;
-                                    SubCalendarEvent lastSubEventOfNextDay = orderedResolvedConflict[nextIndex];
-                                    resolvedConflictDayTimeLine = this.Now.getDayTimeLineByDayIndex(lastSubEventOfNextDay.UniversalDayIndex);
-                                    subEventsOfPreviousDay = resolvedConflictDayTimeLine.getSubEventsInTimeLine().OrderBy(o => o.Start).ToList();
-                                    subEventsOfPreviousDay.Add(eachSubEvent);
-                                } else
-                                {
-                                    throw new Exception("this branch should never be reached because it means an index out side the the count is reached");
-                                }
-                            }
+            bestEffortConflictResolution(TotalActiveEvents, AllDayTimeLine);
+            balanceTradingDays(AllDayTimeLine);
 
-                            pinTimeLine = new TimeLine(resolvedConflictDayTimeLine.Start, eachSubEvent.ParentCalendarEvent.End);
-                            if (!util.tryPinSubEventsToStart(subEventsOfPreviousDay, pinTimeLine))
-                            {
-                                throw new Exception("Failed to tryPinSubEventsToStart, something is wrong with conflict resolution");
-                            }
-                            
-                            eachSubEvent.conflictLockSubEvent();
-                            newlyResolvedThroughConflictResolution.Add(eachSubEvent);
-                            _ConflictingSubEvents.Remove(eachSubEvent);
-                            eachSubEvent.ParentCalendarEvent.designateSubEvent(eachSubEvent, this.Now);
-                            resolvedConflictDayTimeLine.AddToSubEventList(eachSubEvent);
-                            resolvedConflicts.Add(eachSubEvent);
-                        }
-                    });
-                }
-            }
-            
 
 
 

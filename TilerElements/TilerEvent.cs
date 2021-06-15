@@ -1510,7 +1510,7 @@ namespace TilerElements
             }
         }
 
-        virtual public double EventScore
+        virtual public double Score
         {
             get
             {

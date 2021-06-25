@@ -1190,6 +1190,10 @@ namespace TilerCore
             {
 
                 bool InitialRigid = ReferenceSubEvent.isLocked;
+                if(ReferenceSubEvent.isPaused)
+                {
+                    TilerUser.clearPausedEventId();
+                }
 
 
                 if (referenceCalendarEventWithSubEvent.IsFromRecurringAndNotChildRepeatCalEvent && referenceCalendarEventWithSubEvent.isRepeatLoaded)
@@ -1244,6 +1248,10 @@ namespace TilerCore
             SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
             if (ReferenceSubEvent != null)
             {
+                if (ReferenceSubEvent.isPaused)
+                {
+                    TilerUser.clearPausedEventId();
+                }
                 ReferenceSubEvent.SetCompletionStatus(true, referenceCalendarEventWithSubEvent, this.Now);
             }
         }
@@ -1260,6 +1268,10 @@ namespace TilerCore
                 SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
                 if(ReferenceSubEvent!=null)
                 {
+                    if (ReferenceSubEvent.isPaused)
+                    {
+                        TilerUser.clearPausedEventId();
+                    }
                     ReferenceSubEvent.SetCompletionStatus(true, referenceCalendarEventWithSubEvent, this.Now);
                 }
             }
@@ -1283,7 +1295,10 @@ namespace TilerCore
 
 
             bool InitialRigid = ReferenceSubEvent.isLocked;
-
+            if (ReferenceSubEvent.isPaused)
+            {
+                TilerUser.clearPausedEventId();
+            }
 
             if (referenceCalendarEventWithSubEvent.IsFromRecurringAndNotChildRepeatCalEvent && referenceCalendarEventWithSubEvent.isRepeatLoaded)
             {
@@ -1335,6 +1350,10 @@ namespace TilerCore
         {
             CalendarEvent referenceCalendarEventWithSubEvent = getCalendarEvent(EventID);
             SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(EventID);
+            if (ReferenceSubEvent.isPaused)
+            {
+                TilerUser.clearPausedEventId();
+            }
             ReferenceSubEvent.disable(referenceCalendarEventWithSubEvent, this.Now);
         }
 
@@ -1352,6 +1371,10 @@ namespace TilerCore
                     SubCalendarEvent ReferenceSubEvent = getSubCalendarEvent(eachString);
                     if (ReferenceSubEvent != null)
                     {
+                        if (ReferenceSubEvent.isPaused)
+                        {
+                            TilerUser.clearPausedEventId();
+                        }
                         ReferenceSubEvent.disable(referenceCalendarEventWithSubEvent, this.Now);
                     }
                 }

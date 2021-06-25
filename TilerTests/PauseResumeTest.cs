@@ -944,18 +944,24 @@ namespace TilerTests
                 pausedSubEventRetrived.ParentCalendarEvent.ActivePausedTimeLines.Count
                 , 1,
                 "There should only be one paused timeline since we've paused once on thid Calendarevent");
+            string PausedEventId = tilerUser.PausedEventId.ToString();
             PausedTimeLineEntry pausedTimeLine = pausedSubEventRetrived.ParentCalendarEvent.ActivePausedTimeLines.First();
             schedule.markSubEventAsCompleteCalendarEventAndReadjust(pausedTimeLine.Id);
             await schedule.persistToDB().ConfigureAwait(false);
 
 
             reloadTilerUser(ref user, ref tilerUser);
-            SubCalendarEvent willBeCompletedSubEventRetrieved = TestUtility.getSubEventById(tilerUser.PausedEventId.ToString(), user);
+            
+            SubCalendarEvent willBeCompletedSubEventRetrieved = TestUtility.getSubEventById(PausedEventId, user);
             CalendarEvent calendarEventOfRetrivedSubEvent = willBeCompletedSubEventRetrieved.ParentCalendarEvent;
 
             Assert.AreEqual(calendarEventOfRetrivedSubEvent.PausedTimeLines.Count, 1, "All active paused tiles should stay paused, to avoid possible side effects");
             Assert.IsTrue(willBeCompletedSubEventRetrieved.getIsComplete);
-            
+
+            reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, nextRefNow, startOfDay);
+            Assert.IsNull(tilerUser.PausedEventId);
+
         }
 
         /// <summary>
@@ -1028,17 +1034,23 @@ namespace TilerTests
                 , 1,
                 "There should only be one paused timeline since we've paused once on thid Calendarevent");
             PausedTimeLineEntry pausedTimeLine = pausedSubEventRetrived.ParentCalendarEvent.ActivePausedTimeLines.First();
+            string PausedEventId = tilerUser.PausedEventId.ToString();
             await schedule.deleteSubCalendarEventAndReadjust(pausedTimeLine.Id).ConfigureAwait(false);
             await schedule.persistToDB().ConfigureAwait(false);
 
 
             reloadTilerUser(ref user, ref tilerUser);
-            SubCalendarEvent willBeDeletedSubEventRetrieved = TestUtility.getSubEventById(tilerUser.PausedEventId.ToString(), user);
+            
+            SubCalendarEvent willBeDeletedSubEventRetrieved = TestUtility.getSubEventById(PausedEventId, user);
             CalendarEvent calendarEventOfRetrivedSubEvent = willBeDeletedSubEventRetrieved.ParentCalendarEvent;
 
             Assert.AreEqual(calendarEventOfRetrivedSubEvent.PausedTimeLines.Count, 1, "All active paused tiles should stay paused, to avoid possible side effects");
             Assert.IsFalse(willBeDeletedSubEventRetrieved.getIsComplete);
             Assert.IsTrue(willBeDeletedSubEventRetrieved.getIsDeleted);
+
+            reloadTilerUser(ref user, ref tilerUser);
+            schedule = new TestSchedule(user, nextRefNow, startOfDay);
+            Assert.IsNull(tilerUser.PausedEventId);
         }
 
 

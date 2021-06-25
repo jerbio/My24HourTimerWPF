@@ -361,6 +361,7 @@ namespace TilerElements
                 _SubEvents.Add(newEvent.Id, newEvent);
                 newEvent.UiParamsId = this.UiParamsId;
                 newEvent.DataBlobId = this.DataBlobId;
+                newEvent.NameId = this.NameId;
                 newSubs.Add(newEvent);
 
             }

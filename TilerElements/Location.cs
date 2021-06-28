@@ -687,6 +687,12 @@ namespace TilerElements
             return  _Latitude + "," + _Longitude+"\n";
         }
 
+
+        public void setThirdPartyId(string thirdPartyId)
+        {
+            _ThirdPartyId = thirdPartyId;
+        }
+
         public static void updateApiKey(string key)
         {
             _ApiKey = key;

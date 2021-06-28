@@ -3185,46 +3185,46 @@ namespace TilerCore
                     {
                         if(beforeTimeLine.TimelineSpan >= afterTimeLine.TimelineSpan)
                         {
-                            if(!Utility.tryPinSubEventsToEnd(orderedByStartSubEvents, dayOnlyTimeLine))
+                            if(!Utility.tryPinSubEventsToEnd(orderedByStartSubEvents, RefTimeLine))
                             {
                                 throw new Exception("this pinning should not fail when it is the max Available spot");
                             }
                             postSleepSubEvents.AddRange(orderedByStartSubEvents.Skip(sleepSubEventindex));
                             previousDaySleepSubeventIndex = sleepSubEventindex - 1;
-                            postSleepTimeline = new TimeLine(beforeTimeLine.End, dayOnlyTimeLine.End);
+                            postSleepTimeline = new TimeLine(beforeTimeLine.End, RefTimeLine.End);
                             sleepTimeLine = new TimeLine(beforeTimeLine.Start, beforeTimeLine.End);
                         }
                         else
                         {
-                            if (!Utility.tryPinSubEventsToStart(orderedByStartSubEvents, dayOnlyTimeLine))
+                            if (!Utility.tryPinSubEventsToStart(orderedByStartSubEvents, RefTimeLine))
                             {
                                 throw new Exception("this pinning should not fail when it is the max Available spot");
                             }
                             postSleepSubEvents.AddRange(orderedByStartSubEvents.Skip(sleepSubEventindex+1));
                             previousDaySleepSubeventIndex = sleepSubEventindex;
-                            postSleepTimeline = new TimeLine(afterTimeLine.End, dayOnlyTimeLine.End);
+                            postSleepTimeline = new TimeLine(afterTimeLine.End, RefTimeLine.End);
                             sleepTimeLine = new TimeLine(afterTimeLine.Start, afterTimeLine.End);
                         }
                     } else if(beforeTimeLine!=null)
                     {
-                        if (!Utility.tryPinSubEventsToEnd(orderedByStartSubEvents, dayOnlyTimeLine))
+                        if (!Utility.tryPinSubEventsToEnd(orderedByStartSubEvents, RefTimeLine))
                         {
                             throw new Exception("this pinning should not fail when it is the max Available spot");
                         }
                         postSleepSubEvents.AddRange(orderedByStartSubEvents.Skip(sleepSubEventindex));
                         previousDaySleepSubeventIndex = sleepSubEventindex - 1;
-                        postSleepTimeline = new TimeLine(beforeTimeLine.End, dayOnlyTimeLine.End);
+                        postSleepTimeline = new TimeLine(beforeTimeLine.End, RefTimeLine.End);
                         sleepTimeLine = new TimeLine(beforeTimeLine.Start, beforeTimeLine.End);
                     }
                     else if (afterTimeLine != null)
                     {
-                        if (!Utility.tryPinSubEventsToStart(orderedByStartSubEvents, dayOnlyTimeLine))
+                        if (!Utility.tryPinSubEventsToStart(orderedByStartSubEvents, RefTimeLine))
                         {
                             throw new Exception("this pinning should not fail when it is the max Available spot");
                         }
                         postSleepSubEvents.AddRange(orderedByStartSubEvents.Skip(sleepSubEventindex+1));
                         previousDaySleepSubeventIndex = sleepSubEventindex;
-                        postSleepTimeline = new TimeLine(afterTimeLine.End, dayOnlyTimeLine.End);
+                        postSleepTimeline = new TimeLine(afterTimeLine.End, RefTimeLine.End);
                         sleepTimeLine = new TimeLine(afterTimeLine.Start, afterTimeLine.End);
                     } else
                     {
@@ -3235,7 +3235,7 @@ namespace TilerCore
                     {
                         SleepOfPreviousDay = orderedByStartSubEvents[previousDaySleepSubeventIndex];
                         List<SubCalendarEvent> subEventsBeforeSleep = orderedByStartSubEvents.Take(previousDaySleepSubeventIndex + 1).ToList();
-                        if(!Utility.tryPinSubEventsToStart(subEventsBeforeSleep, dayOnlyTimeLine))
+                        if(!Utility.tryPinSubEventsToStart(subEventsBeforeSleep, RefTimeLine))
                         {
                             throw new Exception("There is a wrong misconception in your algorithm jay");
                         }
@@ -3375,7 +3375,7 @@ namespace TilerCore
                     }
 
 
-                    TimeLine timeLine = new TimeLine(startTime, dayOnlyTimeLine.End);
+                    TimeLine timeLine = new TimeLine(startTime, RefTimeLine.End);
                     bool allIsPinned = true && Utility.tryPinSubEventsToStart(new List<SubCalendarEvent>() { subEvent}, timeLine);
                     SubCalendarEvent previousSubEvent = subEvent;
                     foreach (SubCalendarEvent eachSubEvent in subsequentSubevents)
@@ -3386,7 +3386,7 @@ namespace TilerCore
                             {
                                 TimeSpan beforeTimeSpan = subEventToBuffer[eachSubEvent].Item1;
                                 beforeTimeSpan = beforeTimeSpan == Utility.NegativeTimeSpan ? Utility.ZeroTimeSpan : beforeTimeSpan;
-                                timeLine = new TimeLine(previousSubEvent.End + beforeTimeSpan, dayOnlyTimeLine.End);
+                                timeLine = new TimeLine(previousSubEvent.End + beforeTimeSpan, RefTimeLine.End);
                                 if(eachSubEvent.Start >= timeLine.Start)// subsequent subevent is already later than the previous subevent + its buffer span
                                 {
                                     break;
@@ -3394,7 +3394,7 @@ namespace TilerCore
                             }
                             else
                             {
-                                timeLine = new TimeLine(previousSubEvent.End, dayOnlyTimeLine.End);
+                                timeLine = new TimeLine(previousSubEvent.End, RefTimeLine.End);
                             }
                             bool pinResult = eachSubEvent.PinToStart(timeLine);
                             allIsPinned &= pinResult;
@@ -3972,6 +3972,10 @@ namespace TilerCore
             Debug.WriteLine("Total optimization took" + allOptimizationWatch.Elapsed.ToString());
             foreach (DayTimeLine dayTimeLine in moveToMiddleDays)
             {
+                if(moveToMiddleDays.IndexOf(dayTimeLine) == 78 && Utility.debugString.isNot_NullEmptyOrWhiteSpace())
+                {
+                    Utility.debugString = "hun";
+                }
                 tryToCentralizeSubEvents(dayTimeLine);
             }
 

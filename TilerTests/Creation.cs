@@ -1299,6 +1299,94 @@ namespace TilerTests
         }
 
         /// <summary>
+        /// UTC TimeZone Required third party location
+        /// </summary>
+        [TestMethod]
+        public void thirdPartySchedulingWithDefaultLocation()
+        {
+            DateTimeOffset refNow = DateTimeOffset.UtcNow.removeSecondsAndMilliseconds();
+            TilerUser tilerUser = TestUtility.createUser();
+            UserAccount user = TestUtility.getTestUser(userId: tilerUser.Id);
+            tilerUser = user.getTilerUser();
+            user.Login().Wait();
+
+            TestSchedule Schedule = new TestSchedule(user, refNow);
+            TimeSpan duration = TimeSpan.FromHours(1);
+            TimeLine timeLine = new TimeLine(refNow, refNow.AddHours(2));
+            TilerColor tilerColor = new TilerColor(255, 255, 0, 1, 5);
+            EventDisplay eventdisplay = new EventDisplay(true, tilerColor);
+            int count = 10;
+            List<Event> googleEvents = new List<Event>();
+            List<CalendarEvent> originCalEventForGoogleEvent = new List<CalendarEvent>();
+
+            for (int i = 0; i < count; i++)
+            {
+                CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), timeLine.Start.AddHours(i), timeLine.End.AddHours(i), 1, false, eventDisplay: eventdisplay);
+                originCalEventForGoogleEvent.Add(testEvent);
+                EventDateTime start = new EventDateTime();
+                start.DateTime = timeLine.Start.DateTime;
+                EventDateTime end = new EventDateTime();
+                end.DateTime = timeLine.End.DateTime;
+
+                TestGoogleEvent googleEvent = new TestGoogleEvent();
+                googleEvent.Start = start;
+                googleEvent.End = end;
+                googleEvent.Summary = testEvent.Name.Name;
+                googleEvent.Location = testEvent.Location.Address;
+                googleEvent.Organizer = new Event.OrganizerData();
+                googleEvents.Add(googleEvent);
+            }
+            googleEvents = googleEvents.OrderBy(obj => obj.Start.DateTime).ToList();
+
+
+
+            TimeLine tilerEventTimeLine = new TimeLine(timeLine.Start, timeLine.Start.AddDays(1));
+            CalendarEvent nonGoogleEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), tilerEventTimeLine.Start, tilerEventTimeLine.End, 1, false);
+            EventID googleAuthenticationID = EventID.generateGoogleAuthenticationID(0);
+            TestUtility.enableInterconnectionCheck();
+            IEnumerable<Location> locations = TestUtility.generateAdHocLocations(user);
+            Location workLocation = locations.Where(o => o.Description.ToLower().Contains("work")).Single();
+
+            Task<IEnumerable<CalendarEvent>> googleCalWait = GoogleCalExtension.getAllCalEvents(googleEvents, null, tilerUser.Id, googleAuthenticationID, new TimeLine(refNow.AddDays(-15), refNow.AddDays(15)), false, workLocation);
+            googleCalWait.Wait();
+            List<CalendarEvent> allCaleEvents = googleCalWait.Result.ToList();
+
+            ThirdPartyCalendarEvent thirdPartyCalendarEvent = new GoogleCalendarEvent(allCaleEvents, tilerUser);
+            foreach(var eachCalEvent in allCaleEvents)
+            {
+                workLocation.isTestEquivalent(eachCalEvent.Location);
+            }
+
+            Schedule.updateDataSetWithThirdPartyData(new Tuple<ThirdPartyControl.CalendarTool, IEnumerable<CalendarEvent>>(ThirdPartyControl.CalendarTool.google, new List<CalendarEvent>() { thirdPartyCalendarEvent }));
+            Schedule.AddToSchedule(nonGoogleEvent);
+
+            //user = TestUtility.getTestUser(userId: tilerUser.Id);
+            //tilerUser = user.getTilerUser();
+            //user.Login().Wait();
+            //Schedule = new TestSchedule(user, refNow);
+            Task<ScheduleDump> getDumpTask = Schedule.CreateScheduleDump();
+            getDumpTask.Wait();
+            ScheduleDump scheduleDump = getDumpTask.Result;
+
+            Schedule scheduleFromDump = new TestSchedule(scheduleDump, user);
+
+            List<SubCalendarEvent> googleCalendarEvents = scheduleFromDump.getGoogleCalendarEvents().First().AllSubEvents.OrderBy(subEvent => subEvent.Start).ToList();
+
+            for (int i = 0; i < googleCalendarEvents.Count; i++)
+            {
+                TilerEvent googleCalEvent = googleCalendarEvents[i];
+                Event googleEvent = googleEvents[i];
+                DateTimeOffset start = googleCalEvent.Start.removeSecondsAndMilliseconds();
+                DateTimeOffset end = googleCalEvent.End.removeSecondsAndMilliseconds();
+                Assert.IsTrue(start == googleEvent.Start.DateTime);
+                Assert.IsTrue(end == googleEvent.End.DateTime);
+            }
+
+        }
+
+
+
+        /// <summary>
         /// Test verifies that schedule can be operated on even though full calendar event isn't loaded into memmory
         /// </summary>
         [TestMethod]

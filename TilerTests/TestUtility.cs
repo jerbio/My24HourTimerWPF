@@ -169,6 +169,15 @@ namespace TilerTests
             }
         }
 
+        public static void enableInterconnectionCheck() {
+            forceNoInternetConnection = false;
+        }
+
+        public static void disableInterconnectionCheck()
+        {
+            forceNoInternetConnection = true;
+        }
+
         public static bool CheckForInternetConnection()
         {
             if (forceNoInternetConnection)
@@ -292,6 +301,15 @@ namespace TilerTests
             Location.updateApiKey(apiKey);
         }
 
+        public static List<Location> generateAdHocLocations(UserAccount userAccount)
+        {
+            TilerDbContext tilerDbContext = userAccount.ScheduleData.Database;
+            List<Location> locations = TestUtility.getAdHocLocations(userAccount.getTilerUser().Id);
+            tilerDbContext.Locations.AddRange(locations);
+            tilerDbContext.SaveChanges();
+            return locations;
+        }
+
         public static List<Location> getAdHocLocations(string userId = null)
         {
             Location homeLocation = new Location(39.9271851, -105.1434801, "413 summit blvd broomfield CO", "Home", false, false);
@@ -334,7 +352,11 @@ namespace TilerTests
 
             List<Location> retValue = new List<Location>() {
                 homeLocation, workLocation, gymLocation, shakerLibrary, churchLocation };
-            retValue.ForEach(location => location.UserId = userId);
+            if(userId.isNot_NullEmptyOrWhiteSpace())
+            {
+                retValue.ForEach(location => location.UserId = userId);
+            }
+            
             return retValue;
         }
 

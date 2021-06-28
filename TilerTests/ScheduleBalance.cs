@@ -111,6 +111,7 @@ namespace TilerTests
 
             List<Location> locations = new List<Location>() { homeLocation, workLocation, gymLocation, churchLocation };
             DateTimeOffset refNow = DateTimeOffset.UtcNow;
+            refNow = DateTimeOffset.Parse("6/28/2021 8:00:00 AM +00:00");
             refNow = new DateTimeOffset(refNow.Year, refNow.Month, refNow.Day, 8, 0, 0, new TimeSpan());
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             
@@ -151,6 +152,7 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             schedule = new TestSchedule(user, refNow, startOfDay);
             CalendarEvent fourHourEachTIleFor_3MonthsCopy = TestUtility.generateCalendarEvent(tilerUser, fourHourSpan, fourHourRepetitionCopy, encompassingTimeline.Start, encompassingTimeline.End, 10, false);
+            Utility.debugString = "activeBug";
             schedule.AddToScheduleAndCommit(fourHourEachTIleFor_3MonthsCopy);
 
 

@@ -183,13 +183,13 @@ namespace TilerElements
         }
 
 
-        public static EventID generateGoogleAuthenticationID(uint CurrentIndex)
+        public static EventID generateGoogleAuthenticationID(string CurrentIndex)
         {
             EventID retValue = new EventID((int)ThirdPartyControl.CalendarTool.google + "_" + CurrentIndex + "_0_0");
             return retValue;
         }
 
-        public static EventID generateGoogleCalendarEventID(uint CurrentIndex)
+        public static EventID generateGoogleCalendarEventID(string CurrentIndex)
         {
             EventID retValue = new EventID((int)ThirdPartyControl.CalendarTool.google + "_0_" + CurrentIndex + "_0");
             return retValue;

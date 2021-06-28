@@ -1264,7 +1264,7 @@ namespace TilerTests
 
             TimeLine tilerEventTimeLine = new TimeLine(timeLine.Start, timeLine.Start.AddDays(1));
             CalendarEvent nonGoogleEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), tilerEventTimeLine.Start, tilerEventTimeLine.End, 1, false);
-            EventID googleAuthenticationID = EventID.generateGoogleAuthenticationID(0);
+            EventID googleAuthenticationID = EventID.generateGoogleAuthenticationID(0.ToString());
 
             Task<IEnumerable<CalendarEvent>> googleCalWait = GoogleCalExtension.getAllCalEvents(googleEvents, null, tilerUser.Id, googleAuthenticationID, new TimeLine(refNow.AddDays(-15), refNow.AddDays(15)), false);
             googleCalWait.Wait();
@@ -1342,7 +1342,7 @@ namespace TilerTests
 
             TimeLine tilerEventTimeLine = new TimeLine(timeLine.Start, timeLine.Start.AddDays(1));
             CalendarEvent nonGoogleEvent = TestUtility.generateCalendarEvent(tilerUser, TimeSpan.FromHours(1), new Repetition(), tilerEventTimeLine.Start, tilerEventTimeLine.End, 1, false);
-            EventID googleAuthenticationID = EventID.generateGoogleAuthenticationID(0);
+            EventID googleAuthenticationID = EventID.generateGoogleAuthenticationID(0.ToString());
             TestUtility.enableInterconnectionCheck();
             IEnumerable<Location> locations = TestUtility.generateAdHocLocations(user);
             Location workLocation = locations.Where(o => o.Description.ToLower().Contains("work")).Single();

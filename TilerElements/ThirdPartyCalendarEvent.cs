@@ -20,7 +20,7 @@ namespace TilerElements
             this._AverageTimePerSplit = _EventDuration;
             this._UiParams = new EventDisplay();
             this.UnDesignables = new HashSet<SubCalendarEvent>();
-            this.UniqueID = EventID.generateGoogleCalendarEventID((uint)AllCalendarEvent.Count());
+            this.UniqueID = EventID.generateGoogleCalendarEventID(AllCalendarEvent.Count().ToString());
             this._AutoDeleted = false;
             this._Users = new TilerUserGroup();
             this.updateStartTime( DateTimeOffset.Now.AddDays(-90));

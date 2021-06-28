@@ -43,7 +43,7 @@ namespace TilerTests
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             refNow = firstDayFromStart;
-            Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             SubCalendarEvent subEvent = testEvent.ActiveSubEvents.First();
             Schedule.SetSubeventAsNow(subEvent.Id);
             Schedule.persistToDB().Wait();
@@ -57,7 +57,7 @@ namespace TilerTests
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             refNow = secondDayFromStart;
-            Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             testEvent = TestUtility.getCalendarEventById(testEvent.Id, user);
             subEvent = testEvent.ActiveSubEvents.First();
             testEvent = Schedule.getCalendarEvent(testEvent.Id);
@@ -133,7 +133,7 @@ namespace TilerTests
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             refNow = firstDayFromStart;
-            Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             CalendarEvent firstRecurrence = Schedule.getCalendarEvent(recurringCalendarEvents.First().Id);
             SubCalendarEvent subEvent = firstRecurrence.ActiveSubEvents.OrderBy(sub => sub.Start).First();
             Schedule.SetSubeventAsNow(subEvent.Id);
@@ -174,7 +174,7 @@ namespace TilerTests
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             refNow = secondDayFromStart;
-            Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             CalendarEvent nextOccurence = Schedule.getAllActiveSubEvents().OrderBy(o=>o.Start).First().ParentCalendarEvent;
             subEvent = nextOccurence.ActiveSubEvents.OrderBy(sub => sub.Start).First();
             
@@ -302,7 +302,7 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             HashSet<string>  calendarIds = new HashSet<string>();
             calendarIds.Add(testEvent0.Id);
-            Schedule = new TestSchedule(user, secondRefNow, calendarIds: calendarIds, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, secondRefNow, calendarIds: calendarIds, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             Schedule.SetCalendarEventAsNow(testEvent0.Id);
             Schedule.persistToDB().Wait();
             var sectionTuple = daySections[6];
@@ -409,7 +409,7 @@ namespace TilerTests
                 refNow = repeatDates[i];
                 repeatEvent = TestUtility.getCalendarEventById(repeatEvent.Id, user);
                 TestUtility.reloadTilerUser(ref user, ref tilerUser);
-                Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
+                Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
                 SubCalendarEvent subEvent = repeatEvent.ActiveSubEvents.OrderByDescending(obj => obj.Start).First();// ensures that the latter events get piccked "as now" because we when the final refnow is 7/7/2019 meaning the first calendarevents in recurring calendar events can only fit on the last day so it won't be capable of being optimized
                 Schedule.SetSubeventAsNow(subEvent.Id);
                 Schedule.persistToDB().Wait();
@@ -426,7 +426,7 @@ namespace TilerTests
                 TestUtility.reloadTilerUser(ref user, ref tilerUser);
                 refNow = testEvent0Dates[i];
                 testEvent0 = TestUtility.getCalendarEventById(testEvent0.Id, user);
-                Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
+                Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
                 SubCalendarEvent subEvent = testEvent0.ActiveSubEvents.First();
                 Schedule.SetSubeventAsNow(subEvent.Id);
                 Schedule.persistToDB().Wait();

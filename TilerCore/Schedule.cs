@@ -148,7 +148,7 @@ namespace TilerCore
         protected TimeSpan _MorningPreparationTime = TimeSpan.FromMinutes(45);// trying to get 45 minutes
         protected HashSet<SubCalendarEvent> _ConflictingSubEvents = new HashSet<SubCalendarEvent>();
         protected HashSet<SubCalendarEvent> _EvaluatedSubevents = new HashSet<SubCalendarEvent>(); // Subevents that were used to for schedule evaluation
-        protected DataRetrivalOption retrievalOption = DataRetrivalOption.Evaluation;
+        protected HashSet<DataRetrivalOption> retrievalOptions = DataRetrievalSet.scheduleManipulation;
         protected bool _OptimizationEnabled = true;
         protected bool _isConflictResolveEnabled = true;
         public ReferenceNow Now
@@ -403,9 +403,9 @@ namespace TilerCore
             }
         }
 
-        public CalendarEvent getCalendarEvent(string EventID)
+        public CalendarEvent getCalendarEvent(string eventIdString)
         {
-            EventID userEvent = new EventID(EventID);
+            EventID userEvent = EventID.convertToSubcalendarEventID(eventIdString);
             return getCalendarEvent(userEvent);
         }
 
@@ -491,10 +491,11 @@ namespace TilerCore
             return getSubCalendarEvent(EventID.ToString());
         }
 
-        public SubCalendarEvent getSubCalendarEvent(string EventID)
+        public SubCalendarEvent getSubCalendarEvent(string EventIDString)
         {
-            CalendarEvent myCalendarEvent = getCalendarEvent(EventID);
-            return myCalendarEvent.getSubEvent(new EventID(EventID));
+            EventID eventId = EventID.convertToSubcalendarEventID(EventIDString);
+            CalendarEvent myCalendarEvent = getCalendarEvent(eventId);
+            return myCalendarEvent.getSubEvent(eventId);
         }
 
         public IEnumerable<CalendarEvent> getGoogleCalendarEvents()
@@ -612,7 +613,7 @@ namespace TilerCore
             return retVallue;
         }
 
-        public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> BundleChangeUpdate(string SubEventID,
+        virtual public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> BundleChangeUpdate(string eventIDString,
             EventName NewName,
             DateTimeOffset SubeventStart,
             DateTimeOffset SubeventEnd,
@@ -621,7 +622,8 @@ namespace TilerCore
             int SplitCount,
             string Notes)
         {
-            EventID myEventID = new EventID(SubEventID);
+
+            string SubEventID = EventID.convertToSubcalendarEventID(eventIDString).ToString();
             SubCalendarEvent mySubCalEvent = getSubCalendarEvent(SubEventID);
             CalendarEvent myCalendarEvent = getCalendarEvent(SubEventID);
             DateTimeOffset calEventStart = TimeLineStart.isBeginningOfTime() ? myCalendarEvent.Start : TimeLineStart;
@@ -681,28 +683,36 @@ namespace TilerCore
 
             if (subEventTimeLineChange)
             {
-                if (!isFromRigidEvent)
+                if(!EventID.isPauseId(eventIDString))
                 {
-                    mySubCalEvent.UpdateThis(ChangedSubCal);
-                    myCalendarEvent.RigidizeSubEvent(mySubCalEvent.Id);
-                    mySubCalEvent.tempLockSubEvent();
-                }
-                else
+                    if (!isFromRigidEvent)
+                    {
+                        myCalendarEvent.UnRigidizeSubEvent(mySubCalEvent.Id);
+                        mySubCalEvent.UpdateThis(ChangedSubCal);
+                        myCalendarEvent.RigidizeSubEvent(mySubCalEvent.Id);
+                        mySubCalEvent.tempLockSubEvent();
+                    }
+                    else
+                    {
+                        mySubCalEvent.shiftEvent(ChangedSubCal.Start, true);
+                        mySubCalEvent.UpdateThis(ChangedSubCal);
+                    }
+                    calEventStart = calendarEventRange.Start < mySubCalEvent.Start ? calendarEventRange.Start : mySubCalEvent.Start;
+                    calEventEnd = calendarEventRange.End > mySubCalEvent.End ? calendarEventRange.End : mySubCalEvent.End;
+                } else
                 {
-                    mySubCalEvent.shiftEvent(ChangedSubCal.Start, true);
-                    mySubCalEvent.UpdateThis(ChangedSubCal);
+                    Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(new CustomErrors(CustomErrors.Errors.Cannot_update_timeline_of_pausedtimeline), AllEventDictionary);
+                    return retValue;
                 }
-                calEventStart = calendarEventRange.Start < mySubCalEvent.Start ? calendarEventRange.Start : mySubCalEvent.Start;
-                calEventEnd = calendarEventRange.End > mySubCalEvent.End ? calendarEventRange.End : mySubCalEvent.End;
+                
             }
             calendarEventRange = new TimeLine(calEventStart, calEventEnd);
             return BundleChangeUpdate(mySubCalEvent.SubEvent_ID.ToString(), NewName, calendarEventRange.Start, calendarEventRange.End, SplitCount, Notes, subEventTimeLineChange, mySubCalEvent);
         }
-        public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> BundleChangeUpdate(string EventId, EventName NewName, DateTimeOffset newStart, DateTimeOffset newEnd, int newSplitCount, string notes, bool forceRecalculation = false, SubCalendarEvent triggerSubEvent = null)
+        virtual public Tuple<CustomErrors, Dictionary<string, CalendarEvent>> BundleChangeUpdate(string EventId, EventName NewName, DateTimeOffset newStart, DateTimeOffset newEnd, int newSplitCount, string notes, bool forceRecalculation = false, SubCalendarEvent triggerSubEvent = null)
         {
             CalendarEvent myCalendarEvent = getCalendarEvent(EventId);
-            TimeLine initialTimeLine = myCalendarEvent.StartToEnd;
-            bool isNameChange = NewName.NameValue != myCalendarEvent.getName?.NameValue;
+            
             bool isDeadlineChange = (newEnd) != myCalendarEvent.End;
             bool isStartChange = newStart != myCalendarEvent.Start;
             bool isSplitDiff = myCalendarEvent.NumberOfSplit != newSplitCount;
@@ -745,25 +755,12 @@ namespace TilerCore
                     myCalendarEvent = EvaluateTotalTimeLineAndAssignValidTimeSpots(myCalendarEvent, NoDoneYet, null, null, 0);
                 }
             }
-
-            if (isNameChange)
-            {
-                myCalendarEvent.updateEventName(NewName.NameValue);
-            }
-            var note = myCalendarEvent.Notes;
-            if (note == null && triggerSubEvent.RepeatParentEvent!= null)
-            {
-                note = (triggerSubEvent.RepeatParentEvent as CalendarEvent).Notes;
-            }
-
-            if (note != null)
-            {
-                note.UserNote = notes;
-            }
+            
+            
 
             
 
-            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(myCalendarEvent.Error, AllEventDictionary);
+            Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(myCalendarEvent.Error??new CustomErrors(CustomErrors.Errors.success), AllEventDictionary);
             return retValue;
         }
 
@@ -1019,7 +1016,7 @@ namespace TilerCore
                 if (PreviousPausedCalEvent != null)
                 {
                     SubCalendarEvent currentPausedEvent = PreviousPausedCalEvent.getSubEvent(CurrentPausedEventId);
-                    currentPausedEvent.ResetPause(Now.constNow);
+                    currentPausedEvent.ParentCalendarEvent.ResetPause(Now);
                 }
             }
 
@@ -1032,16 +1029,14 @@ namespace TilerCore
         public async Task<CustomErrors> ContinueEvent(string Event)
         {
             EventID id = new EventID(Event);
-            return await ResumeEvent(id);
+            return await ResumeEvent();
         }
 
-        public async Task<CustomErrors> ResumeEvent(EventID EventId = null, bool forceOutsideDeadline = false)
+        public async Task<CustomErrors> ResumeEvent(bool forceOutsideDeadline = false)
         {
+
             CustomErrors RetValue;
-            if (EventId == null)
-            {
-                EventId = TilerUser.PausedEventId;
-            }
+            EventID EventId = TilerUser.PausedEventId;
 
             if (EventId == null)
             {
@@ -1055,12 +1050,12 @@ namespace TilerCore
             }
 
             SubCalendarEvent SubEvent = CalEvent.getSubEvent(EventId);
-            if (!SubEvent.isPauseLocked)
+            if (!SubEvent.isPaused)
             {
                 RetValue = new CustomErrors(CustomErrors.Errors.Resume_Event_Cannot_Resume_Not_Paused_SubEvent);
                 return RetValue;
             }
-            bool errorState = CalEvent.ContinueSubEvent(EventId, Now.constNow, forceOutsideDeadline);
+            bool errorState = CalEvent.Continue(Now, forceOutsideDeadline);
             
             
 
@@ -1068,7 +1063,6 @@ namespace TilerCore
             {
                 this.TilerUser.clearPausedEventId();
                 Now.UpdateNow(SubEvent.Start);
-                SubEvent.disablePauseLock();
                 CalendarEvent CalEventCopy = CalEvent.createCopy(EventID.GenerateCalendarEvent());
                 SubEvent.disable(CalEvent, this.Now);
                 SubCalendarEvent unDisabled = CalEventCopy.ActiveSubEvents.First();// we're doing the disabling because there could be a scenario where a sub event is resumed and the CalendarEvent still has non-completed tiles. This would mean you could move other non-completed tiles to the extended dadline., instead of just the paused tile
@@ -1386,7 +1380,7 @@ namespace TilerCore
                 clearAllTimeLocks();
                 procrastinateAll = EvaluateTotalTimeLineAndAssignValidTimeSpots(procrastinateAll, NotdoneYet, null, null, 1) as ProcrastinateCalendarEvent;
 
-                Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(procrastinateAll.Error, AllEventDictionary_Cpy);
+                Tuple<CustomErrors, Dictionary<string, CalendarEvent>> retValue = new Tuple<CustomErrors, Dictionary<string, CalendarEvent>>(procrastinateAll.Error??new CustomErrors(CustomErrors.Errors.success), AllEventDictionary_Cpy);
                 return retValue;
             }
             throw new CustomErrors(CustomErrors.Errors.procrastinationBeforeNow, "Cannot go back in time quite yet");
@@ -1581,7 +1575,7 @@ namespace TilerCore
                 int conviableCount = NewEventAsRestricted.AllSubEvents.Where(subEvent => !((subEvent as SubCalendarEventRestricted).getCalendarEventRange as TimeLineRestricted).IsViable).Count();
                 if(conviableCount > 0)
                 {
-                    throw new CustomErrors(CustomErrors.Errors.restrictionProfileNonvaiable);
+                    throw new CustomErrors(CustomErrors.Errors.RestrictionProfileNonvaiable);
                 }
 
             }
@@ -6694,7 +6688,7 @@ namespace TilerCore
                     eachSubEvent.disableRepetitionLock();
                     eachSubEvent.disableNowLock();
                 }
-                eachSubEvent.disablePauseLock();
+                eachSubEvent.ParentCalendarEvent.ResetPause(this.Now);
             };
             this.TilerUser.clearPausedEventId();
         }

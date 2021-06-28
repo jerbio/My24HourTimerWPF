@@ -66,6 +66,15 @@
     <Reference Include="Google.Apis.Core, Version=1.51.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
       <HintPath>..\packages\Google.Apis.Core.1.51.0\lib\net45\Google.Apis.Core.dll</HintPath>
     </Reference>
+    <Reference Include="Google.Apis.Calendar.v3, Version=1.49.0.2224, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Apis.Calendar.v3.1.49.0.2224\lib\net45\Google.Apis.Calendar.v3.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.Calendar.v3, Version=1.51.0.2312, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Apis.Calendar.v3.1.51.0.2312\lib\net45\Google.Apis.Calendar.v3.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.Core, Version=1.51.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Apis.Core.1.51.0\lib\net45\Google.Apis.Core.dll</HintPath>
+    </Reference>
     <Reference Include="Google.Apis.PlatformServices, Version=1.51.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
       <HintPath>..\packages\Google.Apis.1.51.0\lib\net45\Google.Apis.PlatformServices.dll</HintPath>
     </Reference>
@@ -137,6 +146,7 @@
     <Compile Include="AnalysisTest.cs" />
     <Compile Include="AsyncDataAccessor.cs" />
     <Compile Include="Creation.cs" />
+    <Compile Include="DeadlineSuggestion.cs" />
     <Compile Include="KnownBugList.cs" />
     <Compile Include="LocationTests.cs" />
     <Compile Include="LogControlDump.cs" />
@@ -170,6 +180,7 @@
     <Compile Include="AutoSuggestDeadlineTest.cs" />
     <Compile Include="PauseResumeTest.cs" />
     <Compile Include="ReviseSchedule.cs" />
+    <Compile Include="DBRetrievalOption.cs" />
     <Compile Include="UserAccountDump.cs" />
     <Compile Include="UserAccountTest.cs" />
     <Compile Include="WhatIfTest.cs" />
@@ -215,6 +226,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="WagTapCalLogs\1edc6fe0-0bd1-453e-a77f-7014814ee9ef\1edc6fe0-0bd1-453e-a77f-7014814ee9ef.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="WagTapCalLogs\227f54d4-5ae1-4194-9096-191b6ce77d33\227f54d4-5ae1-4194-9096-191b6ce77d33.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="WagTapCalLogs\2694d3bf-cf8d-43a9-9877-e7d168119f74.xml" />

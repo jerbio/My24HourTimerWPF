@@ -30,7 +30,7 @@ namespace TilerTests
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser,duration, new Repetition(), start, end, 2, false);
             Schedule = new TestSchedule(user, refNow);
             Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
-            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.All);
             var setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
             Schedule.persistToDB().Wait();
             testEvent = TestUtility.getCalendarEventById(testEvent.getId, user);
@@ -54,7 +54,7 @@ namespace TilerTests
             Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
             DateTimeOffset newRefNow = end.AddDays(1);
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, newRefNow, retrievalOption: DataRetrivalOption.All, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, newRefNow, retrievalOptions: DataRetrievalSet.All);
             var setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
             Schedule.persistToDB().Wait();
             testEvent = TestUtility.getCalendarEventById(testEvent.getId, user);
@@ -81,7 +81,7 @@ namespace TilerTests
             Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
             SubCalendarEvent subEvent = testEvent.ActiveSubEvents[1];
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             var setAsNowResult = Schedule.SetSubeventAsNow(subEvent.Id);
             Schedule.persistToDB().Wait();
             SubCalendarEvent testSubEvent = TestUtility.getSubEventById(subEvent.getId, user);
@@ -106,7 +106,7 @@ namespace TilerTests
             SubCalendarEvent subEvent = testEvent.ActiveSubEvents[1];
             DateTimeOffset newRefNow = end.AddDays(1);
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, newRefNow, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, newRefNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             var setAsNowResult = Schedule.SetSubeventAsNow(subEvent.Id, true);
             Schedule.persistToDB().Wait();
             subEvent = Schedule.getCalendarEvent(subEvent.getId).ActiveSubEvents.OrderBy(obj => obj.Start).Last();// this sorting is needed because of the extra sorting by id that occurs on the front end to ensure ids are sorted alphabetically
@@ -138,7 +138,7 @@ namespace TilerTests
             CalendarEvent beforeSetAsNowCalendarEvent = TestUtility.getCalendarEventById(testEvent.getId, user);
             DateTimeOffset newRefNow = end.AddDays(1);
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, newRefNow, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, newRefNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             var setAsNowResult = Schedule.SetSubeventAsNow(subEvent.Id, true);
             Schedule.persistToDB(false).Wait();
             SubCalendarEvent testSubEvent = TestUtility.getSubEventById(subEvent.getId, user);
@@ -168,7 +168,7 @@ namespace TilerTests
             DateTimeOffset newRefNow = end.AddDays(1);
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             HashSet<string> calendarIds = new HashSet<string>() { testEvent.Id };
-            Schedule = new TestSchedule(user, newRefNow, calendarIds: calendarIds, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, newRefNow, calendarIds: calendarIds, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             var setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
             Schedule.persistToDB(false).Wait();
             CalendarEvent afterSetAsNowCalendarEvent = TestUtility.getCalendarEventById(testEvent.getId, user);
@@ -197,7 +197,7 @@ namespace TilerTests
             DateTimeOffset newRefNow = end.AddHours(1);
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             HashSet<string> calendarIds = new HashSet<string>() { testEvent.Id };
-            Schedule = new TestSchedule(user, newRefNow, calendarIds: calendarIds, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, newRefNow, calendarIds: calendarIds, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             var setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
             Schedule.persistToDB().Wait();
             CalendarEvent afterSetAsNowCalendarEvent = TestUtility.getCalendarEventById(testEvent.getId, user);
@@ -226,7 +226,7 @@ namespace TilerTests
             Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
             DateTimeOffset newRefNow = start.AddHours(1);
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, newRefNow, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, newRefNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             SubCalendarEvent subEvent = testEvent.ActiveSubEvents.First();
             var setAsNowResult = Schedule.SetSubeventAsNow(subEvent.getId);
             Schedule.persistToDB().Wait();
@@ -257,7 +257,7 @@ namespace TilerTests
             DateTimeOffset newRefNow = start.AddHours(1);
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             HashSet<string> calendarIds = new HashSet<string>() { testEvent.Id };
-            Schedule = new TestSchedule(user, newRefNow, calendarIds: calendarIds, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, newRefNow, calendarIds: calendarIds, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             var setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
             Schedule.persistToDB().Wait();
             CalendarEvent afterSetAsNowCalendarEvent = TestUtility.getCalendarEventById(testEvent.getId, user);
@@ -287,7 +287,7 @@ namespace TilerTests
             Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
             DateTimeOffset newRefNow = start.AddHours(1);
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, newRefNow, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, newRefNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             SubCalendarEvent subEvent = testEvent.ActiveSubEvents.First();
             var setAsNowResult = Schedule.SetSubeventAsNow(subEvent.getId, true);
             Schedule.persistToDB().Wait();
@@ -328,7 +328,7 @@ namespace TilerTests
                 TestUtility.reloadTilerUser(ref user, ref tilerUser);
                 CalendarEvent calEventRetrieved = TestUtility.getCalendarEventById(calEVent.Id, user);
                 HashSet<string> calendarIds = new HashSet<string>() { calEventRetrieved.Id };
-                Schedule = new TestSchedule(user, refNow, calendarIds: calendarIds, includeUpdateHistory: true);
+                Schedule = new TestSchedule(user, refNow, calendarIds: calendarIds, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
                 Schedule.SetCalendarEventAsNow(calEventRetrieved.Id);
                 Schedule.persistToDB().Wait();
                 calEventRetrieved = TestUtility.getCalendarEventById(calEVent.Id, user);
@@ -345,7 +345,7 @@ namespace TilerTests
                     refNow = activeSubEVents[0].End.AddMinutes(1);
                     TestUtility.reloadTilerUser(ref user, ref tilerUser);
                     calendarIds = new HashSet<string>() { calEventRetrieved.Id };
-                    Schedule = new TestSchedule(user, refNow, calendarIds: calendarIds, includeUpdateHistory: true);
+                    Schedule = new TestSchedule(user, refNow, calendarIds: calendarIds, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
                     Schedule.SetCalendarEventAsNow(calEventRetrieved.Id);
                     Schedule.persistToDB().Wait();
                     subEVent = activeSubEVents[1];
@@ -356,7 +356,7 @@ namespace TilerTests
                     refNow = activeSubEVents[0].End.AddMinutes(1);
                     TestUtility.reloadTilerUser(ref user, ref tilerUser);
                     calendarIds = new HashSet<string>() { calEventRetrieved.Id };
-                    Schedule = new TestSchedule(user, refNow, calendarIds: calendarIds, includeUpdateHistory: true);
+                    Schedule = new TestSchedule(user, refNow, calendarIds: calendarIds, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
                     Schedule.SetCalendarEventAsNow(calEventRetrieved.Id);
                     Schedule.persistToDB().Wait();
                     subEVent = activeSubEVents[0];
@@ -374,7 +374,7 @@ namespace TilerTests
                     refNow = activeSubEVents.Last().End.AddMinutes(1);
                     TestUtility.reloadTilerUser(ref user, ref tilerUser);
                     calendarIds = new HashSet<string>() { calEventRetrieved.Id };
-                    Schedule = new TestSchedule(user, refNow, calendarIds: calendarIds, includeUpdateHistory: true);
+                    Schedule = new TestSchedule(user, refNow, calendarIds: calendarIds, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
                     Schedule.SetCalendarEventAsNow(calEventRetrieved.Id);
                     Schedule.persistToDB().Wait();
                     subEVent = activeSubEVents.Last();
@@ -386,7 +386,7 @@ namespace TilerTests
                     refNow = activeSubEVents.Last().End.AddMinutes(1);
                     TestUtility.reloadTilerUser(ref user, ref tilerUser);
                     calendarIds = new HashSet<string>() { calEventRetrieved.Id };
-                    Schedule = new TestSchedule(user, refNow, calendarIds: calendarIds, includeUpdateHistory: true);
+                    Schedule = new TestSchedule(user, refNow, calendarIds: calendarIds, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
                     Schedule.SetCalendarEventAsNow(calEventRetrieved.Id);
                     Schedule.persistToDB().Wait();
                     subEVent = activeSubEVents[0];
@@ -452,7 +452,7 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             DateTimeOffset thirdRefnow = refNow.AddHours(2);
             SubCalendarEvent setAsNowSubEvent = firstSubEVentAfterShuffle;
-            Schedule = new TestSchedule(user, thirdRefnow, endOfDay, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, thirdRefnow, endOfDay, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             Schedule.CurrentLocation = currentLocation;
             Schedule.SetSubeventAsNow(setAsNowSubEvent.Id);
             Schedule.persistToDB().Wait();

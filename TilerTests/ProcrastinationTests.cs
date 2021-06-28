@@ -31,7 +31,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.All);
             var setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
             Schedule.persistToDB().Wait();
             testEvent = TestUtility.getCalendarEventById(testEvent.getId, user);
@@ -85,7 +85,7 @@ namespace TilerTests
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             DateTimeOffset thirdRefNow = refNow.AddHours(1);
-            Schedule = new TestSchedule(user, thirdRefNow, retrievalOption: DataRetrivalOption.All, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, thirdRefNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             Schedule.SetCalendarEventAsNow(testEventCopy.Id);
             Schedule.persistToDB().Wait();
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
@@ -123,7 +123,7 @@ namespace TilerTests
             CalendarEvent testEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 4, false, restrictionProfile: restrictionProfile, now: Schedule.Now) as CalendarEventRestricted;
             Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             var setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
             Schedule.persistToDB().Wait();
             testEvent = TestUtility.getCalendarEventById(testEvent.getId, user);
@@ -182,7 +182,7 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             var calendarIds = new HashSet<string>();
             calendarIds.Add(testEvent.getId);
-            Schedule = new TestSchedule(user, refNow, calendarIds: calendarIds, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, calendarIds: calendarIds, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             var setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
             Schedule.persistToDB().Wait();
 
@@ -273,7 +273,7 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             HashSet<string> calendarIds = new HashSet<string>();
             calendarIds.Add(testEvent.Id);
-            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All, calendarIds: calendarIds, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory, calendarIds: calendarIds);
             var setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
             Schedule.persistToDB().Wait();
             user = TestUtility.getTestUser(true, userId: tilerUser.Id);
@@ -283,7 +283,7 @@ namespace TilerTests
             TimeSpan procrastinationSpan = TimeSpan.FromHours(2);
 
             Tuple<CustomErrors, Dictionary<string, CalendarEvent>> procrastinateResult = Schedule.ProcrastinateAll(procrastinationSpan);
-            Assert.IsNull(procrastinateResult.Item1);
+            Assert.AreEqual((int)procrastinateResult.Item1.Code, (int)CustomErrors.Errors.success);
             Schedule.persistToDB().Wait();
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
@@ -307,7 +307,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow0, calendarIds: calendarIds);
             TimeSpan additionalProcrastinationSpan = TimeSpan.FromHours(2);
             procrastinateResult = Schedule.ProcrastinateAll(additionalProcrastinationSpan);
-            Assert.IsNull(procrastinateResult.Item1);
+            Assert.AreEqual((int)procrastinateResult.Item1.Code, (int)CustomErrors.Errors.success);
             Schedule.persistToDB().Wait();
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow0);
@@ -335,7 +335,7 @@ namespace TilerTests
             SubCalendarEvent firstClearedBlock = procrastinationEvent.ActiveSubEvents.OrderBy(obj => obj.Start).First();
             procrastinateResult = Schedule.BundleChangeUpdate(firstClearedBlock.getId, procrastinationEvent.getName, startOfProcrastinateAll, newEndOfProcrastinateAll, startOfProcrastinateAll, newEndOfProcrastinateAll, procrastinationEvent.NumberOfSplit, procrastinationEvent.Notes.UserNote);
 
-            Assert.IsNull(procrastinateResult.Item1);
+            Assert.AreEqual(procrastinateResult.Item1.Code, (int)CustomErrors.Errors.success);
             Schedule.persistToDB().Wait();
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow0);
@@ -361,7 +361,7 @@ namespace TilerTests
             TimeSpan additionalProcrastinationSpan0 = TimeSpan.FromHours(1);
             procrastinateResult = Schedule.ProcrastinateAll(additionalProcrastinationSpan0);
          
-            Assert.IsNull(procrastinateResult.Item1);
+            Assert.AreEqual(procrastinateResult.Item1.Code, (int)CustomErrors.Errors.success);
             Task updateWait = Schedule.persistToDB();
             
             updateWait.Wait();
@@ -390,7 +390,7 @@ namespace TilerTests
             firstClearedBlock = procrastinationEvent.ActiveSubEvents.OrderBy(obj => obj.Start).First();
             procrastinateResult = Schedule.BundleChangeUpdate(firstClearedBlock.getId, procrastinationEvent.getName, startOfProcrastinateAll, newEndOfProcrastinateAll, startOfProcrastinateAll, newEndOfProcrastinateAll, procrastinationEvent.NumberOfSplit, firstClearedBlock.Notes.UserNote);
 
-            Assert.IsNull(procrastinateResult.Item1);
+            Assert.AreEqual(procrastinateResult.Item1.Code, (int)CustomErrors.Errors.success);
             Schedule.persistToDB().Wait();
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow0);
@@ -435,7 +435,7 @@ namespace TilerTests
             DateTimeOffset secondRefNow = refNow.AddHours(4);
             HashSet<string> calendarIds = new HashSet<string>();
             calendarIds.Add(testEvent.Id);
-            Schedule = new TestSchedule(user, secondRefNow, retrievalOption: DataRetrivalOption.All, calendarIds: calendarIds, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, secondRefNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory, calendarIds: calendarIds);
             Schedule.SetCalendarEventAsNow(testEvent.Id);
             Schedule.persistToDB().Wait();
             CalendarEvent testEvent_DB = TestUtility.getCalendarEventById(testEvent.Id, user);
@@ -477,7 +477,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow);
             Schedule.AddToScheduleAndCommitAsync(testEvent).Wait();
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All, includeUpdateHistory: true);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithUpdateHistory);
             var setAsNowResult = Schedule.SetCalendarEventAsNow(testEvent.getId);
             Schedule.persistToDB().Wait();
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
@@ -485,7 +485,7 @@ namespace TilerTests
             Schedule = new TestSchedule(user, refNow, calendarIds: calendarIds);
             TimeSpan procrastinationSpan = TimeSpan.FromHours(4.5);
             var procrassinateResult = Schedule.ProcrastinateAll(procrastinationSpan);
-            Assert.IsNull(procrassinateResult.Item1);
+            Assert.AreEqual((int)procrassinateResult.Item1.Code, (int)CustomErrors.Errors.success);
             Schedule.persistToDB().Wait();
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
@@ -562,7 +562,7 @@ namespace TilerTests
             calendarIds = new HashSet<string>() { tilerUser.ClearAllId };
             Schedule = new TestSchedule(user, oneYearLaterRefNow, calendarIds: calendarIds);
             var OneYearFutureProcrastinateResult = Schedule.ProcrastinateAll(oneYearInFutureProcrastinateSpan);
-            Assert.IsNull(OneYearFutureProcrastinateResult.Item1);
+            Assert.AreEqual((int)OneYearFutureProcrastinateResult.Item1.Code, (int)CustomErrors.Errors.success);
             Schedule.persistToDB().Wait();
             var oneYearInFutureProcrastinateCaleventRetrieved = TestUtility.getCalendarEventById(Schedule.getProcrastinateAllEvent().getTilerID, user);
             Assert.AreEqual(oneYearInFutureProcrastinateCaleventRetrieved.AllSubEvents.Count(), 3);// Reading directly from DB we should get every subcalendar event
@@ -571,7 +571,7 @@ namespace TilerTests
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
             var backInTImeProcrastinateEVent = Schedule.getProcrastinateAllEvent();
-            Assert.AreEqual(backInTImeProcrastinateEVent.AllSubEvents.Count(), 1);/// there should only be one subcal because schedule only reads about 105 days 15 days before refNow and 90 days after refNow
+            Assert.AreEqual(backInTImeProcrastinateEVent.AllSubEvents.Count(), 3);/// this always pulls all procrastinate all tiles.
 
         }
     }

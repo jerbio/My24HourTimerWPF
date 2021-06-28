@@ -12,7 +12,7 @@ namespace TilerTests
         [TestMethod]
         public void SimpleTest()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
     }
 }

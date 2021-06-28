@@ -106,6 +106,16 @@ namespace TilerElements
             return retValue;
         }
 
+        public static bool isPauseId(string eventId)
+        {
+            return eventId.Contains(pauseDelimiter_char);
+        }
+
+        public static bool isPauseId(EventID eventId)
+        {
+            return eventId.ToString().Contains(pauseDelimiter_char);
+        }
+
         /// <summary>
         /// Just updates the full tile event id, this concats the strings of all the tile id components using the delimiter
         /// </summary>
@@ -291,7 +301,7 @@ namespace TilerElements
 
         public string getIDUpToSubCalendarEvent()
         {
-            return getStringIDAtLevel(3);
+            return EventID.convertToSubcalendarEventID(this.ToString()).ToString();
         }
 
         public string getCalendarEventComponent()

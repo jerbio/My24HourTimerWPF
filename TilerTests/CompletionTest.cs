@@ -92,9 +92,9 @@ namespace TilerTests
             TimeLine RepetitionActualTImeLine = new TimeLine(start, end);
             Repetition repetition = new Repetition(RepetitionTImeLine, Repetition.Frequency.DAILY, RepetitionActualTImeLine);
             CalendarEvent repeatTestEvent = TestUtility.generateCalendarEvent(tilerUser, duration, repetition, start, end, 2, false);
-            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithRepeat);
             Schedule.AddToScheduleAndCommitAsync(repeatTestEvent).Wait();
-            int beforeRepeatCompletionCount = Schedule.getAllCalendarEvents().ToLookup(calEvent => calEvent.RepeatParentEventId).Count();
+            int beforeRepeatCompletionCount = Schedule.getAllCalendarEvents().Where(calEvent => calEvent.RepeatParentEventId.isNot_NullEmptyOrWhiteSpace()).ToLookup(calEvent => calEvent.RepeatParentEventId).Count();
 
             string completedRepeatSubEventId = repeatTestEvent.AllSubEvents[0].getId;
 
@@ -108,8 +108,8 @@ namespace TilerTests
 
 
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All);
-            int afterRepeatCompletionCount = Schedule.getAllCalendarEvents().ToLookup(calEvent => calEvent.RepeatParentEventId).Count();
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.scheduleManipulationWithRepeat);
+            int afterRepeatCompletionCount = Schedule.getAllCalendarEvents().Where(calEvent => calEvent.RepeatParentEventId.isNot_NullEmptyOrWhiteSpace()).ToLookup(calEvent => calEvent.RepeatParentEventId).Count();
             Assert.AreEqual(beforeRepeatCompletionCount, afterRepeatCompletionCount + 1);
             EventID repeatEventId = new EventID(completedRepeatSubEventId);
             CalendarEvent retrievedRepeatCalendarEvent = TestUtility.getCalendarEventById(repeatEventId.getCalendarEventID(), user);
@@ -513,7 +513,7 @@ namespace TilerTests
 
             lookupWindow = new TimeLine(refNow, repeatTimeLine.End);
             TestUtility.reloadTilerUser(ref user, ref tilerUser);
-            Schedule = new TestSchedule(user, refNow, retrievalOption: DataRetrivalOption.All, rangeOfLookup: lookupWindow);
+            Schedule = new TestSchedule(user, refNow, retrievalOptions: DataRetrievalSet.All, rangeOfLookup: lookupWindow);
             CalendarEvent repeatFromSchedule = Schedule.getCalendarEvent(repeatEvent.Id);
             Assert.IsTrue(repeatFromSchedule.isTestEquivalent(verificationEventPulled));
         }

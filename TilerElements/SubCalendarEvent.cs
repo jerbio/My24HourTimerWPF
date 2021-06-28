@@ -41,14 +41,13 @@ namespace TilerElements
         protected bool _RepetitionLock { get; set; } = false; // this is the lock for an event when repeat is clicked
         [NotMapped]
         protected bool _NowLock { get; set; } // This is the lock applied when an event is set as now
-        protected bool _PauseLock { get; set;} // This is the lock applied when an event is paused
+        protected bool _PauseLock { get; set;} // This is the lock applied when an event is paused, so these are locked afer the tile has been resumed
         protected bool tempLock { get; set; } = false;// This should never get persisted
         [NotMapped]
         protected bool conflictResolutionLock { get; set; } = false;// This should never get persisted, this is locked to artiificially lock a tile when a position for it is found 
         protected bool lockedPrecedingHours { get; set; }// This should never get persisted
         protected bool _enablePre_reschedulingTimelineLockDown { get; set; } = true;// This prevent locking for preceding twentyFour or for interferring with now
         protected bool _isTardy { get; set; } = false;//Named tardy 'cause we fancy like that
-        protected TimeSpan _UsedPauseTime = new TimeSpan();
         /// <summary>
         /// This holds the current session reasons. It will updated based on data and calculation optimizations from HistoricalCurrentPosition
         /// </summary>
@@ -57,8 +56,6 @@ namespace TilerElements
         /// Will hold the reasons that were collated from the last time the schedule was modified. This is to be only loaded from storage and not to be updated
         /// </summary>
         protected Dictionary<TimeSpan, List<Reason>> HistoricalReasonsCurrentPosition = new Dictionary<TimeSpan, List<Reason>>();
-        [NotMapped]
-        protected List<PausedTimeLine> _pausedTimeSlot = null;
 
         #region undoMembers
 
@@ -174,6 +171,60 @@ namespace TilerElements
         {
             _isTardy = true;
         }
+
+        /// <summary>
+        /// Function resumes the pausing of a tile. It does this by using the left over time from the pausedtimeline and total duration at the time of pausing to calculate the left over time for the tile.
+        /// </summary>
+        /// <param name="now"></param>
+        /// <param name="pausedTimeLine"></param>
+        /// <param name="forceOutSideDeadline"></param>
+        /// <returns></returns>
+        internal bool Continue(ReferenceNow now, PausedTimeLineEntry pausedTimeLine, bool forceOutSideDeadline = false)
+        {
+            TimeSpan totalDuration = pausedTimeLine.InitialTotalDuration;
+            TimeSpan usedUptimeSpan = pausedTimeLine.End - pausedTimeLine.Start;
+            TimeSpan durationLeft = totalDuration - usedUptimeSpan;
+
+            if(durationLeft.Ticks >= 0)
+            {
+                TimeLine initialTimeLine = this.StartToEnd;
+                DateTimeOffset currentTime = now.constNow;
+                DateTimeOffset end = currentTime.Add(durationLeft);
+                TimeLine updatedTimeLine = new TimeLine(currentTime, end);
+                this.updateTimeLine(updatedTimeLine, now);
+                if(!forceOutSideDeadline)
+                {
+                    bool retValue = this.canExistWithinTimeLine(now.StartToEnd);
+                    if (!retValue)
+                    {
+                        this.updateTimeLine(initialTimeLine, now);
+                        return retValue;
+                    }
+                }
+                this.setPauseLock();
+                pausedTimeLine.setAsFinal();
+                return true;
+            }
+            throw new Exception("There is an isssue wih continuing subevent, the pausedtime line supercedes the subevent left.");
+        }
+
+        /// <summary>
+        /// This takes a previously paused timeline and resets it to its previous duraion. And removes any pause lock.
+        /// </summary>
+        /// <param name="now"></param>
+        /// <param name="pausedTimeLine"></param>
+        /// <param name="forceOutSideDeadline"></param>
+        /// <returns></returns>
+        internal void ResetPause(ReferenceNow now, PausedTimeLineEntry pausedTimeLine)
+        {
+            
+            DateTimeOffset end = now.constNow;
+            DateTimeOffset start = end - pausedTimeLine.InitialTotalDuration;
+            TimeLine timeLine = new TimeLine(start, end);
+            this.updateTimeLine(timeLine);
+            this.disablePauseLock();
+        }
+
         public virtual void updateCalculationEventRange(TimeLine timeLine)
         {
             TimeLineRestricted restrictedTimeLine = timeLine as TimeLineRestricted;
@@ -364,11 +415,6 @@ namespace TilerElements
             _enablePre_reschedulingTimelineLockDown = true;
         }
 
-        virtual public void addToPausedTimeSlot(PausedTimeLine pausedTimeLine)
-        {
-            _pausedTimeSlot.Add(pausedTimeLine);
-            _UsedPauseTime = TimeSpan.FromTicks(_pausedTimeSlot.Select(timeLine => timeLine.TimelineSpan.Ticks).Sum());
-        }
 
         virtual public void addReasons(Reason eventReason)
         {
@@ -470,7 +516,6 @@ namespace TilerElements
             copy.preferredDayIndex = this.preferredDayIndex;
             copy._Creator = this._Creator;
             copy._Semantics = this._Semantics != null ? this._Semantics.createCopy() : null;
-            copy._UsedPauseTime = this._UsedPauseTime;
             copy.OptimizationFlag = this.OptimizationFlag;
             copy._LastReasonStartTimeChanged = this._LastReasonStartTimeChanged;
             copy._DaySectionPreference = this._DaySectionPreference;
@@ -492,7 +537,6 @@ namespace TilerElements
             copy._Priority = this._Priority;
             copy._EventScore = this._EventScore;
             copy.UnUsableIndex = this.UnUsableIndex;
-            copy._UsedPauseTime = this._UsedPauseTime;
             copy.OptimizationFlag = this.OptimizationFlag;
             copy._PrepTime = this._PrepTime;
             copy.MiscIntData = this.MiscIntData;
@@ -666,7 +710,7 @@ namespace TilerElements
                 this._otherPartyID = SubEventEntry._otherPartyID;
                 this._Creator = SubEventEntry._Creator;
                 this._Semantics = SubEventEntry._Semantics;
-                this._UsedPauseTime = SubEventEntry._UsedPauseTime;
+                
                 this._LocationValidationId = this._LocationValidationId;
                 return true;
             }
@@ -1036,61 +1080,19 @@ namespace TilerElements
             return retValue;
         }
 
-        /// <summary>
-        /// Pauses this subevent. Locks the timeline of the beginning of the timespan to the current time of the subevent
-        /// </summary>
-        /// <param name="currentTime"></param>
-        /// <returns></returns>
-        virtual internal TimeSpan Pause(DateTimeOffset currentTime)
-        {
-            DateTimeOffset Start = this.Start;
-            DateTimeOffset End = this.End;
-            EventID pauseEventId = EventID.GeneratePauseId(this.SubEvent_ID);
-            PausedTimeLine pauseTimeLine = new PausedTimeLine(pauseEventId.ToString() , Start, currentTime);
-            addToPausedTimeSlot(pauseTimeLine);
-            setPauseLock();
-            return pauseTimeLine.TimelineSpan;
-        }
+        
 
-        virtual protected void setPauseLock()
+        virtual internal void setPauseLock()
         {
             _PauseLock = true;
         }
 
-        virtual public void disablePauseLock()
+        virtual internal void disablePauseLock()
         {
             _PauseLock = false;
         }
 
-        /// <summary>
-        /// Resumes a subevent. This takes the rest of the available timeline after being paused and pins it to currentTime 
-        /// </summary>
-        /// <param name="currentTime"></param>
-        /// <param name="forceOutSideDeadlinecurrentTime">force the resume even if is outside the deadlie of the calendar event</param>
-        /// <returns></returns>
-        virtual internal bool Continue(DateTimeOffset currentTime, bool forceOutSideDeadline = false)
-        {
-            TimeSpan timeDiff = (currentTime - UsedPauseTime) - (Start);
-            bool RetValue = shiftEvent(timeDiff, force:forceOutSideDeadline);// NOTE WE DO NOT WANT TO DISABLE THE PAUSE LOCK, this because even after a subevent is continued it needs to stay locked so it wont get shifted
-            
-            
-            return RetValue;
-        }
-        /// <summary>
-        /// This resets all attributes related to the pausing of a sub event. Note this is not the same as the function Continue.
-        /// This does not resume the event it just clears all paused parameters so this subevent doesnt seem paused
-        /// </summary>
-        /// <param name="currentTime"></param>
-        /// <returns></returns>
-        virtual public bool ResetPause(DateTimeOffset currentTime)
-        {
-            _pausedTimeSlot = new List<PausedTimeLine>();
-            _UsedPauseTime = new TimeSpan();
-            disablePauseLock();
-            TimeSpan timeDiff = new TimeSpan();
-            bool RetValue = shiftEvent(timeDiff);
-            return RetValue;
-        }
+
 
         public long UniversalDayIndex
         {
@@ -1182,7 +1184,7 @@ namespace TilerElements
             }
         }
 
-        public override bool isLocked => base.isLocked || this.tempLock || this.lockedPrecedingHours || this.isRepetitionLocked || this.isNowLocked||this.isPauseLocked|| this.conflictResolutionLock;
+        public override bool isLocked => base.isLocked || this.tempLock || this.lockedPrecedingHours || this.isRepetitionLocked || this.isNowLocked||this.isPausedLocked|| this.conflictResolutionLock;
 
         /// <summary>
         /// This changes the duration of the subevent. It requires the change in duration. This just adds/subtracts the delta to the end time
@@ -1389,14 +1391,6 @@ namespace TilerElements
                 return this.ParentCalendarEvent?.IsFromRecurring ?? base.IsFromRecurring;
             }
         }
-        [NotMapped]
-        public List<PausedTimeLine> pausedTimeLines
-        {
-            get
-            {
-                return _pausedTimeSlot;
-            }
-        }
 
         public double fittability
         {
@@ -1425,27 +1419,6 @@ namespace TilerElements
             get
             {
                 return BusyFrame;
-            }
-        }
-
-        virtual public TimeSpan UsedPauseTime
-        {
-            get
-            {
-                return _UsedPauseTime;
-            }
-        }
-
-        virtual public long UsedPauseTime_DB
-        {
-            set
-            {
-                this._UsedPauseTime = TimeSpan.FromMilliseconds(value);
-            }
-
-            get
-            {
-                return (long)_UsedPauseTime.TotalMilliseconds;
             }
         }
 
@@ -1508,37 +1481,6 @@ namespace TilerElements
             get
             {
                 return _RepetitionLock;
-            }
-        }
-
-
-        virtual public string PausedTimeSlots_DB
-        {
-            set
-            {
-                _pausedTimeSlot = new List<PausedTimeLine>();
-                if(value.isNot_NullEmptyOrWhiteSpace())
-                {
-                    JArray pauseSlots = JArray.Parse(value);
-                    foreach (JObject timelineObj in pauseSlots)
-                    {
-                        PausedTimeLine timeLine = PausedTimeLine.JobjectToTimeLine(timelineObj);
-                        _pausedTimeSlot.Add(timeLine);
-                    }
-                }
-            }
-            get
-            {
-                JArray retJValue = new JArray();
-                if (_pausedTimeSlot != null && _pausedTimeSlot.Count > 0)
-                {
-                    foreach (TimeLine timeLine in _pausedTimeSlot)
-                    {
-                        retJValue.Add(timeLine.ToJson());
-                    }
-
-                }
-                return retJValue.ToString();
             }
         }
 
@@ -1664,28 +1606,11 @@ namespace TilerElements
         }
 
 
-        //public TimeSpan getActiveDuration
-        //{
-        //    get
-        //    {
-        //        return this.StartToEnd.TimelineSpan;
-        //    }
-        //}
-
         virtual public bool isBlobEvent
         {
             get
             {
                 return BlobEvent;
-            }
-    }
-        
-
-        virtual public MiscData Notes
-        { 
-            get
-            {
-                return _DataBlob;
             }
         }
 
@@ -1811,11 +1736,19 @@ namespace TilerElements
             }
         }
 
-        public bool isPauseLocked
+        public bool isPausedLocked
         {
             get
             {
                 return _PauseLock;
+            }
+        }
+
+        public bool isPaused
+        {
+            get
+            {
+                return this.ParentCalendarEvent.isSubEventPaused(this);
             }
         }
 

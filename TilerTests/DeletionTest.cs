@@ -329,6 +329,7 @@ namespace TilerTests
 
             user = TestUtility.getTestUser(userId: tilerUser.Id);
             tilerUser = user.getTilerUser();
+            TestUtility.reloadTilerUser(ref user, ref tilerUser);
             Schedule = new TestSchedule(user, refNow);
 
             testEvent = TestUtility.getCalendarEventById(testEvent.ActiveSubEvents[0].getId, user);

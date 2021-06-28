@@ -41,5 +41,13 @@ namespace TilerTests
             retValue.Wait();
             return retValue;
         }
+
+        override public TilerDbContext Database
+        {
+            get
+            {
+                return null;
+            }
+        }
     }
 }

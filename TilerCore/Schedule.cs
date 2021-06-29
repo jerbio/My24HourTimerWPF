@@ -229,6 +229,9 @@ namespace TilerCore
             }
         }
 
+        /// <summary>
+        /// Getter property that returns the a cache that stores the travel time between two gps locations
+        /// </summary>
         public TravelCache TravelCache
         {
             get
@@ -3972,10 +3975,6 @@ namespace TilerCore
             Debug.WriteLine("Total optimization took" + allOptimizationWatch.Elapsed.ToString());
             foreach (DayTimeLine dayTimeLine in moveToMiddleDays)
             {
-                if(moveToMiddleDays.IndexOf(dayTimeLine) == 78 && Utility.debugString.isNot_NullEmptyOrWhiteSpace())
-                {
-                    Utility.debugString = "hun";
-                }
                 tryToCentralizeSubEvents(dayTimeLine);
             }
 

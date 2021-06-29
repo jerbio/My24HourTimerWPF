@@ -29,6 +29,7 @@ namespace TilerCore
         HashSet<SubCalendarEvent> NotInvolvedIncalculation = new HashSet<SubCalendarEvent>();
         public OptimizedPath(DayTimeLine dayData, Location beginLocation = null, Location endLocation = null, Location home = null)
         {
+            TimeSpan workTimeSpan = Utility.OneDayTimeSpan - Utility.SleepSpan;
             initializeSubEvents(dayData);
             _BeginLocation = beginLocation;
             _EndLocation = endLocation;
@@ -63,6 +64,7 @@ namespace TilerCore
                 {
                     AllGroupings.Add(lastTimeOfDayPreference.DaySection, lastGrouping);
                 }
+                
             }
 
 
@@ -73,6 +75,15 @@ namespace TilerCore
                 {
                     var eachGrouping = new OptimizedGrouping(singleTimeOfDayPreference, TotalDuration, DefaultLocation.CreateCopy(), home);
                     AllGroupings.Add(singleTimeOfDayPreference.DaySection, eachGrouping);
+                    if(singleTimeOfDayPreference.DaySection == DaySection.Evening)
+                    {
+                        eachGrouping.setRightStitch(home);
+                    }
+
+                    if(dayData.TimelineSpan >= workTimeSpan && singleTimeOfDayPreference.DaySection == DaySection.Morning)
+                    {
+                        eachGrouping.setLeftStitch(home);
+                    }
                 }
             }
             assignRigidsToTimeGroupings(DayInfo.getSubEventsInTimeLine(), DayInfo);
@@ -591,7 +602,6 @@ namespace TilerCore
                 List<KeyValuePair<TilerEvent, double>> subEventsEvaluated = evaluatedEvents.OrderBy(obj => obj.Value).ToList();
 
                 IEnumerable<SubCalendarEvent> evaluatedSubEvents = (IEnumerable<SubCalendarEvent>)evaluatedEvents.OrderBy(obj => obj.Value).Select(obj => (SubCalendarEvent)obj.Key);
-                List<String> locations = evaluatedSubEvents.Select(obj => "" + obj.Location.Latitude + "," + obj.Location.Longitude).ToList();
                 memoryBoundSubsetSubevents = evaluatedSubEvents.Take(5).ToList();
                 //Subevents= Utility.getBestPermutation(Subevents.ToList(), double.MaxValue, new Tuple<Location_Elements, Location_Elements>(Grouping.LeftBorder, Grouping.RightBorder)).ToList();
                 Tuple<Location, Location> borderElements = new Tuple<Location, Location>(Grouping.LeftBorder, Grouping.RightBorder);

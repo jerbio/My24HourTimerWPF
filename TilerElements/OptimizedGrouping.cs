@@ -331,17 +331,6 @@ namespace TilerElements
         {
             get
             {
-                if(LeftStitch.isNull)
-                {
-                    if(HomeLocation == null || HomeLocation.isNull)
-                    {
-                        return DefaultLocation;
-                    }else
-                    {
-                        return HomeLocation;
-                    }
-                }
-
                 return LeftStitch;
                 
             }
@@ -351,17 +340,6 @@ namespace TilerElements
         {
             get
             {
-                if (RightStitch.isNull)
-                {
-                    if (HomeLocation == null || HomeLocation.isNull)
-                    {
-                        return DefaultLocation;
-                    }
-                    else
-                    {
-                        return HomeLocation;
-                    }
-                }
 
                 return RightStitch;
             }

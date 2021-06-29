@@ -184,7 +184,7 @@ namespace TilerTests
             DateTimeOffset fourthRefnow = refNow.AddHours(3);
             Schedule = new TestSchedule(user, fourthRefnow);
             TravelCache secondTravelCache = Schedule.TravelCache;
-            Assert.IsTrue(secondTravelCache.LocationCombo.Count == 3);
+            Assert.IsTrue(secondTravelCache.LocationCombo.Count == 2);// This number could change based on better efficiency travel calculations. So a cache entry is no longer needed
             int lastActiveSchedulingLookupCount = 0;
             int lastActiveSchedulingUpdateCount = 0;
             foreach (LocationCacheEntry locationCacheEntry in secondTravelCache.LocationCombo)
@@ -200,7 +200,7 @@ namespace TilerTests
                 }
             }
 
-            Assert.AreEqual(3, lastActiveSchedulingLookupCount);
+            Assert.AreEqual(2, lastActiveSchedulingLookupCount);
             Assert.AreEqual(0, lastActiveSchedulingUpdateCount);
 
 
